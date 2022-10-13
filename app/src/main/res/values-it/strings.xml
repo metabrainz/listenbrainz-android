@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="icon_button">Pulsante icona</string>
+    <string name="title_tracks">Tracce</string>
+    <string name="releases">Pubblicazioni</string>
+    <string name="recording_releases">Compare in queste pubblicazioni</string>
+    <!-- DashboardActivity -->
+    <string name="app_name">MusicBrainz</string>
+    <string name="search_hint">Ricerca su MusicBrainz</string>
+    <string name="dash_scan">Analizza</string>
+    <string name="dash_collections">Collezioni</string>
+    <string name="dash_donate">Fai una donazione</string>
+    <string name="dash_about">Informazioni</string>
+    <string name="login">Accedi</string>
+    <string name="welcome">Benvenuto su MusicBrainz!</string>
+
+    <string name="welcome_loggedin">Accesso effettuato come</string>
+    <string name="search_type_artist">Artista</string>
+    <string name="search_type_release">Pubblicazione</string>
+    <string name="search_type_label">Etichetta</string>
+    <string name="search_type_recording">Registrazione</string>
+    <string name="search_type_release_group">Gruppo di pubblicazioni</string>
+    <string name="search_type_instrument">Strumento</string>
+
+    <!-- Searchable -->
+    <string name="search_type_event">Evento</string>
+    <string name="search_name">MusicBrainz</string>
+
+    <!-- LoginActivity -->
+    <string name="auth_title">Accedi</string>
+
+    <!-- SearchResultsActivity -->
+    <string name="no_results">Nessun risultato trovato</string>
+
+    <!-- ReleaseActivity -->
+    <string name="release_title">Pubblicazione</string>
+
+    <string name="cover_art_front">Frontale</string>
+
+    <!-- ReleaseActivity -->
+    <string name="artist_title">Artista</string>
+
+    <!-- BioFragment -->
+    <string name="bio_powered_by">Bio fornita da</string>
+
+    <!-- Pager tabs -->
+    <string name="tab_links">Di più</string>
+    <string name="tab_releases">Pubblicazioni</string>
+    <string name="tab_info">Bio</string>
+    <string name="tab_edits">Tagga &amp; valuta</string>
+
+    <!-- DonateActivity -->
+    <string name="donate_title">Fai una donazione</string>
+
+    <!-- AboutActivity -->
+    <string name="about_title">Informazioni</string>
+    <string name="app_name_official">MusicBrainz Android</string>
+    <string name="version_text">Versione</string>
+
+    <!-- Actions -->
+    <string name="action_search">Cerca</string>
+    <string name="action_feedback">Feedback</string>
+    <string name="action_settings">Impostazioni</string>
+    <string name="action_login">Accedi</string>
+    <string name="action_logout">Disconnettiti</string>
+
+    <!-- Preferences -->
+    <string name="preferences_title">Impostazioni</string>
+    <string name="settings_search">Cerca</string>
+    <string name="settings_suggestions">Suggerimenti</string>
+    <string name="settings_tagger">Tagger</string>
+    <string name="settings_suggestions_summary">Conserva e visualizza suggerimenti di ricerca</string>
+    <string name="settings_private_collections">Collezioni private</string>
+    <string name="settings_private_collections_summary">Scarica collezioni private quando l\'utente ha effettuato l\'accesso.</string>
+    <string name="settings_clear">Elimina cronologia delle ricerche</string>
+    <string name="settings_user_data">Dati utente</string>
+    <string name="settings_ratings_tags">Valutazioni e tag</string>
+    <string name="settings_ratings_tags_summary">Scarica valutazioni e tag di entità quando l\'utente ha effettuato l\'accesso.</string>
+
+    <!-- Toasts -->
+    <string name="toast_search_err">Aggiungi del testo per effettuare una ricerca</string>
+    <string name="toast_feedback_fail">Nessun client email trovato</string>
+    <string name="toast_search_cleared">Cronologia delle ricerche eliminata</string>
+
+    <string name="login_prompt">Per accedere, connetti il tuo account MusicBrainz con la nostra app. Ti verrà chiesto
+    di accedere attraverso il sito web di MusicBrainz. Segui le istruzioni e torna all\'app per completare
+    l\'autenticazione.</string>
+
+    <string name="login_required">Devi effettuare l\'accesso per visualizzare le tue collezioni.</string>
+
+    <string name="links">Collegamenti aggiuntivi</string>
+
+    <string name="ratings">Valutazione</string>
+    <string name="user_ratings">La tua valutazione</string>
+    <string name="tags">Tag</string>
+    <string name="user_tags">I tuoi tag</string>
+
+    <string name="genres">Generi</string>
+    <string name="no_tag">Nessun tag trovato</string>
+    <string name="no_rating">Nessuna valutazione trovata</string>
+
+    <string name="lookup_metadata">Metadati</string>
+    <string name="dash_tag">Tag</string>
+    <string name="save_checkbox">Salva</string>
+    <string name="select_button">Seleziona</string>
+    <string name="settings_language">Lingua</string>
+</resources>

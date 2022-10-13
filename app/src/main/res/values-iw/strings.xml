@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="icon_button">לחצן צלמית</string>
+    <string name="title_tracks">רצועות</string>
+    <string name="releases">הוצאות</string>
+    <string name="recording_releases">מופיע על הוצאות</string>
+    <!-- DashboardActivity -->
+    <string name="app_name">מוזיקבריינז</string>
+    <string name="search_hint">חיפוש במוזיקבריינז</string>
+    <string name="dash_scan">סריקה</string>
+    <string name="dash_collections">אוספים</string>
+    <string name="dash_donate">תרומה</string>
+    <string name="dash_about">אודות</string>
+    <string name="login">התחברות למערכת</string>
+    <string name="welcome">ברוכים הבאים למוזיקבריינז!</string>
+
+    <string name="welcome_loggedin">מחובר כ</string>
+    <string name="search_type_artist">אמן</string>
+    <string name="search_type_release">הוצאה</string>
+    <string name="search_type_label">חברת תקליטים</string>
+    <string name="search_type_recording">הקלטה</string>
+    <string name="search_type_release_group">‮קבוצת הוצאה</string>
+    <string name="search_type_instrument">כלי נגינה</string>
+
+    <!-- Searchable -->
+    <string name="search_type_event">ארוע</string>
+    <string name="search_name">מוזיקבריינז</string>
+
+    <!-- LoginActivity -->
+    <string name="auth_title">התחברות למערכת</string>
+
+    <!-- SearchResultsActivity -->
+    <string name="no_results">לא נמצאו תוצאות</string>
+
+    <!-- ReleaseActivity -->
+    <string name="release_title">הוצאה</string>
+
+    <string name="cover_art_front">חזית</string>
+
+    <!-- ReleaseActivity -->
+    <string name="artist_title">אמן</string>
+
+    <!-- BioFragment -->
+    <string name="bio_powered_by">ביו מופעל על ידי</string>
+
+    <!-- Pager tabs -->
+    <string name="tab_links">עוד</string>
+    <string name="tab_releases">הוצאות</string>
+    <string name="tab_info">ביו</string>
+    <string name="tab_edits">תיוג &amp; דרוג</string>
+
+    <!-- DonateActivity -->
+    <string name="donate_title">תרומה</string>
+
+    <!-- AboutActivity -->
+    <string name="about_title">אודות</string>
+    <string name="app_name_official">מוזיקבריינז עבור אנדרואיד</string>
+    <string name="version_text">גרסה</string>
+
+    <!-- Actions -->
+    <string name="action_search">חיפוש</string>
+    <string name="action_feedback">משוב</string>
+    <string name="action_settings">הגדרות</string>
+    <string name="action_login">התחברות למערכת</string>
+    <string name="action_logout">התנתק מהמערכת</string>
+
+    <!-- Preferences -->
+    <string name="preferences_title">הגדרות</string>
+    <string name="settings_search">חיפוש</string>
+    <string name="settings_suggestions">הצעות</string>
+    <string name="settings_tagger">מתייג</string>
+    <string name="settings_suggestions_summary">שמירת והצגת תוצאות החיפוש</string>
+    <string name="settings_private_collections">אוספים פרטיים</string>
+    <string name="settings_private_collections_summary">אחזור אוספים פרטיים גם כאשר המשתמש מחובר.</string>
+    <string name="settings_clear">ניקוי היסטורית חיפושים</string>
+    <string name="settings_user_data">פרטי משתמש</string>
+    <string name="settings_ratings_tags">דֵּרוּגים ותגים</string>
+    <string name="settings_ratings_tags_summary">אחזור דרוגים ותגים של ישויות כאשר המשתמש מחובר.</string>
+
+    <!-- Toasts -->
+    <string name="toast_search_err">הוספת מלל לחיפוש</string>
+    <string name="toast_feedback_fail">לא נמצא לקוח דוא\"ל</string>
+    <string name="toast_search_cleared">היסטורית חיפושים נמחקה</string>
+
+    <string name="login_prompt">להתחברות, נא לקשר את חשבון המוזיקבריינז עם האפליקציה שלנו. אתם
+תתבקשו להתחבר לאתר מוסיקה. נא לעקוב אחר ההוראות ולאחר מכן לחזור להשלמת
+האימות.</string>
+
+    <string name="login_required">נא להתחבר על מנת לצפות באוספים.</string>
+
+    <string name="links">קישורים נוספים</string>
+
+    <string name="ratings">דֵּרוּג</string>
+    <string name="user_ratings">הדֵּרוּג שלי</string>
+    <string name="tags">תגים</string>
+    <string name="user_tags">התגים שלי</string>
+
+    <string name="genres">סוגה</string>
+    <string name="no_tag">לא נמצא תג</string>
+    <string name="no_rating">לא נמצא דרוג</string>
+
+    <string name="lookup_metadata">מטה-נתונים</string>
+    <string name="dash_tag">תג</string>
+    <string name="save_checkbox">שמירה</string>
+    <string name="settings_language">שפה</string>
+</resources>

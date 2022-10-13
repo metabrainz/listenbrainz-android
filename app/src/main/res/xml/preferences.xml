@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/settings_search">
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="search_suggestions"
+            android:summary="@string/settings_suggestions_summary"
+            android:title="@string/settings_suggestions" />
+
+        <Preference
+            android:key="clear_suggestions"
+            android:title="@string/settings_clear" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/settings_user_data">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="private_collections"
+            android:summary="@string/settings_private_collections_summary"
+            android:title="@string/settings_private_collections" />
+
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="ratings_tags"
+            android:summary="@string/settings_ratings_tags_summary"
+            android:title="@string/settings_ratings_tags" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/settings_language">
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="use_english"
+            android:summary="@string/settings_use_language_summary"
+            android:title="@string/settings_use_language" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="listen_settings"
+        android:title="@string/settings_listens">
+
+        <EditTextPreference
+            android:key="listenbrainz_user_token"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:summary="@string/settings_listenbrainz_token_summary"
+            android:title="@string/settings_listenbrainz_token" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="listening_enabled"
+            android:title="@string/settings_listenbrainz_enabled" />
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="listening_spotify_enabled"
+            android:title="@string/settings_listenbrainz_spotify"
+            android:summary="@string/settings_listenbrainz_spotify_summary" />
+
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:key="picard_settings"
+        android:title="Picard">
+
+        <EditTextPreference
+            android:key="ip_address"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:summary="Connect your device to the same network as the computer running Picard. Enter the IP address."
+            android:title="IP Address" />
+
+        <EditTextPreference
+            android:key="picard_port"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:summary="Find your Picard's port number on the bottom right. Usually it is 8000."
+            android:title="Port" />
+
+    </PreferenceCategory>
+
+
+</PreferenceScreen>

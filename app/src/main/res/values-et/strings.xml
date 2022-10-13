@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="title_tracks">Lood</string>
+    <string name="dash_scan">Skaneeri</string>
+    <string name="dash_collections">Kogud</string>
+    <string name="welcome">Tere tulemast MusicBrainzi!</string>
+
+    <string name="search_type_release">Väljalase</string>
+    <string name="search_type_label">Plaadifirma</string>
+    <string name="search_type_recording">salvestis</string>
+    <string name="search_type_instrument">Instrument</string>
+
+    <!-- Searchable -->
+    <string name="search_type_event">sündmus</string>
+    <!-- SearchResultsActivity -->
+    <string name="no_results">Tulemusi ei leitud</string>
+
+    <!-- ReleaseActivity -->
+    <string name="release_title">Väljalase</string>
+
+    <!-- Actions -->
+    <string name="action_search">Otsing</string>
+    <string name="settings_search">Otsing</string>
+    <string name="settings_tagger">Sildistaja</string>
+    <string name="genres">Muusikastiilid</string>
+    <string name="lookup_metadata">Metaandmed</string>
+    <string name="dash_tag">Sildista</string>
+    <string name="save_checkbox">Salvesta</string>
+    <string name="select_button">Vali</string>
+    <string name="settings_language">Keel</string>
+</resources>

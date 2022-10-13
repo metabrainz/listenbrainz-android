@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="title_tracks">Pistas</string>
+    <string name="releases">Parucions</string>
+    <string name="dash_scan">Analisar</string>
+    <string name="dash_about">A prepaus</string>
+    <string name="search_type_artist">Artista</string>
+    <string name="search_type_label">Labèl</string>
+    <string name="search_type_instrument">Instrument</string>
+
+    <!-- ReleaseActivity -->
+    <string name="artist_title">Artista</string>
+
+    <!-- AboutActivity -->
+    <string name="about_title">A prepaus</string>
+    <string name="settings_ratings_tags">Avaloracions e balisas</string>
+    <string name="tags">Balisas</string>
+    <string name="lookup_metadata">Metadonadas</string>
+    <string name="save_checkbox">Enregistrar</string>
+    <string name="settings_language">Lenga</string>
+</resources>

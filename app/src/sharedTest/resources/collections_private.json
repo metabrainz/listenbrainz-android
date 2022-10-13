@@ -1,0 +1,18 @@
+{
+    "collections": [{
+        "name": "Rock and Roll",
+        "editor": "akshaaatt",
+        "count": "3",
+        "id": "a691377c-6949-44cb-8a10-9696178cca18",
+        "type": "Release",
+        "entity-type": "release"
+    },
+    {
+        "name": "Sweet Talks",
+        "editor": "akshaaatt",
+        "count": "3",
+        "id": "d103a421-9340-413f-a04e-5e63dd234bc4",
+        "type": "Artist",
+        "entity-type": "artist"
+    }]
+}

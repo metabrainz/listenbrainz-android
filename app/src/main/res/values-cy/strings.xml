@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="title_tracks">Traciau</string>
+    <string name="dash_collections">Casgliadau</string>
+    <string name="dash_about">Ynghylch</string>
+    <string name="search_type_artist">Artist</string>
+    <string name="search_type_label">Label</string>
+    <!-- ReleaseActivity -->
+    <string name="artist_title">Artist</string>
+
+    <!-- AboutActivity -->
+    <string name="about_title">Ynghylch</string>
+    <string name="version_text">Fersiwn</string>
+
+    <!-- Actions -->
+    <string name="action_search">Chwilio</string>
+    <string name="settings_search">Chwilio</string>
+    <string name="ratings">Gradd</string>
+    <string name="tags">Tagiau</string>
+    <string name="save_checkbox">Cadw</string>
+    <string name="settings_language">Iaith</string>
+</resources>

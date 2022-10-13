@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="title_tracks">Zenék</string>
+    <string name="dash_scan">Keresés</string>
+    <string name="search_type_label">Kiadó</string>
+    <string name="lookup_metadata">Metaadat</string>
+    <string name="save_checkbox">Mentés</string>
+    <string name="settings_language">Nyelv</string>
+</resources>

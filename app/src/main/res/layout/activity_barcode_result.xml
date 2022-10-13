@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/no_result"
+        layout="@layout/error_no_result"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+<!--    <ProgressBar-->
+<!--        android:id="@+id/progress_spinner"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_gravity="center" />-->
+    <include
+        android:id="@+id/progress_spinner"
+        android:layout_gravity="center"
+        layout="@layout/loading"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"/>
+
+    <!--    <TextView-->
+<!--        android:id="@+id/no_result"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_gravity="center"-->
+<!--        android:text="@string/no_results"-->
+<!--        android:textAlignment="center"-->
+<!--        android:textAppearance="?android:attr/textAppearanceLarge" />-->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

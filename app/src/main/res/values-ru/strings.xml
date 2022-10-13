@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="title_tracks">Треки</string>
+    <string name="releases">Релизы</string>
+    <string name="dash_scan">Сканировать</string>
+    <string name="dash_collections">Коллекции</string>
+    <string name="dash_donate">Пожертвовать</string>
+    <string name="dash_about">О</string>
+    <string name="login">Войти</string>
+    <string name="welcome">Добро пожаловать на MusicBrainz!</string>
+
+    <string name="search_type_artist">Исполнитель</string>
+    <string name="search_type_release">Релиз</string>
+    <string name="search_type_label">Лейбл</string>
+    <string name="search_type_recording">Запись</string>
+    <string name="search_type_instrument">Инструмент</string>
+
+    <!-- Searchable -->
+    <string name="search_type_event">Мероприятие</string>
+    <!-- LoginActivity -->
+    <string name="auth_title">Войти</string>
+
+    <!-- SearchResultsActivity -->
+    <string name="no_results">Не найдено</string>
+
+    <!-- ReleaseActivity -->
+    <string name="release_title">Релиз</string>
+
+    <!-- ReleaseActivity -->
+    <string name="artist_title">Исполнитель</string>
+
+    <string name="tab_info">БИОГРАФИЯ</string>
+    <!-- DonateActivity -->
+    <string name="donate_title">Пожертвовать</string>
+
+    <!-- AboutActivity -->
+    <string name="about_title">О</string>
+    <string name="version_text">Версия</string>
+
+    <!-- Actions -->
+    <string name="action_search">Найти</string>
+    <string name="action_feedback">Отзыв</string>
+    <string name="action_settings">Настройки</string>
+    <string name="action_login">Войти</string>
+    <string name="action_logout">Выйти</string>
+
+    <!-- Preferences -->
+    <string name="preferences_title">Настройки</string>
+    <string name="settings_search">Найти</string>
+    <string name="settings_clear">Очистить историю поиска</string>
+    <string name="settings_user_data">Пользовательские Данные</string>
+    <string name="toast_search_cleared">История поиска удалена</string>
+
+    <string name="links">Больше Ссылок</string>
+
+    <string name="ratings">Рейтинг</string>
+    <string name="tags">Теги</string>
+    <string name="user_tags">Ваши Теги</string>
+
+    <string name="genres">Жанры</string>
+    <string name="lookup_metadata">Метаданные</string>
+    <string name="dash_tag">Тег</string>
+    <string name="save_checkbox">Сохранить</string>
+    <string name="select_button">Выбрать</string>
+    <string name="settings_language">Язык</string>
+</resources>

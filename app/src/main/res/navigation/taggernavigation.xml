@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/taggernavigation"
+    app:startDestination="@id/directoryPicker">
+
+    <fragment
+        android:id="@+id/directoryPicker"
+        android:name="org.listenbrainz.android.presentation.features.tagger.DirectoryPickerFragment"
+        android:label="fragment_directory_picker"
+        tools:layout="@layout/fragment_directory_picker" >
+        <action
+            android:id="@+id/action_directoryPicker_to_taggerFragment"
+            app:destination="@id/taggerFragment" />
+        <action
+            android:id="@+id/action_directoryPicker_to_taggerFragment2"
+            app:destination="@id/taggerFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/taggerFragment"
+        android:name="org.listenbrainz.android.presentation.features.tagger.TaggerFragment"
+        android:label="fragment_tagger"
+        tools:layout="@layout/fragment_tagger" />
+    <fragment
+        android:id="@+id/taggerFragment2"
+        android:name="org.listenbrainz.android.presentation.features.tagger.TaggerFragment"
+        android:label="TaggerFragment2" />
+</navigation>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="icon_button">আইকন বোতাম</string>
+    <string name="title_tracks">ট্র্যাক সমূহ</string>
+    <string name="releases">রিলিজ সমূহ</string>
+    <string name="recording_releases">রিলিজে উপস্থিত</string>
+</resources>

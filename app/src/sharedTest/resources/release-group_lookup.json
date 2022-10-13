@@ -1,0 +1,1650 @@
+{
+  "secondary-type-ids": [],
+  "tags": [
+    {
+      "name": "folk pop",
+      "count": 4
+    },
+    {
+      "count": 5,
+      "name": "indie rock"
+    },
+    {
+      "name": "pop",
+      "count": 1
+    },
+    {
+      "count": 1,
+      "name": "singer/songwriter"
+    },
+    {
+      "name": "uk hip hop",
+      "count": 1
+    }
+  ],
+  "count": 1,
+  "artist-credit": [
+    {
+      "artist": {
+        "type": "Person",
+        "name": "Ed Sheeran",
+        "id": "b8a7c51f-362c-4dcb-a259-bc6e0095f0a6",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "sort-name": "Sheeran, Ed",
+        "disambiguation": "UK singer-songwriter",
+        "tags": [
+          {
+            "count": 1,
+            "name": "dance-pop"
+          },
+          {
+            "count": 0,
+            "name": "ed sheeran does not make sillyname tracks ಠ_ಠ"
+          },
+          {
+            "name": "folk",
+            "count": 1
+          },
+          {
+            "count": 1,
+            "name": "folk pop"
+          },
+          {
+            "count": 1,
+            "name": "gradually watermelon"
+          },
+          {
+            "name": "guitarist",
+            "count": 1
+          },
+          {
+            "name": "pop",
+            "count": 3
+          },
+          {
+            "name": "pop rap",
+            "count": 0
+          },
+          {
+            "name": "pop soul",
+            "count": 0
+          },
+          {
+            "name": "rapper",
+            "count": 0
+          },
+          {
+            "count": 1,
+            "name": "singer"
+          },
+          {
+            "count": 1,
+            "name": "singer/songwriter"
+          },
+          {
+            "name": "uk",
+            "count": 1
+          }
+        ]
+      },
+      "name": "Ed Sheeran",
+      "joinphrase": ""
+    }
+  ],
+  "secondary-types": [],
+  "primary-type": "Album",
+  "rating": {
+    "votes-count": 8,
+    "value": 4.15
+  },
+  "first-release-date": "2011-09-09",
+  "id": "05ce100c-eddf-4967-8d7e-33fc0883fe39",
+  "relations": [
+    {
+      "attribute-values": {},
+      "url": {
+        "resource": "https://www.allmusic.com/album/mw0002187052",
+        "id": "483847ae-b327-499d-ab9c-98d3f29fe7c8"
+      },
+      "end": null,
+      "attribute-ids": {},
+      "target-credit": "",
+      "direction": "forward",
+      "source-credit": "",
+      "ended": false,
+      "begin": null,
+      "type": "allmusic",
+      "target-type": "url",
+      "attributes": [],
+      "type-id": "a50a1d20-2b20-4d2c-9a29-eb771dd78386"
+    },
+    {
+      "type-id": "99e550f3-5ab4-3110-b5b9-fe01d970b126",
+      "target-type": "url",
+      "type": "discogs",
+      "attributes": [],
+      "begin": null,
+      "ended": false,
+      "source-credit": "",
+      "direction": "forward",
+      "target-credit": "",
+      "attribute-ids": {},
+      "end": null,
+      "url": {
+        "id": "fdafd220-8742-4c6c-8c8d-b75e5d1e3693",
+        "resource": "https://www.discogs.com/master/380740"
+      },
+      "attribute-values": {}
+    },
+    {
+      "ended": false,
+      "begin": null,
+      "type": "review",
+      "target-type": "url",
+      "attributes": [],
+      "type-id": "c3ac9c3b-f546-4d15-873f-b294d2c1b708",
+      "attribute-ids": {},
+      "target-credit": "",
+      "direction": "forward",
+      "source-credit": "",
+      "url": {
+        "resource": "https://www.bbc.co.uk/music/reviews/zfvh",
+        "id": "c8f8dae2-8781-456c-ac9f-2c1f145fc305"
+      },
+      "end": null,
+      "attribute-values": {}
+    },
+    {
+      "attribute-values": {},
+      "url": {
+        "resource": "https://www.wikidata.org/wiki/Q2703155",
+        "id": "cf8ce3ad-a9d5-4de1-a5ec-af7a1019e56e"
+      },
+      "end": null,
+      "attribute-ids": {},
+      "target-credit": "",
+      "source-credit": "",
+      "direction": "forward",
+      "begin": null,
+      "ended": false,
+      "type": "wikidata",
+      "target-type": "url",
+      "attributes": [],
+      "type-id": "b988d08c-5d86-4a57-9557-c83b399e3580"
+    }
+  ],
+  "releases": [
+    {
+      "packaging": "Jewel Case",
+      "text-representation": {
+        "language": "eng",
+        "script": "Latn"
+      },
+      "disambiguation": "",
+      "packaging-id": "ec27701a-4a22-37f4-bfac-6616e0f9750a",
+      "media": [
+        {
+          "track-count": 12,
+          "format-id": "9712d52a-4509-3d4b-a1a2-67c88c643e31",
+          "position": 1,
+          "format": "CD",
+          "title": ""
+        }
+      ],
+      "date": "2011-09-09",
+      "barcode": "5052498646524",
+      "release-events": [
+        {
+          "date": "2011-09-09",
+          "area": {
+            "sort-name": "Europe",
+            "disambiguation": "",
+            "type-id": null,
+            "iso-3166-1-codes": [
+              "XE"
+            ],
+            "id": "89a675c2-3e37-3518-b83c-418bad59a85a",
+            "type": null,
+            "name": "Europe"
+          }
+        }
+      ],
+      "tags": [],
+      "quality": "normal",
+      "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+      "id": "94ad3a58-a1cc-46a3-acf4-9cb6c1d6f032",
+      "status": "Official",
+      "artist-credit": [
+        {
+          "name": "Ed Sheeran",
+          "artist": {
+            "id": "b8a7c51f-362c-4dcb-a259-bc6e0095f0a6",
+            "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+            "name": "Ed Sheeran",
+            "type": "Person",
+            "tags": [
+              {
+                "name": "dance-pop",
+                "count": 1
+              },
+              {
+                "count": 0,
+                "name": "ed sheeran does not make sillyname tracks ಠ_ಠ"
+              },
+              {
+                "count": 1,
+                "name": "folk"
+              },
+              {
+                "name": "folk pop",
+                "count": 1
+              },
+              {
+                "name": "gradually watermelon",
+                "count": 1
+              },
+              {
+                "name": "guitarist",
+                "count": 1
+              },
+              {
+                "name": "pop",
+                "count": 3
+              },
+              {
+                "count": 0,
+                "name": "pop rap"
+              },
+              {
+                "count": 0,
+                "name": "pop soul"
+              },
+              {
+                "count": 0,
+                "name": "rapper"
+              },
+              {
+                "name": "singer",
+                "count": 1
+              },
+              {
+                "name": "singer/songwriter",
+                "count": 1
+              },
+              {
+                "name": "uk",
+                "count": 1
+              }
+            ],
+            "sort-name": "Sheeran, Ed",
+            "disambiguation": "UK singer-songwriter"
+          },
+          "joinphrase": ""
+        }
+      ],
+      "country": "XE",
+      "title": "+"
+    },
+    {
+      "country": "XW",
+      "title": "+",
+      "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+      "tags": [],
+      "quality": "normal",
+      "status": "Official",
+      "id": "71688dad-6a8d-44a6-9f35-582b3b6eac45",
+      "artist-credit": [
+        {
+          "artist": {
+            "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+            "id": "b8a7c51f-362c-4dcb-a259-bc6e0095f0a6",
+            "type": "Person",
+            "name": "Ed Sheeran",
+            "sort-name": "Sheeran, Ed",
+            "disambiguation": "UK singer-songwriter",
+            "tags": [
+              {
+                "count": 1,
+                "name": "dance-pop"
+              },
+              {
+                "count": 0,
+                "name": "ed sheeran does not make sillyname tracks ಠ_ಠ"
+              },
+              {
+                "count": 1,
+                "name": "folk"
+              },
+              {
+                "count": 1,
+                "name": "folk pop"
+              },
+              {
+                "name": "gradually watermelon",
+                "count": 1
+              },
+              {
+                "count": 1,
+                "name": "guitarist"
+              },
+              {
+                "name": "pop",
+                "count": 3
+              },
+              {
+                "count": 0,
+                "name": "pop rap"
+              },
+              {
+                "name": "pop soul",
+                "count": 0
+              },
+              {
+                "count": 0,
+                "name": "rapper"
+              },
+              {
+                "name": "singer",
+                "count": 1
+              },
+              {
+                "name": "singer/songwriter",
+                "count": 1
+              },
+              {
+                "count": 1,
+                "name": "uk"
+              }
+            ]
+          },
+          "name": "Ed Sheeran",
+          "joinphrase": ""
+        }
+      ],
+      "disambiguation": "deluxe version",
+      "text-representation": {
+        "script": "Latn",
+        "language": "eng"
+      },
+      "packaging-id": "119eba76-b343-3e02-a292-f0f00644bb9b",
+      "media": [
+        {
+          "position": 1,
+          "format": "Digital Media",
+          "title": "",
+          "track-count": 16,
+          "format-id": "907a28d9-b3b2-3ef6-89a8-7b18d91d4794"
+        }
+      ],
+      "barcode": "825646658398",
+      "release-events": [
+        {
+          "date": "2011-09-09",
+          "area": {
+            "disambiguation": "",
+            "sort-name": "[Worldwide]",
+            "type-id": null,
+            "id": "525d4e18-3d00-31b9-a58b-a146a916de8f",
+            "iso-3166-1-codes": [
+              "XW"
+            ],
+            "type": null,
+            "name": "[Worldwide]"
+          }
+        }
+      ],
+      "date": "2011-09-09",
+      "packaging": "None"
+    },
+    {
+      "country": "XW",
+      "title": "+",
+      "id": "496ac888-90e5-4c18-9978-e6c3b72e54a0",
+      "status": "Official",
+      "artist-credit": [
+        {
+          "name": "Ed Sheeran",
+          "artist": {
+            "tags": [
+              {
+                "count": 1,
+                "name": "dance-pop"
+              },
+              {
+                "count": 0,
+                "name": "ed sheeran does not make sillyname tracks ಠ_ಠ"
+              },
+              {
+                "count": 1,
+                "name": "folk"
+              },
+              {
+                "name": "folk pop",
+                "count": 1
+              },
+              {
+                "count": 1,
+                "name": "gradually watermelon"
+              },
+              {
+                "count": 1,
+                "name": "guitarist"
+              },
+              {
+                "name": "pop",
+                "count": 3
+              },
+              {
+                "count": 0,
+                "name": "pop rap"
+              },
+              {
+                "count": 0,
+                "name": "pop soul"
+              },
+              {
+                "count": 0,
+                "name": "rapper"
+              },
+              {
+                "name": "singer",
+                "count": 1
+              },
+              {
+                "name": "singer/songwriter",
+                "count": 1
+              },
+              {
+                "count": 1,
+                "name": "uk"
+              }
+            ],
+            "disambiguation": "UK singer-songwriter",
+            "sort-name": "Sheeran, Ed",
+            "type": "Person",
+            "name": "Ed Sheeran",
+            "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+            "id": "b8a7c51f-362c-4dcb-a259-bc6e0095f0a6"
+          },
+          "joinphrase": ""
+        }
+      ],
+      "quality": "normal",
+      "tags": [],
+      "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+      "media": [
+        {
+          "format-id": "907a28d9-b3b2-3ef6-89a8-7b18d91d4794",
+          "track-count": 12,
+          "title": "",
+          "format": "Digital Media",
+          "position": 1
+        }
+      ],
+      "date": "2011-09-09",
+      "barcode": "825646658640",
+      "release-events": [
+        {
+          "area": {
+            "type-id": null,
+            "iso-3166-1-codes": [
+              "XW"
+            ],
+            "id": "525d4e18-3d00-31b9-a58b-a146a916de8f",
+            "type": null,
+            "name": "[Worldwide]",
+            "disambiguation": "",
+            "sort-name": "[Worldwide]"
+          },
+          "date": "2011-09-09"
+        }
+      ],
+      "disambiguation": "",
+      "text-representation": {
+        "script": "Latn",
+        "language": "eng"
+      },
+      "packaging-id": "119eba76-b343-3e02-a292-f0f00644bb9b",
+      "packaging": "None"
+    },
+    {
+      "id": "e15c8c2b-ccc4-4d22-a817-c8c31250b726",
+      "status": "Official",
+      "artist-credit": [
+        {
+          "joinphrase": "",
+          "name": "Ed Sheeran",
+          "artist": {
+            "name": "Ed Sheeran",
+            "type": "Person",
+            "id": "b8a7c51f-362c-4dcb-a259-bc6e0095f0a6",
+            "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+            "tags": [
+              {
+                "name": "dance-pop",
+                "count": 1
+              },
+              {
+                "name": "ed sheeran does not make sillyname tracks ಠ_ಠ",
+                "count": 0
+              },
+              {
+                "count": 1,
+                "name": "folk"
+              },
+              {
+                "name": "folk pop",
+                "count": 1
+              },
+              {
+                "name": "gradually watermelon",
+                "count": 1
+              },
+              {
+                "name": "guitarist",
+                "count": 1
+              },
+              {
+                "name": "pop",
+                "count": 3
+              },
+              {
+                "count": 0,
+                "name": "pop rap"
+              },
+              {
+                "count": 0,
+                "name": "pop soul"
+              },
+              {
+                "name": "rapper",
+                "count": 0
+              },
+              {
+                "name": "singer",
+                "count": 1
+              },
+              {
+                "name": "singer/songwriter",
+                "count": 1
+              },
+              {
+                "name": "uk",
+                "count": 1
+              }
+            ],
+            "sort-name": "Sheeran, Ed",
+            "disambiguation": "UK singer-songwriter"
+          }
+        }
+      ],
+      "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+      "quality": "normal",
+      "tags": [],
+      "title": "+",
+      "country": "XE",
+      "packaging": "Jewel Case",
+      "release-events": [
+        {
+          "area": {
+            "name": "Europe",
+            "type": null,
+            "type-id": null,
+            "iso-3166-1-codes": [
+              "XE"
+            ],
+            "id": "89a675c2-3e37-3518-b83c-418bad59a85a",
+            "sort-name": "Europe",
+            "disambiguation": ""
+          },
+          "date": "2011-09-12"
+        }
+      ],
+      "media": [
+        {
+          "title": "",
+          "format": "CD",
+          "position": 1,
+          "format-id": "9712d52a-4509-3d4b-a1a2-67c88c643e31",
+          "track-count": 16
+        }
+      ],
+      "date": "2011-09-12",
+      "barcode": "5052498646555",
+      "text-representation": {
+        "language": "eng",
+        "script": "Latn"
+      },
+      "disambiguation": "deluxe edition",
+      "packaging-id": "ec27701a-4a22-37f4-bfac-6616e0f9750a"
+    },
+    {
+      "status": "Official",
+      "id": "046a3a22-7830-4909-b8ce-ea843f5206de",
+      "artist-credit": [
+        {
+          "name": "Ed Sheeran",
+          "artist": {
+            "tags": [
+              {
+                "name": "dance-pop",
+                "count": 1
+              },
+              {
+                "name": "ed sheeran does not make sillyname tracks ಠ_ಠ",
+                "count": 0
+              },
+              {
+                "name": "folk",
+                "count": 1
+              },
+              {
+                "count": 1,
+                "name": "folk pop"
+              },
+              {
+                "count": 1,
+                "name": "gradually watermelon"
+              },
+              {
+                "count": 1,
+                "name": "guitarist"
+              },
+              {
+                "name": "pop",
+                "count": 3
+              },
+              {
+                "count": 0,
+                "name": "pop rap"
+              },
+              {
+                "count": 0,
+                "name": "pop soul"
+              },
+              {
+                "name": "rapper",
+                "count": 0
+              },
+              {
+                "count": 1,
+                "name": "singer"
+              },
+              {
+                "name": "singer/songwriter",
+                "count": 1
+              },
+              {
+                "name": "uk",
+                "count": 1
+              }
+            ],
+            "sort-name": "Sheeran, Ed",
+            "disambiguation": "UK singer-songwriter",
+            "id": "b8a7c51f-362c-4dcb-a259-bc6e0095f0a6",
+            "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+            "name": "Ed Sheeran",
+            "type": "Person"
+          },
+          "joinphrase": ""
+        }
+      ],
+      "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+      "quality": "normal",
+      "tags": [],
+      "country": "AU",
+      "title": "+",
+      "packaging": "Jewel Case",
+      "media": [
+        {
+          "format-id": "9712d52a-4509-3d4b-a1a2-67c88c643e31",
+          "track-count": 12,
+          "title": "",
+          "format": "CD",
+          "position": 1
+        }
+      ],
+      "date": "2011-09-23",
+      "release-events": [
+        {
+          "date": "2011-09-23",
+          "area": {
+            "type-id": null,
+            "id": "106e0bec-b638-3b37-b731-f53d507dc00e",
+            "iso-3166-1-codes": [
+              "AU"
+            ],
+            "type": null,
+            "name": "Australia",
+            "disambiguation": "",
+            "sort-name": "Australia"
+          }
+        }
+      ],
+      "barcode": "9340650010839",
+      "text-representation": {
+        "script": "Latn",
+        "language": "eng"
+      },
+      "disambiguation": "",
+      "packaging-id": "ec27701a-4a22-37f4-bfac-6616e0f9750a"
+    },
+    {
+      "title": "+",
+      "country": "XE",
+      "tags": [],
+      "quality": "normal",
+      "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+      "id": "76b427bd-6365-47c1-95e9-91f148ff72cb",
+      "status": "Official",
+      "artist-credit": [
+        {
+          "joinphrase": "",
+          "name": "Ed Sheeran",
+          "artist": {
+            "id": "b8a7c51f-362c-4dcb-a259-bc6e0095f0a6",
+            "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+            "type": "Person",
+            "name": "Ed Sheeran",
+            "sort-name": "Sheeran, Ed",
+            "disambiguation": "UK singer-songwriter",
+            "tags": [
+              {
+                "name": "dance-pop",
+                "count": 1
+              },
+              {
+                "name": "ed sheeran does not make sillyname tracks ಠ_ಠ",
+                "count": 0
+              },
+              {
+                "name": "folk",
+                "count": 1
+              },
+              {
+                "count": 1,
+                "name": "folk pop"
+              },
+              {
+                "count": 1,
+                "name": "gradually watermelon"
+              },
+              {
+                "count": 1,
+                "name": "guitarist"
+              },
+              {
+                "count": 3,
+                "name": "pop"
+              },
+              {
+                "name": "pop rap",
+                "count": 0
+              },
+              {
+                "name": "pop soul",
+                "count": 0
+              },
+              {
+                "name": "rapper",
+                "count": 0
+              },
+              {
+                "name": "singer",
+                "count": 1
+              },
+              {
+                "count": 1,
+                "name": "singer/songwriter"
+              },
+              {
+                "count": 1,
+                "name": "uk"
+              }
+            ]
+          }
+        }
+      ],
+      "text-representation": {
+        "script": "Latn",
+        "language": "eng"
+      },
+      "disambiguation": "",
+      "packaging-id": "e724a489-a7e8-30a1-a17c-30dfd6831202",
+      "media": [
+        {
+          "format": "Vinyl",
+          "position": 1,
+          "title": "",
+          "format-id": "10e17707-9751-3aaf-95b2-2432acd5374c",
+          "track-count": 12
+        }
+      ],
+      "barcode": "5052498774906",
+      "release-events": [
+        {
+          "area": {
+            "sort-name": "Europe",
+            "disambiguation": "",
+            "type": null,
+            "name": "Europe",
+            "type-id": null,
+            "iso-3166-1-codes": [
+              "XE"
+            ],
+            "id": "89a675c2-3e37-3518-b83c-418bad59a85a"
+          },
+          "date": "2011-09"
+        }
+      ],
+      "date": "2011-09",
+      "packaging": "Gatefold Cover"
+    },
+    {
+      "country": "XE",
+      "title": "+",
+      "tags": [
+        {
+          "name": "indie pop",
+          "count": 1
+        }
+      ],
+      "quality": "normal",
+      "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+      "artist-credit": [
+        {
+          "joinphrase": "",
+          "name": "Ed Sheeran",
+          "artist": {
+            "tags": [
+              {
+                "name": "dance-pop",
+                "count": 1
+              },
+              {
+                "count": 0,
+                "name": "ed sheeran does not make sillyname tracks ಠ_ಠ"
+              },
+              {
+                "name": "folk",
+                "count": 1
+              },
+              {
+                "name": "folk pop",
+                "count": 1
+              },
+              {
+                "count": 1,
+                "name": "gradually watermelon"
+              },
+              {
+                "count": 1,
+                "name": "guitarist"
+              },
+              {
+                "count": 3,
+                "name": "pop"
+              },
+              {
+                "count": 0,
+                "name": "pop rap"
+              },
+              {
+                "name": "pop soul",
+                "count": 0
+              },
+              {
+                "count": 0,
+                "name": "rapper"
+              },
+              {
+                "name": "singer",
+                "count": 1
+              },
+              {
+                "name": "singer/songwriter",
+                "count": 1
+              },
+              {
+                "name": "uk",
+                "count": 1
+              }
+            ],
+            "disambiguation": "UK singer-songwriter",
+            "sort-name": "Sheeran, Ed",
+            "name": "Ed Sheeran",
+            "type": "Person",
+            "id": "b8a7c51f-362c-4dcb-a259-bc6e0095f0a6",
+            "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+          }
+        }
+      ],
+      "id": "14f2c04e-dbde-415d-bcd6-c71fa3cdea37",
+      "status": "Official",
+      "packaging-id": "ec27701a-4a22-37f4-bfac-6616e0f9750a",
+      "disambiguation": "",
+      "text-representation": {
+        "script": "Latn",
+        "language": "eng"
+      },
+      "barcode": "825646634422",
+      "media": [
+        {
+          "track-count": 12,
+          "format-id": "9712d52a-4509-3d4b-a1a2-67c88c643e31",
+          "position": 1,
+          "format": "CD",
+          "title": ""
+        }
+      ],
+      "date": "2011-11-17",
+      "release-events": [
+        {
+          "area": {
+            "iso-3166-1-codes": [
+              "XE"
+            ],
+            "type-id": null,
+            "id": "89a675c2-3e37-3518-b83c-418bad59a85a",
+            "name": "Europe",
+            "type": null,
+            "sort-name": "Europe",
+            "disambiguation": ""
+          },
+          "date": "2011-11-17"
+        }
+      ],
+      "packaging": "Jewel Case"
+    },
+    {
+      "packaging": "Jewel Case",
+      "disambiguation": "",
+      "text-representation": {
+        "language": "eng",
+        "script": "Latn"
+      },
+      "packaging-id": "ec27701a-4a22-37f4-bfac-6616e0f9750a",
+      "media": [
+        {
+          "title": "",
+          "position": 1,
+          "format": "CD",
+          "track-count": 12,
+          "format-id": "9712d52a-4509-3d4b-a1a2-67c88c643e31"
+        }
+      ],
+      "date": "2011",
+      "barcode": "825646634422",
+      "release-events": [
+        {
+          "date": "2011",
+          "area": {
+            "sort-name": "Canada",
+            "disambiguation": "",
+            "type": null,
+            "name": "Canada",
+            "id": "71bbafaa-e825-3e15-8ca9-017dcad1748b",
+            "type-id": null,
+            "iso-3166-1-codes": [
+              "CA"
+            ]
+          }
+        }
+      ],
+      "quality": "normal",
+      "tags": [],
+      "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+      "id": "e1099ade-2668-4141-87f1-b767366b0c0e",
+      "status": "Official",
+      "artist-credit": [
+        {
+          "artist": {
+            "tags": [
+              {
+                "count": 1,
+                "name": "dance-pop"
+              },
+              {
+                "name": "ed sheeran does not make sillyname tracks ಠ_ಠ",
+                "count": 0
+              },
+              {
+                "count": 1,
+                "name": "folk"
+              },
+              {
+                "name": "folk pop",
+                "count": 1
+              },
+              {
+                "name": "gradually watermelon",
+                "count": 1
+              },
+              {
+                "name": "guitarist",
+                "count": 1
+              },
+              {
+                "name": "pop",
+                "count": 3
+              },
+              {
+                "name": "pop rap",
+                "count": 0
+              },
+              {
+                "name": "pop soul",
+                "count": 0
+              },
+              {
+                "name": "rapper",
+                "count": 0
+              },
+              {
+                "name": "singer",
+                "count": 1
+              },
+              {
+                "count": 1,
+                "name": "singer/songwriter"
+              },
+              {
+                "name": "uk",
+                "count": 1
+              }
+            ],
+            "sort-name": "Sheeran, Ed",
+            "disambiguation": "UK singer-songwriter",
+            "name": "Ed Sheeran",
+            "type": "Person",
+            "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+            "id": "b8a7c51f-362c-4dcb-a259-bc6e0095f0a6"
+          },
+          "name": "Ed Sheeran",
+          "joinphrase": ""
+        }
+      ],
+      "title": "+",
+      "country": "CA"
+    },
+    {
+      "packaging": "Jewel Case",
+      "media": [
+        {
+          "title": "",
+          "position": 1,
+          "format": "CD",
+          "track-count": 16,
+          "format-id": "9712d52a-4509-3d4b-a1a2-67c88c643e31"
+        }
+      ],
+      "barcode": "825646634361",
+      "release-events": [
+        {
+          "area": {
+            "type": null,
+            "name": "Europe",
+            "iso-3166-1-codes": [
+              "XE"
+            ],
+            "type-id": null,
+            "id": "89a675c2-3e37-3518-b83c-418bad59a85a",
+            "disambiguation": "",
+            "sort-name": "Europe"
+          },
+          "date": "2011"
+        }
+      ],
+      "date": "2011",
+      "text-representation": {
+        "script": "Latn",
+        "language": "eng"
+      },
+      "disambiguation": "deluxe edition",
+      "packaging-id": "ec27701a-4a22-37f4-bfac-6616e0f9750a",
+      "status": "Official",
+      "id": "6f1dbf68-19c5-40dd-afa1-9a54bc57141a",
+      "artist-credit": [
+        {
+          "name": "Ed Sheeran",
+          "artist": {
+            "disambiguation": "UK singer-songwriter",
+            "sort-name": "Sheeran, Ed",
+            "tags": [
+              {
+                "name": "dance-pop",
+                "count": 1
+              },
+              {
+                "name": "ed sheeran does not make sillyname tracks ಠ_ಠ",
+                "count": 0
+              },
+              {
+                "count": 1,
+                "name": "folk"
+              },
+              {
+                "name": "folk pop",
+                "count": 1
+              },
+              {
+                "count": 1,
+                "name": "gradually watermelon"
+              },
+              {
+                "count": 1,
+                "name": "guitarist"
+              },
+              {
+                "name": "pop",
+                "count": 3
+              },
+              {
+                "count": 0,
+                "name": "pop rap"
+              },
+              {
+                "name": "pop soul",
+                "count": 0
+              },
+              {
+                "count": 0,
+                "name": "rapper"
+              },
+              {
+                "count": 1,
+                "name": "singer"
+              },
+              {
+                "name": "singer/songwriter",
+                "count": 1
+              },
+              {
+                "count": 1,
+                "name": "uk"
+              }
+            ],
+            "id": "b8a7c51f-362c-4dcb-a259-bc6e0095f0a6",
+            "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+            "type": "Person",
+            "name": "Ed Sheeran"
+          },
+          "joinphrase": ""
+        }
+      ],
+      "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+      "quality": "normal",
+      "tags": [],
+      "country": "XE",
+      "title": "+"
+    },
+    {
+      "packaging": "Jewel Case",
+      "media": [
+        {
+          "title": "",
+          "format": "CD",
+          "position": 1,
+          "format-id": "9712d52a-4509-3d4b-a1a2-67c88c643e31",
+          "track-count": 17
+        }
+      ],
+      "barcode": "4943674113651",
+      "date": "2012-01-18",
+      "release-events": [
+        {
+          "date": "2012-01-18",
+          "area": {
+            "name": "Japan",
+            "type": null,
+            "type-id": null,
+            "id": "2db42837-c832-3c27-b4a3-08198f75693c",
+            "iso-3166-1-codes": [
+              "JP"
+            ],
+            "disambiguation": "",
+            "sort-name": "Japan"
+          }
+        }
+      ],
+      "disambiguation": "",
+      "text-representation": {
+        "language": "eng",
+        "script": "Latn"
+      },
+      "packaging-id": "ec27701a-4a22-37f4-bfac-6616e0f9750a",
+      "id": "449e9672-1f08-4da2-8524-3df0a5ac1869",
+      "status": "Official",
+      "artist-credit": [
+        {
+          "artist": {
+            "name": "Ed Sheeran",
+            "type": "Person",
+            "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+            "id": "b8a7c51f-362c-4dcb-a259-bc6e0095f0a6",
+            "tags": [
+              {
+                "count": 1,
+                "name": "dance-pop"
+              },
+              {
+                "name": "ed sheeran does not make sillyname tracks ಠ_ಠ",
+                "count": 0
+              },
+              {
+                "name": "folk",
+                "count": 1
+              },
+              {
+                "count": 1,
+                "name": "folk pop"
+              },
+              {
+                "count": 1,
+                "name": "gradually watermelon"
+              },
+              {
+                "name": "guitarist",
+                "count": 1
+              },
+              {
+                "name": "pop",
+                "count": 3
+              },
+              {
+                "name": "pop rap",
+                "count": 0
+              },
+              {
+                "name": "pop soul",
+                "count": 0
+              },
+              {
+                "count": 0,
+                "name": "rapper"
+              },
+              {
+                "count": 1,
+                "name": "singer"
+              },
+              {
+                "name": "singer/songwriter",
+                "count": 1
+              },
+              {
+                "count": 1,
+                "name": "uk"
+              }
+            ],
+            "disambiguation": "UK singer-songwriter",
+            "sort-name": "Sheeran, Ed"
+          },
+          "name": "Ed Sheeran",
+          "joinphrase": ""
+        }
+      ],
+      "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+      "tags": [],
+      "quality": "normal",
+      "country": "JP",
+      "title": "+"
+    },
+    {
+      "media": [
+        {
+          "position": 1,
+          "format": "Digital Media",
+          "title": "",
+          "track-count": 19,
+          "format-id": "907a28d9-b3b2-3ef6-89a8-7b18d91d4794"
+        }
+      ],
+      "release-events": [
+        {
+          "date": "2012-01-18",
+          "area": {
+            "name": "Japan",
+            "type": null,
+            "type-id": null,
+            "id": "2db42837-c832-3c27-b4a3-08198f75693c",
+            "iso-3166-1-codes": [
+              "JP"
+            ],
+            "disambiguation": "",
+            "sort-name": "Japan"
+          }
+        }
+      ],
+      "date": "2012-01-18",
+      "barcode": null,
+      "disambiguation": "",
+      "text-representation": {
+        "script": "Latn",
+        "language": "eng"
+      },
+      "packaging-id": "119eba76-b343-3e02-a292-f0f00644bb9b",
+      "packaging": "None",
+      "title": "+",
+      "country": "JP",
+      "status": "Official",
+      "id": "5340d99e-edf8-4074-af9f-65fa2424879d",
+      "artist-credit": [
+        {
+          "name": "Ed Sheeran",
+          "artist": {
+            "type": "Person",
+            "name": "Ed Sheeran",
+            "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+            "id": "b8a7c51f-362c-4dcb-a259-bc6e0095f0a6",
+            "sort-name": "Sheeran, Ed",
+            "disambiguation": "UK singer-songwriter",
+            "tags": [
+              {
+                "name": "dance-pop",
+                "count": 1
+              },
+              {
+                "name": "ed sheeran does not make sillyname tracks ಠ_ಠ",
+                "count": 0
+              },
+              {
+                "name": "folk",
+                "count": 1
+              },
+              {
+                "count": 1,
+                "name": "folk pop"
+              },
+              {
+                "name": "gradually watermelon",
+                "count": 1
+              },
+              {
+                "count": 1,
+                "name": "guitarist"
+              },
+              {
+                "count": 3,
+                "name": "pop"
+              },
+              {
+                "name": "pop rap",
+                "count": 0
+              },
+              {
+                "name": "pop soul",
+                "count": 0
+              },
+              {
+                "name": "rapper",
+                "count": 0
+              },
+              {
+                "count": 1,
+                "name": "singer"
+              },
+              {
+                "name": "singer/songwriter",
+                "count": 1
+              },
+              {
+                "count": 1,
+                "name": "uk"
+              }
+            ]
+          },
+          "joinphrase": ""
+        }
+      ],
+      "quality": "normal",
+      "tags": [],
+      "status-id": "4e304316-386d-3409-af2e-78857eec5cfe"
+    },
+    {
+      "country": "US",
+      "title": "+",
+      "tags": [],
+      "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+      "quality": "normal",
+      "artist-credit": [
+        {
+          "artist": {
+            "sort-name": "Sheeran, Ed",
+            "disambiguation": "UK singer-songwriter",
+            "tags": [
+              {
+                "name": "dance-pop",
+                "count": 1
+              },
+              {
+                "name": "ed sheeran does not make sillyname tracks ಠ_ಠ",
+                "count": 0
+              },
+              {
+                "count": 1,
+                "name": "folk"
+              },
+              {
+                "count": 1,
+                "name": "folk pop"
+              },
+              {
+                "name": "gradually watermelon",
+                "count": 1
+              },
+              {
+                "name": "guitarist",
+                "count": 1
+              },
+              {
+                "name": "pop",
+                "count": 3
+              },
+              {
+                "count": 0,
+                "name": "pop rap"
+              },
+              {
+                "name": "pop soul",
+                "count": 0
+              },
+              {
+                "count": 0,
+                "name": "rapper"
+              },
+              {
+                "count": 1,
+                "name": "singer"
+              },
+              {
+                "name": "singer/songwriter",
+                "count": 1
+              },
+              {
+                "name": "uk",
+                "count": 1
+              }
+            ],
+            "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+            "id": "b8a7c51f-362c-4dcb-a259-bc6e0095f0a6",
+            "type": "Person",
+            "name": "Ed Sheeran"
+          },
+          "name": "Ed Sheeran",
+          "joinphrase": ""
+        }
+      ],
+      "id": "71bfec3b-d590-4945-ada6-cfdbb98f139e",
+      "status": "Official",
+      "packaging-id": "ec27701a-4a22-37f4-bfac-6616e0f9750a",
+      "disambiguation": "",
+      "text-representation": {
+        "language": "eng",
+        "script": "Latn"
+      },
+      "media": [
+        {
+          "format-id": "9712d52a-4509-3d4b-a1a2-67c88c643e31",
+          "track-count": 12,
+          "format": "CD",
+          "position": 1,
+          "title": ""
+        }
+      ],
+      "barcode": "825646592180",
+      "date": "2012-06-12",
+      "release-events": [
+        {
+          "area": {
+            "sort-name": "United States",
+            "disambiguation": "",
+            "id": "489ce91b-6658-3307-9877-795b68554c98",
+            "type-id": null,
+            "iso-3166-1-codes": [
+              "US"
+            ],
+            "type": null,
+            "name": "United States"
+          },
+          "date": "2012-06-12"
+        }
+      ],
+      "packaging": "Jewel Case"
+    },
+    {
+      "title": "+",
+      "country": "AU",
+      "status": "Official",
+      "id": "fa1c3567-24f0-42ec-9e1e-a33e8081eae9",
+      "artist-credit": [
+        {
+          "artist": {
+            "disambiguation": "UK singer-songwriter",
+            "sort-name": "Sheeran, Ed",
+            "tags": [
+              {
+                "count": 1,
+                "name": "dance-pop"
+              },
+              {
+                "count": 0,
+                "name": "ed sheeran does not make sillyname tracks ಠ_ಠ"
+              },
+              {
+                "count": 1,
+                "name": "folk"
+              },
+              {
+                "count": 1,
+                "name": "folk pop"
+              },
+              {
+                "name": "gradually watermelon",
+                "count": 1
+              },
+              {
+                "name": "guitarist",
+                "count": 1
+              },
+              {
+                "count": 3,
+                "name": "pop"
+              },
+              {
+                "count": 0,
+                "name": "pop rap"
+              },
+              {
+                "count": 0,
+                "name": "pop soul"
+              },
+              {
+                "name": "rapper",
+                "count": 0
+              },
+              {
+                "name": "singer",
+                "count": 1
+              },
+              {
+                "name": "singer/songwriter",
+                "count": 1
+              },
+              {
+                "name": "uk",
+                "count": 1
+              }
+            ],
+            "name": "Ed Sheeran",
+            "type": "Person",
+            "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+            "id": "b8a7c51f-362c-4dcb-a259-bc6e0095f0a6"
+          },
+          "name": "Ed Sheeran",
+          "joinphrase": ""
+        }
+      ],
+      "tags": [],
+      "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+      "quality": "normal",
+      "barcode": "9340650011782",
+      "media": [
+        {
+          "track-count": 16,
+          "format-id": "9712d52a-4509-3d4b-a1a2-67c88c643e31",
+          "position": 1,
+          "format": "CD",
+          "title": "+"
+        },
+        {
+          "format-id": "bb71fd58-ff93-32b4-a201-4ad1b2a80e5f",
+          "track-count": 12,
+          "title": "Live from O2 Shepherd’s Bush Empire, London",
+          "format": "DVD-Video",
+          "position": 2
+        }
+      ],
+      "date": "2012",
+      "release-events": [
+        {
+          "area": {
+            "type-id": null,
+            "iso-3166-1-codes": [
+              "AU"
+            ],
+            "id": "106e0bec-b638-3b37-b731-f53d507dc00e",
+            "name": "Australia",
+            "type": null,
+            "sort-name": "Australia",
+            "disambiguation": ""
+          },
+          "date": "2012"
+        },
+        {
+          "date": "2012",
+          "area": {
+            "sort-name": "New Zealand",
+            "disambiguation": "",
+            "type-id": null,
+            "id": "8524c7d9-f472-3890-a458-f28d5081d9c4",
+            "iso-3166-1-codes": [
+              "NZ"
+            ],
+            "type": null,
+            "name": "New Zealand"
+          }
+        }
+      ],
+      "text-representation": {
+        "language": "eng",
+        "script": "Latn"
+      },
+      "disambiguation": "deluxe edition",
+      "packaging-id": "ec27701a-4a22-37f4-bfac-6616e0f9750a",
+      "packaging": "Jewel Case"
+    }
+  ],
+  "primary-type-id": "f529b476-6e62-324f-b0aa-1f3e33d313fc",
+  "disambiguation": "plus",
+  "title": "+"
+}

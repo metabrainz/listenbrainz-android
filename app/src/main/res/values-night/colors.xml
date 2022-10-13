@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#EB743B</color>
+    <color name="colorPrimaryLight">#FFCC80</color>
+    <color name="colorPrimaryDark">#996b34</color>
+    <color name="colorAccent">#D81B60</color>
+    <!-- Base -->
+    <color name="black">#000000</color>
+    <color name="white">#ffffff</color>
+    <color name="red">#ff0000</color>
+    <color name="green">#00ff00</color>
+
+    <color name="light_green">#7EC544</color>
+    <color name="yellow">#FBC233</color>
+    <color name="pinkish_red">#F6404F</color>
+    <color name="blue">#001c52</color>
+    <color name="pink">#F375B5</color>
+    <color name="orange">#FF7100</color>
+    <color name="blue_diff">#007afe</color>
+    <color name="green_diff">#08a045</color>
+    <color name="gray">#c4c4c4</color>
+
+    <!-- Theme -->
+    <color name="aux_text">#666666</color>
+
+    <!-- Brand -->
+    <color name="mb_purple_medium">#736dab</color>
+    <color name="mb_purple_dark">#34176b</color>
+    <color name="mb_purple">#ba478f</color>
+    <color name="mb_orange">#eb743b</color>
+
+    <color name="dark_gray">#262626</color>
+    <color name="light_gray">#737373</color>
+    <color name="light_blue">#03DAC5</color>
+
+    <!--    BrainzPlayer-->
+    <color name="bp_bottom_song_viewpager">#1e292e</color>
+    <color name="bp_color_primary">#EB743B</color>
+    <color name="bp_lavender">#eaddff</color>
+
+
+
+    <!--    Background-->
+    <color name="app_bg">#263238</color>
+    <color name="app_bg_light">#90A4AE</color>
+</resources>

@@ -1,0 +1,116 @@
+{
+  "disambiguation": "no disambiguation",
+  "id": "11f3c37d-839f-4f65-87c1-d55cb416d0c5",
+  "relations": [],
+  "artist-credit": [
+    {
+      "joinphrase": "",
+      "artist": {
+        "type": "Person",
+        "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+        "tags": [],
+        "name": "Like a Tim",
+        "id": "90568a1e-ef8d-4d22-93fa-faadc819d576",
+        "disambiguation": "",
+        "sort-name": "Like a Tim"
+      },
+      "name": "Like a Tim"
+    }
+  ],
+  "video": false,
+  "releases": [
+    {
+      "packaging": null,
+      "date": "2000-05-15",
+      "barcode": "666908000728",
+      "country": "GB",
+      "title": "Red and Blue Boxing",
+      "status-id": "4e304316-386d-3409-af2e-78857eec5cfe",
+      "text-representation": {
+        "script": "Latn",
+        "language": "eng"
+      },
+      "id": "c5dfbfed-9e06-4c26-8a56-6302619ae24e",
+      "release-events": [
+        {
+          "date": "2000-05-15",
+          "area": {
+            "type": null,
+            "iso-3166-1-codes": [
+              "GB"
+            ],
+            "type-id": null,
+            "disambiguation": "",
+            "sort-name": "United Kingdom",
+            "id": "8a754a16-0027-3a29-b6d7-2b40ea0481ed",
+            "name": "United Kingdom"
+          }
+        }
+      ],
+      "disambiguation": "",
+      "quality": "normal",
+      "tags": [],
+      "packaging-id": null,
+      "media": [
+        {
+          "title": "",
+          "position": 1,
+          "format": "CD",
+          "track-count": 19,
+          "track-offset": 3,
+          "tracks": [
+            {
+              "number": "4",
+              "title": "Plus Plus",
+              "position": 4,
+              "id": "78f18606-4c68-3891-ba58-f5154b4edef8",
+              "artist-credit": [
+                {
+                  "artist": {
+                    "id": "90568a1e-ef8d-4d22-93fa-faadc819d576",
+                    "name": "Like a Tim",
+                    "disambiguation": "",
+                    "sort-name": "Like a Tim",
+                    "rating": {
+                      "votes-count": 0,
+                      "value": null
+                    },
+                    "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df",
+                    "type": "Person"
+                  },
+                  "name": "Like a Tim",
+                  "joinphrase": ""
+                }
+              ],
+              "length": 125400
+            }
+          ],
+          "format-id": "9712d52a-4509-3d4b-a1a2-67c88c643e31"
+        }
+      ],
+      "artist-credit": [
+        {
+          "artist": {
+            "id": "90568a1e-ef8d-4d22-93fa-faadc819d576",
+            "tags": [],
+            "name": "Like a Tim",
+            "disambiguation": "",
+            "sort-name": "Like a Tim",
+            "type": "Person",
+            "type-id": "b6e035f4-3ce9-331c-97df-83397230b0df"
+          },
+          "name": "Like a Tim",
+          "joinphrase": ""
+        }
+      ],
+      "status": "Official"
+    }
+  ],
+  "length": 125400,
+  "rating": {
+    "value": null,
+    "votes-count": 0
+  },
+  "title": "Plus Plus",
+  "tags": []
+}

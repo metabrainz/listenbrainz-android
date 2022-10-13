@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="icon_button">Ikonknapp</string>
+    <string name="title_tracks">Spår</string>
+    <string name="releases">Utgivningar</string>
+    <string name="recording_releases">Visas på utgåvor</string>
+    <!-- DashboardActivity -->
+    <string name="app_name">MusicBrainz</string>
+    <string name="search_hint">Sök MusicBrainz</string>
+    <string name="dash_scan">Läs in</string>
+    <string name="dash_collections">Samlingar</string>
+    <string name="dash_donate">Donera</string>
+    <string name="dash_about">Om</string>
+    <string name="login">Logga in</string>
+    <string name="welcome">Välkommen till MusicBrainz!</string>
+
+    <string name="welcome_loggedin">Inloggad som</string>
+    <string name="search_type_artist">Artist</string>
+    <string name="search_type_release">Utgivning</string>
+    <string name="search_type_label">Skivbolag</string>
+    <string name="search_type_recording">Inspelning</string>
+    <string name="search_type_release_group">Utgivningsgrupp</string>
+    <string name="search_type_instrument">Instrument</string>
+
+    <!-- Searchable -->
+    <string name="search_type_event">Händelse</string>
+    <string name="search_name">MusicBrainz</string>
+
+    <!-- LoginActivity -->
+    <string name="auth_title">Logga in</string>
+
+    <!-- SearchResultsActivity -->
+    <string name="no_results">Inga resultat hittades</string>
+
+    <!-- ReleaseActivity -->
+    <string name="release_title">Utgivning</string>
+
+    <!-- ReleaseActivity -->
+    <string name="artist_title">Artist</string>
+
+    <!-- Pager tabs -->
+    <string name="tab_links">MER</string>
+    <string name="tab_releases">UTGÅVOR</string>
+    <string name="tab_edits">TAGGA &amp; BETYGSÄTT</string>
+
+    <!-- DonateActivity -->
+    <string name="donate_title">Donera</string>
+
+    <!-- AboutActivity -->
+    <string name="about_title">Om</string>
+    <string name="app_name_official">MusicBrainz Android</string>
+    <string name="version_text">Version</string>
+
+    <!-- Actions -->
+    <string name="action_search">Sök</string>
+    <string name="action_feedback">Återkoppling</string>
+    <string name="action_settings">Inställningar</string>
+    <string name="action_login">Logga in</string>
+    <string name="action_logout">Logga ut</string>
+
+    <!-- Preferences -->
+    <string name="preferences_title">Inställningar</string>
+    <string name="settings_search">Sök</string>
+    <string name="settings_suggestions">Förslag</string>
+    <string name="settings_suggestions_summary">Lagra och visa sökförslag</string>
+    <string name="settings_private_collections">Privata samlingar</string>
+    <string name="settings_private_collections_summary">Hämta privata samlingar även när användaren är inloggad.</string>
+    <string name="settings_clear">Rensa sökhistorik</string>
+    <string name="settings_user_data">Användardata</string>
+    <string name="settings_ratings_tags">Betyg och taggar</string>
+    <string name="settings_ratings_tags_summary">Hämta betyg och taggar för enheter när användaren är inloggad.</string>
+
+    <!-- Toasts -->
+    <string name="toast_search_err">Lägg till lite text för att söka</string>
+    <string name="toast_feedback_fail">Ingen e-postklient hittades</string>
+    <string name="toast_search_cleared">Sökhistorik borttagen</string>
+
+    <string name="login_prompt">För att logga in, Anslut ditt MusicBrainz konto med vår app. Du kommer
+    uppmanas att logga in på MusicBrainz webbplats. Följ instruktionerna och återgå till fullständig
+    autentisering.</string>
+
+    <string name="login_required">Du måste logga in för att kunna se dina samlingar.</string>
+
+    <string name="links">Fler länkar</string>
+
+    <string name="ratings">Betyg</string>
+    <string name="user_ratings">Ditt betyg</string>
+    <string name="tags">Taggar</string>
+    <string name="user_tags">Dina taggar</string>
+
+    <string name="no_tag">Ingen tagg hittades</string>
+    <string name="no_rating">Inget betyg hittades</string>
+
+</resources>

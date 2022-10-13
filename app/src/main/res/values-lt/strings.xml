@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="search_type_artist">Artistas</string>
+    <!-- ReleaseActivity -->
+    <string name="artist_title">Artistas</string>
+
+    <string name="settings_language">Kalba</string>
+</resources>

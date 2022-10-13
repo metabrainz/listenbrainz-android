@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/card_view_padding">
+
+
+    <TextView
+        android:id="@+id/release_artist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="italic"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintStart_toStartOf="@+id/release_name"
+        app:layout_constraintTop_toBottomOf="@+id/release_name"
+        tools:text="Sidhu Moose Wala" />
+
+    <TextView
+        android:id="@+id/recording_position"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="1" />
+
+    <TextView
+        android:id="@+id/release_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginRight="4dp"
+        android:textColor="@color/black"
+        app:layout_constraintEnd_toStartOf="@+id/recording_duration"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/recording_position"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="So High" />
+
+    <TextView
+        android:id="@+id/recording_duration"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="4dp"
+        android:layout_marginRight="4dp"
+        android:gravity="end"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="3:49" />
+
+    <TextView
+        android:id="@+id/release_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/release_country"
+        app:layout_constraintEnd_toEndOf="@+id/recording_duration"
+        tools:text="Date" />
+
+    <TextView
+        android:id="@+id/release_country"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@+id/release_artist"
+        app:layout_constraintTop_toBottomOf="@+id/release_artist"
+        tools:text="Country" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+

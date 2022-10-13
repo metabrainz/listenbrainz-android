@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="title_tracks">트랙</string>
+    <string name="dash_scan">검사</string>
+    <string name="dash_collections">컬렉션</string>
+    <string name="search_type_artist">아티스트</string>
+    <string name="search_type_release">릴리즈</string>
+    <string name="search_type_label">레이블</string>
+    <!-- ReleaseActivity -->
+    <string name="release_title">릴리즈</string>
+
+    <!-- ReleaseActivity -->
+    <string name="artist_title">아티스트</string>
+
+    <string name="ratings">등급</string>
+    <string name="lookup_metadata">메타데이터</string>
+    <string name="dash_tag">태그</string>
+    <string name="save_checkbox">저장</string>
+    <string name="settings_language">언어</string>
+</resources>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="title_tracks">Tracks</string>
+    <string name="releases">Releases</string>
+    <string name="search_type_label">Label</string>
+    <string name="search_type_instrument">Instrument</string>
+
+    <!-- Searchable -->
+    <string name="search_type_event">Event</string>
+    <!-- Actions -->
+    <string name="action_search">Search</string>
+    <string name="settings_search">Search</string>
+    <string name="settings_tagger">Tagger</string>
+    <string name="ratings">Rating</string>
+    <string name="tags">Tags</string>
+    <string name="dash_tag">Tag</string>
+    <string name="save_checkbox">Save</string>
+    <string name="select_button">Select</string>
+    <string name="settings_language">Language</string>
+</resources>

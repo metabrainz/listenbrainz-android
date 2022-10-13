@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="title_tracks">Faixas</string>
+    <string name="dash_collections">Coleções</string>
+    <string name="search_type_label">Etiqueta</string>
+    <string name="tags">Etiquetas</string>
+</resources>

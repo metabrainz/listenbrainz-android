@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string-array name="searchType">
+        <item>@string/search_type_artist</item>
+        <item>@string/search_type_release</item>
+        <item>@string/search_type_label</item>
+        <item>@string/search_type_recording</item>
+        <item>@string/search_type_event</item>
+        <item>@string/search_type_release_group</item>
+        <item>@string/search_type_instrument</item>
+    </string-array>
+
+</resources>

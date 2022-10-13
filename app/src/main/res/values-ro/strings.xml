@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="title_tracks">Piese</string>
+    <string name="dash_scan">Analizează</string>
+    <string name="version_text">Versiune</string>
+
+    <!-- Actions -->
+    <string name="action_search">Caută</string>
+    <string name="settings_search">Caută</string>
+    <string name="settings_suggestions">Sugestii</string>
+    <string name="lookup_metadata">Metadate</string>
+    <string name="dash_tag">Etichetă</string>
+    <string name="save_checkbox">Înregistrează</string>
+    <string name="settings_language">Limba</string>
+</resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="lookup_metadata">Metadata</string>
+    <string name="dash_tag">Tag</string>
+    <string name="settings_language">Jazyk</string>
+</resources>

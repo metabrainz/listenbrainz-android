@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="title_tracks">Pistes</string>
+    <string name="dash_scan">Escanejar</string>
+    <string name="search_type_label">Etiqueta</string>
+    <string name="lookup_metadata">Metadades</string>
+    <string name="dash_tag">Etiqueta</string>
+    <string name="save_checkbox">Desar</string>
+    <string name="settings_language">Idioma</string>
+</resources>

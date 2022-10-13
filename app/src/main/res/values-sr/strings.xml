@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="title_tracks">Песме</string>
+    <string name="dash_about">О</string>
+    <string name="search_type_label">Издавачка кућа</string>
+    <!-- AboutActivity -->
+    <string name="about_title">О</string>
+</resources>

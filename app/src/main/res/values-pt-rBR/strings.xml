@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="icon_button">Botão de Ícone</string>
+    <string name="title_tracks">Faixas</string>
+    <string name="releases">Álbuns</string>
+    <string name="recording_releases">Aparece nos álbuns</string>
+    <!-- DashboardActivity -->
+    <string name="app_name">MusicBrainz</string>
+    <string name="search_hint">Procurar no MusicBrainz</string>
+    <string name="dash_scan">Escanear</string>
+    <string name="dash_collections">Coleções</string>
+    <string name="dash_donate">Doar</string>
+    <string name="dash_about">Sobre</string>
+    <string name="login">Entrar</string>
+    <string name="welcome">Bem-vindo(a) ao MusicBrainz!</string>
+
+    <string name="welcome_loggedin">Conectado como</string>
+    <string name="search_type_artist">Artista</string>
+    <string name="search_type_release">Álbum</string>
+    <string name="search_type_label">Gravadora</string>
+    <string name="search_type_recording">Gravação</string>
+    <string name="search_type_release_group">Grupo de Lançamentos</string>
+    <string name="search_type_instrument">Instrumento</string>
+
+    <!-- Searchable -->
+    <string name="search_type_event">Evento</string>
+    <string name="search_name">MusicBrainz</string>
+
+    <!-- LoginActivity -->
+    <string name="auth_title">Entrar</string>
+
+    <!-- SearchResultsActivity -->
+    <string name="no_results">Nenhum resultado encontrado</string>
+
+    <!-- ReleaseActivity -->
+    <string name="release_title">Álbum</string>
+
+    <string name="cover_art_front">FRENTE</string>
+
+    <!-- ReleaseActivity -->
+    <string name="artist_title">Artista</string>
+
+    <!-- BioFragment -->
+    <string name="bio_powered_by">BIO DESENVOLVIDA POR</string>
+
+    <!-- Pager tabs -->
+    <string name="tab_links">MAIS</string>
+    <string name="tab_releases">ÁLBUNS</string>
+    <string name="tab_info">BIO</string>
+    <string name="tab_edits">ETIQUETA &amp; AVALIAÇÃO</string>
+
+    <!-- DonateActivity -->
+    <string name="donate_title">Doar</string>
+
+    <!-- AboutActivity -->
+    <string name="about_title">Sobre</string>
+    <string name="app_name_official">MusicBrainz Android</string>
+    <string name="version_text">Versão</string>
+
+    <!-- Actions -->
+    <string name="action_search">Pesquisar</string>
+    <string name="action_feedback">Feedback</string>
+    <string name="action_settings">Configurações</string>
+    <string name="action_login">Entrar</string>
+    <string name="action_logout">Sair</string>
+
+    <!-- Preferences -->
+    <string name="preferences_title">Configurações</string>
+    <string name="settings_search">Pesquisar</string>
+    <string name="settings_suggestions">Sugestões</string>
+    <string name="settings_tagger">Etiquetagem</string>
+    <string name="settings_tagger_directory">Pasta de arquivos</string>
+    <string name="settings_tagger_directory_summary">Escolha a pasta onde o Picard possa procurar pelos seus arquivos</string>
+    <string name="settings_suggestions_summary">Loja e sugestões de pesquisa</string>
+    <string name="settings_private_collections">Coleções Privadas</string>
+    <string name="settings_private_collections_summary">Também buscar por coleções privadas quando o usuário entrar.</string>
+    <string name="settings_clear">Limpar o histórico de pesquisa</string>
+    <string name="settings_user_data">Dados do Usuário</string>
+    <string name="settings_ratings_tags">Avaliações e Etiquetas</string>
+    <string name="settings_ratings_tags_summary">Buscar por avaliações e etiquetas de entidades quando o usuário entrar.</string>
+
+    <!-- Toasts -->
+    <string name="toast_search_err">Clique aqui para pesquisar</string>
+    <string name="toast_feedback_fail">Nenhum e-mail encontrado</string>
+    <string name="toast_search_cleared">Histórico de pesquisa deletado</string>
+
+    <string name="login_prompt">Para Entrar, conecte sua conta MusicBrainz com nosso aplicativo. Você será
+direcionado para o nosso site para se conectar. Siga as instruções para completar
+a autenticação.</string>
+
+    <string name="login_required">Você precisa entrar para ver suas coleções.</string>
+
+    <string name="links">Mais Links</string>
+
+    <string name="ratings">Classificação</string>
+    <string name="user_ratings">Suas Avaliações</string>
+    <string name="tags">Etiquetas</string>
+    <string name="user_tags">Suas Etiquetas</string>
+
+    <string name="genres">Gêneros</string>
+    <string name="user_genres">Seus Gêneros</string>
+
+    <string name="no_user_tag">Ou você não adicionou nenhuma etiqueta ainda
+ou você não está conectado.</string>
+    <string name="no_tag">Nenhuma etiqueta encontrada</string>
+    <string name="no_user_rating">Ou você não deu uma avaliação ainda
+ou você não está conectado.</string>
+    <string name="no_rating">Nenhuma avaliação encontrada</string>
+
+    <string name="lookup_metadata">Metadados</string>
+    <string name="lookup_fingerprint">Impressão Digital</string>
+    <string name="lookup_label">Procurando</string>
+    <string name="file_select">Selecione um arquivo</string>
+    <string name="save_button">Salvar mudanças</string>
+    <string name="no_file_selected">Nenhum arquivo selecionado</string>
+    <string name="dash_tag">Etiqueta</string>
+    <string name="save_checkbox">Salvar</string>
+    <string name="directory_path_label">Caminho da Pasta</string>
+    <string name="select_button">Selecionar</string>
+    <string name="up_button">Acima</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_use_language">Usar Inglês somente</string>
+    <string name="settings_use_language_summary">Esta opção sobrepõe o atual idioma do sistema neste aplicativo e
+mostra a interface de usuário em Inglês somente.</string>
+
+</resources>

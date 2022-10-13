@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="icon_button">Icon Button</string>
+    <string name="title_tracks">Tracks</string>
+    <string name="releases">Releases</string>
+    <string name="recording_releases">Appears On Releases</string>
+
+    <!-- DashboardActivity -->
+    <string name="app_name">ListenBrainz</string>
+    <string name="search_hint">Search ListenBrainz</string>
+    <string name="search_card">Explore ListenBrainz data</string>
+    <string name="tagger_card">Choose your Audio, Fix the tag</string>
+    <string name="news_card">ListenBrainz News Updates</string>
+    <string name="dash_scan">Scan</string>
+    <string name="dash_collections">Collections</string>
+    <string name="dash_donate">Donate</string>
+    <string name="dash_about">About</string>
+    <string name="welcome">Welcome to ListenBrainz!</string>
+
+    <string name="welcome_loggedin">Logged in as</string>
+    <string name="search_type_artist">Artist</string>
+    <string name="search_type_release">Release</string>
+    <string name="search_type_label">Label</string>
+    <string name="search_type_recording">Recording</string>
+    <string name="search_type_release_group">Release Group</string>
+    <string name="search_type_instrument">Instrument</string>
+
+    <!-- Searchable -->
+    <string name="search_type_event">Event</string>
+    <string name="search_name">ListenBrainz</string>
+
+    <!-- LoginActivity -->
+    <string name="auth_title">Authentication</string>
+
+    <!-- SearchResultsActivity -->
+    <string name="no_results">No results found</string>
+
+    <!-- ReleaseActivity -->
+    <string name="release_title">Release</string>
+
+    <string name="cover_art_front">FRONT</string>
+
+    <!-- ReleaseActivity -->
+    <string name="artist_title">Artist</string>
+
+    <!-- BioFragment -->
+    <string name="bio_powered_by">BIO POWERED BY</string>
+
+    <!-- Pager tabs -->
+    <string name="tab_links">MORE</string>
+    <string name="tab_releases">RELEASE</string>
+    <string name="tab_mediums">MEDIUMS</string>
+    <string name="tab_info">INFO</string>
+    <string name="tab_edits">TAG &amp; RATE</string>
+
+    <!-- DonateActivity -->
+    <string name="donate_title">Donate</string>
+
+    <!-- AboutActivity -->
+    <string name="about_title">About</string>
+    <string name="app_name_official">ListenBrainz Android</string>
+    <string name="version_text">Version</string>
+
+    <!-- Actions -->
+    <string name="action_search">Search</string>
+    <string name="action_feedback">Feedback</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_authentication">Authentication</string>
+    <string name="action_login">Log In</string>
+    <string name="action_logout">Log Out</string>
+    <string name="loading">Loading...</string>
+    <string name="noresult">No Result Found</string>
+
+    <!-- Preferences -->
+    <string name="preferences_title">Settings</string>
+    <string name="settings_search">Search</string>
+    <string name="settings_suggestions">Suggestions</string>
+    <string name="settings_tagger">Tagger</string>
+    <string name="settings_tagger_directory">Files directory</string>
+    <string name="settings_tagger_directory_summary">Choose the directory where Picard can find your files</string>
+    <string name="settings_suggestions_summary">Store and display search suggestions</string>
+    <string name="settings_private_collections">Private Collections</string>
+    <string name="settings_private_collections_summary">Fetch private collections also when the user is logged in.</string>
+    <string name="settings_clear">Clear search history</string>
+    <string name="settings_user_data">User Data</string>
+    <string name="settings_ratings_tags">Ratings and Tags</string>
+    <string name="settings_ratings_tags_summary">Fetch ratings and tags of entities when the user is logged in.</string>
+
+    <!-- Toasts -->
+    <string name="toast_search_err">Add some text to search</string>
+    <string name="toast_feedback_fail">No email client found</string>
+    <string name="toast_search_cleared">Search history deleted</string>
+
+
+    <string name="login_required">You need to login in order to view your collections.</string>
+
+    <string name="links">More Links</string>
+
+    <string name="ratings">Rating</string>
+    <string name="user_ratings">Your Rating</string>
+
+    <!--    Tags-->
+    <string name="tags">Tags</string>
+    <string name="user_tags">Your Tags</string>
+    <string name="tagger_file_chooser_pickAfile">Pick a File</string>
+    <string name="tagger_file_chooser_SeeTags">Original Tags</string>
+    <string name="tagger_file_chooser_ShowCorrectags">New Tags</string>
+    <string name="tagger_file_chooser_pickDirectory">Choose Directory</string>
+    <string name="tagger_file_chooser_Instructions">Select An Audio File to Fix Tags</string>
+    <string name="tagger_file_save">Overwrite Tags</string>
+    <string name="instruction">Choose the directory where your audio files reside.\n\n
+        After the audio files are listed, click on the desired file from the list and overwrite the tags.\n\n
+        In case the list is empty, no audio file could be detected in the chosen directory. Try choosing another directory.</string>
+
+    <string name="genres">Genres</string>
+    <string name="user_genres">Your Genres</string>
+
+    <string name="no_user_tag">Either you have not added any tag to this entity yet
+        or you are not logged in.</string>
+    <string name="no_tag">No tag found</string>
+    <string name="no_user_rating">Either you have not rated this entity yet
+        or you are not logged in.</string>
+    <string name="no_rating">No rating found</string>
+
+    <string name="lookup_metadata">Metadata</string>
+    <string name="lookup_fingerprint">Fingerprint</string>
+    <string name="lookup_label">Lookup using</string>
+    <string name="file_select">Select a file</string>
+    <string name="save_button">Save changes</string>
+    <string name="no_file_selected">No file selected</string>
+    <string name="dash_tag">Tag</string>
+    <string name="save_checkbox">Save</string>
+    <string name="directory_path_label">Directory Path</string>
+    <string name="select_button">Select</string>
+    <string name="up_button">Up</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_use_language">Use English only</string>
+    <string name="settings_use_language_summary">This option overrides the user specified system language and
+    displays all the user interface in English only.</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="splashscreen_text">The Next Generation Music Tagger</string>
+
+    <!--    loginScreen texts-->
+    <string name="logout">Logout</string>
+    <string name="logout_prompt">Hey! You are logged in already </string>
+    <string name="login">Login</string>
+    <string name="login_prompt">To Login, connect your ListenBrainz account with our app. You will
+    be prompted to login in ListenBrainz website. Follow the instructions and return to complete
+    authentication.</string>
+
+    <!--    Onboarding-->
+    <string name="Onboarding_landing_page">Welcome to ListenBrainz!
+        Allow me to take you Through the basics!</string>
+    <string name="lets_go">Lets Go!</string>
+    <string name="skip">Skip</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+    <string name="finish">Finish</string>
+
+    <!--    add to database-->
+    <string name="instruction_to_add">Add if you can not find it</string>
+    <string name="artistadd">Add Artist</string>
+    <string name="releaseadd">Add Release</string>
+    <string name="eventadd">Add Event</string>
+    <string name="releasegroupadd">Add ReleaseGroup</string>
+    <string name="labeladd">Add Label</string>
+    <string name="recordingadd">Add Recording</string>
+
+    <!--    onboarding adapter description-->
+    <string name="explain_fetch_metadata">Fix your Audio Metadata</string>
+    <string name="explain_search_feature"> Explore ListenBrainz Data</string>
+    <string name="explain_collection">Explore your ListenBrainz Collection</string>
+    <string name="explain_scan">Search using Barcodes</string>
+
+    <string name="open_on_website">Open on website</string>
+
+    <string name="settings_listens">Listens</string>
+    <string name="settings_listenbrainz_token">ListenBrainz User Token</string>
+    <string name="settings_listenbrainz_token_summary">Enter the ListenBrainz User Token available
+        at https://listenbrainz.org/profile/</string>
+    <string name="settings_listenbrainz_enabled">Enable Listens Service</string>
+    <string name="settings_listenbrainz_spotify">Enable submitting listens from Spotify</string>
+    <string name="settings_listenbrainz_spotify_summary">Submit listens from Spotify. By default,
+        listens from Spotify are not submitted to ListenBrainz from this app. This is to avoid
+        duplicate listens. If you have not linked Spotify to ListenBrainz, you can enable submitting
+    listens from Spotify on this device to ListenBrainz through this option.</string>
+
+    <!-- Errors -->
+    <string name="err_spotify_disconnected">"Spotify is not Connected. Use one of the 'connect' buttons"</string>
+    <string name="err_generic_toast">An error has occurred. Check the logs to know more.</string>
+
+    <!-- Connect Auth -->
+    <string name="connect">Connect</string>
+    <string name="authorize">Connect and Authorize</string>
+    <string name="connecting">Connecting</string>
+    <string name="connected">Connected</string>
+    <string name="disconnect">Disconnect</string>
+
+    <!-- Controls -->
+    <string name="on_demand_feedback">Can play on demand? %1$b</string>
+    <string name="is_in_collection_feedback">Is in the user collection? %1$s</string>
+    <string name="command_feedback">"'%1$s' command successful!"</string>
+    <string name="command_response">"'%1$s' command response"</string>
+    <string name="connect_switch_to_local">Switch to Local Playback</string>
+    <string name="play_podcast_button_label">Play podcast</string>
+    <string name="play_album_button_label">Play album</string>
+    <string name="play_artist_button_label">Play artist</string>
+    <string name="play_playlist_button_label">Play playlist</string>
+    <string name="play_track_button_label">Play track</string>
+    <string name="get_collection_state">Get Collection state</string>
+    <string name="save_uri">Save to Collection</string>
+    <string name="remove_uri">Remove from Collection</string>
+    <string name="browse_content">Browse Content</string>
+    <string name="subscribe_to_capabilities">Get Capabilities</string>
+    <string name="subscribe_to_current_track">Subscribe to playerstate</string>
+    <string name="subscribe_to_player_context">Subscribe to playercontext</string>
+    <string name="title_player_context">Player Context</string>
+    <string name="title_current_track">Current Track</string>
+    <string name="title_image_size">Image size</string>
+    <string name="title_image_scale_type">Scale type</string>
+    <string name="brainzplayer_notification_channel_name">BrainzPlayer Now Playing</string>
+    <string name="brainzplayer_notification_channel_description">Currently Playing Song Controls</string>
+</resources>

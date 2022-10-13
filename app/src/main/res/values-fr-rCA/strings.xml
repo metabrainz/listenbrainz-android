@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="title_tracks">Pistes</string>
+    <string name="releases">Parutions</string>
+    <string name="dash_collections">Collections</string>
+    <string name="dash_donate">Faites un don</string>
+    <string name="dash_about">À propos</string>
+    <string name="login">Se connecter</string>
+    <string name="welcome">Bienvenue sur MusicBrainz !</string>
+
+    <string name="search_type_artist">Artiste</string>
+    <string name="search_type_release">Parution</string>
+    <string name="search_type_label">Label</string>
+    <string name="search_type_recording">Enregistrement</string>
+    <string name="search_type_release_group">Groupe de parution</string>
+    <string name="search_type_instrument">Instrument</string>
+
+    <!-- Searchable -->
+    <string name="search_type_event">Événement</string>
+    <!-- LoginActivity -->
+    <string name="auth_title">Se connecter</string>
+
+    <!-- SearchResultsActivity -->
+    <string name="no_results">Aucun résultat de trouvé</string>
+
+    <!-- ReleaseActivity -->
+    <string name="release_title">Parution</string>
+
+    <!-- ReleaseActivity -->
+    <string name="artist_title">Artiste</string>
+
+    <!-- DonateActivity -->
+    <string name="donate_title">Faites un don</string>
+
+    <!-- AboutActivity -->
+    <string name="about_title">À propos</string>
+    <!-- Actions -->
+    <string name="action_search">Recherche</string>
+    <string name="action_login">Se connecter</string>
+    <string name="action_logout">Se déconnecter</string>
+
+    <string name="settings_search">Recherche</string>
+    <string name="settings_tagger">Baliseur</string>
+    <string name="ratings">Évaluation</string>
+    <string name="tags">Balises</string>
+    <string name="dash_tag">Balise</string>
+    <string name="save_checkbox">Enregistrer</string>
+    <string name="select_button">Choisir</string>
+    <string name="settings_language">Langue</string>
+</resources>

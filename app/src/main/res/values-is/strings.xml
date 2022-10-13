@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="dash_scan">Hljóð-kanna</string>
+    <string name="search_type_release">Útgáfa</string>
+    <!-- ReleaseActivity -->
+    <string name="release_title">Útgáfa</string>
+
+    <string name="lookup_metadata">Lýsigögn</string>
+    <string name="dash_tag">Tög</string>
+    <string name="save_checkbox">Vista</string>
+    <string name="settings_language">Tungumál</string>
+</resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="search_type_label">Založba</string>
+    <string name="lookup_metadata">Metapodatki</string>
+    <string name="dash_tag">Oznaka</string>
+    <string name="settings_language">Jezik</string>
+</resources>

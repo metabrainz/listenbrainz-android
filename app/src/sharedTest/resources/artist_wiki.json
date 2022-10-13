@@ -1,0 +1,57 @@
+{
+  "type": "standard",
+  "title": "Ed Sheeran",
+  "displaytitle": "Ed Sheeran",
+  "namespace": {
+    "id": 0,
+    "text": ""
+  },
+  "wikibase_item": "Q47447",
+  "titles": {
+    "canonical": "Ed_Sheeran",
+    "normalized": "Ed Sheeran",
+    "display": "Ed Sheeran"
+  },
+  "pageid": 30528002,
+  "thumbnail": {
+    "source": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Ed_Sheeran-6886_%28cropped%29.jpg/231px-Ed_Sheeran-6886_%28cropped%29.jpg",
+    "width": 231,
+    "height": 320
+  },
+  "originalimage": {
+    "source": "https://upload.wikimedia.org/wikipedia/commons/c/c1/Ed_Sheeran-6886_%28cropped%29.jpg",
+    "width": 1911,
+    "height": 2646
+  },
+  "lang": "en",
+  "dir": "ltr",
+  "revision": "969237288",
+  "tid": "461a4be0-ce77-11ea-ac91-35f31ad2926b",
+  "timestamp": "2020-07-24T06:11:19Z",
+  "description": "English singer, songwriter, record producer and actor (born 1991)",
+  "description_source": "local",
+  "content_urls": {
+    "desktop": {
+      "page": "https://en.wikipedia.org/wiki/Ed_Sheeran",
+      "revisions": "https://en.wikipedia.org/wiki/Ed_Sheeran?action=history",
+      "edit": "https://en.wikipedia.org/wiki/Ed_Sheeran?action=edit",
+      "talk": "https://en.wikipedia.org/wiki/Talk:Ed_Sheeran"
+    },
+    "mobile": {
+      "page": "https://en.m.wikipedia.org/wiki/Ed_Sheeran",
+      "revisions": "https://en.m.wikipedia.org/wiki/Special:History/Ed_Sheeran",
+      "edit": "https://en.m.wikipedia.org/wiki/Ed_Sheeran?action=edit",
+      "talk": "https://en.m.wikipedia.org/wiki/Talk:Ed_Sheeran"
+    }
+  },
+  "api_urls": {
+    "summary": "https://en.wikipedia.org/api/rest_v1/page/summary/Ed_Sheeran",
+    "metadata": "https://en.wikipedia.org/api/rest_v1/page/metadata/Ed_Sheeran",
+    "references": "https://en.wikipedia.org/api/rest_v1/page/references/Ed_Sheeran",
+    "media": "https://en.wikipedia.org/api/rest_v1/page/media/Ed_Sheeran",
+    "edit_html": "https://en.wikipedia.org/api/rest_v1/page/html/Ed_Sheeran",
+    "talk_page_html": "https://en.wikipedia.org/api/rest_v1/page/html/Talk:Ed_Sheeran"
+  },
+  "extract": "Edward Christopher Sheeran is an English singer, songwriter, record producer, and actor. In early 2011, Sheeran independently released the extended play, No. 5 Collaborations Project. After signing with Asylum Records, his debut album, +, was released in September 2011 and topped the UK Albums Chart. It contained his first hit single \"The A Team\". In 2012, Sheeran won the Brit Awards for Best British Male Solo Artist and British Breakthrough Act.",
+  "extract_html": "<p><b>Edward Christopher Sheeran</b> is an English singer, songwriter, record producer, and actor. In early 2011, Sheeran independently released the extended play, <i>No. 5 Collaborations Project</i>. After signing with Asylum Records, his debut album, <i>+</i>, was released in September 2011 and topped the UK Albums Chart. It contained his first hit single \"The A Team\". In 2012, Sheeran won the Brit Awards for Best British Male Solo Artist and British Breakthrough Act.</p>"
+}

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/app_bg"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Image cover art -->
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/image"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginRight="24dp"
+        android:onClick="onImageClicked"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.05"
+        tools:srcCompat="@drawable/ic_coverartarchive_logo_no_text" />
+
+    <!-- Current Track -->
+
+    <Button
+        android:id="@+id/current_track_label"
+        style="@style/Widget.Cat.Button.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:lines="2"
+        android:textColor="@color/white"
+        android:onClick="showCurrentPlayerState"
+        android:text="@string/title_current_track"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/image"
+        app:layout_constraintVertical_bias="0.05" />
+
+    <Button
+        android:id="@+id/subscribe_to_player_state_button"
+        style="@style/Widget.Cat.Button.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:filterTouchesWhenObscured="false"
+        android:onClick="onSubscribedToPlayerStateButtonClicked"
+        android:text="@string/subscribe_to_current_track"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/image"
+        app:layout_constraintVertical_bias="0.05" />
+
+    <!-- Seek controls -->
+
+    <androidx.appcompat.widget.AppCompatSeekBar
+        android:id="@+id/seek_to"
+        android:layout_width="0dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="48dp"
+        android:layout_marginEnd="48dp"
+        android:progressTint="@android:color/white"
+        android:thumbTint="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/subscribe_to_player_state_button"
+        app:layout_constraintVertical_bias="0.2" />
+
+    <!-- Playback controls -->
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/seek_back_button"
+        android:layout_width="48dp"
+        android:layout_height="96dp"
+        android:background="?attr/actionBarItemBackground"
+        android:onClick="onSeekBack"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.20"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/seek_to"
+        app:layout_constraintVertical_bias="0.2"
+        app:srcCompat="@drawable/btn_seek_back" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/skip_prev_button"
+        android:layout_width="48dp"
+        android:layout_height="96dp"
+        android:background="?attr/actionBarItemBackground"
+        android:onClick="onSkipPreviousButtonClicked"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.35"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/seek_to"
+        app:layout_constraintVertical_bias="0.2"
+        app:srcCompat="@drawable/btn_prev" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/play_pause_button"
+        android:layout_width="wrap_content"
+        android:layout_height="96dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:onClick="onPlayPauseButtonClicked"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/seek_to"
+        app:layout_constraintVertical_bias="0.2"
+        app:srcCompat="@drawable/btn_play" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/skip_next_button"
+        android:layout_width="48dp"
+        android:layout_height="96dp"
+        android:background="?attr/actionBarItemBackground"
+        android:onClick="onSkipNextButtonClicked"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.65"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/seek_to"
+        app:layout_constraintVertical_bias="0.2"
+        app:srcCompat="@drawable/btn_next" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/seek_forward_button"
+        android:layout_width="48dp"
+        android:layout_height="96dp"
+        android:background="?attr/actionBarItemBackground"
+        android:onClick="onSeekForward"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.80"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/seek_to"
+        app:layout_constraintVertical_bias="0.2"
+        app:srcCompat="@drawable/btn_seek_forward" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

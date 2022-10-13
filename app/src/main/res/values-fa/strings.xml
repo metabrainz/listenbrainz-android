@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="title_tracks">عنوان</string>
+    <string name="dash_collections">مجموعه ها</string>
+    <string name="search_type_label">برچسب</string>
+</resources>

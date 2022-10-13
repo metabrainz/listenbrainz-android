@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="title_tracks">Skæringer</string>
+    <string name="dash_scan">Skan</string>
+    <string name="dash_collections">Samlinger</string>
+    <string name="search_type_label">Selskab</string>
+</resources>

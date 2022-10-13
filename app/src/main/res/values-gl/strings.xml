@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="title_tracks">Pistas</string>
+    <string name="dash_scan">Examinar</string>
+    <string name="search_type_release">Lanzamento</string>
+    <!-- ReleaseActivity -->
+    <string name="release_title">Lanzamento</string>
+
+    <string name="ratings">Puntuación</string>
+    <string name="lookup_metadata">Metadatos</string>
+    <string name="settings_language">Idioma</string>
+</resources>

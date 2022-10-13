@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="icon_button">أيقونة</string>
+    <string name="title_tracks">المقطوعات</string>
+    <string name="releases">الإصدارات</string>
+    <!-- DashboardActivity -->
+    <string name="app_name">MusicBrainz</string>
+    <string name="search_hint">إبحث في MusicBrainz</string>
+    <string name="dash_scan">افحص</string>
+    <string name="dash_collections">التجميعات</string>
+    <string name="dash_donate">تبرع</string>
+    <string name="dash_about">عن MusicBrainz</string>
+    <string name="login">تسجيل الدخول</string>
+    <string name="welcome">مرحبًا بك في MusicBrainz</string>
+
+    <string name="search_type_artist">الفنّان</string>
+    <string name="search_type_release">الإصدار</string>
+    <string name="search_name">MusicBrainz</string>
+
+    <!-- LoginActivity -->
+    <string name="auth_title">تسجيل الدخول</string>
+
+    <!-- ReleaseActivity -->
+    <string name="release_title">الإصدار</string>
+
+    <!-- ReleaseActivity -->
+    <string name="artist_title">الفنّان</string>
+
+    <!-- DonateActivity -->
+    <string name="donate_title">تبرع</string>
+
+    <!-- AboutActivity -->
+    <string name="about_title">ع</string>
+    <string name="version_text">الإصدارة</string>
+
+    <string name="action_login">تسجيل الدخول</string>
+    <string name="ratings">التقييم</string>
+    <string name="tags">الوسوم</string>
+    <string name="dash_tag">الوسم</string>
+    <string name="save_checkbox">احفظ</string>
+    <string name="settings_language">اللغة</string>
+</resources>
