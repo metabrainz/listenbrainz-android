@@ -137,7 +137,7 @@ class BrainzPlayerViewModel @Inject constructor(
                 }
             }
         } else {
-            brainzPlayerServiceConnection.transportControls.playFromMediaId(mediaItem.mediaID, null)
+            brainzPlayerServiceConnection.transportControls.playFromMediaId(mediaItem.mediaID.toString(), null)
         }
     }
 
