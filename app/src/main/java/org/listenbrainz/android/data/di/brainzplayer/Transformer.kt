@@ -10,7 +10,13 @@ object Transformer {
         uri = uri,
         albumID = albumID,
         album = album,
-        albumArt = albumArt
+        albumArt = albumArt,
+        artistId = artistId,
+        dateModified = dateModified,
+        trackNumber = trackNumber,
+        duration = duration,
+        discNumber = discNumber,
+        year = year
     )
 
     fun Song.toSongEntity() = SongEntity(
@@ -20,7 +26,13 @@ object Transformer {
         uri = uri,
         albumID = albumID,
         album = album,
-        albumArt = albumArt
+        albumArt = albumArt,
+        artistId = artistId,
+        dateModified = dateModified,
+        trackNumber = trackNumber,
+        duration = duration,
+        discNumber = discNumber,
+        year = year
     )
 
     fun AlbumEntity.toAlbum() = Album(

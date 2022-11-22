@@ -156,7 +156,7 @@ fun OnAlbumClickScreen(albumID: Long) {
                 )
             }
         }
-        items(items = albumSongs) {
+        items(items = albumSongs.sortedBy { it.trackNumber }) {
             Card(
                 modifier = Modifier
                     .padding(10.dp)
