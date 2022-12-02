@@ -116,7 +116,7 @@ dependencies {
     implementation 'com.thefinestartist:finestwebview:1.2.7'
 
     //Design Setup
-    implementation 'com.google.android.material:material:1.8.0-alpha01'
+    implementation 'com.google.android.material:material:1.8.0-alpha03'
     implementation 'com.airbnb.android:lottie:5.2.0'
     implementation 'com.github.akshaaatt:Onboarding:1.0.4'
     implementation 'com.github.akshaaatt:Share-Android:1.0.0'

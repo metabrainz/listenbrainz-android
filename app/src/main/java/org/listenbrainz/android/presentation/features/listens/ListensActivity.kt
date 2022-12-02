@@ -47,9 +47,9 @@ import com.spotify.protocol.types.PlayerState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
-import org.listenbrainz.android.presentation.components.BottomNavigationBar
-import org.listenbrainz.android.presentation.components.ListenCard
-import org.listenbrainz.android.presentation.components.TopAppBar
+import org.listenbrainz.android.presentation.features.components.BottomNavigationBar
+import org.listenbrainz.android.presentation.features.components.ListenCard
+import org.listenbrainz.android.presentation.features.components.TopAppBar
 import org.listenbrainz.android.presentation.features.listens.ListensActivity.AuthParams.CLIENT_ID
 import org.listenbrainz.android.presentation.features.listens.ListensActivity.AuthParams.REDIRECT_URI
 import org.listenbrainz.android.presentation.features.login.LoginActivity

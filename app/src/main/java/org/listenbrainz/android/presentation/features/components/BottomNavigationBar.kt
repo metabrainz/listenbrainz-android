@@ -1,4 +1,4 @@
-package org.listenbrainz.android.presentation.components
+package org.listenbrainz.android.presentation.features.components
 
 import android.app.Activity
 import android.content.Intent
@@ -44,7 +44,7 @@ import org.listenbrainz.android.presentation.features.login.LoginActivity
 import org.listenbrainz.android.presentation.features.navigation.BrainzNavigationItem
 import org.listenbrainz.android.presentation.features.navigation.NavigationItem
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
-
+import androidx.compose.material3.MaterialTheme
 
 @ExperimentalPagerApi
 @Composable
@@ -57,15 +57,15 @@ fun BottomNavigationBar(activity: Activity) {
         NavigationItem.Profile,
     )
     BottomNavigation(
-        backgroundColor = colorResource(id = R.color.app_bg),
+        backgroundColor = MaterialTheme.colorScheme.background,
     ) {
         items.forEach { item ->
             BottomNavigationItem(
                 icon = { Icon(painterResource(id = item.icon),
                     modifier = Modifier.size(28.dp), contentDescription = item.title, tint = Color.Unspecified) },
                 label = { Text(text = item.title, fontSize = 11.sp) },
-                selectedContentColor = colorResource(id = R.color.white),
-                unselectedContentColor = colorResource(id = R.color.gray),
+                selectedContentColor = MaterialTheme.colorScheme.onSurface,
+                unselectedContentColor = colorResource(id = R.color.gray),      // TODO : Fix this color with consent.
                 alwaysShowLabel = true,
                 selected = true,
                 onClick = {
@@ -210,9 +210,7 @@ fun SongViewPager(viewModel: BrainzPlayerViewModel = hiltViewModel()) {
                             text = currentlyPlayingSong.artist + " - " + currentlyPlayingSong.title,
                             fontSize = 13.sp,
                             textAlign = TextAlign.Center,
-                            color = colorResource(
-                                id = R.color.white
-                            )
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -234,15 +232,15 @@ fun BrainzPlayerBottomBar( navController: NavController) {
         )
     val backStackEntry by navController.currentBackStackEntryAsState()
     BottomNavigation(
-        backgroundColor = colorResource(id = R.color.app_bg),
+        backgroundColor = MaterialTheme.colorScheme.background,
     ) {
         items.forEach { item ->
             val selected = item.route == backStackEntry?.destination?.route
             BottomNavigationItem(
                 icon = { Icon(item.icon, contentDescription = item.title) },
                 label = { Text(text = item.title, fontSize = 11.sp) },
-                selectedContentColor = colorResource(id = R.color.white),
-                unselectedContentColor = colorResource(id = R.color.gray),
+                selectedContentColor = MaterialTheme.colorScheme.onSurface,
+                unselectedContentColor = MaterialTheme.colorScheme.onBackground,      // TODO: Fix this color with consent
                 alwaysShowLabel = true,
                 selected = selected,
                 onClick = {

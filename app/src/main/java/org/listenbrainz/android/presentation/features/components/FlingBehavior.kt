@@ -1,4 +1,4 @@
-package org.listenbrainz.android.presentation.components
+package org.listenbrainz.android.presentation.features.components
 
 //
 //private class FlingBehaviourMultiplier(

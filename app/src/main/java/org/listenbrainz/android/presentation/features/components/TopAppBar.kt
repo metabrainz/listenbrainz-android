@@ -1,4 +1,4 @@
-package org.listenbrainz.android.presentation.components
+package org.listenbrainz.android.presentation.features.components
 
 import android.app.Activity
 import android.content.Intent
@@ -8,6 +8,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -44,8 +45,8 @@ fun TopAppBar(activity: Activity, title: String = "MusicBrainz") {
                 }
             }
         },
-        backgroundColor = colorResource(id = R.color.app_bg),
-        contentColor = colorResource(id = R.color.white),
+        backgroundColor = MaterialTheme.colorScheme.background,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         elevation = 2.dp,
         actions = {
             IconButton(onClick = {

@@ -1,4 +1,4 @@
-package org.listenbrainz.android.presentation.components
+package org.listenbrainz.android.presentation.features.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable

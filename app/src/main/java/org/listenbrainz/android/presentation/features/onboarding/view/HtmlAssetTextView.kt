@@ -1,4 +1,4 @@
-package org.listenbrainz.android.presentation.view
+package org.listenbrainz.android.presentation.features.onboarding.view
 
 import android.content.Context
 import android.util.AttributeSet
