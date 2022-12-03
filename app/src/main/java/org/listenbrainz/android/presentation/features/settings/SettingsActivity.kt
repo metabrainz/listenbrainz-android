@@ -7,9 +7,9 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate.*
 import androidx.fragment.app.Fragment
 import androidx.preference.Preference
 import androidx.preference.SwitchPreference
@@ -19,6 +19,7 @@ import org.listenbrainz.android.databinding.ActivityPreferencesBinding
 import org.listenbrainz.android.presentation.UserPreferences.PREFERENCE_LISTENING_ENABLED
 import org.listenbrainz.android.presentation.UserPreferences.PREFERENCE_SYSTEM_THEME
 import org.listenbrainz.android.presentation.UserPreferences.preferenceListeningEnabled
+import org.listenbrainz.android.presentation.theme.isUiModeIsDark
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -28,7 +29,6 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val binding = ActivityPreferencesBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         supportActionBar!!.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.app_bg)))
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
@@ -62,13 +62,20 @@ class SettingsActivity : AppCompatActivity() {
             
             // Explicit Ui Mode functionality.
             if (preference.key == PREFERENCE_SYSTEM_THEME){
-                // The following code only changes
-                /*when (newValue) {
-                    "Dark" -> { setDefaultNightMode(MODE_NIGHT_YES) }
-                    "Light" -> { setDefaultNightMode(MODE_NIGHT_NO) }
-                    else -> { setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM) }
-                }*/
-                Toast.makeText(this, "Please restart the application", Toast.LENGTH_LONG).show()
+                when (newValue) {
+                    "Dark" -> {
+                        setDefaultNightMode(MODE_NIGHT_YES)
+                        isUiModeIsDark.value = true
+                    }
+                    "Light" -> {
+                        setDefaultNightMode(MODE_NIGHT_NO)
+                        isUiModeIsDark.value = false
+                    }
+                    else -> {
+                        setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
+                        isUiModeIsDark.value = null
+                    }
+                }
                 return@OnPreferenceChangeListener true
             }
             false

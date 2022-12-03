@@ -16,18 +16,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.components.BottomNavigationBar
 import org.listenbrainz.android.presentation.features.components.TopAppBar
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.BrainzPlayerBackDropScreen
 import org.listenbrainz.android.presentation.features.onboarding.FeaturesActivity
-import org.listenbrainz.android.presentation.theme.ListenBrainzTheme
-import org.listenbrainz.android.presentation.theme.ThemeView
-import org.listenbrainz.android.presentation.theme.ThemeViewModel
-import org.listenbrainz.android.presentation.theme.userSelectedThemeIsNight
+import org.listenbrainz.android.presentation.theme.*
 
 @AndroidEntryPoint
 class DashboardActivity : ComponentActivity() {
@@ -45,6 +45,7 @@ class DashboardActivity : ComponentActivity() {
             android.Manifest.permission.READ_EXTERNAL_STORAGE,
             android.Manifest.permission.READ_MEDIA_AUDIO
         )
+        
         setContent {
             ListenBrainzTheme()
             {

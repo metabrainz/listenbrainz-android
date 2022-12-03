@@ -25,9 +25,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -54,6 +54,7 @@ import org.listenbrainz.android.presentation.features.listens.ListensActivity.Au
 import org.listenbrainz.android.presentation.features.listens.ListensActivity.AuthParams.REDIRECT_URI
 import org.listenbrainz.android.presentation.features.login.LoginActivity
 import org.listenbrainz.android.presentation.features.login.LoginSharedPreferences.username
+import org.listenbrainz.android.presentation.theme.ListenBrainzTheme
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -89,33 +90,37 @@ class ListensActivity: ComponentActivity() {
         SpotifyAppRemote.setDebugMode(true)
 
         setContent {
-            Scaffold(
-                backgroundColor = colorResource(id = R.color.app_bg),
-                topBar = { TopAppBar(activity = this, title = "Listens") },
-                bottomBar = { BottomNavigationBar(activity = this) }
-            ) {
-                var listensModifier: Modifier by remember { mutableStateOf(Modifier.padding(it)) }
-
-                if(playerState?.track?.name !=null) {
-                    listensModifier = Modifier.padding(it).padding(top = 200.dp)
-                    AnimatedVisibility(
-                        visible = true,
-                        enter = fadeIn(initialAlpha = 0.4f),
-                        exit = fadeOut(animationSpec = tween(durationMillis = 250))
-                    ){
-                        NowPlaying(
-                            modifier = Modifier.padding(it),
-                            activity = this@ListensActivity,
-                            playerState = playerState,
-                            bitmap = bitmap
-                        )
+            ListenBrainzTheme {
+                Scaffold(
+                    backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.background,
+                    topBar = { TopAppBar(activity = this, title = "Listens") },
+                    bottomBar = { BottomNavigationBar(activity = this) }
+                ) {
+                    var listensModifier: Modifier by remember { mutableStateOf(Modifier.padding(it)) }
+            
+                    if (playerState?.track?.name != null) {
+                        listensModifier = Modifier
+                            .padding(it)
+                            .padding(top = 200.dp)
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn(initialAlpha = 0.4f),
+                            exit = fadeOut(animationSpec = tween(durationMillis = 250))
+                        ) {
+                            NowPlaying(
+                                modifier = Modifier.padding(it),
+                                activity = this@ListensActivity,
+                                playerState = playerState,
+                                bitmap = bitmap
+                            )
+                        }
                     }
+            
+                    AllUserListens(
+                        modifier = listensModifier,
+                        activity = this
+                    )
                 }
-
-                AllUserListens(
-                    modifier = listensModifier,
-                    activity = this
-                )
             }
         }
 
