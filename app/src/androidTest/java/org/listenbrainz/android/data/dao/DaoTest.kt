@@ -47,13 +47,19 @@ class DaoTest {
 
     private val songEntities = (11..20).map { song->
         SongEntity(
-            song.toString(),
+            song.toLong(),
             "Song$song",
             "Artist$song",
             "Uri$song",
-            "$song",
+            song.toLong(),
             "Album$song",
-            "AlbumArt$song"
+            "AlbumArt$song",
+             song,
+             song,
+             song.toLong(),
+             song.toLong(),
+             song.toLong(),
+             song.toLong()
         )
     }
 
@@ -63,13 +69,19 @@ class DaoTest {
             "Title$it",
             (11..20).map { song ->
                 SongEntity(
-                    "mediaID$song",
+                    "mediaID$song".toLong(),
                     "SongTitle$song",
                     "Artist$song",
                     "Uri$song",
-                    "AlbumID$song",
+                    "AlbumID$song".toLong(),
                     "Album$song",
-                    "AlbumArt$song"
+                    "AlbumArt$song",
+                    song,
+                    song,
+                    song.toLong(),
+                    song.toLong(),
+                    song.toLong(),
+                    song.toLong()
                 )
             }
         )
@@ -81,13 +93,19 @@ class DaoTest {
             "Artist$it",
             (121..130).map { song ->
                 SongEntity(
-                    "mediaID$song",
+                    "mediaID$song".toLong(),
                     "SongTitle$song",
                     "Artist$it",
                     "Uri$song",
-                    (song + 10).toString(),
+                    (song + 10).toLong(),
                     "Album$song",
-                    "AlbumArt$song"
+                    "AlbumArt$song",
+                    song,
+                    song,
+                    song.toLong(),
+                    song.toLong(),
+                    song.toLong(),
+                    song.toLong()
                 )
 
             }.toMutableList(),
@@ -178,7 +196,7 @@ class DaoTest {
         songDao.addSongs(songEntities)
         songDao.getSongEntity((11).toString()).test {
             val song = awaitItem()
-            assert(song.mediaID == (11).toString())
+            assert(song.mediaID == (11).toLong())
         }
         songDao.getSongEntities().test {
             val songs = awaitItem()
