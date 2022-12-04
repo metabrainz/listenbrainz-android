@@ -31,7 +31,11 @@ import org.listenbrainz.android.presentation.theme.*
 
 @AndroidEntryPoint
 class DashboardActivity : ComponentActivity() {
+<<<<<<< HEAD
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+=======
+
+>>>>>>> 8b22bab37470fc8464dbb6f5d0828eca278da26a
     @OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

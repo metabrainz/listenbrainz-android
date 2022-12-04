@@ -26,9 +26,10 @@ class LoginActivityTest {
     @Before
     fun stubInternetIntent() {
         Intents.intending(IntentMatchers.hasAction(Intent.ACTION_VIEW))
-                .respondWith(Instrumentation.ActivityResult(0,
-                        Intent().setData(Uri.parse(
-                                MusicBrainzServiceGenerator.OAUTH_REDIRECT_URI + "?code=" + code))))
+                .respondWith(Instrumentation.ActivityResult(
+                    0,
+                    Intent().setData(Uri.parse(MusicBrainzServiceGenerator.OAUTH_REDIRECT_URI + "?code=" + code))
+                ))
     }
 
     @Test
