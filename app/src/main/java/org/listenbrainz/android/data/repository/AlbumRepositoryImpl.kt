@@ -17,7 +17,7 @@ class AlbumRepositoryImpl @Inject constructor(
 ): AlbumRepository {
     override fun getAlbums(): Flow<List<Album>> =
         albumDao.getAlbumEntities()
-            .map{ it ->
+            .map { it ->
                 it.map {
                     it.toAlbum()
                 }
@@ -30,15 +30,15 @@ class AlbumRepositoryImpl @Inject constructor(
 
     override suspend fun addAlbums(): Boolean {
         val albums = AlbumsData().fetchAlbums().map {
-                it.toAlbumEntity()
+            it.toAlbumEntity()
         }
         albumDao.addAlbums(albums)
         return albums.isNotEmpty()
     }
 
     override fun getAllSongsOfAlbum(albumId: Long): Flow<List<Song>> {
-        val songs = SongData().fetchSongs().filter { song->
-            song.albumID == albumId.toString()
+        val songs = SongData().fetchSongs().filter { song ->
+            song.albumID == albumId
         }
         return flowOf(songs)
     }

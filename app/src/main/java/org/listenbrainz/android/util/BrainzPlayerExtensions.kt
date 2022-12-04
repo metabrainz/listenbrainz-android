@@ -29,20 +29,10 @@ import java.io.File
 
 object BrainzPlayerExtensions {
 
-    //MediaDescriptionCompat extensions
-    inline val MediaDescriptionCompat.toSong
-    get() = Song(
-        mediaID = mediaId.toString(),
-        title = title.toString(),
-        artist = subtitle.toString(),
-        albumArt = iconUri.toString(),
-        uri = mediaUri.toString()
-    )
-
     //MediaBrowserCompat extensions
     inline val MediaBrowserCompat.MediaItem.toSong
         get() = Song(
-            mediaID = mediaId!!,
+            mediaID = mediaId?.toLong() ?: Song.emptySong.mediaID,
             title = description.title.toString(),
             artist = description.subtitle.toString(),
             albumArt = description.iconUri.toString(),
@@ -53,7 +43,7 @@ object BrainzPlayerExtensions {
     inline val MediaMetadataCompat?.toSong
         get() = this?.description?.let {
             Song(
-                mediaID = it.mediaId.toString(),
+                mediaID = (if(it.mediaId!="") it.mediaId?.toLong() else  Song.emptySong.mediaID)!!,
                 title = it.title.toString(),
                 artist = it.subtitle.toString(),
                 uri = it.mediaUri.toString(),
@@ -66,7 +56,7 @@ object BrainzPlayerExtensions {
         get() = this.let { song ->
             MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, song.artist)
-                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, song.mediaID)
+                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, song.mediaID.toString())
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, song.title)
                 .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, song.uri)
                 .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI, song.albumArt)
@@ -77,8 +67,8 @@ object BrainzPlayerExtensions {
     private inline val MediaMetadataCompat.mediaUri: Uri
         get() = this.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI).toUri()
 
-    inline val MediaMetadataCompat.id: String?
-        get() = getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
+    inline val MediaMetadataCompat.id: Long
+        get() = getLong(MediaMetadataCompat.METADATA_KEY_MEDIA_ID)
 
     inline val MediaMetadataCompat.title: String?
         get() = getString(MediaMetadataCompat.METADATA_KEY_TITLE)
