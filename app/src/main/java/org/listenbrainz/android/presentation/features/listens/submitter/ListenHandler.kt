@@ -7,7 +7,7 @@ import android.os.Looper
 import android.os.Message
 import okhttp3.ResponseBody
 import org.listenbrainz.android.data.sources.api.ListenSubmitService
-import org.listenbrainz.android.data.sources.api.MusicBrainzServiceGenerator.createService
+import org.listenbrainz.android.data.sources.api.ListenBrainzServiceGenerator.createService
 import org.listenbrainz.android.data.sources.api.entities.ListenSubmitBody
 import org.listenbrainz.android.data.sources.api.entities.ListenTrackMetadata
 import org.listenbrainz.android.presentation.UserPreferences.preferenceListenBrainzToken

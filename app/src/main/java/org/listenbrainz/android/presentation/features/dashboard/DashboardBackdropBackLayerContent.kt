@@ -51,7 +51,7 @@ fun BackLayerContent(activity: Activity, applicationContext: Context) {
                     style = SpanStyle(
                         fontWeight = FontWeight.Bold,
                         color = colorResource(
-                            id = R.color.mb_purple
+                            id = R.color.lb_purple
                         )
                     )
                 ) {
@@ -62,7 +62,7 @@ fun BackLayerContent(activity: Activity, applicationContext: Context) {
                     style = SpanStyle(
                         fontWeight = FontWeight.Bold,
                         color = colorResource(
-                            id = R.color.mb_orange
+                            id = R.color.lb_orange
                         )
                     )
                 ) {

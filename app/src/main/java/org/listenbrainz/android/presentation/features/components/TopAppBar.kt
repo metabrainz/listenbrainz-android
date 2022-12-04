@@ -21,7 +21,7 @@ import org.listenbrainz.android.presentation.features.dashboard.DonateActivity
 import org.listenbrainz.android.presentation.features.settings.SettingsActivity
 
 @Composable
-fun TopAppBar(activity: Activity, title: String = "MusicBrainz") {
+fun TopAppBar(activity: Activity, title: String = "ListenBrainz") {
     androidx.compose.material.TopAppBar(
         title = {
             Text(text = title)
@@ -37,11 +37,12 @@ fun TopAppBar(activity: Activity, title: String = "MusicBrainz") {
                 }
                 else -> {
                     IconButton(onClick = {
-                        activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://musicbrainz.org")))
+                        activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://listenbrainz.org")))
                     }) {
-                        Icon(painterResource(id = R.drawable.ic_musicbrainz_logo_icon),
+                        Icon(painterResource(id = R.drawable.ic_listenbrainz_logo_icon),
                             "MusicBrainz",
-                            tint = Color.Unspecified)                    }
+                            tint = Color.Unspecified)
+                    }
                 }
             }
         },

@@ -52,7 +52,6 @@ fun BottomNavigationBar(activity: Activity) {
         NavigationItem.Home,
         NavigationItem.BrainzPlayer,
         NavigationItem.Listens,
-        NavigationItem.Critiques,
         NavigationItem.Profile,
     )
     BottomNavigation(

@@ -42,7 +42,7 @@ class BrainzPlayerNotificationManager(
             .setPauseActionIconResourceId(R.drawable.ic_pause)
             .build()
             .apply {
-                setSmallIcon(R.drawable.ic_musicbrainz_logo_no_text)
+                setSmallIcon(R.drawable.ic_listenbrainz_logo_no_text)
                 setMediaSessionToken(sessionToken)
                 setUseNextActionInCompactView(true)
                 setUsePreviousActionInCompactView(true)

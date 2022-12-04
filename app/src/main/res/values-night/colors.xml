@@ -24,10 +24,8 @@
     <color name="aux_text">#666666</color>
 
     <!-- Brand -->
-    <color name="mb_purple_medium">#736dab</color>
-    <color name="mb_purple_dark">#34176b</color>
-    <color name="mb_purple">#ba478f</color>
-    <color name="mb_orange">#eb743b</color>
+    <color name="lb_purple">#353070</color>
+    <color name="lb_orange">#eb743b</color>
 
     <color name="dark_gray">#262626</color>
     <color name="light_gray">#737373</color>
@@ -38,9 +36,7 @@
     <color name="bp_color_primary">#EB743B</color>
     <color name="bp_lavender">#eaddff</color>
 
-
-
     <!--    Background-->
-    <color name="app_bg">#263238</color>
+    <color name="app_bg">#1A1A1A</color>
     <color name="app_bg_light">#90A4AE</color>
 </resources>
