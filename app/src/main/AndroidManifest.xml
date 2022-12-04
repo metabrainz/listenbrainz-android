@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:dist="http://schemas.android.com/apk/distribution"
     xmlns:tools="http://schemas.android.com/tools">
-
-    <dist:module dist:instant="true" />
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -28,11 +25,6 @@
         <activity
             android:name=".presentation.features.brainzplayer.ui.BrainzPlayerActivity"
             android:exported="false" />
-        <activity
-            android:name="com.thefinestartist.finestwebview.FinestWebViewActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:screenOrientation="sensor"
-            android:theme="@style/FinestWebViewTheme" />
 
         <service
             android:name=".presentation.features.listens.submitter.ListenService"
@@ -43,6 +35,7 @@
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
+
         <service android:name=".presentation.features.brainzplayer.services.BrainzPlayerService"
             android:exported="true">
             <intent-filter>
@@ -71,15 +64,7 @@
         <activity
             android:name=".presentation.features.release_group.ReleaseGroupActivity"
             android:label="@string/search_type_release_group" />
-        <activity
-            android:name=".presentation.features.search.SearchActivity"
-            android:label="@string/settings_search"
-            android:launchMode="singleTop"
-            android:windowSoftInputMode="stateHidden">
-            <meta-data
-                android:name="android.app.searchable"
-                android:resource="@xml/searchable" />
-        </activity>
+
         <activity
             android:name=".presentation.features.login.LoginActivity"
             android:label="@string/auth_title"
@@ -111,22 +96,17 @@
             android:name="org.listenbrainz.android.presentation.features.settings.SettingsActivity"
             android:label="@string/preferences_title" />
 
-        <activity android:name=".presentation.features.barcode.BarcodeActivity" />
-
-        <activity
-            android:name="org.listenbrainz.android.presentation.features.barcode.BarcodeResultActivity" />
         <activity android:name=".presentation.features.newsbrainz.NewsBrainzActivity" />
+
         <activity android:name=".presentation.features.listens.ListensActivity"
             android:theme="@style/AppThemeNoActionBar"/>
+
         <activity android:name=".presentation.features.listens.RemotePlayerActivity"
             android:theme="@style/AppThemeNoActionBar"/>
 
         <meta-data
             android:name="android.app.default_searchable"
             android:value=".activity.SearchActivity" />
-        <meta-data
-            android:name="com.google.android.backup.api_key"
-            android:value="AEdPqrEAAAAIJeBCYRRcklJ4Px20MnlwsLTD9Rpp6eQyjiVNRg" />
 
         <provider
             android:name="org.listenbrainz.android.presentation.features.suggestion.SuggestionProvider"

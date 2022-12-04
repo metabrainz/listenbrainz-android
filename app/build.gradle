@@ -91,7 +91,7 @@ dependencies {
     implementation 'androidx.core:core-splashscreen:1.0.0'
 
     //Web Service Setup
-    implementation 'com.google.code.gson:gson:2.9.1'
+    implementation 'com.google.code.gson:gson:2.10'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.7'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
@@ -99,8 +99,8 @@ dependencies {
     implementation 'androidx.paging:paging-runtime-ktx:3.1.1'
 
     //Image downloading and Caching library
-    implementation 'com.github.bumptech.glide:glide:4.14.1'
-    kapt 'com.github.bumptech.glide:compiler:4.14.1'
+    implementation 'com.github.bumptech.glide:glide:4.14.2'
+    kapt 'com.github.bumptech.glide:compiler:4.14.2'
 
     //Fragment Setup For Kotlin
     implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
@@ -108,27 +108,11 @@ dependencies {
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
 
-    //Tagger & Metadata Setup
-    implementation 'info.debatty:java-string-similarity:2.0.0'
-    implementation 'com.github.amcap1712:KTaglib:release-SNAPSHOT'
-
-    //Handling WebViews
-    implementation 'com.thefinestartist:finestwebview:1.2.7'
-
     //Design Setup
-    implementation 'com.google.android.material:material:1.8.0-alpha01'
+    implementation 'com.google.android.material:material:1.8.0-alpha03'
     implementation 'com.airbnb.android:lottie:5.2.0'
     implementation 'com.github.akshaaatt:Onboarding:1.0.4'
     implementation 'com.github.akshaaatt:Share-Android:1.0.0'
-
-    //Barcode Scan
-    implementation 'me.dm7.barcodescanner:zbar:1.9.13'
-
-    //Share
-    implementation 'com.github.akshaaatt:Share-Android:1.0.0'
-
-    //Instant App
-    implementation 'com.google.android.gms:play-services-instantapps:18.0.1'
 
     //Dagger-Hilt
     implementation("com.google.dagger:hilt-android:$hilt_version")
@@ -142,17 +126,17 @@ dependencies {
     implementation "androidx.compose.ui:ui-util:$compose_version"
     implementation "androidx.compose.material:material:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
-    implementation 'androidx.compose.material3:material3:1.0.0-beta03'
-    implementation 'androidx.compose.material3:material3-window-size-class:1.0.0-beta03'
+    implementation 'androidx.compose.material3:material3:1.1.0-alpha02'
+    implementation 'androidx.compose.material3:material3-window-size-class:1.1.0-alpha02'
     implementation "androidx.compose.animation:animation:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation 'androidx.constraintlayout:constraintlayout-compose:1.0.1'
-    implementation 'androidx.navigation:navigation-compose:2.6.0-alpha01'
+    implementation 'androidx.navigation:navigation-compose:2.6.0-alpha04'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1'
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
     implementation 'io.coil-kt:coil-compose:2.2.2'
     implementation 'com.airbnb.android:lottie-compose:5.2.0'
-    implementation 'androidx.navigation:navigation-compose:2.5.2'
+    implementation 'androidx.navigation:navigation-compose:2.5.3'
 
     //Spotify
     implementation files('./lib/spotify-app-remote-release-0.7.2.aar')
@@ -165,21 +149,21 @@ dependencies {
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4'
     testImplementation "androidx.room:room-testing:2.4.3"
 
-    androidTestImplementation 'androidx.test:runner:1.4.0'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test:runner:1.5.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.4'
     androidTestImplementation 'androidx.arch.core:core-testing:2.1.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.4.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.0'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
-    androidTestImplementation 'app.cash.turbine:turbine:0.11.0'
+    androidTestImplementation 'app.cash.turbine:turbine:0.12.1'
 
     //ViewPager
-    implementation "com.google.accompanist:accompanist-pager:0.23.0"
+    implementation 'com.google.accompanist:accompanist-pager:0.28.0'
 
     //Exoplayer
-    api 'com.google.android.exoplayer:exoplayer-core:2.18.1'
-    api 'com.google.android.exoplayer:exoplayer-ui:2.18.1'
-    api 'com.google.android.exoplayer:extension-mediasession:2.18.1'
+    api 'com.google.android.exoplayer:exoplayer-core:2.18.2'
+    api 'com.google.android.exoplayer:exoplayer-ui:2.18.2'
+    api 'com.google.android.exoplayer:extension-mediasession:2.18.2'
 
     //Room db
     implementation "androidx.room:room-runtime:2.4.3"

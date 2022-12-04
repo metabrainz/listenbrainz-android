@@ -31,7 +31,6 @@ import coil.compose.AsyncImage
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
-import com.thefinestartist.finestwebview.FinestWebView
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.BrainzPlayerActivity
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.BrainzPlayerViewModel
@@ -87,9 +86,6 @@ fun BottomNavigationBar(activity: Activity) {
                             if(nextActivity != activity::class.java){
                                 activity.startActivity(Intent(activity, ListensActivity::class.java))
                             }
-                        }
-                        "critiques" -> {
-                            FinestWebView.Builder(activity).show("https://critiquebrainz.org/")
                         }
                         "profile" -> {
                             val nextActivity = LoginActivity::class.java
