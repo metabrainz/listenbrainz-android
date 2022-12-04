@@ -26,7 +26,7 @@ class SongData {
             MediaStore.Audio.AudioColumns.YEAR,
             MediaStore.Audio.AudioColumns.DURATION,
             MediaStore.Audio.AudioColumns.TRACK,
-            MediaStore.Audio.AudioColumns.DISC_NUMBER,
+            MediaStore.Audio.AudioColumns.DISC_NUMBER,  // @RequiresApi(Build.VERSION_CODES.R) (or SDK 30)
             MediaStore.Audio.AudioColumns.ARTIST_ID,
             MediaStore.Audio.AudioColumns.DATE_MODIFIED
         )

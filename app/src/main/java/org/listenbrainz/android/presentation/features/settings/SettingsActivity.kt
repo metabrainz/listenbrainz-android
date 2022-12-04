@@ -9,6 +9,7 @@ import android.provider.Settings
 import android.view.MenuItem
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate.*
 import androidx.fragment.app.Fragment
 import androidx.preference.Preference
 import androidx.preference.SwitchPreference
@@ -16,7 +17,9 @@ import org.listenbrainz.android.App
 import org.listenbrainz.android.R
 import org.listenbrainz.android.databinding.ActivityPreferencesBinding
 import org.listenbrainz.android.presentation.UserPreferences.PREFERENCE_LISTENING_ENABLED
+import org.listenbrainz.android.presentation.UserPreferences.PREFERENCE_SYSTEM_THEME
 import org.listenbrainz.android.presentation.UserPreferences.preferenceListeningEnabled
+import org.listenbrainz.android.presentation.theme.isUiModeIsDark
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -26,7 +29,6 @@ class SettingsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val binding = ActivityPreferencesBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         supportActionBar!!.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.app_bg)))
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
@@ -57,6 +59,25 @@ class SettingsActivity : AppCompatActivity() {
                 } else if (!enabled) App.context!!.stopListenService()
                 return@OnPreferenceChangeListener true
             }
+            
+            // Explicit Ui Mode functionality.
+            if (preference.key == PREFERENCE_SYSTEM_THEME){
+                when (newValue) {
+                    "Dark" -> {
+                        setDefaultNightMode(MODE_NIGHT_YES)
+                        isUiModeIsDark.value = true
+                    }
+                    "Light" -> {
+                        setDefaultNightMode(MODE_NIGHT_NO)
+                        isUiModeIsDark.value = false
+                    }
+                    else -> {
+                        setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
+                        isUiModeIsDark.value = null
+                    }
+                }
+                return@OnPreferenceChangeListener true
+            }
             false
         }
     }
@@ -71,7 +92,7 @@ class SettingsActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                onBackPressed()
+                onBackPressedDispatcher.onBackPressed()
                 true
             }
             else -> super.onOptionsItemSelected(item)

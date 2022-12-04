@@ -34,7 +34,7 @@ fun BackLayerContent(activity: Activity, applicationContext: Context) {
         modifier = Modifier
             .verticalScroll(rememberScrollState())
             .fillMaxWidth()
-            .background(colorResource(id = R.color.app_bg))
+            .background(androidx.compose.material3.MaterialTheme.colorScheme.background)   // Only Change here.
     ) {
         Image(
             modifier = Modifier

@@ -29,7 +29,14 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/settings_language">
+    <PreferenceCategory android:title="@string/settings_appearance">
+        <ListPreference
+            android:key="app_theme"
+            android:title="App Theme"
+            android:summary="Choose your theme preference."
+            android:entries="@array/Themes"
+            android:entryValues="@array/ThemeData"
+            android:defaultValue="@string/settings_device_theme_use_device_theme" />
         <SwitchPreference
             android:defaultValue="false"
             android:key="use_english"

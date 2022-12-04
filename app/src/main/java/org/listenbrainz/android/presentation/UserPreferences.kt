@@ -14,6 +14,7 @@ object UserPreferences {
     private const val PREFERENCE_GET_PRIVATE_COLLECTIONS = "private_collections"
     private const val PREFERENCE_RATINGS_TAGS = "ratings_tags"
     private const val PREFERENCE_SYSTEM_LANGUAGE = "use_english"
+    const val PREFERENCE_SYSTEM_THEME = "app_theme"
     private const val PREFERENCE_ONBOARDING = "onboarding"
     private val preferences = PreferenceManager.getDefaultSharedPreferences(App.context!!)
 
@@ -26,6 +27,7 @@ object UserPreferences {
     val privateCollectionsPreference = preferences.getBoolean(PREFERENCE_GET_PRIVATE_COLLECTIONS, false)
     val ratingsTagsPreference = preferences.getBoolean(PREFERENCE_RATINGS_TAGS, false)
     val systemLanguagePreference = preferences.getBoolean(PREFERENCE_SYSTEM_LANGUAGE, false)
+    val themePreference = preferences.getString(PREFERENCE_SYSTEM_THEME, "Use device theme")
 
     val preferencePicardPort: String
         get() = preferences.getString(PREFERENCE_PICARD_PORT, "8000")!!

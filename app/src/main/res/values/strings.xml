@@ -85,6 +85,9 @@
     <string name="settings_user_data">User Data</string>
     <string name="settings_ratings_tags">Ratings and Tags</string>
     <string name="settings_ratings_tags_summary">Fetch ratings and tags of entities when the user is logged in.</string>
+    <string name="settings_device_theme_use_device_theme">Use device theme</string>
+    <string name="settings_device_theme_light">Light</string>
+    <string name="settings_device_theme_dark">Dark</string>
 
     <!-- Toasts -->
     <string name="toast_search_err">Add some text to search</string>
@@ -133,13 +136,10 @@
     <string name="directory_path_label">Directory Path</string>
     <string name="select_button">Select</string>
     <string name="up_button">Up</string>
-    <string name="settings_language">Language</string>
+    <string name="settings_appearance">Appearance</string>
     <string name="settings_use_language">Use English only</string>
     <string name="settings_use_language_summary">This option overrides the user specified system language and
     displays all the user interface in English only.</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="splashscreen_text">The Next Generation Music Tagger</string>
 
     <!--    loginScreen texts-->
     <string name="logout">Logout</string>

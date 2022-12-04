@@ -54,14 +54,16 @@ import org.listenbrainz.android.data.sources.brainzplayer.Artist
 import org.listenbrainz.android.data.sources.brainzplayer.Playlist
 import org.listenbrainz.android.data.sources.brainzplayer.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.data.sources.brainzplayer.Song
-import org.listenbrainz.android.presentation.components.BrainzPlayerBottomBar
-import org.listenbrainz.android.presentation.components.TopAppBar
+import org.listenbrainz.android.presentation.features.components.BrainzPlayerBottomBar
+import org.listenbrainz.android.presentation.features.components.TopAppBar
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.album.AlbumViewModel
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.artist.ArtistViewModel
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.Navigation
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.forwardingPainter
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.playlist.PlaylistViewModel
 import org.listenbrainz.android.presentation.features.listens.ListensActivity
+import org.listenbrainz.android.presentation.theme.ListenBrainzTheme
+import androidx.compose.material3.MaterialTheme
 
 @ExperimentalPagerApi
 @AndroidEntryPoint
@@ -71,39 +73,42 @@ class BrainzPlayerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val navController = rememberNavController()
-            val albumViewModel = hiltViewModel<AlbumViewModel>()
-            val artistViewModel = hiltViewModel<ArtistViewModel>()
-            val playlistViewModel = hiltViewModel<PlaylistViewModel>()
-            val artists = artistViewModel.artists.collectAsState(initial = listOf()).value
-            val albums = albumViewModel.albums.collectAsState(initial = listOf()).value
-            val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
-
-            val backdropScaffoldState =
-                rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
-            Scaffold(
-                modifier = Modifier.fillMaxSize(),
-                topBar = {
-                    TopAppBar(
-                        activity = this,
-                        title = "BrainzPlayer"
-                    )
-                },
-                bottomBar = { BrainzPlayerBottomBar(navController) },
-                backgroundColor = colorResource(id = R.color.app_bg)
-            ) { paddingValues ->
-                BrainzPlayerBackDropScreen(
-                    backdropScaffoldState = backdropScaffoldState,
-                    paddingValues = paddingValues,
-                    backLayerContent = {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                        ) {
-                            Navigation(navController, albums, artists, playlists, recentlyPlayed, this@BrainzPlayerActivity)
-                        }
-                    })
+            ListenBrainzTheme {
+                val navController = rememberNavController()
+                val albumViewModel = hiltViewModel<AlbumViewModel>()
+                val artistViewModel = hiltViewModel<ArtistViewModel>()
+                val playlistViewModel = hiltViewModel<PlaylistViewModel>()
+                val artists = artistViewModel.artists.collectAsState(initial = listOf()).value
+                
+                val albums = albumViewModel.albums.collectAsState(initial = listOf()).value
+                val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
+                val backdropScaffoldState =
+                    rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    topBar = {
+                        TopAppBar(
+                            activity = this,
+                            title = "BrainzPlayer"
+                        )
+                    },
+                    bottomBar = { BrainzPlayerBottomBar(navController) },
+                    backgroundColor = MaterialTheme.colorScheme.background
+                ) { paddingValues ->
+                    BrainzPlayerBackDropScreen(
+                        backdropScaffoldState = backdropScaffoldState,
+                        paddingValues = paddingValues,
+                        backLayerContent = {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                            ) {
+                                Navigation(navController, albums, artists, playlists, recentlyPlayed, this@BrainzPlayerActivity)
+                            }
+                        })
+                }
             }
+
         }
     }
 }
@@ -148,7 +153,7 @@ fun HomeScreen(
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp,
                     textAlign = TextAlign.Start,
-                    color = colorResource(id = R.color.white)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 LazyRow {
                     items(5) {
@@ -167,7 +172,7 @@ fun HomeScreen(
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp,
                     textAlign = TextAlign.Start,
-                    color = colorResource(id = R.color.white)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 LazyRow {
                     items(items = artists) {
@@ -193,7 +198,7 @@ fun HomeScreen(
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp,
                     textAlign = TextAlign.Start,
-                    color = colorResource(id = R.color.white)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 LazyRow {
                     items(albums) {
@@ -220,7 +225,7 @@ fun HomeScreen(
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp,
                     textAlign = TextAlign.Start,
-                    color = colorResource(id = R.color.white)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 LazyRow {
                     items(playlists.filter {
@@ -278,7 +283,7 @@ fun SearchView(state: MutableState<TextFieldValue>, brainzPlayerViewModel: Brain
                 searchStarted = true
 
             },
-            textStyle = TextStyle(Color.White, fontSize = 15.sp),
+            textStyle = TextStyle(MaterialTheme.colorScheme.onSurface, fontSize = 15.sp),
             leadingIcon = {
                 Icon(
                     Icons.Default.Search,
@@ -370,7 +375,7 @@ fun ListenBrainzHistoryCard(activity: BrainzPlayerActivity) {
                 fontWeight = FontWeight.Bold,
                 fontSize = 26.sp,
                 textAlign = TextAlign.Start,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }
@@ -435,7 +440,7 @@ fun BrainzPlayerActivityCards(icon: String, errorIcon : Int, title: String, modi
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                color = colorResource(id = R.color.white)
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }
