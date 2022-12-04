@@ -5,16 +5,13 @@ import com.google.gson.Gson
 import com.google.gson.JsonParser
 import org.listenbrainz.android.data.sources.Constants
 import org.listenbrainz.android.data.sources.api.LookupService
-import org.listenbrainz.android.data.sources.api.MusicBrainzServiceGenerator
 import org.listenbrainz.android.data.sources.api.entities.CoverArt
 import org.listenbrainz.android.data.sources.api.entities.RecordingItem
 import org.listenbrainz.android.data.sources.api.entities.WikiDataResponse
 import org.listenbrainz.android.data.sources.api.entities.WikiSummary
-import org.listenbrainz.android.data.sources.api.entities.mbentity.Recording
 import org.listenbrainz.android.data.sources.api.entities.mbentity.Release
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Resource.Status.SUCCESS
-import org.listenbrainz.android.util.TaggerUtils
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -99,20 +96,6 @@ class LookupRepositoryImpl @Inject constructor(private val service: LookupServic
         return try {
             val data = service.lookupRecording(MBID, Constants.TAGGER_RELEASE_PARAMS)
             Resource(SUCCESS, data)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Resource.failure()
-        }
-    }
-
-    @WorkerThread
-    override suspend fun fetchAcoustIDResults(duration: Long, fingerprint: String?): Resource<List<Recording>> {
-        return try {
-            val data = service.lookupFingerprint(MusicBrainzServiceGenerator.ACOUST_ID_KEY,
-                Constants.ACOUST_ID_RESPONSE_PARAMS,
-                duration,
-                fingerprint)
-            Resource(SUCCESS, TaggerUtils.parseResults(data.results))
         } catch (e: Exception) {
             e.printStackTrace()
             Resource.failure()
