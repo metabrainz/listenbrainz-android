@@ -59,12 +59,12 @@ lateinit var isUiModeIsDark : MutableState<Boolean?>
 fun ListenBrainzTheme(
     context: Context = LocalContext.current,
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+    //dynamicColor: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
     content: @Composable () -> Unit
 ) {
     val systemTheme = isSystemInDarkTheme()
     isUiModeIsDark = remember { mutableStateOf(userSelectedThemeIsNight(context)) }
-    val colorScheme = if (dynamicColor){
+    /*val colorScheme = if (dynamicColor){
             when(isUiModeIsDark.value){
                 true -> dynamicDarkColorScheme(context)
                 false -> dynamicLightColorScheme(context)
@@ -76,6 +76,11 @@ fun ListenBrainzTheme(
                     false -> LightColorScheme
                     else -> if (systemTheme) DarkColorScheme else LightColorScheme
             }
+    }*/
+    val colorScheme = when (isUiModeIsDark.value) {
+        true -> DarkColorScheme
+        false -> LightColorScheme
+        else -> if (systemTheme) DarkColorScheme else LightColorScheme
     }
     val view = LocalView.current
     if (!view.isInEditMode) {
