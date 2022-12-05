@@ -72,7 +72,6 @@ fun ListenBrainzTheme(
 ) {
     val systemTheme = isSystemInDarkTheme()
     isUiModeIsDark = remember { mutableStateOf(userSelectedThemeIsNight(context)) }
-    // With dynamic color
     // With Dynamic Color
     /*val colorScheme = if (dynamicColor){
             when(isUiModeIsDark.value){
@@ -87,7 +86,6 @@ fun ListenBrainzTheme(
                     else -> if (systemTheme) DarkColorScheme else LightColorScheme
             }
     }*/
-    // Without dynamic color
     // Without Dynamic Color
     val colorScheme = when (isUiModeIsDark.value) {
         true -> DarkColorScheme
