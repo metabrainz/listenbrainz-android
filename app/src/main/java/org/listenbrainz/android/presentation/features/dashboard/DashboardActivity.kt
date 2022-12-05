@@ -87,11 +87,6 @@ class DashboardActivity : ComponentActivity() {
         }
     }
     
-    override fun onStart() {
-        window.setBackgroundDrawableResource(R.color.orange)
-        super.onStart()
-    }
-    
     // Sets Ui mode for XML layouts.
     private fun setUiMode(){
         when( PreferenceManager.getDefaultSharedPreferences(this)
