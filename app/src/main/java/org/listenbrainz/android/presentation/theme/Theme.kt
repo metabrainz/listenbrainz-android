@@ -2,7 +2,6 @@ package org.listenbrainz.android.presentation.theme
 
 import android.app.Activity
 import android.content.Context
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,6 +20,10 @@ private val DarkColorScheme = darkColorScheme(
     background = app_bg_night,
     onBackground = app_bg_light,
     primary = app_bg_night,
+    // Tertiary reserved for brainzPlayer's mini view
+    tertiaryContainer = bp_bottom_song_viewpager_dark,
+    onTertiary = bp_color_primary_dark,
+    
     onSurface = Color.White     // Text color (Which is ON surface/canvas)
 )
 
@@ -28,6 +31,10 @@ private val LightColorScheme = lightColorScheme(
     background = app_bg_day,
     onBackground = app_bg_light,
     primary = app_bg_day,
+    // Tertiary reserved for brainzPlayer's mini view
+    tertiaryContainer = bp_bottom_song_viewpager_day,
+    onTertiary = bp_color_primary_day,
+    
     onSurface = Color.Black
 )
 
@@ -64,6 +71,7 @@ fun ListenBrainzTheme(
 ) {
     val systemTheme = isSystemInDarkTheme()
     isUiModeIsDark = remember { mutableStateOf(userSelectedThemeIsNight(context)) }
+    // With dynamic color
     /*val colorScheme = if (dynamicColor){
             when(isUiModeIsDark.value){
                 true -> dynamicDarkColorScheme(context)
@@ -77,6 +85,7 @@ fun ListenBrainzTheme(
                     else -> if (systemTheme) DarkColorScheme else LightColorScheme
             }
     }*/
+    // Without dynamic color
     val colorScheme = when (isUiModeIsDark.value) {
         true -> DarkColorScheme
         false -> LightColorScheme

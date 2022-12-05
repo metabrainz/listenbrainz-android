@@ -10,8 +10,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatDelegate.*
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.preference.PreferenceManager
@@ -69,7 +71,7 @@ class DashboardActivity : ComponentActivity() {
                     topBar = { TopAppBar(activity = this, title = "Home") },
                     bottomBar = { BottomNavigationBar(activity = this) },
                     // This fixes the white flicker on start up that only occurs on BackLayerContent
-                    backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.background
+                    backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.background,
                 ) { paddingValues ->
                     if (isGrantedPerms) {
                         BrainzPlayerBackDropScreen(

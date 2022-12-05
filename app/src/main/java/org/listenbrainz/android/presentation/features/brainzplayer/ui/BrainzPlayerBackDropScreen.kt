@@ -180,7 +180,7 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
                 ) {
                     AsyncImage(
                         modifier = Modifier
-                            .background(colorResource(id = R.color.app_bg))
+                            .background(MaterialTheme.colorScheme.background)
                             .fillMaxSize()
                             .padding()
                             .clip(shape = RoundedCornerShape(20.dp))
