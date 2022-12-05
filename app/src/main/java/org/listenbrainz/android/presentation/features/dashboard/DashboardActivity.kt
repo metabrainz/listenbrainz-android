@@ -13,15 +13,10 @@ import androidx.appcompat.app.AppCompatDelegate.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.components.BottomNavigationBar
 import org.listenbrainz.android.presentation.features.components.TopAppBar
@@ -72,7 +67,9 @@ class DashboardActivity : ComponentActivity() {
                     rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
                 Scaffold(
                     topBar = { TopAppBar(activity = this, title = "Home") },
-                    bottomBar = { BottomNavigationBar(activity = this) }
+                    bottomBar = { BottomNavigationBar(activity = this) },
+                    // This fixes the white flicker on start up that only occurs on BackLayerContent
+                    backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.background
                 ) { paddingValues ->
                     if (isGrantedPerms) {
                         BrainzPlayerBackDropScreen(
@@ -85,6 +82,11 @@ class DashboardActivity : ComponentActivity() {
                 }
             }
         }
+    }
+    
+    override fun onStart() {
+        window.setBackgroundDrawableResource(R.color.orange)
+        super.onStart()
     }
     
     // Sets Ui mode for XML layouts.

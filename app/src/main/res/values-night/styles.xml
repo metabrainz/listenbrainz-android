@@ -36,7 +36,6 @@
 
     <style name="AppThemeNoActionBar" parent="Theme.MaterialComponents.DayNight.NoActionBar" >
         <item name="colorPrimaryDark">@color/app_bg</item>
-        <item name="android:windowBackground">@color/app_bg</item>
     </style>
 
     <style name="SettingsSwitchTheme" parent="@style/Widget.MaterialComponents.CompoundButton.Switch">
