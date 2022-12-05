@@ -19,5 +19,4 @@ data class SongEntity(
     val dateModified : Long,
     val artistId : Long,
     val discNumber : Long
-
 )

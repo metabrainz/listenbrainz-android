@@ -140,9 +140,6 @@
     <string name="settings_use_language">Use English only</string>
     <string name="settings_use_language_summary">This option overrides the user specified system language and
     displays all the user interface in English only.</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="splashscreen_text">The Next Generation Music Tagger</string>
 
     <!--    loginScreen texts-->
     <string name="logout">Logout</string>

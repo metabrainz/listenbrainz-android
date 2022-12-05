@@ -67,11 +67,13 @@ fun ListenBrainzTheme(
     context: Context = LocalContext.current,
     // Dynamic color is available on Android 12+
     //dynamicColor: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
+    // dynamicColor: Boolean = false,//Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
     content: @Composable () -> Unit
 ) {
     val systemTheme = isSystemInDarkTheme()
     isUiModeIsDark = remember { mutableStateOf(userSelectedThemeIsNight(context)) }
     // With dynamic color
+    // With Dynamic Color
     /*val colorScheme = if (dynamicColor){
             when(isUiModeIsDark.value){
                 true -> dynamicDarkColorScheme(context)
@@ -86,6 +88,7 @@ fun ListenBrainzTheme(
             }
     }*/
     // Without dynamic color
+    // Without Dynamic Color
     val colorScheme = when (isUiModeIsDark.value) {
         true -> DarkColorScheme
         false -> LightColorScheme
