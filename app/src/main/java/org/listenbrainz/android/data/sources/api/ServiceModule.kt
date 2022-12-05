@@ -4,7 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import org.listenbrainz.android.data.sources.api.MusicBrainzServiceGenerator.createService
+import org.listenbrainz.android.data.sources.api.ListenBrainzServiceGenerator.createService
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton

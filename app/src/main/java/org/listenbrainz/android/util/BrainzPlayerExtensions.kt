@@ -139,7 +139,7 @@ object BrainzPlayerExtensions {
 
         when (val result = imageRequest.context.imageLoader.execute(imageRequest)) {
             is SuccessResult -> result.drawable.toBitmap()
-            is ErrorResult -> R.drawable.ic_musicbrainz_logo_no_text.bitmap(context)
+            is ErrorResult -> R.drawable.ic_listenbrainz_logo_no_text.bitmap(context)
         }
     }
     suspend fun Int.bitmap(context: Context): Bitmap = withContext(Dispatchers.IO) {
@@ -152,7 +152,7 @@ object BrainzPlayerExtensions {
 
         when (val result = imageRequest.context.imageLoader.execute(imageRequest)) {
             is SuccessResult -> result.drawable.toBitmap()
-            is ErrorResult -> BitmapFactory.decodeResource(context.resources, R.drawable.ic_musicbrainz_logo_no_text)
+            is ErrorResult -> BitmapFactory.decodeResource(context.resources, R.drawable.ic_listenbrainz_logo_no_text)
         }
     }
 

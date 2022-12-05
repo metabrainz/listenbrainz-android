@@ -20,58 +20,6 @@ class FeaturesActivity : OnboardAdvanced() {
         super.onCreate(savedInstanceState)
 
         addSlide(OnboardFragment.newInstance(
-            "Tag",
-            "Fix your Audio Metadata",
-            resourceId = R.raw.tagger,
-            isLottie = true,
-            backgroundColor =  ContextCompat.getColor(applicationContext, R.color.app_bg),
-            titleColor = ContextCompat.getColor(applicationContext, R.color.white),
-            descriptionColor = ContextCompat.getColor(applicationContext, R.color.white)
-        ))
-
-        addSlide(OnboardFragment.newInstance(
-            SliderPage(
-                "Search",
-                "Explore MusicBrainz Data",
-                resourceId = R.raw.search,
-                backgroundColor =  ContextCompat.getColor(applicationContext, R.color.app_bg),
-                titleColor = ContextCompat.getColor(applicationContext, R.color.white),
-                descriptionColor = ContextCompat.getColor(applicationContext, R.color.white),
-                isLottie = true
-            )
-        ))
-
-        addSlide(OnboardFragment.newInstance(
-            "Scan",
-            "Barcodes Search",
-            resourceId = R.raw.scan,
-            backgroundColor =  ContextCompat.getColor(applicationContext, R.color.app_bg),
-            titleColor = ContextCompat.getColor(applicationContext, R.color.white),
-            descriptionColor = ContextCompat.getColor(applicationContext, R.color.white),
-            isLottie = true
-        ))
-
-        addSlide(OnboardFragment.newInstance(
-            "Collections",
-            "Explore your MusicBrainz Collection",
-            resourceId = R.raw.collections,
-            backgroundColor =  ContextCompat.getColor(applicationContext, R.color.app_bg),
-            titleColor = ContextCompat.getColor(applicationContext, R.color.white),
-            descriptionColor = ContextCompat.getColor(applicationContext, R.color.white),
-            isLottie = true
-        ))
-
-        addSlide(OnboardFragment.newInstance(
-            "Cross Platform",
-            "Transfer music data across devices",
-            resourceId = R.raw.laptop_and_stuff,
-            backgroundColor =  ContextCompat.getColor(applicationContext, R.color.app_bg),
-            titleColor = ContextCompat.getColor(applicationContext, R.color.white),
-            descriptionColor = ContextCompat.getColor(applicationContext, R.color.white),
-            isLottie = true
-        ))
-
-        addSlide(OnboardFragment.newInstance(
             "Listens",
             "Track your music listening habits ",
             resourceId = R.raw.teen,

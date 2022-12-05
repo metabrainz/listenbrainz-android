@@ -18,6 +18,6 @@ val bp_lavender_dark = Color(0xFFE9DCFE)
 
 /** background Colors */
 val app_bg_day = Color(0xFFDFDFDF)
-val app_bg_night = Color(0xFF263238)
+val app_bg_night = Color(0xFF1A1A1A)
 
 val app_bg_light = Color(0xFF8FA3AD)

@@ -1,5 +1,6 @@
 package org.listenbrainz.android.presentation.features.brainzplayer.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -47,6 +48,7 @@ import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import kotlin.math.absoluteValue
 import androidx.compose.material3.MaterialTheme
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalAnimationApi::class)
 @ExperimentalMaterialApi
 @ExperimentalPagerApi

@@ -11,15 +11,12 @@ import org.listenbrainz.android.App
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-object MusicBrainzServiceGenerator {
-
+object ListenBrainzServiceGenerator {
     const val API_BASE_URL = "https://musicbrainz.org/ws/2/"
     const val AUTH_BASE_URL = "https://musicbrainz.org/oauth2/"
-    const val ACOUST_ID_BASE_URL = "https://api.acoustid.org/v2/lookup"
-    const val CLIENT_ID = "DfX8Xv3B5Cbco8nZgd6KYMS504F3gmJx"
-    const val CLIENT_SECRET = "XypxMsphalFfTIh_IagjcsIlSKuUWoc-"
-    const val OAUTH_REDIRECT_URI = "org.metabrainz.android://oauth"
-    const val ACOUST_ID_KEY = "5mgEECwRkp"
+    const val CLIENT_ID = "XqCukyOoCAH9PRrHpwiINlvJ1T-x4ffQ"
+    const val CLIENT_SECRET = "CJrUcF_jyzj-MVCPhNXSwPIpu_eeb_Ye"
+    const val OAUTH_REDIRECT_URI = "org.listenbrainz.android://oauth"
 
     private var authenticator: OAuthAuthenticator? = null
     private val loggingInterceptor = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
@@ -43,18 +40,20 @@ object MusicBrainzServiceGenerator {
 
     private fun hasNetwork(context: Context): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val nw = connectivityManager.activeNetwork ?: return false
-            val actNw = connectivityManager.getNetworkCapabilities(nw) ?: return false
-            return when {
-                actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
-                actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
-                else -> false
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
+                val nw = connectivityManager.activeNetwork ?: return false
+                val actNw = connectivityManager.getNetworkCapabilities(nw) ?: return false
+                return when {
+                    actNw.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                    actNw.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                    else -> false
+                }
             }
-        }
-        else {
-            val nwInfo = connectivityManager.activeNetworkInfo ?: return false
-            return nwInfo.isConnected
+            else -> {
+                val nwInfo = connectivityManager.activeNetworkInfo ?: return false
+                return nwInfo.isConnected
+            }
         }
     }
 
