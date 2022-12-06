@@ -73,7 +73,7 @@ class BrainzPlayerActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ListenBrainzTheme {
+            ListenBrainzTheme(window = window) {
                 val navController = rememberNavController()
                 val albumViewModel = hiltViewModel<AlbumViewModel>()
                 val artistViewModel = hiltViewModel<ArtistViewModel>()

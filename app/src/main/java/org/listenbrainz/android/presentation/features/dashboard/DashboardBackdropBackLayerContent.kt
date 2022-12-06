@@ -12,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -23,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.newsbrainz.NewsBrainzActivity
+import org.listenbrainz.android.presentation.theme.lb_orange
+import org.listenbrainz.android.presentation.theme.lb_purple
 
 
 @Composable
@@ -51,9 +52,7 @@ fun BackLayerContent(activity: Activity, applicationContext: Context) {
                     withStyle(
                         style = SpanStyle(
                             fontWeight = FontWeight.Bold,
-                            color = colorResource(
-                                id = R.color.mb_purple
-                            )
+                            color = lb_purple
                         )
                     ) {
                         append("Listen")
@@ -62,9 +61,7 @@ fun BackLayerContent(activity: Activity, applicationContext: Context) {
                     withStyle(
                         style = SpanStyle(
                             fontWeight = FontWeight.Bold,
-                            color = colorResource(
-                                id = R.color.mb_orange
-                            )
+                            color = lb_orange
                         )
                     ) {
                         append("Brainz")

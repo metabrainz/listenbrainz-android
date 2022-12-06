@@ -2,6 +2,7 @@ package org.listenbrainz.android.presentation.theme
 
 import android.app.Activity
 import android.content.Context
+import android.view.Window
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -12,6 +13,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.preference.PreferenceManager
 
 /** Theme for the whole app. */
@@ -64,6 +66,7 @@ lateinit var isUiModeIsDark : MutableState<Boolean?>
 
 @Composable
 fun ListenBrainzTheme(
+    window: Window,
     context: Context = LocalContext.current,
     // Dynamic color is available on Android 12+
     //dynamicColor: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
@@ -96,13 +99,14 @@ fun ListenBrainzTheme(
     if (!view.isInEditMode) {
         SideEffect {
             (view.context as Activity).window.statusBarColor = colorScheme.background.toArgb()
-            ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars =
-                when (isUiModeIsDark.value){
-                    true -> false
-                    false -> true
-                    else -> !systemTheme
-                }
-                
+            val isLight = when (isUiModeIsDark.value){
+                true -> false
+                false -> true
+                else -> !systemTheme
+            }
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = isLight
+            window.navigationBarColor = colorScheme.background.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = isLight
         }
     }
     CompositionLocalProvider {
