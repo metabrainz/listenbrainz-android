@@ -52,7 +52,13 @@ fun BackLayerContent(activity: Activity, applicationContext: Context) {
                     withStyle(
                         style = SpanStyle(
                             fontWeight = FontWeight.Bold,
+<<<<<<< HEAD
                             color = lb_purple
+=======
+                            color = colorResource(
+                                id = R.color.lb_purple
+                            )
+>>>>>>> a5cc5b7e2229110d6fe69b45aaa30bef5a372684
                         )
                     ) {
                         append("Listen")
@@ -61,7 +67,13 @@ fun BackLayerContent(activity: Activity, applicationContext: Context) {
                     withStyle(
                         style = SpanStyle(
                             fontWeight = FontWeight.Bold,
+<<<<<<< HEAD
                             color = lb_orange
+=======
+                            color = colorResource(
+                                id = R.color.lb_orange
+                            )
+>>>>>>> a5cc5b7e2229110d6fe69b45aaa30bef5a372684
                         )
                     ) {
                         append("Brainz")
