@@ -11,6 +11,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate.*
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentFactory
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentOnAttachListener
 import androidx.preference.Preference
 import androidx.preference.SwitchPreference
 import org.listenbrainz.android.App
@@ -36,6 +39,12 @@ class SettingsActivity : AppCompatActivity() {
                 .beginTransaction()
                 .replace(R.id.settings_container, SettingsFragment())
                 .commit()
+        
+        supportFragmentManager.addFragmentOnAttachListener(
+            FragmentOnAttachListener { fragmentManager, fragment ->
+                if(fragment is SettingsFragment)
+                    fragment.setPreferenceChangeListener(preferenceChangeListener)
+            })
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1){
             ACTION_NOTIFICATION_LISTENER_SETTINGS = Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
@@ -79,13 +88,6 @@ class SettingsActivity : AppCompatActivity() {
                 return@OnPreferenceChangeListener true
             }
             false
-        }
-    }
-
-    override fun onAttachFragment(fragment: Fragment) {
-        super.onAttachFragment(fragment)
-        if (fragment is SettingsFragment) {
-            fragment.setPreferenceChangeListener(preferenceChangeListener)
         }
     }
 

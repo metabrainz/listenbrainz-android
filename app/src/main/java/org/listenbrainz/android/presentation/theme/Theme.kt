@@ -12,16 +12,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.preference.PreferenceManager
 
 /** Theme for the whole app. */
 
 private val DarkColorScheme = darkColorScheme(
-    background = app_bg_night,
+    background = app_bg_dark,
     onBackground = app_bg_light,
-    primary = app_bg_night,
+    primary = app_bg_dark,
     // Tertiary reserved for brainzPlayer's mini view
     tertiaryContainer = bp_bottom_song_viewpager_dark,
     onTertiary = bp_color_primary_dark,

@@ -76,8 +76,7 @@ fun BrainzPlayerBackDropScreen(
         backLayerContent = {
             backLayerContent()
         },
-        frontLayerBackgroundColor = MaterialTheme.colorScheme.background,
-        frontLayerElevation = 10.dp,
+        frontLayerBackgroundColor = MaterialTheme.colorScheme.onBackground,
         appBar = {},
         persistentAppBar = false,
         frontLayerContent = {

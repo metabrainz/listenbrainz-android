@@ -228,7 +228,7 @@ fun BrainzPlayerBottomBar( navController: NavController) {
                 icon = { Icon(item.icon, contentDescription = item.title) },
                 label = { Text(text = item.title, fontSize = 11.sp) },
                 selectedContentColor = MaterialTheme.colorScheme.onSurface,
-                unselectedContentColor = MaterialTheme.colorScheme.onBackground,      // TODO: Fix this color with consent
+                unselectedContentColor = MaterialTheme.colorScheme.onBackground,
                 alwaysShowLabel = true,
                 selected = selected,
                 onClick = {
