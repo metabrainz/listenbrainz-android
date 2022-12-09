@@ -46,7 +46,7 @@ class DashboardActivity : ComponentActivity() {
         )
         
         setContent {
-            ListenBrainzTheme(window = window)
+            ListenBrainzTheme()
             {
                 var isGrantedPerms by remember {
                     mutableStateOf(false)

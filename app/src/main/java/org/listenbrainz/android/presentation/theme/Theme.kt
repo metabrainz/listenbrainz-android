@@ -14,6 +14,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.preference.PreferenceManager
+import com.google.accompanist.systemuicontroller.SystemUiController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 /** Theme for the whole app. */
 
@@ -65,14 +67,14 @@ lateinit var isUiModeIsDark : MutableState<Boolean?>
 
 @Composable
 fun ListenBrainzTheme(
-    window: Window,
+    systemTheme: Boolean = isSystemInDarkTheme(),
+    systemUiController: SystemUiController = rememberSystemUiController(),
     context: Context = LocalContext.current,
     // Dynamic color is available on Android 12+
     //dynamicColor: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
     // dynamicColor: Boolean = false,//Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
     content: @Composable () -> Unit
 ) {
-    val systemTheme = isSystemInDarkTheme()
     isUiModeIsDark = remember { mutableStateOf(userSelectedThemeIsNight(context)) }
     // With Dynamic Color
     /*val colorScheme = if (dynamicColor){
@@ -98,14 +100,14 @@ fun ListenBrainzTheme(
     if (!view.isInEditMode) {
         SideEffect {
             (view.context as Activity).window.statusBarColor = colorScheme.background.toArgb()
-            val isLight = when (isUiModeIsDark.value){
+            val isDark = when (isUiModeIsDark.value){
                 true -> false
                 false -> true
                 else -> !systemTheme
             }
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = isLight
-            window.navigationBarColor = colorScheme.background.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = isLight
+            systemUiController.statusBarDarkContentEnabled = isDark
+            systemUiController.navigationBarDarkContentEnabled = isDark
+            systemUiController.setNavigationBarColor(color = colorScheme.background)
         }
     }
     CompositionLocalProvider {
