@@ -25,8 +25,8 @@ android {
         applicationId 'org.listenbrainz.android'
         minSdk 21
         targetSdk 33
-        versionCode 1
-        versionName "1.0.0"
+        versionCode 2
+        versionName "1.0.1"
 
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -109,7 +109,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
 
     //Design Setup
-    implementation 'com.google.android.material:material:1.8.0-alpha03'
+    implementation 'com.google.android.material:material:1.8.0-beta01'
     implementation 'com.airbnb.android:lottie:5.2.0'
     implementation 'com.github.akshaaatt:Onboarding:1.0.4'
     implementation 'com.github.akshaaatt:Share-Android:1.0.0'
@@ -121,13 +121,13 @@ dependencies {
     kapt("androidx.hilt:hilt-compiler:1.0.0")
 
     //Jetpack Compose
-    implementation "androidx.compose.ui:ui:$compose_version"
+    implementation "androidx.compose.ui:ui:1.3.2"
     implementation "androidx.compose.ui:ui-tooling:$compose_version"
-    implementation "androidx.compose.ui:ui-util:$compose_version"
+    implementation "androidx.compose.ui:ui-util:1.3.2"
     implementation "androidx.compose.material:material:$compose_version"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
-    implementation 'androidx.compose.material3:material3:1.1.0-alpha02'
-    implementation 'androidx.compose.material3:material3-window-size-class:1.1.0-alpha02'
+    implementation 'androidx.compose.material3:material3:1.1.0-alpha03'
+    implementation 'androidx.compose.material3:material3-window-size-class:1.1.0-alpha03'
     implementation "androidx.compose.animation:animation:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation 'androidx.constraintlayout:constraintlayout-compose:1.0.1'
@@ -171,5 +171,5 @@ dependencies {
     implementation "androidx.room:room-ktx:2.4.3"
 
     // Jetpack Compose accompanists (https://github.com/google/accompanist)
-    implementation "com.google.accompanist:accompanist-systemuicontroller:0.27.0"
+    implementation 'com.google.accompanist:accompanist-systemuicontroller:0.28.0'
 }
