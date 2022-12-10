@@ -90,7 +90,7 @@ class ListensActivity: ComponentActivity() {
         SpotifyAppRemote.setDebugMode(true)
 
         setContent {
-            ListenBrainzTheme {
+            ListenBrainzTheme() {
                 Scaffold(
                     backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.background,
                     topBar = { TopAppBar(activity = this, title = "Listens") },

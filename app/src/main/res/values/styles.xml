@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light">
         <!-- Customize your theme here. -->
@@ -8,6 +8,9 @@
 
         <item name="colorControlActivated">@color/colorPrimary</item>
         <item name="alertDialogTheme">@style/settingsDialog</item>
+        <item name="android:navigationBarColor">@color/app_bg</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
     </style>
 
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
@@ -34,7 +37,6 @@
 
     <style name="AppThemeNoActionBar" parent="Theme.MaterialComponents.Light.NoActionBar" >
         <item name="colorPrimaryDark">@color/app_bg</item>
-        <item name="android:windowBackground">@color/app_bg</item>
     </style>
 
     <style name="SettingsSwitchTheme" parent="@style/Widget.MaterialComponents.CompoundButton.Switch">

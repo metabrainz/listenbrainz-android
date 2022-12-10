@@ -1,13 +1,16 @@
 package org.listenbrainz.android.presentation.features.dashboard
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatDelegate.*
+import androidx.compose.material.*
 import androidx.compose.material.BackdropValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
@@ -27,7 +30,7 @@ import org.listenbrainz.android.presentation.theme.ListenBrainzTheme
 
 @AndroidEntryPoint
 class DashboardActivity : ComponentActivity() {
-
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,7 +70,9 @@ class DashboardActivity : ComponentActivity() {
                     rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
                 Scaffold(
                     topBar = { TopAppBar(activity = this, title = "Home") },
-                    bottomBar = { BottomNavigationBar(activity = this) }
+                    bottomBar = { BottomNavigationBar(activity = this) },
+                    // This fixes the white flicker on start up that only occurs on BackLayerContent
+                    backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.background,
                 ) { paddingValues ->
                     if (isGrantedPerms) {
                         BrainzPlayerBackDropScreen(

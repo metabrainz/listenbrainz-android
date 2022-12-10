@@ -108,9 +108,8 @@ fun SongViewPager(viewModel: BrainzPlayerViewModel = hiltViewModel()) {
     val pageState = rememberPagerState(initialPage = pagerState)
     HorizontalPager(count = songList.size, state = pageState, modifier = Modifier
         .fillMaxWidth()
-        .background(
-            colorResource(id = R.color.bp_bottom_song_viewpager)
-        )) {
+        .background(MaterialTheme.colorScheme.tertiaryContainer)
+    ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -171,23 +170,19 @@ fun SongViewPager(viewModel: BrainzPlayerViewModel = hiltViewModel()) {
                                 Modifier
                                     .size(35.dp)
                                     .clickable { viewModel.skipToPreviousSong() },
-                                tint = colorResource(
-                                    id = R.color.bp_color_primary
-                                )
+                                tint = MaterialTheme.colorScheme.onTertiary
                             )
                             Box(
                                 modifier = Modifier
                                     .size(35.dp)
                                     .clip(CircleShape)
-                                    .background(colorResource(id = R.color.bp_color_primary))
+                                    .background(MaterialTheme.colorScheme.onTertiary)
                             ) {
                                 PlayPauseIcon(
                                     playIcon,
                                     viewModel,
                                     Modifier.size(35.dp),
-                                    tint = colorResource(
-                                        id = R.color.bp_bottom_song_viewpager
-                                    )
+                                    tint = MaterialTheme.colorScheme.tertiaryContainer
                                 )
                             }
                             Icon(
@@ -196,9 +191,7 @@ fun SongViewPager(viewModel: BrainzPlayerViewModel = hiltViewModel()) {
                                 Modifier
                                     .size(35.dp)
                                     .clickable { viewModel.skipToNextSong() },
-                                tint = colorResource(
-                                    id = R.color.bp_color_primary
-                                )
+                                tint = MaterialTheme.colorScheme.onTertiary
                             )
                         }
                         MarqueeText(
@@ -235,7 +228,7 @@ fun BrainzPlayerBottomBar( navController: NavController) {
                 icon = { Icon(item.icon, contentDescription = item.title) },
                 label = { Text(text = item.title, fontSize = 11.sp) },
                 selectedContentColor = MaterialTheme.colorScheme.onSurface,
-                unselectedContentColor = MaterialTheme.colorScheme.onBackground,      // TODO: Fix this color with consent
+                unselectedContentColor = MaterialTheme.colorScheme.onBackground,
                 alwaysShowLabel = true,
                 selected = selected,
                 onClick = {

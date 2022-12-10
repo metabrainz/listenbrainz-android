@@ -2,7 +2,7 @@ package org.listenbrainz.android.presentation.theme
 
 import android.app.Activity
 import android.content.Context
-import android.os.Build
+import android.view.Window
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -12,15 +12,21 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.preference.PreferenceManager
+import com.google.accompanist.systemuicontroller.SystemUiController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 /** Theme for the whole app. */
 
 private val DarkColorScheme = darkColorScheme(
-    background = app_bg_night,
+    background = app_bg_dark,
     onBackground = app_bg_light,
-    primary = app_bg_night,
+    primary = app_bg_dark,
+    // Tertiary reserved for brainzPlayer's mini view
+    tertiaryContainer = bp_bottom_song_viewpager_dark,
+    onTertiary = bp_color_primary_dark,
+    
     onSurface = Color.White     // Text color (Which is ON surface/canvas)
 )
 
@@ -28,6 +34,10 @@ private val LightColorScheme = lightColorScheme(
     background = app_bg_day,
     onBackground = app_bg_light,
     primary = app_bg_day,
+    // Tertiary reserved for brainzPlayer's mini view
+    tertiaryContainer = bp_bottom_song_viewpager_day,
+    onTertiary = bp_color_primary_day,
+    
     onSurface = Color.Black
 )
 
@@ -57,12 +67,14 @@ lateinit var isUiModeIsDark : MutableState<Boolean?>
 
 @Composable
 fun ListenBrainzTheme(
+    systemTheme: Boolean = isSystemInDarkTheme(),
+    systemUiController: SystemUiController = rememberSystemUiController(),
     context: Context = LocalContext.current,
     // Dynamic color is available on Android 12+
+    //dynamicColor: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
     // dynamicColor: Boolean = false,//Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
     content: @Composable () -> Unit
 ) {
-    val systemTheme = isSystemInDarkTheme()
     isUiModeIsDark = remember { mutableStateOf(userSelectedThemeIsNight(context)) }
     // With Dynamic Color
     /*val colorScheme = if (dynamicColor){
@@ -88,13 +100,14 @@ fun ListenBrainzTheme(
     if (!view.isInEditMode) {
         SideEffect {
             (view.context as Activity).window.statusBarColor = colorScheme.background.toArgb()
-            ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars =
-                when (isUiModeIsDark.value){
-                    true -> false
-                    false -> true
-                    else -> !systemTheme
-                }
-                
+            val isDark = when (isUiModeIsDark.value){
+                true -> false
+                false -> true
+                else -> !systemTheme
+            }
+            systemUiController.statusBarDarkContentEnabled = isDark
+            systemUiController.navigationBarDarkContentEnabled = isDark
+            systemUiController.setNavigationBarColor(color = colorScheme.background)
         }
     }
     CompositionLocalProvider {
