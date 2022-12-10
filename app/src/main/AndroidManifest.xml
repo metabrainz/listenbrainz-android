@@ -77,7 +77,7 @@
 
                 <data
                     android:host="oauth"
-                    android:scheme="org.metabrainz.android" />
+                    android:scheme="org.listenbrainz.android" />
             </intent-filter>
         </activity>
         <activity

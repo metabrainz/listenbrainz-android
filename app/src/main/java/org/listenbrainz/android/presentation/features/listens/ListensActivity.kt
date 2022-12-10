@@ -69,7 +69,7 @@ class ListensActivity: ComponentActivity() {
 
     object AuthParams {
         const val CLIENT_ID = "2a0d7ed37e9841269130b82843d3f842"
-        const val REDIRECT_URI = "org.metabrainz.android://callback"
+        const val REDIRECT_URI = "org.listenbrainz.android://callback"
     }
 
     companion object {

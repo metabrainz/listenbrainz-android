@@ -6,7 +6,7 @@ object Configuration {
     const val FEEDBACK_EMAIL = "support@metabrainz.org"
     const val FEEDBACK_SUBJECT = "[MBAndroid] Feedback"
     const val USER_AGENT = "MusicBrainzAndroid"
-    const val CLIENT_NAME = "org.metabrainz.android"
+    const val CLIENT_NAME = "org.listenbrainz.android"
     private const val WEBSITE = "http://metabrainz.org/"
     const val URL_DONATE = "http://metabrainz.org/donate"
     const val ARTIST_SHARE = WEBSITE + "artist/"
