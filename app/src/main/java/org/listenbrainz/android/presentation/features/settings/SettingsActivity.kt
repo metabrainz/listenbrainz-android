@@ -26,31 +26,24 @@ import org.listenbrainz.android.presentation.theme.isUiModeIsDark
 
 class SettingsActivity : AppCompatActivity() {
 
-    var preferenceChangeListener: Preference.OnPreferenceChangeListener? = null
-
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityPreferencesBinding.inflate(layoutInflater)
         setContentView(binding.root)
         supportActionBar!!.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.app_bg)))
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-
+    
         supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.settings_container, SettingsFragment())
                 .commit()
         
-        supportFragmentManager.addFragmentOnAttachListener(
-            FragmentOnAttachListener { fragmentManager, fragment ->
-                if(fragment is SettingsFragment)
-                    fragment.setPreferenceChangeListener(preferenceChangeListener)
-            })
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1){
             ACTION_NOTIFICATION_LISTENER_SETTINGS = Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS
         }
-
-        preferenceChangeListener = Preference.OnPreferenceChangeListener { preference: Preference, newValue: Any ->
+    
+        val preferenceChangeListener: Preference.OnPreferenceChangeListener =
+            Preference.OnPreferenceChangeListener { preference: Preference, newValue: Any ->
             if (preference.key == PREFERENCE_LISTENING_ENABLED) {
                 val enabled = newValue as Boolean
                 if (enabled && !App.context!!.isNotificationServiceAllowed) {
@@ -89,6 +82,14 @@ class SettingsActivity : AppCompatActivity() {
             }
             false
         }
+    
+        // Attaching OnPreferenceChangeListener to our settings fragment.
+        supportFragmentManager.addFragmentOnAttachListener(
+            FragmentOnAttachListener { fragmentManager, fragment ->
+                if(fragment is SettingsFragment)
+                    fragment.setPreferenceChangeListener(preferenceChangeListener)
+            })
+        
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
