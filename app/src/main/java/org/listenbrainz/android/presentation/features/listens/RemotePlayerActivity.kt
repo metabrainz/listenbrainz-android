@@ -32,7 +32,7 @@ class RemotePlayerActivity : AppCompatActivity() {
 
     object AuthParams {
         const val CLIENT_ID = "da5388546fde4aa8a47aad3539e7f87b"
-        const val REDIRECT_URI = "org.metabrainz.android://callback"
+        const val REDIRECT_URI = "org.listenbrainz.android://callback"
     }
 
     companion object {
