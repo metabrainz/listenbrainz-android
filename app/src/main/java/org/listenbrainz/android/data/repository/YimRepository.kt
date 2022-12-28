@@ -1,0 +1,22 @@
+package org.listenbrainz.android.data.repository
+
+import androidx.annotation.WorkerThread
+import org.listenbrainz.android.data.sources.api.YimApi
+import org.listenbrainz.android.data.sources.api.entities.yimdata.YimData
+import org.listenbrainz.android.util.Resource
+import javax.inject.Inject
+
+class YimRepository @Inject constructor(private val service: YimApi) {
+    
+    @WorkerThread
+    suspend fun getYimData(username: String): Resource<YimData> {
+        return try {
+            val response = service.getYimData(username = username)
+            Resource(Resource.Status.SUCCESS, response)
+        }catch (e: Exception){
+            e.printStackTrace()
+            Resource(Resource.Status.FAILED, null)
+        }
+    }
+    
+}

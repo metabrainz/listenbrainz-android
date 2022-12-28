@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.newsbrainz.NewsBrainzActivity
+import org.listenbrainz.android.presentation.features.yim.YearInMusicActivity
 import org.listenbrainz.android.presentation.theme.lb_orange
 import org.listenbrainz.android.presentation.theme.lb_purple
 
@@ -70,7 +72,8 @@ fun BackLayerContent(activity: Activity, applicationContext: Context) {
                 fontSize = 45.sp,
             )
             Spacer(modifier = Modifier.height(16.dp))
-        
+            
+            // NewsBrainz Card
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -121,6 +124,26 @@ fun BackLayerContent(activity: Activity, applicationContext: Context) {
                         )
                     }
                 }
+            }
+            
+            // Yim Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(18.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable(onClick = {
+                        activity.startActivity(
+                            Intent(
+                                applicationContext,
+                                YearInMusicActivity::class.java
+                            )
+                        )
+                    }),
+                elevation = 0.dp,
+                backgroundColor = MaterialTheme.colors.onSurface
+            ){
+                Text(text = "Yim Activity Test", color = Color.White, modifier = Modifier.padding(16.dp))
             }
         }
     }
