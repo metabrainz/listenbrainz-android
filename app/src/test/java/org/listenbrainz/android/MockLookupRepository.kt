@@ -37,7 +37,7 @@ class MockLookupRepository : LookupRepository {
         TODO("Not yet implemented")
     }
 
-    override suspend fun fetchAcoustIDResults(duration: Long, fingerprint: String?): Resource<List<Recording>> {
+    suspend fun fetchAcoustIDResults(duration: Long, fingerprint: String?): Resource<List<Recording>> {
         TODO("Not yet implemented")
     }
 }
