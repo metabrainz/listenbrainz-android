@@ -18,4 +18,8 @@ object Log {
     fun v(message: String?) {
         Log.v(TAG, message!!)
     }
+    
+    fun w(message: String?) {
+        Log.w(TAG, message!!)
+    }
 }

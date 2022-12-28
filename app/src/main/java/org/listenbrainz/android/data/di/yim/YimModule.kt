@@ -1,13 +1,13 @@
-package org.listenbrainz.android.data.di
+package org.listenbrainz.android.data.di.yim
 
 import com.google.gson.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import org.listenbrainz.android.data.repository.YimRepository
+import org.listenbrainz.android.data.repository.YimRepositoryImpl
 import org.listenbrainz.android.data.sources.api.ListenBrainzServiceGenerator
-import org.listenbrainz.android.data.sources.api.YimApi
+import org.listenbrainz.android.data.sources.api.YimService
 import org.listenbrainz.android.data.sources.api.entities.yimdata.Data
 import org.listenbrainz.android.data.sources.api.entities.yimdata.TopRelease
 import retrofit2.Retrofit
@@ -54,17 +54,12 @@ object YimModule {
     
     @Singleton
     @Provides
-    fun providesYimApi(): YimApi {
+    fun providesYimApi(): YimService {
         return Retrofit.Builder()
             .baseUrl(ListenBrainzServiceGenerator.LISTENBRAINZ_API_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create(YimGson))
             .build()
-            .create(YimApi::class.java)
+            .create(YimService::class.java)
     }
-    
-    @Singleton
-    @Provides
-    fun providesYimRepository(api: YimApi)
-    = YimRepository(api)
     
 }
