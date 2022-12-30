@@ -10,12 +10,10 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.presentation.features.login.LoginActivity
-import org.listenbrainz.android.presentation.features.yim.screens.YimHomeScreen
-import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTheme
+import org.listenbrainz.android.presentation.features.yim.navigation.YimNavigation
 
 @AndroidEntryPoint
 class YearInMusicActivity : ComponentActivity() {
-    
     
     @RequiresApi(Build.VERSION_CODES.N)     // For observe
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,13 +29,7 @@ class YearInMusicActivity : ComponentActivity() {
         }
         
         setContent {
-            
-            val status = viewModel.getNetworkStatus()
-            val data = viewModel.getYimData().data
-            
-            YearInMusicTheme {
-                YimHomeScreen(viewModel = viewModel)
-            }
+            YimNavigation(viewModel = viewModel, activity = this)
         }
     }
 }

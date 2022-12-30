@@ -8,21 +8,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
 
-// Set of Material typography styles to start with
 val Typography = Typography(
     bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = FontFamily(Font(R.font.roboto_regular)),
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
     ),
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+    bodyMedium = TextStyle(
+        fontFamily = FontFamily(Font(R.font.roboto_regular)),
         fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
+        fontSize = 10.sp,
+    ),
+    bodySmall = TextStyle(
+        fontFamily = FontFamily(Font(R.font.roboto_regular)),
+        fontWeight = FontWeight.Normal,
+        fontSize = 6.sp,
+    ),
+    titleLarge = TextStyle(
+        fontFamily = FontFamily(Font(R.font.inter_black)),
+        fontWeight = FontWeight.ExtraBold,
+        fontSize = 24.sp,
+        lineHeight = 32.sp,
+        letterSpacing = 12.sp,
     ),
     labelSmall = TextStyle(
         fontFamily = FontFamily.Default,

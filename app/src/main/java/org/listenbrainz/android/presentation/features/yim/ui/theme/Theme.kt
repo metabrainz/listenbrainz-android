@@ -1,63 +1,70 @@
 package org.listenbrainz.android.presentation.features.yim.ui.theme
 
 import android.app.Activity
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
-import androidx.core.view.ViewCompat
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.google.accompanist.systemuicontroller.SystemUiController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+private val RedColorScheme = darkColorScheme(
+    background = yimRed,
+    onBackground = yimYellow,
+    onSurface = yimYellow,
+    surface = yimWhite
     
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
 )
+
+private val YellowColorScheme = lightColorScheme(
+    background = yimYellow,
+    onBackground = yimRed,
+    onSurface = yimRed,
+    surface = yimWhite,
+    
+)
+
+@Immutable
+data class YimPaddings(
+    val DefaultPadding: Dp = 16.dp,
+    val tinyPadding: Dp = 4.dp,
+    val smallPadding: Dp = 8.dp,
+    val largePadding: Dp = 24.dp,
+    val extraLargePadding: Dp = 32.dp
+)
+internal val LocalYimPaddings = staticCompositionLocalOf { YimPaddings() }
+
 
 @Composable
 fun YearInMusicTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    redTheme: Boolean,
+    systemUiController : SystemUiController = rememberSystemUiController(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+    val colorScheme = when (redTheme){
+        true -> RedColorScheme
+        else -> YellowColorScheme
     }
+    
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
-            (view.context as Activity).window.statusBarColor = colorScheme.primary.toArgb()
-            ViewCompat.getWindowInsetsController(view)?.isAppearanceLightStatusBars = darkTheme
+            (view.context as Activity).window.statusBarColor = colorScheme.background.toArgb()
+            val isDark = when (redTheme){
+                true -> false
+                else -> true
+            }
+            systemUiController.statusBarDarkContentEnabled = isDark
+            systemUiController.navigationBarDarkContentEnabled = isDark
+            systemUiController.setNavigationBarColor(color = colorScheme.background)
         }
+    }
+    CompositionLocalProvider {
+        LocalYimPaddings provides YimPaddings()
     }
     
     MaterialTheme(

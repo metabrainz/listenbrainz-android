@@ -1,6 +1,5 @@
 package org.listenbrainz.android.presentation.features.yim
 
-import android.app.Application
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -11,12 +10,10 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.listenbrainz.android.data.repository.YimRepository
-import org.listenbrainz.android.data.repository.YimRepositoryImpl
-import org.listenbrainz.android.data.sources.api.entities.yimdata.YimData
+import org.listenbrainz.android.data.sources.api.entities.yimdata.*
 import org.listenbrainz.android.presentation.features.login.LoginSharedPreferences
 import org.listenbrainz.android.util.ConnectivityObserver
 import org.listenbrainz.android.util.NetworkConnectivityObserver
@@ -27,11 +24,11 @@ import javax.inject.Inject
 @HiltViewModel
 class YimViewModel @Inject constructor(private val repository: YimRepository, @ApplicationContext context: Context) : ViewModel() {
     // Yim data resource
-    private var resourceState:
+    private var yimData:
             MutableState<
-                    Resource<YimData>
+                    Resource<YimData>?
                     >
-            = mutableStateOf(Resource.loading())
+            = mutableStateOf(null)
     
     /** User name.
         Don't worry about this being nullable as we are performing login check.*/
@@ -50,23 +47,19 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
     
     private fun getData() {
         viewModelScope.launch {
-            resourceState.value = username?.let { repository.getYimData(username = it) }!!
+            yimData.value = username?.let { repository.getYimData(username = it)}!!
         }
     }
     
-    fun getYimData(): Resource<YimData>{
-        return resourceState.value
-    }
-    
-    
-    private fun getUserName() : String?{
+    // Username related functions
+    fun getUserName() : String?{
         return username
     }
     fun isLoggedIn() : Boolean{
         return (LoginSharedPreferences.loginStatus == LoginSharedPreferences.STATUS_LOGGED_IN)
     }
     
-    
+    // Internet Connectivity Functions
     private fun checkNetworkStatus(){
         connectivityObserver.observe().onEach {
             networkStatus.value = it
@@ -76,5 +69,95 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
         return networkStatus.value
     }
     
-    // TODO: Add functions to get field data directly from viewModel
+    
+    /** Get Data functions
+     *  NOTE : Every get must be null checked.
+     */
+    
+    /** Get [ListensPerDay] of a particular day.
+     * @param day offset ([Int]) from 1st Jan */
+    fun getListensOfDay(day : Int) : ListensPerDay? {
+        if (day > 365){
+            throw IllegalArgumentException()
+        }
+        return yimData.value?.data?.payload?.data?.listensPerDay?.get(day)
+    }
+    
+    /** List of new releases of those artists that the user listens to.*/
+    fun getNewReleasesOfTopArtists() : ArrayList<NewReleasesOfTopArtist>? {
+        return yimData.value?.data?.payload?.data?.newReleasesOfTopArtists
+    }
+    
+    /** The year of which the user listened most songs of. */
+    fun getMostListenedYear() : Int? {
+        val mapEntry = yimData.value?.data?.payload?.data?.mostListenedYear?.maxBy {
+            it.value
+        }
+        return mapEntry?.value
+    }
+    
+    /** The day user listens the most music, every week.*/
+    fun getDayOfWeek() : String? {
+        return yimData.value!!.data?.payload?.data?.dayOfWeek
+    }
+    
+    /** List of other ListenBrainz users with the same taste as user.
+     *
+     *  @return `null` for users with less listens.
+     */
+    fun getSimilarUsers() : ArrayList<String>? {
+        val userMap = yimData.value?.data?.payload?.data?.similarUsers?.filter {
+            // TODO : Improve logic of getting similar users
+            it.value > 0.5
+        }
+        val list = arrayListOf<String>()
+        userMap?.onEach {
+            list.add(it.key)
+        }
+        return list.ifEmpty { null }
+    }
+    
+    /** List of top artists of which user listened songs of*/
+    fun getTopArtists() : ArrayList<TopArtist>? {
+        return yimData.value?.data?.payload?.data?.topArtists
+    }
+    
+    /** Warning: Volatile fields (Might be null) :
+     * @param caaId
+     * @param caaReleaseMbid
+     * @param releaseMbid
+     */
+    fun getTopRecordings() : ArrayList<TopRecording>? {
+        return yimData.value?.data?.payload?.data?.topRecordings
+    }
+    
+    /** Top releases user listened to.*/
+    fun getTopReleases() : ArrayList<TopRelease>? {
+        return yimData.value?.data?.payload?.data?.topReleases
+    }
+    
+    /** Total of all artists the user listened to.*/
+    fun getTotalArtistCount() : Int? {
+        return yimData.value?.data?.payload?.data?.totalArtistsCount
+    }
+    
+    fun getTotalListenCount() : Int? {
+        return yimData.value?.data?.payload?.data?.totalListenCount
+    }
+    
+    fun getTotalListeningTime() : Double? {
+        return yimData.value?.data?.payload?.data?.totalListeningTime
+    }
+    
+    fun getTotalNewArtistsDiscovered() : Int? {
+        return yimData.value?.data?.payload?.data?.totalNewArtistsDiscovered
+    }
+    
+    fun getTotalRecordingsCount() : Int? {
+        return yimData.value?.data?.payload?.data?.totalRecordingsCount
+    }
+    
+    fun getTotalReleasesCount() : Int? {
+        return yimData.value?.data?.payload?.data?.totalReleasesCount
+    }
 }
