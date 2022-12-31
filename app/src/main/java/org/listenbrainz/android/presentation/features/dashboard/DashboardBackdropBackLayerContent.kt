@@ -12,16 +12,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.newsbrainz.NewsBrainzActivity
+import org.listenbrainz.android.presentation.features.yim.YearInMusicActivity
 import org.listenbrainz.android.presentation.theme.lb_orange
 import org.listenbrainz.android.presentation.theme.lb_purple
 
@@ -70,57 +73,84 @@ fun BackLayerContent(activity: Activity, applicationContext: Context) {
                 fontSize = 45.sp,
             )
             Spacer(modifier = Modifier.height(16.dp))
-        
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(18.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .clickable(onClick = {
-                        activity.startActivity(
-                            Intent(
-                                applicationContext,
-                                NewsBrainzActivity::class.java
-                            )
-                        )
-                    }),
-                elevation = 0.dp,
-                backgroundColor = MaterialTheme.colors.onSurface
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp)
-                ) {
-                    Image(
-                        modifier = Modifier
-                            .size(80.dp, 80.dp)
-                            .padding(4.dp),
-                        painter = painterResource(id = R.drawable.ic_news),
-                        alignment = Alignment.CenterStart,
-                        contentDescription = "",
-                        contentScale = ContentScale.Fit
+            
+            // NewsBrainz Card
+            HomeScreenCard(
+                activity = activity,
+                nextActivity = NewsBrainzActivity(),
+                iconId = R.drawable.ic_news,
+                title = "News",
+                subTitle = stringResource(id = R.string.news_card)
+            )
+            
+            // Yim Card
+            HomeScreenCard(
+                activity = activity,
+                nextActivity = YearInMusicActivity(),
+                iconId = R.drawable.yim_radio,
+                title = "Year in Music",
+                subTitle = "Your Whole Year Summarized"
+            )
+        }
+    }
+}
+
+@Composable
+private fun HomeScreenCard(
+    activity: Activity,
+    nextActivity: Activity,
+    iconId: Int,
+    title: String,
+    subTitle: String,
+    context: Context = LocalContext.current
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 18.dp, vertical = 10.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .clickable {
+                activity.startActivity(
+                    Intent(
+                        context,
+                        nextActivity::class.java
                     )
-                
-                    Spacer(modifier = Modifier.width(16.dp))
-                
-                    Column(modifier = Modifier.align(Alignment.CenterVertically)) {
-                        Text(
-                            text = "News",
-                            modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
-                            color = MaterialTheme.colors.surface,
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.subtitle1
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = stringResource(id = R.string.news_card),
-                            modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
-                            color = MaterialTheme.colors.surface,
-                            style = MaterialTheme.typography.caption
-                        )
-                    }
-                }
+                )
+            },
+        backgroundColor = MaterialTheme.colors.onSurface
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+        ) {
+            Image(
+                modifier = Modifier
+                    .size(80.dp)
+                    .padding(4.dp),
+                painter = painterResource(id = iconId),
+                alignment = Alignment.CenterStart,
+                contentDescription = "",
+                contentScale = ContentScale.Fit
+            )
+            
+            Spacer(modifier = Modifier.width(16.dp))
+            
+            Column(modifier = Modifier.align(Alignment.CenterVertically)) {
+                Text(
+                    text = title,
+                    modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
+                    color = MaterialTheme.colors.surface,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.subtitle1
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = subTitle,
+                    modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
+                    color = MaterialTheme.colors.surface,
+                    style = MaterialTheme.typography.caption
+                )
             }
         }
     }

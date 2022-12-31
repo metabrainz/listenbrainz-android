@@ -14,6 +14,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object ListenBrainzServiceGenerator {
     const val API_BASE_URL = "https://musicbrainz.org/ws/2/"
     const val AUTH_BASE_URL = "https://musicbrainz.org/oauth2/"
+    const val LISTENBRAINZ_API_BASE_URL = "https://api.listenbrainz.org/"
     const val CLIENT_ID = "XqCukyOoCAH9PRrHpwiINlvJ1T-x4ffQ"
     const val CLIENT_SECRET = "CJrUcF_jyzj-MVCPhNXSwPIpu_eeb_Ye"
     const val OAUTH_REDIRECT_URI = "org.listenbrainz.android://oauth"
