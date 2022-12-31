@@ -68,12 +68,12 @@ class ListensActivity: ComponentActivity() {
     var bitmap: Bitmap? by mutableStateOf(null)
 
     object AuthParams {
-        const val CLIENT_ID = "2a0d7ed37e9841269130b82843d3f842"
+        const val CLIENT_ID = "fadec988097f4480bd71608cac76d82c"
         const val REDIRECT_URI = "org.listenbrainz.android://callback"
     }
 
     companion object {
-        const val TAG = "MusicBrainz Player"
+        const val TAG = "ListenBrainz Player"
     }
 
     private val gson = GsonBuilder().setPrettyPrinting().create()
