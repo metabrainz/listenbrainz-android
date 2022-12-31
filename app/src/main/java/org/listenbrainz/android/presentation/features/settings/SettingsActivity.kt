@@ -58,7 +58,7 @@ class SettingsActivity : AppCompatActivity() {
                     builder.setTitle("Grant Media Control Permissions")
                     builder.setMessage("The listen service requires the special Notification " +
                             "Listener Service Permission to run. Please grant this permission to" +
-                            " MusicBrainz for Android if you want to use the service.")
+                            " ListenBrainz for Android if you want to use the service.")
                     builder.setPositiveButton("Proceed") { dialog: DialogInterface?, which: Int -> startActivity(Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
                     builder.setNegativeButton("Cancel") { dialog: DialogInterface?, which: Int ->
                         preferenceListeningEnabled = false
