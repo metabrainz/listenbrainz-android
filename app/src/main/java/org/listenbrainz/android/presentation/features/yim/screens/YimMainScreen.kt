@@ -11,6 +11,6 @@ fun YimMainScreen(
     navController: NavHostController
 ) {
     YearInMusicTheme(redTheme = false) {
-    
+        // TODO: Implement share function and main screen.
     }
 }
