@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class Data (
     
+    @SerializedName("artist_map"                   ) var artistMap                 : ArrayList<ArtistMap>               = arrayListOf(),
     @SerializedName("day_of_week"                  ) var dayOfWeek                 : String                             = "",
     @SerializedName("listens_per_day"              ) var listensPerDay             : ArrayList<ListensPerDay>           = arrayListOf(),
     @SerializedName("most_listened_year"           ) var mostListenedYear          : Map<String, Int>                   = mapOf(),

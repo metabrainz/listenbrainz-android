@@ -23,9 +23,9 @@ private val RedColorScheme = darkColorScheme(
 private val YellowColorScheme = lightColorScheme(
     background = yimYellow,
     onBackground = yimRed,
-    onSurface = yimRed,
     surface = yimWhite,
-    
+    secondary = yimOffWhite
+
 )
 
 @Immutable

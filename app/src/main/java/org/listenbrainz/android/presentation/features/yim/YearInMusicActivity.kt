@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import dagger.hilt.android.AndroidEntryPoint
+import org.listenbrainz.android.presentation.features.listens.ListensViewModel
 import org.listenbrainz.android.presentation.features.login.LoginActivity
 import org.listenbrainz.android.presentation.features.yim.navigation.YimNavigation
 
@@ -19,17 +20,17 @@ class YearInMusicActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        val viewModel : YimViewModel by viewModels()
+        val yimViewModel : YimViewModel by viewModels()
         
         // Login Check
-        if (!viewModel.isLoggedIn()){
+        if (!yimViewModel.isLoggedIn()){
             Toast.makeText(this, "Please Login to access your Year in Music!", Toast.LENGTH_LONG).show()
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
         
         setContent {
-            YimNavigation(viewModel = viewModel, activity = this)
+            YimNavigation(yimViewModel = yimViewModel, activity = this)
         }
     }
 }
