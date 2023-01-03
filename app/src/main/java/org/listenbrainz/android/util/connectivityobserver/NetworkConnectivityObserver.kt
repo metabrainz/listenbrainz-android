@@ -1,4 +1,4 @@
-package org.listenbrainz.android.util
+package org.listenbrainz.android.util.connectivityobserver
 
 import android.content.Context
 import android.net.ConnectivityManager
@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 
 /** [NetworkConnectivityObserver] :
  *

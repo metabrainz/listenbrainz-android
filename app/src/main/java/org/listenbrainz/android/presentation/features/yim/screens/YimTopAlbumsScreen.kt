@@ -12,10 +12,11 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +28,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.GlideLazyListPreloader
@@ -35,17 +36,18 @@ import kotlinx.coroutines.delay
 import org.listenbrainz.android.R
 import org.listenbrainz.android.data.sources.api.entities.yimdata.TopRecording
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
+import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimShareButton
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YimPaddings
 
-@OptIn(ExperimentalGlideComposeApi::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalGlideComposeApi::class)
 @RequiresApi(Build.VERSION_CODES.N)
 @Composable
 fun YimTopAlbumsScreen(
     yimViewModel: YimViewModel,
-    navController: NavHostController,
+    navController: NavController,
     paddings: YimPaddings = LocalYimPaddings.current,
 ) {
     YearInMusicTheme(redTheme = false) {
@@ -113,7 +115,6 @@ fun YimTopAlbumsScreen(
                         
                         // Pre-loading images
                         val listState = rememberLazyListState()
-                        
                         GlideLazyListPreloader(
                             state = listState,
                             data = uriList,
@@ -124,7 +125,7 @@ fun YimTopAlbumsScreen(
                             requestBuilder.load(item)
                         }
                         
-                        AlbumViewer(list = topRecordings, listState = listState)
+                        AlbumViewer(list = topRecordings, listState = listState, viewModel = yimViewModel)
                         
                     }
                 }
@@ -132,27 +133,46 @@ fun YimTopAlbumsScreen(
             }
             
             
-            // To Avoid multiple recompositions
+            // To Avoid multiple recompositions for both share and next buttons
             var animateShareButton by remember { mutableStateOf(false) }
             LaunchedEffect(Unit){
                 delay(2700)
                 animateShareButton = true
             }
-    
-            // Share Button
-            AnimatedVisibility(visible = animateShareButton) {
-                YimShareButton(isRedTheme = false, modifier = Modifier.absoluteOffset(y = 50.dp))
-            }
             
+            // Share Button and next Button
+            AnimatedVisibility(visible = animateShareButton) {
+                Row(modifier = Modifier.absoluteOffset(y = 50.dp)) {
+                    YimShareButton( isRedTheme = false )
+                    YimNextButton (
+                        onClick = {navController.navigate(route = YimScreens.YimChartsScreen.name)}
+                    )
+                }
+            }
         }
         // End of Highest Column
     }
 }
 
+@Composable
+fun YimNextButton(onClick: () -> Unit) {
+    IconButton(onClick = onClick) {
+        Icon(
+            imageVector = Icons.Rounded.ArrowDownward,
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.onBackground, CircleShape)
+                .size(50.dp),
+            tint = MaterialTheme.colorScheme.background,
+            contentDescription = "Move to next page"
+        )
+    }
+}
 
+
+@RequiresApi(Build.VERSION_CODES.N)
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun AlbumViewer(list: List<TopRecording>?, listState: LazyListState) {
+fun AlbumViewer(list: List<TopRecording>?, listState: LazyListState, viewModel: YimViewModel) {
     
     // This prevents image from being blur or crashing the app.
     var renderImage by remember { mutableStateOf(false) }
@@ -178,44 +198,49 @@ fun AlbumViewer(list: List<TopRecording>?, listState: LazyListState) {
                 .alpha(alphaAnimation)
                 .animateContentSize(),
         ) {
-            
-            items(list!!.toList()) { item ->
-                
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    
-                    GlideImage(
-                        model = "https://archive.org/download/mbid-${item.caaReleaseMbid}/mbid-${item.caaReleaseMbid}-${item.caaId}_thumb500.jpg",
-                        modifier = Modifier
-                            .size(300.dp)
-                            .clip(RoundedCornerShape(10.dp)),
-                        contentDescription = null
+    
+            if (list != null) {
+                items(list.toList()) { item ->
+        
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        it.placeholder(R.drawable.ic_metabrainz_logo_no_text).thumbnail()
-                        // TODO: Decide placeholder
+            
+                        GlideImage(
+                            model = "https://archive.org/download/mbid-${item.caaReleaseMbid}/mbid-${item.caaReleaseMbid}-${item.caaId}_thumb500.jpg",
+                            modifier = Modifier
+                                .size(300.dp)
+                                .clip(RoundedCornerShape(10.dp)),
+                            contentDescription = "Album Poster"
+                        ) {
+                            it.placeholder(R.drawable.ic_coverartarchive_logo_no_text).thumbnail()
+                            // TODO: Decide placeholder
+                        }
+            
+                        // Track name
+                        Text(
+                            text = item.trackName,
+                            modifier = Modifier.padding(top = 5.dp),
+                            color = Color(0xFF39296F),
+                            fontFamily = FontFamily(Font(R.font.roboto_bold))
+                        )
+            
+                        // Artist text
+                        Text(
+                            text = item.artistName,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color(0xFF727272)
+                        )
+            
                     }
-                    
-                    // Track name
-                    Text(
-                        text = item.trackName,
-                        modifier = Modifier.padding(top = 5.dp),
-                        color = Color(0xFF39296F),
-                        fontFamily = FontFamily(Font(R.font.roboto_bold))
-                    )
-                    
-                    // Artist text
-                    Text(
-                        text = item.artistName,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF727272)
-                    )
-                    
+        
+                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.DefaultPadding))
+        
                 }
-                
-                Spacer(modifier = Modifier.width(LocalYimPaddings.current.DefaultPadding))
-                
+            }else{
+                // Fixes Loophole where user activates internet after entering yimHomeScreen.
+                viewModel.getData()
             }
         }
     }

@@ -36,7 +36,7 @@ import org.listenbrainz.android.presentation.features.yim.screens.components.Yim
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YimPaddings
-import org.listenbrainz.android.util.ConnectivityObserver
+import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 
 @OptIn(ExperimentalMaterialApi::class)
 @RequiresApi(Build.VERSION_CODES.N)
@@ -58,8 +58,8 @@ fun YimHomeScreen(
         }
         
         // What happens when user swipes up
-        LaunchedEffect(key1 = swipeableState.targetValue){
-            if (swipeableState.targetValue) {
+        LaunchedEffect(key1 = swipeableState.isAnimationRunning){
+            if (swipeableState.isAnimationRunning) {
                 when (viewModel.getNetworkStatus()) {
                     ConnectivityObserver.NetworkStatus.Available -> navController.navigate(route = YimScreens.YimTopAlbumsScreen.name)
                     else -> {
@@ -72,6 +72,7 @@ fun YimHomeScreen(
                     }
                 }
             }
+            swipeableState.animateTo(false, anim = tween(delayMillis = 1000))
         }
     
         Box(
@@ -92,9 +93,11 @@ fun YimHomeScreen(
                             0f to false,
                             -600f to true
                         ),
+                        /*thresholds = { _: Boolean, _: Boolean ->
+                            FractionalThreshold(0.9f)
+                        }*/
                     )
                     .offset(y = swipeableState.offset.value.dp),
-                    //.alpha(swipeableState.offset.value),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -116,7 +119,7 @@ fun YimHomeScreen(
             
                 Spacer(modifier = Modifier.height(paddings.smallPadding))
             
-                // Down Arrow
+                // Down Arrow animation
                 val infiniteAnim = rememberInfiniteTransition()
                 val animValue by infiniteAnim.animateFloat(
                     initialValue = 0f,
@@ -126,7 +129,8 @@ fun YimHomeScreen(
                         repeatMode = RepeatMode.Reverse
                     )
                 )
-            
+                
+                // Down Arrow
                 Icon(
                     painter = painterResource(id = R.drawable.yim_arrow_down),
                     contentDescription = "Swipe down to continue.",

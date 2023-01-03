@@ -15,8 +15,8 @@ import kotlinx.coroutines.flow.onEach
 import org.listenbrainz.android.data.repository.YimRepository
 import org.listenbrainz.android.data.sources.api.entities.yimdata.*
 import org.listenbrainz.android.presentation.features.login.LoginSharedPreferences
-import org.listenbrainz.android.util.ConnectivityObserver
-import org.listenbrainz.android.util.NetworkConnectivityObserver
+import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
+import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityObserver
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
 
@@ -45,7 +45,7 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
         getData()
     }
     
-    private fun getData() {
+    fun getData() {
         viewModelScope.launch {
             yimData.value = username?.let { repository.getYimData(username = it)}!!
         }
