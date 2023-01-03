@@ -42,57 +42,6 @@ object Utils {
         return intent
     }
 
-    fun urlIntent(url: String?): Intent {
-        return Intent(Intent.ACTION_VIEW, Uri.parse(url))
-    }
-
-    fun sendToPicard(context: Context, releaseMBID: String){
-        val ipAddress = UserPreferences.preferenceIpAddress
-        if(ipAddress==null){
-            Toast.makeText(context,"Add your IP Address in the settings, matched according to your Picard network", Toast.LENGTH_LONG).show()
-            return
-        }
-        //To allow http requests specially
-        val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
-        StrictMode.setThreadPolicy(policy)
-
-        val url = String.format(
-            App.PICARD_OPENALBUM_URL, ipAddress,
-            UserPreferences.preferencePicardPort, uriEncode(releaseMBID)
-        )
-
-        CoroutineScope(context = Dispatchers.Default).launch {
-            val client = OkHttpClient()
-            val request = Request.Builder().url(url).build()
-
-            client.newCall(request).enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    (context as Activity).runOnUiThread {
-                        Toast.makeText(context, "Do you have your Picard running?", Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    if(response.code==200){
-                        (context as Activity).runOnUiThread {
-                            Toast.makeText(context, "Release sent to your Picard!", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-            })
-        }
-    }
-
-    private fun uriEncode(releaseId: String): String {
-        return try {
-            URLEncoder.encode(releaseId, "UTF-8")
-        }
-        catch (e: UnsupportedEncodingException) {
-            Log.e(this.javaClass.name, e.message, e)
-            URLEncoder.encode(releaseId)
-        }
-    }
-
     fun stringFromAsset(context: Context, asset: String?): String {
         return try {
             val input = context.resources.assets.open(asset!!)
