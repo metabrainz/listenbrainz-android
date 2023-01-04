@@ -3,14 +3,11 @@ package org.listenbrainz.android.util.connectivityobserver
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
-import android.os.Build
-import androidx.annotation.RequiresApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 
 /** [NetworkConnectivityObserver] :
  *

@@ -1,7 +1,5 @@
 package org.listenbrainz.android.presentation.features.yim.screens
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
