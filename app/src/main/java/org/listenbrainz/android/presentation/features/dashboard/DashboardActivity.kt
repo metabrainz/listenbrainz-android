@@ -3,25 +3,15 @@ package org.listenbrainz.android.presentation.features.dashboard
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate.*
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.preference.PreferenceManager
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.MultiplePermissionsState
-import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.R
@@ -34,9 +24,7 @@ import org.listenbrainz.android.presentation.theme.ListenBrainzTheme
 @AndroidEntryPoint
 class DashboardActivity : ComponentActivity() {
 
-    @OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class,
-        ExperimentalPermissionsApi::class
-    )
+    @OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class, ExperimentalPermissionsApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
@@ -45,12 +33,16 @@ class DashboardActivity : ComponentActivity() {
             startActivity(Intent(this, FeaturesActivity::class.java))
             finish()
         }
-        val neededPermissions = mutableListOf(
-            android.Manifest.permission.READ_EXTERNAL_STORAGE,
-            android.Manifest.permission.MEDIA_CONTENT_CONTROL,
-        )
+        val neededPermissions = mutableListOf<String>()
+
+        //Only required for apps less than Android 10
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            neededPermissions.add(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+
+        //Only required for apps above Android 13
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            neededPermissions.add(android.Manifest.permission.READ_MEDIA_AUDIO)
+            neededPermissions.plus(android.Manifest.permission.READ_MEDIA_AUDIO)
         }
 
         setContent {
@@ -75,9 +67,6 @@ class DashboardActivity : ComponentActivity() {
                         ) {
                             BackLayerContent(activity = this)
                         }
-                    }
-                    else {
-                        multiplePermissionsState.launchMultiplePermissionRequest()
                     }
                 }
             }

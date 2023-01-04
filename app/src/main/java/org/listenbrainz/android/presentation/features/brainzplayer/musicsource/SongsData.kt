@@ -26,10 +26,13 @@ class SongData {
             MediaStore.Audio.AudioColumns.YEAR,
             MediaStore.Audio.AudioColumns.DURATION,
             MediaStore.Audio.AudioColumns.TRACK,
-            MediaStore.Audio.AudioColumns.DISC_NUMBER,  // @RequiresApi(Build.VERSION_CODES.R) (or SDK 30)
             MediaStore.Audio.AudioColumns.ARTIST_ID,
             MediaStore.Audio.AudioColumns.DATE_MODIFIED
         )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            songProjection.plus(MediaStore.Audio.AudioColumns.DISC_NUMBER)
+        }
+
         val sortOrder = "${MediaStore.Audio.Media.TITLE} COLLATE NOCASE ASC"
         val isMusic = MediaStore.Audio.Media.IS_MUSIC + " != 0"
         val songQuery = context?.contentResolver?.query(
@@ -48,7 +51,11 @@ class SongData {
             val yearInt = cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.YEAR)
             val durationLong = cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DURATION)
             val track = cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.TRACK)
-            val discNo = cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DISC_NUMBER)
+            val discNo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DISC_NUMBER)
+            } else {
+                0
+            }
             val artistId = cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.ARTIST_ID)
             val dateModifiedLong =
                 cursor.getColumnIndexOrThrow(MediaStore.Audio.AudioColumns.DATE_MODIFIED)
