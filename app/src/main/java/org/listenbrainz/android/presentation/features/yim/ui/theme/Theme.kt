@@ -15,8 +15,8 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 private val RedColorScheme = darkColorScheme(
     background = yimRed,
     onBackground = yimYellow,
-    onSurface = yimYellow,
-    surface = yimWhite
+    surface = yimWhite,
+    secondary = yimOffWhite
     
 )
 

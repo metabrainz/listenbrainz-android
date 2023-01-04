@@ -34,7 +34,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.GlideLazyListPreloader
 import kotlinx.coroutines.delay
 import org.listenbrainz.android.R
-import org.listenbrainz.android.data.sources.api.entities.yimdata.TopRecording
+import org.listenbrainz.android.data.sources.api.entities.yimdata.TopRelease
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimShareButton
@@ -94,7 +94,7 @@ fun YimTopAlbumsScreen(
                             .padding(vertical = paddings.smallPadding)
                     )
                 
-                    // Main Heading
+                    // Album Viewer
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -106,11 +106,10 @@ fun YimTopAlbumsScreen(
                         
                         /** Variables for glide preloader*/
                         val uriList : ArrayList<String> = arrayListOf()
-                        val topRecordings : List<TopRecording>? = yimViewModel.getTopRecordings()?.toList()
-                        topRecordings?.forEach { item ->
+                        val topReleases : List<TopRelease>? = yimViewModel.getTopReleases()?.toList()
+                        topReleases?.forEach { item ->
                             // https://archive.org/download/mbid-{caa_release_mbid}/mbid-{caa_release_mbid}-{caa_id}_thumb500.jpg
                             uriList.add("https://archive.org/download/mbid-${item.caaReleaseMbid}/mbid-${item.caaReleaseMbid}-${item.caaId}_thumb500.jpg")
-                            // TODO: Decide whether to use 500 or 250 as image quality.
                         }
                         
                         // Pre-loading images
@@ -122,10 +121,10 @@ fun YimTopAlbumsScreen(
                             numberOfItemsToPreload = 20,
                             fixedVisibleItemCount = 3
                         ){ item, requestBuilder ->
-                            requestBuilder.load(item)
+                            requestBuilder.load(item).placeholder(R.drawable.ic_coverartarchive_logo_no_text)
                         }
                         
-                        AlbumViewer(list = topRecordings, listState = listState, viewModel = yimViewModel)
+                        AlbumViewer(list = topReleases, listState = listState, viewModel = yimViewModel)
                         
                     }
                 }
@@ -172,7 +171,7 @@ fun YimNextButton(onClick: () -> Unit) {
 @RequiresApi(Build.VERSION_CODES.N)
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun AlbumViewer(list: List<TopRecording>?, listState: LazyListState, viewModel: YimViewModel) {
+fun AlbumViewer(list: List<TopRelease>?, listState: LazyListState, viewModel: YimViewModel) {
     
     // This prevents image from being blur or crashing the app.
     var renderImage by remember { mutableStateOf(false) }
@@ -206,7 +205,7 @@ fun AlbumViewer(list: List<TopRecording>?, listState: LazyListState, viewModel: 
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-            
+                        
                         GlideImage(
                             model = "https://archive.org/download/mbid-${item.caaReleaseMbid}/mbid-${item.caaReleaseMbid}-${item.caaId}_thumb500.jpg",
                             modifier = Modifier
@@ -214,13 +213,12 @@ fun AlbumViewer(list: List<TopRecording>?, listState: LazyListState, viewModel: 
                                 .clip(RoundedCornerShape(10.dp)),
                             contentDescription = "Album Poster"
                         ) {
-                            it.placeholder(R.drawable.ic_coverartarchive_logo_no_text).thumbnail()
-                            // TODO: Decide placeholder
+                            it.override(300,300).placeholder(R.drawable.ic_coverartarchive_logo_no_text)
                         }
             
                         // Track name
                         Text(
-                            text = item.trackName,
+                            text = item.releaseName,
                             modifier = Modifier.padding(top = 5.dp),
                             color = Color(0xFF39296F),
                             fontFamily = FontFamily(Font(R.font.roboto_bold))
@@ -254,7 +252,7 @@ fun CoilAlbumViewer(list: List<TopRecording>?) {
     // This prevents image from being blur or crashing the app.
    var renderImage by remember { mutableStateOf(false) }
     LaunchedEffect(true){
-        delay(2100)      // TODO: Test baseline with different internet speeds.
+        delay(2100)
         renderImage = true
     }
     

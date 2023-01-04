@@ -1,6 +1,5 @@
 package org.listenbrainz.android.presentation.features.yim.screens.components
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon

@@ -1,6 +1,7 @@
 package org.listenbrainz.android.presentation.features.yim.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -36,6 +37,7 @@ val Typography = Typography(
     titleMedium = TextStyle(
         fontFamily = FontFamily(Font(R.font.roboto_light)),
         fontWeight = FontWeight.Normal,
+        color = Color.Black,
         fontSize = 24.sp,
         letterSpacing = 0.5.sp
     ),
