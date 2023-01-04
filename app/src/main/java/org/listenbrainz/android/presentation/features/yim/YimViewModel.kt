@@ -20,7 +20,6 @@ import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityObs
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
 
-@RequiresApi(Build.VERSION_CODES.N)
 @HiltViewModel
 class YimViewModel @Inject constructor(private val repository: YimRepository, @ApplicationContext context: Context) : ViewModel() {
     // Yim data resource

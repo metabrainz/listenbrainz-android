@@ -25,7 +25,7 @@ class ArtistActivity : LookupActivity<Artist>() {
 
     private val artistViewModel: ArtistViewModel by viewModels()
     private val releaseListViewModel: ReleaseListViewModel by viewModels()
-    private val linksViewModel: LinksViewModel by viewModels(){
+    private val linksViewModel: LinksViewModel by viewModels {
         SavedStateViewModelFactory(application, this)
     }
     private val userViewModel: UserViewModel by viewModels {

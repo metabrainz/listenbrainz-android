@@ -39,7 +39,7 @@ class NetworkConnectivityObserver(
     private val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     
-    @RequiresApi(Build.VERSION_CODES.N)
+    
     override fun observe() : Flow<ConnectivityObserver.NetworkStatus> {
         return callbackFlow {
             val callback = object : ConnectivityManager.NetworkCallback() {

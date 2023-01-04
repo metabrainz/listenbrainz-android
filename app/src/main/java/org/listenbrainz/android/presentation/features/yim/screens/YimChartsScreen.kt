@@ -38,7 +38,7 @@ import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTh
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YimPaddings
 import org.listenbrainz.android.presentation.theme.lb_purple
 
-@RequiresApi(Build.VERSION_CODES.N)
+
 @Composable
 fun YimChartsScreen(
     viewModel: YimViewModel,
@@ -212,7 +212,7 @@ fun YimChartsScreen(
 }
 
 
-@RequiresApi(Build.VERSION_CODES.N)
+
 @Composable
 private fun YimTopRecordingsList(
     paddings: YimPaddings,
@@ -300,7 +300,7 @@ private fun YimTopRecordingsList(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
+
 @Composable
 private fun YimTopArtistsList(
     paddings: YimPaddings,

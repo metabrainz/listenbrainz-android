@@ -107,6 +107,9 @@ dependencies {
     implementation 'io.coil-kt:coil-compose:2.2.2'
     kapt 'com.github.bumptech.glide:compiler:4.14.2'
 
+    //Permissions
+    implementation "com.google.accompanist:accompanist-permissions:0.28.0"
+
     //Fragment Setup For Kotlin
     implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
