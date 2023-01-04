@@ -3,14 +3,13 @@ package org.listenbrainz.android.util.connectivityobserver
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
+import android.net.NetworkRequest
 import android.os.Build
-import androidx.annotation.RequiresApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 
 /** [NetworkConnectivityObserver] :
  *
@@ -39,7 +38,7 @@ class NetworkConnectivityObserver(
     private val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     
-    @RequiresApi(Build.VERSION_CODES.N)
+    
     override fun observe() : Flow<ConnectivityObserver.NetworkStatus> {
         return callbackFlow {
             val callback = object : ConnectivityManager.NetworkCallback() {
@@ -66,8 +65,16 @@ class NetworkConnectivityObserver(
             }
             
             // Registering our callback
-            connectivityManager.registerDefaultNetworkCallback(callback)
-            
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                connectivityManager.registerDefaultNetworkCallback(callback)
+            }
+            else{
+                connectivityManager.registerNetworkCallback(
+                    NetworkRequest.Builder().build(),
+                    callback
+                )
+            }
+
             // To cleanup callbacks when the user exits the activity.
             awaitClose {
                 connectivityManager.unregisterNetworkCallback(callback)

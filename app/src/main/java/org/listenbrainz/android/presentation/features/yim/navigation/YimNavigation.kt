@@ -1,7 +1,5 @@
 package org.listenbrainz.android.presentation.features.yim.navigation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
@@ -24,7 +22,6 @@ import org.listenbrainz.android.presentation.features.yim.screens.YimTopAlbumsSc
 private const val screenTransitionDuration = 900
 
 @OptIn(ExperimentalAnimationApi::class)
-@RequiresApi(Build.VERSION_CODES.N)
 @Composable
 fun YimNavigation(
     yimViewModel: YimViewModel,
@@ -72,7 +69,7 @@ fun YimNavigation(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
+
 @OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.addYimScreen(
     route : String,

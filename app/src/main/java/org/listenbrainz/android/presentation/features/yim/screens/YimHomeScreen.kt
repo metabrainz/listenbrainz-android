@@ -1,9 +1,7 @@
 package org.listenbrainz.android.presentation.features.yim.screens
 
 import android.content.Context
-import android.os.Build
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -39,7 +37,6 @@ import org.listenbrainz.android.presentation.features.yim.ui.theme.YimPaddings
 import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 
 @OptIn(ExperimentalMaterialApi::class)
-@RequiresApi(Build.VERSION_CODES.N)
 @Composable
 fun YimHomeScreen(
     viewModel: YimViewModel,

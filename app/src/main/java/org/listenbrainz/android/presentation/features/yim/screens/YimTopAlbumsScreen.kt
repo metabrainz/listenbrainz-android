@@ -1,7 +1,5 @@
 package org.listenbrainz.android.presentation.features.yim.screens
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -43,7 +41,7 @@ import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTh
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YimPaddings
 
 @OptIn(ExperimentalGlideComposeApi::class)
-@RequiresApi(Build.VERSION_CODES.N)
+
 @Composable
 fun YimTopAlbumsScreen(
     yimViewModel: YimViewModel,
@@ -168,7 +166,7 @@ fun YimNextButton(onClick: () -> Unit) {
 }
 
 
-@RequiresApi(Build.VERSION_CODES.N)
+
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun AlbumViewer(list: List<TopRelease>?, listState: LazyListState, viewModel: YimViewModel) {

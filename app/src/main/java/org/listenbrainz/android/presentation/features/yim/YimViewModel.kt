@@ -1,8 +1,6 @@
 package org.listenbrainz.android.presentation.features.yim
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -15,12 +13,11 @@ import kotlinx.coroutines.flow.onEach
 import org.listenbrainz.android.data.repository.YimRepository
 import org.listenbrainz.android.data.sources.api.entities.yimdata.*
 import org.listenbrainz.android.presentation.features.login.LoginSharedPreferences
+import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityObserver
-import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
 
-@RequiresApi(Build.VERSION_CODES.N)
 @HiltViewModel
 class YimViewModel @Inject constructor(private val repository: YimRepository, @ApplicationContext context: Context) : ViewModel() {
     // Yim data resource
