@@ -15,8 +15,8 @@ import kotlinx.coroutines.flow.onEach
 import org.listenbrainz.android.data.repository.YimRepository
 import org.listenbrainz.android.data.sources.api.entities.yimdata.*
 import org.listenbrainz.android.presentation.features.login.LoginSharedPreferences
-import org.listenbrainz.android.util.ConnectivityObserver
-import org.listenbrainz.android.util.NetworkConnectivityObserver
+import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
+import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityObserver
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
 
@@ -45,7 +45,7 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
         getData()
     }
     
-    private fun getData() {
+    fun getData() {
         viewModelScope.launch {
             yimData.value = username?.let { repository.getYimData(username = it)}!!
         }
@@ -74,6 +74,10 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
      *  NOTE : Every get must be null checked.
      */
     
+    fun getArtistMap() : ArrayList<ArtistMap>? {
+        return yimData.value?.data?.payload?.data?.artistMap
+    }
+    
     /** Get [ListensPerDay] of a particular day.
      * @param day offset ([Int]) from 1st Jan */
     fun getListensOfDay(day : Int) : ListensPerDay? {
@@ -98,23 +102,15 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
     
     /** The day user listens the most music, every week.*/
     fun getDayOfWeek() : String? {
-        return yimData.value!!.data?.payload?.data?.dayOfWeek
+        return yimData.value?.data?.payload?.data?.dayOfWeek
     }
     
     /** List of other ListenBrainz users with the same taste as user.
      *
      *  @return `null` for users with less listens.
      */
-    fun getSimilarUsers() : ArrayList<String>? {
-        val userMap = yimData.value?.data?.payload?.data?.similarUsers?.filter {
-            // TODO : Improve logic of getting similar users
-            it.value > 0.5
-        }
-        val list = arrayListOf<String>()
-        userMap?.onEach {
-            list.add(it.key)
-        }
-        return list.ifEmpty { null }
+    fun getSimilarUsers(): Map<String, Double>? {
+        return yimData.value?.data?.payload?.data?.similarUsers
     }
     
     /** List of top artists of which user listened songs of*/

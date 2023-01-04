@@ -22,7 +22,7 @@ object YimModule {
     
     private val YimGson: Gson = GsonBuilder()
         /** Since a TopRelease may or may not contain "caaId", "caaReleaseMbid" or "releaseMbid", so we perform a check. */
-        .registerTypeAdapter(
+        /*.registerTypeAdapter(
             TopRelease::class.java, JsonDeserializer<TopRelease>
             { jsonElement: JsonElement, _: Type, _: JsonDeserializationContext ->
                 
@@ -39,7 +39,7 @@ object YimModule {
                     releaseMbid = if (jsonObject.has("release_mbid")) element.releaseMbid else null
                 )
             }
-        )
+        )*/
         /** Check if a user is new with 0 listens*/
         .registerTypeAdapter(
             Data::class.java, JsonDeserializer<Data>

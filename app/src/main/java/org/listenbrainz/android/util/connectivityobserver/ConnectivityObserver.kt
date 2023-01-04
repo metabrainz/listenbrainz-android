@@ -1,4 +1,4 @@
-package org.listenbrainz.android.util
+package org.listenbrainz.android.util.connectivityobserver
 
 import kotlinx.coroutines.flow.Flow
 

@@ -9,16 +9,12 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -29,21 +25,18 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import kotlinx.coroutines.delay
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.yim.YearInMusicActivity
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
+import org.listenbrainz.android.presentation.features.yim.screens.components.YimShareButton
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YimPaddings
-import org.listenbrainz.android.util.ConnectivityObserver
-import java.util.Timer
-import java.util.TimerTask
+import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 
 @OptIn(ExperimentalMaterialApi::class)
 @RequiresApi(Build.VERSION_CODES.N)
@@ -60,15 +53,15 @@ fun YimHomeScreen(
         var startAnimations by remember { mutableStateOf(false) }
         val swipeableState = rememberSwipeableState(initialValue = false)
         
-        SideEffect {
+        LaunchedEffect(key1 = true){
             startAnimations = true
         }
         
         // What happens when user swipes up
-        LaunchedEffect(key1 = swipeableState.targetValue){
-            if (swipeableState.targetValue) {
+        LaunchedEffect(key1 = swipeableState.isAnimationRunning){
+            if (swipeableState.isAnimationRunning) {
                 when (viewModel.getNetworkStatus()) {
-                    ConnectivityObserver.NetworkStatus.Available -> navController.navigate(route = YimScreens.YimMainScreen.name)
+                    ConnectivityObserver.NetworkStatus.Available -> navController.navigate(route = YimScreens.YimTopAlbumsScreen.name)
                     else -> {
                         Toast.makeText(
                             context,
@@ -79,6 +72,7 @@ fun YimHomeScreen(
                     }
                 }
             }
+            swipeableState.animateTo(false, anim = tween(delayMillis = 1000))
         }
     
         Box(
@@ -99,9 +93,11 @@ fun YimHomeScreen(
                             0f to false,
                             -600f to true
                         ),
+                        /*thresholds = { _: Boolean, _: Boolean ->
+                            FractionalThreshold(0.9f)
+                        }*/
                     )
                     .offset(y = swipeableState.offset.value.dp),
-                    //.alpha(swipeableState.offset.value),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -123,7 +119,7 @@ fun YimHomeScreen(
             
                 Spacer(modifier = Modifier.height(paddings.smallPadding))
             
-                // Down Arrow
+                // Down Arrow animation
                 val infiniteAnim = rememberInfiniteTransition()
                 val animValue by infiniteAnim.animateFloat(
                     initialValue = 0f,
@@ -133,7 +129,8 @@ fun YimHomeScreen(
                         repeatMode = RepeatMode.Reverse
                     )
                 )
-            
+                
+                // Down Arrow
                 Icon(
                     painter = painterResource(id = R.drawable.yim_arrow_down),
                     contentDescription = "Swipe down to continue.",
@@ -201,21 +198,11 @@ fun YimHomeScreen(
                 Spacer(modifier = Modifier.height(paddings.largePadding))
                 
                 // Share Icon
-                IconButton(onClick = { /*TODO: Implement share functionality.*/ }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.yim_share_yellow),
-                        contentDescription = "Share your Year in Music",
-                        tint = Color.Unspecified,
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .fillMaxSize()
-                    )
-                }
+                YimShareButton(isRedTheme = true)
             }
-        
-        
         }
     }
 }
+
 
 

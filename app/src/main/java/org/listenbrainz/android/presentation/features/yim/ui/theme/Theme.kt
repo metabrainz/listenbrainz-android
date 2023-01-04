@@ -15,17 +15,17 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 private val RedColorScheme = darkColorScheme(
     background = yimRed,
     onBackground = yimYellow,
-    onSurface = yimYellow,
-    surface = yimWhite
+    surface = yimWhite,
+    secondary = yimOffWhite
     
 )
 
 private val YellowColorScheme = lightColorScheme(
     background = yimYellow,
     onBackground = yimRed,
-    onSurface = yimRed,
     surface = yimWhite,
-    
+    secondary = yimOffWhite
+
 )
 
 @Immutable
