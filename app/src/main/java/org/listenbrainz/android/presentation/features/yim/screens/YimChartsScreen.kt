@@ -17,19 +17,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
+import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
+import org.listenbrainz.android.presentation.features.yim.screens.components.YimLabelText
+import org.listenbrainz.android.presentation.features.yim.screens.components.YimNextButton
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimShareButton
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTheme
@@ -58,10 +56,8 @@ fun YimChartsScreen(
             delay(700)     // Since it takes 700 ms for fist list to animate.
             startSecondAnim = true
         }
-    
-    
         
-        
+        // Layout starts here
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -71,31 +67,7 @@ fun YimChartsScreen(
         ) {
             
             item {
-                Text(
-                    buildAnnotatedString {
-                        withStyle(
-                            style = SpanStyle(
-                                color = MaterialTheme.colorScheme.onBackground,
-                                fontSize = 36.sp,
-                                fontFamily = FontFamily(Font(R.font.roboto_bold))
-                            )
-                        ){
-                            append("Charts")
-                        }
-                        withStyle(
-                            style = SpanStyle(
-                                color = MaterialTheme.colorScheme.onBackground,
-                                fontSize = 24.sp,
-                                fontFamily = FontFamily(Font(R.font.roboto_light))
-                            )
-                        ){
-                            append("\n\nThese got you through the year. Respect.")
-                        }
-                    },
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(paddings.extraLargePadding)
-                )
-                
+                YimLabelText(heading = "Charts", subHeading = "These got you through the year. Respect.")
             }
             
             // Top Songs Card
@@ -103,8 +75,12 @@ fun YimChartsScreen(
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 0.dp, max = 500.dp)
-                        .padding(horizontal = paddings.DefaultPadding),
+                        .heightIn(min = 0.dp, max = 550.dp)
+                        .padding(
+                            start = paddings.defaultPadding,
+                            end = paddings.defaultPadding,
+                            bottom = 50.dp
+                        ),
                     shadowElevation = 10.dp,
                     shape = RoundedCornerShape(10.dp)
                 ) {
@@ -119,7 +95,7 @@ fun YimChartsScreen(
                         Image(
                             painter = painterResource(id = R.drawable.yim_radio),
                             modifier = Modifier
-                                .padding(top = paddings.DefaultPadding)
+                                .padding(top = paddings.defaultPadding)
                                 .size(100.dp),
                             contentDescription = null
                         )
@@ -131,7 +107,7 @@ fun YimChartsScreen(
                             textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = paddings.DefaultPadding)
+                                .padding(vertical = paddings.defaultPadding)
                                 .padding(vertical = paddings.smallPadding)
                         )
             
@@ -147,17 +123,13 @@ fun YimChartsScreen(
                 }
             }
             
-            item {
-                Spacer(modifier = Modifier.height(50.dp))
-            }
-            
             // Top Artists Card
             item {
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 0.dp, max = 500.dp)
-                        .padding(horizontal = paddings.DefaultPadding),
+                        .padding(horizontal = paddings.defaultPadding),
                     shadowElevation = 10.dp,
                     shape = RoundedCornerShape(10.dp)
                 ) {
@@ -169,9 +141,9 @@ fun YimChartsScreen(
                     ) {
                         // Map Image
                         Image(
-                            painter = painterResource(id = R.drawable.yim_magnifier),
+                            painter = painterResource(id = R.drawable.yim_map),
                             modifier = Modifier
-                                .padding(top = paddings.DefaultPadding)
+                                .padding(top = paddings.defaultPadding)
                                 .size(100.dp),
                             contentDescription = null
                         )
@@ -183,11 +155,14 @@ fun YimChartsScreen(
                             textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = paddings.DefaultPadding)
+                                .padding(vertical = paddings.defaultPadding)
                                 .padding(vertical = paddings.smallPadding)
                         )
-        
-                        if (startSecondAnim){
+    
+                        AnimatedVisibility(
+                            visible = startSecondAnim,
+                            enter = expandVertically(animationSpec = tween(700))
+                        ) {
                             // List of artists
                             YimTopArtistsList(paddings = paddings, viewModel = viewModel)
                         }
@@ -197,13 +172,18 @@ fun YimChartsScreen(
             }
             
             // Share Button
+            
             if (startSecondAnim) {
                 item {
-                    Spacer(modifier = Modifier.height(50.dp))
-                    YimShareButton(isRedTheme = true)
-                    Spacer(modifier = Modifier.height(50.dp))
+                    Row(modifier = Modifier.padding(vertical = 50.dp)) {
+                        YimShareButton(isRedTheme = true)
+                        YimNextButton {
+                            navController.navigate(route = YimScreens.YimStatisticsScreen.name)
+                        }
+                    }
                 }
             }
+            
             
         }
     }
@@ -270,7 +250,7 @@ private fun YimTopRecordingsList(
                         }
                     }
                     
-                    Spacer(modifier = Modifier.width(paddings.DefaultPadding))
+                    Spacer(modifier = Modifier.width(paddings.defaultPadding))
                     Column(modifier = Modifier) {
                         Text(
                             text = item.releaseName,

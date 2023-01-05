@@ -21,11 +21,11 @@ import javax.inject.Inject
 @HiltViewModel
 class YimViewModel @Inject constructor(private val repository: YimRepository, @ApplicationContext context: Context) : ViewModel() {
     // Yim data resource
-    private var yimData:
+    var yimData:
             MutableState<
-                    Resource<YimData>?
+                    Resource<YimData>
                     >
-            = mutableStateOf(null)
+    = mutableStateOf(Resource.loading())
     
     /** User name.
         Don't worry about this being nullable as we are performing login check.*/
@@ -42,9 +42,14 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
         getData()
     }
     
-    fun getData() {
+    private fun getData() {
         viewModelScope.launch {
-            yimData.value = username?.let { repository.getYimData(username = it)}!!
+            val response = async {  username?.let { repository.getYimData(username = it)}!! }
+            when (response.await().status){
+                Resource.Status.SUCCESS -> yimData.value = response.await()
+                Resource.Status.LOADING -> yimData.value = Resource.loading()
+                Resource.Status.FAILED -> yimData.value = Resource.failure()
+            }
         }
     }
     
@@ -72,26 +77,26 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
      */
     
     fun getArtistMap() : ArrayList<ArtistMap>? {
-        return yimData.value?.data?.payload?.data?.artistMap
+        return yimData.value.data?.payload?.data?.artistMap
     }
     
-    /** Get [ListensPerDay] of a particular day.
-     * @param day offset ([Int]) from 1st Jan */
-    fun getListensOfDay(day : Int) : ListensPerDay? {
-        if (day > 365){
-            throw IllegalArgumentException()
-        }
-        return yimData.value?.data?.payload?.data?.listensPerDay?.get(day)
+    /** Get list of listen count of whole year.*/
+    fun getListensListOfYear() : List<Int> {
+         val list = arrayListOf<Int>()
+         yimData.value.data?.payload?.data?.listensPerDay?.forEach {
+             list.add(it.listenCount)
+         }
+        return list
     }
     
     /** List of new releases of those artists that the user listens to.*/
     fun getNewReleasesOfTopArtists() : ArrayList<NewReleasesOfTopArtist>? {
-        return yimData.value?.data?.payload?.data?.newReleasesOfTopArtists
+        return yimData.value.data?.payload?.data?.newReleasesOfTopArtists
     }
     
     /** The year of which the user listened most songs of. */
     fun getMostListenedYear() : Int? {
-        val mapEntry = yimData.value?.data?.payload?.data?.mostListenedYear?.maxBy {
+        val mapEntry = yimData.value.data?.payload?.data?.mostListenedYear?.maxBy {
             it.value
         }
         return mapEntry?.value
@@ -99,7 +104,7 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
     
     /** The day user listens the most music, every week.*/
     fun getDayOfWeek() : String? {
-        return yimData.value?.data?.payload?.data?.dayOfWeek
+        return yimData.value.data?.payload?.data?.dayOfWeek
     }
     
     /** List of other ListenBrainz users with the same taste as user.
@@ -107,12 +112,12 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
      *  @return `null` for users with less listens.
      */
     fun getSimilarUsers(): Map<String, Double>? {
-        return yimData.value?.data?.payload?.data?.similarUsers
+        return yimData.value.data?.payload?.data?.similarUsers
     }
     
     /** List of top artists of which user listened songs of*/
     fun getTopArtists() : ArrayList<TopArtist>? {
-        return yimData.value?.data?.payload?.data?.topArtists
+        return yimData.value.data?.payload?.data?.topArtists
     }
     
     /** Warning: Volatile fields (Might be null) :
@@ -121,36 +126,36 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
      * @param releaseMbid
      */
     fun getTopRecordings() : ArrayList<TopRecording>? {
-        return yimData.value?.data?.payload?.data?.topRecordings
+        return yimData.value.data?.payload?.data?.topRecordings
     }
     
     /** Top releases user listened to.*/
     fun getTopReleases() : ArrayList<TopRelease>? {
-        return yimData.value?.data?.payload?.data?.topReleases
+        return yimData.value.data?.payload?.data?.topReleases
     }
     
     /** Total of all artists the user listened to.*/
     fun getTotalArtistCount() : Int? {
-        return yimData.value?.data?.payload?.data?.totalArtistsCount
+        return yimData.value.data?.payload?.data?.totalArtistsCount
     }
     
     fun getTotalListenCount() : Int? {
-        return yimData.value?.data?.payload?.data?.totalListenCount
+        return yimData.value.data?.payload?.data?.totalListenCount
     }
     
     fun getTotalListeningTime() : Double? {
-        return yimData.value?.data?.payload?.data?.totalListeningTime
+        return yimData.value.data?.payload?.data?.totalListeningTime
     }
     
     fun getTotalNewArtistsDiscovered() : Int? {
-        return yimData.value?.data?.payload?.data?.totalNewArtistsDiscovered
+        return yimData.value.data?.payload?.data?.totalNewArtistsDiscovered
     }
     
     fun getTotalRecordingsCount() : Int? {
-        return yimData.value?.data?.payload?.data?.totalRecordingsCount
+        return yimData.value.data?.payload?.data?.totalRecordingsCount
     }
     
     fun getTotalReleasesCount() : Int? {
-        return yimData.value?.data?.payload?.data?.totalReleasesCount
+        return yimData.value.data?.payload?.data?.totalReleasesCount
     }
 }
