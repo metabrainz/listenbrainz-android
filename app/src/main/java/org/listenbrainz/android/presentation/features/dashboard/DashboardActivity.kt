@@ -43,24 +43,10 @@ class DashboardActivity : ComponentActivity() {
         } else {
             arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE)
         }
-        /*val neededPermissions = mutableListOf<String>()
-
-        //Only required for apps less than Android 10
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            neededPermissions.add(android.Manifest.permission.READ_EXTERNAL_STORAGE)
-        }
-
-        //Only required for apps above Android 13
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            neededPermissions.plus(android.Manifest.permission.READ_MEDIA_AUDIO)
-        }*/
-
+        
         setContent {
             ListenBrainzTheme()
             {
-                /*val multiplePermissionsState = rememberMultiplePermissionsState(
-                    neededPermissions
-                )*/
                 var isGrantedPerms by remember {
                     mutableStateOf(false)
                 }
