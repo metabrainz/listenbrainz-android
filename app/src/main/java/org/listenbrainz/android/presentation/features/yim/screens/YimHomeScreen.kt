@@ -60,7 +60,7 @@ fun YimHomeScreen(
             if (swipeableState.isAnimationRunning) {
                 when (viewModel.getNetworkStatus()) {
                     ConnectivityObserver.NetworkStatus.Available -> {
-                        
+                        // Data status checking
                         when (viewModel.yimData.value.status){
                             Resource.Status.LOADING -> {
                                 Toast.makeText(context, "Loading...", Toast.LENGTH_LONG).show()
@@ -70,6 +70,7 @@ fun YimHomeScreen(
                                 activity.finish()
                             }
                             else -> {
+                                // Checks if user has less listens, i.e., No yim data available.
                                 if (viewModel.yimData.value.data?.payload?.data != null) {
                                     navController.navigate(route = YimScreens.YimTopAlbumsScreen.name)
                                 }else{

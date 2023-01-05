@@ -3,16 +3,17 @@ package org.listenbrainz.android.presentation.features.dashboard
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.preference.PreferenceManager
 import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.BrainzPlayerBackDropScreen
@@ -24,7 +25,7 @@ import org.listenbrainz.android.presentation.theme.ListenBrainzTheme
 @AndroidEntryPoint
 class DashboardActivity : ComponentActivity() {
 
-    @OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class, ExperimentalPermissionsApi::class)
+    @OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
@@ -33,7 +34,16 @@ class DashboardActivity : ComponentActivity() {
             startActivity(Intent(this, FeaturesActivity::class.java))
             finish()
         }
-        val neededPermissions = mutableListOf<String>()
+    
+        val neededPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arrayOf(
+                android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                android.Manifest.permission.READ_MEDIA_AUDIO
+            )
+        } else {
+            arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+        /*val neededPermissions = mutableListOf<String>()
 
         //Only required for apps less than Android 10
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
@@ -43,14 +53,31 @@ class DashboardActivity : ComponentActivity() {
         //Only required for apps above Android 13
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             neededPermissions.plus(android.Manifest.permission.READ_MEDIA_AUDIO)
-        }
+        }*/
 
         setContent {
             ListenBrainzTheme()
             {
-                val multiplePermissionsState = rememberMultiplePermissionsState(
+                /*val multiplePermissionsState = rememberMultiplePermissionsState(
                     neededPermissions
-                )
+                )*/
+                var isGrantedPerms by remember {
+                    mutableStateOf(false)
+                }
+                val launcher = rememberLauncherForActivityResult(
+                    contract =
+                    ActivityResultContracts.RequestMultiplePermissions()
+                ) { permission ->
+                    val isGranted = permission.values.reduce{first,second->(first || second)}
+                    if (!isGranted) {
+                        Toast.makeText(this, "Brainzplayer requires local storage permissions to play local songs", Toast.LENGTH_SHORT).show()
+                    } else {
+                        isGrantedPerms = true
+                    }
+                }
+                SideEffect {
+                    launcher.launch(neededPermissions)
+                }
 
                 val backdropScaffoldState =
                     rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
@@ -60,7 +87,7 @@ class DashboardActivity : ComponentActivity() {
                     // This fixes the white flicker on start up that only occurs on BackLayerContent
                     backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.background,
                 ) { paddingValues ->
-                    if (multiplePermissionsState.allPermissionsGranted) {
+                    if (isGrantedPerms) {
                         BrainzPlayerBackDropScreen(
                             backdropScaffoldState = backdropScaffoldState,
                             paddingValues = paddingValues,
