@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -109,7 +110,7 @@ fun YimTopAlbumsScreen(
                             numberOfItemsToPreload = 20,
                             fixedVisibleItemCount = 3
                         ){ item, requestBuilder ->
-                            requestBuilder.load(item).placeholder(R.drawable.ic_coverartarchive_logo_no_text)
+                            requestBuilder.load(item).placeholder(R.drawable.yim_album_placeholder)
                         }
                         
                         AlbumViewer(list = topReleases, listState = listState, viewModel = yimViewModel)
@@ -181,12 +182,13 @@ fun AlbumViewer(list: List<TopRelease>?, listState: LazyListState, viewModel: Yi
                         model = "https://archive.org/download/mbid-${item.caaReleaseMbid}/mbid-${item.caaReleaseMbid}-${item.caaId}_thumb500.jpg",
                         modifier = Modifier
                             .size(300.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .padding(bottom = 5.dp),
+                            .clip(RoundedCornerShape(10.dp)),
                         contentDescription = "Album Poster"
                     ) {
-                        it.override(300,300).placeholder(R.drawable.ic_coverartarchive_logo_no_text)
+                        it.override(300,300).placeholder(R.drawable.yim_album_placeholder)
                     }
+                    
+                    Spacer(modifier = Modifier.height(5.dp))
                     
                     // Track name
                     Text(

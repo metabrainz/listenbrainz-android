@@ -75,7 +75,7 @@ fun YimChartsScreen(
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 0.dp, max = 550.dp)
+                        .heightIn(min = 0.dp, max = 600.dp)
                         .padding(
                             start = paddings.defaultPadding,
                             end = paddings.defaultPadding,
@@ -128,7 +128,7 @@ fun YimChartsScreen(
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 0.dp, max = 500.dp)
+                        .heightIn(min = 0.dp, max = 600.dp)
                         .padding(horizontal = paddings.defaultPadding),
                     shadowElevation = 10.dp,
                     shape = RoundedCornerShape(10.dp)
@@ -258,7 +258,8 @@ private fun YimTopRecordingsList(
                                 .copy(
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = lb_purple
+                                    color = lb_purple,
+                                    lineHeight = 14.sp
                                 ) ,
                         )
                         Text(
@@ -359,7 +360,8 @@ private fun YimTopArtistsList(
                             .copy(
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = lb_purple
+                                color = lb_purple,
+                                lineHeight = 14.sp
                             )
                     )
                 }

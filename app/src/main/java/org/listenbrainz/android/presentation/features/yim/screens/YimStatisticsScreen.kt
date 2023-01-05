@@ -30,8 +30,11 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
+import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimHeadingText
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimLabelText
+import org.listenbrainz.android.presentation.features.yim.screens.components.YimNextButton
+import org.listenbrainz.android.presentation.features.yim.screens.components.YimShareButton
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YimPaddings
@@ -73,10 +76,11 @@ fun YimStatisticsScreen(
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(300.dp)
+                    .height(275.dp)
                     .padding(
-                        horizontal = paddings.defaultPadding,
-                        vertical = paddings.defaultPadding
+                        start = paddings.defaultPadding,
+                        end = paddings.defaultPadding,
+                        bottom = paddings.defaultPadding
                     ),
                 shadowElevation = 10.dp,
                 shape = RoundedCornerShape(10.dp)
@@ -89,7 +93,7 @@ fun YimStatisticsScreen(
                 ) {
                     
                     // Heading text
-                    YimHeadingText(text = "Your listening Activity", modifier = Modifier.padding(vertical = paddings.defaultPadding))
+                    YimHeadingText(text = "Your listening Activity", modifier = Modifier.padding(vertical = paddings.smallPadding))
                     
                     // Month row
                     val listState = rememberLazyListState()
@@ -240,8 +244,14 @@ fun YimStatisticsScreen(
                     )
                 }
             }
-            
-            Spacer(modifier = Modifier.height(75.dp))
+    
+           // Share and next button
+            Row(modifier = Modifier.padding(top = 15.dp)) {
+                YimShareButton(isRedTheme = false)
+                YimNextButton {
+                    navController.navigate(route = YimScreens.YimRecommendedPlaylistsScreen.name)
+                }
+            }
             
         }
     }

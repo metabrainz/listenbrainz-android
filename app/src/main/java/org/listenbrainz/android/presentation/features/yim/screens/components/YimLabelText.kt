@@ -41,6 +41,6 @@ fun YimLabelText(
             }
         },
         textAlign = TextAlign.Center,
-        modifier = androidx.compose.ui.Modifier.padding(LocalYimPaddings.current.extraLargePadding)
+        modifier = androidx.compose.ui.Modifier.padding(LocalYimPaddings.current.largePadding)
     )
 }
