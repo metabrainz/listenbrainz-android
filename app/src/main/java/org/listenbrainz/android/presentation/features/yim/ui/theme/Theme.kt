@@ -30,7 +30,7 @@ private val YellowColorScheme = lightColorScheme(
 
 @Immutable
 data class YimPaddings(
-    val DefaultPadding: Dp = 16.dp,
+    val defaultPadding: Dp = 16.dp,
     val tinyPadding: Dp = 4.dp,
     val smallPadding: Dp = 8.dp,
     val largePadding: Dp = 24.dp,

@@ -10,10 +10,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowDownward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,7 +21,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -35,13 +31,14 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.data.sources.api.entities.yimdata.TopRelease
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
+import org.listenbrainz.android.presentation.features.yim.screens.components.YimHeadingText
+import org.listenbrainz.android.presentation.features.yim.screens.components.YimNextButton
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimShareButton
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YimPaddings
 
 @OptIn(ExperimentalGlideComposeApi::class)
-
 @Composable
 fun YimTopAlbumsScreen(
     yimViewModel: YimViewModel,
@@ -75,7 +72,7 @@ fun YimTopAlbumsScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(cardHeight)
-                    .padding(horizontal = paddings.DefaultPadding),
+                    .padding(horizontal = paddings.defaultPadding),
                 shadowElevation = 5.dp,
                 shape = RoundedCornerShape(10.dp)
             ) {
@@ -83,14 +80,7 @@ fun YimTopAlbumsScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     // Card Heading
-                    Text(
-                        text = "Top Albums of 2022",
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = paddings.smallPadding)
-                    )
+                    YimHeadingText(text = "Top Albums of 2022")
                 
                     // Album Viewer
                     Column(
@@ -151,21 +141,6 @@ fun YimTopAlbumsScreen(
     }
 }
 
-@Composable
-fun YimNextButton(onClick: () -> Unit) {
-    IconButton(onClick = onClick) {
-        Icon(
-            imageVector = Icons.Rounded.ArrowDownward,
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.onBackground, CircleShape)
-                .size(50.dp),
-            tint = MaterialTheme.colorScheme.background,
-            contentDescription = "Move to next page"
-        )
-    }
-}
-
-
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
@@ -195,49 +170,45 @@ fun AlbumViewer(list: List<TopRelease>?, listState: LazyListState, viewModel: Yi
                 .alpha(alphaAnimation)
                 .animateContentSize(),
         ) {
-    
-            if (list != null) {
-                items(list.toList()) { item ->
-        
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
+            
+            items(list!!.toList()) { item ->
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    
+                    GlideImage(
+                        model = "https://archive.org/download/mbid-${item.caaReleaseMbid}/mbid-${item.caaReleaseMbid}-${item.caaId}_thumb500.jpg",
+                        modifier = Modifier
+                            .size(300.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .padding(bottom = 5.dp),
+                        contentDescription = "Album Poster"
                     ) {
-                        
-                        GlideImage(
-                            model = "https://archive.org/download/mbid-${item.caaReleaseMbid}/mbid-${item.caaReleaseMbid}-${item.caaId}_thumb500.jpg",
-                            modifier = Modifier
-                                .size(300.dp)
-                                .clip(RoundedCornerShape(10.dp)),
-                            contentDescription = "Album Poster"
-                        ) {
-                            it.override(300,300).placeholder(R.drawable.ic_coverartarchive_logo_no_text)
-                        }
-            
-                        // Track name
-                        Text(
-                            text = item.releaseName,
-                            modifier = Modifier.padding(top = 5.dp),
-                            color = Color(0xFF39296F),
-                            fontFamily = FontFamily(Font(R.font.roboto_bold))
-                        )
-            
-                        // Artist text
-                        Text(
-                            text = item.artistName,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color(0xFF727272)
-                        )
-            
+                        it.override(300,300).placeholder(R.drawable.ic_coverartarchive_logo_no_text)
                     }
-        
-                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.DefaultPadding))
-        
+                    
+                    // Track name
+                    Text(
+                        text = item.releaseName,
+                        modifier = Modifier.padding(horizontal = LocalYimPaddings.current.defaultPadding),
+                        color = Color(0xFF39296F),
+                        maxLines = 1,
+                        fontFamily = FontFamily(Font(R.font.roboto_bold))
+                    )
+                    
+                    // Artist text
+                    Text(
+                        text = item.artistName,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFF727272)
+                    )
                 }
-            }else{
-                // Fixes Loophole where user activates internet after entering yimHomeScreen.
-                viewModel.getData()
+                
+                Spacer(modifier = Modifier.width(LocalYimPaddings.current.defaultPadding))
+                
             }
+            
         }
     }
 }
@@ -305,7 +276,7 @@ fun CoilAlbumViewer(list: List<TopRecording>?) {
                         )
                         Text(text = item.trackName)
                     }
-                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.DefaultPadding))
+                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.defaultPadding))
                }
                
             }

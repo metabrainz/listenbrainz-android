@@ -34,6 +34,7 @@ import org.listenbrainz.android.presentation.features.yim.screens.components.Yim
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YimPaddings
+import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -58,7 +59,28 @@ fun YimHomeScreen(
         LaunchedEffect(key1 = swipeableState.isAnimationRunning){
             if (swipeableState.isAnimationRunning) {
                 when (viewModel.getNetworkStatus()) {
-                    ConnectivityObserver.NetworkStatus.Available -> navController.navigate(route = YimScreens.YimTopAlbumsScreen.name)
+                    ConnectivityObserver.NetworkStatus.Available -> {
+                        // Data status checking
+                        when (viewModel.yimData.value.status){
+                            Resource.Status.LOADING -> {
+                                Toast.makeText(context, "Loading...", Toast.LENGTH_LONG).show()
+                            }
+                            Resource.Status.FAILED -> {
+                                Toast.makeText(context, "Something went wrong.", Toast.LENGTH_LONG).show()
+                                activity.finish()
+                            }
+                            else -> {
+                                // Checks if user has less listens, i.e., No yim data available.
+                                if (viewModel.yimData.value.data?.payload?.data != null) {
+                                    navController.navigate(route = YimScreens.YimTopAlbumsScreen.name)
+                                }else{
+                                    Toast.makeText(context, "Seems like you have very less listens :(", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, "Try again next year!", Toast.LENGTH_LONG).show()
+                                }
+                            }
+                        }
+                        
+                    }
                     else -> {
                         Toast.makeText(
                             context,
@@ -159,7 +181,7 @@ fun YimHomeScreen(
                 
                 // Bottom Window text
                 Text(
-                    modifier = Modifier.padding(paddings.DefaultPadding),
+                    modifier = Modifier.padding(paddings.defaultPadding),
                     maxLines = 2,           // If username is very long
                     text = buildAnnotatedString {
                         withStyle(
