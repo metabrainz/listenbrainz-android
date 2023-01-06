@@ -21,9 +21,9 @@ class ReleaseTrackAdapter(private val mediaList: List<Media>?) : RecyclerView.Ad
          * 1) The titles of mediums in which the tracks are present.
          * 2) The tracks itself.
          * To find which view type, the following method is used:
-         * Check if the position is zero or equal to previous cumulative trackLis count. This would mean
+         * Check if the position is zero or equal to previous cumulative track count. This would mean
          * the position id for the title of a medium. Repeat this till all mediums are accounted for and
-         * return the view type as a trackLis.
+         * return the view type as a track.
          */
         var calculate = 0
         var flag = VIEWTYPE_TRACK
@@ -57,7 +57,7 @@ class ReleaseTrackAdapter(private val mediaList: List<Media>?) : RecyclerView.Ad
 
     override fun getItemCount(): Int {
         /*
-         * Total count of items in recycler view is equal to cumulative trackLis count of the media and
+         * Total count of items in recycler view is equal to cumulative track count of the media and
          * number of media because the titles of media of also make up one item each.*/
         var count = 0
         if (mediaList != null) {
@@ -76,7 +76,7 @@ class ReleaseTrackAdapter(private val mediaList: List<Media>?) : RecyclerView.Ad
 
     private fun getMediumTitle(position: Int): String {
         /*
-         * Deduct the trackLis count of each media from the cumulative count. Reduce one from the count
+         * Deduct the track count of each media from the cumulative count. Reduce one from the count
          * for the already displayed medium's title. When the count becomes zero, the next media is
          * the one whose title has to be displayed.
          * */
@@ -95,8 +95,8 @@ class ReleaseTrackAdapter(private val mediaList: List<Media>?) : RecyclerView.Ad
 
     private fun getTrack(position: Int): Track {
         /*
-         * To calculate trackLis position, deduct the trackLis count of all previous media that is till the
-         * trackLis count is positive. This way we get the trackLis position in the required media and
+         * To calculate track position, deduct the track count of all previous media that is till the
+         * track count is positive. This way we get the track position in the required media and
          * then return it.*/
         var pos = position
         for (media in mediaList!!) {

@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 import java.util.*
 
 class Media {
-    @SerializedName("trackLis-count")
+    @SerializedName("track-count")
     var trackCount = 0
     var format: String? = null
     var title: String? = null

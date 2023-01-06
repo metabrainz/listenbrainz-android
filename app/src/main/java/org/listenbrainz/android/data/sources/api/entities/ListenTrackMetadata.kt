@@ -14,7 +14,7 @@ class ListenTrackMetadata {
     override fun toString(): String {
         return "ListenTrackMetadata{" +
                 "artist='" + artist + '\'' +
-                ", trackLis='" + track + '\'' +
+                ", track='" + track + '\'' +
                 ", release='" + release + '\'' +
                 '}'
     }

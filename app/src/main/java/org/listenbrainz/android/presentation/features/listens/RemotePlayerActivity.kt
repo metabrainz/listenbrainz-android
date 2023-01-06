@@ -134,7 +134,7 @@ class RemotePlayerActivity : AppCompatActivity() {
     }
 
     private fun updateTrackCoverArt(playerState: PlayerState) {
-        // Get image from trackLis
+        // Get image from track
         assertAppRemoteConnected()
             .imagesApi
             .getImage(playerState.track.imageUri, Image.Dimension.LARGE)
@@ -164,7 +164,7 @@ class RemotePlayerActivity : AppCompatActivity() {
         onSubscribedToPlayerStateButtonClicked(binding.subscribeToPlayerStateButton)
         onSubscribedToPlayerContextButtonClicked()
 
-        playUri("spotify:trackLis:${trackId}")
+        playUri("spotify:track:${trackId}")
     }
 
     private fun onDisconnected() {

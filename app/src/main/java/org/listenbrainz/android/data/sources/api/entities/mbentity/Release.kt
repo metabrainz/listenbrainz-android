@@ -21,7 +21,7 @@ class Release : MBEntity() {
     @SerializedName("label-info")
     private val labels: MutableList<LabelInfo> = ArrayList()
 
-    @SerializedName("trackLis-count")
+    @SerializedName("track-count")
     var trackCount = 0
     var country: String? = null
     var status: String? = null
