@@ -111,8 +111,11 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
      *
      *  @return `null` for users with less listens.
      */
-    fun getSimilarUsers(): Map<String, Double>? {
-        return yimData.value.data?.payload?.data?.similarUsers
+    fun getSimilarUsers(): List<Pair<String, Double>> {
+        val list = yimData.value.data?.payload?.data?.similarUsers!!.toList()
+        return list.sortedByDescending {
+            it.second
+        }
     }
     
     /** List of top artists of which user listened songs of*/

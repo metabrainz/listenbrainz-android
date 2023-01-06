@@ -10,7 +10,6 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
@@ -64,7 +63,7 @@ fun YimRecommendedPlaylistsScreen(
         LaunchedEffect(Unit) {
             delay(1200)
             startAnim = true
-            delay(700)     // Since it takes 700 ms for fist list to animate.
+            delay(700)     // Since it takes 700 ms for first list to animate.
             startSecondAnim = true
         }
         
@@ -247,7 +246,7 @@ private fun YimTopDiscoveriesOrMissedList(
         numberOfItemsToPreload = 15,
         fixedVisibleItemCount = 5
     ){ item, requestBuilder ->
-        requestBuilder.load(item).placeholder(R.drawable.ic_coverartarchive_logo_no_text)
+        requestBuilder.load(item).placeholder(R.drawable.ic_coverartarchive_logo_no_text).override(75)
     }
     
     LazyColumn(
@@ -261,10 +260,11 @@ private fun YimTopDiscoveriesOrMissedList(
         )
     ) {
         items(listOfTracks) { item ->
-            Card(
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = paddings.tinyPadding)
+                    .background(MaterialTheme.colorScheme.surface)
                     .clickable(enabled = true) {
                         context.startActivity(
                             Intent(Intent.ACTION_VIEW, Uri.parse(item.key.identifier))
@@ -272,8 +272,7 @@ private fun YimTopDiscoveriesOrMissedList(
                         // Sends the user to recordings page just like website.
                     },
                 shape = RoundedCornerShape(5.dp),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 5.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                shadowElevation = 5.dp
             ) {
                 Row(
                     modifier = Modifier

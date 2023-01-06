@@ -72,6 +72,10 @@ fun YimNavigation(
         addYimScreen( route = YimScreens.YimDiscoverScreen.name ){
             YimDiscoverScreen(yimViewModel = yimViewModel, navController = navController)
         }
+        
+        addYimScreen( route = YimScreens.YimEndgameScreen.name ){
+            YimEndgameScreen(viewModel = yimViewModel, navController = navController)
+        }
     }
 }
 

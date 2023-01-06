@@ -6,11 +6,9 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -113,7 +111,7 @@ fun YimTopAlbumsScreen(
                             requestBuilder.load(item).placeholder(R.drawable.yim_album_placeholder)
                         }
                         
-                        AlbumViewer(list = topReleases, listState = listState, viewModel = yimViewModel)
+                        YimAlbumViewer(list = topReleases, listState = listState, viewModel = yimViewModel)
                         
                     }
                 }
@@ -145,7 +143,7 @@ fun YimTopAlbumsScreen(
 
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun AlbumViewer(list: List<TopRelease>?, listState: LazyListState, viewModel: YimViewModel) {
+private fun YimAlbumViewer(list: List<TopRelease>?, listState: LazyListState, viewModel: YimViewModel) {
     
     // This prevents image from being blur or crashing the app.
     var renderImage by remember { mutableStateOf(false) }
@@ -176,7 +174,7 @@ fun AlbumViewer(list: List<TopRelease>?, listState: LazyListState, viewModel: Yi
             itemsIndexed(list!!.toList()) { index, item ->
                 
                 if (index == 0) {
-                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.extraLargePadding))
+                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.largePadding))
                 }else
                     Spacer(modifier = Modifier.width(LocalYimPaddings.current.smallPadding))
                     
@@ -216,7 +214,7 @@ fun AlbumViewer(list: List<TopRelease>?, listState: LazyListState, viewModel: Yi
                 }
     
                 if (index == list.lastIndex) {
-                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.extraLargePadding))
+                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.largePadding))
                 }else
                     Spacer(modifier = Modifier.width(LocalYimPaddings.current.smallPadding))
                 

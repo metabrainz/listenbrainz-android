@@ -5,9 +5,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.rememberScrollableState
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -205,13 +202,13 @@ private fun YimTopRecordingsList(
         )
     ) {
         items(viewModel.getTopRecordings()!!.toList()) { item ->
-            Card(
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = paddings.tinyPadding),
+                    .padding(vertical = paddings.tinyPadding)
+                    .background(MaterialTheme.colorScheme.surface),
                 shape = RoundedCornerShape(5.dp),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 5.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                shadowElevation = 5.dp
             ) {
                 Row(
                     modifier = Modifier
@@ -294,13 +291,13 @@ private fun YimTopArtistsList(
         )
     ) {
         itemsIndexed(viewModel.getTopArtists()!!.toList()) { index, item ->
-            Card(
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = paddings.tinyPadding),
+                    .padding(vertical = paddings.tinyPadding)
+                    .background(MaterialTheme.colorScheme.surface),
                 shape = RoundedCornerShape(5.dp),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 5.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                shadowElevation = 5.dp
             ) {
                 Row(
                     modifier = Modifier
@@ -311,9 +308,9 @@ private fun YimTopArtistsList(
                         ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    
+                    // Ranking
                     Column(
-                        modifier = Modifier.width(30.dp),
+                        modifier = Modifier.width(35.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
