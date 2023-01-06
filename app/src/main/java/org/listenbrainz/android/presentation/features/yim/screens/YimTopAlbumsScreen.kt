@@ -4,12 +4,12 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -143,7 +143,7 @@ fun YimTopAlbumsScreen(
 }
 
 
-@OptIn(ExperimentalGlideComposeApi::class)
+@OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun AlbumViewer(list: List<TopRelease>?, listState: LazyListState, viewModel: YimViewModel) {
     
@@ -170,9 +170,17 @@ fun AlbumViewer(list: List<TopRelease>?, listState: LazyListState, viewModel: Yi
                 .padding(vertical = LocalYimPaddings.current.extraLargePadding)
                 .alpha(alphaAnimation)
                 .animateContentSize(),
+            flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)        // Centre snapping effect
         ) {
             
-            items(list!!.toList()) { item ->
+            itemsIndexed(list!!.toList()) { index, item ->
+                
+                if (index == 0) {
+                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.extraLargePadding))
+                }else
+                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.smallPadding))
+                    
+                
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
@@ -206,8 +214,11 @@ fun AlbumViewer(list: List<TopRelease>?, listState: LazyListState, viewModel: Yi
                         color = Color(0xFF727272)
                     )
                 }
-                
-                Spacer(modifier = Modifier.width(LocalYimPaddings.current.defaultPadding))
+    
+                if (index == list.lastIndex) {
+                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.extraLargePadding))
+                }else
+                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.smallPadding))
                 
             }
             

@@ -1,12 +1,11 @@
 package org.listenbrainz.android.presentation.features.yim.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -27,7 +26,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
@@ -115,38 +116,33 @@ fun YimStatisticsScreen(
                         }
                     }
                     
-                    // Heat Map Grid
                     val gridState = rememberLazyGridState()
+                    LaunchedEffect(gridState.isScrollInProgress){
+                        listState.animateScrollToItem(index = gridState.firstVisibleItemIndex/26)
+                    }
+                    // Heat Map Grid
                     LazyHorizontalGrid(
                         state = gridState,
                         modifier = Modifier.padding(bottom = paddings.smallPadding),
                         rows = GridCells.Fixed(7)
                     ){
-                        itemsIndexed( yimViewModel.getListensListOfYear() )
-                        { index, item ->
-                            /** Moving Month row */
-                            var atIndex by remember {
-                                mutableStateOf(0)
-                            }
-                            atIndex = index/126
-                            LaunchedEffect(atIndex){
-                                listState.animateScrollToItem(index = gridState.firstVisibleItemIndex/26)
-                            }
+                        items( yimViewModel.getListensListOfYear() )
+                        { item ->
                             
                             // Heatmap square
-                            Surface(
+                            Box(
                                 modifier = Modifier
                                     .size(20.dp)
-                                    .padding(1.dp),
-                                color = when{
-                                    item >= 150 -> Color(0xFFF80729)
-                                    item in 100..149 -> Color(0xFFE5743E)
-                                    item in 50..99 -> Color(0xFFF9CC4E)
-                                    item in 1..49 -> Color(0xFFF6E4B3)
-                                    else -> yimOffWhite
-                                },
-                                content = {}
+                                    .padding(1.dp)
+                                    .background(when{
+                                        item >= 150 -> Color(0xFFF80729)
+                                        item in 100..149 -> Color(0xFFE5743E)
+                                        item in 50..99 -> Color(0xFFF9CC4E)
+                                        item in 1..49 -> Color(0xFFF6E4B3)
+                                        else -> yimOffWhite
+                                    }),
                             )
+                            
                         }
                     }
                     

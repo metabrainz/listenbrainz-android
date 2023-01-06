@@ -5,12 +5,17 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -58,20 +63,18 @@ fun YimChartsScreen(
         }
         
         // Layout starts here
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
+                .background(MaterialTheme.colorScheme.background)
+                .verticalScroll(state = rememberScrollState()),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             
-            item {
                 YimLabelText(heading = "Charts", subHeading = "These got you through the year. Respect.")
-            }
             
-            // Top Songs Card
-            item {
+                // Top Songs Card
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -121,10 +124,8 @@ fun YimChartsScreen(
                         
                     }
                 }
-            }
             
-            // Top Artists Card
-            item {
+                // Top Artists Card
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -169,16 +170,14 @@ fun YimChartsScreen(
                         
                     }
                 }
-            }
+            
             
             // Share Button and next
             if (startSecondAnim) {
-                item {
-                    Row(modifier = Modifier.padding(vertical = 50.dp)) {
-                        YimShareButton(isRedTheme = true)
-                        YimNextButton {
-                            navController.navigate(route = YimScreens.YimStatisticsScreen.name)
-                        }
+                Row(modifier = Modifier.padding(vertical = 50.dp)) {
+                    YimShareButton(isRedTheme = true)
+                    YimNextButton {
+                        navController.navigate(route = YimScreens.YimStatisticsScreen.name)
                     }
                 }
             }
@@ -313,16 +312,22 @@ private fun YimTopArtistsList(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     
-                    Text(
-                        text = "#${index + 1}",
-                        modifier = Modifier.padding(horizontal = 5.dp),
-                        style = MaterialTheme.typography.bodyMedium
-                            .copy(
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = lb_purple
-                            )
-                    )
+                    Column(
+                        modifier = Modifier.width(30.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "#${index + 1}",
+                            modifier = Modifier.padding(horizontal = 5.dp),
+                            style = MaterialTheme.typography.bodyMedium
+                                .copy(
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = lb_purple
+                                )
+                        )
+                    }
+                    
                     
                     // Number of listens Text
                     Column(

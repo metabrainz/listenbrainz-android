@@ -6,13 +6,12 @@ import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -69,122 +68,111 @@ fun YimRecommendedPlaylistsScreen(
             startSecondAnim = true
         }
         
-        LazyColumn(modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .verticalScroll(state = rememberScrollState()),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             
-            item {
-                YimLabelText(heading = "2022 Playlists", subHeading = "Generated just for you")
-            }
+            YimLabelText(heading = "2022 Playlists", subHeading = "Generated just for you")
     
             // Top Discoveries Card
-            item {
-                Surface(
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 0.dp, max = 750.dp)
+                    .padding(
+                        start = paddings.defaultPadding,
+                        end = paddings.defaultPadding,
+                        bottom = 50.dp
+                    ),
+                shadowElevation = 10.dp,
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                // Inside Card Column
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 0.dp, max = 750.dp)
-                        .padding(
-                            start = paddings.defaultPadding,
-                            end = paddings.defaultPadding,
-                            bottom = 50.dp
-                        ),
-                    shadowElevation = 10.dp,
-                    shape = RoundedCornerShape(10.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Inside Card Column
-                    Column(
+                    
+                    Spacer(modifier = Modifier.height(paddings.largePadding))
+                    
+                    // Collage of albums
+                    YimAlbumArt(viewModel = viewModel, isTopDiscoveriesPlaylist = true)
+                    // Heading Text
+                    Text(
+                        text = "Top discoveries of 2022",
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Center,
                         modifier = Modifier
-                            .fillMaxWidth(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .fillMaxWidth()
+                            .padding(bottom = paddings.smallPadding)
+                    )
+                    AnimatedVisibility(
+                        visible = startAnim,
+                        enter = expandVertically(animationSpec = tween(700))
                     ) {
-                        
-                        Spacer(modifier = Modifier.height(paddings.largePadding))
-                        
-                        // Collage of albums
-                        YimAlbumArt(viewModel = viewModel, isTopDiscoveriesPlaylist = true)
-                
-                        // Heading Text
-                        Text(
-                            text = "Top discoveries of 2022",
-                            style = MaterialTheme.typography.titleMedium,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = paddings.smallPadding)
-                        )
-                
-                        AnimatedVisibility(
-                            visible = startAnim,
-                            enter = expandVertically(animationSpec = tween(700))
-                        ) {
-                            // List of songs
-                            YimTopDiscoveriesOrMissedList(paddings, viewModel, isTopDiscoveriesPlaylist = true)
-                        }
-                
+                        // List of songs
+                        YimTopDiscoveriesOrMissedList(paddings, viewModel, isTopDiscoveriesPlaylist = true)
                     }
                 }
             }
+            
             
             // Top Missed Card
-            item {
-                Surface(
+            
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 0.dp, max = 700.dp)
+                    .padding(
+                        start = paddings.defaultPadding,
+                        end = paddings.defaultPadding
+                    ),
+                shadowElevation = 10.dp,
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                // Inside Card Column
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 0.dp, max = 700.dp)
-                        .padding(
-                            start = paddings.defaultPadding,
-                            end = paddings.defaultPadding
-                        ),
-                    shadowElevation = 10.dp,
-                    shape = RoundedCornerShape(10.dp)
+                        .fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Inside Card Column
-                    Column(
+                    Spacer(modifier = Modifier.height(paddings.largePadding))
+                    // Collage of albums
+                    YimAlbumArt(viewModel = viewModel, isTopDiscoveriesPlaylist = false)
+                    // Heading Text
+                    Text(
+                        text = "Missed tracks of 2022",
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Center,
                         modifier = Modifier
-                            .fillMaxWidth(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .fillMaxWidth()
+                            .padding(bottom = paddings.smallPadding)
+                    )
+                    AnimatedVisibility(
+                        visible = startAnim,
+                        enter = expandVertically(animationSpec = tween(700))
                     ) {
-            
-                        Spacer(modifier = Modifier.height(paddings.largePadding))
-            
-                        // Collage of albums
-                        YimAlbumArt(viewModel = viewModel, isTopDiscoveriesPlaylist = false)
-            
-                        // Heading Text
-                        Text(
-                            text = "Missed tracks of 2022",
-                            style = MaterialTheme.typography.titleMedium,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = paddings.smallPadding)
-                        )
-            
-                        AnimatedVisibility(
-                            visible = startAnim,
-                            enter = expandVertically(animationSpec = tween(700))
-                        ) {
-                            // List of songs
-                            YimTopDiscoveriesOrMissedList(paddings, viewModel, isTopDiscoveriesPlaylist = false)
-                        }
-            
+                        // List of songs
+                        YimTopDiscoveriesOrMissedList(paddings, viewModel, isTopDiscoveriesPlaylist = false)
                     }
                 }
             }
+            
     
             // Share Button and next
             if (startSecondAnim) {
-                item {
-                    Row(modifier = Modifier.padding(vertical = 50.dp)) {
-                        YimShareButton(isRedTheme = true)
-                        YimNextButton {
-                            navController.navigate(route = YimScreens.YimDiscoverScreen.name)
-                        }
+                Row(modifier = Modifier.padding(vertical = 50.dp)) {
+                    YimShareButton(isRedTheme = true)
+                    YimNextButton {
+                        navController.navigate(route = YimScreens.YimDiscoverScreen.name)
                     }
                 }
             }
@@ -200,9 +188,11 @@ private fun YimAlbumArt(viewModel: YimViewModel, isTopDiscoveriesPlaylist: Boole
         modifier = Modifier.size(310.dp),
         contentAlignment = Alignment.Center
     ) {
-        LazyHorizontalGrid(
-            rows = GridCells.Fixed(3),
-            modifier = Modifier.size(225.dp)
+        
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            modifier = Modifier.size(225.dp),
+            userScrollEnabled = false
         ) {
             items(viewModel.getUrlsForAlbumArt(isTopDiscoveriesPlaylist = isTopDiscoveriesPlaylist)) { url ->
                 GlideImage(
@@ -211,7 +201,7 @@ private fun YimAlbumArt(viewModel: YimViewModel, isTopDiscoveriesPlaylist: Boole
                     contentDescription = "Album Cover Art"
                 ) {
                     it.placeholder(R.drawable.ic_coverartarchive_logo_no_text)
-                        .override(125)
+                        .override(120)
                 }
             }
         }
@@ -253,7 +243,7 @@ private fun YimTopDiscoveriesOrMissedList(
     GlideLazyListPreloader(
         state = listState,
         data = uriList,
-        size = Size(85f,85f),
+        size = Size(75f,75f),
         numberOfItemsToPreload = 15,
         fixedVisibleItemCount = 5
     ){ item, requestBuilder ->
@@ -276,9 +266,9 @@ private fun YimTopDiscoveriesOrMissedList(
                     .fillMaxWidth()
                     .padding(vertical = paddings.tinyPadding)
                     .clickable(enabled = true) {
-                              context.startActivity(
-                                  Intent(Intent.ACTION_VIEW, Uri.parse(item.key.identifier))
-                              )
+                        context.startActivity(
+                            Intent(Intent.ACTION_VIEW, Uri.parse(item.key.identifier))
+                        )
                         // Sends the user to recordings page just like website.
                     },
                 shape = RoundedCornerShape(5.dp),
@@ -299,7 +289,7 @@ private fun YimTopDiscoveriesOrMissedList(
                         contentDescription = "Album Cover Art"
                     ) {
                         it.placeholder(R.drawable.ic_coverartarchive_logo_no_text)
-                            .override(85)
+                            .override(75)
                     }
                     
                     Spacer(modifier = Modifier.width(paddings.defaultPadding))
