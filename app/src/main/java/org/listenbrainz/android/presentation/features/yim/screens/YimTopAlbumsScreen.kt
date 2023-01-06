@@ -185,7 +185,7 @@ fun AlbumViewer(list: List<TopRelease>?, listState: LazyListState, viewModel: Yi
                             .clip(RoundedCornerShape(10.dp)),
                         contentDescription = "Album Poster"
                     ) {
-                        it.override(300,300).placeholder(R.drawable.yim_album_placeholder)
+                        it.override(300,300).placeholder(R.drawable.yim_album_placeholder)  // TODO: Mess with size
                     }
                     
                     Spacer(modifier = Modifier.height(5.dp))

@@ -126,7 +126,7 @@ class ListensActivity: ComponentActivity() {
     }
 
     private fun updateTrackCoverArt(playerState: PlayerState) {
-        // Get image from track
+        // Get image from trackLis
         assertAppRemoteConnected()?.imagesApi?.getImage(playerState.track.imageUri, com.spotify.protocol.types.Image.Dimension.LARGE)?.setResultCallback { bitmapHere ->
                 bitmap = bitmapHere
             }
@@ -398,7 +398,7 @@ fun AllUserListens(
                     onItemClicked = {
                         if(it.track_metadata.additional_info?.spotify_id != null) {
                             Uri.parse(it.track_metadata.additional_info.spotify_id).lastPathSegment?.let { trackId ->
-                                (activity as ListensActivity).playUri("spotify:track:${trackId}")
+                                (activity as ListensActivity).playUri("spotify:trackLis:${trackId}")
                             }
                         }
                     }

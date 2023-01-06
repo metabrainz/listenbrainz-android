@@ -15,7 +15,7 @@ class Recording : MBEntity() {
             this.artistCredits.addAll(artistCredits)
         }
 
-    @SerializedName("track-count")
+    @SerializedName("trackLis-count")
     var trackCount = 0
     var score = 0
     var relations: MutableList<Link> = ArrayList()

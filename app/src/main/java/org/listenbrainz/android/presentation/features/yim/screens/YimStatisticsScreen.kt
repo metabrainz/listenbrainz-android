@@ -246,7 +246,7 @@ fun YimStatisticsScreen(
             }
     
            // Share and next button
-            Row(modifier = Modifier.padding(top = 15.dp)) {
+            Row(modifier = Modifier.padding(top = 30.dp, bottom = 10.dp)) {
                 YimShareButton(isRedTheme = false)
                 YimNextButton {
                     navController.navigate(route = YimScreens.YimRecommendedPlaylistsScreen.name)

@@ -171,8 +171,7 @@ fun YimChartsScreen(
                 }
             }
             
-            // Share Button
-            
+            // Share Button and next
             if (startSecondAnim) {
                 item {
                     Row(modifier = Modifier.padding(vertical = 50.dp)) {
