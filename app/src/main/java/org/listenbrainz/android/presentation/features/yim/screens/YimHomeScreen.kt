@@ -63,7 +63,7 @@ fun YimHomeScreen(
                         // Data status checking
                         when (viewModel.yimData.value.status){
                             Resource.Status.LOADING -> {
-                                Toast.makeText(context, "Loading...", Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, "Loading", Toast.LENGTH_SHORT).show()
                             }
                             Resource.Status.FAILED -> {
                                 Toast.makeText(context, "Something went wrong.", Toast.LENGTH_LONG).show()
@@ -74,7 +74,7 @@ fun YimHomeScreen(
                                 if (viewModel.yimData.value.data?.payload?.data != null) {
                                     navController.navigate(route = YimScreens.YimTopAlbumsScreen.name)
                                 }else{
-                                    Toast.makeText(context, "Seems like you have very less listens :(", Toast.LENGTH_LONG).show()
+                                    Toast.makeText(context, "Seems like you have very less listens :(", Toast.LENGTH_SHORT).show()
                                     Toast.makeText(context, "Try again next year!", Toast.LENGTH_LONG).show()
                                 }
                             }

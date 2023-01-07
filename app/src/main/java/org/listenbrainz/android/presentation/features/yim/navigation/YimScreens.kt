@@ -6,5 +6,6 @@ enum class YimScreens {
     YimChartsScreen,
     YimStatisticsScreen,
     YimRecommendedPlaylistsScreen,
-    YimDiscoverScreen
+    YimDiscoverScreen,
+    YimEndgameScreen
 }

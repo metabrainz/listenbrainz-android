@@ -111,8 +111,11 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
      *
      *  @return `null` for users with less listens.
      */
-    fun getSimilarUsers(): Map<String, Double>? {
-        return yimData.value.data?.payload?.data?.similarUsers
+    fun getSimilarUsers(): List<Pair<String, Double>> {
+        val list = yimData.value.data?.payload?.data?.similarUsers!!.toList()
+        return list.sortedByDescending {
+            it.second
+        }
     }
     
     /** List of top artists of which user listened songs of*/
@@ -157,5 +160,72 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
     
     fun getTotalReleasesCount() : Int? {
         return yimData.value.data?.payload?.data?.totalReleasesCount
+    }
+    
+    /** [getUrlsForAlbumArt]
+     * @return Url list for Album Art. To be used with `R.drawable.yim_frame` */
+    fun getUrlsForAlbumArt(isTopDiscoveriesPlaylist: Boolean) : List<String> {
+        val map = if (isTopDiscoveriesPlaylist){
+            yimData.value.data?.payload?.data?.topDiscoveriesPlaylistCoverArt
+        }else{
+            yimData.value.data?.payload?.data?.topMissedPlaylistCoverArt
+        }
+        val list = arrayListOf<String>()
+        map?.onEachIndexed { index, entry ->
+            if (index < 9){
+                list.add(entry.value.replaceAfterLast(delimiter = '_', replacement = "thumb250.jpg"))   // This is done to smaller images.
+            }
+        }
+        return list
+    }
+    
+    /** [getTopDiscoveriesPlaylistAndArtCover]
+     * @return map of [Track] (track) and [String] (Url of art cover) for [TopDiscoveriesPlaylist].*/
+    fun getTopDiscoveriesPlaylistAndArtCover() : Map<Track, String>{
+        val listOfTracks = yimData.value.data?.payload?.data?.topDiscoveriesPlaylist?.tracksList
+        val artCoverMap = yimData.value.data?.payload?.data?.topDiscoveriesPlaylistCoverArt
+        
+        val resultMap = mutableMapOf<Track, String>()
+    
+        listOfTracks!!.forEach { track ->
+            val mbid = track.identifier.substringAfterLast('/')
+        
+            if (artCoverMap!!.containsKey(mbid)){
+                artCoverMap.forEach {
+                    if (it.key == mbid){
+                        resultMap[track] = it.value.replaceAfterLast(delimiter = '_', replacement = "thumb250.jpg")
+                    }
+                }
+            }else{
+                resultMap[track] = "null"
+            }
+        }
+        
+        return resultMap
+    }
+    
+    /** [getTopMissedPlaylistAndArtCover]
+     * @return map of [Track] (track) and [String] (Url of art cover) for [TopMissedPlaylist].*/
+    fun getTopMissedPlaylistAndArtCover() : Map<Track, String>{
+        val listOfTracks = yimData.value.data?.payload?.data?.topMissedPlaylist?.tracksList
+        val artCoverMap = yimData.value.data?.payload?.data?.topMissedPlaylistCoverArt
+    
+        val resultMap = mutableMapOf<Track, String>()
+        
+        listOfTracks!!.forEach { track ->
+            val mbid = track.identifier.substringAfterLast('/')
+            
+            if (artCoverMap!!.containsKey(mbid)){
+                artCoverMap.forEach {
+                    if (it.key == mbid){
+                        resultMap[track] = it.value.replaceAfterLast(delimiter = '_', replacement = "thumb250.jpg")
+                    }
+                }
+            }else{
+                resultMap[track] = "null"
+            }
+        }
+    
+        return resultMap
     }
 }

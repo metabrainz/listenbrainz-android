@@ -4,12 +4,11 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -109,10 +108,10 @@ fun YimTopAlbumsScreen(
                             numberOfItemsToPreload = 20,
                             fixedVisibleItemCount = 3
                         ){ item, requestBuilder ->
-                            requestBuilder.load(item).placeholder(R.drawable.ic_coverartarchive_logo_no_text)
+                            requestBuilder.load(item).placeholder(R.drawable.yim_album_placeholder)
                         }
                         
-                        AlbumViewer(list = topReleases, listState = listState, viewModel = yimViewModel)
+                        YimAlbumViewer(list = topReleases, listState = listState, viewModel = yimViewModel)
                         
                     }
                 }
@@ -142,9 +141,9 @@ fun YimTopAlbumsScreen(
 }
 
 
-@OptIn(ExperimentalGlideComposeApi::class)
+@OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun AlbumViewer(list: List<TopRelease>?, listState: LazyListState, viewModel: YimViewModel) {
+private fun YimAlbumViewer(list: List<TopRelease>?, listState: LazyListState, viewModel: YimViewModel) {
     
     // This prevents image from being blur or crashing the app.
     var renderImage by remember { mutableStateOf(false) }
@@ -169,9 +168,17 @@ fun AlbumViewer(list: List<TopRelease>?, listState: LazyListState, viewModel: Yi
                 .padding(vertical = LocalYimPaddings.current.extraLargePadding)
                 .alpha(alphaAnimation)
                 .animateContentSize(),
+            flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)        // Centre snapping effect
         ) {
             
-            items(list!!.toList()) { item ->
+            itemsIndexed(list!!.toList()) { index, item ->
+                
+                if (index == 0) {
+                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.largePadding))
+                }else
+                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.smallPadding))
+                    
+                
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
@@ -181,12 +188,13 @@ fun AlbumViewer(list: List<TopRelease>?, listState: LazyListState, viewModel: Yi
                         model = "https://archive.org/download/mbid-${item.caaReleaseMbid}/mbid-${item.caaReleaseMbid}-${item.caaId}_thumb500.jpg",
                         modifier = Modifier
                             .size(300.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .padding(bottom = 5.dp),
+                            .clip(RoundedCornerShape(10.dp)),
                         contentDescription = "Album Poster"
                     ) {
-                        it.override(300,300).placeholder(R.drawable.ic_coverartarchive_logo_no_text)
+                        it.override(300,300).placeholder(R.drawable.yim_album_placeholder)  // TODO: Mess with size
                     }
+                    
+                    Spacer(modifier = Modifier.height(5.dp))
                     
                     // Track name
                     Text(
@@ -204,8 +212,11 @@ fun AlbumViewer(list: List<TopRelease>?, listState: LazyListState, viewModel: Yi
                         color = Color(0xFF727272)
                     )
                 }
-                
-                Spacer(modifier = Modifier.width(LocalYimPaddings.current.defaultPadding))
+    
+                if (index == list.lastIndex) {
+                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.largePadding))
+                }else
+                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.smallPadding))
                 
             }
             

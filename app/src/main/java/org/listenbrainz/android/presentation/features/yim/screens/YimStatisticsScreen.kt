@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -30,8 +30,11 @@ import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
+import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimHeadingText
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimLabelText
+import org.listenbrainz.android.presentation.features.yim.screens.components.YimNextButton
+import org.listenbrainz.android.presentation.features.yim.screens.components.YimShareButton
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YimPaddings
@@ -73,10 +76,11 @@ fun YimStatisticsScreen(
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(300.dp)
+                    .height(275.dp)
                     .padding(
-                        horizontal = paddings.defaultPadding,
-                        vertical = paddings.defaultPadding
+                        start = paddings.defaultPadding,
+                        end = paddings.defaultPadding,
+                        bottom = paddings.defaultPadding
                     ),
                 shadowElevation = 10.dp,
                 shape = RoundedCornerShape(10.dp)
@@ -89,7 +93,7 @@ fun YimStatisticsScreen(
                 ) {
                     
                     // Heading text
-                    YimHeadingText(text = "Your listening Activity", modifier = Modifier.padding(vertical = paddings.defaultPadding))
+                    YimHeadingText(text = "Your listening Activity", modifier = Modifier.padding(vertical = paddings.smallPadding))
                     
                     // Month row
                     val listState = rememberLazyListState()
@@ -111,38 +115,33 @@ fun YimStatisticsScreen(
                         }
                     }
                     
-                    // Heat Map Grid
                     val gridState = rememberLazyGridState()
+                    LaunchedEffect(gridState.isScrollInProgress){
+                        listState.animateScrollToItem(index = gridState.firstVisibleItemIndex/26)
+                    }
+                    // Heat Map Grid
                     LazyHorizontalGrid(
                         state = gridState,
                         modifier = Modifier.padding(bottom = paddings.smallPadding),
                         rows = GridCells.Fixed(7)
                     ){
-                        itemsIndexed( yimViewModel.getListensListOfYear() )
-                        { index, item ->
-                            /** Moving Month row */
-                            var atIndex by remember {
-                                mutableStateOf(0)
-                            }
-                            atIndex = index/126
-                            LaunchedEffect(atIndex){
-                                listState.animateScrollToItem(index = gridState.firstVisibleItemIndex/26)
-                            }
+                        items( yimViewModel.getListensListOfYear() )
+                        { item ->
                             
                             // Heatmap square
-                            Surface(
+                            Box(
                                 modifier = Modifier
                                     .size(20.dp)
-                                    .padding(1.dp),
-                                color = when{
-                                    item >= 150 -> Color(0xFFF80729)
-                                    item in 100..149 -> Color(0xFFE5743E)
-                                    item in 50..99 -> Color(0xFFF9CC4E)
-                                    item in 1..49 -> Color(0xFFF6E4B3)
-                                    else -> yimOffWhite
-                                },
-                                content = {}
+                                    .padding(1.dp)
+                                    .background(when{
+                                        item >= 150 -> Color(0xFFF80729)
+                                        item in 100..149 -> Color(0xFFE5743E)
+                                        item in 50..99 -> Color(0xFFF9CC4E)
+                                        item in 1..49 -> Color(0xFFF6E4B3)
+                                        else -> yimOffWhite
+                                    }),
                             )
+                            
                         }
                     }
                     
@@ -240,8 +239,14 @@ fun YimStatisticsScreen(
                     )
                 }
             }
-            
-            Spacer(modifier = Modifier.height(75.dp))
+    
+           // Share and next button
+            Row(modifier = Modifier.padding(top = 30.dp, bottom = 10.dp)) {
+                YimShareButton(isRedTheme = false)
+                YimNextButton {
+                    navController.navigate(route = YimScreens.YimRecommendedPlaylistsScreen.name)
+                }
+            }
             
         }
     }

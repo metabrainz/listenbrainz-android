@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -58,24 +60,22 @@ fun YimChartsScreen(
         }
         
         // Layout starts here
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
+                .background(MaterialTheme.colorScheme.background)
+                .verticalScroll(state = rememberScrollState()),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             
-            item {
                 YimLabelText(heading = "Charts", subHeading = "These got you through the year. Respect.")
-            }
             
-            // Top Songs Card
-            item {
+                // Top Songs Card
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 0.dp, max = 550.dp)
+                        .heightIn(min = 0.dp, max = 600.dp)
                         .padding(
                             start = paddings.defaultPadding,
                             end = paddings.defaultPadding,
@@ -121,14 +121,12 @@ fun YimChartsScreen(
                         
                     }
                 }
-            }
             
-            // Top Artists Card
-            item {
+                // Top Artists Card
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 0.dp, max = 500.dp)
+                        .heightIn(min = 0.dp, max = 600.dp)
                         .padding(horizontal = paddings.defaultPadding),
                     shadowElevation = 10.dp,
                     shape = RoundedCornerShape(10.dp)
@@ -169,17 +167,14 @@ fun YimChartsScreen(
                         
                     }
                 }
-            }
             
-            // Share Button
             
+            // Share Button and next
             if (startSecondAnim) {
-                item {
-                    Row(modifier = Modifier.padding(vertical = 50.dp)) {
-                        YimShareButton(isRedTheme = true)
-                        YimNextButton {
-                            navController.navigate(route = YimScreens.YimStatisticsScreen.name)
-                        }
+                Row(modifier = Modifier.padding(vertical = 50.dp)) {
+                    YimShareButton(isRedTheme = true)
+                    YimNextButton {
+                        navController.navigate(route = YimScreens.YimStatisticsScreen.name)
                     }
                 }
             }
@@ -207,13 +202,13 @@ private fun YimTopRecordingsList(
         )
     ) {
         items(viewModel.getTopRecordings()!!.toList()) { item ->
-            Card(
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = paddings.tinyPadding),
+                    .padding(vertical = paddings.tinyPadding)
+                    .background(MaterialTheme.colorScheme.surface),
                 shape = RoundedCornerShape(5.dp),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 5.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                shadowElevation = 5.dp
             ) {
                 Row(
                     modifier = Modifier
@@ -258,7 +253,8 @@ private fun YimTopRecordingsList(
                                 .copy(
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = lb_purple
+                                    color = lb_purple,
+                                    lineHeight = 14.sp
                                 ) ,
                         )
                         Text(
@@ -295,13 +291,13 @@ private fun YimTopArtistsList(
         )
     ) {
         itemsIndexed(viewModel.getTopArtists()!!.toList()) { index, item ->
-            Card(
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = paddings.tinyPadding),
+                    .padding(vertical = paddings.tinyPadding)
+                    .background(MaterialTheme.colorScheme.surface),
                 shape = RoundedCornerShape(5.dp),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 5.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                shadowElevation = 5.dp
             ) {
                 Row(
                     modifier = Modifier
@@ -312,17 +308,23 @@ private fun YimTopArtistsList(
                         ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // Ranking
+                    Column(
+                        modifier = Modifier.width(35.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "#${index + 1}",
+                            modifier = Modifier.padding(horizontal = 5.dp),
+                            style = MaterialTheme.typography.bodyMedium
+                                .copy(
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = lb_purple
+                                )
+                        )
+                    }
                     
-                    Text(
-                        text = "#${index + 1}",
-                        modifier = Modifier.padding(horizontal = 5.dp),
-                        style = MaterialTheme.typography.bodyMedium
-                            .copy(
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = lb_purple
-                            )
-                    )
                     
                     // Number of listens Text
                     Column(
@@ -359,7 +361,8 @@ private fun YimTopArtistsList(
                             .copy(
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = lb_purple
+                                color = lb_purple,
+                                lineHeight = 14.sp
                             )
                     )
                 }

@@ -46,11 +46,5 @@
     <!--    Background-->
     <color name="app_bg">#e0e0e0</color>
     <color name="app_bg_light">#90A4AE</color>
-
-    <!-- YIM Colors-->
-    <color name="yim_150">#FFF80729</color>
-    <color name="yim_100">#FFE5743E</color>
-    <color name="yim_50">#FFF9CC4E</color>
-    <color name="yim_1">#FFF6E4B3</color>
-    <color name="yim_0">#FFF4F4F4</color>
+    
 </resources>
