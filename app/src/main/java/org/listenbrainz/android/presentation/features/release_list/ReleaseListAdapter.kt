@@ -75,8 +75,8 @@ class ReleaseListAdapter(val context: Activity, private val releaseList: List<Re
             if (release?.coverArt != null && releaseList.contains(release)) {
                 // TODO: Search for the first “FRONT” image to use it as cover
                 val url = release.coverArt!!
-                        .images[0]
-                        .thumbnails!!
+                    .images[0]
+                    .thumbnails
                         .small
                 if (url != null && url.isNotEmpty()) {
                     Glide.with(context)

@@ -14,14 +14,14 @@
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:layout_margin="10dp"
-            android:src="@drawable/ic_musicbrainz_logo"/>
+            android:src="@drawable/ic_listenbrainz_logo"/>
 
         <TextView
             android:id="@+id/version_text"
             android:textAlignment="center"
             style="@style/VersionText" />
 
-        <org.listenbrainz.android.presentation.view.HtmlAssetTextView
+        <org.listenbrainz.android.presentation.features.onboarding.view.HtmlAssetTextView
             android:id="@+id/about_text"
             style="@style/TextBody"
             android:layout_marginTop="@dimen/gutter_large" />

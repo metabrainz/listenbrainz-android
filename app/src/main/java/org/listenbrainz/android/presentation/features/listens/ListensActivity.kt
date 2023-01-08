@@ -25,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -47,13 +46,14 @@ import com.spotify.protocol.types.PlayerState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
-import org.listenbrainz.android.presentation.components.BottomNavigationBar
-import org.listenbrainz.android.presentation.components.ListenCard
-import org.listenbrainz.android.presentation.components.TopAppBar
+import org.listenbrainz.android.presentation.features.components.BottomNavigationBar
+import org.listenbrainz.android.presentation.features.components.ListenCard
+import org.listenbrainz.android.presentation.features.components.TopAppBar
 import org.listenbrainz.android.presentation.features.listens.ListensActivity.AuthParams.CLIENT_ID
 import org.listenbrainz.android.presentation.features.listens.ListensActivity.AuthParams.REDIRECT_URI
 import org.listenbrainz.android.presentation.features.login.LoginActivity
 import org.listenbrainz.android.presentation.features.login.LoginSharedPreferences.username
+import org.listenbrainz.android.presentation.theme.ListenBrainzTheme
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -67,12 +67,12 @@ class ListensActivity: ComponentActivity() {
     var bitmap: Bitmap? by mutableStateOf(null)
 
     object AuthParams {
-        const val CLIENT_ID = "2a0d7ed37e9841269130b82843d3f842"
-        const val REDIRECT_URI = "org.metabrainz.android://callback"
+        const val CLIENT_ID = "fadec988097f4480bd71608cac76d82c"
+        const val REDIRECT_URI = "org.listenbrainz.android://callback"
     }
 
     companion object {
-        const val TAG = "MusicBrainz Player"
+        const val TAG = "ListenBrainz Player"
     }
 
     private val gson = GsonBuilder().setPrettyPrinting().create()
@@ -89,33 +89,37 @@ class ListensActivity: ComponentActivity() {
         SpotifyAppRemote.setDebugMode(true)
 
         setContent {
-            Scaffold(
-                backgroundColor = colorResource(id = R.color.app_bg),
-                topBar = { TopAppBar(activity = this, title = "Listens") },
-                bottomBar = { BottomNavigationBar(activity = this) }
-            ) {
-                var listensModifier: Modifier by remember { mutableStateOf(Modifier.padding(it)) }
-
-                if(playerState?.track?.name !=null) {
-                    listensModifier = Modifier.padding(it).padding(top = 200.dp)
-                    AnimatedVisibility(
-                        visible = true,
-                        enter = fadeIn(initialAlpha = 0.4f),
-                        exit = fadeOut(animationSpec = tween(durationMillis = 250))
-                    ){
-                        NowPlaying(
-                            modifier = Modifier.padding(it),
-                            activity = this@ListensActivity,
-                            playerState = playerState,
-                            bitmap = bitmap
-                        )
+            ListenBrainzTheme {
+                Scaffold(
+                    backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.background,
+                    topBar = { TopAppBar(activity = this, title = "Listens") },
+                    bottomBar = { BottomNavigationBar(activity = this) }
+                ) {
+                    var listensModifier: Modifier by remember { mutableStateOf(Modifier.padding(it)) }
+            
+                    if (playerState?.track?.name != null) {
+                        listensModifier = Modifier
+                            .padding(it)
+                            .padding(top = 200.dp)
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn(initialAlpha = 0.4f),
+                            exit = fadeOut(animationSpec = tween(durationMillis = 250))
+                        ) {
+                            NowPlaying(
+                                modifier = Modifier.padding(it),
+                                activity = this@ListensActivity,
+                                playerState = playerState,
+                                bitmap = bitmap
+                            )
+                        }
                     }
+            
+                    AllUserListens(
+                        modifier = listensModifier,
+                        activity = this
+                    )
                 }
-
-                AllUserListens(
-                    modifier = listensModifier,
-                    activity = this
-                )
             }
         }
 

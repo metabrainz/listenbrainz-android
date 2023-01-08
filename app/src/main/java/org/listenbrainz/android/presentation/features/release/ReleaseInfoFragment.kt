@@ -32,12 +32,6 @@ class ReleaseInfoFragment : Fragment() {
 
         binding!!.viewpagerSlideshow.adapter = slideshowAdapter
 
-        binding!!.picard.setOnClickListener {
-            if(releaseMBID!=null){
-                Utils.sendToPicard(requireContext(),releaseMBID!!)
-            }
-        }
-
         TabLayoutMediator(binding!!.tabIndicator, binding!!.viewpagerSlideshow) { _, _ -> }.attach()
         return binding!!.root
     }

@@ -2,7 +2,7 @@ package org.listenbrainz.android.data.repository
 
 import androidx.lifecycle.MutableLiveData
 import org.listenbrainz.android.data.sources.api.LoginService
-import org.listenbrainz.android.data.sources.api.MusicBrainzServiceGenerator
+import org.listenbrainz.android.data.sources.api.ListenBrainzServiceGenerator
 import org.listenbrainz.android.data.sources.api.entities.AccessToken
 import org.listenbrainz.android.data.sources.api.entities.userdata.UserInfo
 import retrofit2.Call
@@ -18,12 +18,12 @@ class LoginRepositoryImpl @Inject constructor(private val service: LoginService)
     override val userInfoLiveData: MutableLiveData<UserInfo?> = MutableLiveData()
 
     override fun fetchAccessToken(code: String?) {
-        service.getAccessToken(MusicBrainzServiceGenerator.AUTH_BASE_URL + "token",
+        service.getAccessToken(ListenBrainzServiceGenerator.AUTH_BASE_URL + "token",
                 code,
                 "authorization_code",
-                MusicBrainzServiceGenerator.CLIENT_ID,
-                MusicBrainzServiceGenerator.CLIENT_SECRET,
-                MusicBrainzServiceGenerator.OAUTH_REDIRECT_URI)!!.enqueue(object : Callback<AccessToken?> {
+                ListenBrainzServiceGenerator.CLIENT_ID,
+                ListenBrainzServiceGenerator.CLIENT_SECRET,
+                ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI)!!.enqueue(object : Callback<AccessToken?> {
                     override fun onResponse(call: Call<AccessToken?>, response: Response<AccessToken?>) {
                         val token = response.body()
                         accessTokenLiveData.value = token

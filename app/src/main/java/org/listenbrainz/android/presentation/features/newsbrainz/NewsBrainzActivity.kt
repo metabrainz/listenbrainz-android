@@ -75,7 +75,7 @@ class NewsBrainzActivity : AppCompatActivity(), BlogAdapter.ClickListener {
                 true
             }
             android.R.id.home -> {
-                onBackPressed()
+                onBackPressedDispatcher.onBackPressed()     // Replaced onBackPressed() as its deprecated.
                 true
             }
             else -> super.onOptionsItemSelected(item)

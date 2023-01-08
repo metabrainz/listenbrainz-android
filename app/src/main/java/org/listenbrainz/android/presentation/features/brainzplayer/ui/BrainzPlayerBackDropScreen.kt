@@ -1,5 +1,6 @@
 package org.listenbrainz.android.presentation.features.brainzplayer.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -38,14 +39,16 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.data.sources.brainzplayer.Playlist.Companion.currentlyPlaying
 import org.listenbrainz.android.data.sources.brainzplayer.Playlist.Companion.favourite
 import org.listenbrainz.android.data.sources.brainzplayer.Song
-import org.listenbrainz.android.presentation.components.SongViewPager
+import org.listenbrainz.android.presentation.features.components.SongViewPager
 import org.listenbrainz.android.presentation.features.brainzplayer.services.RepeatMode
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.MarqueeText
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.PlayPauseIcon
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.SeekBar
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import kotlin.math.absoluteValue
+import androidx.compose.material3.MaterialTheme
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @OptIn(ExperimentalAnimationApi::class)
 @ExperimentalMaterialApi
 @ExperimentalPagerApi
@@ -65,7 +68,7 @@ fun BrainzPlayerBackDropScreen(
     val repeatMode by brainzPlayerViewModel.repeatMode.collectAsState()
     BackdropScaffold(
         frontLayerShape = RectangleShape,
-        backLayerBackgroundColor = colorResource(id = R.color.app_bg),
+        backLayerBackgroundColor = MaterialTheme.colorScheme.background,
         frontLayerScrimColor = Color.Unspecified,
         headerHeight = 136.dp,
         peekHeight = 0.dp,
@@ -73,8 +76,7 @@ fun BrainzPlayerBackDropScreen(
         backLayerContent = {
             backLayerContent()
         },
-        frontLayerBackgroundColor = colorResource(id = R.color.app_bg),
-        frontLayerElevation = 10.dp,
+        frontLayerBackgroundColor = MaterialTheme.colorScheme.onBackground,
         appBar = {},
         persistentAppBar = false,
         frontLayerContent = {
@@ -82,7 +84,7 @@ fun BrainzPlayerBackDropScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
-                backgroundColor = colorResource(id = R.color.app_bg)
+                backgroundColor = MaterialTheme.colorScheme.background
             ) {
                 AnimatedContent(
                     targetState = backdropScaffoldState.isConcealed,
@@ -139,7 +141,7 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
         HorizontalPager(count = it.size, state = pageState, modifier = Modifier
             .fillMaxWidth()
             .background(
-                colorResource(id = R.color.app_bg)
+                MaterialTheme.colorScheme.background
             ),
             ) { page ->
             Column(
@@ -152,7 +154,7 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
                         .padding(top = 20.dp)
                         .width(300.dp)
                         .clip(RoundedCornerShape(20.dp))
-                        .background(colorResource(id = R.color.app_bg))
+                        .background(MaterialTheme.colorScheme.background)
                         .graphicsLayer {
                             // Calculate the absolute offset for the current page from the
                             // scroll position. We use the absolute value which allows us to mirror
@@ -179,7 +181,7 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
                 ) {
                     AsyncImage(
                         modifier = Modifier
-                            .background(colorResource(id = R.color.app_bg))
+                            .background(MaterialTheme.colorScheme.background)
                             .fillMaxSize()
                             .padding()
                             .clip(shape = RoundedCornerShape(20.dp))
@@ -221,7 +223,7 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
                             .padding(start = 25.dp),
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Start,
-                        color = colorResource(id = R.color.white)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     MarqueeText(
                         text = currentlyPlayingSong.artist,
@@ -230,7 +232,7 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
                             .fillParentMaxWidth()
                             .padding(start = 25.dp),
                         textAlign = TextAlign.Start,
-                        color = colorResource(id = R.color.white)
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(20.dp))
                 }
@@ -330,9 +332,7 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
                 fontSize = 24.sp,
                 modifier = Modifier.padding(start = 25.dp),
                 fontWeight = FontWeight.SemiBold,
-                color = colorResource(
-                    id = R.color.white
-                )
+                color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(12.dp))
         }
@@ -341,7 +341,7 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
                 modifier = Modifier
                     .padding(10.dp)
                     .fillMaxWidth(0.98f),
-                backgroundColor = MaterialTheme.colors.onSurface
+                backgroundColor = androidx.compose.material.MaterialTheme.colors.onSurface
             ) {
                 Spacer(modifier = Modifier.height(50.dp))
                 Row(horizontalArrangement = Arrangement.Start) {

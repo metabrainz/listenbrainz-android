@@ -5,7 +5,7 @@
     <item
         android:id="@+id/menu_open_website"
         android:title="@string/open_on_website"
-        android:icon="@drawable/ic_musicbrainz_logo_icon"
+        android:icon="@drawable/ic_listenbrainz_logo_icon"
         app:showAsAction="ifRoom" />
 
     <item

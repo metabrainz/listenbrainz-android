@@ -9,7 +9,7 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.R
-import org.listenbrainz.android.data.sources.api.MusicBrainzServiceGenerator
+import org.listenbrainz.android.data.sources.api.ListenBrainzServiceGenerator
 import org.listenbrainz.android.data.sources.api.entities.AccessToken
 import org.listenbrainz.android.data.sources.api.entities.userdata.UserInfo
 import org.listenbrainz.android.databinding.ActivityLoginBinding
@@ -48,7 +48,7 @@ class LoginActivity : MusicBrainzActivity() {
 
     override fun onResume() {
         val callbackUri = intent.data
-        if (callbackUri != null && callbackUri.toString().startsWith(MusicBrainzServiceGenerator.OAUTH_REDIRECT_URI)) {
+        if (callbackUri != null && callbackUri.toString().startsWith(ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI)) {
             val code = callbackUri.getQueryParameter("code")
             if (code != null) loginViewModel!!.fetchAccessToken(code)
         }
@@ -58,11 +58,11 @@ class LoginActivity : MusicBrainzActivity() {
     private fun startLogin() {
         val intent = Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse(MusicBrainzServiceGenerator.AUTH_BASE_URL
+                Uri.parse(ListenBrainzServiceGenerator.AUTH_BASE_URL
                         + "authorize"
                         + "?response_type=code"
-                        + "&client_id=" + MusicBrainzServiceGenerator.CLIENT_ID
-                        + "&redirect_uri=" + MusicBrainzServiceGenerator.OAUTH_REDIRECT_URI
+                        + "&client_id=" + ListenBrainzServiceGenerator.CLIENT_ID
+                        + "&redirect_uri=" + ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI
                         + "&scope=profile%20collection%20tag%20rating"))
         startActivity(intent)
     }

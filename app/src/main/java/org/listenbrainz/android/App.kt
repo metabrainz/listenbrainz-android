@@ -9,6 +9,8 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.provider.Settings
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.preference.PreferenceManager
 import dagger.hilt.android.HiltAndroidApp
 import org.listenbrainz.android.presentation.Configuration
 import org.listenbrainz.android.presentation.UserPreferences.preferenceListeningEnabled
@@ -16,7 +18,7 @@ import org.listenbrainz.android.presentation.features.listens.submitter.ListenSe
 
 @HiltAndroidApp
 class App : Application() {
-
+    
     override fun onCreate() {
         super.onCreate()
         context = this

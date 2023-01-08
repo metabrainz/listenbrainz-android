@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-
     <style name="VerticalMin" parent="MatchWidth">
         <item name="android:minHeight">@dimen/vertical_minspace</item>
     </style>
@@ -32,13 +31,13 @@
     <style name="Separator">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/separator_thickness</item>
-        <item name="background">@color/mb_purple_medium</item>
+        <item name="background">@color/lb_purple</item>
     </style>
 
     <style name="SeparatorVertical">
         <item name="android:layout_width">@dimen/separator_thickness</item>
         <item name="android:layout_height">match_parent</item>
-        <item name="background">@color/mb_purple_medium</item>
+        <item name="background">@color/lb_purple</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark" />

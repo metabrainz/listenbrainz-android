@@ -31,12 +31,12 @@ import kotlin.coroutines.suspendCoroutine
 class RemotePlayerActivity : AppCompatActivity() {
 
     object AuthParams {
-        const val CLIENT_ID = "da5388546fde4aa8a47aad3539e7f87b"
-        const val REDIRECT_URI = "org.metabrainz.android://callback"
+        const val CLIENT_ID = "fadec988097f4480bd71608cac76d82c"
+        const val REDIRECT_URI = "org.listenbrainz.android://callback"
     }
 
     companion object {
-        const val TAG = "MusicBrainz Player"
+        const val TAG = "ListenBrainz Player"
         const val STEP_MS = 15000L
     }
 

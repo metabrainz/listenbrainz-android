@@ -15,7 +15,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.listenbrainz.android.data.sources.api.MusicBrainzServiceGenerator
+import org.listenbrainz.android.data.sources.api.ListenBrainzServiceGenerator
 import org.listenbrainz.android.presentation.features.login.LoginActivity
 
 @RunWith(AndroidJUnit4ClassRunner::class)
@@ -26,20 +26,21 @@ class LoginActivityTest {
     @Before
     fun stubInternetIntent() {
         Intents.intending(IntentMatchers.hasAction(Intent.ACTION_VIEW))
-                .respondWith(Instrumentation.ActivityResult(0,
-                        Intent().setData(Uri.parse(
-                                MusicBrainzServiceGenerator.OAUTH_REDIRECT_URI + "?code=" + code))))
+                .respondWith(Instrumentation.ActivityResult(
+                    0,
+                    Intent().setData(Uri.parse(ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI + "?code=" + code))
+                ))
     }
 
     @Test
     fun testLoginAuthorization() {
         Espresso.onView(ViewMatchers.withId(R.id.login_btn)).perform(ViewActions.click())
         Intents.intended(AllOf.allOf(IntentMatchers.hasAction(Intent.ACTION_VIEW),
-                IntentMatchers.hasData(Uri.parse(MusicBrainzServiceGenerator.AUTH_BASE_URL
+                IntentMatchers.hasData(Uri.parse(ListenBrainzServiceGenerator.AUTH_BASE_URL
                         + "authorize"
                         + "?response_type=code"
-                        + "&client_id=" + MusicBrainzServiceGenerator.CLIENT_ID
-                        + "&redirect_uri=" + MusicBrainzServiceGenerator.OAUTH_REDIRECT_URI
+                        + "&client_id=" + ListenBrainzServiceGenerator.CLIENT_ID
+                        + "&redirect_uri=" + ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI
                         + "&scope=profile%20collection%20tag%20rating"))))
     }
 }
