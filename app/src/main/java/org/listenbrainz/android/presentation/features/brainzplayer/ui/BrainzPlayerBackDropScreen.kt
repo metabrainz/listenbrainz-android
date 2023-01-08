@@ -89,9 +89,9 @@ fun BrainzPlayerBackDropScreen(
                 listenLiked = listenLiked,
                 isShuffled = isShuffled,
                 repeatMode = repeatMode,
-                modifier = Modifier.alpha(1 - (delta / 1150f).coerceIn(0f, 1f))
+                modifier = Modifier.alpha(1 - (delta / maxDelta).coerceIn(0f, 1f))
             )
-            SongViewPager(modifier = Modifier.alpha((delta / 1150f).coerceIn(0f, 1f)))
+            SongViewPager(modifier = Modifier.alpha((delta / maxDelta).coerceIn(0f, 1f)))
         })
 }
 
