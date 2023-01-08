@@ -2,7 +2,6 @@ package org.listenbrainz.android.presentation.features.brainzplayer.ui
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
@@ -47,9 +45,10 @@ import org.listenbrainz.android.presentation.features.brainzplayer.ui.components
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import kotlin.math.absoluteValue
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.draw.alpha
+import kotlin.math.max
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-@OptIn(ExperimentalAnimationApi::class)
 @ExperimentalMaterialApi
 @ExperimentalPagerApi
 @Composable
@@ -65,6 +64,9 @@ fun BrainzPlayerBackDropScreen(
     val listenLiked by rememberSaveable {
         mutableStateOf(favourite.items.contains(currentlyPlayingSong))
     }
+    var maxDelta by rememberSaveable {
+        mutableStateOf(0F)
+    }
     val repeatMode by brainzPlayerViewModel.repeatMode.collectAsState()
     BackdropScaffold(
         frontLayerShape = RectangleShape,
@@ -76,59 +78,23 @@ fun BrainzPlayerBackDropScreen(
         backLayerContent = {
             backLayerContent()
         },
-        frontLayerBackgroundColor = MaterialTheme.colorScheme.onBackground,
+        frontLayerBackgroundColor = MaterialTheme.colorScheme.background,
         appBar = {},
         persistentAppBar = false,
         frontLayerContent = {
-            Scaffold(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                backgroundColor = MaterialTheme.colorScheme.background
-            ) {
-                AnimatedContent(
-                    targetState = backdropScaffoldState.isConcealed,
-                    transitionSpec = {
-
-                        if (backdropScaffoldState.isConcealed) {
-                            scaleIn(
-                                animationSpec = tween(
-                                    durationMillis = 800,
-                                    delayMillis = 400
-                                ),
-                                transformOrigin = TransformOrigin.Center
-                            ) with scaleOut(
-                                animationSpec = tween(
-                                    durationMillis = 400,
-                                    delayMillis = 250
-                                )
-                            )
-                        } else {
-                            scaleIn(
-                                animationSpec = tween(
-                                    durationMillis = 800,
-                                    delayMillis = 400
-                                )
-                            ) with slideOutVertically(
-                                animationSpec = tween(
-                                    durationMillis = 400,
-                                    delayMillis = 250
-                                )
-                            ) { it }
-                        }
-                    }
-                ) { targetState ->
-                    if (backdropScaffoldState.isConcealed) PlayerScreen(
-                        currentlyPlayingSong = currentlyPlayingSong,
-                        listenLiked = listenLiked,
-                        isShuffled = isShuffled,
-                        repeatMode = repeatMode
-                    )
-                    else if (backdropScaffoldState.isRevealed) SongViewPager()
-                }
-            }
+            val delta = backdropScaffoldState.offset.value
+            maxDelta = max(delta, maxDelta)
+            PlayerScreen(
+                currentlyPlayingSong = currentlyPlayingSong,
+                listenLiked = listenLiked,
+                isShuffled = isShuffled,
+                repeatMode = repeatMode,
+                modifier = Modifier.alpha(1 - (delta / 1150f).coerceIn(0f, 1f))
+            )
+            SongViewPager(modifier = Modifier.alpha((delta / 1150f).coerceIn(0f, 1f)))
         })
 }
+
 
 @ExperimentalPagerApi
 @Composable
@@ -143,7 +109,7 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
             .background(
                 MaterialTheme.colorScheme.background
             ),
-            ) { page ->
+        ) { page ->
             Column(
                 Modifier
                     .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally
@@ -206,8 +172,9 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
                  currentlyPlayingSong: Song,
                  listenLiked: Boolean,
                  isShuffled: Boolean,
-                 repeatMode: RepeatMode) {
-    LazyColumn {
+                 repeatMode: RepeatMode,
+                 modifier: Modifier) {
+    LazyColumn(modifier = modifier) {
         item {
             AlbumArtViewPager(viewModel = brainzPlayerViewModel)
         }
