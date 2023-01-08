@@ -1,8 +1,15 @@
 package org.listenbrainz.android.data.sources.brainzplayer
 
 data class Playable(
-    val type: String,
+    val type: PlayableType,
     val id: Long,
     val songs: List<Song>,
-    val currentlyPlayingSongIndex: Int
+    val currentSongIndex : Int
 )
+
+enum class PlayableType{
+    SONG,
+    ARTIST,
+    ALBUM,
+    PLAYLIST
+}
