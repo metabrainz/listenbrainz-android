@@ -76,7 +76,7 @@ fun YimStatisticsScreen(
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(275.dp)
+                    .height(300.dp)
                     .padding(
                         start = paddings.defaultPadding,
                         end = paddings.defaultPadding,
@@ -114,38 +114,47 @@ fun YimStatisticsScreen(
                             )
                         }
                     }
-                    
                     val gridState = rememberLazyGridState()
                     LaunchedEffect(gridState.isScrollInProgress){
                         listState.animateScrollToItem(index = gridState.firstVisibleItemIndex/26)
                     }
                     // Heat Map Grid
+                    val listensOfYear = yimViewModel.getListensListOfYear()
                     LazyHorizontalGrid(
                         state = gridState,
-                        modifier = Modifier.padding(bottom = paddings.smallPadding),
+                        modifier = Modifier
+                            .height(160.dp)
+                            .padding(bottom = paddings.smallPadding),
                         rows = GridCells.Fixed(7)
                     ){
-                        items( yimViewModel.getListensListOfYear() )
+                        items( listensOfYear )
                         { item ->
                             
                             // Heatmap square
                             Box(
                                 modifier = Modifier
-                                    .size(20.dp)
+                                    .width(20.dp)
                                     .padding(1.dp)
-                                    .background(when{
-                                        item >= 150 -> Color(0xFFF80729)
-                                        item in 100..149 -> Color(0xFFE5743E)
-                                        item in 50..99 -> Color(0xFFF9CC4E)
-                                        item in 1..49 -> Color(0xFFF6E4B3)
-                                        else -> yimOffWhite
-                                    }),
+                                    .background(
+                                        when {
+                                            item >= 150 -> Color(0xFFF80729)
+                                            item in 100..149 -> Color(0xFFE5743E)
+                                            item in 50..99 -> Color(0xFFF9CC4E)
+                                            item in 1..49 -> Color(0xFFF6E4B3)
+                                            else -> yimOffWhite
+                                        }
+                                    ),
                             )
                             
                         }
                     }
                     
-                    // TODO: Legend here.
+                    Row(modifier = Modifier.fillMaxWidth().height(30.dp)) {
+                        HeatMapExampleSquare(listenCount = 1, text = "0")
+                        HeatMapExampleSquare(listenCount = 50, text = "50")
+                        HeatMapExampleSquare(listenCount = 100, text = "100")
+                        HeatMapExampleSquare(listenCount = 150, text = "150")
+                    }
                     
                 }
             }
@@ -253,26 +262,35 @@ fun YimStatisticsScreen(
 }
 
 // TODO: Legend for heat map.
-/*
 @Composable
 private fun HeatMapExampleSquare(
     listenCount : Int,
     text: String
 ){
-    Row(modifier = Modifier.height(20.dp)) {
-        Text(text = text)
-        Surface(
+    Row(modifier = Modifier
+        .height(30.dp)
+        .width(60.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    
+    ) {
+        Text(
+            text = text,
+            fontSize = 14.sp,
+            modifier = Modifier.padding(end = if (listenCount > 99) 5.dp else 8.dp)
+        )
+        Box(
             modifier = Modifier
-                .size(20.dp),
-            color = when{
-                listenCount >= 150 -> Color(0xFFF80729)
-                listenCount in 100..149 -> Color(0xFFE5743E)
-                listenCount in 50..99 -> Color(0xFFF9CC4E)
-                listenCount in 1..49 -> Color(0xFFF6E4B3)
-                else -> yimOffWhite
-            },
-            content = {}
+                .size(18.dp)
+                .background(
+                    color = when {
+                        listenCount >= 150 -> Color(0xFFF80729)
+                        listenCount in 100..149 -> Color(0xFFE5743E)
+                        listenCount in 50..99 -> Color(0xFFF9CC4E)
+                        listenCount in 1..49 -> Color(0xFFF6E4B3)
+                        else -> yimOffWhite
+                    }
+                ),
         )
     }
 }
-*/

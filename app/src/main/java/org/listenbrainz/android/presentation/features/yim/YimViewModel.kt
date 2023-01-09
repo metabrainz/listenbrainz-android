@@ -173,7 +173,7 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
         val list = arrayListOf<String>()
         map?.onEachIndexed { index, entry ->
             if (index < 9){
-                list.add(entry.value.replaceAfterLast(delimiter = '_', replacement = "thumb250.jpg"))   // This is done to smaller images.
+                list.add(entry.value.replaceAfterLast(delimiter = '_', replacement = "thumb250.jpg"))   // This is done to scale down images.
             }
         }
         return list
