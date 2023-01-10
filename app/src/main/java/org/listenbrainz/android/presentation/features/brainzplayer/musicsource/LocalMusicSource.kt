@@ -6,15 +6,18 @@ import android.support.v4.media.MediaMetadataCompat
 import androidx.core.net.toUri
 import com.google.android.exoplayer2.MediaItem
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import org.listenbrainz.android.data.repository.AlbumRepository
+import org.listenbrainz.android.data.repository.PlaylistRepository
 import org.listenbrainz.android.data.repository.SongRepository
 import org.listenbrainz.android.presentation.features.brainzplayer.musicsource.State.*
-import org.listenbrainz.android.util.BrainzPlayerExtensions.toMediaMetadataCompat
 import javax.inject.Inject
 
 class LocalMusicSource @Inject constructor(
-    private val songRepository: SongRepository) :
+    private val songRepository: SongRepository,
+    private val albumRepository: AlbumRepository,
+    private val artistRepository: AlbumRepository,
+    private val playlistRepository: PlaylistRepository) :
     MusicSource<MediaMetadataCompat> {
 
     override var songs = emptyList<MediaMetadataCompat>()
@@ -51,12 +54,13 @@ class LocalMusicSource @Inject constructor(
         }
     }
 
-    suspend fun fetchMediaData() = withContext(Dispatchers.IO) {
+    override suspend fun setMediaSource(newMediaSource: MutableList<MediaMetadataCompat>) {
+        fetchMediaData(newMediaSource)
+    }
+
+    private suspend fun fetchMediaData(newMediaSource: MutableList<MediaMetadataCompat>) = withContext(Dispatchers.IO) {
         state = STATE_INITIALIZING
-        val listOfAllSongs = songRepository.getSongsStream().first()
-        songs = listOfAllSongs.map { song ->
-            song.toMediaMetadataCompat
-        }
+        songs = newMediaSource
         state = STATE_INITIALIZED
     }
 

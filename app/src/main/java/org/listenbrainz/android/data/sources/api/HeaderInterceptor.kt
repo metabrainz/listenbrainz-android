@@ -3,7 +3,7 @@ package org.listenbrainz.android.data.sources.api
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import org.listenbrainz.android.presentation.features.login.LoginSharedPreferences
+import org.listenbrainz.android.util.LBSharedPreferences
 import java.io.IOException
 
 internal class HeaderInterceptor : Interceptor {
@@ -37,8 +37,8 @@ internal class HeaderInterceptor : Interceptor {
     }
 
     private fun checkLoginStatus(): Boolean {
-        return (LoginSharedPreferences.loginStatus == LoginSharedPreferences.STATUS_LOGGED_IN)
+        return (LBSharedPreferences.loginStatus == LBSharedPreferences.STATUS_LOGGED_IN)
     }
 
-    private val accessToken: String get() = LoginSharedPreferences.accessToken!!
+    private val accessToken: String get() = LBSharedPreferences.accessToken!!
 }

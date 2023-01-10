@@ -52,7 +52,7 @@ import org.listenbrainz.android.presentation.features.components.TopAppBar
 import org.listenbrainz.android.presentation.features.listens.ListensActivity.AuthParams.CLIENT_ID
 import org.listenbrainz.android.presentation.features.listens.ListensActivity.AuthParams.REDIRECT_URI
 import org.listenbrainz.android.presentation.features.login.LoginActivity
-import org.listenbrainz.android.presentation.features.login.LoginSharedPreferences.username
+import org.listenbrainz.android.util.LBSharedPreferences.username
 import org.listenbrainz.android.presentation.theme.ListenBrainzTheme
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
