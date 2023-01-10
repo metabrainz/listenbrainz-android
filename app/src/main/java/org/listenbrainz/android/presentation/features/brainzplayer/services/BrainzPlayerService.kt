@@ -93,7 +93,7 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
                 preparePlayer(
                     localMusicSource.songs,
                     currentlyPlayingSong,
-                    true
+                    false
                 )
             }
         mediaSessionConnector = MediaSessionConnector(mediaSession)
