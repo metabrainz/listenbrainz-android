@@ -2,11 +2,11 @@ package org.listenbrainz.android.presentation.features.yim.screens
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.TypedValue
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
@@ -14,46 +14,42 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.smarttoolfactory.zoom.EnhancedZoomableImage
-import com.smarttoolfactory.zoom.rememberEnhancedZoomState
+import androidx.compose.ui.tooling.preview.Preview
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.yim.YearInMusicActivity
-import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimLabelText
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YimPaddings
 import org.listenbrainz.android.presentation.features.yim.ui.theme.yimRed
 
-
+@Preview
 @Composable
 fun YimEndgameScreen(
-    viewModel: YimViewModel,        // TODO: Remove these
-    navController: NavController,
-    activity: YearInMusicActivity,
+    activity: YearInMusicActivity = YearInMusicActivity(),
     paddings: YimPaddings = LocalYimPaddings.current,
     context: Context = LocalContext.current
 ) {
-    
-    
     
     YearInMusicTheme(redTheme = true) {
         
@@ -68,77 +64,51 @@ fun YimEndgameScreen(
             
             YimLabelText(heading = "2022 Releases", subHeading = "Just some of the releases that came out in 2022. Drag, zoom and have fun!")
             
-            // TODO: mess with this
-            /*
-            val scaleState = remember { mutableStateOf(1f) }
-            val dragState = remember { mutableStateOf( Offset(0f,0f) ) }
-            val centroidState = remember { mutableStateOf( Offset(0f,0f) ) }
-            val width = 600f
-            Row(
-                modifier = Modifier,
-                horizontalArrangement = Arrangement.Start
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.yim_end_collage_ninety),
-                    modifier = Modifier
-                        .requiredWidth(500.dp)
-                        .clip(RectangleShape)
-                        .pointerInput(Unit) {
-                            detectTransformGestures(panZoomLock = false) { centroid, pan, zoom, rotation ->
-                                
-                                //if (scaleState.value != 1f){
-                                scaleState.value *= zoom
-                                //}
-                                
-                                if (dragState.value.x in -(width.pow(scaleState.value))..(width.pow(scaleState.value)) ){
-                                    dragState.value += pan
-                                }else if (dragState.value.x > width){
-                                    dragState.value = Offset(width.pow(scaleState.value),0f)
-                                }else{
-                                    dragState.value = Offset((-width).pow(scaleState.value),0f)
-                                }
-                                dragState.value += pan
-                                
-                            }
-                        }
-                        .graphicsLayer {
-                            scaleX = scaleState.value.coerceIn(1f, 3f)
-                            scaleY = scaleState.value.coerceIn(1f, 3f)
-                            translationX = dragState.value.x
-                            translationY = dragState.value.y
-                        },
-                    contentScale = ContentScale.FillWidth,
-                    contentDescription = null
-                )
-            }*/
-            
-            EnhancedZoomableImage(
+            var zoom by remember { mutableStateOf(1f) }
+            var offset by remember { mutableStateOf(Offset.Zero) }
+            var width by remember { mutableStateOf(0f) }
+            var height by remember { mutableStateOf(0f) }
+    
+            Image(
+                painter = painterResource(id = R.drawable.yim_end_collage_large),
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
-                    .background(
-                        Brush.horizontalGradient(
-                            listOf(
-                                yimRed,
-                                Color(0xFFCE32B4),
-                                Color(0xFF324CCE),
-                                Color(0xFF00BCD4),
-                                Color(0xFF4CAF50),
-                                Color(0xFFFFEB3B),
-                                yimRed,
-                            )
+                    .background(Color.Gray)
+                    .clip(RectangleShape)
+                    .onPlaced {
+                        width = it.size.width.toFloat()
+                        height = it.size.height.toFloat()
+                    }
+                    .pointerInput(Unit) {
+                        detectTransformGestures(
+                            onGesture = { centroid, pan, gestureZoom, gestureRotate ->
+                                val oldScale = zoom
+                                val newScale = zoom * gestureZoom
+                                zoom = newScale.coerceIn(1f, 5f)    // max zoom is 5x
+                        
+                                val resultOffset = (offset + centroid / oldScale) - (centroid / newScale + pan / oldScale)
+                                // We need to translate the image in order to make the seem that is done about the centroid.
+                        
+                                offset = Offset(
+                                    resultOffset.x.coerceIn(
+                                        0f,
+                                        width*(zoom - 1)/newScale       // Limit the max drag we can do.
+                                    ),
+                                    resultOffset.y.coerceIn(
+                                        0f,
+                                        height*(zoom - 1)/newScale
+                                    )
+                                )
+                            }
                         )
-                    ),
-                clip = true,
-                imageBitmap = BitmapFactory.decodeResource(LocalContext.current.resources, R.drawable.yim_end_collage_large).asImageBitmap(),
-                moveToBounds = true,
-                fling = true,
-                contentScale = ContentScale.Fit,
-                enhancedZoomState = rememberEnhancedZoomState(imageSize = IntSize(
-                    TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 500f, LocalContext.current.resources.displayMetrics).toInt(),
-                    TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300f, LocalContext.current.resources.displayMetrics).toInt()),
-                    limitPan = true
-                )
+                    }
+                    .graphicsLayer {
+                        translationX = -offset.x * zoom     // Move the image away from origin to make zoom natural
+                        translationY = -offset.y * zoom
+                        scaleX = zoom
+                        scaleY = zoom
+                        transformOrigin = TransformOrigin(0f, 0f)
+                    },
+                contentDescription = null
             )
             
             Spacer(modifier = Modifier.height(paddings.defaultPadding))
@@ -164,7 +134,7 @@ fun YimEndgameScreen(
                     textDecoration = TextDecoration.Underline
                 )
                 
-                val forumStartIndex = str.indexOf("forums")     // TODO: Inline these once reviewed
+                val forumStartIndex = str.indexOf("forums")
                 val forumEndIndex = forumStartIndex + 6
                 
                 val emailStartIndex = str.indexOf("email")
@@ -233,7 +203,7 @@ fun YimEndgameScreen(
                             if (stringAnnotation.tag == "email"){
                                 val intent = Intent(Intent.ACTION_SENDTO).apply {
                                     data = Uri.parse("mailto:")
-                                    putExtra(Intent.EXTRA_EMAIL, stringAnnotation.item)
+                                    putExtra(Intent.EXTRA_EMAIL, arrayOf(stringAnnotation.item) )
                                     putExtra(Intent.EXTRA_SUBJECT, "ListenBrainz App Review")
                                     // putExtra(Intent.EXTRA_TEXT, "Email body")
                                     // putExtra(Intent.EXTRA_STREAM, attachment)

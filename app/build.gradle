@@ -108,9 +108,6 @@ dependencies {
     implementation "io.coil-kt:coil-svg:2.2.2"
     kapt 'com.github.bumptech.glide:compiler:4.14.2'
 
-    // Image Zooming Library Compose (Need better alternatives)
-    implementation 'com.github.SmartToolFactory:Compose-Zoom:0.5.0'
-
     //Permissions
     implementation "com.google.accompanist:accompanist-permissions:0.28.0"
 

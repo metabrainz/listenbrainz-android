@@ -276,7 +276,7 @@ private fun HeatMapExampleSquare(
     ) {
         Text(
             text = text,
-            fontSize = 14.sp,
+            fontSize = 12.sp,
             modifier = Modifier.padding(end = if (listenCount > 99) 5.dp else 8.dp)
         )
         Box(

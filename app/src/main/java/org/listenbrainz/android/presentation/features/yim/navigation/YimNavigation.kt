@@ -71,7 +71,7 @@ fun YimNavigation(
         }
         
         addYimScreen( route = YimScreens.YimEndgameScreen.name ){
-            YimEndgameScreen(viewModel = yimViewModel, navController = navController, activity = activity)
+            YimEndgameScreen(activity = activity)
         }
     }
 }

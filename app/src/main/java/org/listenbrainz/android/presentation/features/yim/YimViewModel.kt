@@ -44,9 +44,7 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
     
     private fun getData() {
         viewModelScope.launch {
-            val response = username?.let {
-                    repository.getYimData(username = it)
-                }!!
+            val response = username?.let { repository.getYimData(username = it) }!!
             when (response.status){
                 Resource.Status.SUCCESS -> yimData.value = response
                 Resource.Status.LOADING -> yimData.value = Resource.loading()
