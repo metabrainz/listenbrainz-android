@@ -34,7 +34,6 @@ import com.google.accompanist.pager.rememberPagerState
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.BrainzPlayerActivity
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.BrainzPlayerViewModel
-import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.MarqueeText
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.PlayPauseIcon
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.SeekBar
 import org.listenbrainz.android.presentation.features.dashboard.DashboardActivity
@@ -44,6 +43,7 @@ import org.listenbrainz.android.presentation.features.navigation.BrainzNavigatio
 import org.listenbrainz.android.presentation.features.navigation.NavigationItem
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import androidx.compose.material3.MaterialTheme
+import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.basicMarquee
 
 @ExperimentalPagerApi
 @Composable
@@ -101,7 +101,7 @@ fun BottomNavigationBar(activity: Activity) {
 
 @ExperimentalPagerApi
 @Composable
-fun SongViewPager(viewModel: BrainzPlayerViewModel = hiltViewModel(), modifier: Modifier = Modifier) {
+fun SongViewPager( modifier: Modifier = Modifier, viewModel: BrainzPlayerViewModel = hiltViewModel()) {
     val songList = viewModel.mediaItem.collectAsState().value.data ?: listOf()
     val currentlyPlayingSong = viewModel.currentlyPlayingSong.collectAsState().value.toSong
     val pagerState = viewModel.pagerState.collectAsState().value
@@ -194,11 +194,12 @@ fun SongViewPager(viewModel: BrainzPlayerViewModel = hiltViewModel(), modifier: 
                                 tint = MaterialTheme.colorScheme.onTertiary
                             )
                         }
-                        MarqueeText(
+                        Text(
                             text = currentlyPlayingSong.artist + " - " + currentlyPlayingSong.title,
                             fontSize = 13.sp,
                             textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.basicMarquee()
                         )
                     }
                 }
