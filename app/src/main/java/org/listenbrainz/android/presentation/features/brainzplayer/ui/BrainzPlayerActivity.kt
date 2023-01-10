@@ -64,6 +64,7 @@ import org.listenbrainz.android.presentation.features.brainzplayer.ui.playlist.P
 import org.listenbrainz.android.presentation.features.listens.ListensActivity
 import org.listenbrainz.android.presentation.theme.ListenBrainzTheme
 import androidx.compose.material3.MaterialTheme
+import org.listenbrainz.android.data.sources.brainzplayer.PlayableType
 
 @ExperimentalPagerApi
 @AndroidEntryPoint
@@ -335,9 +336,11 @@ fun SearchView(state: MutableState<TextFieldValue>, brainzPlayerViewModel: Brain
                         itemHeights[index] = it.height
 
                 },
-                onClick = { brainzPlayerViewModel.playOrToggleSong(song, true)
+                onClick = {
+                    brainzPlayerViewModel.changePlayable(listOf(song), PlayableType.SONG, song.mediaID,0)
+                    brainzPlayerViewModel.playOrToggleSong(song, true)
                 searchStarted = false
-                state.value.text.removeRange(0, state.value.text.length-1)}) {
+                state.value.text.removeRange(0, state.value.text.length-1.coerceAtLeast(0))}) {
                 androidx.compose.material3.Text(text = song.title )
             }
         }

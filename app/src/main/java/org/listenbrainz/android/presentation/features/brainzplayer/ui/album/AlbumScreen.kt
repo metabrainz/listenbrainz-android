@@ -32,6 +32,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import org.listenbrainz.android.R
 import org.listenbrainz.android.data.sources.brainzplayer.Album
+import org.listenbrainz.android.data.sources.brainzplayer.PlayableType
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.BrainzPlayerViewModel
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.forwardingPainter
 
@@ -162,6 +163,7 @@ fun OnAlbumClickScreen(albumID: Long) {
                     .padding(10.dp)
                     .fillMaxWidth(0.98f)
                     .clickable {
+                        brainzPlayerViewModel.changePlayable(albumSongs.sortedBy { it.trackNumber }, PlayableType.ALBUM, it.albumID,albumSongs.sortedBy { it.trackNumber }.indexOf(it))
                         brainzPlayerViewModel.playOrToggleSong(it)
                     }
                 ,

@@ -32,6 +32,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
+import org.listenbrainz.android.data.sources.brainzplayer.PlayableType
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.BrainzPlayerViewModel
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.forwardingPainter
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.playlist.PlaylistViewModel
@@ -183,6 +184,7 @@ fun SongScreen() {
                 .width(200.dp)
                 .clip(RoundedCornerShape(10.dp))
                 .clickable {
+                    brainzPlayerViewModel.changePlayable(songs.value.sortedBy { it.discNumber }, PlayableType.ALL_SONGS, it.mediaID,songs.value.sortedBy { it.discNumber }.indexOf(it))
                     brainzPlayerViewModel.playOrToggleSong(it, true)
                 }
             ) {
