@@ -39,13 +39,13 @@ import org.listenbrainz.android.data.sources.brainzplayer.Playlist.Companion.fav
 import org.listenbrainz.android.data.sources.brainzplayer.Song
 import org.listenbrainz.android.presentation.features.components.SongViewPager
 import org.listenbrainz.android.presentation.features.brainzplayer.services.RepeatMode
-import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.MarqueeText
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.PlayPauseIcon
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.SeekBar
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import kotlin.math.absoluteValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.draw.alpha
+import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.basicMarquee
 import kotlin.math.max
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -182,22 +182,22 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.fillMaxWidth(0.8f)) {
                     Spacer(modifier = Modifier.height(25.dp))
-                    MarqueeText(
+                    Text(
                         text = currentlyPlayingSong.title,
                         fontSize = 20.sp,
                         modifier = Modifier
-                            .fillParentMaxWidth()
-                            .padding(start = 25.dp),
+                            .padding(start = 25.dp)
+                            .basicMarquee(),
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Start,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    MarqueeText(
+                    Text(
                         text = currentlyPlayingSong.artist,
                         fontSize = 16.sp,
                         modifier = Modifier
-                            .fillParentMaxWidth()
-                            .padding(start = 25.dp),
+                            .padding(start = 25.dp)
+                            .basicMarquee(),
                         textAlign = TextAlign.Start,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -206,7 +206,9 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
                 Icon(
                     painterResource(id = if (listenLiked) R.drawable.ic_not_liked else R.drawable.ic_liked),
                     contentDescription = null,
-                    Modifier.clickable {
+                    Modifier
+                        .padding(5.dp)
+                        .clickable {
                         !listenLiked
                     },
                     tint = if (!listenLiked) Color.Red else Color.Black
