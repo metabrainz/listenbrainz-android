@@ -1,19 +1,53 @@
-package org.listenbrainz.android.presentation.features.login
+package org.listenbrainz.android.util
 
+import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import org.listenbrainz.android.App
+import org.listenbrainz.android.BuildConfig
+import org.listenbrainz.android.data.di.brainzplayer.TypeConverter
 import org.listenbrainz.android.data.sources.api.entities.AccessToken
 import org.listenbrainz.android.data.sources.api.entities.userdata.UserInfo
+import org.listenbrainz.android.data.sources.brainzplayer.Playable
 
-object LoginSharedPreferences {
+object LBSharedPreferences {
+    private const val USERNAME = "username"
+    private const val SHARED_PREFERENCES_NAME = BuildConfig.APPLICATION_ID
+    private const val ACCESS_MODE = Context.MODE_PRIVATE
+    private const val CURRENT_PLAYABLE = "CURRENT_PLAYABLE"
     const val ACCESS_TOKEN = "access_token"
     const val REFRESH_TOKEN = "refresh_token"
-    private const val USERNAME = "username"
     const val STATUS_LOGGED_IN = 1
     const val STATUS_LOGGED_OUT = 0
     val preferences: SharedPreferences
         get() = PreferenceManager.getDefaultSharedPreferences(App.context!!)
+
+    fun setString(
+        key: String?,
+        value: String?
+    ) {
+        val editor = preferences.edit()
+        editor.putString(key, value)
+        editor.apply()
+    }
+
+    fun setInteger(context: Context, key: String?, value: Int) {
+        val editor = preferences.edit()
+        editor.putInt(key, value)
+        editor.apply()
+    }
+
+    fun setLong(context: Context, key: String?, value: Long) {
+        val editor = preferences.edit()
+        editor.putLong(key, value)
+        editor.apply()
+    }
+
+    fun setBoolean(context: Context, key: String?, value: Boolean) {
+        val editor = preferences.edit()
+        editor.putBoolean(key, value)
+        editor.apply()
+    }
 
     fun saveOAuthToken(token: AccessToken) {
         val editor = preferences.edit()
@@ -35,6 +69,17 @@ object LoginSharedPreferences {
         editor.remove(USERNAME)
         editor.apply()
     }
+
+    var currentPlayable : Playable?
+        get() = preferences.getString(CURRENT_PLAYABLE, "")?.let {
+            if (it.isBlank()) null else
+                TypeConverter.playableFromJSON(it)
+        }
+        set(value) {
+            value?.let {
+                setString(TypeConverter.playableToJSON(it), "")
+            }
+        }
 
     @JvmStatic
     val loginStatus: Int

@@ -14,11 +14,16 @@ import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
+import org.listenbrainz.android.data.repository.AlbumRepository
+import org.listenbrainz.android.data.repository.PlaylistRepository
+import org.listenbrainz.android.data.repository.SongRepository
 import org.listenbrainz.android.presentation.features.brainzplayer.musicsource.LocalMusicSource
 import org.listenbrainz.android.presentation.features.brainzplayer.services.callback.BrainzPlayerEventListener
 import org.listenbrainz.android.presentation.features.brainzplayer.services.callback.BrainzPlayerNotificationListener
 import org.listenbrainz.android.presentation.features.brainzplayer.services.callback.MusicPlaybackPreparer
 import org.listenbrainz.android.presentation.features.brainzplayer.services.notification.BrainzPlayerNotificationManager
+import org.listenbrainz.android.util.BrainzPlayerExtensions.toMediaMetadataCompat
 import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID
 import org.listenbrainz.android.util.BrainzPlayerUtils.SERVICE_TAG
 import javax.inject.Inject
@@ -31,6 +36,15 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
 
     @Inject
     lateinit var localMusicSource: LocalMusicSource
+
+    @Inject
+    lateinit var albumRepository: AlbumRepository
+
+    @Inject
+    lateinit var songRepository: SongRepository
+
+    @Inject
+    lateinit var playlistRepository: PlaylistRepository
 
     private lateinit var mediaSession: MediaSessionCompat
     private lateinit var mediaSessionConnector : MediaSessionConnector
@@ -48,11 +62,12 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
         var currentSongDuration = 0L
             private set
     }
-
     override fun onCreate() {
         super.onCreate()
         serviceScope.launch {
-            localMusicSource.fetchMediaData()
+            localMusicSource.setMediaSource(songRepository.getSongsStream().first().map {
+                it.toMediaMetadataCompat
+            }.toMutableList())
         }
         val activityIntent = packageManager?.getLaunchIntentForPackage(packageName)?.let {
             PendingIntent.getActivity(
@@ -78,7 +93,7 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
                 preparePlayer(
                     localMusicSource.songs,
                     currentlyPlayingSong,
-                    true
+                    false
                 )
             }
         mediaSessionConnector = MediaSessionConnector(mediaSession)
@@ -141,7 +156,7 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
     ) {
         serviceScope.launch(Dispatchers.Main) {
             val currentSongIndex = if (currentSong == null) 0 else songs.indexOf(itemToPlay)
-            exoPlayer.addMediaItems(localMusicSource.asMediaSource())
+            exoPlayer.setMediaItems(localMusicSource.asMediaSource())
             exoPlayer.prepare()
             exoPlayer.seekTo(currentSongIndex, 0L)
             exoPlayer.playWhenReady = playNow

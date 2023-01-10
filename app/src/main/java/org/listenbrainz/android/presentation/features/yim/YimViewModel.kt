@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.listenbrainz.android.data.repository.YimRepository
 import org.listenbrainz.android.data.sources.api.entities.yimdata.*
-import org.listenbrainz.android.presentation.features.login.LoginSharedPreferences
+import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityObserver
@@ -29,7 +29,7 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
     
     /** User name.
         Don't worry about this being nullable as we are performing login check.*/
-    private var username: String? = LoginSharedPreferences.username
+    private var username: String? = LBSharedPreferences.username
     
     // Network Checking variables
     private val connectivityObserver = NetworkConnectivityObserver(context)
@@ -60,7 +60,7 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
         return username
     }
     fun isLoggedIn() : Boolean{
-        return (LoginSharedPreferences.loginStatus == LoginSharedPreferences.STATUS_LOGGED_IN)
+        return (LBSharedPreferences.loginStatus == LBSharedPreferences.STATUS_LOGGED_IN)
     }
     
     // Internet Connectivity Functions

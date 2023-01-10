@@ -16,6 +16,7 @@ import org.listenbrainz.android.databinding.ActivityLoginBinding
 import org.listenbrainz.android.presentation.features.base.MusicBrainzActivity
 import org.listenbrainz.android.presentation.features.dashboard.DashboardActivity
 import org.listenbrainz.android.util.Log.d
+import org.listenbrainz.android.util.LBSharedPreferences
 
 @AndroidEntryPoint
 class LoginActivity : MusicBrainzActivity() {
@@ -36,8 +37,8 @@ class LoginActivity : MusicBrainzActivity() {
         loginViewModel!!.userInfoLiveData!!.observe(this) { userInfo: UserInfo? ->
             saveUserInfo(userInfo)
         }
-        when (LoginSharedPreferences.loginStatus) {
-            LoginSharedPreferences.STATUS_LOGGED_IN -> {
+        when (LBSharedPreferences.loginStatus) {
+            LBSharedPreferences.STATUS_LOGGED_IN -> {
                 binding!!.loginPromptId.setText(R.string.logout_prompt)
                 binding!!.loginBtn.setText(R.string.logout)
                 binding!!.loginBtn.setOnClickListener { logoutUser() }
@@ -71,7 +72,7 @@ class LoginActivity : MusicBrainzActivity() {
         when {
             accessToken != null -> {
                 d(accessToken.accessToken)
-                LoginSharedPreferences.saveOAuthToken(accessToken)
+                LBSharedPreferences.saveOAuthToken(accessToken)
                 loginViewModel!!.fetchUserInfo()
             }
             else -> {
@@ -84,8 +85,8 @@ class LoginActivity : MusicBrainzActivity() {
 
     private fun saveUserInfo(userInfo: UserInfo?) {
         if (userInfo != null &&
-                LoginSharedPreferences.loginStatus == LoginSharedPreferences.STATUS_LOGGED_OUT) {
-            LoginSharedPreferences.saveUserInfo(userInfo)
+                LBSharedPreferences.loginStatus == LBSharedPreferences.STATUS_LOGGED_OUT) {
+            LBSharedPreferences.saveUserInfo(userInfo)
             Toast.makeText(applicationContext,
                     "Login successful. " + userInfo.username + " is now logged in.",
                     Toast.LENGTH_LONG).show()
@@ -96,7 +97,7 @@ class LoginActivity : MusicBrainzActivity() {
     }
 
     private fun logoutUser() {
-        LoginSharedPreferences.logoutUser()
+        LBSharedPreferences.logoutUser()
         Toast.makeText(applicationContext,
                 "User has successfully logged out.",
                 Toast.LENGTH_LONG).show()

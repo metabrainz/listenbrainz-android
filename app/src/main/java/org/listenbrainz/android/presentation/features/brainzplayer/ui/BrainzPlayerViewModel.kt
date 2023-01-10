@@ -19,7 +19,6 @@ import org.listenbrainz.android.presentation.features.brainzplayer.services.Brai
 import org.listenbrainz.android.presentation.features.brainzplayer.services.BrainzPlayerServiceConnection
 import org.listenbrainz.android.presentation.features.brainzplayer.services.RepeatMode
 import org.listenbrainz.android.util.BrainzPlayerExtensions.currentPlaybackPosition
-import org.listenbrainz.android.util.BrainzPlayerExtensions.id
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlayEnabled
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlaying
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPrepared
@@ -127,7 +126,7 @@ class BrainzPlayerViewModel @Inject constructor(
 
     fun playOrToggleSong(mediaItem: Song, toggle: Boolean = false) {
         val isPrepared = playbackState.value.isPrepared
-        if (isPrepared && mediaItem.mediaID == currentlyPlayingSong.value.id
+        if (isPrepared && mediaItem.mediaID == currentlyPlayingSong.value.toSong.mediaID
         ) {
             playbackState.value.let { playbackState ->
                 when {

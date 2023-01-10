@@ -101,12 +101,12 @@ fun BottomNavigationBar(activity: Activity) {
 
 @ExperimentalPagerApi
 @Composable
-fun SongViewPager(viewModel: BrainzPlayerViewModel = hiltViewModel()) {
+fun SongViewPager(viewModel: BrainzPlayerViewModel = hiltViewModel(), modifier: Modifier = Modifier) {
     val songList = viewModel.mediaItem.collectAsState().value.data ?: listOf()
     val currentlyPlayingSong = viewModel.currentlyPlayingSong.collectAsState().value.toSong
     val pagerState = viewModel.pagerState.collectAsState().value
     val pageState = rememberPagerState(initialPage = pagerState)
-    HorizontalPager(count = songList.size, state = pageState, modifier = Modifier
+    HorizontalPager(count = songList.size, state = pageState, modifier = modifier
         .fillMaxWidth()
         .background(MaterialTheme.colorScheme.tertiaryContainer)
     ) {
