@@ -1,10 +1,7 @@
 package org.listenbrainz.android.presentation.features.yim.navigation
 
-import androidx.compose.animation.AnimatedContentScope
-import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -74,7 +71,7 @@ fun YimNavigation(
         }
         
         addYimScreen( route = YimScreens.YimEndgameScreen.name ){
-            YimEndgameScreen(viewModel = yimViewModel, navController = navController)
+            YimEndgameScreen(activity = activity)
         }
     }
 }

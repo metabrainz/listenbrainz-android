@@ -191,6 +191,7 @@ private fun YimTopRecordingsList(
     paddings: YimPaddings,
     viewModel: YimViewModel
 ) {
+    val list = viewModel.getTopRecordings()!!.toList()
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -201,7 +202,7 @@ private fun YimTopRecordingsList(
             vertical = paddings.smallPadding
         )
     ) {
-        items(viewModel.getTopRecordings()!!.toList()) { item ->
+        items(list) { item ->
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -280,6 +281,7 @@ private fun YimTopArtistsList(
     paddings: YimPaddings,
     viewModel: YimViewModel
 ) {
+    val list = viewModel.getTopArtists()!!.toList()
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -290,7 +292,7 @@ private fun YimTopArtistsList(
             vertical = paddings.smallPadding
         )
     ) {
-        itemsIndexed(viewModel.getTopArtists()!!.toList()) { index, item ->
+        itemsIndexed(list) { index, item ->
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()

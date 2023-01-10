@@ -20,6 +20,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -174,7 +176,7 @@ private fun YimAlbumViewer(list: List<TopRelease>?, listState: LazyListState, vi
             itemsIndexed(list!!.toList()) { index, item ->
                 
                 if (index == 0) {
-                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.largePadding))
+                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.defaultPadding))
                 }else
                     Spacer(modifier = Modifier.width(LocalYimPaddings.current.smallPadding))
                     
@@ -199,9 +201,13 @@ private fun YimAlbumViewer(list: List<TopRelease>?, listState: LazyListState, vi
                     // Track name
                     Text(
                         text = item.releaseName,
-                        modifier = Modifier.padding(horizontal = LocalYimPaddings.current.defaultPadding),
+                        modifier = Modifier
+                            .padding(horizontal = LocalYimPaddings.current.defaultPadding)
+                            .width(290.dp),
                         color = Color(0xFF39296F),
+                        textAlign = TextAlign.Center,
                         maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                         fontFamily = FontFamily(Font(R.font.roboto_bold))
                     )
                     
@@ -214,7 +220,7 @@ private fun YimAlbumViewer(list: List<TopRelease>?, listState: LazyListState, vi
                 }
     
                 if (index == list.lastIndex) {
-                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.largePadding))
+                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.defaultPadding))
                 }else
                     Spacer(modifier = Modifier.width(LocalYimPaddings.current.smallPadding))
                 

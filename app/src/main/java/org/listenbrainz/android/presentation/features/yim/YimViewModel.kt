@@ -44,9 +44,9 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
     
     private fun getData() {
         viewModelScope.launch {
-            val response = async {  username?.let { repository.getYimData(username = it)}!! }
-            when (response.await().status){
-                Resource.Status.SUCCESS -> yimData.value = response.await()
+            val response = username?.let { repository.getYimData(username = it) }!!
+            when (response.status){
+                Resource.Status.SUCCESS -> yimData.value = response
                 Resource.Status.LOADING -> yimData.value = Resource.loading()
                 Resource.Status.FAILED -> yimData.value = Resource.failure()
             }
@@ -173,7 +173,7 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
         val list = arrayListOf<String>()
         map?.onEachIndexed { index, entry ->
             if (index < 9){
-                list.add(entry.value.replaceAfterLast(delimiter = '_', replacement = "thumb250.jpg"))   // This is done to smaller images.
+                list.add(entry.value.replaceAfterLast(delimiter = '_', replacement = "thumb250.jpg"))   // This is done to scale down images.
             }
         }
         return list
