@@ -9,7 +9,9 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -61,6 +63,7 @@ fun YimStatisticsScreen(
         // Main Content
         Column(modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(state = rememberScrollState())
             .background(MaterialTheme.colorScheme.background),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -146,7 +149,9 @@ fun YimStatisticsScreen(
                         }
                     }
                     
-                    Row(modifier = Modifier.fillMaxWidth().height(30.dp)) {
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .height(30.dp)) {
                         HeatMapExampleSquare(listenCount = 1, text = "0")
                         HeatMapExampleSquare(listenCount = 50, text = "50")
                         HeatMapExampleSquare(listenCount = 100, text = "100")
@@ -252,7 +257,7 @@ fun YimStatisticsScreen(
                 navController = navController,
                 viewModel = yimViewModel,
                 typeOfImage = arrayOf("stats"),
-                modifier = Modifier.padding(vertical = 10.dp),
+                modifier = Modifier.padding(vertical = 20.dp),
                 route = YimScreens.YimRecommendedPlaylistsScreen
             )
             

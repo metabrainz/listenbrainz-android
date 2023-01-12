@@ -100,8 +100,8 @@ object Utils {
         }
     }
     
-    /** Save a given bitmap to the images directory inside the "ListenBrainz"
-     * directory inside default pictures directory of the device.
+    /** Save a given bitmap to the default images directory inside the "ListenBrainz"
+     * directory of the device.
      *
      * @param mimeType Type of file to be saved. (Types: "image/png", "image/jpg" and "image/jpeg" only)
      * @param quality Percent quality of compression. Default is 95.
@@ -112,7 +112,7 @@ object Utils {
      *
      * @exception SecurityException `WRITE_EXTERNAL_STORAGE` should be requested first for sdks below 28.
      * @exception IOException If standard IO operations fail.
-     * @exception FileNotFoundException If the device is connected to computer, share intent stops working as
+     * @exception FileNotFoundException If the device's directory is mounted to computer, share intent stops working as
      * the internal storage is inaccessible to other apps which want the bitmap.
      *
      * @author jasje on IRC*/

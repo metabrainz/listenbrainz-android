@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -56,7 +57,7 @@ fun YimChartsScreen(
         LaunchedEffect(Unit) {
             delay(1200)
             startAnim = true
-            delay(700)     // Since it takes 700 ms for fist list to animate.
+            delay(700)     // Since it takes 700 ms for first list to animate.
             startSecondAnim = true
         }
         
@@ -209,6 +210,7 @@ private fun YimTopRecordingsList(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = paddings.tinyPadding)
+                    .height(55.dp)
                     .background(MaterialTheme.colorScheme.surface),
                 shape = RoundedCornerShape(5.dp),
                 shadowElevation = 5.dp
@@ -235,8 +237,8 @@ private fun YimTopRecordingsList(
                             Text(
                                 text = "${item.listenCount} listen${if (item.listenCount != 1) "s" else ""}",
                                 modifier = Modifier.padding(
-                                    horizontal = 7.dp,
-                                    vertical = 2.dp
+                                    horizontal = 8.dp,
+                                    vertical = 4.dp
                                 ),
                                 style = MaterialTheme.typography.bodyLarge
                                     .copy(
@@ -249,6 +251,7 @@ private fun YimTopRecordingsList(
                     }
                     
                     Spacer(modifier = Modifier.width(paddings.defaultPadding))
+                    
                     Column(modifier = Modifier) {
                         Text(
                             text = item.releaseName,
@@ -258,7 +261,9 @@ private fun YimTopRecordingsList(
                                     fontWeight = FontWeight.Bold,
                                     color = lb_purple,
                                     lineHeight = 14.sp
-                                ) ,
+                                ),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
                         Text(
                             text = item.artistName,
@@ -266,7 +271,9 @@ private fun YimTopRecordingsList(
                                 .copy(
                                     fontWeight = FontWeight.Bold,
                                     color = lb_purple.copy(alpha = 0.7f)
-                                )
+                                ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
                     
@@ -298,6 +305,7 @@ private fun YimTopArtistsList(
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .height(55.dp)
                     .padding(vertical = paddings.tinyPadding)
                     .background(MaterialTheme.colorScheme.surface),
                 shape = RoundedCornerShape(5.dp),
@@ -344,8 +352,8 @@ private fun YimTopArtistsList(
                                 text = "${item.listenCount} listen${if (item.listenCount != 1) "s" else ""}",
                                 modifier = Modifier
                                     .padding(
-                                        horizontal = 7.dp,
-                                        vertical = 2.dp
+                                        horizontal = 8.dp,
+                                        vertical = 4.dp
                                     ),
                                 style = MaterialTheme.typography.bodyMedium
                                     .copy(
@@ -367,7 +375,9 @@ private fun YimTopArtistsList(
                                 fontWeight = FontWeight.Bold,
                                 color = lb_purple,
                                 lineHeight = 14.sp
-                            )
+                            ),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }

@@ -173,7 +173,7 @@ fun YimRecommendedPlaylistsScreen(
                     isRedTheme = true,
                     navController = navController,
                     viewModel = viewModel,
-                    typeOfImage = arrayOf("discovery-playlist", "missed-playlist"),
+                    typeOfImage = arrayOf(),    //arrayOf("discovery-playlist", "missed-playlist"),     // Files too large
                     route = YimScreens.YimDiscoverScreen
                 )
             }
