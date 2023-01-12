@@ -3,6 +3,7 @@ package org.listenbrainz.android.presentation.features.yim.screens.components
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -23,7 +24,11 @@ fun YimNavigationStation(
     route: YimScreens
 ){
     
-    Row(modifier = modifier) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        YimNavButton(goBack = true) {
+            navController.popBackStack()
+        }
+        Spacer(modifier = Modifier.width(5.dp))
         if (typeOfImage.isNotEmpty()) {
             YimShareButton(
                 isRedTheme = isRedTheme,
@@ -31,7 +36,8 @@ fun YimNavigationStation(
                 typeOfImage = typeOfImage
             )
         }
-        YimNextButton {
+        Spacer(modifier = Modifier.width(5.dp))
+        YimNavButton {
             navController.navigate(route = route.name)
         }
     }

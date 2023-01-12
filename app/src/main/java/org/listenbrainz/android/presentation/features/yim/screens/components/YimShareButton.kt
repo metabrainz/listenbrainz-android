@@ -1,10 +1,13 @@
 package org.listenbrainz.android.presentation.features.yim.screens.components
 
 import android.content.Context
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,18 +39,17 @@ fun YimShareButton(
     }
     
     IconButton(
-        modifier = modifier,
-        onClick = { dialogState = true }
+        modifier = modifier.size(45.dp),
+        onClick = { dialogState = true },
+        colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.onBackground)
     ) {
         Icon(
-            painter = painterResource(
+            imageVector = Icons.Rounded.Share/*painterResource(
                 id = if (isRedTheme) R.drawable.yim_share_yellow else R.drawable.yim_share_red
-            ),
+            )*/,
             contentDescription = "Share your Year in Music",
-            tint = Color.Unspecified,
-            modifier = Modifier
-                .clip(CircleShape)
-                .size(50.dp)
+            tint = MaterialTheme.colorScheme.background,
+            modifier = Modifier.size(30.dp)
         )
     }
 }

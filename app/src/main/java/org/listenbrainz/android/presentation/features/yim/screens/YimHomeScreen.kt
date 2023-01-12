@@ -8,6 +8,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Error
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
@@ -150,14 +152,42 @@ fun YimHomeScreen(
                 )
                 
                 // Down Arrow
-                Icon(
-                    painter = painterResource(id = R.drawable.yim_arrow_down),
-                    contentDescription = "Swipe down to continue.",
-                    tint = Color.Unspecified,
-                    modifier = Modifier
-                        .size(15.dp)
-                        .offset(y = animValue.dp)
-                )
+                when (viewModel.yimData.value.status) {
+                    Resource.Status.LOADING -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(15.dp),
+                            color = MaterialTheme.colorScheme.background,
+                            strokeWidth = 3.dp
+                        )
+                    }
+                    Resource.Status.SUCCESS -> {
+                        if (viewModel.yimData.value.data?.payload?.data != null) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.yim_arrow_down),
+                                contentDescription = "Swipe down to continue.",
+                                tint = Color.Unspecified,
+                                modifier = Modifier
+                                    .size(15.dp)
+                                    .offset(y = animValue.dp)
+                            )
+                        }else {
+                            Icon(
+                                imageVector = Icons.Rounded.Error,
+                                modifier = Modifier.size(15.dp),
+                                tint = MaterialTheme.colorScheme.background,
+                                contentDescription = "Some error occurred"
+                            )
+                        }
+                    }
+                    else -> {
+                        Icon(
+                            imageVector = Icons.Rounded.Error,
+                            modifier = Modifier.size(15.dp),
+                            tint = MaterialTheme.colorScheme.background,
+                            contentDescription = "Some error occurred"
+                        )
+                    }
+                }
             
             }
         
