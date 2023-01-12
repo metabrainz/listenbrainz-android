@@ -38,6 +38,7 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimLabelText
+import org.listenbrainz.android.presentation.features.yim.screens.components.YimNavigationStation
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimNextButton
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimShareButton
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
@@ -181,12 +182,13 @@ fun YimDiscoverScreen(
     
             // Share Button and next
             if (startSecondAnim) {
-                Row(modifier = Modifier.padding(bottom = 50.dp)) {
-                    YimShareButton(isRedTheme = false)
-                    YimNextButton {
-                        navController.navigate(route = YimScreens.YimEndgameScreen.name)
-                    }
-                }
+                YimNavigationStation(
+                    isRedTheme = false,
+                    navController = navController,
+                    viewModel = yimViewModel,
+                    typeOfImage = arrayOf(),        // No share button here
+                    route = YimScreens.YimEndgameScreen
+                )
             }
             
         }

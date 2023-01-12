@@ -217,7 +217,11 @@ fun YimHomeScreen(
                 Spacer(modifier = Modifier.height(paddings.largePadding))
                 
                 // Share Icon
-                YimShareButton(isRedTheme = true)
+                YimShareButton(
+                    isRedTheme = true,
+                    viewModel = viewModel,
+                    typeOfImage = arrayOf("tracks")      // TODO: Rethink the share button on home screen
+                )
             }
         }
     }

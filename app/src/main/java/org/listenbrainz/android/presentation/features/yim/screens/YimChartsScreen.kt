@@ -29,6 +29,7 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimLabelText
+import org.listenbrainz.android.presentation.features.yim.screens.components.YimNavigationStation
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimNextButton
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimShareButton
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
@@ -171,12 +172,13 @@ fun YimChartsScreen(
             
             // Share Button and next
             if (startSecondAnim) {
-                Row(modifier = Modifier.padding(vertical = 50.dp)) {
-                    YimShareButton(isRedTheme = true)
-                    YimNextButton {
-                        navController.navigate(route = YimScreens.YimStatisticsScreen.name)
-                    }
-                }
+                YimNavigationStation(
+                    isRedTheme = true,
+                    navController = navController,
+                    viewModel = viewModel,
+                    typeOfImage = arrayOf("artists", "tracks"),
+                    route = YimScreens.YimStatisticsScreen
+                )
             }
             
             

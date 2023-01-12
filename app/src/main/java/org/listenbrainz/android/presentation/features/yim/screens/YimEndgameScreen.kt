@@ -86,7 +86,7 @@ fun YimEndgameScreen(
                                 zoom = newScale.coerceIn(1f, 5f)    // max zoom is 5x
                         
                                 val resultOffset = (offset + centroid / oldScale) - (centroid / newScale + pan / oldScale)
-                                // We need to translate the image in order to make the seem that is done about the centroid.
+                                // We need to translate the image in order to make it seem that zoom is done about the centroid.
                         
                                 offset = Offset(
                                     resultOffset.x.coerceIn(
@@ -196,9 +196,9 @@ fun YimEndgameScreen(
                 text = annotatedLinkString,
                 style = MaterialTheme.typography.titleMedium.copy(color = Color.White, textAlign = TextAlign.Center),
                 modifier = Modifier.padding(horizontal = paddings.defaultPadding),
-                onClick = { offset ->
+                onClick = { charOffset ->
                     annotatedLinkString
-                        .getStringAnnotations(offset, offset)
+                        .getStringAnnotations(charOffset, charOffset)
                         .firstOrNull()?.let { stringAnnotation ->
                             if (stringAnnotation.tag == "email"){
                                 val intent = Intent(Intent.ACTION_SENDTO).apply {

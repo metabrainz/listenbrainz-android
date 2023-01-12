@@ -38,6 +38,7 @@ import org.listenbrainz.android.data.sources.api.entities.yimdata.Track
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimLabelText
+import org.listenbrainz.android.presentation.features.yim.screens.components.YimNavigationStation
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimNextButton
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimShareButton
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
@@ -168,12 +169,13 @@ fun YimRecommendedPlaylistsScreen(
     
             // Share Button and next
             if (startSecondAnim) {
-                Row(modifier = Modifier.padding(vertical = 50.dp)) {
-                    YimShareButton(isRedTheme = true)
-                    YimNextButton {
-                        navController.navigate(route = YimScreens.YimDiscoverScreen.name)
-                    }
-                }
+                YimNavigationStation(
+                    isRedTheme = true,
+                    navController = navController,
+                    viewModel = viewModel,
+                    typeOfImage = arrayOf("discovery-playlist", "missed-playlist"),
+                    route = YimScreens.YimDiscoverScreen
+                )
             }
             
         }

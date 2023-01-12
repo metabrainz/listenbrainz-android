@@ -31,10 +31,7 @@ import kotlinx.coroutines.delay
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
-import org.listenbrainz.android.presentation.features.yim.screens.components.YimHeadingText
-import org.listenbrainz.android.presentation.features.yim.screens.components.YimLabelText
-import org.listenbrainz.android.presentation.features.yim.screens.components.YimNextButton
-import org.listenbrainz.android.presentation.features.yim.screens.components.YimShareButton
+import org.listenbrainz.android.presentation.features.yim.screens.components.*
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YimPaddings
@@ -250,12 +247,14 @@ fun YimStatisticsScreen(
             }
     
            // Share and next button
-            Row(modifier = Modifier.padding(top = 30.dp, bottom = 10.dp)) {
-                YimShareButton(isRedTheme = false)
-                YimNextButton {
-                    navController.navigate(route = YimScreens.YimRecommendedPlaylistsScreen.name)
-                }
-            }
+            YimNavigationStation(
+                isRedTheme = false,
+                navController = navController,
+                viewModel = yimViewModel,
+                typeOfImage = arrayOf("stats"),
+                modifier = Modifier.padding(vertical = 10.dp),
+                route = YimScreens.YimRecommendedPlaylistsScreen
+            )
             
         }
     }
