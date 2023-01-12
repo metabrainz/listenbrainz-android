@@ -52,6 +52,7 @@ fun YimHomeScreen(
         
         var startAnimations by remember { mutableStateOf(false) }
         val swipeableState = rememberSwipeableState(initialValue = false)
+        var isYimAvailable by remember { mutableStateOf(false) }
         
         LaunchedEffect(key1 = true){
             startAnimations = true
@@ -151,9 +152,10 @@ fun YimHomeScreen(
                     )
                 )
                 
-                // Down Arrow
+                // Loading state
                 when (viewModel.yimData.value.status) {
                     Resource.Status.LOADING -> {
+                        isYimAvailable = false
                         CircularProgressIndicator(
                             modifier = Modifier.size(15.dp),
                             color = MaterialTheme.colorScheme.background,
@@ -170,7 +172,10 @@ fun YimHomeScreen(
                                     .size(15.dp)
                                     .offset(y = animValue.dp)
                             )
+                            isYimAvailable = true
                         }else {
+                            // User is new with less listens
+                            isYimAvailable = false
                             Icon(
                                 imageVector = Icons.Rounded.Error,
                                 modifier = Modifier.size(15.dp),
@@ -180,6 +185,8 @@ fun YimHomeScreen(
                         }
                     }
                     else -> {
+                        // Any error occurs
+                        isYimAvailable = false
                         Icon(
                             imageVector = Icons.Rounded.Error,
                             modifier = Modifier.size(15.dp),
@@ -248,9 +255,10 @@ fun YimHomeScreen(
                 
                 // Share Icon
                 YimShareButton(
-                    isRedTheme = true,
+                    typeOfImage = arrayOf("tracks"),
                     viewModel = viewModel,
-                    typeOfImage = arrayOf("tracks")      // TODO: Rethink the share button on home screen
+                    disableButton = !isYimAvailable     // Make share function unavailable if user has no yim.
+                    // TODO: Rethink the share button on home screen
                 )
             }
         }

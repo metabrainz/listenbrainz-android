@@ -130,10 +130,9 @@ fun YimTopAlbumsScreen(
             // Share Button and next Button
             AnimatedVisibility(visible = animateShareButton) {
                 YimNavigationStation(
-                    isRedTheme = false,
+                    typeOfImage = arrayOf("artists"),
                     navController = navController,
                     viewModel = yimViewModel,
-                    typeOfImage = arrayOf("artists"),
                     modifier = Modifier.padding(top = 40.dp),
                     route = YimScreens.YimChartsScreen
                 )

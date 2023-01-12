@@ -253,10 +253,9 @@ fun YimStatisticsScreen(
     
            // Share and next button
             YimNavigationStation(
-                isRedTheme = false,
+                typeOfImage = arrayOf("stats"),
                 navController = navController,
                 viewModel = yimViewModel,
-                typeOfImage = arrayOf("stats"),
                 modifier = Modifier.padding(vertical = 20.dp),
                 route = YimScreens.YimRecommendedPlaylistsScreen
             )

@@ -1,9 +1,7 @@
 package org.listenbrainz.android.presentation.features.yim.screens.components
 
 import android.content.Context
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.icons.Icons
@@ -12,22 +10,19 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 
 @Composable
 fun YimShareButton(
     viewModel: YimViewModel,
     typeOfImage: Array<String>,
-    isRedTheme: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    disableButton: Boolean = false
 ) {
     var dialogState by remember { mutableStateOf(false) }
     if (dialogState){
@@ -41,12 +36,14 @@ fun YimShareButton(
     IconButton(
         modifier = modifier.size(45.dp),
         onClick = { dialogState = true },
-        colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.onBackground)
+        colors = IconButtonDefaults.filledIconButtonColors(
+            containerColor = MaterialTheme.colorScheme.onBackground,
+            disabledContainerColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+        ),
+        enabled = !disableButton
     ) {
         Icon(
-            imageVector = Icons.Rounded.Share/*painterResource(
-                id = if (isRedTheme) R.drawable.yim_share_yellow else R.drawable.yim_share_red
-            )*/,
+            imageVector = Icons.Rounded.Share,
             contentDescription = "Share your Year in Music",
             tint = MaterialTheme.colorScheme.background,
             modifier = Modifier.size(30.dp)

@@ -172,10 +172,9 @@ fun YimChartsScreen(
             // Share Button and next
             if (startSecondAnim) {
                 YimNavigationStation(
-                    isRedTheme = true,
+                    typeOfImage = arrayOf("artists", "tracks"),
                     navController = navController,
                     viewModel = viewModel,
-                    typeOfImage = arrayOf("artists", "tracks"),
                     route = YimScreens.YimStatisticsScreen
                 )
             }

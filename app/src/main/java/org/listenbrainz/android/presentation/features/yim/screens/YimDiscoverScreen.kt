@@ -179,7 +179,6 @@ fun YimDiscoverScreen(
             // Share Button and next
             if (startSecondAnim) {
                 YimNavigationStation(
-                    isRedTheme = false,
                     navController = navController,
                     viewModel = yimViewModel,
                     typeOfImage = arrayOf(),        // No share button here

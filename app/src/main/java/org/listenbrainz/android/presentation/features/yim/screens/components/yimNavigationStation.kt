@@ -17,7 +17,6 @@ import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
 @Composable
 fun YimNavigationStation(
     typeOfImage: Array<String>,
-    isRedTheme: Boolean,
     navController: NavController,
     viewModel: YimViewModel,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier.padding(vertical = 50.dp),
@@ -31,7 +30,6 @@ fun YimNavigationStation(
         Spacer(modifier = Modifier.width(5.dp))
         if (typeOfImage.isNotEmpty()) {
             YimShareButton(
-                isRedTheme = isRedTheme,
                 viewModel = viewModel,
                 typeOfImage = typeOfImage
             )
