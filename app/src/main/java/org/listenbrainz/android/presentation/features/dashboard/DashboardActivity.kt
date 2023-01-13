@@ -21,6 +21,7 @@ import org.listenbrainz.android.presentation.features.components.BottomNavigatio
 import org.listenbrainz.android.presentation.features.components.TopAppBar
 import org.listenbrainz.android.presentation.features.onboarding.FeaturesActivity
 import org.listenbrainz.android.presentation.theme.ListenBrainzTheme
+import android.Manifest.permission
 
 @AndroidEntryPoint
 class DashboardActivity : ComponentActivity() {
@@ -34,16 +35,20 @@ class DashboardActivity : ComponentActivity() {
             startActivity(Intent(this, FeaturesActivity::class.java))
             finish()
         }
-    
+        
+        // TODO: Rework permissions
         val neededPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             arrayOf(
-                android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                android.Manifest.permission.READ_MEDIA_AUDIO
+                permission.READ_MEDIA_IMAGES,
+                permission.READ_MEDIA_AUDIO,
+                permission.READ_EXTERNAL_STORAGE        // TODO: Remove this if not needed.
             )
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+            arrayOf(permission.READ_EXTERNAL_STORAGE)
         } else {
-            arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+            arrayOf(permission.WRITE_EXTERNAL_STORAGE, permission.READ_EXTERNAL_STORAGE)
         }
-        
+    
         setContent {
             ListenBrainzTheme()
             {

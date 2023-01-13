@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -13,10 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun YimNextButton(onClick: () -> Unit) {
+fun YimNavButton(goBack: Boolean = false ,onClick: () -> Unit) {
     IconButton(onClick = onClick) {
         Icon(
-            imageVector = Icons.Rounded.KeyboardArrowDown,
+            imageVector = if (goBack) Icons.Rounded.KeyboardArrowUp else Icons.Rounded.KeyboardArrowDown,
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.onBackground, CircleShape)
                 .size(50.dp),
