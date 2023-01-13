@@ -6,11 +6,11 @@
 <h4 align="center">ListenBrainz Android</h4>
 
 <p align="center">
-    <a href="https://github.com/metabrainz/musicbrainz-android/commits/master">
-    <img src="https://img.shields.io/github/last-commit/metabrainz/musicbrainz-android.svg?style=flat-square&logo=github&logoColor=white"
+    <a href="https://github.com/metabrainz/listenbrainz-android/commits/master">
+    <img src="https://img.shields.io/github/last-commit/metabrainz/listenbrainz-android.svg?style=flat-square&logo=github&logoColor=white"
          alt="GitHub last commit"></a>
-    <a href="https://github.com/metabrainz/musicbrainz-android/pulls">
-    <img src="https://img.shields.io/github/issues-pr-raw/metabrainz/musicbrainz-android.svg?style=flat-square&logo=github&logoColor=white"
+    <a href="https://github.com/metabrainz/listenbrainz-android/pulls">
+    <img src="https://img.shields.io/github/issues-pr-raw/metabrainz/listenbrainz-android.svg?style=flat-square&logo=github&logoColor=white"
          alt="GitHub pull requests"></a>
 </p>
       
