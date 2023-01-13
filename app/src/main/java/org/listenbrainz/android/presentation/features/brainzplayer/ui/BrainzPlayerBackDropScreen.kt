@@ -14,10 +14,12 @@ import androidx.compose.material.icons.filled.RepeatOn
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.LargeFloatingActionButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -34,19 +36,16 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.google.accompanist.pager.*
 import org.listenbrainz.android.R
-import org.listenbrainz.android.data.sources.brainzplayer.Playlist.Companion.currentlyPlaying
 import org.listenbrainz.android.data.sources.brainzplayer.Playlist.Companion.favourite
 import org.listenbrainz.android.data.sources.brainzplayer.Song
-import org.listenbrainz.android.presentation.features.components.SongViewPager
 import org.listenbrainz.android.presentation.features.brainzplayer.services.RepeatMode
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.PlayPauseIcon
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.SeekBar
-import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
-import kotlin.math.absoluteValue
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.draw.alpha
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.basicMarquee
+import org.listenbrainz.android.presentation.features.components.SongViewPager
+import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.LBSharedPreferences
+import kotlin.math.absoluteValue
 import kotlin.math.max
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -92,7 +91,7 @@ fun BrainzPlayerBackDropScreen(
                 repeatMode = repeatMode,
                 modifier = Modifier
                     .padding(paddingValues)
-                    //.alpha(1 - (delta / maxDelta).coerceIn(0f, 1f))
+                    .alpha(1 - (delta / maxDelta).coerceIn(0f, 1f))     // FIXME : fps drops
             )
             SongViewPager(
                 modifier = Modifier
@@ -185,8 +184,8 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
     LazyColumn(modifier = modifier) {
         item {
             AlbumArtViewPager(viewModel = brainzPlayerViewModel)
-        //}
-        //item {
+        }
+        item {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.fillMaxWidth(0.8f)) {
                     Spacer(modifier = Modifier.height(25.dp))
@@ -222,8 +221,8 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
                     tint = if (!listenLiked) Color.Red else Color.Black
                 )
             }
-        //}
-        //item {
+        }
+        item {
             Box {
                 val progress by brainzPlayerViewModel.progress.collectAsState()
                 SeekBar(
@@ -236,8 +235,8 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
                     onValueChanged = brainzPlayerViewModel::onSeeked
                 )
             }
-        //}
-        //item {
+        }
+        item {
             val playIcon by brainzPlayerViewModel.playButton.collectAsState()
 
             Row(
@@ -300,9 +299,9 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
                     tint = colorResource(id = R.color.bp_lavender)
                 )
             }
-        //}
+        }
 
-        //item {
+        item {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 "Now Playing",
