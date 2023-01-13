@@ -29,6 +29,7 @@ import kotlinx.coroutines.delay
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
+import org.listenbrainz.android.presentation.features.yim.navigation.YimShareables
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimLabelText
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimNavigationStation
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
@@ -172,7 +173,7 @@ fun YimChartsScreen(
             // Share Button and next
             if (startSecondAnim) {
                 YimNavigationStation(
-                    typeOfImage = arrayOf("artists", "tracks"),
+                    typeOfImage = arrayOf(YimShareables.Artists, YimShareables.Tracks),
                     navController = navController,
                     viewModel = viewModel,
                     route = YimScreens.YimStatisticsScreen

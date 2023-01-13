@@ -90,9 +90,16 @@ fun BrainzPlayerBackDropScreen(
                 listenLiked = listenLiked,
                 isShuffled = isShuffled,
                 repeatMode = repeatMode,
-                modifier = Modifier.padding(paddingValues).alpha(1 - (delta / maxDelta).coerceIn(0f, 1f))
+                modifier = Modifier
+                    .padding(paddingValues)
+                    //.alpha(1 - (delta / maxDelta).coerceIn(0f, 1f))
             )
-            SongViewPager(modifier = Modifier.alpha((delta / maxDelta).coerceIn(0f, 1f)))
+            SongViewPager(
+                modifier = Modifier
+                    .graphicsLayer {
+                        alpha = (delta / maxDelta).coerceIn(0f, 1f)
+                    }
+            )
         })
 }
 
@@ -127,7 +134,7 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
                             // scroll position. We use the absolute value which allows us to mirror
                             // any effects for both directions
                             val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
-
+        
                             // We animate the scaleX + scaleY, between 85% and 100%
                             lerp(
                                 start = 0.85f,
@@ -137,7 +144,7 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
                                 scaleX = scale
                                 scaleY = scale
                             }
-
+        
                             // We animate the alpha, between 50% and 100%
                             alpha = lerp(
                                 start = 0.5f,
@@ -178,8 +185,8 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
     LazyColumn(modifier = modifier) {
         item {
             AlbumArtViewPager(viewModel = brainzPlayerViewModel)
-        }
-        item {
+        //}
+        //item {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.fillMaxWidth(0.8f)) {
                     Spacer(modifier = Modifier.height(25.dp))
@@ -210,13 +217,13 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
                     Modifier
                         .padding(5.dp)
                         .clickable {
-                        !listenLiked
-                    },
+                            !listenLiked
+                        },
                     tint = if (!listenLiked) Color.Red else Color.Black
                 )
             }
-        }
-        item {
+        //}
+        //item {
             Box {
                 val progress by brainzPlayerViewModel.progress.collectAsState()
                 SeekBar(
@@ -229,8 +236,8 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
                     onValueChanged = brainzPlayerViewModel::onSeeked
                 )
             }
-        }
-        item {
+        //}
+        //item {
             val playIcon by brainzPlayerViewModel.playButton.collectAsState()
 
             Row(
@@ -293,9 +300,9 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
                     tint = colorResource(id = R.color.bp_lavender)
                 )
             }
-        }
+        //}
 
-        item {
+        //item {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 "Now Playing",
@@ -314,7 +321,7 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
                 backgroundColor = androidx.compose.material.MaterialTheme.colors.onSurface
             ) {
                 Spacer(modifier = Modifier.height(50.dp))
-                Row(horizontalArrangement = Arrangement.Start) {
+                Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
                     AsyncImage(
                         model = it.albumArt,
                         contentDescription = "",
@@ -324,7 +331,7 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
                         contentScale = ContentScale.FillBounds,
                         modifier = Modifier.size(70.dp)
                     )
-                    Column(Modifier.padding(start = 10.dp)) {
+                    Column(Modifier.padding(start = 15.dp)) {
                         Text(
                             text = it.title,
                             color = Color.White

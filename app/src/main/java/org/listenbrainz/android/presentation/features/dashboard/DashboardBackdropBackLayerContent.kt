@@ -32,15 +32,13 @@ import org.listenbrainz.android.presentation.theme.lb_purple
 
 @Composable
 fun BackLayerContent(activity: Activity) {
-    Surface(modifier = Modifier
-        .fillMaxSize()          // Fixed Back Layer Content not taking full size.
-    ) {
+    Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .fillMaxWidth()
-                .background(androidx.compose.material3.MaterialTheme.colorScheme.background)   // Only Change here.
+                .background(androidx.compose.material3.MaterialTheme.colorScheme.background)
         ) {
             Image(
                 modifier = Modifier

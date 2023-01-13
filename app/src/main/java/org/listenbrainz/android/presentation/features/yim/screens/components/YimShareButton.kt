@@ -16,11 +16,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
+import org.listenbrainz.android.presentation.features.yim.navigation.YimShareables
 
 @Composable
 fun YimShareButton(
     viewModel: YimViewModel,
-    typeOfImage: Array<String>,
+    typeOfImage: Array<YimShareables>,
     modifier: Modifier = Modifier,
     disableButton: Boolean = false
 ) {
@@ -55,7 +56,7 @@ fun YimShareButton(
 private fun ShowDialog(
     onDismiss: () -> Unit,
     viewModel: YimViewModel,
-    typeOfImage: Array<String>,
+    typeOfImage: Array<YimShareables>,
     context: Context = LocalContext.current
 ){
     AlertDialog(
@@ -69,7 +70,7 @@ private fun ShowDialog(
                     if (typeOfImage.size == 2) {
                         Button(
                             onClick = {
-                                viewModel.saveSharableImage(sharableType = typeOfImage[1], context = context)
+                                viewModel.saveSharableImage(sharableType = typeOfImage[1].code, context = context)
                                 onDismiss()
                             },
                             colors = ButtonDefaults.buttonColors(
@@ -79,12 +80,12 @@ private fun ShowDialog(
                             modifier = Modifier.padding(end = 8.dp),
                             contentPadding = PaddingValues(horizontal = 8.dp)
                         ) {
-                            Text(text = displayNameForQuery(typeOfImage[1]))
+                            Text(text = typeOfImage[1].name)
                         }
                     }
                     Button(
                         onClick = {
-                            viewModel.saveSharableImage(sharableType = typeOfImage[0], context = context)
+                            viewModel.saveSharableImage(sharableType = typeOfImage[0].code, context = context)
                             onDismiss()
                         },
                         colors = ButtonDefaults.buttonColors(
@@ -93,7 +94,7 @@ private fun ShowDialog(
                         ),
                         contentPadding = PaddingValues(horizontal = 8.dp)
                     ) {
-                        Text(text = displayNameForQuery(typeOfImage[0]))
+                        Text(text = typeOfImage[0].name)
                     }
                 }
                 
@@ -130,16 +131,4 @@ private fun ShowDialog(
     )
     
     
-}
-
-private fun displayNameForQuery(type: String) : String {
-    return when(type){
-        "stats" -> "Statistics"
-        "artists" -> "Artists"
-        "albums" -> "Albums"
-        "tracks" -> "Tracks"
-        "discovery-playlist" -> "Discoveries"
-        "missed-playlist" -> "Missed Tracks"
-        else -> ""
-    }
 }

@@ -1,17 +1,13 @@
 package org.listenbrainz.android.presentation.features.yim
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
-import android.media.MediaScannerConnection
-import android.os.Environment
+import android.graphics.Canvas
 import android.util.Log
 import android.widget.Toast
-import androidx.annotation.WorkerThread
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.caverock.androidsvg.SVG
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +15,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import okio.IOException
 import org.listenbrainz.android.data.repository.YimRepository
 import org.listenbrainz.android.data.sources.api.entities.yimdata.*
 import org.listenbrainz.android.util.LBSharedPreferences
@@ -27,10 +22,6 @@ import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.saveBitmap
 import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityObserver
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
 import java.net.URL
 import javax.inject.Inject
 
@@ -250,7 +241,7 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
     {
         viewModelScope.launch(Dispatchers.IO) {
             val bitmap: Bitmap = Bitmap.createBitmap(924,924,Bitmap.Config.ARGB_8888)
-            val canvas = android.graphics.Canvas(bitmap)
+            val canvas = Canvas(bitmap)
             val imageURL = "https://api.listenbrainz.org/1/art/year-in-music/2022/${getUserName()}?image=$sharableType"
             
             try {
