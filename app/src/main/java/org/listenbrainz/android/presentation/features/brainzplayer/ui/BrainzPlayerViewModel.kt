@@ -13,6 +13,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.data.repository.SongRepository
+import org.listenbrainz.android.data.sources.brainzplayer.Playable
+import org.listenbrainz.android.data.sources.brainzplayer.PlayableType
 import org.listenbrainz.android.data.sources.brainzplayer.Playlist.Companion.currentlyPlaying
 import org.listenbrainz.android.data.sources.brainzplayer.Song
 import org.listenbrainz.android.presentation.features.brainzplayer.services.BrainzPlayerService
@@ -24,6 +26,7 @@ import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlaying
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPrepared
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID
+import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
 
@@ -81,7 +84,7 @@ class BrainzPlayerViewModel @Inject constructor(
 
     fun skipToPreviousSong() {
         brainzPlayerServiceConnection.transportControls.skipToPrevious()
-        pagerState.value--
+        pagerState.value--.coerceAtLeast(0)
     }
 
     fun onSeek(seekTo: Float) {
@@ -138,6 +141,11 @@ class BrainzPlayerViewModel @Inject constructor(
         } else {
             brainzPlayerServiceConnection.transportControls.playFromMediaId(mediaItem.mediaID.toString(), null)
         }
+    }
+
+    fun changePlayable(newPlayableList: List<Song>, playableType: PlayableType, playableId: Long, currentIndex: Int ) {
+        LBSharedPreferences.currentPlayable =
+            Playable(playableType, playableId, newPlayableList, currentIndex)
     }
 
     override fun onCleared() {

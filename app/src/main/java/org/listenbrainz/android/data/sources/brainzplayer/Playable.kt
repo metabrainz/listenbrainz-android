@@ -4,12 +4,13 @@ data class Playable(
     val type: PlayableType,
     val id: Long,
     val songs: List<Song>,
-    val currentSongIndex : Int
+    var currentSongIndex : Int
 )
 
 enum class PlayableType{
     SONG,
     ARTIST,
     ALBUM,
-    PLAYLIST
+    PLAYLIST,
+    ALL_SONGS
 }

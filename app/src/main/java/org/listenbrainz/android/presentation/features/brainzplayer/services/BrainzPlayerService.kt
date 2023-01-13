@@ -18,6 +18,8 @@ import kotlinx.coroutines.flow.first
 import org.listenbrainz.android.data.repository.AlbumRepository
 import org.listenbrainz.android.data.repository.PlaylistRepository
 import org.listenbrainz.android.data.repository.SongRepository
+import org.listenbrainz.android.data.sources.brainzplayer.Playable
+import org.listenbrainz.android.data.sources.brainzplayer.PlayableType
 import org.listenbrainz.android.presentation.features.brainzplayer.musicsource.LocalMusicSource
 import org.listenbrainz.android.presentation.features.brainzplayer.services.callback.BrainzPlayerEventListener
 import org.listenbrainz.android.presentation.features.brainzplayer.services.callback.BrainzPlayerNotificationListener
@@ -26,6 +28,7 @@ import org.listenbrainz.android.presentation.features.brainzplayer.services.noti
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toMediaMetadataCompat
 import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID
 import org.listenbrainz.android.util.BrainzPlayerUtils.SERVICE_TAG
+import org.listenbrainz.android.util.LBSharedPreferences
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -56,7 +59,7 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
     private var currentSong: MediaMetadataCompat? = null
 
     private val serviceJob = SupervisorJob()
-    private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
+     private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
 
     companion object {
         var currentSongDuration = 0L
@@ -65,9 +68,13 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
     override fun onCreate() {
         super.onCreate()
         serviceScope.launch {
-            localMusicSource.setMediaSource(songRepository.getSongsStream().first().map {
-                it.toMediaMetadataCompat
-            }.toMutableList())
+            if (LBSharedPreferences.currentPlayable == null){
+                LBSharedPreferences.currentPlayable = Playable(PlayableType.ALL_SONGS, -1L, songRepository.getSongsStream().first().map {
+                    it
+                }, 0 )
+            }
+            localMusicSource.setMediaSource(LBSharedPreferences.currentPlayable?.songs?.map { song->
+                song.toMediaMetadataCompat }?.toMutableList() ?: mutableListOf() )
         }
         val activityIntent = packageManager?.getLaunchIntentForPackage(packageName)?.let {
             PendingIntent.getActivity(
@@ -91,9 +98,7 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
             MusicPlaybackPreparer(localMusicSource) { currentlyPlayingSong ->
                 currentSong = currentlyPlayingSong
                 preparePlayer(
-                    localMusicSource.songs,
-                    currentlyPlayingSong,
-                    false
+                    true
                 )
             }
         mediaSessionConnector = MediaSessionConnector(mediaSession)
@@ -123,7 +128,7 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
                     if (isInitialized) {
                         result.sendResult(localMusicSource.asMediaItem())
                         if (!isPlayerInitialized && localMusicSource.songs.isNotEmpty()) {
-                            preparePlayer(localMusicSource.songs, localMusicSource.songs[0], false)
+                            preparePlayer(false)
                             isPlayerInitialized = true
                         }
                     } else {
@@ -149,13 +154,15 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
         exoPlayer.release()
     }
 
-    private fun preparePlayer(
-        songs: List<MediaMetadataCompat>,
-        itemToPlay: MediaMetadataCompat?,
+    fun preparePlayer(
         playNow: Boolean
     ) {
         serviceScope.launch(Dispatchers.Main) {
-            val currentSongIndex = if (currentSong == null) 0 else songs.indexOf(itemToPlay)
+            val songs = LBSharedPreferences.currentPlayable?.songs?.map {
+                it.toMediaMetadataCompat
+            }?.toMutableList() ?: mutableListOf()
+            localMusicSource.setMediaSource(songs)
+            val currentSongIndex = if (currentSong == null) 0 else LBSharedPreferences.currentPlayable?.currentSongIndex ?: 0
             exoPlayer.setMediaItems(localMusicSource.asMediaSource())
             exoPlayer.prepare()
             exoPlayer.seekTo(currentSongIndex, 0L)
