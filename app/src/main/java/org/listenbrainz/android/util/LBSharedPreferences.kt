@@ -1,10 +1,8 @@
 package org.listenbrainz.android.util
 
-import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import org.listenbrainz.android.App
-import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.data.di.brainzplayer.TypeConverter
 import org.listenbrainz.android.data.sources.api.entities.AccessToken
 import org.listenbrainz.android.data.sources.api.entities.userdata.UserInfo
@@ -12,8 +10,6 @@ import org.listenbrainz.android.data.sources.brainzplayer.Playable
 
 object LBSharedPreferences {
     private const val USERNAME = "username"
-    private const val SHARED_PREFERENCES_NAME = BuildConfig.APPLICATION_ID
-    private const val ACCESS_MODE = Context.MODE_PRIVATE
     private const val CURRENT_PLAYABLE = "CURRENT_PLAYABLE"
     const val ACCESS_TOKEN = "access_token"
     const val REFRESH_TOKEN = "refresh_token"
@@ -31,19 +27,19 @@ object LBSharedPreferences {
         editor.apply()
     }
 
-    fun setInteger(context: Context, key: String?, value: Int) {
+    fun setInteger(key: String?, value: Int) {
         val editor = preferences.edit()
         editor.putInt(key, value)
         editor.apply()
     }
 
-    fun setLong(context: Context, key: String?, value: Long) {
+    fun setLong(key: String?, value: Long) {
         val editor = preferences.edit()
         editor.putLong(key, value)
         editor.apply()
     }
 
-    fun setBoolean(context: Context, key: String?, value: Boolean) {
+    fun setBoolean(key: String?, value: Boolean) {
         val editor = preferences.edit()
         editor.putBoolean(key, value)
         editor.apply()
@@ -77,7 +73,7 @@ object LBSharedPreferences {
         }
         set(value) {
             value?.let {
-                setString(TypeConverter.playableToJSON(it), "")
+                setString(CURRENT_PLAYABLE, TypeConverter.playableToJSON(it))
             }
         }
 

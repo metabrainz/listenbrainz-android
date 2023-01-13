@@ -38,8 +38,7 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimLabelText
-import org.listenbrainz.android.presentation.features.yim.screens.components.YimNextButton
-import org.listenbrainz.android.presentation.features.yim.screens.components.YimShareButton
+import org.listenbrainz.android.presentation.features.yim.screens.components.YimNavigationStation
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YimPaddings
@@ -79,7 +78,7 @@ fun YimDiscoverScreen(
             
             YimLabelText(heading = "Discover", subHeading = "The year's over, but there's still more to uncover!")
     
-            // New Albums from you top artists Card
+            // New Albums from your top artists Card
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -135,9 +134,7 @@ fun YimDiscoverScreen(
                     .fillMaxWidth()
                     .heightIn(min = 0.dp, max = 600.dp)
                     .padding(
-                        start = paddings.defaultPadding,
-                        end = paddings.defaultPadding,
-                        bottom = 50.dp
+                        horizontal = paddings.defaultPadding
                     ),
                 shadowElevation = 10.dp,
                 shape = RoundedCornerShape(10.dp)
@@ -181,12 +178,13 @@ fun YimDiscoverScreen(
     
             // Share Button and next
             if (startSecondAnim) {
-                Row(modifier = Modifier.padding(bottom = 50.dp)) {
-                    YimShareButton(isRedTheme = false)
-                    YimNextButton {
-                        navController.navigate(route = YimScreens.YimEndgameScreen.name)
-                    }
-                }
+                YimNavigationStation(
+                    navController = navController,
+                    viewModel = yimViewModel,
+                    typeOfImage = arrayOf(),        // No share button here
+                    modifier = Modifier.padding(vertical = 40.dp),
+                    route = YimScreens.YimEndgameScreen
+                )
             }
             
         }

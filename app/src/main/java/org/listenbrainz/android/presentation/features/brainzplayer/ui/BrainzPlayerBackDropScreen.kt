@@ -46,6 +46,7 @@ import kotlin.math.absoluteValue
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.draw.alpha
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.basicMarquee
+import org.listenbrainz.android.util.LBSharedPreferences
 import kotlin.math.max
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -89,7 +90,7 @@ fun BrainzPlayerBackDropScreen(
                 listenLiked = listenLiked,
                 isShuffled = isShuffled,
                 repeatMode = repeatMode,
-                modifier = Modifier.alpha(1 - (delta / maxDelta).coerceIn(0f, 1f))
+                modifier = Modifier.padding(paddingValues).alpha(1 - (delta / maxDelta).coerceIn(0f, 1f))
             )
             SongViewPager(modifier = Modifier.alpha((delta / maxDelta).coerceIn(0f, 1f)))
         })
@@ -305,7 +306,7 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
             )
             Spacer(modifier = Modifier.height(12.dp))
         }
-        items(items = currentlyPlaying.items) {
+        items(items = LBSharedPreferences.currentPlayable?.songs ?: listOf()) {
             Card(
                 modifier = Modifier
                     .padding(10.dp)

@@ -8,6 +8,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Error
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
@@ -50,6 +52,7 @@ fun YimHomeScreen(
         
         var startAnimations by remember { mutableStateOf(false) }
         val swipeableState = rememberSwipeableState(initialValue = false)
+        var isYimAvailable by remember { mutableStateOf(false) }
         
         LaunchedEffect(key1 = true){
             startAnimations = true
@@ -149,15 +152,49 @@ fun YimHomeScreen(
                     )
                 )
                 
-                // Down Arrow
-                Icon(
-                    painter = painterResource(id = R.drawable.yim_arrow_down),
-                    contentDescription = "Swipe down to continue.",
-                    tint = Color.Unspecified,
-                    modifier = Modifier
-                        .size(15.dp)
-                        .offset(y = animValue.dp)
-                )
+                // Loading state
+                when (viewModel.yimData.value.status) {
+                    Resource.Status.LOADING -> {
+                        isYimAvailable = false
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(15.dp),
+                            color = MaterialTheme.colorScheme.background,
+                            strokeWidth = 3.dp
+                        )
+                    }
+                    Resource.Status.SUCCESS -> {
+                        if (viewModel.yimData.value.data?.payload?.data != null) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.yim_arrow_down),
+                                contentDescription = "Swipe down to continue.",
+                                tint = Color.Unspecified,
+                                modifier = Modifier
+                                    .size(15.dp)
+                                    .offset(y = animValue.dp)
+                            )
+                            isYimAvailable = true
+                        }else {
+                            // User is new with less listens
+                            isYimAvailable = false
+                            Icon(
+                                imageVector = Icons.Rounded.Error,
+                                modifier = Modifier.size(15.dp),
+                                tint = MaterialTheme.colorScheme.background,
+                                contentDescription = "Some error occurred"
+                            )
+                        }
+                    }
+                    else -> {
+                        // Any error occurs
+                        isYimAvailable = false
+                        Icon(
+                            imageVector = Icons.Rounded.Error,
+                            modifier = Modifier.size(15.dp),
+                            tint = MaterialTheme.colorScheme.background,
+                            contentDescription = "Some error occurred"
+                        )
+                    }
+                }
             
             }
         
@@ -217,7 +254,12 @@ fun YimHomeScreen(
                 Spacer(modifier = Modifier.height(paddings.largePadding))
                 
                 // Share Icon
-                YimShareButton(isRedTheme = true)
+                YimShareButton(
+                    typeOfImage = arrayOf("tracks"),
+                    viewModel = viewModel,
+                    disableButton = !isYimAvailable     // Make share function unavailable if user has no yim.
+                    // TODO: Rethink the share button on home screen
+                )
             }
         }
     }

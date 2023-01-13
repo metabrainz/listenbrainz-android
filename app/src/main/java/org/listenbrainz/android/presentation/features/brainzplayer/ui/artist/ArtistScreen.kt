@@ -38,6 +38,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import org.listenbrainz.android.R
 import org.listenbrainz.android.data.sources.brainzplayer.Artist
+import org.listenbrainz.android.data.sources.brainzplayer.PlayableType
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.BrainzPlayerViewModel
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.forwardingPainter
 
@@ -180,6 +181,7 @@ fun OnArtistClickScreen(artistID: String, navHostController: NavHostController) 
                     .padding(10.dp)
                     .fillMaxWidth(0.98f)
                     .clickable {
+                        brainzPlayerViewModel.changePlayable(artistSongs, PlayableType.ARTIST, it.artistId,artistSongs.indexOf(it))
                         brainzPlayerViewModel.playOrToggleSong(it, true)
                     },
                 backgroundColor = MaterialTheme.colors.onSurface

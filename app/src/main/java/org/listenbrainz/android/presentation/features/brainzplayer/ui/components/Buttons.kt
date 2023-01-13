@@ -32,7 +32,7 @@ fun PlayPauseIcon(icon: ImageVector, viewModel: BrainzPlayerViewModel , modifier
 
     ) {
         Icon(imageVector = it, contentDescription = "",  modifier.clickable {
-            viewModel.playOrToggleSong(viewModel.currentlyPlayingSong.value.toSong,viewModel.isPlaying.value)
+            viewModel.playOrToggleSong(viewModel.currentlyPlayingSong.value.toSong,true)
         }
         ,tint = tint)
     }

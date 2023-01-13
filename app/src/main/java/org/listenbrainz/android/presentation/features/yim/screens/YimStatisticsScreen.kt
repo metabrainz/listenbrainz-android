@@ -9,7 +9,9 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,10 +33,7 @@ import kotlinx.coroutines.delay
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
-import org.listenbrainz.android.presentation.features.yim.screens.components.YimHeadingText
-import org.listenbrainz.android.presentation.features.yim.screens.components.YimLabelText
-import org.listenbrainz.android.presentation.features.yim.screens.components.YimNextButton
-import org.listenbrainz.android.presentation.features.yim.screens.components.YimShareButton
+import org.listenbrainz.android.presentation.features.yim.screens.components.*
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YimPaddings
@@ -64,6 +63,7 @@ fun YimStatisticsScreen(
         // Main Content
         Column(modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(state = rememberScrollState())
             .background(MaterialTheme.colorScheme.background),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -76,7 +76,7 @@ fun YimStatisticsScreen(
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(275.dp)
+                    .height(300.dp)
                     .padding(
                         start = paddings.defaultPadding,
                         end = paddings.defaultPadding,
@@ -114,38 +114,49 @@ fun YimStatisticsScreen(
                             )
                         }
                     }
-                    
                     val gridState = rememberLazyGridState()
                     LaunchedEffect(gridState.isScrollInProgress){
                         listState.animateScrollToItem(index = gridState.firstVisibleItemIndex/26)
                     }
                     // Heat Map Grid
+                    val listensOfYear = yimViewModel.getListensListOfYear()
                     LazyHorizontalGrid(
                         state = gridState,
-                        modifier = Modifier.padding(bottom = paddings.smallPadding),
+                        modifier = Modifier
+                            .height(160.dp)
+                            .padding(bottom = paddings.smallPadding),
                         rows = GridCells.Fixed(7)
                     ){
-                        items( yimViewModel.getListensListOfYear() )
+                        items( listensOfYear )
                         { item ->
                             
                             // Heatmap square
                             Box(
                                 modifier = Modifier
-                                    .size(20.dp)
+                                    .width(20.dp)
                                     .padding(1.dp)
-                                    .background(when{
-                                        item >= 150 -> Color(0xFFF80729)
-                                        item in 100..149 -> Color(0xFFE5743E)
-                                        item in 50..99 -> Color(0xFFF9CC4E)
-                                        item in 1..49 -> Color(0xFFF6E4B3)
-                                        else -> yimOffWhite
-                                    }),
+                                    .background(
+                                        when {
+                                            item >= 150 -> Color(0xFFF80729)
+                                            item in 100..149 -> Color(0xFFE5743E)
+                                            item in 50..99 -> Color(0xFFF9CC4E)
+                                            item in 1..49 -> Color(0xFFF6E4B3)
+                                            else -> yimOffWhite
+                                        }
+                                    ),
                             )
                             
                         }
                     }
                     
-                    // TODO: Legend here.
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .height(30.dp)) {
+                        HeatMapExampleSquare(listenCount = 1, text = "0")
+                        HeatMapExampleSquare(listenCount = 50, text = "50")
+                        HeatMapExampleSquare(listenCount = 100, text = "100")
+                        HeatMapExampleSquare(listenCount = 150, text = "150")
+                    }
                     
                 }
             }
@@ -241,38 +252,48 @@ fun YimStatisticsScreen(
             }
     
            // Share and next button
-            Row(modifier = Modifier.padding(top = 30.dp, bottom = 10.dp)) {
-                YimShareButton(isRedTheme = false)
-                YimNextButton {
-                    navController.navigate(route = YimScreens.YimRecommendedPlaylistsScreen.name)
-                }
-            }
+            YimNavigationStation(
+                typeOfImage = arrayOf("stats"),
+                navController = navController,
+                viewModel = yimViewModel,
+                modifier = Modifier.padding(vertical = 20.dp),
+                route = YimScreens.YimRecommendedPlaylistsScreen
+            )
             
         }
     }
 }
 
 // TODO: Legend for heat map.
-/*
 @Composable
 private fun HeatMapExampleSquare(
     listenCount : Int,
     text: String
 ){
-    Row(modifier = Modifier.height(20.dp)) {
-        Text(text = text)
-        Surface(
+    Row(modifier = Modifier
+        .height(30.dp)
+        .width(60.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    
+    ) {
+        Text(
+            text = text,
+            fontSize = 12.sp,
+            modifier = Modifier.padding(end = if (listenCount > 99) 5.dp else 8.dp)
+        )
+        Box(
             modifier = Modifier
-                .size(20.dp),
-            color = when{
-                listenCount >= 150 -> Color(0xFFF80729)
-                listenCount in 100..149 -> Color(0xFFE5743E)
-                listenCount in 50..99 -> Color(0xFFF9CC4E)
-                listenCount in 1..49 -> Color(0xFFF6E4B3)
-                else -> yimOffWhite
-            },
-            content = {}
+                .size(18.dp)
+                .background(
+                    color = when {
+                        listenCount >= 150 -> Color(0xFFF80729)
+                        listenCount in 100..149 -> Color(0xFFE5743E)
+                        listenCount in 50..99 -> Color(0xFFF9CC4E)
+                        listenCount in 1..49 -> Color(0xFFF6E4B3)
+                        else -> yimOffWhite
+                    }
+                ),
         )
     }
 }
-*/
