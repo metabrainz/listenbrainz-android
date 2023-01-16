@@ -49,8 +49,11 @@ android {
         }
         release {
             if (keystorePropertiesFile.exists()) {
+                def keystoreProperties = new Properties()
+                keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
                 signingConfig signingConfigs.release
-                manifestPlaceholders["sentryDsn"] = keystorePropertiesFile['sentryDsn']
+                manifestPlaceholders["sentryDsn"] = keystoreProperties['sentryDsn']
             }
             else {
                 manifestPlaceholders["sentryDsn"] = ""
