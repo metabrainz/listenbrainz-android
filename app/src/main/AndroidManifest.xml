@@ -113,6 +113,11 @@
             android:name=".presentation.features.listens.RemotePlayerActivity"
             android:theme="@style/AppThemeNoActionBar" />
 
+        <!-- Sentry Setup-->
+        <meta-data android:name="io.sentry.dsn" android:value="${sentryDsn}" />
+        <meta-data android:name="io.sentry.traces.sample-rate" android:value="1.0" />
+        <meta-data android:name="io.sentry.traces.user-interaction.enable" android:value="true" />
+
         <meta-data
             android:name="android.app.default_searchable"
             android:value=".activity.SearchActivity" />
