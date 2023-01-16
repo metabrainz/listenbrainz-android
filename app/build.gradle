@@ -51,7 +51,10 @@ android {
         release {
             if (keystorePropertiesFile.exists()) {
                 signingConfig signingConfigs.release
-                manifestPlaceholders = [sentryDsn:signingConfigs.release['sentryDsn']]
+                manifestPlaceholders = [sentryDsn: keystorePropertiesFile['sentryDsn']]
+            }
+            else{
+                manifestPlaceholders = [sentryDsn: ""]
             }
             minifyEnabled false
             // proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -186,6 +189,6 @@ dependencies {
     kapt "androidx.room:room-compiler:2.5.0"
     implementation "androidx.room:room-ktx:2.5.0"
 
-    // Jetpack Compose accompanists (https://github.com/google/accompanist)
+    //Jetpack Compose accompanists (https://github.com/google/accompanist)
     implementation 'com.google.accompanist:accompanist-systemuicontroller:0.28.0'
 }
