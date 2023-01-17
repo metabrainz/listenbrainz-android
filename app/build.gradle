@@ -26,14 +26,10 @@ android {
         applicationId 'org.listenbrainz.android'
         minSdk 21
         targetSdk 33
-<<<<<<< HEAD
         versionCode 8
         versionName "1.0.7"
-=======
         versionCode 10
         versionName "1.0.9"
->>>>>>> 461c148a0a33760a757b4e3e2d7b512d0a316f71
-
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
