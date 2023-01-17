@@ -262,7 +262,6 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
                 
                 saveBitmap(
                     context = context,
-                    scope = viewModelScope,
                     bitmap = bitmap,
                     format = Bitmap.CompressFormat.PNG,
                     mimeType = "image/png",
