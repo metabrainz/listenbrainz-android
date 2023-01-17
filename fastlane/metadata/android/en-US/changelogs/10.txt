@@ -1,0 +1,1 @@
+Sentry added to the app for crash logging.

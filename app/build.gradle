@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    id "io.sentry.android.gradle" version "3.4.0"
 }
 
 def keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -25,8 +26,13 @@ android {
         applicationId 'org.listenbrainz.android'
         minSdk 21
         targetSdk 33
+<<<<<<< HEAD
         versionCode 8
         versionName "1.0.7"
+=======
+        versionCode 10
+        versionName "1.0.9"
+>>>>>>> 461c148a0a33760a757b4e3e2d7b512d0a316f71
 
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -42,12 +48,20 @@ android {
 
     buildTypes {
         debug {
+            manifestPlaceholders["sentryDsn"] = ""
             applicationIdSuffix ".debug"
             versionNameSuffix ".debug"
         }
         release {
             if (keystorePropertiesFile.exists()) {
+                def keystoreProperties = new Properties()
+                keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
                 signingConfig signingConfigs.release
+                manifestPlaceholders["sentryDsn"] = keystoreProperties['sentryDsn']
+            }
+            else {
+                manifestPlaceholders["sentryDsn"] = ""
             }
             minifyEnabled false
             // proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
