@@ -16,7 +16,6 @@ class YimRepositoryImpl @Inject constructor(private val service: YimService) : Y
             Resource(Resource.Status.SUCCESS, response)
         }catch (e: Exception){
             e.printStackTrace()
-            Log.w(e.localizedMessage)
             Resource(Resource.Status.FAILED, null)
         }
     }

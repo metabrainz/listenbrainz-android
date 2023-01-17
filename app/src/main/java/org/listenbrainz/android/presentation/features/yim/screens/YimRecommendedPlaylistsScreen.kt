@@ -31,6 +31,7 @@ import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.GlideLazyListPreloader
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import kotlinx.coroutines.delay
 import okhttp3.*
 import org.listenbrainz.android.R
@@ -181,7 +182,7 @@ fun YimRecommendedPlaylistsScreen(
 
 @Composable
 @OptIn(ExperimentalGlideComposeApi::class)
-private fun YimAlbumArt(viewModel: YimViewModel, isTopDiscoveriesPlaylist: Boolean) {
+private fun YimAlbumArt(viewModel: YimViewModel, isTopDiscoveriesPlaylist: Boolean, context: Context = LocalContext.current) {
     Box(
         modifier = Modifier.size(310.dp),
         contentAlignment = Alignment.Center
@@ -199,7 +200,9 @@ private fun YimAlbumArt(viewModel: YimViewModel, isTopDiscoveriesPlaylist: Boole
                     contentDescription = "Album Cover Art"
                 ) {
                     it.placeholder(R.drawable.ic_coverartarchive_logo_no_text)
-                        .override(120)
+                        .override(110)
+                        //.thumbnail(Glide.with(context).load(url).apply(RequestOptions().override(60)))
+                        .transition(withCrossFade(500))
                 }
             }
         }
@@ -245,7 +248,8 @@ private fun YimTopDiscoveriesOrMissedList(
         numberOfItemsToPreload = 15,
         fixedVisibleItemCount = 5
     ){ item, requestBuilder ->
-        requestBuilder.load(item).placeholder(R.drawable.ic_coverartarchive_logo_no_text).override(75)
+        requestBuilder.load(item).placeholder(R.drawable.ic_coverartarchive_logo_no_text)
+            .override(70)
     }
     
     LazyColumn(
@@ -287,7 +291,8 @@ private fun YimTopDiscoveriesOrMissedList(
                         contentDescription = "Album Cover Art"
                     ) {
                         it.placeholder(R.drawable.ic_coverartarchive_logo_no_text)
-                            .override(75)
+                            .override(70)
+                            .transition(withCrossFade())
                     }
                     
                     Spacer(modifier = Modifier.width(paddings.defaultPadding))

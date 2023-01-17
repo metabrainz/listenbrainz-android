@@ -5,6 +5,8 @@ import org.listenbrainz.android.data.sources.api.entities.ArtistCredit
 import org.listenbrainz.android.data.sources.api.entities.WikiSummary
 import org.listenbrainz.android.data.sources.api.entities.mbentity.*
 import org.listenbrainz.android.data.sources.api.entities.mbentity.Collection
+import org.listenbrainz.android.data.sources.api.entities.yimdata.Payload
+import org.listenbrainz.android.data.sources.api.entities.yimdata.YimData
 import org.listenbrainz.android.presentation.features.adapters.ResultItem
 import java.io.BufferedReader
 import java.io.IOException
@@ -224,4 +226,15 @@ object EntityTestUtils {
         get() {
             return ResultItem("8b08b9bb-cedf-42d8-8a43-f1f8a543ddb5", "What I've Done", "", "","")
         }
+    
+    val testYimData : YimData
+        get() {
+            val testPayload = Payload()
+            // TODO: Update this if any other assertions are required.
+            testPayload.userName = testYimUsername
+            return YimData(payload = testPayload)
+        }
+    
+    val testYimUsername : String
+        get() = "jasjeet"
 }

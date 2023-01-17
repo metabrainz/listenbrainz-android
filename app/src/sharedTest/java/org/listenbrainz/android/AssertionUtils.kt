@@ -6,6 +6,7 @@ import org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder
 import org.listenbrainz.android.data.sources.api.entities.WikiSummary
 import org.listenbrainz.android.data.sources.api.entities.mbentity.*
 import org.listenbrainz.android.data.sources.api.entities.mbentity.Collection
+import org.listenbrainz.android.data.sources.api.entities.yimdata.YimData
 import org.listenbrainz.android.presentation.features.adapters.ResultItem
 
 object AssertionUtils {
@@ -91,5 +92,10 @@ object AssertionUtils {
         assertEquals(testCollection.count, collection.count)
         assertEquals(testCollection.editor, collection.editor)
         assertEquals(testCollection.entityType, collection.entityType)
+    }
+    
+    fun checkYimAssertions(testYimData: YimData?, yimData : YimData) {
+        assertEquals(testYimData?.payload?.userName, yimData.payload.userName)
+        // REVIEW -> What more assertions should I add considering the huge json file.
     }
 }
