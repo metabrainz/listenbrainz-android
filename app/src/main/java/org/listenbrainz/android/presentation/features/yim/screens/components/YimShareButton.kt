@@ -16,12 +16,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
-import org.listenbrainz.android.presentation.features.yim.navigation.YimShareables
+import org.listenbrainz.android.presentation.features.yim.navigation.YimShareable
 
 @Composable
 fun YimShareButton(
     viewModel: YimViewModel,
-    typeOfImage: Array<YimShareables>,
+    typeOfImage: Array<YimShareable>,
     modifier: Modifier = Modifier,
     disableButton: Boolean = false
 ) {
@@ -56,7 +56,7 @@ fun YimShareButton(
 private fun ShowDialog(
     onDismiss: () -> Unit,
     viewModel: YimViewModel,
-    typeOfImage: Array<YimShareables>,
+    typeOfImage: Array<YimShareable>,
     context: Context = LocalContext.current
 ){
     AlertDialog(

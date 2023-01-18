@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
-import org.listenbrainz.android.presentation.features.yim.navigation.YimShareables
+import org.listenbrainz.android.presentation.features.yim.navigation.YimShareable
 
 
 /** Shareable types : "stats", "artists", "albums", "tracks", "discovery-playlist", "missed-playlist".
@@ -17,7 +17,7 @@ import org.listenbrainz.android.presentation.features.yim.navigation.YimShareabl
  * Pass empty array into [typeOfImage] to exclude share button.*/
 @Composable
 fun YimNavigationStation(
-    typeOfImage: Array<YimShareables>,
+    typeOfImage: Array<YimShareable>,
     navController: NavController,
     viewModel: YimViewModel,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier.padding(vertical = 50.dp),
