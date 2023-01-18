@@ -131,11 +131,7 @@ fun YimTopAlbumsScreen(
             // Share Button and next Button
             AnimatedVisibility(visible = animateShareButton) {
                 YimNavigationStation(
-
                     typeOfImage = arrayOf(),//arrayOf(YimShareables.Albums),
-
-                    typeOfImage = arrayOf(YimShareable.ALBUMS),
-
                     navController = navController,
                     viewModel = yimViewModel,
                     modifier = Modifier.padding(top = 40.dp),
