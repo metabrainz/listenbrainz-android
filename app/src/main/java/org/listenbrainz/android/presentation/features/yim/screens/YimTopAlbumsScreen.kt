@@ -32,6 +32,7 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.data.sources.api.entities.yimdata.TopRelease
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
+import org.listenbrainz.android.presentation.features.yim.navigation.YimShareable
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimHeadingText
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimNavigationStation
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
@@ -130,7 +131,7 @@ fun YimTopAlbumsScreen(
             // Share Button and next Button
             AnimatedVisibility(visible = animateShareButton) {
                 YimNavigationStation(
-                    typeOfImage = arrayOf("artists"),
+                    typeOfImage = arrayOf(YimShareable.ALBUMS),
                     navController = navController,
                     viewModel = yimViewModel,
                     modifier = Modifier.padding(top = 40.dp),
