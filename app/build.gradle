@@ -118,7 +118,7 @@ dependencies {
     kapt 'com.github.bumptech.glide:compiler:4.14.2'
 
     //Permissions
-    implementation "com.google.accompanist:accompanist-permissions:0.28.0"
+    implementation "com.google.accompanist:accompanist-permissions:$accompanist_version"
 
     //Fragment Setup For Kotlin
     implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
@@ -156,7 +156,7 @@ dependencies {
 
     // Compose Navigation
     implementation 'androidx.navigation:navigation-compose:2.5.3'     // Stable one
-    implementation 'com.google.accompanist:accompanist-navigation-animation:0.28.0'     // Experimental but has animations
+    implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"     // Experimental but has animations
 
     //Spotify
     implementation files('./lib/spotify-app-remote-release-0.7.2.aar')
@@ -179,7 +179,7 @@ dependencies {
     androidTestImplementation 'app.cash.turbine:turbine:0.12.1'
 
     //ViewPager
-    implementation 'com.google.accompanist:accompanist-pager:0.28.0'
+    implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
 
     //Exoplayer
     api 'com.google.android.exoplayer:exoplayer-core:2.18.2'
@@ -187,10 +187,10 @@ dependencies {
     api 'com.google.android.exoplayer:extension-mediasession:2.18.2'
 
     //Room db
-    implementation "androidx.room:room-runtime:2.5.0"
-    kapt "androidx.room:room-compiler:2.5.0"
-    implementation "androidx.room:room-ktx:2.5.0"
+    implementation "androidx.room:room-runtime:$room_version"       // DON'T UPDATE TO 2.5.0
+    kapt "androidx.room:room-compiler:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
 
     //Jetpack Compose accompanists (https://github.com/google/accompanist)
-    implementation 'com.google.accompanist:accompanist-systemuicontroller:0.28.0'
+    implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"
 }
