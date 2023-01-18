@@ -92,13 +92,10 @@ fun BrainzPlayerBackDropScreen(
                 repeatMode = repeatMode,
                 modifier = Modifier
                     .padding(paddingValues)
-                    //.alpha(1 - (delta / maxDelta).coerceIn(0f, 1f))
+                    .alpha(1 - (delta / maxDelta).coerceIn(0f, 1f))
             )
             SongViewPager(
-                modifier = Modifier
-                    .graphicsLayer {
-                        alpha = (delta / maxDelta).coerceIn(0f, 1f)
-                    }
+                modifier = Modifier.alpha((delta / maxDelta).coerceIn(0f, 1f))
             )
         })
 }
@@ -185,8 +182,8 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
     LazyColumn(modifier = modifier) {
         item {
             AlbumArtViewPager(viewModel = brainzPlayerViewModel)
-        //}
-        //item {
+        }
+        item {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.fillMaxWidth(0.8f)) {
                     Spacer(modifier = Modifier.height(25.dp))
@@ -222,8 +219,8 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
                     tint = if (!listenLiked) Color.Red else Color.Black
                 )
             }
-        //}
-        //item {
+        }
+        item {
             Box {
                 val progress by brainzPlayerViewModel.progress.collectAsState()
                 SeekBar(
@@ -236,8 +233,8 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
                     onValueChanged = brainzPlayerViewModel::onSeeked
                 )
             }
-        //}
-        //item {
+        }
+        item {
             val playIcon by brainzPlayerViewModel.playButton.collectAsState()
 
             Row(
@@ -300,9 +297,9 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
                     tint = colorResource(id = R.color.bp_lavender)
                 )
             }
-        //}
+        }
 
-        //item {
+        item {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
                 "Now Playing",
