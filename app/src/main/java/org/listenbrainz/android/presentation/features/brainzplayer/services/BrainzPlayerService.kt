@@ -132,7 +132,7 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
                             isPlayerInitialized = true
                         }
                     } else {
-                        result.sendResult(null)
+                        result.sendResult(mutableListOf())
                     }
                 }
                 if (!resultSent) {
