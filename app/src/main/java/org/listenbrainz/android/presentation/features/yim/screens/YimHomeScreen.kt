@@ -33,6 +33,7 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.yim.YearInMusicActivity
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
+import org.listenbrainz.android.presentation.features.yim.navigation.YimShareable
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimShareButton
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTheme
@@ -256,7 +257,7 @@ fun YimHomeScreen(
                 
                 // Share Icon
                 YimShareButton(
-                    typeOfImage = arrayOf("tracks"),
+                    typeOfImage = arrayOf(YimShareable.TRACKS),
                     viewModel = viewModel,
                     disableButton = !isYimAvailable     // Make share function unavailable if user has no yim.
                     // TODO: Rethink the share button on home screen

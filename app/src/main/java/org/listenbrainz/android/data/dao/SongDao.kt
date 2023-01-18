@@ -14,5 +14,6 @@ interface SongDao {
     fun getSongEntities() : Flow<List<SongEntity>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun addSongs(songEntities: List<SongEntity>): List<Long>
+    suspend fun addSongs(songEntities: List<SongEntity>)
+    
 }
