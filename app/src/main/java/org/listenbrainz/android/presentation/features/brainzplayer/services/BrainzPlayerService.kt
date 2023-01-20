@@ -7,6 +7,7 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
+import android.util.Log
 import androidx.media.MediaBrowserServiceCompat
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
@@ -118,33 +119,38 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
         return BrowserRoot(MEDIA_ROOT_ID,null)
     }
 
+    var isResultSent = false
     override fun onLoadChildren(
         parentId: String,
         result: Result<MutableList<MediaBrowserCompat.MediaItem>>
     ) {
-        when (parentId) {
-            MEDIA_ROOT_ID -> {
-                val resultSent = localMusicSource.whenReady { isInitialized ->
-                    if (isInitialized) {
+        if (parentId == MEDIA_ROOT_ID) {
+            val resultSent = localMusicSource.whenReady { isInitialized ->
+                if (isInitialized) {
+                    if (!isResultSent) {
                         result.sendResult(localMusicSource.asMediaItem())
-                        if (!isPlayerInitialized && localMusicSource.songs.isNotEmpty()) {
-                            preparePlayer(false)
-                            isPlayerInitialized = true
-                        }
-                    } else {
-                        result.sendResult(mutableListOf())
+                        isResultSent = true
                     }
-                }
-                if (!resultSent) {
-                    result.detach()
+                    if (!isPlayerInitialized && localMusicSource.songs.isNotEmpty()) {
+                        preparePlayer(playNow = false)
+                        isPlayerInitialized = true
+                    }
+                } else {
+                    result.sendResult(mutableListOf())
                 }
             }
+            if (!resultSent){
+                result.detach()
+            }
+        }else{
+            result.sendResult(null)
         }
     }
 
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
         exoPlayer.stop()
+        brainzPlayerNotificationManager.hideNotification()
     }
 
     override fun onDestroy() {
@@ -152,9 +158,10 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
         serviceScope.cancel()
         exoPlayer.removeListener(brainzPlayerEventListener)
         exoPlayer.release()
+        brainzPlayerNotificationManager.hideNotification()
     }
 
-    fun preparePlayer(
+    private fun preparePlayer(
         playNow: Boolean
     ) {
         serviceScope.launch(Dispatchers.Main) {
@@ -162,11 +169,12 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
                 it.toMediaMetadataCompat
             }?.toMutableList() ?: mutableListOf()
             localMusicSource.setMediaSource(songs)
-            val currentSongIndex = if (currentSong == null) 0 else LBSharedPreferences.currentPlayable?.currentSongIndex ?: 0
+            val currentSongIndex = LBSharedPreferences.currentPlayable?.currentSongIndex ?: 0
             exoPlayer.setMediaItems(localMusicSource.asMediaSource())
             exoPlayer.prepare()
             exoPlayer.seekTo(currentSongIndex, 0L)
             exoPlayer.playWhenReady = playNow
+            brainzPlayerNotificationManager.showNotification(exoPlayer)
         }
     }
 
