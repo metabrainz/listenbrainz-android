@@ -9,6 +9,7 @@ object UserPreferences {
     private const val PREFERENCE_LISTENING_SPOTIFY = "listening_spotify_enabled"
     private const val PREFERENCE_SYSTEM_LANGUAGE = "use_english"
     const val PREFERENCE_SYSTEM_THEME = "app_theme"
+    private const val PREFERENCE_PERMS_GRANTED = "perms_granted"
     private const val PREFERENCE_ONBOARDING = "onboarding"
     private val preferences = PreferenceManager.getDefaultSharedPreferences(App.context!!)
 
@@ -27,6 +28,15 @@ object UserPreferences {
         set(value) {
             val editor = preferences.edit()
             editor.putBoolean(PREFERENCE_LISTENING_ENABLED, value)
+            editor.apply()
+        }
+    var preferencePermsGranted: Boolean
+        get() {
+            return preferences.getBoolean(PREFERENCE_PERMS_GRANTED, false)
+        }
+        set(value) {
+            val editor = preferences.edit()
+            editor.putBoolean(PREFERENCE_PERMS_GRANTED, value)
             editor.apply()
         }
     val preferenceListeningSpotifyEnabled = preferences.getBoolean(PREFERENCE_LISTENING_SPOTIFY, false)

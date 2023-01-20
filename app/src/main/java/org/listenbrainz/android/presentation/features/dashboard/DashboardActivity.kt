@@ -22,6 +22,9 @@ import org.listenbrainz.android.presentation.features.components.TopAppBar
 import org.listenbrainz.android.presentation.features.onboarding.FeaturesActivity
 import org.listenbrainz.android.presentation.theme.ListenBrainzTheme
 import android.Manifest.permission
+import kotlinx.coroutines.delay
+import org.listenbrainz.android.presentation.UserPreferences.preferencePermsGranted
+import org.listenbrainz.android.util.uicomponents.DialogLB
 
 @AndroidEntryPoint
 class DashboardActivity : ComponentActivity() {
@@ -53,21 +56,37 @@ class DashboardActivity : ComponentActivity() {
             ListenBrainzTheme()
             {
                 var isGrantedPerms by remember {
-                    mutableStateOf(false)
+                    mutableStateOf(preferencePermsGranted)
                 }
                 val launcher = rememberLauncherForActivityResult(
                     contract =
                     ActivityResultContracts.RequestMultiplePermissions()
                 ) { permission ->
                     val isGranted = permission.values.reduce{first,second->(first || second)}
-                    if (!isGranted) {
-                        Toast.makeText(this, "Brainzplayer requires local storage permissions to play local songs", Toast.LENGTH_SHORT).show()
-                    } else {
+                    if (isGranted) {
+                        preferencePermsGranted = true
                         isGrantedPerms = true
                     }
                 }
-                SideEffect {
-                    launcher.launch(neededPermissions)
+                
+                LaunchedEffect(Unit) {
+                    if (!isGrantedPerms) {
+                        launcher.launch(neededPermissions)
+                    }
+                }
+                
+                if (!isGrantedPerms) {
+                    DialogLB(
+                        options = arrayOf("Grant"),
+                        firstOptionListener = {
+                                  launcher.launch(neededPermissions)
+                        },
+                        title = "Permissions required",
+                        description = "BrainzPlayer requires local storage permission to play local songs",
+                        dismissOnBackPress = false,
+                        dismissOnClickOutside = false,
+                        onDismiss = {}
+                    )
                 }
 
                 val backdropScaffoldState =
