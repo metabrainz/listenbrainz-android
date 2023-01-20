@@ -108,7 +108,6 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
         mediaSessionConnector.setPlayer(exoPlayer)
         brainzPlayerEventListener = BrainzPlayerEventListener(this)
         exoPlayer.addListener(brainzPlayerEventListener)
-        brainzPlayerNotificationManager.showNotification(exoPlayer)
     }
 
     override fun onGetRoot(
@@ -124,8 +123,9 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
         parentId: String,
         result: Result<MutableList<MediaBrowserCompat.MediaItem>>
     ) {
+        result.detach()
         if (parentId == MEDIA_ROOT_ID) {
-            val resultSent = localMusicSource.whenReady { isInitialized ->
+            localMusicSource.whenReady { isInitialized ->
                 if (isInitialized) {
                     if (!isResultSent) {
                         result.sendResult(localMusicSource.asMediaItem())
@@ -138,9 +138,6 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
                 } else {
                     result.sendResult(mutableListOf())
                 }
-            }
-            if (!resultSent){
-                result.detach()
             }
         }else{
             result.sendResult(null)
