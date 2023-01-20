@@ -1,29 +1,30 @@
 package org.listenbrainz.android.presentation.features.dashboard
 
+import android.Manifest.permission
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate.*
-import androidx.compose.material.*
+import androidx.compose.material.BackdropValue
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Scaffold
+import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.runtime.*
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.preference.PreferenceManager
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.R
+import org.listenbrainz.android.presentation.UserPreferences.preferencePermsGranted
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.BrainzPlayerBackDropScreen
 import org.listenbrainz.android.presentation.features.components.BottomNavigationBar
 import org.listenbrainz.android.presentation.features.components.TopAppBar
 import org.listenbrainz.android.presentation.features.onboarding.FeaturesActivity
 import org.listenbrainz.android.presentation.theme.ListenBrainzTheme
-import android.Manifest.permission
-import kotlinx.coroutines.delay
-import org.listenbrainz.android.presentation.UserPreferences.preferencePermsGranted
 import org.listenbrainz.android.util.uicomponents.DialogLB
 
 @AndroidEntryPoint
