@@ -1,27 +1,31 @@
 package org.listenbrainz.android.presentation.features.dashboard
 
+import android.Manifest.permission
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate.*
-import androidx.compose.material.*
+import androidx.compose.material.BackdropValue
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Scaffold
+import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.runtime.*
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.preference.PreferenceManager
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.R
+import org.listenbrainz.android.presentation.UserPreferences.preferencePermsGranted
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.BrainzPlayerBackDropScreen
 import org.listenbrainz.android.presentation.features.components.BottomNavigationBar
 import org.listenbrainz.android.presentation.features.components.TopAppBar
 import org.listenbrainz.android.presentation.features.onboarding.FeaturesActivity
 import org.listenbrainz.android.presentation.theme.ListenBrainzTheme
-import android.Manifest.permission
+import org.listenbrainz.android.util.uicomponents.DialogLB
 
 @AndroidEntryPoint
 class DashboardActivity : ComponentActivity() {
@@ -53,21 +57,37 @@ class DashboardActivity : ComponentActivity() {
             ListenBrainzTheme()
             {
                 var isGrantedPerms by remember {
-                    mutableStateOf(false)
+                    mutableStateOf(preferencePermsGranted)
                 }
                 val launcher = rememberLauncherForActivityResult(
                     contract =
                     ActivityResultContracts.RequestMultiplePermissions()
                 ) { permission ->
                     val isGranted = permission.values.reduce{first,second->(first || second)}
-                    if (!isGranted) {
-                        Toast.makeText(this, "Brainzplayer requires local storage permissions to play local songs", Toast.LENGTH_SHORT).show()
-                    } else {
+                    if (isGranted) {
+                        preferencePermsGranted = true
                         isGrantedPerms = true
                     }
                 }
-                SideEffect {
-                    launcher.launch(neededPermissions)
+                
+                LaunchedEffect(Unit) {
+                    if (!isGrantedPerms) {
+                        launcher.launch(neededPermissions)
+                    }
+                }
+                
+                if (!isGrantedPerms) {
+                    DialogLB(
+                        options = arrayOf("Grant"),
+                        firstOptionListener = {
+                                  launcher.launch(neededPermissions)
+                        },
+                        title = "Permissions required",
+                        description = "BrainzPlayer requires local storage permission to play local songs",
+                        dismissOnBackPress = false,
+                        dismissOnClickOutside = false,
+                        onDismiss = {}
+                    )
                 }
 
                 val backdropScaffoldState =
