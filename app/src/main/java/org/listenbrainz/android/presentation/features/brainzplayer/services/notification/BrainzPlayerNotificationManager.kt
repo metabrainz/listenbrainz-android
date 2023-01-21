@@ -55,6 +55,10 @@ class BrainzPlayerNotificationManager(
     fun showNotification(player: Player) {
         notificationManager.setPlayer(player)
     }
+    
+    fun hideNotification() {
+        notificationManager.setPlayer(null)
+    }
 
     inner class DescriptionAdapter(private val mediaController: MediaControllerCompat) :
         PlayerNotificationManager.MediaDescriptionAdapter {
