@@ -48,63 +48,65 @@ fun DialogLB(
     AlertDialog(
         onDismissRequest = onDismiss,
         buttons = {
-            Box(modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp, start = 16.dp, end = 16.dp),
-            ) {
-                Row(modifier = Modifier.align(Alignment.CenterEnd)) {
-                    if (options.size == 2) {
-                        Button(
-                            onClick = {
-                                secondOptionListener()
-                                onDismiss()
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Transparent,
-                                contentColor = MaterialTheme.colorScheme.onSurface
-                            ),
-                            modifier = Modifier.padding(end = 8.dp),
-                            contentPadding = PaddingValues(horizontal = 8.dp)
-                        ) {
-                            Text(text = options[1])
-                        }
-                    }
-                    if (options.isNotEmpty()) {
-                        Button(
-                            onClick = {
-                                firstOptionListener()
-                                onDismiss()
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Transparent,
-                                contentColor = MaterialTheme.colorScheme.onSurface
-                            ),
-                            contentPadding = PaddingValues(horizontal = 8.dp)
-                        ) {
-                            Text(text = options[0])
-                        }
-                    }
-                }
-                
-                if (enableDismissButton){
-                    Row(Modifier.align(Alignment.CenterStart)) {
-                        Button(
-                            onClick = {
-                                dismissButtonListener()
-                                onDismiss()
-                            },
-                            colors = ButtonDefaults.buttonColors(
+            if (enableDismissButton || options.isNotEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp, start = 16.dp, end = 16.dp),
+                ) {
+                    Row(modifier = Modifier.align(Alignment.CenterEnd)) {
+                        if (options.size == 2) {
+                            Button(
+                                onClick = {
+                                    secondOptionListener()
+                                    onDismiss()
+                                },
+                                colors = ButtonDefaults.buttonColors(
                                     containerColor = Color.Transparent,
                                     contentColor = MaterialTheme.colorScheme.onSurface
                                 ),
-                            contentPadding = PaddingValues(horizontal = 6.dp)
-                        ) {
-                            Text(text = dismissButtonText)
+                                modifier = Modifier.padding(end = 8.dp),
+                                contentPadding = PaddingValues(horizontal = 8.dp)
+                            ) {
+                                Text(text = options[1])
+                            }
+                        }
+                        if (options.isNotEmpty()) {
+                            Button(
+                                onClick = {
+                                    firstOptionListener()
+                                    onDismiss()
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Transparent,
+                                    contentColor = MaterialTheme.colorScheme.onSurface
+                                ),
+                                contentPadding = PaddingValues(horizontal = 8.dp)
+                            ) {
+                                Text(text = options[0])
+                            }
+                        }
+                    }
+        
+                    if (enableDismissButton) {
+                        Row(Modifier.align(Alignment.CenterStart)) {
+                            Button(
+                                onClick = {
+                                    dismissButtonListener()
+                                    onDismiss()
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Transparent,
+                                    contentColor = MaterialTheme.colorScheme.onSurface
+                                ),
+                                contentPadding = PaddingValues(horizontal = 6.dp)
+                            ) {
+                                Text(text = dismissButtonText)
+                            }
                         }
                     }
                 }
             }
-            
             
         },
         title = {
