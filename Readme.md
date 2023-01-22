@@ -12,6 +12,7 @@
     <a href="https://github.com/metabrainz/listenbrainz-android/pulls">
     <img src="https://img.shields.io/github/issues-pr-raw/metabrainz/listenbrainz-android.svg?style=flat-square&logo=github&logoColor=white"
          alt="GitHub pull requests"></a>
+    <img src="https://PlayBadges.pavi2410.me/badge/downloads?id=org.listenbrainz.android">
 </p>
       
 <p align="center">

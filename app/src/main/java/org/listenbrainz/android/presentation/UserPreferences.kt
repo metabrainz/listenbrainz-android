@@ -9,6 +9,7 @@ object UserPreferences {
     private const val PREFERENCE_LISTENING_SPOTIFY = "listening_spotify_enabled"
     private const val PREFERENCE_SYSTEM_LANGUAGE = "use_english"
     const val PREFERENCE_SYSTEM_THEME = "app_theme"
+    private const val PREFERENCE_PERMS = "perms_code"
     private const val PREFERENCE_ONBOARDING = "onboarding"
     private val preferences = PreferenceManager.getDefaultSharedPreferences(App.context!!)
 
@@ -29,5 +30,30 @@ object UserPreferences {
             editor.putBoolean(PREFERENCE_LISTENING_ENABLED, value)
             editor.apply()
         }
+    /**
+     *
+     * [PermissionStatus.NOT_REQUESTED] -> permission not requested even once.
+     *
+     * [PermissionStatus.GRANTED]-> permission granted.
+     *
+     * [PermissionStatus.DENIED_ONCE] -> permission is denied once, user can be asked for permission again.
+     *
+     * [PermissionStatus.DENIED_TWICE] -> permission is denied twice and cannot be asked again. User need to go to settings to enable the permission.*/
+    var permissionsPreference: String?
+        get() {
+            return preferences.getString(PREFERENCE_PERMS, PermissionStatus.NOT_REQUESTED.name)
+        }
+        set(value) {
+            val editor = preferences.edit()
+            editor.putString(PREFERENCE_PERMS, value)
+            editor.apply()
+        }
+    
+    enum class PermissionStatus{
+        NOT_REQUESTED,
+        GRANTED,
+        DENIED_ONCE,
+        DENIED_TWICE
+    }
     val preferenceListeningSpotifyEnabled = preferences.getBoolean(PREFERENCE_LISTENING_SPOTIFY, false)
 }

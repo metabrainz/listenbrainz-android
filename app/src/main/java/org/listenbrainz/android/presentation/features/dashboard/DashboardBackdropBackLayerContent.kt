@@ -73,6 +73,15 @@ fun BackLayerContent(activity: Activity) {
             )
             Spacer(modifier = Modifier.height(16.dp))
             
+            // Yim Card
+            HomeScreenCard(
+                activity = activity,
+                nextActivity = YearInMusicActivity(),
+                iconId = R.drawable.yim_radio,
+                title = "Year in Music",
+                subTitle = "Your Whole Year Summarized"
+            )
+            
             // NewsBrainz Card
             HomeScreenCard(
                 activity = activity,
@@ -82,14 +91,6 @@ fun BackLayerContent(activity: Activity) {
                 subTitle = stringResource(id = R.string.news_card)
             )
             
-            // Yim Card
-            HomeScreenCard(
-                activity = activity,
-                nextActivity = YearInMusicActivity(),
-                iconId = R.drawable.yim_radio,
-                title = "Year in Music",
-                subTitle = "Your Whole Year Summarized"
-            )
         }
     }
 }
