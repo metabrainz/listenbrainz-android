@@ -95,7 +95,6 @@ object AssertionUtils {
     }
     
     fun checkYimAssertions(testYimData: YimData?, yimData : YimData) {
-        assertEquals(testYimData?.payload?.userName, yimData.payload.userName)
-        // REVIEW -> What more assertions should I add considering the huge json file.
+        assertEquals(testYimData, yimData)
     }
 }

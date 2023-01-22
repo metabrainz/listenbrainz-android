@@ -31,14 +31,14 @@ object UserPreferences {
             editor.apply()
         }
     /**
-     *
      * [PermissionStatus.NOT_REQUESTED] -> permission not requested even once.
      *
      * [PermissionStatus.GRANTED]-> permission granted.
      *
      * [PermissionStatus.DENIED_ONCE] -> permission is denied once, user can be asked for permission again.
      *
-     * [PermissionStatus.DENIED_TWICE] -> permission is denied twice and cannot be asked again. User need to go to settings to enable the permission.*/
+     * [PermissionStatus.DENIED_TWICE] -> permission is denied twice and cannot be asked again. User needs to go to settings to enable the permission.
+     */
     var permissionsPreference: String?
         get() {
             return preferences.getString(PREFERENCE_PERMS, PermissionStatus.NOT_REQUESTED.name)

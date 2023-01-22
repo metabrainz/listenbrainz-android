@@ -1,12 +1,12 @@
 package org.listenbrainz.android
 
+import com.google.gson.Gson
 import org.junit.Assert.fail
 import org.listenbrainz.android.data.sources.api.entities.ArtistCredit
 import org.listenbrainz.android.data.sources.api.entities.WikiSummary
 import org.listenbrainz.android.data.sources.api.entities.mbentity.*
 import org.listenbrainz.android.data.sources.api.entities.mbentity.Collection
-import org.listenbrainz.android.data.sources.api.entities.yimdata.Payload
-import org.listenbrainz.android.data.sources.api.entities.yimdata.YimData
+import org.listenbrainz.android.data.sources.api.entities.yimdata.*
 import org.listenbrainz.android.presentation.features.adapters.ResultItem
 import java.io.BufferedReader
 import java.io.IOException
@@ -229,10 +229,7 @@ object EntityTestUtils {
     
     val testYimData : YimData
         get() {
-            val testPayload = Payload()
-            // TODO: Update this if any other assertions are required.
-            testPayload.userName = testYimUsername
-            return YimData(payload = testPayload)
+            return Gson().fromJson(loadResourceAsString("yim_data.json"), YimData::class.java)
         }
     
     val testYimUsername : String
