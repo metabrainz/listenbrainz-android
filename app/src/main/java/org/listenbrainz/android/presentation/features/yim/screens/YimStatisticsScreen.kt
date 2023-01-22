@@ -47,19 +47,6 @@ fun YimStatisticsScreen(
     paddings: YimPaddings = LocalYimPaddings.current
 ){
     YearInMusicTheme(redTheme = false) {
-        var startAnim by remember { mutableStateOf(false) }
-        var startSecondAnim by remember { mutableStateOf(false) }
-        var startThirdAnim by remember { mutableStateOf(false) }
-        
-        LaunchedEffect(true){
-            delay(1000)
-            startAnim = true
-            delay(600)
-            startSecondAnim = true
-            delay(600)
-            startThirdAnim = true
-        }
-        
         
         // Main Content
         Column(modifier = Modifier

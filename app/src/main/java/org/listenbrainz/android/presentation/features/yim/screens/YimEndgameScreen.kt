@@ -88,7 +88,7 @@ fun YimEndgameScreen(
                         }
                         .pointerInput(Unit) {
                             detectTransformGestures(
-                                onGesture = { centroid, pan, gestureZoom, gestureRotate ->
+                                onGesture = { centroid, pan, gestureZoom, _/*gestureRotate*/ ->
                                     val oldScale = zoom
                                     val newScale = zoom * gestureZoom
                                     zoom = newScale.coerceIn(1f, 5f)    // max zoom is 5x

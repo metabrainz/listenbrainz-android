@@ -1,20 +1,45 @@
 package org.listenbrainz.android
 
-import android.content.Context
+import kotlinx.coroutines.*
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
+import org.listenbrainz.android.AssertionUtils.checkYimAssertions
 import org.listenbrainz.android.EntityTestUtils.testYimData
-import org.listenbrainz.android.presentation.features.yim.YearInMusicActivity
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
-import org.mockito.Mockito.mock
+import org.listenbrainz.android.util.Resource
 
 class YimViewModelTest{
     
+    private lateinit var viewModel : YimViewModel
+    
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Before
+    fun setup(){
+        Dispatchers.setMain(StandardTestDispatcher())
+        viewModel = YimViewModel(MockYimRepository())
+    }
+    
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun yimViewModelTest() {
+    fun getDataTest() = runTest {
         val expected = testYimData
-        // FIXME : Do i need to test this too?
-        //val viewModel = YimViewModel (MockYimRepository(), mock(Context::class.java))
-        //assertEquals(viewModel.getUserName(), expected.payload.userName)
+        launch(Dispatchers.Main) {
+            withContext(Dispatchers.Default) { viewModel.getData() }
+            val resultResource = viewModel.yimData
+            assertEquals(Resource.Status.SUCCESS, resultResource.value.status)
+            checkYimAssertions(resultResource.value.data, expected)
+        }
+    }
+    
+    @ExperimentalCoroutinesApi
+    @After
+    fun teardown() {
+        Dispatchers.resetMain()
     }
 }

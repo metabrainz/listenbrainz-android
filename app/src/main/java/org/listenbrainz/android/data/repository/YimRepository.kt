@@ -5,4 +5,8 @@ import org.listenbrainz.android.util.Resource
 
 interface YimRepository {
     suspend fun getYimData(username: String): Resource<YimData>
+    
+    fun getUsername(): String?
+    
+    fun getLoginStatus(): Int
 }

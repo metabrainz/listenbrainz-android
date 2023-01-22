@@ -55,9 +55,9 @@ object Utils {
     }
 
     fun changeLanguage(context: Context, lang_code: String): ContextWrapper {
-        var context = context
+        var mContext = context
         val sysLocale: Locale
-        val rs = context.resources
+        val rs = mContext.resources
         val config = rs.configuration
         sysLocale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             config.locales[0]
@@ -72,9 +72,9 @@ object Utils {
             } else {
                 config.locale = locale
             }
-            context = context.createConfigurationContext(config)
+            mContext = mContext.createConfigurationContext(config)
         }
-        return ContextWrapper(context)
+        return ContextWrapper(mContext)
     }
 
     fun toResultItemsList(entity: MBEntityType, response: Resource<String>): Resource<List<ResultItem>> {

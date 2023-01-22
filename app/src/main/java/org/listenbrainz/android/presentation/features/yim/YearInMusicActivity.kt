@@ -16,6 +16,7 @@ class YearInMusicActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        val networkViewModel = YimNetworkViewModel(this)
         val yimViewModel : YimViewModel by viewModels()
         
         // Login Check
@@ -25,8 +26,10 @@ class YearInMusicActivity : ComponentActivity() {
             finish()
         }
         
+        yimViewModel.getData()
+        
         setContent {
-            YimNavigation(yimViewModel = yimViewModel, activity = this)
+            YimNavigation(yimViewModel = yimViewModel, networkViewModel = networkViewModel, activity = this)
         }
     }
 }

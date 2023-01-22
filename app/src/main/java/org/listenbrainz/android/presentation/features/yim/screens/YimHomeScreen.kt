@@ -27,10 +27,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.yim.YearInMusicActivity
+import org.listenbrainz.android.presentation.features.yim.YimNetworkViewModel
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
 import org.listenbrainz.android.presentation.features.yim.navigation.YimShareable
@@ -44,7 +44,8 @@ import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun YimHomeScreen(
-    viewModel: YimViewModel,
+    yimViewModel: YimViewModel,
+    networkViewModel: YimNetworkViewModel,
     navController: NavHostController,
     activity: YearInMusicActivity,
     paddings: YimPaddings = LocalYimPaddings.current,
@@ -63,10 +64,10 @@ fun YimHomeScreen(
         // What happens when user swipes up
         LaunchedEffect(key1 = swipeableState.isAnimationRunning){
             if (swipeableState.isAnimationRunning) {
-                when (viewModel.getNetworkStatus()) {
+                when (networkViewModel.getNetworkStatus()) {
                     ConnectivityObserver.NetworkStatus.Available -> {
                         // Data status checking
-                        when (viewModel.yimData.value.status){
+                        when (yimViewModel.yimData.value.status){
                             Resource.Status.LOADING -> {
                                 Toast.makeText(context, "Loading", Toast.LENGTH_SHORT).show()
                             }
@@ -76,7 +77,7 @@ fun YimHomeScreen(
                             }
                             else -> {
                                 // Checks if user has less listens, i.e., No yim data available.
-                                if (viewModel.yimData.value.data?.payload?.data != null) {
+                                if (yimViewModel.yimData.value.data?.payload?.data != null) {
                                     navController.navigate(route = YimScreens.YimTopAlbumsScreen.name)
                                 }else{
                                     Toast.makeText(context, "Seems like you have very less listens :(", Toast.LENGTH_SHORT).show()
@@ -155,7 +156,7 @@ fun YimHomeScreen(
                 )
                 
                 // Loading state
-                when (viewModel.yimData.value.status) {
+                when (yimViewModel.yimData.value.status) {
                     Resource.Status.LOADING -> {
                         isYimAvailable = false
                         CircularProgressIndicator(
@@ -165,7 +166,7 @@ fun YimHomeScreen(
                         )
                     }
                     Resource.Status.SUCCESS -> {
-                        if (viewModel.yimData.value.data?.payload?.data != null) {
+                        if (yimViewModel.yimData.value.data?.payload?.data != null) {
                             Icon(
                                 painter = painterResource(id = R.drawable.yim_arrow_down),
                                 contentDescription = "Swipe down to continue.",
@@ -239,7 +240,7 @@ fun YimHomeScreen(
                                 fontWeight = FontWeight.Bold
                             )
                         ){
-                            append(viewModel.getUserName() + "'s")
+                            append(yimViewModel.getUserName() + "'s")
                         }
                         withStyle(
                             style = SpanStyle(
@@ -258,9 +259,8 @@ fun YimHomeScreen(
                 // Share Icon
                 YimShareButton(
                     typeOfImage = arrayOf(YimShareable.TRACKS),
-                    viewModel = viewModel,
+                    viewModel = yimViewModel,
                     disableButton = !isYimAvailable     // Make share function unavailable if user has no yim.
-                    // TODO: Rethink the share button on home screen
                 )
             }
         }

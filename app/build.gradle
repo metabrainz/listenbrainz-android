@@ -162,8 +162,6 @@ dependencies {
     implementation files('./lib/spotify-app-remote-release-0.7.2.aar')
 
     //Test Setup
-    def mockito_version = '2.7.1'       // Useful for mocking context
-
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'com.squareup.okhttp3:mockwebserver:5.0.0-alpha.11'
     testImplementation 'androidx.arch.core:core-testing:2.1.0'
@@ -171,9 +169,7 @@ dependencies {
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4'
     testImplementation "androidx.room:room-testing:2.5.0"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
-    testImplementation "org.mockito:mockito-core:$mockito_version"
 
-    androidTestImplementation "org.mockito:mockito-android:$mockito_version"
     androidTestImplementation 'androidx.test:runner:1.5.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.arch.core:core-testing:2.1.0'

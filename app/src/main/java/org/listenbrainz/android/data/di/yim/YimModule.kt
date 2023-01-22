@@ -5,11 +5,9 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import org.listenbrainz.android.data.repository.YimRepositoryImpl
 import org.listenbrainz.android.data.sources.api.ListenBrainzServiceGenerator
 import org.listenbrainz.android.data.sources.api.YimService
 import org.listenbrainz.android.data.sources.api.entities.yimdata.Data
-import org.listenbrainz.android.data.sources.api.entities.yimdata.TopRelease
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.reflect.Type

@@ -182,7 +182,7 @@ fun YimRecommendedPlaylistsScreen(
 
 @Composable
 @OptIn(ExperimentalGlideComposeApi::class)
-private fun YimAlbumArt(viewModel: YimViewModel, isTopDiscoveriesPlaylist: Boolean, context: Context = LocalContext.current) {
+private fun YimAlbumArt(viewModel: YimViewModel, isTopDiscoveriesPlaylist: Boolean) {
     Box(
         modifier = Modifier.size(310.dp),
         contentAlignment = Alignment.Center
