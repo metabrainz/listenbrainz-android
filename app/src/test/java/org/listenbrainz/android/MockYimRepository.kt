@@ -1,6 +1,7 @@
 package org.listenbrainz.android
 
 import com.google.gson.Gson
+import org.listenbrainz.android.EntityTestUtils.testYimUsername
 import org.listenbrainz.android.data.repository.YimRepository
 import org.listenbrainz.android.data.sources.api.entities.yimdata.YimData
 import org.listenbrainz.android.util.LBSharedPreferences
@@ -15,7 +16,7 @@ class MockYimRepository : YimRepository {
     }
     
     override fun getUsername(): String {
-        return "jasjeet"
+        return testYimUsername
     }
     
     override fun getLoginStatus(): Int {
