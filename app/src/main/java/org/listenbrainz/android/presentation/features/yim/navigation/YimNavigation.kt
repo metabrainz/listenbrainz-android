@@ -11,7 +11,7 @@ import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import org.listenbrainz.android.presentation.features.yim.YearInMusicActivity
-import org.listenbrainz.android.presentation.features.yim.YimNetworkViewModel
+import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.screens.*
 
@@ -23,7 +23,7 @@ private const val screenTransitionDuration = 900
 fun YimNavigation(
     yimViewModel: YimViewModel,
     activity: YearInMusicActivity,
-    networkViewModel: YimNetworkViewModel,
+    networkConnectivityViewModel: NetworkConnectivityViewModel,
 ) {
     val navController = rememberAnimatedNavController()
     AnimatedNavHost(
@@ -49,7 +49,7 @@ fun YimNavigation(
                 )
             }
         ) {
-            YimHomeScreen(yimViewModel = yimViewModel, networkViewModel = networkViewModel, navController = navController, activity = activity)
+            YimHomeScreen(yimViewModel = yimViewModel, networkConnectivityViewModel = networkConnectivityViewModel, navController = navController, activity = activity)
         }
         
         addYimScreen( route = YimScreens.YimTopAlbumsScreen.name ){

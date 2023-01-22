@@ -14,11 +14,19 @@ object UserPreferences {
     private val preferences = PreferenceManager.getDefaultSharedPreferences(App.context!!)
 
     fun setOnBoardingCompleted() {
-        val editor = preferences.edit()
-        editor.putBoolean(PREFERENCE_ONBOARDING, true)
-        editor.apply()
+        onBoardingPreference = true
     }
 
+    var onBoardingPreference: Boolean
+        get() {
+            return preferences.getBoolean(PREFERENCE_ONBOARDING, false)
+        }
+        set(value) {
+            val editor = preferences.edit()
+            editor.putBoolean(PREFERENCE_ONBOARDING, value)
+            editor.apply()
+        }
+    
     val systemLanguagePreference = preferences.getBoolean(PREFERENCE_SYSTEM_LANGUAGE, false)
     val themePreference = preferences.getString(PREFERENCE_SYSTEM_THEME, "Use device theme")
 

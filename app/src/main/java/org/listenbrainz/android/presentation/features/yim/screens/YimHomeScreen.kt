@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.yim.YearInMusicActivity
-import org.listenbrainz.android.presentation.features.yim.YimNetworkViewModel
+import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
 import org.listenbrainz.android.presentation.features.yim.navigation.YimShareable
@@ -45,7 +45,7 @@ import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 @Composable
 fun YimHomeScreen(
     yimViewModel: YimViewModel,
-    networkViewModel: YimNetworkViewModel,
+    networkConnectivityViewModel: NetworkConnectivityViewModel,
     navController: NavHostController,
     activity: YearInMusicActivity,
     paddings: YimPaddings = LocalYimPaddings.current,
@@ -64,7 +64,7 @@ fun YimHomeScreen(
         // What happens when user swipes up
         LaunchedEffect(key1 = swipeableState.isAnimationRunning){
             if (swipeableState.isAnimationRunning) {
-                when (networkViewModel.getNetworkStatus()) {
+                when (networkConnectivityViewModel.getNetworkStatus()) {
                     ConnectivityObserver.NetworkStatus.Available -> {
                         // Data status checking
                         when (yimViewModel.yimData.value.status){

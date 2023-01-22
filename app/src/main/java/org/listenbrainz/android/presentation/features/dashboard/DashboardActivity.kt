@@ -22,6 +22,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.UserPreferences.PermissionStatus
+import org.listenbrainz.android.presentation.UserPreferences.onBoardingPreference
 import org.listenbrainz.android.presentation.UserPreferences.permissionsPreference
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.BrainzPlayerBackDropScreen
 import org.listenbrainz.android.presentation.features.components.BottomNavigationBar
@@ -38,12 +39,11 @@ class DashboardActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         setUiMode()     // Set Ui Mode for XML layouts
-        if (!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("onboarding", false)) {
+        if (!onBoardingPreference) {
             startActivity(Intent(this, FeaturesActivity::class.java))
             finish()
         }
         
-        // TODO: Rework permissions
         val neededPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             arrayOf(
                 permission.READ_MEDIA_IMAGES,

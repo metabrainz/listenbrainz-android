@@ -9,6 +9,7 @@ import androidx.activity.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.presentation.features.login.LoginActivity
 import org.listenbrainz.android.presentation.features.yim.navigation.YimNavigation
+import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
 
 @AndroidEntryPoint
 class YearInMusicActivity : ComponentActivity() {
@@ -16,7 +17,7 @@ class YearInMusicActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        val networkViewModel = YimNetworkViewModel(this)
+        val networkConnectivityViewModel = NetworkConnectivityViewModel(this)
         val yimViewModel : YimViewModel by viewModels()
         
         // Login Check
@@ -27,7 +28,7 @@ class YearInMusicActivity : ComponentActivity() {
         }
         
         setContent {
-            YimNavigation(yimViewModel = yimViewModel, networkViewModel = networkViewModel, activity = this)
+            YimNavigation(yimViewModel = yimViewModel, networkConnectivityViewModel = networkConnectivityViewModel, activity = this)
         }
     }
 }
