@@ -234,7 +234,9 @@ class YimViewModel @Inject constructor(private val repository: YimRepository) : 
                 )
                 
             }catch (e: Exception){
-                Toast.makeText(context, "Something went wrong.", Toast.LENGTH_SHORT).show()
+                withContext(Dispatchers.Main){
+                    Toast.makeText(context, "Something went wrong.", Toast.LENGTH_SHORT).show()
+                }
                 e.localizedMessage?.let { Log.e("YimShareError", it) }
             }
             

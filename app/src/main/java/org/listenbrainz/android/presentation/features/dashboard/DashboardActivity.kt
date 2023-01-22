@@ -47,8 +47,7 @@ class DashboardActivity : ComponentActivity() {
         val neededPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             arrayOf(
                 permission.READ_MEDIA_IMAGES,
-                permission.READ_MEDIA_AUDIO,
-                permission.READ_EXTERNAL_STORAGE        // TODO: Remove this if not needed.
+                permission.READ_MEDIA_AUDIO
             )
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
             arrayOf(permission.READ_EXTERNAL_STORAGE)
@@ -143,8 +142,7 @@ class DashboardActivity : ComponentActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (
                 checkSelfPermission(permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
-                checkSelfPermission(permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED &&
-                checkSelfPermission(permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                checkSelfPermission(permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED
             ){
                 permissionsPreference = PermissionStatus.GRANTED.name
             }
@@ -155,10 +153,10 @@ class DashboardActivity : ComponentActivity() {
         } else {
             if (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     checkSelfPermission(permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                            checkSelfPermission(permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                    checkSelfPermission(permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                 } else {
                     PermissionChecker.checkSelfPermission(this, permission.WRITE_EXTERNAL_STORAGE) == PermissionChecker.PERMISSION_GRANTED &&
-                            PermissionChecker.checkSelfPermission(this, permission.READ_EXTERNAL_STORAGE) == PermissionChecker.PERMISSION_GRANTED
+                    PermissionChecker.checkSelfPermission(this, permission.READ_EXTERNAL_STORAGE) == PermissionChecker.PERMISSION_GRANTED
                 }
             ){
                 permissionsPreference = PermissionStatus.GRANTED.name
