@@ -30,7 +30,6 @@ class YimViewModelTest{
     fun getDataTest() = runTest {
         val expected = testYimData
         launch(Dispatchers.Main) {
-            withContext(Dispatchers.Default) { viewModel.getData() }
             val resultResource = viewModel.yimData
             assertEquals(Resource.Status.SUCCESS, resultResource.value.status)
             checkYimAssertions(resultResource.value.data, expected)

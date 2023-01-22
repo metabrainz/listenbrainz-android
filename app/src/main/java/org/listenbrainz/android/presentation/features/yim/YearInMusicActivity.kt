@@ -26,8 +26,6 @@ class YearInMusicActivity : ComponentActivity() {
             finish()
         }
         
-        yimViewModel.getData()
-        
         setContent {
             YimNavigation(yimViewModel = yimViewModel, networkViewModel = networkViewModel, activity = this)
         }

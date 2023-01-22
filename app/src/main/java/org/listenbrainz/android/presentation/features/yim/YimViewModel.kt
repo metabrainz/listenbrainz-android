@@ -29,7 +29,11 @@ class YimViewModel @Inject constructor(private val repository: YimRepository) : 
                     >
     = mutableStateOf(Resource.loading())
     
-    fun getData() {
+    init {
+        getData()
+    }
+    
+    private fun getData() {
         viewModelScope.launch {
             val response = getUserName()?.let { repository.getYimData(username = it) }!!
             when (response.status){
