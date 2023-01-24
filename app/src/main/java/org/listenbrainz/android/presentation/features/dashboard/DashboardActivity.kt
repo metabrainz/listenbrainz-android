@@ -14,6 +14,7 @@ import androidx.compose.material.BackdropValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberBackdropScaffoldState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.core.content.PermissionChecker
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -33,8 +34,7 @@ import org.listenbrainz.android.util.uicomponents.DialogLB
 
 @AndroidEntryPoint
 class DashboardActivity : ComponentActivity() {
-
-    @OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
@@ -116,23 +116,8 @@ class DashboardActivity : ComponentActivity() {
                         )
                     }
                 }
-
-                val backdropScaffoldState =
-                    rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
-                Scaffold(
-                    topBar = { TopAppBar(activity = this, title = "Home") },
-                    bottomBar = { BottomNavigationBar(activity = this) },
-                    backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.background,
-                ) { paddingValues ->
-                    if (isGrantedPerms == PermissionStatus.GRANTED.name) {
-                        BrainzPlayerBackDropScreen(
-                            backdropScaffoldState = backdropScaffoldState,
-                            paddingValues = paddingValues,
-                        ) {
-                            BackLayerContent(activity = this)
-                        }
-                    }
-                }
+    
+                Dashboard(isGrantedPerms = isGrantedPerms, activity = this)
             }
         }
     }
@@ -172,6 +157,27 @@ class DashboardActivity : ComponentActivity() {
             getString(R.string.settings_device_theme_dark) -> setDefaultNightMode(MODE_NIGHT_YES)
             getString(R.string.settings_device_theme_light) -> setDefaultNightMode(MODE_NIGHT_NO)
             else -> setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
+fun Dashboard(isGrantedPerms: String?, activity: DashboardActivity) {
+    val backdropScaffoldState =
+        rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
+    Scaffold(
+        topBar = { TopAppBar(activity = activity, title = "Home") },
+        bottomBar = { BottomNavigationBar(activity = activity) },
+        backgroundColor = MaterialTheme.colorScheme.background,
+    ) { paddingValues ->
+        if (isGrantedPerms == PermissionStatus.GRANTED.name) {
+            BrainzPlayerBackDropScreen(
+                backdropScaffoldState = backdropScaffoldState,
+                paddingValues = paddingValues,
+            ) {
+                BackLayerContent(activity = activity)
+            }
         }
     }
 }
