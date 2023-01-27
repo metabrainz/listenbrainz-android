@@ -73,7 +73,7 @@ class DashboardActivity : ComponentActivity() {
                     contract =
                     ActivityResultContracts.RequestMultiplePermissions()
                 ) { permission ->
-                    val isGranted = permission.values.all { it }
+                    val isGranted = permission.values.any { it }
                     when {
                         isGranted -> {
                             isGrantedPerms = PermissionStatus.GRANTED.name
