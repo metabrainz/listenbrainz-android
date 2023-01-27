@@ -76,8 +76,8 @@ object ListenBrainzServiceGenerator {
     }
 
     private fun addInterceptors(interceptor: Interceptor?) {
-        if (!httpClientBuilder.interceptors().contains(interceptor)) {
-            httpClientBuilder.addInterceptor(interceptor!!)
+        if (interceptor != null && !httpClientBuilder.interceptors().contains(interceptor)) {
+            httpClientBuilder.addInterceptor(interceptor)
             builder.client(httpClientBuilder.build())
             retrofit = builder.build()
         }

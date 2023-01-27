@@ -20,13 +20,13 @@ internal class HeaderInterceptor : Interceptor {
             if (original.url.encodedPath.contains("userinfo")) original.newBuilder()
                     .header("User-agent", "MusicBrainzAndroid/Test (kartikohri13@gmail.com)")
                     .addHeader("Accept", "application/json")
-                    .header("Authorization", " Bearer $accessToken").build() else return chain.proceed(original)
+                    .header("Authorization", " Bearer ${LBSharedPreferences.accessToken}").build() else return chain.proceed(original)
         } else {
-            if (checkLoginStatus()) {
+            if (LBSharedPreferences.loginStatus == LBSharedPreferences.STATUS_LOGGED_IN) {
                 original.newBuilder()
                         .header("User-agent", "MusicBrainzAndroid/Test (kartikohri13@gmail.com)")
                         .addHeader("Accept", "application/json")
-                        .header("Authorization", " Bearer $accessToken").build()
+                        .header("Authorization", " Bearer ${LBSharedPreferences.accessToken}").build()
             } else {
                 original.newBuilder()
                         .header("User-agent", "MusicBrainzAndroid/Test (kartikohri13@gmail.com)")
@@ -35,10 +35,4 @@ internal class HeaderInterceptor : Interceptor {
         }
         return chain.proceed(request)
     }
-
-    private fun checkLoginStatus(): Boolean {
-        return (LBSharedPreferences.loginStatus == LBSharedPreferences.STATUS_LOGGED_IN)
-    }
-
-    private val accessToken: String get() = LBSharedPreferences.accessToken!!
 }
