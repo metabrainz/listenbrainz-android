@@ -42,57 +42,64 @@ class DashboardActivity : ComponentActivity() {
             startActivity(Intent(this, FeaturesActivity::class.java))
             finish()
         }
-        
+
         // TODO: Rework permissions
-        val neededPermissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arrayOf(
-                permission.READ_MEDIA_IMAGES,
-                permission.READ_MEDIA_AUDIO,
-                permission.READ_EXTERNAL_STORAGE        // TODO: Remove this if not needed.
-            )
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
-            arrayOf(permission.READ_EXTERNAL_STORAGE)
-        } else {
-            arrayOf(permission.WRITE_EXTERNAL_STORAGE, permission.READ_EXTERNAL_STORAGE)
+        val neededPermissions = when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
+                arrayOf(
+                    permission.READ_MEDIA_IMAGES,
+                    permission.READ_MEDIA_AUDIO,
+                    permission.READ_EXTERNAL_STORAGE        // TODO: Remove this if not needed.
+                )
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                arrayOf(permission.READ_EXTERNAL_STORAGE)
+            }
+            else -> {
+                arrayOf(permission.WRITE_EXTERNAL_STORAGE, permission.READ_EXTERNAL_STORAGE)
+            }
         }
-        
+
         updatePermissionPreference()
-    
+
         setContent {
             ListenBrainzTheme()
             {
                 var isGrantedPerms by remember {
                     mutableStateOf(permissionsPreference)
                 }
-                
+
                 val launcher = rememberLauncherForActivityResult(
                     contract =
                     ActivityResultContracts.RequestMultiplePermissions()
                 ) { permission ->
-                    val isGranted = permission.values.reduce{first,second->(first || second)}
-                    if (isGranted) {
-                        isGrantedPerms = PermissionStatus.GRANTED.name
-                        permissionsPreference  = PermissionStatus.GRANTED.name
-                    }else{
-                        isGrantedPerms = when(isGrantedPerms){
-                            PermissionStatus.NOT_REQUESTED.name -> {
-                                PermissionStatus.DENIED_ONCE.name
-                            }
-                            PermissionStatus.DENIED_ONCE.name -> {
-                                PermissionStatus.DENIED_TWICE.name
-                            }
-                            else -> {PermissionStatus.DENIED_TWICE.name}
+                    val isGranted = permission.values.all { it }
+                    when {
+                        isGranted -> {
+                            isGrantedPerms = PermissionStatus.GRANTED.name
+                            permissionsPreference  = PermissionStatus.GRANTED.name
                         }
-                        permissionsPreference = isGrantedPerms
+                        else -> {
+                            isGrantedPerms = when(isGrantedPerms){
+                                PermissionStatus.NOT_REQUESTED.name -> {
+                                    PermissionStatus.DENIED_ONCE.name
+                                }
+                                PermissionStatus.DENIED_ONCE.name -> {
+                                    PermissionStatus.DENIED_TWICE.name
+                                }
+                                else -> {PermissionStatus.DENIED_TWICE.name}
+                            }
+                            permissionsPreference = isGrantedPerms
+                        }
                     }
                 }
-                
+
                 LaunchedEffect(Unit) {
                     if (isGrantedPerms == PermissionStatus.NOT_REQUESTED.name) {
                         launcher.launch(neededPermissions)
                     }
                 }
-                
+
                 when(isGrantedPerms){
                     PermissionStatus.DENIED_ONCE.name -> {
                         DialogLB(
@@ -137,35 +144,41 @@ class DashboardActivity : ComponentActivity() {
             }
         }
     }
-    
+
     // If the user enables permission from settings, this function updates the preference.
     private fun updatePermissionPreference(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (
-                checkSelfPermission(permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
-                checkSelfPermission(permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED &&
-                checkSelfPermission(permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-            ){
-                permissionsPreference = PermissionStatus.GRANTED.name
-            }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
-            if (checkSelfPermission(permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                permissionsPreference = PermissionStatus.GRANTED.name
-            }
-        } else {
-            if (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    checkSelfPermission(permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                            checkSelfPermission(permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                } else {
-                    PermissionChecker.checkSelfPermission(this, permission.WRITE_EXTERNAL_STORAGE) == PermissionChecker.PERMISSION_GRANTED &&
-                            PermissionChecker.checkSelfPermission(this, permission.READ_EXTERNAL_STORAGE) == PermissionChecker.PERMISSION_GRANTED
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
+                if (
+                    checkSelfPermission(permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
+                    checkSelfPermission(permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED &&
+                    checkSelfPermission(permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                ){
+                    permissionsPreference = PermissionStatus.GRANTED.name
                 }
-            ){
-                permissionsPreference = PermissionStatus.GRANTED.name
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                if (checkSelfPermission(permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    permissionsPreference = PermissionStatus.GRANTED.name
+                }
+            }
+            else -> {
+                if (when {
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
+                        checkSelfPermission(permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                                checkSelfPermission(permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                    }
+                    else -> {
+                        PermissionChecker.checkSelfPermission(this, permission.WRITE_EXTERNAL_STORAGE) == PermissionChecker.PERMISSION_GRANTED &&
+                                PermissionChecker.checkSelfPermission(this, permission.READ_EXTERNAL_STORAGE) == PermissionChecker.PERMISSION_GRANTED
+                    }
+                }){
+                    permissionsPreference = PermissionStatus.GRANTED.name
+                }
             }
         }
     }
-    
+
     // Sets Ui mode for XML layouts.
     private fun setUiMode(){
         when(PreferenceManager.getDefaultSharedPreferences(this)
