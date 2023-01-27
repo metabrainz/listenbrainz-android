@@ -77,7 +77,6 @@ object LBSharedPreferences {
             }
         }
 
-    @JvmStatic
     val loginStatus: Int
         get() {
             val accessToken = accessToken
@@ -86,7 +85,6 @@ object LBSharedPreferences {
         }
     val accessToken: String?
         get() = preferences.getString(ACCESS_TOKEN, "")
-    @JvmStatic
     val username: String?
         get() = preferences.getString(USERNAME, "")
     val refreshToken: String?
