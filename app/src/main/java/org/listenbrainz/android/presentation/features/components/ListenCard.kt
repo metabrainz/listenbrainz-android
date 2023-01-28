@@ -77,13 +77,15 @@ fun ListenCard(listen: Listen, coverArt: CoverArt?, onItemClicked: (listen: List
                     style = typography.caption
                 )
 
-                Row(verticalAlignment = Alignment.Bottom) {
-                    Text(
-                        text = listen.track_metadata.release_name,
-                        modifier = Modifier.padding(0.dp, 12.dp, 12.dp, 0.dp),
-                        color = MaterialTheme.colors.surface,
-                        style = typography.caption
-                    )
+                listen.track_metadata.release_name?.let {
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        Text(
+                            text = it,
+                            modifier = Modifier.padding(0.dp, 12.dp, 12.dp, 0.dp),
+                            color = MaterialTheme.colors.surface,
+                            style = typography.caption
+                        )
+                    }
                 }
             }
 //            Row(
