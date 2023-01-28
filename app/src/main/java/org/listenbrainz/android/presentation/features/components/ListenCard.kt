@@ -85,27 +85,27 @@ fun ListenCard(listen: Listen, coverArt: CoverArt?, onItemClicked: (listen: List
                         style = typography.caption
                     )
                 }
-
             }
-//            Row(
-//                modifier = Modifier.fillMaxWidth(),
-//                horizontalArrangement = Arrangement.End,
-//                verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Icon(
-//                    painter = painterResource(id = R.drawable.ic_baseline_heart_broken_24),
-//                    contentDescription = null,
-//                    modifier = Modifier.size(16.dp, 16.dp),
-//                    tint = Color.Red
-//                )
-//
-//                Icon(
-//                    painter = painterResource(id = R.drawable.ic_baseline_heart_broken_24),
-//                    contentDescription = null,
-//                    modifier = Modifier.size(16.dp, 16.dp),
-//                    tint = Color.Red
-//                )
-//            }
+/*  Love/Hate Button
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_baseline_heart_broken_24),
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp, 16.dp),
+                    tint = Color.Red
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_baseline_heart_broken_24),
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp, 16.dp),
+                    tint = Color.Red
+                )
+            }
+*/
         }
     }
 }
