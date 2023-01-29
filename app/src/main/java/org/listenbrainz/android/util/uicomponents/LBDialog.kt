@@ -126,7 +126,7 @@ fun DialogLB(
                 )
             }
         },
-        shape = RoundedCornerShape(15.dp),
+        shape = RoundedCornerShape(20.dp),
         backgroundColor = MaterialTheme.colorScheme.background,
         contentColor = MaterialTheme.colorScheme.onBackground,
         properties = DialogProperties(dismissOnBackPress = dismissOnBackPress, dismissOnClickOutside = dismissOnClickOutside)
