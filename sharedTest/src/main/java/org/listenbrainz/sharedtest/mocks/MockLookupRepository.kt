@@ -1,12 +1,11 @@
-package org.listenbrainz.android
+package org.listenbrainz.sharedtest.mocks
 
 import com.google.gson.Gson
-import org.listenbrainz.android.EntityTestUtils.loadResourceAsString
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.loadResourceAsString
 import org.listenbrainz.android.data.repository.LookupRepository
 import org.listenbrainz.android.data.sources.api.entities.CoverArt
 import org.listenbrainz.android.data.sources.api.entities.RecordingItem
 import org.listenbrainz.android.data.sources.api.entities.WikiSummary
-import org.listenbrainz.android.data.sources.api.entities.mbentity.Recording
 import org.listenbrainz.android.data.sources.api.entities.mbentity.Release
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Resource.Status.SUCCESS

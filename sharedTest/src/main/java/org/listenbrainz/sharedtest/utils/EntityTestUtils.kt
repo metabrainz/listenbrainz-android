@@ -1,10 +1,10 @@
-package org.listenbrainz.android
+package org.listenbrainz.sharedtest.utils
 
 import org.junit.Assert.fail
 import org.listenbrainz.android.data.sources.api.entities.ArtistCredit
 import org.listenbrainz.android.data.sources.api.entities.WikiSummary
-import org.listenbrainz.android.data.sources.api.entities.mbentity.*
 import org.listenbrainz.android.data.sources.api.entities.mbentity.Collection
+import org.listenbrainz.android.data.sources.api.entities.mbentity.*
 import org.listenbrainz.android.presentation.features.adapters.ResultItem
 import java.io.BufferedReader
 import java.io.IOException

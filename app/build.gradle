@@ -63,20 +63,6 @@ android {
         }
     }
 
-    sourceSets {
-        String sharedTestDir = 'src/sharedTest/java'
-        String sharedTestResourcesDir = 'src/sharedTest/resources'
-
-        test {
-            java.srcDirs += [sharedTestDir]
-            resources.srcDirs += [sharedTestResourcesDir]
-        }
-
-        androidTest {
-            java.srcDirs += [sharedTestDir]
-            resources.srcDirs += [sharedTestResourcesDir]
-        }
-    }
     lint {
         abortOnError false
         disable 'MissingTranslation'
@@ -177,6 +163,9 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     androidTestImplementation 'app.cash.turbine:turbine:0.12.1'
+
+    testImplementation project(path: ':sharedTest')
+    androidTestImplementation project(path: ':sharedTest')
 
     //ViewPager
     implementation "com.google.accompanist:accompanist-pager:$accompanist_version"

@@ -1,6 +1,6 @@
 /* Copyright 2019 Google LLC.
    SPDX-License-Identifier: Apache-2.0 */
-package org.listenbrainz.android
+package org.listenbrainz.sharedtest.utils
 
 import kotlin.Throws
 import androidx.lifecycle.LiveData

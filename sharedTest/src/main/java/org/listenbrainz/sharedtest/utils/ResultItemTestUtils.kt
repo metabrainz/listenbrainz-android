@@ -1,11 +1,11 @@
-package org.listenbrainz.android
+package org.listenbrainz.sharedtest.utils
 
 import org.listenbrainz.android.presentation.features.adapters.ResultItem
-import org.listenbrainz.android.EntityTestUtils.testArtistMBID
-import org.listenbrainz.android.EntityTestUtils.testLabelMBID
-import org.listenbrainz.android.EntityTestUtils.testRecordingMBID
-import org.listenbrainz.android.EntityTestUtils.testReleaseGroupMBID
-import org.listenbrainz.android.EntityTestUtils.testReleaseMBID
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testArtistMBID
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testLabelMBID
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testRecordingMBID
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testReleaseGroupMBID
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testReleaseMBID
 
 object ResultItemTestUtils {
     val testArtistResultItem: ResultItem

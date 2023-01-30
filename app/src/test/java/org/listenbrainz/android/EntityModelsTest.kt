@@ -2,13 +2,14 @@ package org.listenbrainz.android
 
 import com.google.gson.Gson
 import org.junit.Test
-import org.listenbrainz.android.EntityTestUtils.loadResourceAsString
-import org.listenbrainz.android.EntityTestUtils.testArtist
-import org.listenbrainz.android.EntityTestUtils.testLabel
-import org.listenbrainz.android.EntityTestUtils.testRecording
-import org.listenbrainz.android.EntityTestUtils.testRelease
-import org.listenbrainz.android.EntityTestUtils.testReleaseGroup
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.loadResourceAsString
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testArtist
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testLabel
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testRecording
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testRelease
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testReleaseGroup
 import org.listenbrainz.android.data.sources.api.entities.mbentity.*
+import org.listenbrainz.sharedtest.utils.AssertionUtils
 
 class EntityModelsTest {
     @Test

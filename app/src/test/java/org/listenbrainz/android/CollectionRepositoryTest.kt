@@ -9,18 +9,19 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.listenbrainz.android.AssertionUtils.checkCollectionAssertions
-import org.listenbrainz.android.EntityTestUtils.loadResourceAsString
-import org.listenbrainz.android.EntityTestUtils.testCollectionDetails
-import org.listenbrainz.android.EntityTestUtils.testCollectionPrivate
-import org.listenbrainz.android.EntityTestUtils.testCollectionPublic
-import org.listenbrainz.android.RetrofitUtils.createTestService
+import org.listenbrainz.sharedtest.utils.AssertionUtils.checkCollectionAssertions
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.loadResourceAsString
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testCollectionDetails
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testCollectionPrivate
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testCollectionPublic
+import org.listenbrainz.sharedtest.utils.RetrofitUtils.createTestService
 import org.listenbrainz.android.data.repository.CollectionRepository
 import org.listenbrainz.android.data.repository.CollectionRepositoryImpl
 import org.listenbrainz.android.data.sources.api.CollectionService
 import org.listenbrainz.android.data.sources.api.entities.mbentity.MBEntityType
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils
+import org.listenbrainz.sharedtest.utils.AssertionUtils
 
 class CollectionRepositoryTest {
 

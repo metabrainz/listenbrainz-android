@@ -10,21 +10,23 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.listenbrainz.android.AssertionUtils.checkArtistAssertions
-import org.listenbrainz.android.AssertionUtils.checkLabelAssertions
-import org.listenbrainz.android.AssertionUtils.checkRecordingAssertions
-import org.listenbrainz.android.AssertionUtils.checkReleaseAssertions
-import org.listenbrainz.android.AssertionUtils.checkReleaseGroupAssertions
-import org.listenbrainz.android.AssertionUtils.checkWikiAssertions
-import org.listenbrainz.android.EntityTestUtils.testArtist
-import org.listenbrainz.android.LiveDataTestUtil.getOrAwaitValue
+import org.listenbrainz.sharedtest.utils.AssertionUtils.checkArtistAssertions
+import org.listenbrainz.sharedtest.utils.AssertionUtils.checkLabelAssertions
+import org.listenbrainz.sharedtest.utils.AssertionUtils.checkRecordingAssertions
+import org.listenbrainz.sharedtest.utils.AssertionUtils.checkReleaseAssertions
+import org.listenbrainz.sharedtest.utils.AssertionUtils.checkReleaseGroupAssertions
+import org.listenbrainz.sharedtest.utils.AssertionUtils.checkWikiAssertions
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testArtist
+import org.listenbrainz.sharedtest.utils.LiveDataTestUtil.getOrAwaitValue
 import org.listenbrainz.android.presentation.features.artist.ArtistViewModel
 import org.listenbrainz.android.presentation.features.label.LabelViewModel
 import org.listenbrainz.android.presentation.features.recording.RecordingViewModel
 import org.listenbrainz.android.presentation.features.release.ReleaseViewModel
 import org.listenbrainz.android.presentation.features.release_group.ReleaseGroupViewModel
 import org.listenbrainz.android.util.Resource.Status.SUCCESS
-import org.listenbrainz.android.EntityTestUtils.testArtistWiki as testArtistWiki
+import org.listenbrainz.sharedtest.utils.EntityTestUtils
+import org.listenbrainz.sharedtest.mocks.MockLookupRepository
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testArtistWiki as testArtistWiki
 
 class LookupViewModelTest {
 

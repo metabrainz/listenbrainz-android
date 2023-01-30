@@ -1,9 +1,10 @@
-package org.listenbrainz.android
+package org.listenbrainz.sharedtest.mocks
 
 import org.listenbrainz.android.data.repository.CollectionRepository
 import org.listenbrainz.android.data.sources.CollectionUtils
 import org.listenbrainz.android.data.sources.api.entities.mbentity.Collection
 import org.listenbrainz.android.util.Resource
+import org.listenbrainz.sharedtest.utils.EntityTestUtils
 
 class MockCollectionRepository : CollectionRepository {
 

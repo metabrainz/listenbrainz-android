@@ -2,11 +2,13 @@ package org.listenbrainz.android
 
 import org.listenbrainz.android.presentation.features.adapters.ResultItemUtils.getEntityAsResultItem
 import org.junit.Test
-import org.listenbrainz.android.EntityTestUtils.testArtist
-import org.listenbrainz.android.EntityTestUtils.testLabel
-import org.listenbrainz.android.EntityTestUtils.testRecording
-import org.listenbrainz.android.EntityTestUtils.testRelease
-import org.listenbrainz.android.EntityTestUtils.testReleaseGroup
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testArtist
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testLabel
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testRecording
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testRelease
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testReleaseGroup
+import org.listenbrainz.sharedtest.utils.AssertionUtils
+import org.listenbrainz.sharedtest.utils.ResultItemTestUtils
 
 class ResultItemConversionTest {
     @Test

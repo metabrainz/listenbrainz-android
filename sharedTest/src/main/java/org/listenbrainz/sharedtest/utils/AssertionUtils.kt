@@ -1,11 +1,11 @@
-package org.listenbrainz.android
+package org.listenbrainz.sharedtest.utils
 
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertEquals
 import org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder
 import org.listenbrainz.android.data.sources.api.entities.WikiSummary
-import org.listenbrainz.android.data.sources.api.entities.mbentity.*
 import org.listenbrainz.android.data.sources.api.entities.mbentity.Collection
+import org.listenbrainz.android.data.sources.api.entities.mbentity.*
 import org.listenbrainz.android.presentation.features.adapters.ResultItem
 
 object AssertionUtils {

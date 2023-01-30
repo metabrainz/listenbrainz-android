@@ -1,4 +1,4 @@
-package org.listenbrainz.android
+package org.listenbrainz.sharedtest.utils
 
 import okhttp3.HttpUrl
 import retrofit2.Retrofit
