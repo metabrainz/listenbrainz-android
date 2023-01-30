@@ -31,20 +31,6 @@ object EntityTestUtils {
         return builder.toString()
     }
 
-    val testArtistWiki: WikiSummary
-        get() {
-            val summary = WikiSummary()
-            summary.extract =
-                "Edward Christopher Sheeran is an English singer, songwriter, record " +
-                        "producer, and actor. In early 2011, Sheeran independently released the extended " +
-                        "play, No. 5 Collaborations Project. After signing with Asylum Records, his debut " +
-                        "album, +, was released in September 2011 and topped the UK Albums Chart. It " +
-                        "contained his first hit single \"The A Team\". In 2012, Sheeran won the Brit Awards" +
-                        " for Best British Male Solo Artist and British Breakthrough Act."
-            return summary
-        }
-
-
     val testArtistMBID: String
         get() = "b8a7c51f-362c-4dcb-a259-bc6e0095f0a6"
 
@@ -184,44 +170,5 @@ object EntityTestUtils {
             testArtistCredit.artist = testArtist
             testRecording.artistCredits = testArtistCredits
             return testRecording
-        }
-
-
-    val testCollectionPublicMBID: String
-        get() = "a691377c-6949-44cb-8a10-9696178cca18"
-
-    val testCollectionPublic: Collection
-        get() {
-            val MBID = testCollectionPublicMBID
-            val testCollection = Collection()
-            testCollection.mbid = MBID
-            testCollection.type = "Release"
-            testCollection.name = "Rock and Roll"
-            testCollection.count = 1
-            testCollection.editor = "akshaaatt"
-            testCollection.entityType = "release"
-            return testCollection
-        }
-
-    val testCollectionPrivateMBID: String
-        get() = "d103a421-9340-413f-a04e-5e63dd234bc4"
-
-    val testCollectionPrivate: Collection
-        get() {
-            val MBID = testCollectionPrivateMBID
-            val testCollection = Collection()
-            testCollection.mbid = MBID
-            testCollection.type = "Artist"
-            testCollection.name = "Sweet Talks"
-            testCollection.count = 3
-            testCollection.editor = "akshaaatt"
-            testCollection.entityType = "artist"
-            return testCollection
-        }
-
-
-    val testCollectionDetails: ResultItem
-        get() {
-            return ResultItem("8b08b9bb-cedf-42d8-8a43-f1f8a543ddb5", "What I've Done", "", "","")
         }
 }

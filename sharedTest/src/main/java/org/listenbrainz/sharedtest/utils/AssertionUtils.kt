@@ -1,17 +1,12 @@
 package org.listenbrainz.sharedtest.utils
 
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Assert.assertEquals
 import org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder
-import org.listenbrainz.android.data.sources.api.entities.WikiSummary
-import org.listenbrainz.android.data.sources.api.entities.mbentity.Collection
+import org.junit.Assert.assertEquals
 import org.listenbrainz.android.data.sources.api.entities.mbentity.*
 import org.listenbrainz.android.presentation.features.adapters.ResultItem
 
 object AssertionUtils {
-    fun checkWikiAssertions(testSummary: WikiSummary, summary: WikiSummary) {
-        assertEquals(testSummary.extract, summary.extract)
-    }
 
     fun checkReleaseAssertions(testRelease: Release, release: Release) {
         assertEquals(testRelease, release)
@@ -77,19 +72,5 @@ object AssertionUtils {
         assertEquals(testItem.name, item.name)
         assertEquals(testItem.primary, item.primary)
         assertEquals(testItem.secondary, item.secondary)
-    }
-
-    fun checkCollectionDetailsAssertions(testCollectionDetails: ResultItem, collectionDetails: ResultItem) {
-        assertEquals(testCollectionDetails.name, collectionDetails.name)
-        assertEquals(testCollectionDetails.mBID, collectionDetails.mBID)
-    }
-
-    fun checkCollectionAssertions(testCollection: Collection, collection: Collection) {
-        assertEquals(testCollection.mbid, collection.mbid)
-        assertEquals(testCollection.type, collection.type)
-        assertEquals(testCollection.name, collection.name)
-        assertEquals(testCollection.count, collection.count)
-        assertEquals(testCollection.editor, collection.editor)
-        assertEquals(testCollection.entityType, collection.entityType)
     }
 }
