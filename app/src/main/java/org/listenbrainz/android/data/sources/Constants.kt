@@ -1,7 +1,5 @@
 package org.listenbrainz.android.data.sources
 
-import org.listenbrainz.android.data.sources.api.entities.mbentity.MBEntityType
-
 object Constants {
     const val LOOKUP_ARTIST_PARAMS = "url-rels+releases+ratings+tags"
     const val LOOKUP_RELEASE_PARAMS = "recordings+url-rels+artist-credits"
@@ -27,14 +25,4 @@ object Constants {
     const val MBID = "mbid"
     const val TYPE = "type"
 
-    fun getDefaultParams(entity: MBEntityType?): String? {
-        return when (entity) {
-            MBEntityType.ARTIST -> LOOKUP_ARTIST_PARAMS
-            MBEntityType.LABEL -> LOOKUP_LABEL_PARAMS
-            MBEntityType.RELEASE -> LOOKUP_RELEASE_PARAMS
-            MBEntityType.RECORDING -> LOOKUP_RECORDING_PARAMS
-            MBEntityType.RELEASE_GROUP -> LOOKUP_RELEASE_GROUP_PARAMS
-            else -> null
-        }
-    }
 }
