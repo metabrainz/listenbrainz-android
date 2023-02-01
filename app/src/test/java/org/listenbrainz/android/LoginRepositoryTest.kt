@@ -10,6 +10,7 @@ import org.junit.Before
 import org.junit.Test
 import org.listenbrainz.android.data.sources.api.ListenBrainzServiceGenerator
 import org.listenbrainz.android.data.sources.api.LoginService
+import org.listenbrainz.sharedtest.utils.RetrofitUtils
 import java.io.IOException
 import java.util.*
 

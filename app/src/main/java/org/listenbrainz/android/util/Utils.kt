@@ -1,6 +1,5 @@
 package org.listenbrainz.android.util
 
-import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
 import android.content.ContextWrapper
@@ -10,23 +9,15 @@ import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
-import android.os.StrictMode
 import android.provider.MediaStore
 import android.util.Log
-import android.widget.Toast
 import androidx.core.net.toUri
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.*
-import org.listenbrainz.android.App
-import org.listenbrainz.android.data.sources.api.entities.mbentity.MBEntityType
-import org.listenbrainz.android.presentation.UserPreferences
-import org.listenbrainz.android.presentation.features.adapters.ResultItem
-import org.listenbrainz.android.presentation.features.adapters.ResultItemUtils
 import org.listenbrainz.android.util.Log.e
 import java.io.*
-import java.net.URLEncoder
 import java.util.*
 
 /**
@@ -83,21 +74,6 @@ object Utils {
             context = context.createConfigurationContext(config)
         }
         return ContextWrapper(context)
-    }
-
-    fun toResultItemsList(entity: MBEntityType, response: Resource<String>): Resource<List<ResultItem>> {
-        return try {
-            when (response.status) {
-                Resource.Status.SUCCESS -> {
-                    val resultItems = ResultItemUtils.getJSONResponseAsResultItemList(response.data, entity)
-                    return Resource(Resource.Status.SUCCESS, resultItems)
-                }
-                else -> Resource(Resource.Status.FAILED, null)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Resource(Resource.Status.FAILED, null)
-        }
     }
     
     /** Save a given bitmap to the default images directory inside the "ListenBrainz"

@@ -67,14 +67,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".presentation.features.recording.RecordingActivity"
-            android:label="@string/search_type_recording" />
-        <activity
             android:name=".presentation.features.label.LabelActivity"
             android:label="@string/search_type_label" />
-        <activity
-            android:name=".presentation.features.release_group.ReleaseGroupActivity"
-            android:label="@string/search_type_release_group" />
         <activity
             android:name=".presentation.features.login.LoginActivity"
             android:exported="true"
@@ -96,12 +90,6 @@
         <activity
             android:name=".presentation.features.dashboard.DonateActivity"
             android:label="@string/donate_title" />
-        <activity
-            android:name="org.listenbrainz.android.presentation.features.release.ReleaseActivity"
-            android:label="@string/release_title" />
-        <activity
-            android:name="org.listenbrainz.android.presentation.features.artist.ArtistActivity"
-            android:label="@string/artist_title" />
         <activity
             android:name="org.listenbrainz.android.presentation.features.settings.SettingsActivity"
             android:label="@string/preferences_title" />

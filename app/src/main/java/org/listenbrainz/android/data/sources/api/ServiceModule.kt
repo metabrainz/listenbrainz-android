@@ -12,11 +12,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class ServiceModule {
-
-    @get:Provides
-    @get:Singleton
-    val lookupService: LookupService = createService(LookupService::class.java, true)
-
+    
     @get:Provides
     @get:Singleton
     val blogService: BlogService = Retrofit.Builder()
@@ -30,10 +26,6 @@ class ServiceModule {
         .baseUrl("https://api.listenbrainz.org/")
         .addConverterFactory(GsonConverterFactory.create())
         .build().create(ListensService::class.java)
-
-    @get:Provides
-    @get:Singleton
-    val collectionService: CollectionService = createService(CollectionService::class.java, true)
 
     @get:Provides
     @get:Singleton
