@@ -37,7 +37,12 @@ class App : Application() {
         val intent = Intent(this.applicationContext, ListenService::class.java)
         stopService(intent)
     }
-
+    fun getApplication(): Application {
+        return context!!
+    }
+    fun getContext(): Context {
+        return getApplication().applicationContext
+    }
     val isNotificationServiceAllowed: Boolean
         get() {
             val listeners = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
@@ -64,13 +69,6 @@ class App : Application() {
         }
 
     companion object {
-        fun getApplication(): Application {
-            return context!!
-        }
-        fun getContext(): Context {
-            return getApplication().applicationContext
-        }
-
         const val WEBSITE_BASE_URL = "https://musicbrainz.org/"
         const val PICARD_OPENALBUM_URL = "http://%s:%s/openalbum?id=%s"
         var context: App? = null

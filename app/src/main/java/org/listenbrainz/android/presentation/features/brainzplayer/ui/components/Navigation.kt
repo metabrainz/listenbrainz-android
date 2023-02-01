@@ -32,7 +32,7 @@ fun Navigation(
     albums: List<Album>,
     artists: List<Artist>,
     playlists: List<Playlist>,
-    recentlyPlayedSongs: List<Song>,
+    recentlyPlayedSongs: Playlist,
     brainzPlayerActivity: BrainzPlayerActivity
 ) {
     NavHost(navController = navHostController, startDestination = BrainzNavigationItem.Home.route) {

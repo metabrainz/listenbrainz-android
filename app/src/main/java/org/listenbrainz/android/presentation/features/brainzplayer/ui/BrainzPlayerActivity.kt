@@ -77,13 +77,12 @@ class BrainzPlayerActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ListenBrainzTheme {
-                val context: Context = App.getContext()
                 val navController = rememberNavController()
                 val albumViewModel = hiltViewModel<AlbumViewModel>()
                 val artistViewModel = hiltViewModel<ArtistViewModel>()
                 val playlistViewModel = hiltViewModel<PlaylistViewModel>()
                 val artists = artistViewModel.artists.collectAsState(initial = listOf()).value
-                val recentlyPlayed = getFile(context,"recently_played") as List<Song>
+                val recentlyPlayed = Playlist.recentlyPlayed
                 val albums = albumViewModel.albums.collectAsState(initial = listOf()).value
                 val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
                 val backdropScaffoldState =
@@ -123,7 +122,7 @@ fun HomeScreen(
     albums: List<Album>,
     artists: List<Artist>,
     playlists: List<Playlist>,
-    recentlyPlayedSongs: List<Song>,
+    recentlyPlayedSongs: Playlist,
     brainzPlayerViewModel: BrainzPlayerViewModel = hiltViewModel(),
     navHostController: NavHostController,
     activity: BrainzPlayerActivity
@@ -160,13 +159,13 @@ fun HomeScreen(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 LazyRow {
-                    items(items = recentlyPlayedSongs) {
+                    items(items = recentlyPlayedSongs.items) {
                         BrainzPlayerActivityCards(icon = it.albumArt,
                             errorIcon = R.drawable.ic_artist,
                             title = it.title,
                             modifier = Modifier
                                 .clickable {
-                                    brainzPlayerViewModel.changePlayable(recentlyPlayedSongs, PlayableType.ALL_SONGS, it.mediaID,recentlyPlayedSongs.sortedBy { it.discNumber }.indexOf(it))
+                                    brainzPlayerViewModel.changePlayable(recentlyPlayedSongs.items, PlayableType.ALL_SONGS, it.mediaID,recentlyPlayedSongs.items.sortedBy { it.discNumber }.indexOf(it))
                                     brainzPlayerViewModel.playOrToggleSong(it, true)
                                 }
                         )

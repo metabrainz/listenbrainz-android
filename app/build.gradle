@@ -110,11 +110,6 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.11'
     implementation 'androidx.paging:paging-runtime-ktx:3.1.1'
 
-    //jackson
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.11.3'
-    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.11.3'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.3'
-
     //Image downloading and Caching library
     implementation 'com.github.bumptech.glide:glide:4.14.2'
     implementation "com.github.bumptech.glide:compose:1.0.0-alpha.1"

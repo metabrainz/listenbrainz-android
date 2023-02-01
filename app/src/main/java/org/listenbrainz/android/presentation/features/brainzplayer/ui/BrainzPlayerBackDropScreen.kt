@@ -2,7 +2,6 @@ package org.listenbrainz.android.presentation.features.brainzplayer.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
-import com.fasterxml.jackson.databind.ObjectMapper;
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,6 +39,7 @@ import com.google.accompanist.pager.*
 import com.google.gson.Gson
 import org.listenbrainz.android.App
 import org.listenbrainz.android.R
+import org.listenbrainz.android.data.sources.brainzplayer.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.data.sources.brainzplayer.Playlist.Companion.favourite
 import org.listenbrainz.android.data.sources.brainzplayer.Song
 import org.listenbrainz.android.presentation.features.brainzplayer.services.RepeatMode
@@ -352,8 +352,8 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
             }
         }
     }
-    val context: Context = App.getContext()
-    recently_played_jsoncache(context,"recently_played",currentlyPlayingSong)
+    App.context?.let { recently_played_jsoncache(it,"recently_played",currentlyPlayingSong) }
+    App.context?.let { getFile(it,"recently_played") }
 }
 fun recently_played_jsoncache(context: Context, key: String, value: Song) {
     val cacheDir: File = context.cacheDir
@@ -370,26 +370,25 @@ fun recently_played_jsoncache(context: Context, key: String, value: Song) {
     }
 }
 
-fun getFile(context: Context,key: String): Any? {
+
+fun getFile(context: Context,key: String) {
     try {
-        val objectMapper = ObjectMapper()
         val cacheDir: File = context.cacheDir
         val file = File(cacheDir, key)
-        if (!file.exists()) return null
+        if (!file.exists()) {
+            file.createNewFile()
+        }
         val json = file.readText()
         val songs = json.split("},")
             .filter { it.isNotEmpty() }
             .map { "$it}" }
-            .map { objectMapper.readValue(it, Song::class.java) }
-            .filter { it.title != "null"}
+            .map { Gson().fromJson(it, Song::class.java) }
+            .filter { it.title != "null" }
             .toSet()
             .toList()
-        return songs.reversed()
-    }
-    catch (e:IOException)
-    {
+        recentlyPlayed.items = songs.reversed()
+    } catch (e: IOException) {
         println(e)
     }
-    return 0
 }
 
