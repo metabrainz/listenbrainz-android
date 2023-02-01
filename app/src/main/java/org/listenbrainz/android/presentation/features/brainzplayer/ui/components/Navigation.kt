@@ -12,6 +12,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import org.listenbrainz.android.data.sources.brainzplayer.Album
 import org.listenbrainz.android.data.sources.brainzplayer.Artist
 import org.listenbrainz.android.data.sources.brainzplayer.Playlist
+import org.listenbrainz.android.data.sources.brainzplayer.Song
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.BrainzPlayerActivity
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.HomeScreen
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.album.AlbumScreen
@@ -31,7 +32,7 @@ fun Navigation(
     albums: List<Album>,
     artists: List<Artist>,
     playlists: List<Playlist>,
-    recentlyPlayedSongs: Playlist,
+    recentlyPlayedSongs: List<Song>,
     brainzPlayerActivity: BrainzPlayerActivity
 ) {
     NavHost(navController = navHostController, startDestination = BrainzNavigationItem.Home.route) {

@@ -64,6 +64,13 @@ class App : Application() {
         }
 
     companion object {
+        fun getApplication(): Application {
+            return context!!
+        }
+        fun getContext(): Context {
+            return getApplication().applicationContext
+        }
+
         const val WEBSITE_BASE_URL = "https://musicbrainz.org/"
         const val PICARD_OPENALBUM_URL = "http://%s:%s/openalbum?id=%s"
         var context: App? = null

@@ -1,6 +1,8 @@
 package org.listenbrainz.android.presentation.features.brainzplayer.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
+import com.fasterxml.jackson.databind.ObjectMapper;
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,10 +16,12 @@ import androidx.compose.material.icons.filled.RepeatOn
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.LargeFloatingActionButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -33,21 +37,25 @@ import androidx.compose.ui.util.lerp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.google.accompanist.pager.*
+import com.google.gson.Gson
+import org.listenbrainz.android.App
 import org.listenbrainz.android.R
-import org.listenbrainz.android.data.sources.brainzplayer.Playlist.Companion.currentlyPlaying
 import org.listenbrainz.android.data.sources.brainzplayer.Playlist.Companion.favourite
 import org.listenbrainz.android.data.sources.brainzplayer.Song
-import org.listenbrainz.android.presentation.features.components.SongViewPager
 import org.listenbrainz.android.presentation.features.brainzplayer.services.RepeatMode
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.PlayPauseIcon
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.SeekBar
-import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
-import kotlin.math.absoluteValue
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.draw.alpha
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.basicMarquee
+import org.listenbrainz.android.presentation.features.components.SongViewPager
+import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.LBSharedPreferences
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
+import kotlin.math.absoluteValue
 import kotlin.math.max
+
+
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @ExperimentalMaterialApi
@@ -109,11 +117,13 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
     val pagerState = viewModel.pagerState.collectAsState().value
     val pageState = rememberPagerState(initialPage = pagerState)
     songList.data?.let {
-        HorizontalPager(count = it.size, state = pageState, modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                MaterialTheme.colorScheme.background
-            ),
+        HorizontalPager(
+            count = it.size, state = pageState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    MaterialTheme.colorScheme.background
+                ),
         ) { page ->
             Column(
                 Modifier
@@ -131,7 +141,7 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
                             // scroll position. We use the absolute value which allows us to mirror
                             // any effects for both directions
                             val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
-        
+
                             // We animate the scaleX + scaleY, between 85% and 100%
                             lerp(
                                 start = 0.85f,
@@ -141,7 +151,7 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
                                 scaleX = scale
                                 scaleY = scale
                             }
-        
+
                             // We animate the alpha, between 50% and 100%
                             alpha = lerp(
                                 start = 0.5f,
@@ -342,4 +352,44 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
             }
         }
     }
+    val context: Context = App.getContext()
+    recently_played_jsoncache(context,"recently_played",currentlyPlayingSong)
 }
+fun recently_played_jsoncache(context: Context, key: String, value: Song) {
+    val cacheDir: File = context.cacheDir
+    val gson = Gson()
+    val json = gson.toJson(value)
+    val file=File(cacheDir,key)
+    try {
+        val fileWriter= FileWriter(file,true)
+        fileWriter.write("$json,")
+        fileWriter.close()
+    }catch (e:IOException)
+    {
+        println(e)
+    }
+}
+
+fun getFile(context: Context,key: String): Any? {
+    try {
+        val objectMapper = ObjectMapper()
+        val cacheDir: File = context.cacheDir
+        val file = File(cacheDir, key)
+        if (!file.exists()) return null
+        val json = file.readText()
+        val songs = json.split("},")
+            .filter { it.isNotEmpty() }
+            .map { "$it}" }
+            .map { objectMapper.readValue(it, Song::class.java) }
+            .filter { it.title != "null"}
+            .toSet()
+            .toList()
+        return songs.reversed()
+    }
+    catch (e:IOException)
+    {
+        println(e)
+    }
+    return 0
+}
+
