@@ -47,6 +47,12 @@ android {
             applicationIdSuffix ".debug"
             versionNameSuffix ".debug"
         }
+        benchmark {
+            signingConfig signingConfigs.debug
+            matchingFallbacks = ['release']
+            manifestPlaceholders["sentryDsn"] = ""
+            debuggable false
+        }
         release {
             if (keystorePropertiesFile.exists()) {
                 def keystoreProperties = new Properties()
