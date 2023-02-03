@@ -9,7 +9,7 @@ import org.listenbrainz.android.R
 
 class DonateActivity : AppCompatActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS)
+        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS)
         super.onCreate(savedInstanceState)
         val customTabsIntent = CustomTabsIntent.Builder()
                 .setToolbarColor(resources.getColor(R.color.colorPrimaryDark))

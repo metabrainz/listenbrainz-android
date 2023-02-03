@@ -13,13 +13,13 @@ import org.listenbrainz.android.data.sources.api.ListenBrainzServiceGenerator
 import org.listenbrainz.android.data.sources.api.entities.AccessToken
 import org.listenbrainz.android.data.sources.api.entities.userdata.UserInfo
 import org.listenbrainz.android.databinding.ActivityLoginBinding
-import org.listenbrainz.android.presentation.features.base.MusicBrainzActivity
+import org.listenbrainz.android.presentation.features.base.ListenBrainzActivity
 import org.listenbrainz.android.presentation.features.dashboard.DashboardActivity
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.LBSharedPreferences
 
 @AndroidEntryPoint
-class LoginActivity : MusicBrainzActivity() {
+class LoginActivity : ListenBrainzActivity() {
 
     private var binding: ActivityLoginBinding? = null
     private var loginViewModel: LoginViewModel? = null
