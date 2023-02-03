@@ -39,11 +39,13 @@ import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTh
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YimPaddings
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
+import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun YimHomeScreen(
     viewModel: YimViewModel,
+    networkConnectivityViewModel: NetworkConnectivityViewModel,
     navController: NavHostController,
     activity: YearInMusicActivity,
     paddings: YimPaddings = LocalYimPaddings.current,
@@ -62,7 +64,7 @@ fun YimHomeScreen(
         // What happens when user swipes up
         LaunchedEffect(key1 = swipeableState.isAnimationRunning){
             if (swipeableState.isAnimationRunning) {
-                when (viewModel.getNetworkStatus()) {
+                when (networkConnectivityViewModel.getNetworkStatus()) {
                     ConnectivityObserver.NetworkStatus.Available -> {
                         // Data status checking
                         when (viewModel.yimData.value.status){
