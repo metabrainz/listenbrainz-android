@@ -9,6 +9,8 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.provider.Settings
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ProcessLifecycleOwner
 import dagger.hilt.android.HiltAndroidApp
 import org.listenbrainz.android.presentation.Configuration
 import org.listenbrainz.android.presentation.UserPreferences.preferenceListeningEnabled
@@ -30,7 +32,9 @@ class App : Application() {
 
     fun startListenService() {
         val intent = Intent(this.applicationContext, ListenService::class.java)
-        startService(intent)
+        if (ProcessLifecycleOwner.get().lifecycle.currentState == Lifecycle.State.CREATED) {
+            startService(intent)
+        }
     }
 
     fun stopListenService() {
