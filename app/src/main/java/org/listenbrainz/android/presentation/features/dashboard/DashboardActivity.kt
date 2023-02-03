@@ -48,8 +48,7 @@ class DashboardActivity : ComponentActivity() {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
                 arrayOf(
                     permission.READ_MEDIA_IMAGES,
-                    permission.READ_MEDIA_AUDIO,
-                    permission.READ_EXTERNAL_STORAGE        // TODO: Remove this if not needed.
+                    permission.READ_MEDIA_AUDIO
                 )
             }
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
@@ -151,8 +150,7 @@ class DashboardActivity : ComponentActivity() {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
                 if (
                     checkSelfPermission(permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
-                    checkSelfPermission(permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED &&
-                    checkSelfPermission(permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                    checkSelfPermission(permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED
                 ){
                     permissionsPreference = PermissionStatus.GRANTED.name
                 }
