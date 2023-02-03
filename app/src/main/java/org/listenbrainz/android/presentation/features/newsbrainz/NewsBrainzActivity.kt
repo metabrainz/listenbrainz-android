@@ -51,7 +51,7 @@ class NewsBrainzActivity : AppCompatActivity(), BlogAdapter.ClickListener {
         viewModel = ViewModelProvider(this)[NewsListViewModel::class.java]
 
         postsList  = ArrayList()
-        adapter = BlogAdapter(this, postsList, this)
+        adapter = BlogAdapter(postsList, this)
         binding.recyclerView.adapter = adapter
         binding.loadingAnimation.root.visibility = VISIBLE
 

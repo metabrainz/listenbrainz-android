@@ -1,6 +1,5 @@
 package org.listenbrainz.android.presentation.features.adapters
 
-import android.content.Context
 import android.os.Build
 import android.text.Html
 import android.view.LayoutInflater
@@ -13,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import org.listenbrainz.android.R
 import org.listenbrainz.android.data.sources.api.entities.blog.Post
 
-class BlogAdapter(private val context: Context, private val posts: ArrayList<Post>, private val clickListener: ClickListener) : RecyclerView.Adapter<BlogAdapter.ViewHolder>() {
+class BlogAdapter(private val posts: ArrayList<Post>, private val clickListener: ClickListener) : RecyclerView.Adapter<BlogAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val v = LayoutInflater.from(parent.context).inflate(R.layout.card_blog, parent, false)
