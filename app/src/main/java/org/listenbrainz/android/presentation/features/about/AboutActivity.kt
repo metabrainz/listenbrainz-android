@@ -6,9 +6,9 @@ import android.os.Bundle
 import android.view.Menu
 import org.listenbrainz.android.R
 import org.listenbrainz.android.databinding.ActivityAboutBinding
-import org.listenbrainz.android.presentation.features.base.MusicBrainzActivity
+import org.listenbrainz.android.presentation.features.base.ListenBrainzActivity
 
-class AboutActivity : MusicBrainzActivity() {
+class AboutActivity : ListenBrainzActivity() {
     private var binding: ActivityAboutBinding? = null
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
