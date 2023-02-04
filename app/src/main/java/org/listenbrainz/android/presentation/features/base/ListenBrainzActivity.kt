@@ -16,7 +16,7 @@ import org.listenbrainz.android.presentation.features.onboarding.FeaturesActivit
 import org.listenbrainz.android.util.Utils.changeLanguage
 import org.listenbrainz.android.util.Utils.emailIntent
 
-abstract class MusicBrainzActivity : AppCompatActivity() {
+abstract class ListenBrainzActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.dash, menu)
         return true
