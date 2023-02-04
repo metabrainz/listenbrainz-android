@@ -22,7 +22,7 @@ interface PlaylistRepository {
 
     suspend fun insertSongsToPlaylist(songs: List<Song>, playlist: Playlist)
 
-    suspend  fun deleteSongFromPlaylist(song: Song, playlist: Playlist)
+    suspend fun deleteSongFromPlaylist(song: Song, playlist: Playlist)
 
     suspend fun renamePlaylist(newName: String, playlistID: Long)
 }

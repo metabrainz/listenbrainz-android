@@ -41,9 +41,7 @@ import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.App
 import org.listenbrainz.android.R
-import org.listenbrainz.android.data.sources.brainzplayer.Playlist
 import org.listenbrainz.android.data.sources.brainzplayer.Playlist.Companion.recentlyPlayed
-import org.listenbrainz.android.data.sources.brainzplayer.Playlist.Companion.favourite
 import org.listenbrainz.android.data.sources.brainzplayer.Song
 import org.listenbrainz.android.presentation.features.brainzplayer.services.RepeatMode
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.PlayPauseIcon
@@ -51,6 +49,7 @@ import org.listenbrainz.android.presentation.features.brainzplayer.ui.components
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.basicMarquee
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.playlist.PlaylistViewModel
 import org.listenbrainz.android.presentation.features.components.SongViewPager
+import org.listenbrainz.android.presentation.features.navigation.BrainzNavigationItem
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.LBSharedPreferences
 import java.io.File
@@ -72,21 +71,8 @@ fun BrainzPlayerBackDropScreen(
     backLayerContent: @Composable () -> Unit
 ) {
     val isShuffled by brainzPlayerViewModel.isShuffled.collectAsState()
-    var liked:Boolean=false
     val currentlyPlayingSong =
         brainzPlayerViewModel.currentlyPlayingSong.collectAsState().value.toSong
-    val playlistViewModel = hiltViewModel<PlaylistViewModel>()
-    val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
-    val playlist=playlists.filter{ it.id==(1).toLong() }
-    if(playlist.isNotEmpty()) {
-        val listenLiked by rememberSaveable {
-            mutableStateOf(currentlyPlayingSong in playlist[0].items)
-        }
-        liked=listenLiked
-        println(liked)
-        println("$playlist"+"$currentlyPlayingSong")
-    }
-
     var maxDelta by rememberSaveable {
         mutableStateOf(0F)
     }
@@ -109,7 +95,6 @@ fun BrainzPlayerBackDropScreen(
             maxDelta = max(delta, maxDelta)
             PlayerScreen(
                 currentlyPlayingSong = currentlyPlayingSong,
-                listenLiked = liked,
                 isShuffled = isShuffled,
                 repeatMode = repeatMode,
                 modifier = Modifier
@@ -195,17 +180,28 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
     }
 }
 
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
-                 currentlyPlayingSong: Song,
-                 listenLiked: Boolean,
-                 isShuffled: Boolean,
-                 repeatMode: RepeatMode,
-                 modifier: Modifier) {
+fun PlayerScreen(
+    brainzPlayerViewModel: BrainzPlayerViewModel = viewModel(),
+    currentlyPlayingSong: Song,
+    isShuffled: Boolean,
+    repeatMode: RepeatMode,
+    modifier: Modifier) {
+    val coroutineScope = rememberCoroutineScope()
     val playlistViewModel = hiltViewModel<PlaylistViewModel>()
     val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
-    val coroutineScope = rememberCoroutineScope()
+    val playlist=playlists.filter{ it.id==(1).toLong() }
+    var listenLiked= false
+    if(playlist.isNotEmpty()) {
+        playlist[0].items.forEach {
+            if (it.mediaID == currentlyPlayingSong.mediaID)
+                listenLiked = true
+        }
+    }
+    else{
+        println("Playlist is empty")
+    }
     LazyColumn(modifier = modifier) {
         item {
             AlbumArtViewPager(viewModel = brainzPlayerViewModel)
@@ -243,10 +239,18 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
                         .clickable {
                             var li = playlists.filter { it.id == (1).toLong() }
                             coroutineScope.launch {
-                                if (!li[0].items.contains(currentlyPlayingSong)) playlistViewModel.addSongToPlaylist(
-                                    currentlyPlayingSong,
-                                    li[0]
-                                )
+                                if (!li[0].items.contains(currentlyPlayingSong)) {
+                                    playlistViewModel.addSongToPlaylist(
+                                        currentlyPlayingSong,
+                                        li[0]
+                                    )
+                                }
+                                else {
+                                    playlistViewModel.deleteSongFromPlaylist(
+                                        currentlyPlayingSong,
+                                        li[0]
+                                    )
+                                }
                             }
                         },
                     tint = if (!listenLiked) Color.Red else Color.Black
@@ -375,7 +379,6 @@ fun PlayerScreen(brainzPlayerViewModel : BrainzPlayerViewModel = viewModel(),
             }
         }
     }
-    println(favourite.items)
     App.context?.let { recently_played_jsoncache(it,"recently_played",currentlyPlayingSong) }
     App.context?.let { getFile(it,"recently_played") }
 }
