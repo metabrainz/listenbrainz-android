@@ -67,9 +67,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".presentation.features.label.LabelActivity"
-            android:label="@string/search_type_label" />
-        <activity
             android:name=".presentation.features.login.LoginActivity"
             android:exported="true"
             android:label="@string/auth_title" >
