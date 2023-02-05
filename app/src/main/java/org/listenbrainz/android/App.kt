@@ -38,7 +38,6 @@ class App : Application() {
         val intent = Intent(this.applicationContext, ListenService::class.java)
         stopService(intent)
     }
-
     val isNotificationServiceAllowed: Boolean
         get() {
             val listeners = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")

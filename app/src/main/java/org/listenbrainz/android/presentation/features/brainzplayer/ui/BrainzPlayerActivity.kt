@@ -2,6 +2,7 @@ package org.listenbrainz.android.presentation.features.brainzplayer.ui
 
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -64,6 +65,7 @@ import org.listenbrainz.android.presentation.features.brainzplayer.ui.playlist.P
 import org.listenbrainz.android.presentation.features.listens.ListensActivity
 import org.listenbrainz.android.presentation.theme.ListenBrainzTheme
 import androidx.compose.material3.MaterialTheme
+import org.listenbrainz.android.App
 import org.listenbrainz.android.data.sources.brainzplayer.PlayableType
 
 @ExperimentalPagerApi
@@ -80,7 +82,7 @@ class BrainzPlayerActivity : ComponentActivity() {
                 val artistViewModel = hiltViewModel<ArtistViewModel>()
                 val playlistViewModel = hiltViewModel<PlaylistViewModel>()
                 val artists = artistViewModel.artists.collectAsState(initial = listOf()).value
-                
+                val recentlyPlayed = Playlist.recentlyPlayed
                 val albums = albumViewModel.albums.collectAsState(initial = listOf()).value
                 val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
                 val backdropScaffoldState =
@@ -157,8 +159,16 @@ fun HomeScreen(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 LazyRow {
-                    items(5) {
-                        RecentlyPlayedCard()
+                    items(items = recentlyPlayedSongs.items) {
+                        BrainzPlayerActivityCards(icon = it.albumArt,
+                            errorIcon = R.drawable.ic_artist,
+                            title = it.title,
+                            modifier = Modifier
+                                .clickable {
+                                    brainzPlayerViewModel.changePlayable(recentlyPlayedSongs.items, PlayableType.ALL_SONGS, it.mediaID,recentlyPlayedSongs.items.sortedBy { it.discNumber }.indexOf(it))
+                                    brainzPlayerViewModel.playOrToggleSong(it, true)
+                                }
+                        )
                     }
                 }
             }

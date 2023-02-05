@@ -2,6 +2,7 @@ package org.listenbrainz.android.data.repository
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import okhttp3.internal.toImmutableList
 import org.listenbrainz.android.data.dao.PlaylistDao
 import org.listenbrainz.android.data.di.brainzplayer.Transformer.toPlaylist
 import org.listenbrainz.android.data.di.brainzplayer.Transformer.toPlaylistEntity
@@ -61,7 +62,8 @@ class PlaylistRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteSongFromPlaylist(song: Song, playlist: Playlist) {
-        playlist.items.toMutableList().remove(song)
+        val newList = playlist.items.toMutableList().filter { it.mediaID != song.mediaID }
+        updatePlaylist(newList, playlist.id)
     }
 
     override suspend fun renamePlaylist(newName: String, playlistID: Long) {

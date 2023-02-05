@@ -7,7 +7,7 @@ import kotlin.random.Random
 data class Playlist(
     var id: Long = Random.nextLong(),
     var title: String = "",
-    val items: List<Song> = listOf(),
+    var items: List<Song> = listOf(),
     @DrawableRes val art: Int = R.drawable.ic_queue_music
 ) {
     companion object {
