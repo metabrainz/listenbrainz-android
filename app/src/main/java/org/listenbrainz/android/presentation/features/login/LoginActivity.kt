@@ -39,9 +39,8 @@ class LoginActivity : ListenBrainzActivity() {
         }
         when (LBSharedPreferences.loginStatus) {
             LBSharedPreferences.STATUS_LOGGED_IN -> {
-                binding!!.loginPromptId.setText(R.string.logout_prompt)
-                binding!!.loginBtn.setText(R.string.logout)
-                binding!!.loginBtn.setOnClickListener { logoutUser() }
+                println(LBSharedPreferences.loginStatus)
+                setContentView(R.layout.activity_profile)
             }
             else -> binding!!.loginBtn.setOnClickListener { startLogin() }
         }
