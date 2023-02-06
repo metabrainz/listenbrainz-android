@@ -7,7 +7,8 @@ import android.os.Handler
 import android.os.Looper
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import org.listenbrainz.android.presentation.UserPreferences.preferenceListenBrainzToken
+import androidx.preference.PreferenceManager
+import org.listenbrainz.android.presentation.UserPreferences
 import org.listenbrainz.android.util.Log.d
 
 class ListenService : NotificationListenerService() {
@@ -32,7 +33,7 @@ class ListenService : NotificationListenerService() {
 
     private fun initialize() {
         d("Initializing Listener Service")
-        val token = preferenceListenBrainzToken
+        val token = PreferenceManager.getDefaultSharedPreferences(this).getString(UserPreferences.PREFERENCE_LISTENBRAINZ_TOKEN, null)
         if (token == null || token.isEmpty()){
             d("ListenBrainz User token has not been set!")
         }

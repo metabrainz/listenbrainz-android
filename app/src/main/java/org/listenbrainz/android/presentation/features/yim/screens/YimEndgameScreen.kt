@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -46,7 +47,7 @@ import org.listenbrainz.android.presentation.features.yim.ui.theme.yimRed
 @Preview
 @Composable
 fun YimEndgameScreen(
-    activity: YearInMusicActivity = YearInMusicActivity(),
+    activity: ComponentActivity = YearInMusicActivity(),
     paddings: YimPaddings = LocalYimPaddings.current,
     context: Context = LocalContext.current
 ) {

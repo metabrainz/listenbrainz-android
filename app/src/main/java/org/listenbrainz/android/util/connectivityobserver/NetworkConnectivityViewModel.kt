@@ -1,32 +1,15 @@
 package org.listenbrainz.android.util.connectivityobserver
 
-import android.content.Context
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-
-class NetworkConnectivityViewModel (context: Context) : ViewModel() {
-    
-    // Network Checking variables
-    private val connectivityObserver = NetworkConnectivityObserver(context)
-    private var networkStatus:
-            MutableState<ConnectivityObserver.NetworkStatus>
-            = mutableStateOf(ConnectivityObserver.NetworkStatus.Unavailable)   // initial value
-    
-    init {
-        checkNetworkStatus()
-    }
-    
-    // Internet Connectivity Functions
-    private fun checkNetworkStatus(){
-        connectivityObserver.observe().onEach {
-            networkStatus.value = it
-        }.launchIn(viewModelScope)
-    }
-    fun getNetworkStatus() : ConnectivityObserver.NetworkStatus{
-        return networkStatus.value
-    }
+/**
+ * Use `NetworkConnectivityViewModelImpl` for instantiating view-model inside activities.
+ *
+ * Use `MockNetworkConnectivityViewModel` for instantiating view-model inside tests.
+ *
+ * Use this interface as an identifier for passing the view-model.
+ *
+ * This interface exists such that we can use mock view-model easily for testing purposes for each
+ * and every use of the network view-model.
+*/
+interface NetworkConnectivityViewModel {
+    fun getNetworkStatus() : ConnectivityObserver.NetworkStatus
 }

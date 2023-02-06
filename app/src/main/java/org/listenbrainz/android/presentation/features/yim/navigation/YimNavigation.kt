@@ -1,5 +1,6 @@
 package org.listenbrainz.android.presentation.features.yim.navigation
 
+import androidx.activity.ComponentActivity
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,7 +11,6 @@ import androidx.navigation.NavGraphBuilder
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import org.listenbrainz.android.presentation.features.yim.YearInMusicActivity
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.screens.*
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
@@ -22,7 +22,7 @@ private const val screenTransitionDuration = 900
 @Composable
 fun YimNavigation(
     yimViewModel: YimViewModel,
-    activity: YearInMusicActivity,
+    activity: ComponentActivity,
     networkConnectivityViewModel: NetworkConnectivityViewModel,
 ) {
     val navController = rememberAnimatedNavController()

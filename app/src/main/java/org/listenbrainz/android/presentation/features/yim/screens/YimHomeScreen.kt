@@ -2,6 +2,7 @@ package org.listenbrainz.android.presentation.features.yim.screens
 
 import android.content.Context
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -16,8 +17,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
@@ -29,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import org.listenbrainz.android.R
-import org.listenbrainz.android.presentation.features.yim.YearInMusicActivity
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
 import org.listenbrainz.android.presentation.features.yim.navigation.YimShareable
@@ -47,7 +50,7 @@ fun YimHomeScreen(
     viewModel: YimViewModel,
     networkConnectivityViewModel: NetworkConnectivityViewModel,
     navController: NavHostController,
-    activity: YearInMusicActivity,
+    activity: ComponentActivity,
     paddings: YimPaddings = LocalYimPaddings.current,
     context: Context = LocalContext.current
 ){
@@ -62,8 +65,8 @@ fun YimHomeScreen(
         }
         
         // What happens when user swipes up
-        LaunchedEffect(key1 = swipeableState.isAnimationRunning){
-            if (swipeableState.isAnimationRunning) {
+        LaunchedEffect(key1 = swipeableState.currentValue){
+            if (swipeableState.currentValue) {
                 when (networkConnectivityViewModel.getNetworkStatus()) {
                     ConnectivityObserver.NetworkStatus.Available -> {
                         // Data status checking
@@ -97,7 +100,7 @@ fun YimHomeScreen(
                     }
                 }
             }
-            swipeableState.animateTo(false, anim = tween(delayMillis = 1000))
+            swipeableState.animateTo(false, anim = tween(delayMillis = 0))
         }
     
         Box(
@@ -122,12 +125,15 @@ fun YimHomeScreen(
                             FractionalThreshold(0.9f)
                         }*/
                     )
-                    .offset(y = swipeableState.offset.value.dp),
+                    .graphicsLayer {
+                        translationY = swipeableState.offset.value
+                    },
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Yim logo
                 Image(
+                    modifier = Modifier.testTag(stringResource(id = R.string.tt_yim_home_logo)),
                     painter = painterResource(id = R.drawable.yim_logo),
                     contentDescription = "Year in Music logo"
                 )
@@ -143,41 +149,59 @@ fun YimHomeScreen(
                 )
             
                 Spacer(modifier = Modifier.height(paddings.smallPadding))
-            
-                // Down Arrow animation
-                val infiniteAnim = rememberInfiniteTransition()
-                val animValue by infiniteAnim.animateFloat(
-                    initialValue = 0f,
-                    targetValue = 10f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(durationMillis = 600, delayMillis = 200),
-                        repeatMode = RepeatMode.Reverse
-                    )
-                )
-                
+
                 // Loading state
-                when (viewModel.yimData.value.status) {
-                    Resource.Status.LOADING -> {
-                        isYimAvailable = false
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(15.dp),
-                            color = MaterialTheme.colorScheme.background,
-                            strokeWidth = 3.dp
-                        )
-                    }
-                    Resource.Status.SUCCESS -> {
-                        if (viewModel.yimData.value.data?.payload?.data != null) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.yim_arrow_down),
-                                contentDescription = "Swipe down to continue.",
-                                tint = Color.Unspecified,
-                                modifier = Modifier
-                                    .size(15.dp)
-                                    .offset(y = animValue.dp)
+                Column(modifier = Modifier
+                    .height(30.dp)
+                    .width(15.dp)) {
+                    
+                    when (viewModel.yimData.value.status) {
+                        Resource.Status.LOADING -> {
+                            isYimAvailable = false
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(15.dp),
+                                color = MaterialTheme.colorScheme.background,
+                                strokeWidth = 3.dp
                             )
-                            isYimAvailable = true
-                        }else {
-                            // User is new with less listens
+                        }
+                        Resource.Status.SUCCESS -> {
+    
+                            // Down Arrow animation
+                            val infiniteAnim = rememberInfiniteTransition()
+                            val animValue by infiniteAnim.animateFloat(
+                                initialValue = 0f,
+                                targetValue = 45f,
+                                animationSpec = infiniteRepeatable(
+                                    animation = tween(durationMillis = 600, delayMillis = 200),
+                                    repeatMode = RepeatMode.Reverse
+                                )
+                            )
+                            
+                            if (viewModel.yimData.value.data?.payload?.data != null) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.yim_arrow_down),
+                                    contentDescription = "Swipe down to continue.",
+                                    tint = Color.Unspecified,
+                                    modifier = Modifier
+                                        .size(15.dp)
+                                        .graphicsLayer {
+                                            translationY = animValue
+                                        }
+                                )
+                                isYimAvailable = true
+                            }else {
+                                // User is new with less listens
+                                isYimAvailable = false
+                                Icon(
+                                    imageVector = Icons.Rounded.Error,
+                                    modifier = Modifier.size(15.dp),
+                                    tint = MaterialTheme.colorScheme.background,
+                                    contentDescription = "Some error occurred"
+                                )
+                            }
+                        }
+                        else -> {
+                            // Any error occurs
                             isYimAvailable = false
                             Icon(
                                 imageVector = Icons.Rounded.Error,
@@ -187,17 +211,8 @@ fun YimHomeScreen(
                             )
                         }
                     }
-                    else -> {
-                        // Any error occurs
-                        isYimAvailable = false
-                        Icon(
-                            imageVector = Icons.Rounded.Error,
-                            modifier = Modifier.size(15.dp),
-                            tint = MaterialTheme.colorScheme.background,
-                            contentDescription = "Some error occurred"
-                        )
-                    }
                 }
+                
             
             }
         

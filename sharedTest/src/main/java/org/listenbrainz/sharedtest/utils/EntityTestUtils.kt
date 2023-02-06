@@ -12,7 +12,8 @@ object EntityTestUtils {
     fun loadResourceAsString(resource: String?): String {
         val builder = StringBuilder()
         try {
-            ClassLoader.getSystemClassLoader().getResourceAsStream(resource).use { inputStream ->
+            this.javaClass.classLoader?.getResourceAsStream(resource).use { inputStream ->
+            //ClassLoader.getSystemClassLoader().getResourceAsStream(resource).use { inputStream ->
                 BufferedReader(
                     InputStreamReader(inputStream)
                 ).use { reader ->

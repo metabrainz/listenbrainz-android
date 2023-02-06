@@ -222,4 +222,9 @@
     <string name="brainzplayer_notification_channel_name">BrainzPlayer Now Playing</string>
     <string name="brainzplayer_notification_channel_description">Currently Playing Song Controls</string>
     <string name="title_activity_year_in_music">YearInMusicActivity</string>
+
+    <!-- Test Tags -->
+    <!-- Yim test tags-->
+    <string name="tt_yim_home_logo">tt_yim_home_logo</string>
+
 </resources>
