@@ -1,19 +1,37 @@
 import android.content.Context
 import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
 import java.io.*
 
-class CacheService<T>(private val context: Context, private val key: String) {
-    fun saveData(value: T) {
+class CacheService<T>(private val context: Context, private val key: String,private val maxSize:Int=10000) {
+    fun saveData(value: T, dataType: Class<T>) {
         val cacheDir: File = context.cacheDir
         val gson = Gson()
         val json = gson.toJson(value)
-        val file=File(cacheDir,key)
+
+        val file = File(cacheDir, key)
+        if (!file.exists()) {
+            file.createNewFile()
+        }
         try {
-            val fileWriter= FileWriter(file,true)
-            fileWriter.write("$json,")
-            fileWriter.close()
-        }catch (e:IOException)
-        {
+            val data = getData(dataType)
+            if (!data.contains(value)) {
+                if (file.length() >= maxSize) {
+                    val newData = data.toMutableList()
+                    newData.removeAt(0)
+                    newData.add(value)
+                    var tostore=gson.toJson(newData)
+                    val fileWriter = FileWriter(file, false)
+                    fileWriter.write(tostore.substring(1,tostore.length-2))
+                    fileWriter.close()
+                } else {
+                    val fileWriter = FileWriter(file, true)
+                    println(json)
+                    fileWriter.write("$json,")
+                    fileWriter.close()
+                }
+            }
+        } catch (e: IOException) {
             println(e)
         }
     }
@@ -26,14 +44,23 @@ class CacheService<T>(private val context: Context, private val key: String) {
                 file.createNewFile()
             }
             val json = file.readText()
+            if (json.isEmpty()) {
+                return emptyList()
+            }
             val data = json.split("},")
                 .filter { it.isNotEmpty() }
                 .map { "$it}" }
-                .map { Gson().fromJson(it, dataType) }
+                .map {
+                    val fixedJson = it.replace("[","").replace("]","")
+                    Gson().fromJson(fixedJson, dataType)
+                }
                 .toSet()
                 .toList()
             return data
         } catch (e: IOException) {
+            println(e)
+            return emptyList()
+        } catch (e: JsonSyntaxException) {
             println(e)
             return emptyList()
         }
