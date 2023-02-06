@@ -22,7 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -31,7 +33,6 @@ import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.GlideLazyListPreloader
-import kotlinx.coroutines.delay
 import okhttp3.*
 import org.listenbrainz.android.R
 import org.listenbrainz.android.data.sources.api.entities.yimdata.Track
@@ -55,22 +56,16 @@ fun YimRecommendedPlaylistsScreen(
             mutableStateOf(false)
         }
     
-        var startSecondAnim by remember{
-            mutableStateOf(false)
-        }
-    
         LaunchedEffect(Unit) {
-            delay(1200)
             startAnim = true
-            delay(700)     // Since it takes 700 ms for first list to animate.
-            startSecondAnim = true
         }
         
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .verticalScroll(state = rememberScrollState()),
+                .verticalScroll(state = rememberScrollState())
+                .testTag(stringResource(id = R.string.tt_yim_recommended_playlists_parent)),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -113,7 +108,7 @@ fun YimRecommendedPlaylistsScreen(
                     )
                     AnimatedVisibility(
                         visible = startAnim,
-                        enter = expandVertically(animationSpec = tween(700))
+                        enter = expandVertically(animationSpec = tween(durationMillis = 700, delayMillis = 1200))
                     ) {
                         // List of songs
                         YimTopDiscoveriesOrMissedList(paddings, viewModel, isTopDiscoveriesPlaylist = true)
@@ -156,7 +151,7 @@ fun YimRecommendedPlaylistsScreen(
                     )
                     AnimatedVisibility(
                         visible = startAnim,
-                        enter = expandVertically(animationSpec = tween(700))
+                        enter = expandVertically(animationSpec = tween(durationMillis = 700, delayMillis = 1900))
                     ) {
                         // List of songs
                         YimTopDiscoveriesOrMissedList(paddings, viewModel, isTopDiscoveriesPlaylist = false)
@@ -164,16 +159,13 @@ fun YimRecommendedPlaylistsScreen(
                 }
             }
             
-    
             // Share Button and next
-            if (startSecondAnim) {
-                YimNavigationStation(
-                    navController = navController,
-                    viewModel = viewModel,
-                    typeOfImage = arrayOf(),    //arrayOf("discovery-playlist", "missed-playlist"),     // Files too large
-                    route = YimScreens.YimDiscoverScreen
-                )
-            }
+            YimNavigationStation(
+                navController = navController,
+                viewModel = viewModel,
+                typeOfImage = arrayOf(),    //arrayOf("discovery-playlist", "missed-playlist"),     // Files too large
+                route = YimScreens.YimDiscoverScreen
+            )
             
         }
     }

@@ -22,7 +22,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -33,7 +35,6 @@ import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.GlideLazyListPreloader
-import kotlinx.coroutines.delay
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
@@ -56,22 +57,16 @@ fun YimDiscoverScreen(
             mutableStateOf(false)
         }
     
-        var startSecondAnim by remember{
-            mutableStateOf(false)
-        }
-    
         LaunchedEffect(Unit) {
-            delay(1200)
             startAnim = true
-            delay(700)     // Since it takes 700 ms for fist list to animate.
-            startSecondAnim = true
         }
         
         // Main Content
         Column(modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(state = rememberScrollState()),
+            .verticalScroll(state = rememberScrollState())
+            .testTag(stringResource(id = R.string.tt_yim_discover_parent)),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -120,7 +115,7 @@ fun YimDiscoverScreen(
             
                     AnimatedVisibility(
                         visible = startAnim,
-                        enter = expandVertically(animationSpec = tween(700))
+                        enter = expandVertically(animationSpec = tween(durationMillis = 700, delayMillis = 1200))
                     ) {
                         YimTopAlbumsFromArtistsList(viewModel = yimViewModel)
                     }
@@ -168,7 +163,7 @@ fun YimDiscoverScreen(
             
                     AnimatedVisibility(
                         visible = startAnim,
-                        enter = expandVertically(animationSpec = tween(700))
+                        enter = expandVertically(animationSpec = tween(durationMillis = 700, delayMillis = 1900))
                     ) {
                         YimSimilarUsersList(yimViewModel = yimViewModel)
                     }
@@ -177,15 +172,13 @@ fun YimDiscoverScreen(
             }
     
             // Share Button and next
-            if (startSecondAnim) {
-                YimNavigationStation(
-                    navController = navController,
-                    viewModel = yimViewModel,
-                    typeOfImage = arrayOf(),        // No share button here
-                    modifier = Modifier.padding(vertical = 40.dp),
-                    route = YimScreens.YimEndgameScreen
-                )
-            }
+            YimNavigationStation(
+                navController = navController,
+                viewModel = yimViewModel,
+                typeOfImage = arrayOf(),        // No share button here
+                modifier = Modifier.padding(vertical = 40.dp),
+                route = YimScreens.YimEndgameScreen
+            )
             
         }
     }
@@ -274,7 +267,9 @@ private fun YimSimilarUsersList(
                     ) {
                         LinearProgressIndicator(
                             progress = item.second.toFloat(),
-                            modifier = Modifier.clip(CircleShape).width(70.dp),
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .width(70.dp),
                             color = when (item.second) {
                                 in 0.70..1.00 -> Color(0xFF382F6F)
                                 in 0.30..0.69 -> Color(0xFFF57542)

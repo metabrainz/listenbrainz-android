@@ -32,13 +32,11 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.data.sources.api.entities.yimdata.TopRelease
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
-import org.listenbrainz.android.presentation.features.yim.navigation.YimShareable
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimHeadingText
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimNavigationStation
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YimPaddings
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
@@ -119,7 +117,6 @@ fun YimTopAlbumsScreen(
                     }
                 }
             }
-            
             
             // To Avoid multiple recompositions for both share and next buttons
             var animateShareButton by remember { mutableStateOf(false) }

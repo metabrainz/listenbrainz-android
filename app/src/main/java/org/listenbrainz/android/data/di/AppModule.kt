@@ -1,4 +1,4 @@
-package org.listenbrainz.android.data.di.brainzplayer
+package org.listenbrainz.android.data.di
 
 import android.content.Context
 import dagger.Module
