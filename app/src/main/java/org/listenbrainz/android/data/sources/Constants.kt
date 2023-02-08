@@ -24,5 +24,5 @@ object Constants {
     const val OFFSET = 0
     const val MBID = "mbid"
     const val TYPE = "type"
-
+    const val RECENTLY_PLAYED_KEY = "recently_played"
 }

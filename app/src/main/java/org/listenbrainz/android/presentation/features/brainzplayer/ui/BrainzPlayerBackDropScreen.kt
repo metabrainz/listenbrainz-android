@@ -1,7 +1,7 @@
 package org.listenbrainz.android.presentation.features.brainzplayer.ui
 
+import CacheService
 import android.annotation.SuppressLint
-import android.content.Context
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,10 +37,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.google.accompanist.pager.*
-import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.App
 import org.listenbrainz.android.R
+import org.listenbrainz.android.data.sources.Constants.RECENTLY_PLAYED_KEY
 import org.listenbrainz.android.data.sources.brainzplayer.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.data.sources.brainzplayer.Song
 import org.listenbrainz.android.presentation.features.brainzplayer.services.RepeatMode
@@ -49,12 +49,8 @@ import org.listenbrainz.android.presentation.features.brainzplayer.ui.components
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.basicMarquee
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.playlist.PlaylistViewModel
 import org.listenbrainz.android.presentation.features.components.SongViewPager
-import org.listenbrainz.android.presentation.features.navigation.BrainzNavigationItem
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.LBSharedPreferences
-import java.io.File
-import java.io.FileWriter
-import java.io.IOException
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
@@ -379,43 +375,10 @@ fun PlayerScreen(
             }
         }
     }
-    App.context?.let { recently_played_jsoncache(it,"recently_played",currentlyPlayingSong) }
-    App.context?.let { getFile(it,"recently_played") }
-}
-fun recently_played_jsoncache(context: Context, key: String, value: Song) {
-    val cacheDir: File = context.cacheDir
-    val gson = Gson()
-    val json = gson.toJson(value)
-    val file=File(cacheDir,key)
-    try {
-        val fileWriter= FileWriter(file,true)
-        fileWriter.write("$json,")
-        fileWriter.close()
-    }catch (e:IOException)
-    {
-        println(e)
+    var cache= App.context?.let { CacheService<Song>(it, RECENTLY_PLAYED_KEY) }
+    cache?.saveData(currentlyPlayingSong,Song::class.java)
+    var data= cache?.getData(Song::class.java)
+    if (data != null) {
+        recentlyPlayed.items=data.filter { it.title!="null" }.toList().reversed()
     }
 }
-
-
-fun getFile(context: Context,key: String) {
-    try {
-        val cacheDir: File = context.cacheDir
-        val file = File(cacheDir, key)
-        if (!file.exists()) {
-            file.createNewFile()
-        }
-        val json = file.readText()
-        val songs = json.split("},")
-            .filter { it.isNotEmpty() }
-            .map { "$it}" }
-            .map { Gson().fromJson(it, Song::class.java) }
-            .filter { it.title != "null" }
-            .toSet()
-            .toList()
-        recentlyPlayed.items = songs.reversed()
-    } catch (e: IOException) {
-        println(e)
-    }
-}
-
