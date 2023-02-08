@@ -40,6 +40,7 @@ import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.App
 import org.listenbrainz.android.R
+import org.listenbrainz.android.data.sources.Constants.RECENTLY_PLAYED_KEY
 import org.listenbrainz.android.data.sources.brainzplayer.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.data.sources.brainzplayer.Song
 import org.listenbrainz.android.presentation.features.brainzplayer.services.RepeatMode
@@ -374,7 +375,7 @@ fun PlayerScreen(
             }
         }
     }
-    var cache= App.context?.let { CacheService<Song>(it, "recentlyPlayed") }
+    var cache= App.context?.let { CacheService<Song>(it, RECENTLY_PLAYED_KEY) }
     cache?.saveData(currentlyPlayingSong,Song::class.java)
     var data= cache?.getData(Song::class.java)
     if (data != null) {
