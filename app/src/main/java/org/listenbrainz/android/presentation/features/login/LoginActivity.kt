@@ -5,6 +5,7 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
+import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import dagger.hilt.android.AndroidEntryPoint
@@ -15,6 +16,7 @@ import org.listenbrainz.android.data.sources.api.entities.userdata.UserInfo
 import org.listenbrainz.android.databinding.ActivityLoginBinding
 import org.listenbrainz.android.presentation.features.base.ListenBrainzActivity
 import org.listenbrainz.android.presentation.features.dashboard.DashboardActivity
+import org.listenbrainz.android.util.CircularPercentageChart
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.LBSharedPreferences
 
@@ -41,6 +43,10 @@ class LoginActivity : ListenBrainzActivity() {
             LBSharedPreferences.STATUS_LOGGED_IN -> {
                 println(LBSharedPreferences.loginStatus)
                 setContentView(R.layout.activity_profile)
+                val user_name: TextView = findViewById(R.id.username)
+                user_name.text = LBSharedPreferences.username
+                val chart = findViewById<CircularPercentageChart>(R.id.circular_percentage_chart)
+                chart.setPercentage(70f)
             }
             else -> binding!!.loginBtn.setOnClickListener { startLogin() }
         }

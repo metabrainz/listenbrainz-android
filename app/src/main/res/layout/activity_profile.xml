@@ -36,14 +36,15 @@
                 android:id="@+id/linearLayout"
                 android:background="@drawable/profile_bk">
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/profile_round" />
+                <org.listenbrainz.android.util.CircularPercentageChart
+                    android:id="@+id/circular_percentage_chart"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:id="@+id/username"
                     android:text="\@appsnippuser"
                     android:textSize="28dp"
                     android:textStyle="bold"/>
