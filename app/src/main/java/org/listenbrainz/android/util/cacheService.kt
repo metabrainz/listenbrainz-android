@@ -1,14 +1,15 @@
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import java.io.*
 
 class CacheService<T>(private val context: Context, private val key: String,private val maxSize:Int=10000) {
-    fun saveData(value: T, dataType: Class<T>) {
+    fun saveData(value: T, dataType: Class<T>,append:Boolean) {
         val cacheDir: File = context.cacheDir
         val gson = Gson()
         val json = gson.toJson(value)
-
         val file = File(cacheDir, key)
         if (!file.exists()) {
             file.createNewFile()
@@ -25,7 +26,7 @@ class CacheService<T>(private val context: Context, private val key: String,priv
                     fileWriter.write(tostore.substring(1,tostore.length-2))
                     fileWriter.close()
                 } else {
-                    val fileWriter = FileWriter(file, true)
+                    val fileWriter = FileWriter(file, append)
                     println(json)
                     fileWriter.write("$json,")
                     fileWriter.close()
@@ -70,4 +71,32 @@ class CacheService<T>(private val context: Context, private val key: String,priv
         val file = File(context.cacheDir, key)
         file.delete()
     }
+
+    fun saveBitmap(value: Bitmap) {
+        val cacheDir: File = context.cacheDir
+        val file = File(cacheDir, key)
+        if (!file.exists()) {
+            file.createNewFile()
+        }
+        try {
+            val fileOutputStream = FileOutputStream(file)
+            value.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
+            fileOutputStream.close()
+        } catch (e: IOException) {
+            println(e)
+        }
+    }
+
+
+    fun getBitmap(): Bitmap? {
+        val cacheDir: File = context.cacheDir
+        val file = File(cacheDir, key)
+        if (!file.exists()) {
+            file.createNewFile()
+        }
+        file.inputStream().use {
+            return BitmapFactory.decodeStream(it)
+        }
+    }
+
 }

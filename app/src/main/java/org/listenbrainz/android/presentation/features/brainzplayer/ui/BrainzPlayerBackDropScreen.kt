@@ -375,7 +375,7 @@ fun PlayerScreen(
         }
     }
     var cache= App.context?.let { CacheService<Song>(it, "recentlyPlayed") }
-    cache?.saveData(currentlyPlayingSong,Song::class.java)
+    cache?.saveData(currentlyPlayingSong,Song::class.java,true)
     var data= cache?.getData(Song::class.java)
     if (data != null) {
         recentlyPlayed.items=data.filter { it.title!="null" }.toList().reversed()

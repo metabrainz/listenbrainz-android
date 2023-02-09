@@ -24,5 +24,6 @@ object Constants {
     const val OFFSET = 0
     const val MBID = "mbid"
     const val TYPE = "type"
+    const val PROFILE_PIC="profile_pic"
 
 }
