@@ -35,7 +35,6 @@ fun Preview(){
     ListenBrainzTheme {
         SimilarUserCard(index = 0, userName = "jasje", similarity = 0.80f)
     }
-    
 }
 
 /**
