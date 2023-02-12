@@ -20,7 +20,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
-            app:contentScrim="@color/profilePrimaryDark"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:toolbarId="@+id/toolbar"
             app:expandedTitleMarginEnd="64dp"
@@ -39,7 +38,8 @@
                 <org.listenbrainz.android.util.CircularPercentageChart
                     android:id="@+id/circular_percentage_chart"
                     android:layout_width="200dp"
-                    android:layout_height="200dp"/>
+                    android:layout_height="200dp"
+                    android:layout_marginTop="10dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -47,6 +47,7 @@
                     android:id="@+id/username"
                     android:text="\@appsnippuser"
                     android:textSize="28dp"
+                    android:textColor="#F5F5DC"
                     android:textStyle="bold"/>
 
                 <TextView
@@ -55,9 +56,11 @@
                     android:id="@+id/email"
                     android:text="developer@appsnipp.com"
                     android:textSize="12dp"
+                    android:textColor="#F5F5DC"
                     android:textStyle="bold"/>
 
                 <RelativeLayout
+                    android:id="@+id/logout_btn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
@@ -72,19 +75,11 @@
                         android:background="@drawable/profile_bk"/>
 
                     <TextView
-                        android:text="Back to\nHome"
+                        android:text="Say Goodbye,\nLogout"
                         style="@style/profileStyledBackButton" />
                 </RelativeLayout>
 
             </LinearLayout>
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
-                app:popupTheme="@style/AppTheme.PopupOverlay" />
-
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 

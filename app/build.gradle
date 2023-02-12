@@ -118,6 +118,9 @@ dependencies {
     implementation 'com.github.akshaaatt:Onboarding:1.0.4'
     implementation 'com.github.akshaaatt:Share-Android:1.0.0'
     implementation 'com.android.support:appcompat-v7:33.0.0'
+    implementation "androidx.viewpager2:viewpager2:1.0.0"
+    implementation "com.tbuonomo:dotsindicator:4.3"
+
     //Dagger-Hilt
     implementation("com.google.dagger:hilt-android:$hilt_version")
     kapt("com.google.dagger:hilt-android-compiler:$hilt_version")

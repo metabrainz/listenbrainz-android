@@ -65,6 +65,7 @@ object LBSharedPreferences {
         editor.remove(ACCESS_TOKEN)
         editor.remove(REFRESH_TOKEN)
         editor.remove(USERNAME)
+        editor.remove(EMAIL)
         editor.apply()
     }
 

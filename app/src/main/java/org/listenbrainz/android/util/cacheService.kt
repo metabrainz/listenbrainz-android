@@ -1,6 +1,8 @@
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import java.io.*
@@ -27,7 +29,6 @@ class CacheService<T>(private val context: Context, private val key: String,priv
                     fileWriter.close()
                 } else {
                     val fileWriter = FileWriter(file, append)
-                    println(json)
                     fileWriter.write("$json,")
                     fileWriter.close()
                 }
@@ -79,8 +80,21 @@ class CacheService<T>(private val context: Context, private val key: String,priv
             file.createNewFile()
         }
         try {
+            val matrix = Matrix()
+            val exif = ExifInterface(file.path)
+
+            when (exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90F)
+                ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180F)
+                ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270F)
+            }
+            val aspectRatio = value.height.toFloat() / value.width.toFloat()
+            val targetHeight = value.height / 4
+            val targetWidth = (targetHeight / aspectRatio).toInt()
+            val scaledBitmap = Bitmap.createScaledBitmap(value, targetWidth, targetHeight, false)
+            val rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, targetWidth, targetHeight, matrix, true)
             val fileOutputStream = FileOutputStream(file)
-            value.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
+            rotatedBitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
             fileOutputStream.close()
         } catch (e: IOException) {
             println(e)
