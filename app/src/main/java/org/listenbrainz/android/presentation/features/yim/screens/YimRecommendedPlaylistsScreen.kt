@@ -176,13 +176,15 @@ private fun YimAlbumArt(viewModel: YimViewModel, isTopDiscoveriesPlaylist: Boole
         modifier = Modifier.size(310.dp),
         contentAlignment = Alignment.Center
     ) {
-        
+        val list = remember {
+            viewModel.getUrlsForAlbumArt(isTopDiscoveriesPlaylist = isTopDiscoveriesPlaylist)
+        }
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
             modifier = Modifier.size(225.dp),
             userScrollEnabled = false
         ) {
-            items(viewModel.getUrlsForAlbumArt(isTopDiscoveriesPlaylist = isTopDiscoveriesPlaylist)) { url ->
+            items(list) { url ->
                 GlideImage(
                     model = url,
                     modifier = Modifier.size(75.dp),
@@ -216,10 +218,12 @@ private fun YimTopDiscoveriesOrMissedList(
     val listOfTracks = arrayListOf<Map.Entry<Track, String>>()
     
     val playlistMap : Map<Track, String>
-        = if (isTopDiscoveriesPlaylist)
+        = remember {
+        if (isTopDiscoveriesPlaylist)
             viewModel.getTopDiscoveriesPlaylistAndArtCover()
         else
             viewModel.getTopMissedPlaylistAndArtCover()
+    }
     
     playlistMap.forEach { item ->
         uriList.add(item.value)
