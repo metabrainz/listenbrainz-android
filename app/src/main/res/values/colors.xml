@@ -9,6 +9,12 @@
     <color name="white">#000000</color>
     <color name="red">#ff0000</color>
     <color name="green">#00ff00</color>
+    <color name="profilePrimaryDark">#FF3B30</color>
+    <color name="profileAccentColor">#F7F7F7</color>
+    <color name="whiteTextColor">#fff</color>
+    <color name="profileBackground">#fff</color>
+    <color name="blackTextColor">#000</color>
+    <color name="profileEditTextColor">#707070</color>
 
     <color name="light_green">#7EC544</color>
     <color name="yellow">#FBC233</color>

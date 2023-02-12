@@ -10,6 +10,7 @@ import org.listenbrainz.android.data.sources.brainzplayer.Playable
 
 object LBSharedPreferences {
     private const val USERNAME = "username"
+    private const val EMAIL = "email"
     private const val CURRENT_PLAYABLE = "CURRENT_PLAYABLE"
     const val ACCESS_TOKEN = "access_token"
     const val REFRESH_TOKEN = "refresh_token"
@@ -55,6 +56,7 @@ object LBSharedPreferences {
     fun saveUserInfo(userInfo: UserInfo) {
         val editor = preferences.edit()
         editor.putString(USERNAME, userInfo.username)
+        editor.putString(EMAIL, userInfo.email)
         editor.apply()
     }
 
@@ -63,6 +65,7 @@ object LBSharedPreferences {
         editor.remove(ACCESS_TOKEN)
         editor.remove(REFRESH_TOKEN)
         editor.remove(USERNAME)
+        editor.remove(EMAIL)
         editor.apply()
     }
 
@@ -89,4 +92,6 @@ object LBSharedPreferences {
         get() = preferences.getString(USERNAME, "")
     val refreshToken: String?
         get() = preferences.getString(REFRESH_TOKEN, "")
+    val email: String?
+        get() = preferences.getString(EMAIL, "")
 }
