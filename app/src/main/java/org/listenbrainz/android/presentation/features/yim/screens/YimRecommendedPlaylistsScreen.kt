@@ -25,10 +25,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -36,6 +34,7 @@ import com.bumptech.glide.integration.compose.GlideLazyListPreloader
 import okhttp3.*
 import org.listenbrainz.android.R
 import org.listenbrainz.android.data.sources.api.entities.yimdata.Track
+import org.listenbrainz.android.presentation.features.components.ListenCardSmall
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimLabelText
@@ -43,7 +42,6 @@ import org.listenbrainz.android.presentation.features.yim.screens.components.Yim
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YimPaddings
-import org.listenbrainz.android.presentation.theme.lb_purple
 
 @Composable
 fun YimRecommendedPlaylistsScreen(
@@ -251,60 +249,14 @@ private fun YimTopDiscoveriesOrMissedList(
         )
     ) {
         items(listOfTracks) { item ->
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = paddings.tinyPadding)
-                    .background(MaterialTheme.colorScheme.surface)
-                    .clickable(enabled = true) {
-                        context.startActivity(
-                            Intent(Intent.ACTION_VIEW, Uri.parse(item.key.identifier))
-                        )
-                        // Sends the user to recordings page just like website.
-                    },
-                shape = RoundedCornerShape(5.dp),
-                shadowElevation = 5.dp
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    
-                    // Album cover art
-                    GlideImage(
-                        model = item.value,
-                        modifier = Modifier.size(60.dp),
-                        contentScale = ContentScale.Fit,
-                        contentDescription = "Album Cover Art"
-                    ) {
-                        it.placeholder(R.drawable.ic_coverartarchive_logo_no_text)
-                            .override(75)
-                    }
-                    
-                    Spacer(modifier = Modifier.width(paddings.defaultPadding))
-                    
-                    Column(modifier = Modifier) {
-                        Text(
-                            text = item.key.title,
-                            style = MaterialTheme.typography.bodyLarge
-                                .copy(
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = lb_purple,
-                                    lineHeight = 14.sp
-                                ) ,
-                        )
-                        Text(
-                            text = item.key.creator,
-                            style = MaterialTheme.typography.bodyMedium
-                                .copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = lb_purple.copy(alpha = 0.7f)
-                                )
-                        )
-                    }
-                }
+            ListenCardSmall(
+                releaseName = item.key.title,
+                artistName = item.key.creator,
+                coverArtUrl = item.value
+            ){
+                context.startActivity(
+                    Intent(Intent.ACTION_VIEW, Uri.parse(item.key.identifier))
+                )
             }
         }
     }

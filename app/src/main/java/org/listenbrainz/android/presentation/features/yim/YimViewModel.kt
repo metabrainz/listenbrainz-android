@@ -46,7 +46,7 @@ class YimViewModel @Inject constructor(private val repository: YimRepository) : 
     
     // Username related functions
     fun getUserName() : String?{
-        return repository.getUsername()
+        return "lucifer"//repository.getUsername()
     }
     fun isLoggedIn() : Boolean{
         return (repository.getLoginStatus() == LBSharedPreferences.STATUS_LOGGED_IN)

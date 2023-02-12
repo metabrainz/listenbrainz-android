@@ -11,31 +11,24 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.GlideLazyListPreloader
 import org.listenbrainz.android.R
+import org.listenbrainz.android.presentation.features.components.ListenCardSmall
+import org.listenbrainz.android.presentation.features.components.SimilarUserCard
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimLabelText
@@ -43,8 +36,6 @@ import org.listenbrainz.android.presentation.features.yim.screens.components.Yim
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YimPaddings
-import org.listenbrainz.android.presentation.theme.lb_purple
-import java.text.DecimalFormat
 
 @Composable
 fun YimDiscoverScreen(
@@ -202,7 +193,15 @@ private fun YimSimilarUsersList(
         )
     ) {
         itemsIndexed(similarUsers) { index, item ->
-            Card(
+            SimilarUserCard(
+                index = index,
+                userName = item.first,
+                similarity = item.second.toFloat(),
+                cardBackGround = MaterialTheme.colorScheme.surface,
+                uiModeIsDark = false
+            )
+            
+            /*Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = paddings.tinyPadding),
@@ -285,7 +284,7 @@ private fun YimSimilarUsersList(
                         )
                     }
                 }
-            }
+            }*/
         }
     }
 }
@@ -297,7 +296,9 @@ private fun YimTopAlbumsFromArtistsList(
     paddings: YimPaddings = LocalYimPaddings.current,
 ) {
     val uriList = arrayListOf<String>()
-    val newReleasesOfTopArtist = viewModel.getNewReleasesOfTopArtists()
+    val newReleasesOfTopArtist = remember {
+        viewModel.getNewReleasesOfTopArtists()
+    }
     
     newReleasesOfTopArtist!!.forEach { item ->
         uriList.add("https://archive.org/download/mbid-${item.caaReleaseMbid}/mbid-${item.caaReleaseMbid}-${item.caaId}_thumb250.jpg")
@@ -326,55 +327,11 @@ private fun YimTopAlbumsFromArtistsList(
         )
     ) {
         items(newReleasesOfTopArtist) { item ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = paddings.tinyPadding),
-                shape = RoundedCornerShape(5.dp),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 5.dp),
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    
-                    // Album cover art
-                    GlideImage(
-                        model = "https://archive.org/download/mbid-${item.caaReleaseMbid}/mbid-${item.caaReleaseMbid}-${item.caaId}_thumb250.jpg",
-                        modifier = Modifier.size(60.dp),
-                        contentScale = ContentScale.Fit,
-                        contentDescription = "Album Cover Art"
-                    ) {
-                        it.placeholder(R.drawable.ic_coverartarchive_logo_no_text)
-                            .override(75)
-                    }
-                    
-                    Spacer(modifier = Modifier.width(paddings.defaultPadding))
-                    
-                    Column(modifier = Modifier) {
-                        Text(
-                            text = item.title,
-                            style = MaterialTheme.typography.bodyLarge
-                                .copy(
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = lb_purple,
-                                    lineHeight = 14.sp
-                                ) ,
-                        )
-                        Text(
-                            text = item.artistCreditName,
-                            style = MaterialTheme.typography.bodyMedium
-                                .copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = lb_purple.copy(alpha = 0.7f)
-                                )
-                        )
-                    }
-                }
-            }
+            ListenCardSmall(
+                releaseName = item.title,
+                artistName = item.artistCreditName,
+                coverArtUrl = "https://archive.org/download/mbid-${item.caaReleaseMbid}/mbid-${item.caaReleaseMbid}-${item.caaId}_thumb250.jpg"
+            ) {}
         }
     }
 }
