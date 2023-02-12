@@ -40,6 +40,7 @@ fun Preview(){
 
 /**
  * Select an appropriate cardBackground that goes with the given theme.
+ * @param similarity should lie between 0f and 1f.
  */
 @Composable
 fun SimilarUserCard(
@@ -87,6 +88,7 @@ fun SimilarUserCard(
                 
                 Spacer(modifier = Modifier.width(16.dp))
                 
+                // Username Text
                 Text(
                     text = userName,
                     style = MaterialTheme.typography.bodyLarge
@@ -106,6 +108,7 @@ fun SimilarUserCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End
             ) {
+                // Similarity Bar
                 LinearProgressIndicator(
                     progress = similarity,
                     modifier = Modifier
@@ -118,6 +121,8 @@ fun SimilarUserCard(
                         else -> Color(0xFFD03E43)
                     }
                 )
+                
+                // Similarity Text
                 Text(
                     text = "${DecimalFormat("#.#").format(similarity*10)}/10",
                     color = if (uiModeIsDark) Color.White else Color.Black.copy(alpha = 0.4f),
