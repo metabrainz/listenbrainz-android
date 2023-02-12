@@ -180,7 +180,9 @@ private fun YimSimilarUsersList(
     yimViewModel: YimViewModel,
     paddings: YimPaddings = LocalYimPaddings.current
 ) {
-    val similarUsers = yimViewModel.getSimilarUsers()
+    val similarUsers = remember {
+        yimViewModel.getSimilarUsers()
+    }
     
     LazyColumn(
         modifier = Modifier

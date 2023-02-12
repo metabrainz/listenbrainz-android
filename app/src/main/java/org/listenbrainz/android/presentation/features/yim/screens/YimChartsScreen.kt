@@ -281,7 +281,7 @@ private fun YimTopArtistsList(
     paddings: YimPaddings,
     viewModel: YimViewModel
 ) {
-    val list = remember(viewModel) {
+    val list = remember {
         viewModel.getTopArtists()!!.toList()
     }
     LazyColumn(
