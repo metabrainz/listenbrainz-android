@@ -8,6 +8,7 @@ data class Playlist(
     var id: Long = Random.nextLong(),
     var title: String = "",
     var items: List<Song> = listOf(),
+    var favouriteArtist: String = "",
     @DrawableRes val art: Int = R.drawable.ic_queue_music
 ) {
     companion object {
@@ -28,7 +29,8 @@ data class Playlist(
         val recentlyPlayed = Playlist(
             id = 1,
             title = "Recently Played",
-            items = emptyList()
+            items = emptyList(),
+            favouriteArtist=""
         )
     }
 }

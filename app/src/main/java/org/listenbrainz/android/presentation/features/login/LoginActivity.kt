@@ -25,6 +25,7 @@ import org.listenbrainz.android.data.sources.Constants.RECENTLY_PLAYED_KEY
 import org.listenbrainz.android.data.sources.api.ListenBrainzServiceGenerator
 import org.listenbrainz.android.data.sources.api.entities.AccessToken
 import org.listenbrainz.android.data.sources.api.entities.userdata.UserInfo
+import org.listenbrainz.android.data.sources.brainzplayer.Playlist
 import org.listenbrainz.android.data.sources.brainzplayer.Song
 import org.listenbrainz.android.databinding.ActivityLoginBinding
 import org.listenbrainz.android.presentation.features.adapters.CardAdapter
@@ -71,7 +72,7 @@ class LoginActivity : ListenBrainzActivity() {
                 val cards = listOf(
                     Card(time,"Average Time Spent",  R.drawable.ic_time),
                     Card("8","Music Listen",  R.drawable.ic_listen),
-                    Card("Anuv Jain","Favourite Artist", R.drawable.ic_artist_icon),
+                    Card(Playlist.recentlyPlayed.favouriteArtist,"Favourite Artist", R.drawable.ic_artist_icon),
                     Card("2","Follower",  R.drawable.ic_user),
                     Card("3","Following ",  R.drawable.ic_artist)
                 )

@@ -382,4 +382,12 @@ fun PlayerScreen(
     if (data != null) {
         recentlyPlayed.items=data.filter { it.title!="null" }.toList().reversed()
     }
+    val artists = recentlyPlayed.items.flatMap { it.artist.split(", ") }
+
+    val mostFrequentArtist = artists
+        .groupingBy { it }
+        .eachCount()
+        .maxBy { it.value }
+        ?.key
+    recentlyPlayed.favouriteArtist=mostFrequentArtist?:""
 }

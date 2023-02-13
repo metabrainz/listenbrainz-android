@@ -40,6 +40,7 @@ class CircularPercentageChart @JvmOverloads constructor(
             }
         drawCircle(canvas)
         drawImage(canvas)
+        setPercentage()
     }
 
     private fun drawCircle(canvas: Canvas) {
