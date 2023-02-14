@@ -380,14 +380,17 @@ fun PlayerScreen(
     cache?.saveData(currentlyPlayingSong,Song::class.java,true)
     var data= cache?.getData(Song::class.java)
     if (data != null) {
-        recentlyPlayed.items=data.filter { it.title!="null" }.toList().reversed()
-    }
-    val artists = recentlyPlayed.items.flatMap { it.artist.split(", ") }
+        recentlyPlayed.items = data.filter { it.title != "null" }.toList().reversed()
 
-    val mostFrequentArtist = artists
-        .groupingBy { it }
-        .eachCount()
-        .maxBy { it.value }
-        ?.key
-    recentlyPlayed.favouriteArtist=mostFrequentArtist?:""
+        if (recentlyPlayed.items.isNotEmpty()) {
+            val artists = recentlyPlayed.items.flatMap { it.artist.split(", ") }
+
+            val mostFrequentArtist = artists
+                .groupingBy { it }
+                .eachCount()
+                .maxBy { it.value }
+                ?.key
+            recentlyPlayed.favouriteArtist = mostFrequentArtist ?: ""
+        }
+    }
 }
