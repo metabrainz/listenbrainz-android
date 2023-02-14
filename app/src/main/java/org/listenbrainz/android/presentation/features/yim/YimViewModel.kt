@@ -232,7 +232,6 @@ class YimViewModel @Inject constructor(
                     context = context,
                     bitmap = bitmap,
                     format = Bitmap.CompressFormat.PNG,
-                    mimeType = "image/png",
                     displayName = "${getUserName()}'s $sharableType",
                     launchShareIntent = true
                 )
