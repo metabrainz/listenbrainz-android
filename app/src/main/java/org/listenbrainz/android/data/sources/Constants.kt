@@ -27,4 +27,5 @@ object Constants {
     const val RECENTLY_PLAYED_KEY = "recently_played"
     const val PROFILE_PIC="profile_pic"
     const val PROFILE="profile_data"
+    const val LAST_LISTEN="Last_Listen"
 }

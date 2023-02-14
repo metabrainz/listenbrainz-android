@@ -49,11 +49,17 @@ class CacheService<T>(private val context: Context, private val key: String,priv
             if (json.isEmpty()) {
                 return emptyList()
             }
-            val data = json.split("},")
+            val data = json.split("},{")
                 .filter { it.isNotEmpty() }
-                .map { "$it}" }
+                .mapIndexed { index, it ->
+                    if (index == 0) {
+                        "$it}"
+                    } else {
+                        "{$it}"
+                    }
+                }
                 .map {
-                    val fixedJson = it.replace("[","").replace("]","")
+                    val fixedJson = it.replace(",}","")
                     Gson().fromJson(fixedJson, dataType)
                 }
                 .toSet()

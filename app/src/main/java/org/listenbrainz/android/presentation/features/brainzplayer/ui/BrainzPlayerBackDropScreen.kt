@@ -40,6 +40,8 @@ import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.App
 import org.listenbrainz.android.R
+import org.listenbrainz.android.data.di.TotalListens
+import org.listenbrainz.android.data.sources.Constants.LAST_LISTEN
 import org.listenbrainz.android.data.sources.Constants.RECENTLY_PLAYED_KEY
 import org.listenbrainz.android.data.sources.brainzplayer.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.data.sources.brainzplayer.Song
@@ -375,7 +377,18 @@ fun PlayerScreen(
             }
         }
     }
-
+    var TotalSong_Played=1
+    var cacheListen= App.context?.let { CacheService<TotalListens>(it, LAST_LISTEN) }
+    var dataListen= cacheListen?.getData(TotalListens::class.java)
+    if (dataListen != null) {
+        if (dataListen.isNotEmpty()) {
+            TotalSong_Played= dataListen[0].total
+            if(currentlyPlayingSong!=dataListen[0].lastListen){
+                TotalSong_Played++
+            }
+        }
+    }
+    cacheListen?.saveData(TotalListens(currentlyPlayingSong,TotalSong_Played),TotalListens::class.java,false)
     var cache= App.context?.let { CacheService<Song>(it, RECENTLY_PLAYED_KEY) }
     cache?.saveData(currentlyPlayingSong,Song::class.java,true)
     var data= cache?.getData(Song::class.java)

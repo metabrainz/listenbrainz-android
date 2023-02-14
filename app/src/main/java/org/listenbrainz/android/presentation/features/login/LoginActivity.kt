@@ -18,7 +18,9 @@ import org.listenbrainz.android.App
 import org.listenbrainz.android.BuildConfig.APPLICATION_ID
 import org.listenbrainz.android.R
 import org.listenbrainz.android.data.di.Card
+import org.listenbrainz.android.data.di.TotalListens
 import org.listenbrainz.android.data.di.user_profile
+import org.listenbrainz.android.data.sources.Constants
 import org.listenbrainz.android.data.sources.Constants.PROFILE
 import org.listenbrainz.android.data.sources.Constants.PROFILE_PIC
 import org.listenbrainz.android.data.sources.Constants.RECENTLY_PLAYED_KEY
@@ -65,13 +67,20 @@ class LoginActivity : ListenBrainzActivity() {
                 val startTime = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(10)
                 val endTime = System.currentTimeMillis()
                 val usageStats = AppUsage().getAppUsageTime(this, packageName, startTime, endTime)
-
+                var totalListens=0
                 val time=convertMillisToHoursAndMinutes(usageStats.foregroundTime)
+                var cacheListen= App.context?.let { CacheService<TotalListens>(it, Constants.LAST_LISTEN) }
+                var dataListen= cacheListen?.getData(TotalListens::class.java)
+                if (dataListen != null) {
+                    if (dataListen.isNotEmpty()) {
+                        totalListens= dataListen[0].total
 
+                    }
+                }
                 var cacheName= App.context?.let { CacheService<user_profile>(it, PROFILE) }
                 val cards = listOf(
                     Card(time,"Average Time Spent",  R.drawable.ic_time),
-                    Card("8","Music Listen",  R.drawable.ic_listen),
+                    Card(totalListens.toString(),"Music Listen",  R.drawable.ic_listen),
                     Card(Playlist.recentlyPlayed.favouriteArtist,"Favourite Artist", R.drawable.ic_artist_icon),
                     Card("2","Follower",  R.drawable.ic_user),
                     Card("3","Following ",  R.drawable.ic_artist)
@@ -220,8 +229,10 @@ class LoginActivity : ListenBrainzActivity() {
         LBSharedPreferences.logoutUser()
         var cacheName= App.context?.let { CacheService<user_profile>(it, PROFILE) }
         var cacheRecent= App.context?.let { CacheService<Song>(it, RECENTLY_PLAYED_KEY) }
+        var cacheListen= App.context?.let { CacheService<TotalListens>(it, Constants.LAST_LISTEN) }
         cacheRecent?.deleteData()
         cacheName?.deleteData()
+        cacheListen?.deleteData()
         cache?.deleteData()
         Toast.makeText(applicationContext,
                 "User has successfully logged out.",
