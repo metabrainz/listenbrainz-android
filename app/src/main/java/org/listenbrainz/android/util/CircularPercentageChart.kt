@@ -83,25 +83,27 @@ class CircularPercentageChart @JvmOverloads constructor(
         if (list != null) {
             if(list.lastIndex>=0)
             {
+                var cacheImage= App.context?.let { CacheService<Bitmap>(it, PROFILE_PIC) }
+                var data= cacheImage?.getBitmap()
                 var name= list[0].name
                 var time= list[0].time
-                var image=list[0].image
+                var image=data
 
-                if((image != 0) && time?.toInt() ==0 && name=="Listener")
+                if((image != null) && time?.toInt() ==0 && name=="Listener")
                     complete=1
-                else if((image != 0) && time?.toInt() !=0 && name!="Listener")
+                else if((image != null) && time?.toInt() !=0 && name!="Listener")
                     complete=3
-                else if((image != 0) && time?.toInt() !=0 && name=="Listener")
+                else if((image != null) && time?.toInt() !=0 && name=="Listener")
                     complete=2
-                else if((image != 0) && time?.toInt() ==0 && name!="Listener")
+                else if((image != null) && time?.toInt() ==0 && name!="Listener")
                     complete=2
-                else if((image == 0) && time?.toInt() !=0 && name !="Listener")
+                else if((image == null) && time?.toInt() !=0 && name !="Listener")
                     complete=2
-                else if((image == 0) && time?.toInt() ==0 && name=="Listener")
+                else if((image == null) && time?.toInt() ==0 && name=="Listener")
                     complete=0
-                else if((image == 0) && time?.toInt() !=0 && name=="Listener")
+                else if((image == null) && time?.toInt() !=0 && name=="Listener")
                     complete=1
-                else if((image == 0) && time?.toInt() ==0 && name!="Listener")
+                else if((image == null) && time?.toInt() ==0 && name!="Listener")
                     complete=1
             }
 
