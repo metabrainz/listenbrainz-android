@@ -28,15 +28,6 @@ import org.listenbrainz.android.presentation.theme.isUiModeIsDark
 import org.listenbrainz.android.presentation.theme.lb_purple
 import java.text.DecimalFormat
 
-@Preview(uiMode = UI_MODE_NIGHT_NO, showBackground = true)
-@Preview(uiMode = UI_MODE_NIGHT_YES, showBackground = true)
-@Composable
-fun Preview(){
-    ListenBrainzTheme {
-        SimilarUserCard(index = 0, userName = "jasje", similarity = 0.80f)
-    }
-}
-
 /**
  * Select an appropriate cardBackground that goes with the given theme.
  * @param similarity should lie between 0f and 1f.
@@ -134,5 +125,14 @@ fun SimilarUserCard(
                 )
             }
         }
+    }
+}
+
+@Preview(uiMode = UI_MODE_NIGHT_NO, showBackground = true)
+@Preview(uiMode = UI_MODE_NIGHT_YES, showBackground = true)
+@Composable
+fun Preview(){
+    ListenBrainzTheme {
+        SimilarUserCard(index = 0, userName = "jasje", similarity = 0.80f)
     }
 }
