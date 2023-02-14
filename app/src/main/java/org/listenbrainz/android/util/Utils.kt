@@ -12,10 +12,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import androidx.annotation.WorkerThread
-import androidx.core.net.toUri
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import okhttp3.*
 import org.listenbrainz.android.util.Log.e
 import java.io.*
@@ -95,12 +92,18 @@ object Utils {
      * the internal storage is inaccessible to other apps which want the bitmap.
      *
      * @author jasje on IRC*/
-    @Throws(IOException::class)
+    @Throws(IOException::class,IllegalArgumentException::class)
     @WorkerThread
     fun saveBitmap(
-        context: Context, bitmap: Bitmap, format: Bitmap.CompressFormat, mimeType: String,
+        context: Context, bitmap: Bitmap, format: Bitmap.CompressFormat,
         displayName: String, quality: Int = 95, launchShareIntent: Boolean = false
     ): String? {
+        
+        val mimeType: String = when(format){
+            Bitmap.CompressFormat.PNG -> "image/png"
+            Bitmap.CompressFormat.JPEG -> "image/jpeg"
+            else -> throw IllegalArgumentException("Unsupported CompressFormat type.")
+        }
         
         var resultUrl : String? = null
         
@@ -158,7 +161,6 @@ object Utils {
                                 + displayName
                                 + when (mimeType) {
                             "image/png" -> ".png"
-                            "image/jpg" -> ".jpg"
                             "image/jpeg" -> ".jpeg"
                             else -> { throw IllegalArgumentException("Unsupported or incorrect mime type.") }
                         }
