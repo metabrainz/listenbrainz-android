@@ -12,9 +12,12 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimNavigation
+import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
+import org.listenbrainz.sharedtest.mocks.MockAppPreferences
 import org.listenbrainz.sharedtest.mocks.MockNetworkConnectivityViewModel
 import org.listenbrainz.sharedtest.mocks.MockYimRepository
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testYimUsername
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -28,8 +31,13 @@ class YearInMusicActivityTest {
     @Before
     fun setup(){
         activity = rule.activity
-        val yimViewModel = YimViewModel(MockYimRepository())
+        
+        val yimViewModel = YimViewModel(
+            MockYimRepository(),
+            MockAppPreferences(username = testYimUsername, loginStatus = LBSharedPreferences.STATUS_LOGGED_IN)
+        )
         val networkViewModel = MockNetworkConnectivityViewModel(ConnectivityObserver.NetworkStatus.Available)
+        
         rule.setContent {
             YimNavigation(yimViewModel = yimViewModel, activity = activity, networkConnectivityViewModel = networkViewModel)
         }

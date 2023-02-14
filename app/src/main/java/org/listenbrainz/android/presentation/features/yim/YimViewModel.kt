@@ -12,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import com.caverock.androidsvg.SVG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import org.listenbrainz.android.data.repository.AppPreferences
 import org.listenbrainz.android.data.repository.YimRepository
 import org.listenbrainz.android.data.sources.api.entities.yimdata.*
 import org.listenbrainz.android.util.LBSharedPreferences
@@ -21,7 +22,10 @@ import java.net.URL
 import javax.inject.Inject
 
 @HiltViewModel
-class YimViewModel @Inject constructor(private val repository: YimRepository) : ViewModel() {
+class YimViewModel @Inject constructor(
+    private val repository: YimRepository,
+    private val appPreferences: AppPreferences
+) : ViewModel() {
     // Yim data resource
     var yimData:
             MutableState<
@@ -46,10 +50,10 @@ class YimViewModel @Inject constructor(private val repository: YimRepository) : 
     
     // Username related functions
     fun getUserName() : String?{
-        return repository.getUsername()
+        return appPreferences.username
     }
     fun isLoggedIn() : Boolean{
-        return (repository.getLoginStatus() == LBSharedPreferences.STATUS_LOGGED_IN)
+        return (appPreferences.loginStatus == LBSharedPreferences.STATUS_LOGGED_IN)
     }
     
     /** Get Data functions
