@@ -12,10 +12,13 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
+import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.util.Resource
+import org.listenbrainz.sharedtest.mocks.MockAppPreferences
 import org.listenbrainz.sharedtest.mocks.MockYimRepository
 import org.listenbrainz.sharedtest.utils.AssertionUtils.checkYimAssertions
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testYimData
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testYimUsername
 
 class YimViewModelTest{
     
@@ -25,7 +28,7 @@ class YimViewModelTest{
     @Before
     fun setup(){
         Dispatchers.setMain(StandardTestDispatcher())
-        viewModel = YimViewModel(MockYimRepository())
+        viewModel = YimViewModel(MockYimRepository(), MockAppPreferences(username = testYimUsername, loginStatus = LBSharedPreferences.STATUS_LOGGED_IN))
     }
     
     @OptIn(ExperimentalCoroutinesApi::class)
