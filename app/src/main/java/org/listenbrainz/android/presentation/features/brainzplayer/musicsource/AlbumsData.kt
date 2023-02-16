@@ -40,9 +40,8 @@ class AlbumsData {
                 val artistName = cursor.getString(artist)?:""
                 val albumArt = "content://media/external/audio/albumart/$albumId"
                 albums.add(Album(albumId, albumName, artistName, albumArt))
-                albums.toSet().toMutableList()
             }
         }
-        return albums
+        return albums.distinct()
     }
 }
