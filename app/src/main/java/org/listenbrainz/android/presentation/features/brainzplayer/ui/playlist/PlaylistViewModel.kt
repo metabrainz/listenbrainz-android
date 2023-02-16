@@ -3,6 +3,7 @@ package org.listenbrainz.android.presentation.features.brainzplayer.ui.playlist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -22,7 +23,7 @@ class PlaylistViewModel @Inject constructor(
     val playlists = playlistRepository.getAllPlaylist()
     val playlistsCollectedFromChecklist = MutableStateFlow(mutableListOf<Playlist>())
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             playlists.collectLatest {
                 if (it.isEmpty()){
                     playlistRepository.insertPlaylists(listOf(currentlyPlaying, favourite))

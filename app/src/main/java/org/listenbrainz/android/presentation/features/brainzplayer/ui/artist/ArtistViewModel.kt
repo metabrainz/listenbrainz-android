@@ -3,6 +3,7 @@ package org.listenbrainz.android.presentation.features.brainzplayer.ui.artist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOf
@@ -20,7 +21,7 @@ class ArtistViewModel @Inject constructor(
     val artists = artistRepository.getArtists()
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Default) {
             artists.collectLatest {
                 if (it.isEmpty()) artistRepository.addArtists()
             }
