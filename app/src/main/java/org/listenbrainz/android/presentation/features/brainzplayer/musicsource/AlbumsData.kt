@@ -8,6 +8,7 @@ import javax.inject.Singleton
 
 class AlbumsData {
     fun fetchAlbums(): List<Album> {
+        
         if(albumsList.isNotEmpty()){
             return albumsList
         }
@@ -49,6 +50,7 @@ class AlbumsData {
         albumsList = albums.distinct()
         return albumsList
     }
+    
     @Singleton
     companion object {
         private var albumsList = listOf<Album>()
