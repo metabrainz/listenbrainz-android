@@ -5,9 +5,14 @@ import android.os.Build
 import android.provider.MediaStore
 import org.listenbrainz.android.App.Companion.context
 import org.listenbrainz.android.data.sources.brainzplayer.Song
+import javax.inject.Singleton
 
 class SongData {
     fun fetchSongs(): List<Song> {
+        
+        if (songsList.isNotEmpty()){
+            return songsList
+        }
         val songs = mutableListOf<Song>()
         val collection =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -95,6 +100,12 @@ class SongData {
                 )
             }
         }
-        return songs
+        songsList = songs
+        return songsList
+    }
+    
+    @Singleton
+    companion object {
+        private var songsList = listOf<Song>()
     }
 }
