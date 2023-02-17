@@ -4,9 +4,13 @@ import android.os.Build
 import android.provider.MediaStore
 import org.listenbrainz.android.App.Companion.context
 import org.listenbrainz.android.data.sources.brainzplayer.Album
+import javax.inject.Singleton
 
 class AlbumsData {
     fun fetchAlbums(): List<Album> {
+        if(albumsList.isNotEmpty()){
+            return albumsList
+        }
         val albums = mutableListOf<Album>()
         val collection =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -42,6 +46,11 @@ class AlbumsData {
                 albums.add(Album(albumId, albumName, artistName, albumArt))
             }
         }
-        return albums.distinct()
+        albumsList = albums.distinct()
+        return albumsList
+    }
+    @Singleton
+    companion object {
+        private var albumsList = listOf<Album>()
     }
 }
