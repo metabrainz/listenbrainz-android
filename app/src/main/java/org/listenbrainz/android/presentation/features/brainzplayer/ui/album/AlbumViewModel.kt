@@ -25,7 +25,7 @@ class AlbumViewModel @Inject constructor(
     
     // TODO: Integrate a refresh button using this function.
     fun fetchAlbumsFromDevice() {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             albums.collectLatest {
                 if (it.isEmpty()) albumRepository.addAlbums()
             }

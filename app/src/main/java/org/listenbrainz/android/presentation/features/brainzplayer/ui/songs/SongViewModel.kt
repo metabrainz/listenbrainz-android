@@ -24,7 +24,7 @@ class SongViewModel @Inject constructor(
     
     // TODO: Integrate a refresh button using this function.
     fun fetchSongsFromDevice(){
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             songs.collectLatest {
                 if (it.isEmpty()) songRepository.addSongs()
             }

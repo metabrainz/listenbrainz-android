@@ -28,7 +28,7 @@ class ArtistViewModel @Inject constructor(
     
     // TODO: Integrate a refresh button using this function.
     fun fetchArtistsFromDevice(){
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             artists.collectLatest {
                 if (it.isEmpty()) artistRepository.addArtists()
             }
