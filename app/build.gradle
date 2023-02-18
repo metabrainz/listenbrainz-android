@@ -27,8 +27,8 @@ android {
         applicationId 'org.listenbrainz.android'
         minSdk 21
         targetSdk 33
-        versionCode 15
-        versionName "1.1.4"
+        versionCode 16
+        versionName "1.1.5"
 
         multiDexEnabled true
         testInstrumentationRunner "org.listenbrainz.android.CustomTestRunner" // "androidx.test.runner.AndroidJUnitRunner"

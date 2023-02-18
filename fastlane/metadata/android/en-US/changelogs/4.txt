@@ -1,1 +1,0 @@
-Spotify remote integration fixed!
