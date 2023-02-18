@@ -8,6 +8,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.Text
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,11 +17,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import org.listenbrainz.android.R
 import org.listenbrainz.android.data.sources.api.entities.CoverArt
 import org.listenbrainz.android.data.sources.api.entities.listens.Listen
+import org.listenbrainz.android.presentation.theme.lb_purple
 
 @Composable
 fun ListenCard(listen: Listen, coverArt: CoverArt?, onItemClicked: (listen: Listen) -> Unit) {
@@ -106,6 +111,68 @@ fun ListenCard(listen: Listen, coverArt: CoverArt?, onItemClicked: (listen: List
                 )
             }
 */
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalGlideComposeApi::class)
+fun ListenCardSmall(
+    releaseName: String,
+    artistName: String,
+    coverArtUrl: String,
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .clickable(enabled = true) {
+                onClick()
+                // Sends the user to recordings page just like website.
+            },
+        shape = RoundedCornerShape(5.dp),
+        shadowElevation = 5.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            
+            // Album cover art
+            GlideImage(
+                model = coverArtUrl,
+                modifier = Modifier.size(60.dp),
+                contentScale = ContentScale.Fit,
+                contentDescription = "Album Cover Art"
+            ) {
+                it.placeholder(R.drawable.ic_coverartarchive_logo_no_text)
+                    .override(75)
+            }
+            
+            Spacer(modifier = Modifier.width(16.dp))
+            
+            Column(modifier = Modifier) {
+                androidx.compose.material3.Text(
+                    text = releaseName,
+                    style = androidx.compose.material3.MaterialTheme.typography.bodyLarge
+                        .copy(
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = lb_purple,
+                            lineHeight = 14.sp
+                        ),
+                )
+                androidx.compose.material3.Text(
+                    text = artistName,
+                    style = androidx.compose.material3.MaterialTheme.typography.bodyMedium
+                        .copy(
+                            fontWeight = FontWeight.Bold,
+                            color = lb_purple.copy(alpha = 0.7f)
+                        )
+                )
+            }
         }
     }
 }

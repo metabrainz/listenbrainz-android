@@ -20,5 +20,4 @@ class YimRepositoryImpl @Inject constructor(private val service: YimService) : Y
             Resource(Resource.Status.FAILED, null)
         }
     }
-    
 }

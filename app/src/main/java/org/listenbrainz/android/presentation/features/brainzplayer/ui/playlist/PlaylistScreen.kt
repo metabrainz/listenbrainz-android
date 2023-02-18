@@ -1,5 +1,8 @@
 package org.listenbrainz.android.presentation.features.brainzplayer.ui.playlist
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -39,9 +43,13 @@ import org.listenbrainz.android.presentation.features.brainzplayer.ui.BrainzPlay
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.forwardingPainter
 
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @ExperimentalMaterial3Api
 @Composable
-fun PlaylistScreen(navHostController: NavHostController) {
+fun PlaylistScreen(
+    navHostController: NavHostController,
+    context: Context = LocalContext.current
+) {
     var isFABDialogVisible by rememberSaveable {
         mutableStateOf(false)
     }
@@ -299,7 +307,10 @@ fun PlaylistScreen(navHostController: NavHostController) {
                                 DropdownMenuItem(text = {
                                     Text(text = "Play")
                                 }, onClick = {
-                                    brainzPlayerViewModel.playOrToggleSong(it.items[0],true)
+                                    if (it.items.isNotEmpty())
+                                        brainzPlayerViewModel.playOrToggleSong(it.items[0],true)
+                                    else
+                                        Toast.makeText(context, "Playlist is empty!", Toast.LENGTH_SHORT).show()
                                 })
                                 DropdownMenuItem(text = {
                                     Text(text = "Rename")

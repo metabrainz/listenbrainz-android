@@ -11,22 +11,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.caverock.androidsvg.SVG
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import org.listenbrainz.android.data.repository.AppPreferences
 import org.listenbrainz.android.data.repository.YimRepository
 import org.listenbrainz.android.data.sources.api.entities.yimdata.*
 import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.saveBitmap
-import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
-import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityObserver
 import java.net.URL
 import javax.inject.Inject
 
 @HiltViewModel
-class YimViewModel @Inject constructor(private val repository: YimRepository, @ApplicationContext context: Context) : ViewModel() {
+class YimViewModel @Inject constructor(
+    private val repository: YimRepository,
+    private val appPreferences: AppPreferences
+) : ViewModel() {
     // Yim data resource
     var yimData:
             MutableState<
@@ -34,24 +33,13 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
                     >
     = mutableStateOf(Resource.loading())
     
-    /** User name.
-        Don't worry about this being nullable as we are performing login check.*/
-    private var username: String? = LBSharedPreferences.username
-    
-    // Network Checking variables
-    private val connectivityObserver = NetworkConnectivityObserver(context)
-    private var networkStatus:
-            MutableState<ConnectivityObserver.NetworkStatus>
-    = mutableStateOf(ConnectivityObserver.NetworkStatus.Unavailable)   // initial value
-    
     init {
-        checkNetworkStatus()
         getData()
     }
     
     private fun getData() {
         viewModelScope.launch {
-            val response = username?.let { repository.getYimData(username = it) }!!
+            val response = getUserName()?.let { repository.getYimData(username = it) }!!
             when (response.status){
                 Resource.Status.SUCCESS -> yimData.value = response
                 Resource.Status.LOADING -> yimData.value = Resource.loading()
@@ -62,22 +50,11 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
     
     // Username related functions
     fun getUserName() : String?{
-        return username
+        return appPreferences.username
     }
     fun isLoggedIn() : Boolean{
-        return (LBSharedPreferences.loginStatus == LBSharedPreferences.STATUS_LOGGED_IN)
+        return (appPreferences.loginStatus == LBSharedPreferences.STATUS_LOGGED_IN)
     }
-    
-    // Internet Connectivity Functions
-    private fun checkNetworkStatus(){
-        connectivityObserver.observe().onEach {
-            networkStatus.value = it
-        }.launchIn(viewModelScope)
-    }
-    fun getNetworkStatus() : ConnectivityObserver.NetworkStatus{
-        return networkStatus.value
-    }
-    
     
     /** Get Data functions
      *  NOTE : Every get must be null checked.
@@ -253,16 +230,16 @@ class YimViewModel @Inject constructor(private val repository: YimRepository, @A
                 
                 saveBitmap(
                     context = context,
-                    scope = viewModelScope,
                     bitmap = bitmap,
                     format = Bitmap.CompressFormat.PNG,
-                    mimeType = "image/png",
                     displayName = "${getUserName()}'s $sharableType",
                     launchShareIntent = true
                 )
                 
             }catch (e: Exception){
-                Toast.makeText(context, "Something went wrong.", Toast.LENGTH_SHORT).show()
+                withContext(Dispatchers.Main){
+                    Toast.makeText(context, "Something went wrong.", Toast.LENGTH_SHORT).show()
+                }
                 e.localizedMessage?.let { Log.e("YimShareError", it) }
             }
             
