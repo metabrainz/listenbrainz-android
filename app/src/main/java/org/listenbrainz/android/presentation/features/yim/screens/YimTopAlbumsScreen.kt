@@ -32,7 +32,6 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.data.sources.api.entities.yimdata.TopRelease
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
-import org.listenbrainz.android.presentation.features.yim.navigation.YimShareable
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimHeadingText
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimNavigationStation
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
@@ -107,19 +106,17 @@ fun YimTopAlbumsScreen(
                             state = listState,
                             data = uriList,
                             size = Size(300f,300f),
-                            numberOfItemsToPreload = 20,
+                            numberOfItemsToPreload = 15,
                             fixedVisibleItemCount = 3
                         ){ item, requestBuilder ->
                             requestBuilder.load(item).placeholder(R.drawable.yim_album_placeholder)
                         }
                         
-                        YimAlbumViewer(list = topReleases, listState = listState, viewModel = yimViewModel)
+                        YimAlbumViewer(list = topReleases, listState = listState)
                         
                     }
                 }
-                
             }
-            
             
             // To Avoid multiple recompositions for both share and next buttons
             var animateShareButton by remember { mutableStateOf(false) }
@@ -131,7 +128,7 @@ fun YimTopAlbumsScreen(
             // Share Button and next Button
             AnimatedVisibility(visible = animateShareButton) {
                 YimNavigationStation(
-                    typeOfImage = arrayOf(YimShareable.ALBUMS),
+                    typeOfImage = arrayOf(),//arrayOf(YimShareables.Albums),
                     navController = navController,
                     viewModel = yimViewModel,
                     modifier = Modifier.padding(top = 40.dp),
@@ -145,7 +142,7 @@ fun YimTopAlbumsScreen(
 
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class)
 @Composable
-private fun YimAlbumViewer(list: List<TopRelease>?, listState: LazyListState, viewModel: YimViewModel) {
+private fun YimAlbumViewer(list: List<TopRelease>?, listState: LazyListState) {
     
     // This prevents image from being blur or crashing the app.
     var renderImage by remember { mutableStateOf(false) }
@@ -175,11 +172,11 @@ private fun YimAlbumViewer(list: List<TopRelease>?, listState: LazyListState, vi
             
             itemsIndexed(list!!.toList()) { index, item ->
                 
-                if (index == 0) {
+                if (index == 0)
                     Spacer(modifier = Modifier.width(LocalYimPaddings.current.defaultPadding))
-                }else
-                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.smallPadding))
-                    
+                else
+                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.tinyPadding))
+                
                 
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -193,7 +190,7 @@ private fun YimAlbumViewer(list: List<TopRelease>?, listState: LazyListState, vi
                             .clip(RoundedCornerShape(10.dp)),
                         contentDescription = "Album Poster"
                     ) {
-                        it.override(300,300).placeholder(R.drawable.yim_album_placeholder)  // TODO: Mess with size
+                        it.override(300).placeholder(R.drawable.yim_album_placeholder)
                     }
                     
                     Spacer(modifier = Modifier.height(5.dp))
@@ -218,86 +215,13 @@ private fun YimAlbumViewer(list: List<TopRelease>?, listState: LazyListState, vi
                         color = Color(0xFF727272)
                     )
                 }
-    
-                if (index == list.lastIndex) {
+                
+                if (index == list.lastIndex)
                     Spacer(modifier = Modifier.width(LocalYimPaddings.current.defaultPadding))
-                }else
-                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.smallPadding))
+                else
+                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.tinyPadding))
                 
             }
-            
         }
     }
 }
-
-/** Album Viewer Using Coil (Here for future if decision shakes)*/
-/*
-@Composable
-fun CoilAlbumViewer(list: List<TopRecording>?) {
-    
-    // This prevents image from being blur or crashing the app.
-   var renderImage by remember { mutableStateOf(false) }
-    LaunchedEffect(true){
-        delay(2100)
-        renderImage = true
-    }
-    
-    val listState = rememberLazyListState()
-    
-    LazyRow(
-        state = listState,
-        modifier = Modifier
-            .fillMaxWidth()
-            // Animates the grayish background of this window.
-            .padding(
-                vertical = if (renderImage)
-                    LocalYimPaddings.current.extraLargePadding
-                else
-                    0.dp
-            )
-            .animateContentSize(),
-    ) {
-        if (list != null) {
-            items(list.toList()) { item ->
-                // https://archive.org/download/mbid-{caa_release_mbid}/mbid-{caa_release_mbid}-{caa_id}_thumb500.jpg
-                val imagePainter = if (item.caaId != null) {
-                    rememberAsyncImagePainter(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data("https://archive.org/download/mbid-${item.caaReleaseMbid}/mbid-${item.caaReleaseMbid}-${item.caaId}_thumb250.jpg")
-                            .crossfade(true)
-                            .placeholder(R.drawable.ic_metabrainz_logo_no_text)
-                            .build(),
-                        filterQuality = FilterQuality.Medium,
-                        error = painterResource(id = R.drawable.ic_metabrainz_logo_no_text),
-                    )
-                }else {
-                    rememberAsyncImagePainter(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(R.drawable.ic_album)
-                            .build()
-                    )
-                }
-                
-               if (renderImage) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        Image(
-                            painter = imagePainter,
-                            modifier = Modifier
-                                .size(300.dp)
-                                .clip(RoundedCornerShape(10.dp)),
-                            contentScale = ContentScale.Fit,
-                            contentDescription = null
-                        )
-                        Text(text = item.trackName)
-                    }
-                    Spacer(modifier = Modifier.width(LocalYimPaddings.current.defaultPadding))
-               }
-               
-            }
-        }
-    }
-}*/
-

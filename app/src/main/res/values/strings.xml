@@ -205,4 +205,21 @@
 
     <!-- BrainzPlayer -->
     <string name="bp_loading_text">Loading your music library</string>
+
+    <!-- Test Tags -->
+    <!-- Yim test tags-->
+    <string name="tt_yim_home_logo">tt_yim_home_logo</string>
+    <string name="tt_yim_share">tt_yim_share</string>
+    <string name="tt_yim_back_button">tt_yim_back_button</string>
+    <string name="tt_yim_next_button">tt_yim_next_button</string>
+    <string name="tt_yim_charts_heading">tt_yim_charts_heading</string>
+    <string name="tt_yim_statistics_heading">tt_yim_statistics_heading</string>
+    <string name="tt_yim_recommended_playlists_heading">tt_yim_recommended_playlists_heading</string>
+    <string name="tt_yim_discover_heading">tt_yim_discover_heading</string>
+    <string name="tt_yim_endgame_heading">tt_yim_endgame_heading</string>
+    <string name="tt_yim_discover_parent">tt_yim_discover_parent</string>
+    <string name="tt_yim_recommended_playlists_parent">tt_yim_recommended_playlists_parent</string>
+    <string name="tt_yim_charts_parent">tt_yim_charts_parent</string>
+    <string name="tt_yim_statistics_parent">tt_yim_statistics_parent</string>
+
 </resources>
