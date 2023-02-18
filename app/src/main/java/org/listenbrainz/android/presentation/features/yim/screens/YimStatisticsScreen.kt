@@ -19,6 +19,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
@@ -34,7 +36,9 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
 import org.listenbrainz.android.presentation.features.yim.navigation.YimShareable
-import org.listenbrainz.android.presentation.features.yim.screens.components.*
+import org.listenbrainz.android.presentation.features.yim.screens.components.YimHeadingText
+import org.listenbrainz.android.presentation.features.yim.screens.components.YimLabelText
+import org.listenbrainz.android.presentation.features.yim.screens.components.YimNavigationStation
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YimPaddings
@@ -65,7 +69,8 @@ fun YimStatisticsScreen(
         Column(modifier = Modifier
             .fillMaxSize()
             .verticalScroll(state = rememberScrollState())
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background)
+            .testTag(stringResource(id = R.string.tt_yim_statistics_parent)),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

@@ -9,8 +9,8 @@ import org.listenbrainz.android.data.sources.api.entities.userdata.UserInfo
 import org.listenbrainz.android.data.sources.brainzplayer.Playable
 
 object LBSharedPreferences {
-    private const val USERNAME = "username"
-    private const val CURRENT_PLAYABLE = "CURRENT_PLAYABLE"
+    const val USERNAME = "username"
+    const val CURRENT_PLAYABLE = "CURRENT_PLAYABLE"
     const val ACCESS_TOKEN = "access_token"
     const val REFRESH_TOKEN = "refresh_token"
     const val STATUS_LOGGED_IN = 1

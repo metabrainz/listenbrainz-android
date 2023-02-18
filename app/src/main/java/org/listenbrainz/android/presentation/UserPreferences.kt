@@ -6,11 +6,19 @@ import org.listenbrainz.android.App
 object UserPreferences {
     const val PREFERENCE_LISTENBRAINZ_TOKEN = "listenbrainz_user_token"
     const val PREFERENCE_LISTENING_ENABLED = "listening_enabled"
-    private const val PREFERENCE_LISTENING_SPOTIFY = "listening_spotify_enabled"
-    private const val PREFERENCE_SYSTEM_LANGUAGE = "use_english"
+    const val PREFERENCE_LISTENING_SPOTIFY = "listening_spotify_enabled"
+    const val PREFERENCE_SYSTEM_LANGUAGE = "use_english"
     const val PREFERENCE_SYSTEM_THEME = "app_theme"
-    private const val PREFERENCE_PERMS = "perms_code"
-    private const val PREFERENCE_ONBOARDING = "onboarding"
+    const val PREFERENCE_PERMS = "perms_code"
+    const val PREFERENCE_ONBOARDING = "onboarding"
+    enum class PermissionStatus{
+        NOT_REQUESTED,
+        GRANTED,
+        DENIED_ONCE,
+        DENIED_TWICE
+    }
+    
+    // TODO: Start removal from here.
     private val preferences = PreferenceManager.getDefaultSharedPreferences(App.context!!)
 
     fun setOnBoardingCompleted() {
@@ -49,11 +57,5 @@ object UserPreferences {
             editor.apply()
         }
     
-    enum class PermissionStatus{
-        NOT_REQUESTED,
-        GRANTED,
-        DENIED_ONCE,
-        DENIED_TWICE
-    }
     val preferenceListeningSpotifyEnabled = preferences.getBoolean(PREFERENCE_LISTENING_SPOTIFY, false)
 }

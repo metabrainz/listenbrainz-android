@@ -13,19 +13,22 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import kotlinx.coroutines.delay
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
@@ -48,16 +51,9 @@ fun YimChartsScreen(
         var startAnim by remember{
             mutableStateOf(false)
         }
-    
-        var startSecondAnim by remember{
-            mutableStateOf(false)
-        }
         
         LaunchedEffect(Unit) {
-            delay(1200)
             startAnim = true
-            delay(700)     // Since it takes 700 ms for first list to animate.
-            startSecondAnim = true
         }
         
         // Layout starts here
@@ -65,7 +61,8 @@ fun YimChartsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .verticalScroll(state = rememberScrollState()),
+                .verticalScroll(state = rememberScrollState())
+                .testTag(stringResource(id = R.string.tt_yim_charts_parent)),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -114,7 +111,7 @@ fun YimChartsScreen(
             
                         AnimatedVisibility(
                             visible = startAnim,
-                            enter = expandVertically(animationSpec = tween(700))
+                            enter = expandVertically(animationSpec = tween(700, delayMillis = 1200))
                         ) {
                             // List of songs
                             YimTopRecordingsList(paddings, viewModel)
@@ -159,8 +156,8 @@ fun YimChartsScreen(
                         )
     
                         AnimatedVisibility(
-                            visible = startSecondAnim,
-                            enter = expandVertically(animationSpec = tween(700))
+                            visible = startAnim,
+                            enter = expandVertically(animationSpec = tween(700, delayMillis = 1900))
                         ) {
                             // List of artists
                             YimTopArtistsList(paddings = paddings, viewModel = viewModel)
@@ -169,17 +166,13 @@ fun YimChartsScreen(
                     }
                 }
             
-            
             // Share Button and next
-            if (startSecondAnim) {
-                YimNavigationStation(
-                    typeOfImage = arrayOf(YimShareable.ARTISTS, YimShareable.TRACKS),
-                    navController = navController,
-                    viewModel = viewModel,
-                    route = YimScreens.YimStatisticsScreen
-                )
-            }
-            
+            YimNavigationStation(
+                typeOfImage = arrayOf(YimShareable.ARTISTS, YimShareable.TRACKS),
+                navController = navController,
+                viewModel = viewModel,
+                route = YimScreens.YimStatisticsScreen
+            )
             
         }
     }
@@ -288,7 +281,9 @@ private fun YimTopArtistsList(
     paddings: YimPaddings,
     viewModel: YimViewModel
 ) {
-    val list = viewModel.getTopArtists()!!.toList()
+    val list = remember {
+        viewModel.getTopArtists()!!.toList()
+    }
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()

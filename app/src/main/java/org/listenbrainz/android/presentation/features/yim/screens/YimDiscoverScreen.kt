@@ -11,30 +11,24 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.GlideLazyListPreloader
-import kotlinx.coroutines.delay
 import org.listenbrainz.android.R
+import org.listenbrainz.android.presentation.features.components.ListenCardSmall
+import org.listenbrainz.android.presentation.features.components.SimilarUserCard
 import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.presentation.features.yim.navigation.YimScreens
 import org.listenbrainz.android.presentation.features.yim.screens.components.YimLabelText
@@ -42,8 +36,6 @@ import org.listenbrainz.android.presentation.features.yim.screens.components.Yim
 import org.listenbrainz.android.presentation.features.yim.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.presentation.features.yim.ui.theme.YimPaddings
-import org.listenbrainz.android.presentation.theme.lb_purple
-import java.text.DecimalFormat
 
 @Composable
 fun YimDiscoverScreen(
@@ -56,22 +48,16 @@ fun YimDiscoverScreen(
             mutableStateOf(false)
         }
     
-        var startSecondAnim by remember{
-            mutableStateOf(false)
-        }
-    
         LaunchedEffect(Unit) {
-            delay(1200)
             startAnim = true
-            delay(700)     // Since it takes 700 ms for fist list to animate.
-            startSecondAnim = true
         }
         
         // Main Content
         Column(modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .verticalScroll(state = rememberScrollState()),
+            .verticalScroll(state = rememberScrollState())
+            .testTag(stringResource(id = R.string.tt_yim_discover_parent)),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -120,7 +106,7 @@ fun YimDiscoverScreen(
             
                     AnimatedVisibility(
                         visible = startAnim,
-                        enter = expandVertically(animationSpec = tween(700))
+                        enter = expandVertically(animationSpec = tween(durationMillis = 700, delayMillis = 1200))
                     ) {
                         YimTopAlbumsFromArtistsList(viewModel = yimViewModel)
                     }
@@ -168,7 +154,7 @@ fun YimDiscoverScreen(
             
                     AnimatedVisibility(
                         visible = startAnim,
-                        enter = expandVertically(animationSpec = tween(700))
+                        enter = expandVertically(animationSpec = tween(durationMillis = 700, delayMillis = 1900))
                     ) {
                         YimSimilarUsersList(yimViewModel = yimViewModel)
                     }
@@ -177,15 +163,13 @@ fun YimDiscoverScreen(
             }
     
             // Share Button and next
-            if (startSecondAnim) {
-                YimNavigationStation(
-                    navController = navController,
-                    viewModel = yimViewModel,
-                    typeOfImage = arrayOf(),        // No share button here
-                    modifier = Modifier.padding(vertical = 40.dp),
-                    route = YimScreens.YimEndgameScreen
-                )
-            }
+            YimNavigationStation(
+                navController = navController,
+                viewModel = yimViewModel,
+                typeOfImage = arrayOf(),        // No share button here
+                modifier = Modifier.padding(vertical = 40.dp),
+                route = YimScreens.YimEndgameScreen
+            )
             
         }
     }
@@ -196,7 +180,9 @@ private fun YimSimilarUsersList(
     yimViewModel: YimViewModel,
     paddings: YimPaddings = LocalYimPaddings.current
 ) {
-    val similarUsers = yimViewModel.getSimilarUsers()
+    val similarUsers = remember {
+        yimViewModel.getSimilarUsers()
+    }
     
     LazyColumn(
         modifier = Modifier
@@ -209,88 +195,13 @@ private fun YimSimilarUsersList(
         )
     ) {
         itemsIndexed(similarUsers) { index, item ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = paddings.tinyPadding),
-                shape = RoundedCornerShape(5.dp),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 5.dp),
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface)
-                        .height(50.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-    
-                    Column(
-                        modifier = Modifier
-                            .fillParentMaxWidth(0.1f)
-                            .padding(
-                                horizontal = paddings.defaultPadding,
-                            )
-                    ) {
-                        // Ranking
-                        Column(
-                            modifier = Modifier.fillParentMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = "#${index + 1}",
-                                modifier = Modifier.padding(start = 8.dp),
-                                style = MaterialTheme.typography.bodyMedium
-                                    .copy(
-                                        fontSize = 13.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = lb_purple
-                                    )
-                            )
-                        }
-                    }
-                    
-                    Column(
-                        modifier = Modifier
-                            .fillParentMaxWidth(0.55f)
-                            .padding(
-                                horizontal = paddings.smallPadding
-                            )
-                    ) {
-                        Text(
-                            text = item.first,
-                            style = MaterialTheme.typography.bodyLarge
-                                .copy(
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = lb_purple,
-                                    lineHeight = 14.sp
-                                ) ,
-                        )
-                    }
-                    
-                    Row(
-                        modifier = Modifier.fillParentMaxWidth(0.35f),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        LinearProgressIndicator(
-                            progress = item.second.toFloat(),
-                            modifier = Modifier.clip(CircleShape).width(70.dp),
-                            color = when (item.second) {
-                                in 0.70..1.00 -> Color(0xFF382F6F)
-                                in 0.30..0.69 -> Color(0xFFF57542)
-                                else -> Color(0xFFD03E43)
-                            }
-                        )
-                        Text(
-                            text = "${DecimalFormat("#.#").format(item.second*10)}/10",
-                            color = Color.Black.copy(alpha = 0.4f),
-                            fontFamily = FontFamily(Font(R.font.roboto_regular)),
-                            modifier = Modifier.padding(5.dp),
-                            fontSize = 12.sp
-                        )
-                    }
-                }
-            }
+            SimilarUserCard(
+                index = index,
+                userName = item.first,
+                similarity = item.second.toFloat(),
+                cardBackGround = MaterialTheme.colorScheme.surface,
+                uiModeIsDark = false
+            )
         }
     }
 }
@@ -302,7 +213,9 @@ private fun YimTopAlbumsFromArtistsList(
     paddings: YimPaddings = LocalYimPaddings.current,
 ) {
     val uriList = arrayListOf<String>()
-    val newReleasesOfTopArtist = viewModel.getNewReleasesOfTopArtists()
+    val newReleasesOfTopArtist = remember {
+        viewModel.getNewReleasesOfTopArtists()
+    }
     
     newReleasesOfTopArtist!!.forEach { item ->
         uriList.add("https://archive.org/download/mbid-${item.caaReleaseMbid}/mbid-${item.caaReleaseMbid}-${item.caaId}_thumb250.jpg")
@@ -331,55 +244,11 @@ private fun YimTopAlbumsFromArtistsList(
         )
     ) {
         items(newReleasesOfTopArtist) { item ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = paddings.tinyPadding),
-                shape = RoundedCornerShape(5.dp),
-                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 5.dp),
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    
-                    // Album cover art
-                    GlideImage(
-                        model = "https://archive.org/download/mbid-${item.caaReleaseMbid}/mbid-${item.caaReleaseMbid}-${item.caaId}_thumb250.jpg",
-                        modifier = Modifier.size(60.dp),
-                        contentScale = ContentScale.Fit,
-                        contentDescription = "Album Cover Art"
-                    ) {
-                        it.placeholder(R.drawable.ic_coverartarchive_logo_no_text)
-                            .override(75)
-                    }
-                    
-                    Spacer(modifier = Modifier.width(paddings.defaultPadding))
-                    
-                    Column(modifier = Modifier) {
-                        Text(
-                            text = item.title,
-                            style = MaterialTheme.typography.bodyLarge
-                                .copy(
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = lb_purple,
-                                    lineHeight = 14.sp
-                                ) ,
-                        )
-                        Text(
-                            text = item.artistCreditName,
-                            style = MaterialTheme.typography.bodyMedium
-                                .copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = lb_purple.copy(alpha = 0.7f)
-                                )
-                        )
-                    }
-                }
-            }
+            ListenCardSmall(
+                releaseName = item.title,
+                artistName = item.artistCreditName,
+                coverArtUrl = "https://archive.org/download/mbid-${item.caaReleaseMbid}/mbid-${item.caaReleaseMbid}-${item.caaId}_thumb250.jpg"
+            ) {}
         }
     }
 }
