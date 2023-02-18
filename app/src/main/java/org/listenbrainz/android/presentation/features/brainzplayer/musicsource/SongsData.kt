@@ -10,10 +10,6 @@ import javax.inject.Singleton
 
 class SongData {
     fun fetchSongs(): List<Song> {
-        // If there aren't any songs on the device.
-        if (!songsOnDevice){
-            return emptyList()
-        }
         if (songsList.isNotEmpty()){
             return songsList
         }

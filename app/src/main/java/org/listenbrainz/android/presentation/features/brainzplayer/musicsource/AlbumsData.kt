@@ -9,10 +9,6 @@ import javax.inject.Singleton
 
 class AlbumsData {
     fun fetchAlbums(): List<Album> {
-        // If there aren't any albums on the device.
-        if (!albumsOnDevice){
-            return emptyList()
-        }
         if(albumsList.isNotEmpty()){
             return albumsList
         }
