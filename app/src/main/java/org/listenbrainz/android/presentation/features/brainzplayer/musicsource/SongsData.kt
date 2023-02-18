@@ -3,13 +3,17 @@ package org.listenbrainz.android.presentation.features.brainzplayer.musicsource
 import android.content.ContentUris
 import android.os.Build
 import android.provider.MediaStore
+import androidx.preference.PreferenceManager
 import org.listenbrainz.android.App.Companion.context
 import org.listenbrainz.android.data.sources.brainzplayer.Song
 import javax.inject.Singleton
 
 class SongData {
     fun fetchSongs(): List<Song> {
-        
+        // If there aren't any songs on the device.
+        if (!songsOnDevice){
+            return emptyList()
+        }
         if (songsList.isNotEmpty()){
             return songsList
         }
@@ -101,11 +105,24 @@ class SongData {
             }
         }
         songsList = songs
+        // This means that there are no songs on the device.
+        if (songsList.isEmpty()){
+            songsOnDevice = false
+        }
         return songsList
     }
     
     @Singleton
     companion object {
         private var songsList = listOf<Song>()
+        const val PREFERENCE_SONGS_ON_DEVICE = "PREFERENCE_ALBUMS_ON_DEVICE"
+        var songsOnDevice       // Used for showing progress indicators.
+            get() = PreferenceManager.getDefaultSharedPreferences(context!!).getBoolean(PREFERENCE_SONGS_ON_DEVICE, true)
+            set(value) {
+                PreferenceManager.getDefaultSharedPreferences(context!!)
+                    .edit()
+                    .putBoolean(PREFERENCE_SONGS_ON_DEVICE, value)
+                    .apply()
+            }
     }
 }

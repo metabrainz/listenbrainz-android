@@ -13,6 +13,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,13 +35,27 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.data.sources.brainzplayer.Album
 import org.listenbrainz.android.data.sources.brainzplayer.PlayableType
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.BrainzPlayerViewModel
+import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.BpProgressIndicator
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.forwardingPainter
+import org.listenbrainz.android.presentation.features.navigation.BrainzNavigationItem
 
 
 @Composable
 fun AlbumScreen(navHostController: NavHostController) {
     val albumViewModel = hiltViewModel<AlbumViewModel>()
     val albums = albumViewModel.albums.collectAsState(listOf())
+    if (albums.value.isEmpty()){
+        BpProgressIndicator(screen = BrainzNavigationItem.Albums)
+    } else {
+        AlbumsList(albums, navHostController)
+    }
+}
+
+@Composable
+private fun AlbumsList(
+    albums: State<List<Album>>,
+    navHostController: NavHostController
+) {
     LazyVerticalGrid(columns = GridCells.Fixed(2)) {
         items(albums.value) {
             Box(modifier = Modifier
@@ -163,7 +178,14 @@ fun OnAlbumClickScreen(albumID: Long) {
                     .padding(10.dp)
                     .fillMaxWidth(0.98f)
                     .clickable {
-                        brainzPlayerViewModel.changePlayable(albumSongs.sortedBy { it.trackNumber }, PlayableType.ALBUM, it.albumID,albumSongs.sortedBy { it.trackNumber }.indexOf(it))
+                        brainzPlayerViewModel.changePlayable(
+                            albumSongs.sortedBy { it.trackNumber },
+                            PlayableType.ALBUM,
+                            it.albumID,
+                            albumSongs
+                                .sortedBy { it.trackNumber }
+                                .indexOf(it)
+                        )
                         brainzPlayerViewModel.playOrToggleSong(it)
                     }
                 ,

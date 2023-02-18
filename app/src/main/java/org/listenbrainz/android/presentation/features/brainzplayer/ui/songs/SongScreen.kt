@@ -34,8 +34,10 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.data.sources.brainzplayer.PlayableType
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.BrainzPlayerViewModel
+import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.BpProgressIndicator
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.forwardingPainter
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.playlist.PlaylistViewModel
+import org.listenbrainz.android.presentation.features.navigation.BrainzNavigationItem
 
 
 @ExperimentalMaterial3Api
@@ -175,95 +177,106 @@ fun SongScreen() {
             }
         )
     }
-
-    LazyVerticalGrid(columns = GridCells.Fixed(2)) {
-        items(songs.value.sortedBy { it.discNumber }) {
-            Box(modifier = Modifier
-                .padding(2.dp)
-                .height(240.dp)
-                .width(200.dp)
-                .clip(RoundedCornerShape(10.dp))
-                .clickable {
-                    brainzPlayerViewModel.changePlayable(songs.value.sortedBy { it.discNumber }, PlayableType.ALL_SONGS, it.mediaID,songs.value.sortedBy { it.discNumber }.indexOf(it))
-                    brainzPlayerViewModel.playOrToggleSong(it, true)
-                }
-            ) {
-                DropdownMenu(
-                    expanded = songCardMoreOptionsDropMenuExpanded == songs.value.indexOf(it),
-                    onDismissRequest = {
-                        songCardMoreOptionsDropMenuExpanded = -1
-                        addToNewPlaylistState = false
-                        addToExistingPlaylistState = false
-                    }) {
-                    DropdownMenuItem(
-                        text = { Text(text = "Add to new playlist") },
-                        onClick = { addToNewPlaylistState = true })
-                    DropdownMenuItem(
-                        text = { Text(text = "Add to existing playlist") },
-                        onClick = { addToExistingPlaylistState = true })
-                }
-
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Box(
-                        modifier = Modifier
-                            .padding(10.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .size(150.dp)
-                    ) {
-                        AsyncImage(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .align(Alignment.TopCenter)
-                                .background(colorResource(id = R.color.bp_bottom_song_viewpager)),
-                            model = it.albumArt,
-                            contentDescription = "",
-                            error = forwardingPainter(
-                                painter = painterResource(id = R.drawable.ic_song)
-                            ) { info ->
-                                inset(25f, 25f) {
-                                    with(info.painter) {
-                                        draw(size, info.alpha, info.colorFilter)
-                                    }
-                                }
-                            },
-                            contentScale = ContentScale.Crop
+    
+    if (songs.value.isEmpty()){
+        BpProgressIndicator(BrainzNavigationItem.Albums)
+    } else {
+        LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+            items(songs.value.sortedBy { it.discNumber }) {
+                Box(modifier = Modifier
+                    .padding(2.dp)
+                    .height(240.dp)
+                    .width(200.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .clickable {
+                        brainzPlayerViewModel.changePlayable(
+                            songs.value.sortedBy { it.discNumber },
+                            PlayableType.ALL_SONGS,
+                            it.mediaID,
+                            songs.value
+                                .sortedBy { it.discNumber }
+                                .indexOf(it)
                         )
-                        Box(modifier = Modifier
-                            .size(50.dp)
-                            .padding(5.dp)
-                            .clip(CircleShape)
-                            .background(Color.LightGray)
-                            .clickable {
-                                songCardMoreOptionsDropMenuExpanded = songs.value.indexOf(it)
-                            }
-                            .align(Alignment.BottomEnd),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(imageVector = Icons.Rounded.Add, "")
-                        }
+                        brainzPlayerViewModel.playOrToggleSong(it, true)
                     }
-                    Text(
-                        text = it.title,
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        color = colorResource(
-                            id = R.color.white
+                ) {
+                    DropdownMenu(
+                        expanded = songCardMoreOptionsDropMenuExpanded == songs.value.indexOf(it),
+                        onDismissRequest = {
+                            songCardMoreOptionsDropMenuExpanded = -1
+                            addToNewPlaylistState = false
+                            addToExistingPlaylistState = false
+                        }) {
+                        DropdownMenuItem(
+                            text = { Text(text = "Add to new playlist") },
+                            onClick = { addToNewPlaylistState = true })
+                        DropdownMenuItem(
+                            text = { Text(text = "Add to existing playlist") },
+                            onClick = { addToExistingPlaylistState = true })
+                    }
+                
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box(
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .size(150.dp)
+                        ) {
+                            AsyncImage(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .align(Alignment.TopCenter)
+                                    .background(colorResource(id = R.color.bp_bottom_song_viewpager)),
+                                model = it.albumArt,
+                                contentDescription = "",
+                                error = forwardingPainter(
+                                    painter = painterResource(id = R.drawable.ic_song)
+                                ) { info ->
+                                    inset(25f, 25f) {
+                                        with(info.painter) {
+                                            draw(size, info.alpha, info.colorFilter)
+                                        }
+                                    }
+                                },
+                                contentScale = ContentScale.Crop
+                            )
+                            Box(modifier = Modifier
+                                .size(50.dp)
+                                .padding(5.dp)
+                                .clip(CircleShape)
+                                .background(Color.LightGray)
+                                .clickable {
+                                    songCardMoreOptionsDropMenuExpanded = songs.value.indexOf(it)
+                                }
+                                .align(Alignment.BottomEnd),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(imageVector = Icons.Rounded.Add, "")
+                            }
+                        }
+                        Text(
+                            text = it.title,
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            color = colorResource(
+                                id = R.color.white
+                            )
                         )
-                    )
-                    Text(
-                        text = it.artist,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        color = colorResource(
-                            id = R.color.white
+                        Text(
+                            text = it.artist,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Center,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            color = colorResource(
+                                id = R.color.white
+                            )
                         )
-                    )
+                    }
                 }
             }
         }

@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,13 +41,27 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.data.sources.brainzplayer.Artist
 import org.listenbrainz.android.data.sources.brainzplayer.PlayableType
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.BrainzPlayerViewModel
+import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.BpProgressIndicator
 import org.listenbrainz.android.presentation.features.brainzplayer.ui.components.forwardingPainter
+import org.listenbrainz.android.presentation.features.navigation.BrainzNavigationItem
 
 
 @Composable
 fun ArtistScreen(navHostController: NavHostController) {
     val artistViewModel = hiltViewModel<ArtistViewModel>()
     val artists = artistViewModel.artists.collectAsState(initial = listOf())
+    if (artists.value.isEmpty()){
+        BpProgressIndicator(BrainzNavigationItem.Albums)
+    } else {
+        ArtistsScreen(artists, navHostController)
+    }
+}
+
+@Composable
+private fun ArtistsScreen(
+    artists: State<List<Artist>>,
+    navHostController: NavHostController
+) {
     LazyVerticalGrid(columns = GridCells.Fixed(2)) {
         items(artists.value) {
             Box(modifier = Modifier
@@ -181,7 +196,12 @@ fun OnArtistClickScreen(artistID: String, navHostController: NavHostController) 
                     .padding(10.dp)
                     .fillMaxWidth(0.98f)
                     .clickable {
-                        brainzPlayerViewModel.changePlayable(artistSongs, PlayableType.ARTIST, it.artistId,artistSongs.indexOf(it))
+                        brainzPlayerViewModel.changePlayable(
+                            artistSongs,
+                            PlayableType.ARTIST,
+                            it.artistId,
+                            artistSongs.indexOf(it)
+                        )
                         brainzPlayerViewModel.playOrToggleSong(it, true)
                     },
                 backgroundColor = MaterialTheme.colors.onSurface

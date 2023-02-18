@@ -12,6 +12,7 @@ import org.listenbrainz.android.data.repository.ArtistRepository
 import org.listenbrainz.android.data.sources.brainzplayer.Album
 import org.listenbrainz.android.data.sources.brainzplayer.Artist
 import org.listenbrainz.android.data.sources.brainzplayer.Song
+import org.listenbrainz.android.presentation.features.brainzplayer.musicsource.AlbumsData
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,13 +22,19 @@ class ArtistViewModel @Inject constructor(
     val artists = artistRepository.getArtists()
 
     init {
+        if (AlbumsData.albumsOnDevice)
+            fetchArtistsFromDevice()
+    }
+    
+    // TODO: Integrate a refresh button using this function.
+    fun fetchArtistsFromDevice(){
         viewModelScope.launch(Dispatchers.Default) {
             artists.collectLatest {
                 if (it.isEmpty()) artistRepository.addArtists()
             }
         }
     }
-
+    
     fun getArtistByID(artistID: String): Flow<Artist> {
         return artistRepository.getArtist(artistID)
     }

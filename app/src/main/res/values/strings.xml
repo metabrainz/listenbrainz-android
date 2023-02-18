@@ -103,28 +103,6 @@
     <string name="user_ratings">Your Rating</string>
 
     <!--    Tags-->
-    <string name="tags">Tags</string>
-    <string name="user_tags">Your Tags</string>
-    <string name="tagger_file_chooser_pickAfile">Pick a File</string>
-    <string name="tagger_file_chooser_SeeTags">Original Tags</string>
-    <string name="tagger_file_chooser_ShowCorrectags">New Tags</string>
-    <string name="tagger_file_chooser_pickDirectory">Choose Directory</string>
-    <string name="tagger_file_chooser_Instructions">Select An Audio File to Fix Tags</string>
-    <string name="tagger_file_save">Overwrite Tags</string>
-    <string name="instruction">Choose the directory where your audio files reside.\n\n
-        After the audio files are listed, click on the desired file from the list and overwrite the tags.\n\n
-        In case the list is empty, no audio file could be detected in the chosen directory. Try choosing another directory.</string>
-
-    <string name="genres">Genres</string>
-    <string name="user_genres">Your Genres</string>
-
-    <string name="no_user_tag">Either you have not added any tag to this entity yet
-        or you are not logged in.</string>
-    <string name="no_tag">No tag found</string>
-    <string name="no_user_rating">Either you have not rated this entity yet
-        or you are not logged in.</string>
-    <string name="no_rating">No rating found</string>
-
     <string name="lookup_metadata">Metadata</string>
     <string name="lookup_fingerprint">Fingerprint</string>
     <string name="lookup_label">Lookup using</string>
@@ -221,5 +199,10 @@
     <string name="title_image_scale_type">Scale type</string>
     <string name="brainzplayer_notification_channel_name">BrainzPlayer Now Playing</string>
     <string name="brainzplayer_notification_channel_description">Currently Playing Song Controls</string>
+
+    <!-- Year in Music -->
     <string name="title_activity_year_in_music">YearInMusicActivity</string>
+
+    <!-- BrainzPlayer -->
+    <string name="bp_loading_text">Loading your music library</string>
 </resources>
