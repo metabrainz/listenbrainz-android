@@ -53,24 +53,20 @@ class ArtistRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addAllSongsOfArtist(artist: Artist): List<Song> {
-        val songData = SongData()
-        val songs = songData.fetchSongs().filter {
+        return SongData().fetchSongs().filter {
             it.artist == artist.name
         }
             .map {
                 it
             }
-        return songs
     }
 
     override suspend fun addAllAlbumsOfArtist(artist: Artist): List<Album> {
-        val albumData = AlbumsData()
-        val albums = albumData.fetchAlbums().filter {
+        return AlbumsData().fetchAlbums().filter {
             it.artist == artist.name
         }
             .map {
                 it
             }
-        return albums
     }
 }

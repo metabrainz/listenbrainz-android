@@ -2,9 +2,11 @@ package org.listenbrainz.android.presentation.theme
 
 import android.app.Activity
 import android.content.Context
-import android.view.Window
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.*
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -12,7 +14,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.core.view.WindowCompat
 import androidx.preference.PreferenceManager
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -26,6 +27,7 @@ private val DarkColorScheme = darkColorScheme(
     // Tertiary reserved for brainzPlayer's mini view
     tertiaryContainer = bp_bottom_song_viewpager_dark,
     onTertiary = bp_color_primary_dark,
+    inverseOnSurface = lb_orange,   // Reserved for progress indicators.
     
     onSurface = Color.White     // Text color (Which is ON surface/canvas)
 )
@@ -37,6 +39,7 @@ private val LightColorScheme = lightColorScheme(
     // Tertiary reserved for brainzPlayer's mini view
     tertiaryContainer = bp_bottom_song_viewpager_day,
     onTertiary = bp_color_primary_day,
+    inverseOnSurface = lb_purple,   // Reserved for progress indicators.
     
     onSurface = Color.Black
 )
