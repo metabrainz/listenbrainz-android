@@ -155,7 +155,7 @@ class BrainzPlayerViewModel @Inject constructor(
     }
 
     private fun updatePlayerPosition() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Default) {
             while (true) {
                 val pos = playbackState.value.currentPlaybackPosition.toFloat()
                 if (progress.value != pos) {

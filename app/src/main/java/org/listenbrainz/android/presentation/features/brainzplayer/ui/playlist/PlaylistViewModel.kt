@@ -23,7 +23,7 @@ class PlaylistViewModel @Inject constructor(
     val playlists = playlistRepository.getAllPlaylist()
     val playlistsCollectedFromChecklist = MutableStateFlow(mutableListOf<Playlist>())
     init {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Default) {
             playlists.collectLatest {
                 if (it.isEmpty()){
                     playlistRepository.insertPlaylists(listOf(currentlyPlaying, favourite))

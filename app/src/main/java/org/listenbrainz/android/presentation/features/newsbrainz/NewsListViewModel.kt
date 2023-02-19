@@ -14,7 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NewsListViewModel @Inject constructor(val repository: BlogRepository) : ViewModel() {
     fun fetchBlogs(): LiveData<Blog> {
-        return liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+        return liveData(viewModelScope.coroutineContext + Dispatchers.Default) {
             val result = repository.fetchBlogs()
             if (result.status == SUCCESS) {
                 result.data?.let { emit(it) }
