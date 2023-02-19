@@ -6,10 +6,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import com.aemerse.onboard.OnboardAdvanced
-import com.aemerse.onboard.OnboardFragment
-import com.aemerse.onboard.OnboardPageTransformerType
-import com.aemerse.onboard.model.SliderPage
+import com.limurse.onboard.OnboardAdvanced
+import com.limurse.onboard.OnboardFragment
+import com.limurse.onboard.OnboardPageTransformerType
 import org.listenbrainz.android.R
 import org.listenbrainz.android.presentation.UserPreferences
 import org.listenbrainz.android.presentation.features.dashboard.DashboardActivity
@@ -19,7 +18,8 @@ class FeaturesActivity : OnboardAdvanced() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        addSlide(OnboardFragment.newInstance(
+        addSlide(
+            OnboardFragment.newInstance(
             "Listens",
             "Track your music listening habits ",
             resourceId = R.raw.teen,
