@@ -2,14 +2,18 @@ package org.listenbrainz.android.presentation.features.brainzplayer.musicsource
 
 import android.os.Build
 import android.provider.MediaStore
-import androidx.preference.PreferenceManager
 import org.listenbrainz.android.App.Companion.context
 import org.listenbrainz.android.data.sources.brainzplayer.Album
 import javax.inject.Singleton
 
-class AlbumsData {
-    fun fetchAlbums(): List<Album> {
-        if(albumsList.isNotEmpty()){
+@Singleton
+object AlbumsData {
+    
+    private var albumsList = listOf<Album>()
+    
+    /** Fetch albums from device. Heavy task, so perform in `Dispacthers.IO`.*/
+    fun fetchAlbums(userRequestedRefresh: Boolean = false): List<Album> {
+        if(albumsList.isNotEmpty() && !userRequestedRefresh){
             return albumsList
         }
         val albums = mutableListOf<Album>()
@@ -48,24 +52,7 @@ class AlbumsData {
             }
         }
         albumsList = albums.distinct()
-        // This means there are no albums on the device.
-        if (albumsList.isEmpty()){
-            albumsOnDevice = false
-        }
         return albumsList
     }
     
-    @Singleton
-    companion object {
-        private var albumsList = listOf<Album>()
-        const val PREFERENCE_ALBUMS_ON_DEVICE = "PREFERENCE_ALBUMS_ON_DEVICE"
-        var albumsOnDevice       // Used for showing progress indicators.
-            get() = PreferenceManager.getDefaultSharedPreferences(context!!).getBoolean(PREFERENCE_ALBUMS_ON_DEVICE, true)
-            set(value) {
-                PreferenceManager.getDefaultSharedPreferences(context!!)
-                    .edit()
-                    .putBoolean(PREFERENCE_ALBUMS_ON_DEVICE, value)
-                    .apply()
-            }
-    }
 }

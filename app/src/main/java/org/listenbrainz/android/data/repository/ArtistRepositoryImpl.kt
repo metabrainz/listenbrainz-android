@@ -11,7 +11,7 @@ import org.listenbrainz.android.data.sources.brainzplayer.Album
 import org.listenbrainz.android.data.sources.brainzplayer.Artist
 import org.listenbrainz.android.data.sources.brainzplayer.Song
 import org.listenbrainz.android.presentation.features.brainzplayer.musicsource.AlbumsData
-import org.listenbrainz.android.presentation.features.brainzplayer.musicsource.SongData
+import org.listenbrainz.android.presentation.features.brainzplayer.musicsource.SongsData
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -34,26 +34,33 @@ class ArtistRepositoryImpl @Inject constructor(
                 }
             }
 
-    override suspend fun addArtists(): Boolean {
-        val artists = AlbumsData().fetchAlbums()
+    override suspend fun addArtists(userRequestedRefresh: Boolean): Boolean {
+        val artists = AlbumsData.fetchAlbums(userRequestedRefresh)
             .map {
                 it.toArtistEntity()
             }
             .distinct()
+        
+        artistDao.getArtistEntitiesAsList().forEach { artistEntity ->
+            if (!artists.contains(artistEntity))
+                artistDao.deleteArtist(artistEntity.name)
+        }
+        
         for (artist in artists) {
-            artist.songs.addAll(addAllSongsOfArtist(artist.toArtist()).map {
+            artist.songs.addAll(addAllSongsOfArtist(artist.toArtist(), userRequestedRefresh).map {
                 it.toSongEntity()
             })
-            artist.albums.addAll(addAllAlbumsOfArtist(artist.toArtist()).map {
+            artist.albums.addAll(addAllAlbumsOfArtist(artist.toArtist(), userRequestedRefresh).map {
                 it.toAlbumEntity()
             })
         }
+        
         artistDao.addArtists(artists)
         return artists.isNotEmpty()
     }
 
-    override suspend fun addAllSongsOfArtist(artist: Artist): List<Song> {
-        return SongData().fetchSongs().filter {
+    override suspend fun addAllSongsOfArtist(artist: Artist, userRequestedRefresh: Boolean): List<Song> {
+        return SongsData.fetchSongs(userRequestedRefresh).filter {
             it.artist == artist.name
         }
             .map {
@@ -61,8 +68,8 @@ class ArtistRepositoryImpl @Inject constructor(
             }
     }
 
-    override suspend fun addAllAlbumsOfArtist(artist: Artist): List<Album> {
-        return AlbumsData().fetchAlbums().filter {
+    override suspend fun addAllAlbumsOfArtist(artist: Artist, userRequestedRefresh: Boolean): List<Album> {
+        return AlbumsData.fetchAlbums(userRequestedRefresh).filter {
             it.artist == artist.name
         }
             .map {

@@ -4,33 +4,44 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import org.listenbrainz.android.data.repository.AppPreferences
 import org.listenbrainz.android.data.repository.ArtistRepository
 import org.listenbrainz.android.data.sources.brainzplayer.Album
 import org.listenbrainz.android.data.sources.brainzplayer.Artist
 import org.listenbrainz.android.data.sources.brainzplayer.Song
-import org.listenbrainz.android.presentation.features.brainzplayer.musicsource.AlbumsData
 import javax.inject.Inject
 
 @HiltViewModel
 class ArtistViewModel @Inject constructor(
     private val artistRepository: ArtistRepository,
+    private val appPreferences: AppPreferences
 ) : ViewModel() {
     val artists = artistRepository.getArtists()
-
+    
+    // Refreshing variables.
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing = _isRefreshing.asStateFlow()
+    
     init {
-        if (AlbumsData.albumsOnDevice)
-            fetchArtistsFromDevice()
+        fetchArtistsFromDevice()
     }
     
-    // TODO: Integrate a refresh button using this function.
-    fun fetchArtistsFromDevice(){
+    fun fetchArtistsFromDevice(userRequestedRefresh: Boolean = false){
         viewModelScope.launch(Dispatchers.IO) {
-            artists.collectLatest {
-                if (it.isEmpty()) artistRepository.addArtists()
+            if (userRequestedRefresh){
+                _isRefreshing.update { true }
+                appPreferences.albumsOnDevice = artistRepository.addArtists(userRequestedRefresh = true)
+                _isRefreshing.update { false }
+            } else {
+                artists.collectLatest {
+                    if (it.isEmpty()) {
+                        _isRefreshing.update { true }
+                        appPreferences.albumsOnDevice = artistRepository.addArtists()
+                        _isRefreshing.update { false }
+                    }
+                }
             }
         }
     }

@@ -6,11 +6,13 @@ import org.listenbrainz.android.data.di.brainzplayer.TypeConverter
 import org.listenbrainz.android.data.sources.api.entities.AccessToken
 import org.listenbrainz.android.data.sources.api.entities.userdata.UserInfo
 import org.listenbrainz.android.data.sources.brainzplayer.Playable
+import org.listenbrainz.android.presentation.UserPreferences.PREFERENCE_ALBUMS_ON_DEVICE
 import org.listenbrainz.android.presentation.UserPreferences.PREFERENCE_LISTENBRAINZ_TOKEN
 import org.listenbrainz.android.presentation.UserPreferences.PREFERENCE_LISTENING_ENABLED
 import org.listenbrainz.android.presentation.UserPreferences.PREFERENCE_LISTENING_SPOTIFY
 import org.listenbrainz.android.presentation.UserPreferences.PREFERENCE_ONBOARDING
 import org.listenbrainz.android.presentation.UserPreferences.PREFERENCE_PERMS
+import org.listenbrainz.android.presentation.UserPreferences.PREFERENCE_SONGS_ON_DEVICE
 import org.listenbrainz.android.presentation.UserPreferences.PREFERENCE_SYSTEM_LANGUAGE
 import org.listenbrainz.android.presentation.UserPreferences.PREFERENCE_SYSTEM_THEME
 import org.listenbrainz.android.presentation.UserPreferences.PermissionStatus
@@ -102,6 +104,9 @@ class AppPreferencesImpl: AppPreferences {
             }
         }
     
+    
+    /* Login Preferences */
+    
     override val loginStatus: Int
         get() {
             val accessToken = accessToken
@@ -116,4 +121,14 @@ class AppPreferencesImpl: AppPreferences {
     override val refreshToken: String?
         get() = preferences.getString(LBSharedPreferences.REFRESH_TOKEN, "")
     
+    
+    /* BrainzPlayer Preferences */
+    
+    override var albumsOnDevice: Boolean
+        get() = preferences.getBoolean(PREFERENCE_ALBUMS_ON_DEVICE, true)
+        set(value) = setBoolean(PREFERENCE_ALBUMS_ON_DEVICE, value)
+    
+    override var songsOnDevice: Boolean
+        get() = preferences.getBoolean(PREFERENCE_SONGS_ON_DEVICE, true)
+        set(value) = setBoolean(PREFERENCE_SONGS_ON_DEVICE, value)
 }

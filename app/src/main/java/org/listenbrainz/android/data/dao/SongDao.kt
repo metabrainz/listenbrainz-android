@@ -13,7 +13,13 @@ interface SongDao {
     @Query(value = "SELECT * FROM SONGS")
     fun getSongEntities() : Flow<List<SongEntity>>
 
+    @Query(value = "SELECT * FROM SONGS")
+    fun getSongEntitiesAsList() : List<SongEntity>
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addSongs(songEntities: List<SongEntity>)
+    
+    @Delete
+    suspend fun deleteSong(songEntity: SongEntity)
     
 }

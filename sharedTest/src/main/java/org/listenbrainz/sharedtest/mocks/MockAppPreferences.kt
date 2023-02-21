@@ -23,7 +23,9 @@ class MockAppPreferences(
     override val loginStatus: Int = LBSharedPreferences.STATUS_LOGGED_OUT,
     override val accessToken: String? = "",
     override val username: String? = "",
-    override val refreshToken: String? = ""
+    override val refreshToken: String? = "",
+    override var albumsOnDevice: Boolean = true,
+    override var songsOnDevice: Boolean = true
 ) : AppPreferences {
     
     override fun saveOAuthToken(token: AccessToken) {

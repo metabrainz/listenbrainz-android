@@ -65,7 +65,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion '1.3.0'
+        kotlinCompilerExtensionVersion '1.4.2'
     }
 
     lint {
@@ -112,7 +112,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
 
     //Design Setup
-    implementation 'com.google.android.material:material:1.8.0-beta01'
+    implementation 'com.google.android.material:material:1.9.0-alpha01'
     implementation 'com.airbnb.android:lottie:6.0.0'
     implementation 'com.github.akshaaatt:Onboarding:1.0.5'
     implementation 'com.github.akshaaatt:Share-Android:1.0.0'
@@ -129,7 +129,7 @@ dependencies {
     implementation "androidx.compose.ui:ui-util:1.3.3"
     implementation "androidx.compose.material:material:1.3.1"
     implementation "androidx.compose.material:material-icons-extended:1.3.1"
-    implementation 'androidx.compose.material3:material3:1.1.0-alpha03'
+    implementation 'androidx.compose.material3:material3:1.1.0-alpha03'     // Problem here
     implementation 'androidx.compose.material3:material3-window-size-class:1.1.0-alpha03'
     implementation "androidx.compose.animation:animation:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"

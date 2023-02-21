@@ -13,6 +13,15 @@ interface AlbumDao {
     @Query(value = "SELECT * FROM ALBUMS")
     fun getAlbumEntities(): Flow<List<AlbumEntity>>
 
+    @Query(value = "SELECT * FROM ALBUMS")
+    fun getAlbumEntitiesAsList(): List<AlbumEntity>
+    
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addAlbums(albumEntities: List<AlbumEntity>)
+    
+    /*@Query("DELETE FROM ALBUMS")
+    suspend fun deleteAllAlbums()*/
+    
+    @Delete
+    suspend fun deleteAlbum(albumEntity: AlbumEntity)
 }

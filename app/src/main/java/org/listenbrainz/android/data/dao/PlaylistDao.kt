@@ -14,10 +14,10 @@ interface PlaylistDao {
     @Query("SELECT * FROM PLAYLISTS WHERE id LIKE :playlistId")
     fun getPlaylist(playlistId: Long): Flow<PlaylistEntity>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertPlaylist(playlistEntity: PlaylistEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertPlaylists(playlistEntities: List<PlaylistEntity>)
 
     @Query("UPDATE playlists SET items =:songs WHERE id =:playlistId")

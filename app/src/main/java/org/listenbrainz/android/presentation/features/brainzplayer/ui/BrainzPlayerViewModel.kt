@@ -10,7 +10,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.data.repository.SongRepository
 import org.listenbrainz.android.data.sources.brainzplayer.Playable
@@ -68,7 +70,7 @@ class BrainzPlayerViewModel @Inject constructor(
 
                 }
             })
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             songs.collectLatest {
                 if (it.isEmpty()) songRepository.addSongs()
                 _mediaItems.value = Resource(Resource.Status.SUCCESS, it)

@@ -37,8 +37,18 @@ interface AppPreferences {
     var currentPlayable : Playable?
     
     /* Login related preferences */
+    
     val loginStatus: Int
     val accessToken: String?
     val username: String?
     val refreshToken: String?
+    
+    /* BrainzPlayer Preferences */
+    
+    /** Used to tell the user that they don't have any albums on their device. */
+    var albumsOnDevice: Boolean
+    
+    /** Used to tell the user that they don't have any songs on their device. */
+    var songsOnDevice: Boolean
+    
 }
