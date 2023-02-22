@@ -45,11 +45,8 @@ class ArtistRepositoryImpl @Inject constructor(
             }
             .distinct()
         
-        // Deleting artists that are not present in the device anymore.
-        artistDao.getArtistEntitiesAsList().forEach { artistEntity ->
-            if (!artists.contains(artistEntity))
-                artistDao.deleteArtist(artistEntity.name)
-        }
+        // Deleting all artists
+        artistDao.deleteAllArtists()
         
         lateinit var songsJob : Deferred<Unit>
         lateinit var albumsJob : Deferred<Unit>
