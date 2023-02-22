@@ -18,7 +18,7 @@ interface ArtistDao {
     @Query(value = "SELECT * FROM ARTISTS")
     fun getArtistEntitiesAsList() : List<ArtistEntity>
     
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.NONE)
     suspend fun addArtists(artistEntities: List<ArtistEntity>)//: List<Long>
 
     /*@Query(value = "DELETE FROM ARTISTS WHERE name = :artistName")
