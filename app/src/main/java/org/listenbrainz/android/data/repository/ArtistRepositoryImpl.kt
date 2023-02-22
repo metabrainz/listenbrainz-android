@@ -1,7 +1,11 @@
 package org.listenbrainz.android.data.repository
 
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import org.listenbrainz.android.data.dao.ArtistDao
 import org.listenbrainz.android.data.di.brainzplayer.Transformer.toAlbumEntity
 import org.listenbrainz.android.data.di.brainzplayer.Transformer.toArtist
@@ -47,16 +51,31 @@ class ArtistRepositoryImpl @Inject constructor(
                 artistDao.deleteArtist(artistEntity.name)
         }
         
-        for (artist in artists) {
-            // Here, if userRequestedRefresh is true, it will refresh songs cache which is what we expect from refreshing
-            artist.songs.addAll(addAllSongsOfArtist(artist.toArtist(), userRequestedRefresh).map {
-                it.toSongEntity()
-            })
-            // We do not need to refresh cache (songsListCache) here as it already got refreshed above when we created list of albums.
-            artist.albums.addAll(addAllAlbumsOfArtist(artist.toArtist()).map {
-                it.toAlbumEntity()
-            })
+        lateinit var songsJob : Deferred<Unit>
+        lateinit var albumsJob : Deferred<Unit>
+        
+        withContext(Dispatchers.IO){
+            // Both jobs are being executed simultaneously.
+            songsJob = async {
+                for (artist in artists) {
+                    // Here, if userRequestedRefresh is true, it will refresh songs cache which is what we expect from refreshing
+                    artist.songs.addAll(addAllSongsOfArtist(artist.toArtist(), userRequestedRefresh).map {
+                        it.toSongEntity()
+                    })
+                }
+            }
+            albumsJob = async {
+                for (artist in artists) {
+                    // We do not need to refresh cache (songsListCache) here as it already got refreshed above when we created list of albums.
+                    artist.albums.addAll(addAllAlbumsOfArtist(artist.toArtist()).map {
+                        it.toAlbumEntity()
+                    })
+                }
+            }
         }
+        
+        songsJob.await()
+        albumsJob.await()
         
         artistDao.addArtists(artists)
         return artists.isNotEmpty()
