@@ -47,10 +47,12 @@ class ArtistRepositoryImpl @Inject constructor(
         }
         
         for (artist in artists) {
+            // Here, if userRequestedRefresh is true, it will refresh songs cache which is what we need.
             artist.songs.addAll(addAllSongsOfArtist(artist.toArtist(), userRequestedRefresh).map {
                 it.toSongEntity()
             })
-            artist.albums.addAll(addAllAlbumsOfArtist(artist.toArtist(), userRequestedRefresh).map {
+            // We do not need to refresh cache () here as it already got refreshed above
+            artist.albums.addAll(addAllAlbumsOfArtist(artist.toArtist()).map {
                 it.toAlbumEntity()
             })
         }
@@ -68,8 +70,8 @@ class ArtistRepositoryImpl @Inject constructor(
             }
     }
 
-    override suspend fun addAllAlbumsOfArtist(artist: Artist, userRequestedRefresh: Boolean): List<Album> {
-        return AlbumsData.fetchAlbums(userRequestedRefresh).filter {
+    override suspend fun addAllAlbumsOfArtist(artist: Artist): List<Album> {
+        return AlbumsData.fetchAlbums().filter {
             it.artist == artist.name
         }
             .map {

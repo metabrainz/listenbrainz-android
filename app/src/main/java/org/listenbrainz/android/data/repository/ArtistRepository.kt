@@ -10,5 +10,5 @@ interface ArtistRepository {
  fun getArtists(): Flow<List<Artist>>
  suspend fun addArtists(userRequestedRefresh: Boolean = false): Boolean
  suspend fun addAllSongsOfArtist(artist: Artist, userRequestedRefresh: Boolean): List<Song>
- suspend fun addAllAlbumsOfArtist(artist: Artist, userRequestedRefresh: Boolean): List<Album>
+ suspend fun addAllAlbumsOfArtist(artist: Artist): List<Album>
 }

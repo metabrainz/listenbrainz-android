@@ -10,7 +10,7 @@ import javax.inject.Singleton
 @Singleton
 object SongsData {
     // Temporary cache
-    private var songsList = listOf<Song>()
+    private var songsListCache = listOf<Song>()
     
     /** Update cached songs list on demand. */
     fun updateCache(){
@@ -19,8 +19,8 @@ object SongsData {
     
     /** Fetch songs from device. Heavy task, so perform in `Dispacthers.IO`.*/
     fun fetchSongs(userRequestedRefresh: Boolean = false): List<Song> {
-        if (songsList.isNotEmpty() && !userRequestedRefresh){
-            return songsList
+        if (songsListCache.isNotEmpty() && !userRequestedRefresh){
+            return songsListCache
         }
         val songs = mutableListOf<Song>()
         val collection =
@@ -109,7 +109,7 @@ object SongsData {
                 )
             }
         }
-        songsList = songs
-        return songsList
+        songsListCache = songs
+        return songsListCache
     }
 }

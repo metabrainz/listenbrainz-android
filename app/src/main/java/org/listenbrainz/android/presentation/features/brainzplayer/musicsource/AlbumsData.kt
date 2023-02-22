@@ -9,12 +9,14 @@ import javax.inject.Singleton
 @Singleton
 object AlbumsData {
     
-    private var albumsList = listOf<Album>()
+    /** Runtime cache to improve performance
+     *  Not using on device caching as songs need to be refreshed after every launch.*/
+    private var albumsListCache = listOf<Album>()
     
     /** Fetch albums from device. Heavy task, so perform in `Dispacthers.IO`.*/
     fun fetchAlbums(userRequestedRefresh: Boolean = false): List<Album> {
-        if(albumsList.isNotEmpty() && !userRequestedRefresh){
-            return albumsList
+        if(albumsListCache.isNotEmpty() && !userRequestedRefresh){
+            return albumsListCache
         }
         val albums = mutableListOf<Album>()
         val collection =
@@ -51,8 +53,8 @@ object AlbumsData {
                 albums.add(Album(albumId, albumName, artistName, albumArt))
             }
         }
-        albumsList = albums.distinct()
-        return albumsList
+        albumsListCache = albums.distinct()
+        return albumsListCache
     }
     
 }
