@@ -41,17 +41,18 @@ class ArtistRepositoryImpl @Inject constructor(
             }
             .distinct()
         
+        // Deleting artists that are not present in the device anymore.
         artistDao.getArtistEntitiesAsList().forEach { artistEntity ->
             if (!artists.contains(artistEntity))
                 artistDao.deleteArtist(artistEntity.name)
         }
         
         for (artist in artists) {
-            // Here, if userRequestedRefresh is true, it will refresh songs cache which is what we need.
+            // Here, if userRequestedRefresh is true, it will refresh songs cache which is what we expect from refreshing
             artist.songs.addAll(addAllSongsOfArtist(artist.toArtist(), userRequestedRefresh).map {
                 it.toSongEntity()
             })
-            // We do not need to refresh cache () here as it already got refreshed above
+            // We do not need to refresh cache (songsListCache) here as it already got refreshed above when we created list of albums.
             artist.albums.addAll(addAllAlbumsOfArtist(artist.toArtist()).map {
                 it.toAlbumEntity()
             })
