@@ -67,10 +67,10 @@ fun ArtistScreen(navHostController: NavHostController) {
         .pullRefresh(state = pullRefreshState),
         contentAlignment = Alignment.Center
     ) {
-        if (artists.value.isEmpty()){
-            BPLibraryEmptyMessage()
-        } else if (refreshing){
+        if (refreshing) {
             Text(text = "Preparing your artists.", color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface)
+        } else if (artists.value.isEmpty()){
+            BPLibraryEmptyMessage()
         } else {
             ArtistsScreen(artists = artists, navHostController = navHostController)
         }
