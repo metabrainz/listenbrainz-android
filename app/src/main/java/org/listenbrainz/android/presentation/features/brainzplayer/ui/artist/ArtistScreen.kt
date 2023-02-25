@@ -98,9 +98,7 @@ private fun ArtistsScreen(
                         textAlign = TextAlign.Center,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        color = colorResource(
-                            id = R.color.white
-                        )
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -123,7 +121,7 @@ fun OnArtistClickScreen(artistID: String, navHostController: NavHostController) 
                 text = "Albums by the Artist",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = colorResource(id = R.color.white)
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
             )
         }
         item {
@@ -174,7 +172,7 @@ fun OnArtistClickScreen(artistID: String, navHostController: NavHostController) 
                                 textAlign = TextAlign.Center,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
-                                color = colorResource(id = R.color.white)
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
@@ -187,7 +185,7 @@ fun OnArtistClickScreen(artistID: String, navHostController: NavHostController) 
                 text = "Songs by the Artist",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = colorResource(id = R.color.white)
+                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
             )
         }
         items(artistSongs){
@@ -220,11 +218,11 @@ fun OnArtistClickScreen(artistID: String, navHostController: NavHostController) 
                     Column(Modifier.padding(start = 10.dp)) {
                         androidx.compose.material.Text(
                             text = it.title,
-                            color = Color.White
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                         )
                         androidx.compose.material.Text(
                             text = it.artist,
-                            color = Color.White
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
