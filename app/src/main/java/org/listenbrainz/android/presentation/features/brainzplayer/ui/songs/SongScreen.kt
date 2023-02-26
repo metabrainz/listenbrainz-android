@@ -68,7 +68,7 @@ fun SongScreen() {
                     text = "Add Playlist",
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             },
             text = {
@@ -93,7 +93,7 @@ fun SongScreen() {
                         text = "Add",
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
-                        color = Color.Black
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             },
@@ -106,7 +106,7 @@ fun SongScreen() {
                         text = "Cancel",
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
-                        color = Color.Black
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -140,7 +140,8 @@ fun SongScreen() {
                                 onCheckedChange = {
                                     checkedPlaylistIndices = it
                                     playlistsCollectedFromChecklist.add(playlist)
-                                })
+                                },
+                            colors = CheckboxDefaults.colors(checkedColor = Color.Gray, uncheckedColor = Color.LightGray))
                             Box(modifier = Modifier.fillParentMaxWidth(0.8f)) {
                                 Text(text = playlist.title)
                             }
@@ -164,7 +165,8 @@ fun SongScreen() {
                     songCardMoreOptionsDropMenuExpanded = -1
                     addToExistingPlaylistState = false
                 }) {
-                    Text(text = "Add")
+                    Text(text = "Add",color = MaterialTheme.colorScheme.onSurface)
+
                 }
             },
             dismissButton = {
@@ -172,7 +174,7 @@ fun SongScreen() {
                     songCardMoreOptionsDropMenuExpanded = -1
                     addToExistingPlaylistState = false
                 }) {
-                    Text(text = "Cancel")
+                    Text(text = "Cancel",color = MaterialTheme.colorScheme.onSurface)
                 }
             }
         )
@@ -184,21 +186,21 @@ fun SongScreen() {
         LazyVerticalGrid(columns = GridCells.Fixed(2)) {
             items(songs.value.sortedBy { it.discNumber }) {
                 Box(modifier = Modifier
-                    .padding(2.dp)
-                    .height(240.dp)
-                    .width(200.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .clickable {
-                        brainzPlayerViewModel.changePlayable(
-                            songs.value.sortedBy { it.discNumber },
-                            PlayableType.ALL_SONGS,
-                            it.mediaID,
-                            songs.value
-                                .sortedBy { it.discNumber }
-                                .indexOf(it)
-                        )
-                        brainzPlayerViewModel.playOrToggleSong(it, true)
-                    }
+                        .padding(2.dp)
+                        .height(240.dp)
+                        .width(200.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .clickable {
+                            brainzPlayerViewModel.changePlayable(
+                                    songs.value.sortedBy { it.discNumber },
+                                    PlayableType.ALL_SONGS,
+                                    it.mediaID,
+                                    songs.value
+                                            .sortedBy { it.discNumber }
+                                            .indexOf(it)
+                            )
+                            brainzPlayerViewModel.playOrToggleSong(it, true)
+                        }
                 ) {
                     DropdownMenu(
                         expanded = songCardMoreOptionsDropMenuExpanded == songs.value.indexOf(it),
@@ -218,15 +220,15 @@ fun SongScreen() {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Box(
                             modifier = Modifier
-                                .padding(10.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .size(150.dp)
+                                    .padding(10.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .size(150.dp)
                         ) {
                             AsyncImage(
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .align(Alignment.TopCenter)
-                                    .background(colorResource(id = R.color.bp_bottom_song_viewpager)),
+                                        .fillMaxSize()
+                                        .align(Alignment.TopCenter)
+                                        .background(colorResource(id = R.color.bp_bottom_song_viewpager)),
                                 model = it.albumArt,
                                 contentDescription = "",
                                 error = forwardingPainter(
@@ -241,14 +243,14 @@ fun SongScreen() {
                                 contentScale = ContentScale.Crop
                             )
                             Box(modifier = Modifier
-                                .size(50.dp)
-                                .padding(5.dp)
-                                .clip(CircleShape)
-                                .background(Color.LightGray)
-                                .clickable {
-                                    songCardMoreOptionsDropMenuExpanded = songs.value.indexOf(it)
-                                }
-                                .align(Alignment.BottomEnd),
+                                    .size(50.dp)
+                                    .padding(5.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.LightGray)
+                                    .clickable {
+                                        songCardMoreOptionsDropMenuExpanded = songs.value.indexOf(it)
+                                    }
+                                    .align(Alignment.BottomEnd),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(imageVector = Icons.Rounded.Add, "")
@@ -261,9 +263,7 @@ fun SongScreen() {
                             textAlign = TextAlign.Center,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            color = colorResource(
-                                id = R.color.white
-                            )
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = it.artist,
@@ -272,9 +272,7 @@ fun SongScreen() {
                             textAlign = TextAlign.Center,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            color = colorResource(
-                                id = R.color.white
-                            )
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }

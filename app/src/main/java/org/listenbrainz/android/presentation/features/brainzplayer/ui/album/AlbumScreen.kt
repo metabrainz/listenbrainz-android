@@ -100,9 +100,7 @@ private fun AlbumsList(
                         textAlign = TextAlign.Center,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        color = colorResource(
-                            id = R.color.white
-                        )
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = it.artist,
@@ -111,9 +109,7 @@ private fun AlbumsList(
                         textAlign = TextAlign.Center,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        color = colorResource(
-                            id = R.color.white
-                        )
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
