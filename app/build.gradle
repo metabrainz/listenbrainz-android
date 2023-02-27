@@ -112,7 +112,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
 
     //Design Setup
-    implementation 'com.google.android.material:material:1.8.0-beta01'
+    implementation 'com.google.android.material:material:1.9.0-alpha02'
     implementation 'com.airbnb.android:lottie:6.0.0'
     implementation 'com.github.akshaaatt:Onboarding:1.0.5'
     implementation 'com.github.akshaaatt:Share-Android:1.0.0'
