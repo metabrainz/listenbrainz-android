@@ -38,14 +38,14 @@ dependencies {
     //Test Setup
     implementation 'junit:junit:4.13.2'
     implementation 'com.squareup.okhttp3:mockwebserver:5.0.0-alpha.11'
-    implementation 'androidx.arch.core:core-testing:2.1.0'
+    implementation 'androidx.arch.core:core-testing:2.2.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4'
     implementation "androidx.room:room-testing:2.5.0"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
 
     implementation 'androidx.test:runner:1.5.2'
     implementation 'androidx.test.ext:junit:1.1.5'
-    implementation 'androidx.arch.core:core-testing:2.1.0'
+    implementation 'androidx.arch.core:core-testing:2.2.0'
     implementation 'androidx.test.espresso:espresso-core:3.5.1'
     implementation 'androidx.test.espresso:espresso-intents:3.5.1'
     implementation "androidx.compose.ui:ui-test-junit4:$compose_version"
