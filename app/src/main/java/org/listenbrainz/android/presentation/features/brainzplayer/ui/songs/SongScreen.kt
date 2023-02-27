@@ -220,7 +220,9 @@ fun SongScreen() {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Box(
                             modifier = Modifier
-                                    .padding(10.dp)
+                                    .padding(
+                                        start=24.dp,
+                                        end = 24.dp,)
                                     .clip(RoundedCornerShape(10.dp))
                                     .size(150.dp)
                         ) {

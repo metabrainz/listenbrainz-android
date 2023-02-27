@@ -249,7 +249,7 @@ fun PlayerScreen(
                                 }
                             }
                         },
-                    tint = if (!listenLiked) Color.Red else Color.Black
+                    tint = Color.Red
                 )
             }
         }
