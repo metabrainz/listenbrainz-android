@@ -75,7 +75,7 @@ fun PlaylistScreen(
                 Icon(imageVector = Icons.Rounded.Add, contentDescription = "")
             }
         },
-        containerColor = colorResource(id = R.color.app_bg)
+       // containerColor = colorResource(id = R.color.app_bg)
     ) {
         // Handling FAB button to add playlist
         if (isFABDialogVisible) {
@@ -90,7 +90,7 @@ fun PlaylistScreen(
                         text = "Add Playlist",
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
-                        color = Color.Black
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                     )
                 },
                 text = {
@@ -114,7 +114,7 @@ fun PlaylistScreen(
                             text = "Add",
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp,
-                            color = Color.Black
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
@@ -127,7 +127,7 @@ fun PlaylistScreen(
                             text = "Dismiss",
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp,
-                            color = Color.Black
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -167,7 +167,7 @@ fun PlaylistScreen(
                             text = "Rename",
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp,
-                            color = Color.Black
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
@@ -181,7 +181,7 @@ fun PlaylistScreen(
                             text = "Dismiss",
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp,
-                            color = Color.Black
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -198,7 +198,7 @@ fun PlaylistScreen(
                         text = "Delete Playlist?",
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
-                        color = Color.Black
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                     )
                 },
                 confirmButton = {
@@ -218,7 +218,7 @@ fun PlaylistScreen(
                             text = "Delete",
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp,
-                            color = Color.Black
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                         )
                     }
                 },
@@ -232,7 +232,7 @@ fun PlaylistScreen(
                             text = "Dismiss",
                             fontWeight = FontWeight.Bold,
                             fontSize = 20.sp,
-                            color = Color.Black
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -287,13 +287,11 @@ fun PlaylistScreen(
                                 textAlign = TextAlign.Center,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
-                                color = colorResource(
-                                    id = R.color.white
-                                )
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                             )
                             Icon(
                                 imageVector = Icons.Rounded.MoreVert,
-                                tint = colorResource(id = R.color.white),
+                                tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
                                 contentDescription = "",
                                 modifier = Modifier.clickable {
                                     selectedPlaylistItemIndex = playlists.indexOf(it)
@@ -368,11 +366,11 @@ fun OnPlaylistClickScreen(playlistID: Long) {
                     Column(Modifier.padding(start = 10.dp)) {
                         Text(
                             text = it.title,
-                            color = Color.White
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = it.artist,
-                            color = Color.White
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
