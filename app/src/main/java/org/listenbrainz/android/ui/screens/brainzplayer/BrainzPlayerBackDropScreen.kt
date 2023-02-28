@@ -48,6 +48,7 @@ import org.listenbrainz.android.ui.components.SongViewPager
 import org.listenbrainz.android.ui.components.PlayPauseIcon
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.SeekBar
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
+import org.listenbrainz.android.util.BrainzPlayerExtensions.duration
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.LBSharedPreferences
@@ -240,8 +241,7 @@ fun PlayerScreen(
                                         currentlyPlayingSong,
                                         li[0]
                                     )
-                                }
-                                else {
+                                } else {
                                     playlistViewModel.deleteSongFromPlaylist(
                                         currentlyPlayingSong,
                                         li[0]
@@ -264,6 +264,32 @@ fun PlayerScreen(
                     progress = progress,
                     onValueChange = brainzPlayerViewModel::onSeek,
                     onValueChanged = brainzPlayerViewModel::onSeeked
+                )
+            }
+            Row(verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth(0.98F)
+                    .padding(start = 10.dp, top = 10.dp, end = 10.dp)) {
+                val song by brainzPlayerViewModel.currentlyPlayingSong.collectAsState()
+                var duration = "00:00"
+
+                Text(
+                    text = "00:00",
+                    textAlign = TextAlign.Start,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(end = 5.dp)
+                )
+                if (song.duration / (1000 * 60 * 60) > 0){
+                    duration = String.format("%02d:%02d:%02d", song.duration/(1000 * 60 * 60),song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
+                }else{
+                    duration = String.format("%02d:%02d",song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
+                }
+                Text(
+                    text = duration,
+                    textAlign = TextAlign.Start,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(start = 5.dp)
                 )
             }
         }
