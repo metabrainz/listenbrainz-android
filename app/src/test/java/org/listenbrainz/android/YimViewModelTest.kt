@@ -11,9 +11,9 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.listenbrainz.android.presentation.features.yim.YimViewModel
 import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.util.Resource
+import org.listenbrainz.android.viewmodel.YimViewModel
 import org.listenbrainz.sharedtest.mocks.MockAppPreferences
 import org.listenbrainz.sharedtest.mocks.MockYimRepository
 import org.listenbrainz.sharedtest.utils.AssertionUtils.checkYimAssertions
