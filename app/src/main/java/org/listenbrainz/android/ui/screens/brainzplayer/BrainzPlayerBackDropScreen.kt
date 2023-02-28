@@ -26,7 +26,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -314,7 +313,7 @@ fun PlayerScreen(
                         .clickable {
                             brainzPlayerViewModel.repeatMode()
                         },
-                    tint = colorResource(id = R.color.bp_lavender)
+                    tint = MaterialTheme.colorScheme.surfaceTint
                 )
 
                 Icon(
@@ -323,7 +322,7 @@ fun PlayerScreen(
                     modifier = Modifier
                         .size(FloatingActionButtonDefaults.LargeIconSize)
                         .clickable { brainzPlayerViewModel.skipToPreviousSong() },
-                    tint = colorResource(id = R.color.bp_lavender)
+                    tint = MaterialTheme.colorScheme.surfaceTint
                 )
 
                 LargeFloatingActionButton(onClick = {
@@ -336,7 +335,9 @@ fun PlayerScreen(
                     PlayPauseIcon(
                         icon = playIcon,
                         viewModel = brainzPlayerViewModel,
-                        modifier = Modifier.size(FloatingActionButtonDefaults.LargeIconSize)
+                        modifier = Modifier.size(FloatingActionButtonDefaults.LargeIconSize),
+                        tint = MaterialTheme.colorScheme.surfaceTint
+
                     )
                 }
                 Icon(
@@ -345,7 +346,7 @@ fun PlayerScreen(
                     modifier = Modifier
                         .size(FloatingActionButtonDefaults.LargeIconSize)
                         .clickable { brainzPlayerViewModel.skipToNextSong() },
-                    tint = colorResource(id = R.color.bp_lavender)
+                    tint = MaterialTheme.colorScheme.surfaceTint
                 )
                 Icon(
                     imageVector = if (isShuffled) Icons.Rounded.ShuffleOn else Icons.Rounded.Shuffle,
@@ -353,7 +354,7 @@ fun PlayerScreen(
                     modifier = Modifier
                         .size(FloatingActionButtonDefaults.LargeIconSize)
                         .clickable { brainzPlayerViewModel.shuffle() },
-                    tint = colorResource(id = R.color.bp_lavender)
+                    tint = MaterialTheme.colorScheme.surfaceTint
                 )
             }
         }
