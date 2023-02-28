@@ -23,7 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.BuildConfig.APPLICATION_ID
 import org.listenbrainz.android.R
-import org.listenbrainz.android.data.sources.brainzplayer.Song
+import org.listenbrainz.android.model.Song
 import java.io.File
 
 object BrainzPlayerExtensions {

@@ -2,7 +2,7 @@ package org.listenbrainz.sharedtest.utils
 
 import com.google.gson.Gson
 import org.junit.Assert.fail
-import org.listenbrainz.android.data.sources.api.entities.yimdata.YimData
+import org.listenbrainz.android.model.yimdata.YimPayload
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -28,9 +28,9 @@ object EntityTestUtils {
         return builder.toString()
     }
     
-    val testYimData : YimData
+    val testYimData : YimPayload
         get() {
-            return Gson().fromJson(loadResourceAsString("yim_data.json"), YimData::class.java)
+            return Gson().fromJson(loadResourceAsString("yim_data.json"), YimPayload::class.java)
         }
     
     val testYimUsername : String

@@ -1,10 +1,10 @@
 package org.listenbrainz.sharedtest.mocks
 
-import org.listenbrainz.android.data.repository.AppPreferences
-import org.listenbrainz.android.data.sources.api.entities.AccessToken
-import org.listenbrainz.android.data.sources.api.entities.userdata.UserInfo
-import org.listenbrainz.android.data.sources.brainzplayer.Playable
-import org.listenbrainz.android.presentation.UserPreferences
+import org.listenbrainz.android.repository.AppPreferences
+import org.listenbrainz.android.model.AccessToken
+import org.listenbrainz.android.model.UserInfo
+import org.listenbrainz.android.model.Playable
+import org.listenbrainz.android.util.UserPreferences
 import org.listenbrainz.android.util.LBSharedPreferences
 
 /*

@@ -21,7 +21,7 @@
             android:textAlignment="center"
             style="@style/VersionText" />
 
-        <org.listenbrainz.android.presentation.features.onboarding.view.HtmlAssetTextView
+        <org.listenbrainz.android.ui.components.HtmlAssetTextView
             android:id="@+id/about_text"
             style="@style/TextBody"
             android:layout_marginTop="@dimen/gutter_large" />
