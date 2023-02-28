@@ -14,7 +14,7 @@
         android:maxSdkVersion="28"/>
 
     <application
-        android:name=".App"
+        android:name=".application.App"
         android:autoRevokePermissions="allowed"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher_round"
@@ -24,7 +24,7 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="32" >
         <activity
-            android:name=".presentation.features.yim.YearInMusicActivity"
+            android:name=".ui.screens.yim.YearInMusicActivity"
             android:exported="false"
             android:label="@string/title_activity_year_in_music"
             android:theme="@style/AppTheme" >
@@ -33,11 +33,11 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".presentation.features.brainzplayer.ui.BrainzPlayerActivity"
+            android:name=".ui.screens.brainzplayer.BrainzPlayerActivity"
             android:exported="false" />
 
         <service
-            android:name=".presentation.features.listens.submitter.ListenService"
+            android:name=".service.ListenService"
             android:enabled="true"
             android:exported="true"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" >
@@ -46,7 +46,7 @@
             </intent-filter>
         </service>
         <service
-            android:name=".presentation.features.brainzplayer.services.BrainzPlayerService"
+            android:name=".service.BrainzPlayerService"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.media.browse.MediaMrowserService" />
@@ -54,10 +54,10 @@
         </service>
 
         <activity
-            android:name=".presentation.features.onboarding.FeaturesActivity"
+            android:name=".ui.screens.onboarding.FeaturesActivity"
             android:theme="@style/AppThemeNoActionBar" />
         <activity
-            android:name=".presentation.features.dashboard.DashboardActivity"
+            android:name=".ui.screens.dashboard.DashboardActivity"
             android:exported="true"
             android:theme="@style/Theme.App.Starting" >
             <intent-filter>
@@ -67,7 +67,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".presentation.features.login.LoginActivity"
+            android:name=".ui.screens.login.LoginActivity"
             android:exported="true"
             android:label="@string/auth_title" >
             <intent-filter>
@@ -82,20 +82,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".presentation.features.about.AboutActivity"
+            android:name=".ui.screens.about.AboutActivity"
             android:label="@string/about_title" />
         <activity
-            android:name=".presentation.features.dashboard.DonateActivity"
+            android:name=".ui.screens.dashboard.DonateActivity"
             android:label="@string/donate_title" />
         <activity
-            android:name="org.listenbrainz.android.presentation.features.settings.SettingsActivity"
+            android:name=".ui.screens.settings.SettingsActivity"
             android:label="@string/preferences_title" />
-        <activity android:name=".presentation.features.newsbrainz.NewsBrainzActivity" />
+        <activity android:name=".ui.screens.newsbrainz.NewsBrainzActivity" />
         <activity
-            android:name=".presentation.features.listens.ListensActivity"
+            android:name=".ui.screens.listens.ListensActivity"
             android:theme="@style/AppThemeNoActionBar" />
         <activity
-            android:name=".presentation.features.listens.RemotePlayerActivity"
+            android:name=".ui.screens.listens.RemotePlayerActivity"
             android:theme="@style/AppThemeNoActionBar" />
 
         <!-- Sentry Setup-->
@@ -108,7 +108,7 @@
             android:value=".activity.SearchActivity" />
 
         <provider
-            android:name="org.listenbrainz.android.presentation.features.suggestion.SuggestionProvider"
+            android:name="org.listenbrainz.android.util.SuggestionProvider"
             android:authorities="${applicationId}.SearchSuggestionProvider"
             android:exported="false" />
     </application>
