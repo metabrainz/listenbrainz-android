@@ -16,11 +16,15 @@ import org.junit.Test
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 import org.junit.runner.RunWith
-import org.listenbrainz.android.data.di.brainzplayer.BrainzPlayerDatabase
-import org.listenbrainz.android.data.sources.brainzplayer.AlbumEntity
-import org.listenbrainz.android.data.sources.brainzplayer.ArtistEntity
-import org.listenbrainz.android.data.sources.brainzplayer.PlaylistEntity
-import org.listenbrainz.android.data.sources.brainzplayer.SongEntity
+import org.listenbrainz.android.di.brainzplayer.BrainzPlayerDatabase
+import org.listenbrainz.android.model.AlbumEntity
+import org.listenbrainz.android.model.ArtistEntity
+import org.listenbrainz.android.model.PlaylistEntity
+import org.listenbrainz.android.model.SongEntity
+import org.listenbrainz.android.model.AlbumDao
+import org.listenbrainz.android.model.ArtistDao
+import org.listenbrainz.android.model.PlaylistDao
+import org.listenbrainz.android.model.SongDao
 
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)

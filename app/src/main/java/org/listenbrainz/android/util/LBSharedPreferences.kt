@@ -2,11 +2,10 @@ package org.listenbrainz.android.util
 
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
-import org.listenbrainz.android.App
-import org.listenbrainz.android.data.di.brainzplayer.TypeConverter
-import org.listenbrainz.android.data.sources.api.entities.AccessToken
-import org.listenbrainz.android.data.sources.api.entities.userdata.UserInfo
-import org.listenbrainz.android.data.sources.brainzplayer.Playable
+import org.listenbrainz.android.application.App
+import org.listenbrainz.android.model.AccessToken
+import org.listenbrainz.android.model.UserInfo
+import org.listenbrainz.android.model.Playable
 
 object LBSharedPreferences {
     const val USERNAME = "username"
