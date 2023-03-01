@@ -271,19 +271,24 @@ fun PlayerScreen(
                     .fillMaxWidth(0.98F)
                     .padding(start = 10.dp, top = 10.dp, end = 10.dp)) {
                 val song by brainzPlayerViewModel.currentlyPlayingSong.collectAsState()
+                val songCurrentPosition by brainzPlayerViewModel.songCurrentPosition.collectAsState()
                 var duration = "00:00"
+                var currentPosition = "00:00"
+                 if (song.duration / (1000 * 60 * 60) > 0 &&  songCurrentPosition / (1000 * 60 * 60) > 0){
+                     duration =String.format("%02d:%02d:%02d", song.duration/(1000 * 60 * 60),song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
+                     currentPosition = String.format("%02d:%02d:%02d", songCurrentPosition/(1000 * 60 * 60),songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
+                 }else{
+                     duration = String.format("%02d:%02d",song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
+                     currentPosition = String.format("%02d:%02d",songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
+                 }
 
                 Text(
-                    text = "00:00",
+                    text = currentPosition,
                     textAlign = TextAlign.Start,
                     color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(end = 5.dp)
                 )
-                if (song.duration / (1000 * 60 * 60) > 0){
-                    duration = String.format("%02d:%02d:%02d", song.duration/(1000 * 60 * 60),song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
-                }else{
-                    duration = String.format("%02d:%02d",song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
-                }
+
                 Text(
                     text = duration,
                     textAlign = TextAlign.Start,
