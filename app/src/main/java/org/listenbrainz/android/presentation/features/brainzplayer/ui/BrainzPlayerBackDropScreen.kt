@@ -249,7 +249,7 @@ fun PlayerScreen(
                                 }
                             }
                         },
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = if (!listenLiked) MaterialTheme.colorScheme.onSurface else Color.Red
                 )
             }
         }

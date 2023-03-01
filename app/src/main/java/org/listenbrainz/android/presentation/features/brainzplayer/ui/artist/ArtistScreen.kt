@@ -77,7 +77,6 @@ private fun ArtistsScreen(
                 }
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-//                    Spacer(modifier = Modifier.width(100.dp)) // added Spacer
                     Box(
                         modifier = Modifier
                             .padding(10.dp)
