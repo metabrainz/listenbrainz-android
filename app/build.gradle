@@ -98,7 +98,7 @@ dependencies {
 
     //Image downloading and Caching library
     implementation 'com.github.bumptech.glide:glide:4.15.0'
-    implementation "com.github.bumptech.glide:compose:1.0.0-alpha.1"
+    implementation "com.github.bumptech.glide:compose:1.0.0-alpha.2"
     implementation 'io.coil-kt:coil-compose:2.2.2'
     implementation 'com.caverock:androidsvg-aar:1.4'
     implementation 'androidx.core:core-ktx:1.9.0'
