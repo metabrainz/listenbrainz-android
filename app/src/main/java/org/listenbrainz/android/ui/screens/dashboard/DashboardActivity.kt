@@ -13,6 +13,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.runtime.*
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
@@ -110,7 +111,12 @@ class DashboardActivity : ComponentActivity() {
                 val backdropScaffoldState =
                     rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
                 Scaffold(
-                    topBar = { TopAppBar(activity = this, title = "Home") },
+                    topBar = {
+                        TopAppBar(
+                            activity = this,
+                            navDestinationFlow = navController.currentBackStackEntryAsState().value
+                        )
+                    },
                     bottomBar = { BottomNavigationBar(navController = navController, activity = this) }
                 ) {
                     if (isGrantedPerms == PermissionStatus.GRANTED.name) {

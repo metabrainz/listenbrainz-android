@@ -216,7 +216,7 @@ fun AllUserListens(
             items(viewModel.listens) { listen->
                 ListenCard(
                     listen,
-                    coverArt = listen.coverArt,
+                    coverArt = listen.coverArt,     // TODO: Fix coverArts not working
                     onItemClicked = {
                         if(it.track_metadata.additional_info?.spotify_id != null) {
                             Uri.parse(it.track_metadata.additional_info.spotify_id).lastPathSegment?.let { trackId ->
