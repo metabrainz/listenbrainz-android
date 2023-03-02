@@ -40,8 +40,7 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.navigation.AppNavigationItem
-import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerActivity
-import org.listenbrainz.android.ui.screens.brainzplayer.navigation.BrainzNavigationItem
+import org.listenbrainz.android.ui.screens.brainzplayer.navigation.BrainzPlayerNavigationItem
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.SeekBar
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
 import org.listenbrainz.android.ui.screens.login.LoginActivity
@@ -75,21 +74,16 @@ fun BottomNavigationBar(
                 onClick = {
                     when(item.route){
                         "home" -> {
-                            /*val nextActivity = DashboardActivity::class.java
-                            if(nextActivity != activity::class.java){
-                                activity.startActivity(Intent(activity, DashboardActivity::class.java))
-                            }*/
                             navController.navigate(AppNavigationItem.Home.route){
                                 launchSingleTop = true
                                 popUpTo(AppNavigationItem.Home.route)
                             }
                         }
                         "brainzplayer" -> {
-                            val nextActivity = BrainzPlayerActivity::class.java
-                            if(nextActivity != activity::class.java){
-                                activity.startActivity(Intent(activity, BrainzPlayerActivity::class.java))
+                            navController.navigate(AppNavigationItem.BrainzPlayer.route){
+                                launchSingleTop = true
+                                popUpTo(AppNavigationItem.Home.route)
                             }
-                            //navController.navigate(AppNavigationItem.BrainzPlayer.route)
                         }
                         "listens" -> {
                             navController.navigate(AppNavigationItem.Listens.route){
@@ -226,11 +220,11 @@ fun SongViewPager( modifier: Modifier = Modifier, viewModel: BrainzPlayerViewMod
 @Composable
 fun BrainzPlayerBottomBar( navController: NavController) {
     val items = listOf(
-        BrainzNavigationItem.Home,
-        BrainzNavigationItem.Songs,
-        BrainzNavigationItem.Artists,
-        BrainzNavigationItem.Albums,
-        BrainzNavigationItem.Playlists,
+        BrainzPlayerNavigationItem.Home,
+        BrainzPlayerNavigationItem.Songs,
+        BrainzPlayerNavigationItem.Artists,
+        BrainzPlayerNavigationItem.Albums,
+        BrainzPlayerNavigationItem.Playlists,
 
         )
     val backStackEntry by navController.currentBackStackEntryAsState()

@@ -1,48 +1,52 @@
 package org.listenbrainz.android.ui.screens.brainzplayer.navigation
 
-import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.google.accompanist.pager.ExperimentalPagerApi
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.Artist
 import org.listenbrainz.android.model.Playlist
 import org.listenbrainz.android.ui.screens.brainzplayer.*
 
-@OptIn(ExperimentalPagerApi::class)
+
 @ExperimentalMaterial3Api
 @Composable
 fun Navigation(
-    navHostController: NavHostController,
+    localNavHostController: NavHostController,
+    appNavController: NavController,
     albums: List<Album>,
     artists: List<Artist>,
     playlists: List<Playlist>,
-    recentlyPlayedSongs: Playlist,
-    brainzPlayerActivity: BrainzPlayerActivity
+    recentlyPlayedSongs: Playlist
 ) {
-    NavHost(navController = navHostController, startDestination = BrainzNavigationItem.Home.route) {
-        //BrainzPlayerActivity bottom navigation
-        composable(route = BrainzNavigationItem.Home.route) {
-            HomeScreen(albums = albums, artists, playlists, recentlyPlayedSongs, navHostController = navHostController,
-                activity = brainzPlayerActivity
+    NavHost(navController = localNavHostController, startDestination = BrainzPlayerNavigationItem.Home.route) {
+        
+        composable(route = BrainzPlayerNavigationItem.Home.route) {
+            HomeScreen(
+                albums = albums,
+                artists = artists,
+                playlists = playlists,
+                recentlyPlayedSongs = recentlyPlayedSongs,
+                navHostController = localNavHostController,
+                appNavController = appNavController
             )
         }
-        composable(route = BrainzNavigationItem.Songs.route) {
+        composable(route = BrainzPlayerNavigationItem.Songs.route) {
             SongScreen()
         }
-        composable(route = BrainzNavigationItem.Artists.route) {
-            ArtistScreen(navHostController)
+        composable(route = BrainzPlayerNavigationItem.Artists.route) {
+            ArtistScreen(localNavHostController)
         }
-        composable(route = BrainzNavigationItem.Albums.route) {
-            AlbumScreen(navHostController)
+        composable(route = BrainzPlayerNavigationItem.Albums.route) {
+            AlbumScreen(localNavHostController)
         }
-        composable(route = BrainzNavigationItem.Playlists.route) {
-            PlaylistScreen(navHostController)
+        composable(route = BrainzPlayerNavigationItem.Playlists.route) {
+            PlaylistScreen(localNavHostController)
         }
 
         //BrainzPlayerActivity navigation on different screens
@@ -63,7 +67,7 @@ fun Navigation(
             })
         ) {
             it.arguments?.getString("artistID")?.let { artistID ->
-                OnArtistClickScreen(artistID = artistID, navHostController)
+                OnArtistClickScreen(artistID = artistID, localNavHostController)
             }
         }
         composable(

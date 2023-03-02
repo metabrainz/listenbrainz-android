@@ -41,7 +41,7 @@ import org.listenbrainz.android.model.Artist
 import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.ui.components.BpProgressIndicator
 import org.listenbrainz.android.ui.components.forwardingPainter
-import org.listenbrainz.android.ui.screens.brainzplayer.navigation.BrainzNavigationItem
+import org.listenbrainz.android.ui.screens.brainzplayer.navigation.BrainzPlayerNavigationItem
 import org.listenbrainz.android.viewmodel.ArtistViewModel
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
@@ -51,7 +51,7 @@ fun ArtistScreen(navHostController: NavHostController) {
     val artistViewModel = hiltViewModel<ArtistViewModel>()
     val artists = artistViewModel.artists.collectAsState(initial = listOf())
     if (artists.value.isEmpty()){
-        BpProgressIndicator(BrainzNavigationItem.Albums)
+        BpProgressIndicator(BrainzPlayerNavigationItem.Albums)
     } else {
         ArtistsScreen(artists, navHostController)
     }

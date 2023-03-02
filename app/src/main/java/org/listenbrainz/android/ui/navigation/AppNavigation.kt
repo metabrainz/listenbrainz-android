@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.listenbrainz.android.ui.components.BackLayerContent
+import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen
 import org.listenbrainz.android.ui.screens.listens.ListensScreen
 
 @Composable
@@ -27,7 +28,7 @@ fun AppNavigation(
             BackLayerContent(activity = activity)
         }
         composable(route = AppNavigationItem.BrainzPlayer.route){
-        
+            BrainzPlayerScreen(appNavController = navController)
         }
         composable(route = AppNavigationItem.Listens.route){
             ListensScreen(navController = navController)

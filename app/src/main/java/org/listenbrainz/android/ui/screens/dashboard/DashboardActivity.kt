@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.screens.dashboard
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -29,6 +30,7 @@ import org.listenbrainz.android.viewmodel.DashBoardViewModel
 class DashboardActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
+    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
@@ -110,17 +112,15 @@ class DashboardActivity : ComponentActivity() {
                 Scaffold(
                     topBar = { TopAppBar(activity = this, title = "Home") },
                     bottomBar = { BottomNavigationBar(navController = navController, activity = this) }
-                ) { paddingValues ->
+                ) {
                     if (isGrantedPerms == PermissionStatus.GRANTED.name) {
                         BrainzPlayerBackDropScreen(
                             backdropScaffoldState = backdropScaffoldState,
-                            paddingValues = paddingValues,
                         ) {
                             AppNavigation(
                                 navController = navController,
                                 activity = this
                             )
-                            //BackLayerContent(activity = this)
                         }
                     }
                 }

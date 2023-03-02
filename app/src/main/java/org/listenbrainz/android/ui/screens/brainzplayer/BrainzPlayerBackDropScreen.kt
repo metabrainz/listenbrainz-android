@@ -62,7 +62,6 @@ import kotlin.math.max
 @Composable
 fun BrainzPlayerBackDropScreen(
     backdropScaffoldState: BackdropScaffoldState,
-    paddingValues: PaddingValues,
     brainzPlayerViewModel: BrainzPlayerViewModel = viewModel(),
     backLayerContent: @Composable () -> Unit
 ) {
@@ -99,7 +98,7 @@ fun BrainzPlayerBackDropScreen(
                 isShuffled = isShuffled,
                 repeatMode = repeatMode,
                 modifier = Modifier
-                    .padding(paddingValues)
+                    .padding(5.dp)      // TODO: Fix here
                     .alpha(1 - (delta / maxDelta).coerceIn(0f, 1f))
             )
             SongViewPager(
