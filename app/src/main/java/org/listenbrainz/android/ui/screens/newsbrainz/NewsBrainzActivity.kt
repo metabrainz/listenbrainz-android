@@ -9,7 +9,6 @@ import android.view.MenuItem
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cursoradapter.widget.CursorAdapter
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.aemerse.share.SharableItem
@@ -19,16 +18,12 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Post
 import org.listenbrainz.android.databinding.ActivityNewsbrainzBinding
 import org.listenbrainz.android.util.IntentFactory
-import org.listenbrainz.android.util.SuggestionHelper
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.e
 import org.listenbrainz.android.viewmodel.NewsListViewModel
 
 @AndroidEntryPoint
 class NewsBrainzActivity : AppCompatActivity(), BlogAdapter.ClickListener {
-
-    private var suggestionHelper: SuggestionHelper? = null
-    private var suggestionAdapter: CursorAdapter? = null
 
     private lateinit var binding: ActivityNewsbrainzBinding
     private var viewModel: NewsListViewModel? = null
@@ -43,9 +38,6 @@ class NewsBrainzActivity : AppCompatActivity(), BlogAdapter.ClickListener {
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.title = "NewsBrainz"
         setContentView(binding.root)
-
-        suggestionHelper = SuggestionHelper(this)
-        suggestionAdapter = suggestionHelper!!.adapter
 
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         viewModel = ViewModelProvider(this)[NewsListViewModel::class.java]
