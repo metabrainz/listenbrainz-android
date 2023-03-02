@@ -35,9 +35,9 @@ class DashboardActivity : ComponentActivity() {
         setContent {
             ListenBrainzTheme()
             {
-                // TODO: Since this view-model will remain through the lifecycle of the app,
-                //  we can tasks which require such lifecycle access. We can get this view-model's
-                //  anywhere as its a hilt view-model.
+                // TODO: Since this view-model will remain throughout the lifecycle of the app,
+                //  we can have tasks which require such lifecycle access or longevity. We can get this view-model's
+                //  instance anywhere when we initialize it as a hilt view-model.
                 val dashBoardViewModel : DashBoardViewModel by viewModels()
     
                 dashBoardViewModel.setUiMode()
