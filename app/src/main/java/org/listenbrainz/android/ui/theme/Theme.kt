@@ -28,8 +28,11 @@ private val DarkColorScheme = darkColorScheme(
     tertiaryContainer = bp_bottom_song_viewpager_dark,
     onTertiary = bp_color_primary_dark,
     inverseOnSurface = lb_orange,   // Reserved for progress indicators.
-    
-    onSurface = Color.White     // Text color (Which is ON surface/canvas)
+
+    surfaceTint = bp_lavender_dark,
+    onSurface = Color.White,     // Text color (Which is ON surface/canvas)
+
+
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -40,7 +43,8 @@ private val LightColorScheme = lightColorScheme(
     tertiaryContainer = bp_bottom_song_viewpager_day,
     onTertiary = bp_color_primary_day,
     inverseOnSurface = lb_purple,   // Reserved for progress indicators.
-    
+    surfaceTint = bp_lavender_day,
+
     onSurface = Color.Black
 )
 

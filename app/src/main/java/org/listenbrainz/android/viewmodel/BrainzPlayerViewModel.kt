@@ -21,6 +21,7 @@ import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.service.BrainzPlayerService
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
 import org.listenbrainz.android.util.BrainzPlayerExtensions.currentPlaybackPosition
+import org.listenbrainz.android.util.BrainzPlayerExtensions.duration
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlayEnabled
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlaying
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPrepared
@@ -38,9 +39,11 @@ class BrainzPlayerViewModel @Inject constructor(
     val pagerState = MutableStateFlow(0)
     private val _mediaItems = MutableStateFlow<Resource<List<Song>>>(Resource.loading())
     private val _songDuration = MutableStateFlow(0L)
+    private val _songCurrentPosition = MutableStateFlow(0L)
     private val _progress = MutableStateFlow(0F)
     val mediaItem = _mediaItems.asStateFlow()
     val progress = _progress.asStateFlow()
+    val songCurrentPosition = _songCurrentPosition.asStateFlow()
     val songs = songRepository.getSongsStream()
     private val playbackState = brainzPlayerServiceConnection.playbackState
     val isShuffled = brainzPlayerServiceConnection.shuffleState
@@ -161,6 +164,8 @@ class BrainzPlayerViewModel @Inject constructor(
                 if (progress.value != pos) {
                     _progress.emit(pos / BrainzPlayerService.currentSongDuration)
                     _songDuration.emit(BrainzPlayerService.currentSongDuration)
+                    _songCurrentPosition.emit(((pos / BrainzPlayerService.currentSongDuration) * BrainzPlayerService.currentSongDuration).toLong())
+
                 }
                 delay(100L)
             }

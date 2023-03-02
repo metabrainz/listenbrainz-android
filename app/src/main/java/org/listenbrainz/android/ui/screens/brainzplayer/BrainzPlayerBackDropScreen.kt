@@ -26,7 +26,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -48,6 +47,7 @@ import org.listenbrainz.android.ui.components.SongViewPager
 import org.listenbrainz.android.ui.components.PlayPauseIcon
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.SeekBar
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
+import org.listenbrainz.android.util.BrainzPlayerExtensions.duration
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.LBSharedPreferences
@@ -240,8 +240,7 @@ fun PlayerScreen(
                                         currentlyPlayingSong,
                                         li[0]
                                     )
-                                }
-                                else {
+                                } else {
                                     playlistViewModel.deleteSongFromPlaylist(
                                         currentlyPlayingSong,
                                         li[0]
@@ -266,6 +265,37 @@ fun PlayerScreen(
                     onValueChanged = brainzPlayerViewModel::onSeeked
                 )
             }
+            Row(verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth(0.98F)
+                    .padding(start = 10.dp, top = 10.dp, end = 10.dp)) {
+                val song by brainzPlayerViewModel.currentlyPlayingSong.collectAsState()
+                val songCurrentPosition by brainzPlayerViewModel.songCurrentPosition.collectAsState()
+                var duration = "00:00"
+                var currentPosition = "00:00"
+                 if (song.duration / (1000 * 60 * 60) > 0 &&  songCurrentPosition / (1000 * 60 * 60) > 0){
+                     duration =String.format("%02d:%02d:%02d", song.duration/(1000 * 60 * 60),song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
+                     currentPosition = String.format("%02d:%02d:%02d", songCurrentPosition/(1000 * 60 * 60),songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
+                 }else{
+                     duration = String.format("%02d:%02d",song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
+                     currentPosition = String.format("%02d:%02d",songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
+                 }
+
+                Text(
+                    text = currentPosition,
+                    textAlign = TextAlign.Start,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(end = 5.dp)
+                )
+
+                Text(
+                    text = duration,
+                    textAlign = TextAlign.Start,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(start = 5.dp)
+                )
+            }
         }
         item {
             val playIcon by brainzPlayerViewModel.playButton.collectAsState()
@@ -288,7 +318,7 @@ fun PlayerScreen(
                         .clickable {
                             brainzPlayerViewModel.repeatMode()
                         },
-                    tint = colorResource(id = R.color.bp_lavender)
+                    tint = MaterialTheme.colorScheme.surfaceTint
                 )
 
                 Icon(
@@ -297,7 +327,7 @@ fun PlayerScreen(
                     modifier = Modifier
                         .size(FloatingActionButtonDefaults.LargeIconSize)
                         .clickable { brainzPlayerViewModel.skipToPreviousSong() },
-                    tint = colorResource(id = R.color.bp_lavender)
+                    tint = MaterialTheme.colorScheme.surfaceTint
                 )
 
                 LargeFloatingActionButton(onClick = {
@@ -310,7 +340,9 @@ fun PlayerScreen(
                     PlayPauseIcon(
                         icon = playIcon,
                         viewModel = brainzPlayerViewModel,
-                        modifier = Modifier.size(FloatingActionButtonDefaults.LargeIconSize)
+                        modifier = Modifier.size(FloatingActionButtonDefaults.LargeIconSize),
+                        tint = MaterialTheme.colorScheme.surfaceTint
+
                     )
                 }
                 Icon(
@@ -319,7 +351,7 @@ fun PlayerScreen(
                     modifier = Modifier
                         .size(FloatingActionButtonDefaults.LargeIconSize)
                         .clickable { brainzPlayerViewModel.skipToNextSong() },
-                    tint = colorResource(id = R.color.bp_lavender)
+                    tint = MaterialTheme.colorScheme.surfaceTint
                 )
                 Icon(
                     imageVector = if (isShuffled) Icons.Rounded.ShuffleOn else Icons.Rounded.Shuffle,
@@ -327,7 +359,7 @@ fun PlayerScreen(
                     modifier = Modifier
                         .size(FloatingActionButtonDefaults.LargeIconSize)
                         .clickable { brainzPlayerViewModel.shuffle() },
-                    tint = colorResource(id = R.color.bp_lavender)
+                    tint = MaterialTheme.colorScheme.surfaceTint
                 )
             }
         }
