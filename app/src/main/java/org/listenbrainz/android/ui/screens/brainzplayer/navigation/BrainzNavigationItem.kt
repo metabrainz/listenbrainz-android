@@ -1,16 +1,8 @@
-package org.listenbrainz.android.ui.components
+package org.listenbrainz.android.ui.screens.brainzplayer.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.ui.graphics.vector.ImageVector
-import org.listenbrainz.android.R
-
-sealed class NavigationItem(var route: String, var icon: Int, var title: String) {
-    object Home : NavigationItem("home", R.drawable.ic_house, "Home")
-    object BrainzPlayer : NavigationItem("brainzplayer", R.drawable.ic_brainzplayer_icon, "Player")
-    object Listens : NavigationItem("listens", R.drawable.ic_listen, "Listens")
-    object Profile : NavigationItem("profile", R.drawable.user, "Profile")
-}
 
 sealed class BrainzNavigationItem(var route: String, var icon: ImageVector, var title: String){
     object Home : BrainzNavigationItem("home", Icons.Rounded.Home, "Home")

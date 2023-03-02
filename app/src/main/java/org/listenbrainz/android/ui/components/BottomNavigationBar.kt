@@ -7,11 +7,17 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.SkipPrevious
-import androidx.compose.runtime.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,29 +33,32 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import org.listenbrainz.android.R
-import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
-import androidx.compose.material3.MaterialTheme
+import org.listenbrainz.android.ui.navigation.AppNavigationItem
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerActivity
-import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
+import org.listenbrainz.android.ui.screens.brainzplayer.navigation.BrainzNavigationItem
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.SeekBar
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
-import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
-import org.listenbrainz.android.ui.screens.listens.ListensActivity
 import org.listenbrainz.android.ui.screens.login.LoginActivity
+import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
+import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
 @ExperimentalPagerApi
 @Composable
-fun BottomNavigationBar(activity: Activity) {
+fun BottomNavigationBar(
+    navController: NavController = rememberNavController(),
+    activity: Activity
+) {
     val items = listOf(
-        NavigationItem.Home,
-        NavigationItem.BrainzPlayer,
-        NavigationItem.Listens,
-        NavigationItem.Profile,
+        AppNavigationItem.Home,
+        AppNavigationItem.BrainzPlayer,
+        AppNavigationItem.Listens,
+        AppNavigationItem.Profile,
     )
     BottomNavigation(
         backgroundColor = MaterialTheme.colorScheme.background,
@@ -66,9 +75,13 @@ fun BottomNavigationBar(activity: Activity) {
                 onClick = {
                     when(item.route){
                         "home" -> {
-                            val nextActivity = DashboardActivity::class.java
+                            /*val nextActivity = DashboardActivity::class.java
                             if(nextActivity != activity::class.java){
                                 activity.startActivity(Intent(activity, DashboardActivity::class.java))
+                            }*/
+                            navController.navigate(AppNavigationItem.Home.route){
+                                launchSingleTop = true
+                                popUpTo(AppNavigationItem.Home.route)
                             }
                         }
                         "brainzplayer" -> {
@@ -76,11 +89,12 @@ fun BottomNavigationBar(activity: Activity) {
                             if(nextActivity != activity::class.java){
                                 activity.startActivity(Intent(activity, BrainzPlayerActivity::class.java))
                             }
+                            //navController.navigate(AppNavigationItem.BrainzPlayer.route)
                         }
                         "listens" -> {
-                            val nextActivity = ListensActivity::class.java
-                            if(nextActivity != activity::class.java){
-                                activity.startActivity(Intent(activity, ListensActivity::class.java))
+                            navController.navigate(AppNavigationItem.Listens.route){
+                                launchSingleTop = true
+                                popUpTo(AppNavigationItem.Home.route)
                             }
                         }
                         "profile" -> {
@@ -88,6 +102,9 @@ fun BottomNavigationBar(activity: Activity) {
                             if(nextActivity != activity::class.java){
                                 activity.startActivity(Intent(activity, LoginActivity::class.java))
                             }
+                            /*navController.navigate(AppNavigationItem.Profile.route){
+                                launchSingleTop = true
+                            }*/
                         }
                     }
                 }

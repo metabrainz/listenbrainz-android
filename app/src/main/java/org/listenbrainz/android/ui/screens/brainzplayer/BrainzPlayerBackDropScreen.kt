@@ -37,21 +37,21 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.application.App
 import org.listenbrainz.android.R
-import org.listenbrainz.android.util.Constants.RECENTLY_PLAYED_KEY
+import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
-import org.listenbrainz.android.ui.components.SongViewPager
 import org.listenbrainz.android.ui.components.PlayPauseIcon
+import org.listenbrainz.android.ui.components.SongViewPager
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.SeekBar
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
 import org.listenbrainz.android.util.BrainzPlayerExtensions.duration
-import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
+import org.listenbrainz.android.util.Constants.RECENTLY_PLAYED_KEY
 import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
+import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
@@ -81,7 +81,12 @@ fun BrainzPlayerBackDropScreen(
         peekHeight = 0.dp,
         scaffoldState = backdropScaffoldState,
         backLayerContent = {
-            backLayerContent()
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                backLayerContent()
+            }
         },
         frontLayerBackgroundColor = MaterialTheme.colorScheme.background,
         appBar = {},
@@ -136,7 +141,7 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
                             // scroll position. We use the absolute value which allows us to mirror
                             // any effects for both directions
                             val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
-
+        
                             // We animate the scaleX + scaleY, between 85% and 100%
                             lerp(
                                 start = 0.85f,
@@ -146,7 +151,7 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
                                 scaleX = scale
                                 scaleY = scale
                             }
-
+        
                             // We animate the alpha, between 50% and 100%
                             alpha = lerp(
                                 start = 0.5f,

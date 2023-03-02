@@ -35,8 +35,8 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.ui.components.BpProgressIndicator
-import org.listenbrainz.android.ui.components.BrainzNavigationItem
 import org.listenbrainz.android.ui.components.forwardingPainter
+import org.listenbrainz.android.ui.screens.brainzplayer.navigation.BrainzNavigationItem
 import org.listenbrainz.android.viewmodel.AlbumViewModel
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 

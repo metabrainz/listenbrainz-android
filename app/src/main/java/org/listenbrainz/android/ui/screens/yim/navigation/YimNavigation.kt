@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.yim
+package org.listenbrainz.android.ui.screens.yim.navigation
 
 import androidx.activity.ComponentActivity
 import androidx.compose.animation.*
@@ -12,8 +12,9 @@ import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import org.listenbrainz.android.model.YimScreens
-import org.listenbrainz.android.viewmodel.YimViewModel
+import org.listenbrainz.android.ui.screens.yim.*
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
+import org.listenbrainz.android.viewmodel.YimViewModel
 
 // Transition Duration
 private const val screenTransitionDuration = 900

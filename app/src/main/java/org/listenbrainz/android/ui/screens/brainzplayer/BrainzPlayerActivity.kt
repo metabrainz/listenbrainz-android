@@ -1,8 +1,6 @@
 package org.listenbrainz.android.ui.screens.brainzplayer
 
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,9 +20,9 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import org.listenbrainz.android.R
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -49,23 +47,18 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
-import org.listenbrainz.android.model.Album
-import org.listenbrainz.android.model.Artist
-import org.listenbrainz.android.model.Playlist
-import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.R
+import org.listenbrainz.android.model.*
 import org.listenbrainz.android.ui.components.BrainzPlayerBottomBar
 import org.listenbrainz.android.ui.components.TopAppBar
+import org.listenbrainz.android.ui.components.forwardingPainter
+import org.listenbrainz.android.ui.screens.brainzplayer.navigation.Navigation
+import org.listenbrainz.android.ui.screens.brainzplayer.ui.BrainzPlayerBackDropScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import androidx.compose.material3.MaterialTheme
-import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.viewmodel.AlbumViewModel
 import org.listenbrainz.android.viewmodel.ArtistViewModel
-import org.listenbrainz.android.ui.components.Navigation
-import org.listenbrainz.android.ui.components.forwardingPainter
-import org.listenbrainz.android.ui.screens.brainzplayer.ui.BrainzPlayerBackDropScreen
-import org.listenbrainz.android.viewmodel.PlaylistViewModel
-import org.listenbrainz.android.ui.screens.listens.ListensActivity
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
+import org.listenbrainz.android.viewmodel.PlaylistViewModel
 
 @ExperimentalPagerApi
 @AndroidEntryPoint
@@ -369,7 +362,8 @@ fun ListenBrainzHistoryCard(activity: BrainzPlayerActivity) {
             .background(gradientColors)
             .height(120.dp)
             .clickable {
-                activity.startActivity(Intent(activity as Activity, ListensActivity::class.java))
+                       // TODO: Navigate using navController
+                //activity.startActivity(Intent(activity as Activity, ListensActivity::class.java))
             },
     ) {
         Column {
