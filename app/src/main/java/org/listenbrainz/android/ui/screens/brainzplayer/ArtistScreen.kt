@@ -63,10 +63,7 @@ private fun ArtistsScreen(
     artists: State<List<Artist>>,
     navHostController: NavHostController
 ) {
-    LazyVerticalGrid(columns = GridCells.Fixed(2), contentPadding = PaddingValues(
-        start = 12.dp,
-        end = 12.dp,
-    ) ){
+    LazyVerticalGrid(columns = GridCells.Fixed(2)) {
         items(artists.value) {
             Box(modifier = Modifier
                 .padding(2.dp)
@@ -109,7 +106,6 @@ private fun ArtistsScreen(
         }
     }
 }
-
 
 @Composable
 fun OnArtistClickScreen(artistID: String, navHostController: NavHostController) {
