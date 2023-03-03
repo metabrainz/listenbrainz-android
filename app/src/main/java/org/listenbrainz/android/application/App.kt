@@ -20,7 +20,11 @@ class App : Application() {
         super.onCreate()
         context = this
         loadCustomTypefaces()
-        if (preferenceListeningEnabled && Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) startListenService()
+        when {
+            preferenceListeningEnabled && Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP -> {
+                startListenService()
+            }
+        }
     }
 
     private fun loadCustomTypefaces() {

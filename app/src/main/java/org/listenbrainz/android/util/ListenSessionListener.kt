@@ -8,17 +8,16 @@ import android.media.session.PlaybackState
 import org.listenbrainz.android.util.UserPreferences.preferenceListeningSpotifyEnabled
 import org.listenbrainz.android.util.Log.d
 
-class ListenSessionListener(handler: ListenHandler) : OnActiveSessionsChangedListener {
-    private val controllers: MutableList<MediaController>
-    private val handler: ListenHandler
-    private val activeSessions: MutableMap<MediaSession.Token, ListenCallback?>
+class ListenSessionListener(private val handler: ListenHandler) : OnActiveSessionsChangedListener {
+    private val controllers: MutableList<MediaController> = ArrayList()
+    private val activeSessions: MutableMap<MediaSession.Token, ListenCallback?> = HashMap()
 
     override fun onActiveSessionsChanged(controllers: List<MediaController>?) {
         if (controllers == null) return
         clearSessions()
         this.controllers.addAll(controllers)
         for (controller in controllers) {
-            if (!preferenceListeningSpotifyEnabled && controller.packageName == SPOTIFY_PACKAGE_NAME){
+            if (!preferenceListeningSpotifyEnabled && controller.packageName == Constants.SPOTIFY_PACKAGE_NAME){
                 continue
             }
             val callback = ListenCallback()
@@ -84,15 +83,5 @@ class ListenSessionListener(handler: ListenHandler) : OnActiveSessionsChangedLis
                 timestamp = 0
             }
         }
-    }
-
-    companion object {
-        private const val SPOTIFY_PACKAGE_NAME = "com.spotify.music"
-    }
-
-    init {
-        controllers = ArrayList()
-        this.handler = handler
-        activeSessions = HashMap()
     }
 }
