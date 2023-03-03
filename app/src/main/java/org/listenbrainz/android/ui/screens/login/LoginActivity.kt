@@ -1,22 +1,10 @@
 package org.listenbrainz.android.ui.screens.login
 
-import android.content.Intent
-import android.graphics.drawable.ColorDrawable
-import android.net.Uri
 import android.os.Bundle
-import android.view.Menu
-import android.widget.Toast
-import androidx.lifecycle.ViewModelProvider
+import androidx.activity.compose.setContent
 import dagger.hilt.android.AndroidEntryPoint
-import org.listenbrainz.android.R
-import org.listenbrainz.android.util.ListenBrainzServiceGenerator
-import org.listenbrainz.android.model.AccessToken
-import org.listenbrainz.android.model.UserInfo
 import org.listenbrainz.android.databinding.ActivityLoginBinding
 import org.listenbrainz.android.ui.components.ListenBrainzActivity
-import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
-import org.listenbrainz.android.util.Log.d
-import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.viewmodel.LoginViewModel
 
 @AndroidEntryPoint
@@ -27,7 +15,11 @@ class LoginActivity : ListenBrainzActivity() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContent {
+            //Change this accordingly
+            ProfileScreen()
+        }
+        /*binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding!!.root)
         supportActionBar!!.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.app_bg)))
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
@@ -45,10 +37,10 @@ class LoginActivity : ListenBrainzActivity() {
                 binding!!.loginBtn.setOnClickListener { logoutUser() }
             }
             else -> binding!!.loginBtn.setOnClickListener { startLogin() }
-        }
+        }*/
     }
 
-    override fun onResume() {
+ /*   override fun onResume() {
         val callbackUri = intent.data
         if (callbackUri != null && callbackUri.toString().startsWith(ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI)) {
             val code = callbackUri.getQueryParameter("code")
@@ -111,5 +103,5 @@ class LoginActivity : ListenBrainzActivity() {
         super.onCreateOptionsMenu(menu)
         menu.findItem(R.id.menu_open_website).isVisible = false
         return true
-    }
+    }*/
 }
