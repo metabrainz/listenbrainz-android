@@ -248,6 +248,7 @@ fun PlayerScreen(
                                 }
                             }
                         },
+
                     tint = if (listenLiked) Color.Red else MaterialTheme.colorScheme.onSurface
                 )
             }
@@ -281,6 +282,7 @@ fun PlayerScreen(
                     duration = String.format("%02d:%02d",song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
                     currentPosition = String.format("%02d:%02d",songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
                 }
+
 
                 Text(
                     text = currentPosition,
@@ -414,3 +416,4 @@ fun PlayerScreen(
         recentlyPlayed.items=data.filter { it.title!="null" }.toList().reversed()
     }
 }
+
