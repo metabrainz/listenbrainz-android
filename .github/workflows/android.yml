@@ -1,4 +1,4 @@
-name: Limurse CI
+name: ListenBrainz CI
 
 on:
   pull_request:

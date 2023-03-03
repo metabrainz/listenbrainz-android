@@ -1,4 +1,4 @@
-name: Android Lint
+name: ListenBrainz Lint
 
 on:
   pull_request:
