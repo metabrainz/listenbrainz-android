@@ -10,6 +10,7 @@ import org.listenbrainz.android.service.ListenSubmitService
 import org.listenbrainz.android.util.ListenBrainzServiceGenerator.createService
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.ListenTrackMetadata
+import org.listenbrainz.android.util.ListenBrainzServiceGenerator.createListensService
 import org.listenbrainz.android.util.UserPreferences.preferenceListenBrainzToken
 import org.listenbrainz.android.util.Log.d
 import retrofit2.Call
@@ -26,19 +27,21 @@ class ListenHandler : Handler(Looper.getMainLooper()) {
             d("ListenBrainz User token has not been set!")
             return
         }
-        val service = createService(ListenSubmitService::class.java, false)
+        val service = createListensService(ListenSubmitService::class.java, true)
         val metadata = ListenTrackMetadata()
         metadata.artist = msg.data.getString(MediaMetadata.METADATA_KEY_ARTIST)
         metadata.track = msg.data.getString(MediaMetadata.METADATA_KEY_TITLE)
         val body = ListenSubmitBody()
         body.addListen(msg.data.getLong(timestamp), metadata)
         body.listenType = "single"
-        d(body.toString())
-        service.submitListen("Token $token", body)!!.enqueue(object : retrofit2.Callback<ResponseBody?> {
+
+        service.submitListen("Token $token", body)?.enqueue(object : retrofit2.Callback<ResponseBody?> {
             override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
                 d(response.message())
             }
-            override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {}
+            override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
+                d("Something went wrong: ${t.message}")
+            }
         })
     }
 
@@ -54,6 +57,6 @@ class ListenHandler : Handler(Looper.getMainLooper()) {
     }
 
     fun cancelListen(timestamp: Long) {
-        removeMessages(java.lang.Long.valueOf(timestamp).toInt())
+        removeMessages(timestamp.toInt())
     }
 }

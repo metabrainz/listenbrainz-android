@@ -43,19 +43,24 @@ class SettingsActivity : AppCompatActivity() {
             Preference.OnPreferenceChangeListener { preference: Preference, newValue: Any ->
             if (preference.key == PREFERENCE_LISTENING_ENABLED) {
                 val enabled = newValue as Boolean
-                if (enabled && !App.context!!.isNotificationServiceAllowed) {
-                    val builder = AlertDialog.Builder(this)
-                    builder.setTitle("Grant Media Control Permissions")
-                    builder.setMessage("The listen service requires the special Notification " +
-                            "Listener Service Permission to run. Please grant this permission to" +
-                            " ListenBrainz for Android if you want to use the service.")
-                    builder.setPositiveButton("Proceed") { dialog: DialogInterface?, which: Int -> startActivity(Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
-                    builder.setNegativeButton("Cancel") { dialog: DialogInterface?, which: Int ->
-                        preferenceListeningEnabled = false
-                        (preference as SwitchPreference).isChecked = false
+                when {
+                    enabled && !App.context!!.isNotificationServiceAllowed -> {
+                        val builder = AlertDialog.Builder(this)
+                        builder.setTitle("Grant Media Control Permissions")
+                        builder.setMessage("The listen service requires the special Notification " +
+                                "Listener Service Permission to run. Please grant this permission to" +
+                                " ListenBrainz for Android if you want to use the service.")
+                        builder.setPositiveButton("Proceed") { dialog: DialogInterface?, which: Int ->
+                            startActivity(Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS))
+                        }
+                        builder.setNegativeButton("Cancel") { dialog: DialogInterface?, which: Int ->
+                            preferenceListeningEnabled = false
+                            (preference as SwitchPreference).isChecked = false
+                        }
+                        builder.create().show()
                     }
-                    builder.create().show()
-                } else if (!enabled) App.context!!.stopListenService()
+                    !enabled -> App.context!!.stopListenService()
+                }
                 return@OnPreferenceChangeListener true
             }
             
@@ -81,12 +86,11 @@ class SettingsActivity : AppCompatActivity() {
         }
     
         // Attaching OnPreferenceChangeListener to our settings fragment.
-        supportFragmentManager.addFragmentOnAttachListener(
-            FragmentOnAttachListener { fragmentManager, fragment ->
-                if(fragment is SettingsFragment)
-                    fragment.setPreferenceChangeListener(preferenceChangeListener)
-            })
-        
+        supportFragmentManager.addFragmentOnAttachListener { fragmentManager, fragment ->
+            if (fragment is SettingsFragment)
+                fragment.setPreferenceChangeListener(preferenceChangeListener)
+        }
+
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

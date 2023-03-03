@@ -58,6 +58,25 @@ object ListenBrainzServiceGenerator {
         }
     }
 
+    fun <T> createListensService(serviceClass: Class<T>, debug: Boolean = false): T {
+        val client = OkHttpClient.Builder()
+            .apply {
+                if (debug) {
+                    addInterceptor(HttpLoggingInterceptor().apply {
+                        level = HttpLoggingInterceptor.Level.BODY
+                    })
+                }
+            }
+            .build()
+
+        return Retrofit.Builder()
+            .baseUrl(LISTENBRAINZ_API_BASE_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(serviceClass)
+    }
+
     fun <S> createService(service: Class<S>, requiresAuthenticator: Boolean): S {
         headerInterceptor = HeaderInterceptor()
         addInterceptors(headerInterceptor)
