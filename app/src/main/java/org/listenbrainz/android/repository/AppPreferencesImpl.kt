@@ -59,8 +59,9 @@ class AppPreferencesImpl: AppPreferences {
         get() = preferences.getBoolean(PREFERENCE_LISTENING_ENABLED, false)
         set(value) = setBoolean(PREFERENCE_LISTENING_ENABLED, value)
     
-    override val preferenceListenBrainzToken: String?
+    override var preferenceListenBrainzToken: String?
         get() = preferences.getString(PREFERENCE_LISTENBRAINZ_TOKEN, null)
+        set(value) = setString(PREFERENCE_LISTENBRAINZ_TOKEN, value)
     
     override var onboardingPreference: Boolean
         get() = preferences.getBoolean(PREFERENCE_ONBOARDING, false)
