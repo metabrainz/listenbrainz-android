@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
@@ -44,6 +45,8 @@ import com.spotify.protocol.client.Subscription
 import com.spotify.protocol.types.PlayerContext
 import com.spotify.protocol.types.PlayerState
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.BottomNavigationBar
@@ -54,6 +57,7 @@ import org.listenbrainz.android.ui.screens.listens.ListensActivity.AuthParams.RE
 import org.listenbrainz.android.ui.screens.login.LoginActivity
 import org.listenbrainz.android.util.LBSharedPreferences.username
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.viewmodel.ListensViewModel
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
@@ -66,6 +70,7 @@ class ListensActivity: ComponentActivity() {
     var loading =  mutableStateOf(true)
     var playerState: PlayerState? by mutableStateOf(null)
     var bitmap: Bitmap? by mutableStateOf(null)
+    private val apiKey = "AIzaSyDLxrLSOM9ZeHKTX74xTvDRXp14zCddRnA"
 
     object AuthParams {
         const val CLIENT_ID = "fadec988097f4480bd71608cac76d82c"
@@ -118,7 +123,9 @@ class ListensActivity: ComponentActivity() {
             
                     AllUserListens(
                         modifier = listensModifier,
-                        activity = this
+                        activity = this,
+                        youtubeMusicPackage = Constants.YOUTUBE_MUSIC_PACKAGE_NAME,
+                        apiKey = apiKey
                     )
                 }
             }
@@ -359,7 +366,9 @@ fun NowPlaying(
 fun AllUserListens(
     modifier: Modifier = Modifier,
     viewModel: ListensViewModel = viewModel(),
-    activity: Activity
+    activity: Activity,
+    youtubeMusicPackage: String,
+    apiKey: String
 ) {
     if(username == ""){
         AlertDialog(
@@ -400,6 +409,24 @@ fun AllUserListens(
                         if(it.track_metadata.additional_info?.spotify_id != null) {
                             Uri.parse(it.track_metadata.additional_info.spotify_id).lastPathSegment?.let { trackId ->
                                 (activity as ListensActivity).playUri("spotify:track:${trackId}")
+                            }
+                        }
+                        else{
+                            // Execute the API request asynchronously
+                            val scope = CoroutineScope(Dispatchers.Main)
+                            scope.launch {
+                                val videoId = viewModel.searchYoutubeMusicVideoId(trackName = listen.track_metadata.track_name, artist = listen.track_metadata.artist_name, apiKey = apiKey)
+                                if (videoId != null) {
+                                    // Play the track in the YouTube Music app
+                                    val trackUri = Uri.parse("https://music.youtube.com/watch?v=$videoId")
+                                    val intent = Intent(Intent.ACTION_VIEW)
+                                    intent.data = trackUri
+                                    intent.setPackage(youtubeMusicPackage)
+                                    activity.startActivity(intent)
+                                } else {
+                                    // Display an error message
+                                    Toast.makeText(activity, "Unable to find track on YouTube Music", Toast.LENGTH_SHORT).show()
+                                }
                             }
                         }
                     }

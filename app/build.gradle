@@ -7,6 +7,7 @@ plugins {
 }
 
 def keystorePropertiesFile = rootProject.file("keystore.properties")
+def localPropertiesFile = rootProject.file('local.properties')
 
 android {
     namespace 'org.listenbrainz.android'
@@ -44,6 +45,15 @@ android {
 
     buildTypes {
         debug {
+            if (localPropertiesFile.exists()) {
+                def localProperties = new Properties()
+                localProperties.load(new FileInputStream(localPropertiesFile))
+
+                resValue("string", "youtubeApiKey", localProperties['youtubeApiKey'])
+            }
+            else{
+                resValue("string", "youtubeApiKey", "test")
+            }
             manifestPlaceholders["sentryDsn"] = ""
             applicationIdSuffix ".debug"
             versionNameSuffix ".debug"
@@ -52,9 +62,11 @@ android {
             if (keystorePropertiesFile.exists()) {
                 def keystoreProperties = new Properties()
                 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+                resValue("string", "youtubeApiKey", keystoreProperties['youtubeApiKey'])
 
                 signingConfig signingConfigs.release
                 manifestPlaceholders["sentryDsn"] = keystoreProperties['sentryDsn']
+                manifestPlaceholders["sentryDsn"] = keystoreProperties['youtubeApiKey']
             }
             else {
                 manifestPlaceholders["sentryDsn"] = ""
