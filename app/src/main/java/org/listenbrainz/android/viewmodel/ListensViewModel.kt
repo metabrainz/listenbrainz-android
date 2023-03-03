@@ -13,6 +13,9 @@ import com.google.gson.GsonBuilder
 import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.Connector
 import com.spotify.android.appremote.api.SpotifyAppRemote
+import com.spotify.android.appremote.api.error.CouldNotFindSpotifyApp
+import com.spotify.android.appremote.api.error.NotLoggedInException
+import com.spotify.android.appremote.api.error.UserNotAuthorizedException
 import com.spotify.protocol.client.Subscription
 import com.spotify.protocol.types.PlayerContext
 import com.spotify.protocol.types.PlayerState
@@ -20,6 +23,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.repository.ListensRepository
+import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Resource.Status.*
 import javax.inject.Inject
 import kotlin.coroutines.Continuation
@@ -139,10 +143,23 @@ class ListensViewModel @Inject constructor(
                     .build(),
                 object : Connector.ConnectionListener {
                     override fun onConnected(spotifyAppRemote: SpotifyAppRemote) {
+                        d("App remote Connected!")
                         cont.resume(spotifyAppRemote)
                     }
                     
                     override fun onFailure(error: Throwable) {
+                        if (error is CouldNotFindSpotifyApp) {
+                            // TODO: Tell user that they need to install the spotify app on the phone
+                        }
+    
+                        if (error is NotLoggedInException) {
+                            // TODO: Tell user that they need to login in the spotify app
+                        }
+    
+                        if (error is UserNotAuthorizedException) {
+                            // TODO: Explicit user authorization is required to use Spotify.
+                            //  The user has to complete the auth-flow to allow the app to use Spotify on their behalf
+                        }
                         cont.resumeWithException(error)
                     }
                 }
@@ -199,7 +216,7 @@ class ListensViewModel @Inject constructor(
                 return it
             }
         }
-        Log.e(TAG, "Spotify is not Connected. Use one of the 'connect' buttons")    //getString(R.string.err_spotify_disconnected))
+        logMessage("Spotify is not Connected. Use one of the 'connect' buttons")        //getString(R.string.err_spotify_disconnected))
         return null
     }
     
