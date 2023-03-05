@@ -72,34 +72,20 @@ fun BottomNavigationBar(
                 alwaysShowLabel = true,
                 selected = true,
                 onClick = {
-                    when(item.route){
-                        "home" -> {
-                            navController.navigate(AppNavigationItem.Home.route){
-                                launchSingleTop = true
-                                popUpTo(AppNavigationItem.Home.route)
-                            }
+                    // TODO: remove this
+                    if (item == AppNavigationItem.Profile){
+                        activity.startActivity(Intent(activity,LoginActivity::class.java))
+                    }
+                    navController.navigate(item.route){
+                        // Avoid building large backstack
+                        popUpTo(AppNavigationItem.Home.route){
+                            saveState = true
                         }
-                        "brainzplayer" -> {
-                            navController.navigate(AppNavigationItem.BrainzPlayer.route){
-                                launchSingleTop = true
-                                popUpTo(AppNavigationItem.Home.route)
-                            }
-                        }
-                        "listens" -> {
-                            navController.navigate(AppNavigationItem.Listens.route){
-                                launchSingleTop = true
-                                popUpTo(AppNavigationItem.Home.route)
-                            }
-                        }
-                        "profile" -> {
-                            val nextActivity = LoginActivity::class.java
-                            if(nextActivity != activity::class.java){
-                                activity.startActivity(Intent(activity, LoginActivity::class.java))
-                            }
-                            /*navController.navigate(AppNavigationItem.Profile.route){
-                                launchSingleTop = true
-                            }*/
-                        }
+                        // Avoid copies
+                        launchSingleTop = true
+                        // Restore previous state
+                        restoreState = true
+                        // TODO: Implement refresh for listens Screen.
                     }
                 }
             )
