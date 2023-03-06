@@ -178,7 +178,7 @@ dependencies {
 
     //Exoplayer
     api 'com.google.android.exoplayer:exoplayer-core:2.18.3'
-    api 'com.google.android.exoplayer:exoplayer-ui:2.18.3'
+    api 'com.google.android.exoplayer:exoplayer-ui:2.18.4'
     api 'com.google.android.exoplayer:extension-mediasession:2.18.3'
 
     //Room db
