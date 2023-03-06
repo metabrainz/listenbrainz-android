@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.preference.PreferenceManager
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import org.listenbrainz.android.ui.screens.yim.ui.theme.Typography
 
 /** Theme for the whole app. */
 

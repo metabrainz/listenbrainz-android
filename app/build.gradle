@@ -4,7 +4,6 @@ plugins {
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
     id "io.sentry.android.gradle" version "3.4.2"
-    id 'org.jetbrains.kotlin.android'
 }
 
 def keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -28,8 +27,8 @@ android {
         applicationId 'org.listenbrainz.android'
         minSdk 21
         targetSdk 33
-        versionCode 17
-        versionName "1.1.6"
+        versionCode 18
+        versionName "1.1.7"
 
         multiDexEnabled true
         testInstrumentationRunner "org.listenbrainz.android.CustomTestRunner" // "androidx.test.runner.AndroidJUnitRunner"

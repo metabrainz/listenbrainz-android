@@ -8,7 +8,7 @@ import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface ListenSubmitService {
-    @POST("https://api.listenbrainz.org/1/submit-listens")
+    @POST("1/submit-listens")
     fun submitListen(@Header("Authorization") token: String?,
                      @Body body: ListenSubmitBody?): Call<ResponseBody?>?
 }

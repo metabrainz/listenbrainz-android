@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.yim.ui.theme
+package org.listenbrainz.android.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.graphics.Color

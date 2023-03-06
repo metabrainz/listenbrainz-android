@@ -18,6 +18,7 @@ class ListenService : NotificationListenerService() {
     private var handler: ListenHandler? = null
     private var sessionListener: ListenSessionListener? = null
     private var listenServiceComponent: ComponentName? = null
+
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         d("Listen Service Started")
         return START_STICKY
@@ -36,6 +37,7 @@ class ListenService : NotificationListenerService() {
     private fun initialize() {
         d("Initializing Listener Service")
         val token = PreferenceManager.getDefaultSharedPreferences(this).getString(UserPreferences.PREFERENCE_LISTENBRAINZ_TOKEN, null)
+        d("Your token is: $token")
         if (token == null || token.isEmpty()){
             d("ListenBrainz User token has not been set!")
         }
@@ -43,13 +45,13 @@ class ListenService : NotificationListenerService() {
         sessionManager = applicationContext.getSystemService(MEDIA_SESSION_SERVICE) as MediaSessionManager
         sessionListener = ListenSessionListener(handler!!)
         listenServiceComponent = ComponentName(this, this.javaClass)
-        sessionManager!!.addOnActiveSessionsChangedListener(sessionListener!!, listenServiceComponent)
+        sessionManager?.addOnActiveSessionsChangedListener(sessionListener!!, listenServiceComponent)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        sessionManager!!.removeOnActiveSessionsChangedListener(sessionListener!!)
-        sessionListener!!.clearSessions()
+        sessionListener?.let { sessionManager?.removeOnActiveSessionsChangedListener(it) }
+        sessionListener?.clearSessions()
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
