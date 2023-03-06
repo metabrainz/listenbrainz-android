@@ -11,6 +11,8 @@ object UserPreferences {
     const val PREFERENCE_SYSTEM_THEME = "app_theme"
     const val PREFERENCE_PERMS = "perms_code"
     const val PREFERENCE_ONBOARDING = "onboarding"
+    const val PREFERENCE_ALBUMS_ON_DEVICE = "PREFERENCE_ALBUMS_ON_DEVICE"
+    const val PREFERENCE_SONGS_ON_DEVICE = "PREFERENCE_SONGS_ON_DEVICE"
     enum class PermissionStatus{
         NOT_REQUESTED,
         GRANTED,

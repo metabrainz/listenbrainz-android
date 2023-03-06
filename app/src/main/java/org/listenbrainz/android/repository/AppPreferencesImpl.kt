@@ -2,19 +2,23 @@ package org.listenbrainz.android.repository
 
 import androidx.preference.PreferenceManager
 import org.listenbrainz.android.application.App
-import org.listenbrainz.android.util.TypeConverter
 import org.listenbrainz.android.model.AccessToken
-import org.listenbrainz.android.model.UserInfo
 import org.listenbrainz.android.model.Playable
+import org.listenbrainz.android.model.UserInfo
+
+import org.listenbrainz.android.util.LBSharedPreferences
+
+import org.listenbrainz.android.util.TypeConverter
+import org.listenbrainz.android.util.UserPreferences.PREFERENCE_ALBUMS_ON_DEVICE
 import org.listenbrainz.android.util.UserPreferences.PREFERENCE_LISTENBRAINZ_TOKEN
 import org.listenbrainz.android.util.UserPreferences.PREFERENCE_LISTENING_ENABLED
 import org.listenbrainz.android.util.UserPreferences.PREFERENCE_LISTENING_SPOTIFY
 import org.listenbrainz.android.util.UserPreferences.PREFERENCE_ONBOARDING
 import org.listenbrainz.android.util.UserPreferences.PREFERENCE_PERMS
+import org.listenbrainz.android.util.UserPreferences.PREFERENCE_SONGS_ON_DEVICE
 import org.listenbrainz.android.util.UserPreferences.PREFERENCE_SYSTEM_LANGUAGE
 import org.listenbrainz.android.util.UserPreferences.PREFERENCE_SYSTEM_THEME
 import org.listenbrainz.android.util.UserPreferences.PermissionStatus
-import org.listenbrainz.android.util.LBSharedPreferences
 
 class AppPreferencesImpl: AppPreferences {
     
@@ -102,6 +106,8 @@ class AppPreferencesImpl: AppPreferences {
                 setString(LBSharedPreferences.CURRENT_PLAYABLE, TypeConverter.playableToJSON(it))
             }
         }
+
+    /* Login Preferences */
     
     override val loginStatus: Int
         get() {
@@ -117,4 +123,13 @@ class AppPreferencesImpl: AppPreferences {
     override val refreshToken: String?
         get() = preferences.getString(LBSharedPreferences.REFRESH_TOKEN, "")
     
+    /* BrainzPlayer Preferences */
+    
+    override var albumsOnDevice: Boolean
+        get() = preferences.getBoolean(PREFERENCE_ALBUMS_ON_DEVICE, true)
+        set(value) = setBoolean(PREFERENCE_ALBUMS_ON_DEVICE, value)
+    
+    override var songsOnDevice: Boolean
+        get() = preferences.getBoolean(PREFERENCE_SONGS_ON_DEVICE, true)
+        set(value) = setBoolean(PREFERENCE_SONGS_ON_DEVICE, value)
 }

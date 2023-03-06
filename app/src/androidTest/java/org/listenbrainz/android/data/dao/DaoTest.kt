@@ -21,10 +21,10 @@ import org.listenbrainz.android.model.AlbumEntity
 import org.listenbrainz.android.model.ArtistEntity
 import org.listenbrainz.android.model.PlaylistEntity
 import org.listenbrainz.android.model.SongEntity
-import org.listenbrainz.android.model.AlbumDao
-import org.listenbrainz.android.model.ArtistDao
-import org.listenbrainz.android.model.PlaylistDao
-import org.listenbrainz.android.model.SongDao
+import org.listenbrainz.android.model.dao.AlbumDao
+import org.listenbrainz.android.model.dao.ArtistDao
+import org.listenbrainz.android.model.dao.PlaylistDao
+import org.listenbrainz.android.model.dao.SongDao
 
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)

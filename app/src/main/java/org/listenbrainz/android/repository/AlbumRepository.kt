@@ -8,5 +8,5 @@ interface AlbumRepository {
     fun getAlbums() : Flow<List<Album>>
     fun getAlbum(albumId: Long) : Flow<Album>
     fun getAllSongsOfAlbum(albumId: Long): Flow<List<Song>>
-    suspend fun addAlbums() : Boolean
+    suspend fun addAlbums(userRequestedRefresh: Boolean = false) : Boolean
 }
