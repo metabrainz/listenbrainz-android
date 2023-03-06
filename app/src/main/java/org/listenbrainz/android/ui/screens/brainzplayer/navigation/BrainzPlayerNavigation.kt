@@ -11,6 +11,7 @@ import androidx.navigation.navArgument
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.Artist
 import org.listenbrainz.android.model.Playlist
+import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.ui.screens.brainzplayer.*
 
 
@@ -22,12 +23,14 @@ fun Navigation(
     albums: List<Album>,
     artists: List<Artist>,
     playlists: List<Playlist>,
-    recentlyPlayedSongs: Playlist
+    recentlyPlayedSongs: Playlist,
+    songs: List<Song>
 ) {
     NavHost(navController = localNavHostController, startDestination = BrainzPlayerNavigationItem.Home.route) {
         
         composable(route = BrainzPlayerNavigationItem.Home.route) {
             HomeScreen(
+                songs = songs,
                 albums = albums,
                 artists = artists,
                 playlists = playlists,

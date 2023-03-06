@@ -11,6 +11,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.ArrowForwardIos
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,19 +48,19 @@ import org.listenbrainz.android.ui.navigation.AppNavigationItem
 import org.listenbrainz.android.ui.screens.brainzplayer.navigation.BrainzPlayerNavigationItem
 import org.listenbrainz.android.ui.screens.brainzplayer.navigation.Navigation
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.viewmodel.AlbumViewModel
-import org.listenbrainz.android.viewmodel.ArtistViewModel
-import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
-import org.listenbrainz.android.viewmodel.PlaylistViewModel
+import org.listenbrainz.android.viewmodel.*
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BrainzPlayerScreen(appNavController: NavController) {
     ListenBrainzTheme {
         val localNavController = rememberNavController()
         val albumViewModel = hiltViewModel<AlbumViewModel>()
+        val songsViewModel = hiltViewModel<SongViewModel>()
         val artistViewModel = hiltViewModel<ArtistViewModel>()
         val playlistViewModel = hiltViewModel<PlaylistViewModel>()
-        val artists = artistViewModel.artists.collectAsState(initial = listOf()).value
+        val artists = artistViewModel.artists.collectAsState(initial = listOf()).value   // TODO: Fix this initial value
+        val songs = songsViewModel.songs.collectAsState(initial = listOf()).value
         val recentlyPlayed = Playlist.recentlyPlayed
         val albums = albumViewModel.albums.collectAsState(initial = listOf()).value
         val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
@@ -68,7 +69,7 @@ fun BrainzPlayerScreen(appNavController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            Navigation(localNavController, appNavController ,albums, artists, playlists, recentlyPlayed)
+            Navigation(localNavController, appNavController ,albums, artists, playlists, recentlyPlayed, songs)
         }
     }
 }
@@ -76,6 +77,7 @@ fun BrainzPlayerScreen(appNavController: NavController) {
 
 @Composable
 fun HomeScreen(
+    songs : List<Song>,
     albums: List<Album>,
     artists: List<Artist>,
     playlists: List<Playlist>,
@@ -106,114 +108,206 @@ fun HomeScreen(
         ListenBrainzHistoryCard(appNavController = appNavController)
         
         // Recently Played
-        Column {
-            Text(
-                text = "Recently Played",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                fontWeight = FontWeight.Bold,
-                fontSize = 24.sp,
-                textAlign = TextAlign.Start,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            LazyRow {
-                items(items = recentlyPlayedSongs.items) {
-                    BrainzPlayerActivityCards(icon = it.albumArt,
-                        errorIcon = R.drawable.ic_artist,
-                        title = it.title,
-                        modifier = Modifier
-                            .clickable {
-                                brainzPlayerViewModel.changePlayable(recentlyPlayedSongs.items, PlayableType.ALL_SONGS, it.mediaID,recentlyPlayedSongs.items.sortedBy { it.discNumber }.indexOf(it))
-                                brainzPlayerViewModel.playOrToggleSong(it, true)
-                            }
-                    )
-                }
+        Text(
+            text = "Recently Played",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            fontWeight = FontWeight.Bold,
+            fontSize = 24.sp,
+            textAlign = TextAlign.Start,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        LazyRow {
+            items(items = recentlyPlayedSongs.items) {
+                BrainzPlayerActivityCards(icon = it.albumArt,
+                    errorIcon = R.drawable.ic_artist,
+                    title = it.title,
+                    modifier = Modifier
+                        .clickable {
+                            brainzPlayerViewModel.changePlayable(recentlyPlayedSongs.items, PlayableType.ALL_SONGS, it.mediaID,recentlyPlayedSongs.items.sortedBy { it.discNumber }.indexOf(it))
+                            brainzPlayerViewModel.playOrToggleSong(it, true)
+                        }
+                )
+            }
+        }
+        
+        // All Songs button
+        Card(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+            backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
+            elevation = 5.dp
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Songs",
+                    modifier = Modifier
+                        .padding(top = 16.dp, bottom = 16.dp, start = 16.dp)
+                        .clickable {
+                            navHostController.navigate(BrainzPlayerNavigationItem.Songs.route)
+                        },
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp,
+                    textAlign = TextAlign.Start,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Icon(
+                    imageVector = Icons.Rounded.ArrowForwardIos,
+                    modifier = Modifier.padding(top = 16.dp, bottom = 16.dp, end = 16.dp, start = 8.dp),
+                    contentDescription = "Navigate to songs screen",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+        LazyRow {
+            items(items = songs) { song ->
+                BrainzPlayerActivityCards(icon = song.albumArt,
+                    errorIcon = R.drawable.ic_artist,
+                    title = song.title,
+                    modifier = Modifier
+                        .clickable {
+                            brainzPlayerViewModel.changePlayable(
+                                songs.sortedBy { it.discNumber },
+                                PlayableType.ALL_SONGS,
+                                song.mediaID,
+                                songs
+                                    .sortedBy { it.discNumber }
+                                    .indexOf(song)
+                            )
+                            brainzPlayerViewModel.playOrToggleSong(song, true)
+                        }
+                )
             }
         }
         
         // Artists
-        Column {
-            Text(
-                text = "Artists",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .clickable {
-                        navHostController.navigate(BrainzPlayerNavigationItem.Artists.route) },
-                fontWeight = FontWeight.Bold,
-                fontSize = 24.sp,
-                textAlign = TextAlign.Start,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            LazyRow {
-                items(items = artists) {
-                    BrainzPlayerActivityCards(icon = "",
-                        errorIcon = R.drawable.ic_artist,
-                        title = it.name,
-                        modifier = Modifier
-                            .clickable {
-                                navHostController.navigate("onArtistClick/${it.id}")
-                            }
-                    )
-                }
+        Card(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+            backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
+            elevation = 5.dp
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Artists",
+                    modifier = Modifier
+                        .padding(top = 16.dp, bottom = 16.dp, start = 16.dp)
+                        .clickable {
+                            navHostController.navigate(BrainzPlayerNavigationItem.Artists.route)
+                        },
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp,
+                    textAlign = TextAlign.Start,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Icon(
+                    imageVector = Icons.Rounded.ArrowForwardIos,
+                    modifier = Modifier.padding(top = 16.dp, bottom = 16.dp, end = 16.dp, start = 8.dp),
+                    contentDescription = "Navigate to artists screen",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            
+        }
+        LazyRow {
+            items(items = artists) {
+                BrainzPlayerActivityCards(icon = "",
+                    errorIcon = R.drawable.ic_artist,
+                    title = it.name,
+                    modifier = Modifier
+                        .clickable {
+                            navHostController.navigate("onArtistClick/${it.id}")
+                        }
+                )
             }
         }
+        
         
         // Albums
-        Column {
-            Text(
-                text = "Albums",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .clickable {
-                        navHostController.navigate(BrainzPlayerNavigationItem.Albums.route) },
-                fontWeight = FontWeight.Bold,
-                fontSize = 24.sp,
-                textAlign = TextAlign.Start,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            LazyRow {
-                items(albums) {
-                    BrainzPlayerActivityCards(it.albumArt,
-                        R.drawable.ic_album,
-                        title = it.title,
-                        modifier = Modifier
-                            .clickable {
-                                navHostController.navigate("onAlbumClick/${it.albumId}")
-                            }
-                    )
-                }
+        Card(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+            backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
+            elevation = 5.dp
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Albums",
+                    modifier = Modifier
+                        .padding(top = 16.dp, bottom = 16.dp, start = 16.dp)
+                        .clickable {
+                            navHostController.navigate(BrainzPlayerNavigationItem.Albums.route)
+                        },
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp,
+                    textAlign = TextAlign.Start,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Icon(
+                    imageVector = Icons.Rounded.ArrowForwardIos,
+                    modifier = Modifier.padding(top = 16.dp, bottom = 16.dp, end = 16.dp, start = 8.dp),
+                    contentDescription = "Navigate to albums screen",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            
+        }
+        LazyRow {
+            items(albums) {
+                BrainzPlayerActivityCards(it.albumArt,
+                    R.drawable.ic_album,
+                    title = it.title,
+                    modifier = Modifier
+                        .clickable {
+                            navHostController.navigate("onAlbumClick/${it.albumId}")
+                        }
+                )
             }
         }
         
+        
         // Playlists
-        Column {
-            Text(
-                text = "Playlists",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .clickable {
-                        navHostController.navigate(BrainzPlayerNavigationItem.Playlists.route) },
-                fontWeight = FontWeight.Bold,
-                fontSize = 24.sp,
-                textAlign = TextAlign.Start,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            LazyRow {
-                items(playlists.filter {
-                    it.id != (-1).toLong()
-                }) {
-                    BrainzPlayerActivityCards(
-                        icon = "",
-                        errorIcon = it.art,
-                        title = it.title,
-                        modifier = Modifier.clickable { navHostController.navigate("onPlaylistClick/${it.id}") })
-                }
+        Card(
+            modifier = Modifier.padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+            backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
+            elevation = 5.dp
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "Playlists",
+                    modifier = Modifier
+                        .padding(top = 16.dp, bottom = 16.dp, start = 16.dp)
+                        .clickable {
+                            navHostController.navigate(BrainzPlayerNavigationItem.Playlists.route)
+                        },
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp,
+                    textAlign = TextAlign.Start,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Icon(
+                    imageVector = Icons.Rounded.ArrowForwardIos,
+                    modifier = Modifier.padding(top = 16.dp, bottom = 16.dp, end = 16.dp, start = 8.dp),
+                    contentDescription = "Navigate to playlists screen",
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            
+        }
+        LazyRow {
+            items(playlists.filter {
+                it.id != (-1).toLong()
+            }) {
+                BrainzPlayerActivityCards(
+                    icon = "",
+                    errorIcon = it.art,
+                    title = it.title,
+                    modifier = Modifier.clickable { navHostController.navigate("onPlaylistClick/${it.id}") })
             }
         }
+        
         
     }
 }
@@ -329,7 +423,7 @@ fun ListenBrainzHistoryCard(appNavController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(10.dp)
+            .padding(16.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(gradientColors)
             .height(120.dp)
