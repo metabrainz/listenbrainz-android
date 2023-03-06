@@ -134,7 +134,9 @@ fun HomeScreen(
         
         // All Songs button
         Card(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(16.dp).clickable {
+                navHostController.navigate(BrainzPlayerNavigationItem.Songs.route)
+            },
             shape = RoundedCornerShape(16.dp),
             backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
             elevation = 5.dp
@@ -143,10 +145,7 @@ fun HomeScreen(
                 Text(
                     text = "Songs",
                     modifier = Modifier
-                        .padding(top = 16.dp, bottom = 16.dp, start = 16.dp)
-                        .clickable {
-                            navHostController.navigate(BrainzPlayerNavigationItem.Songs.route)
-                        },
+                        .padding(top = 16.dp, bottom = 16.dp, start = 16.dp),
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp,
                     textAlign = TextAlign.Start,
@@ -183,7 +182,9 @@ fun HomeScreen(
         
         // Artists
         Card(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(16.dp).clickable {
+                navHostController.navigate(BrainzPlayerNavigationItem.Artists.route)
+            },
             shape = RoundedCornerShape(16.dp),
             backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
             elevation = 5.dp
@@ -191,11 +192,7 @@ fun HomeScreen(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "Artists",
-                    modifier = Modifier
-                        .padding(top = 16.dp, bottom = 16.dp, start = 16.dp)
-                        .clickable {
-                            navHostController.navigate(BrainzPlayerNavigationItem.Artists.route)
-                        },
+                    modifier = Modifier.padding(top = 16.dp, bottom = 16.dp, start = 16.dp),
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp,
                     textAlign = TextAlign.Start,
@@ -226,7 +223,9 @@ fun HomeScreen(
         
         // Albums
         Card(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(16.dp).clickable {
+                navHostController.navigate(BrainzPlayerNavigationItem.Albums.route)
+            },
             shape = RoundedCornerShape(16.dp),
             backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
             elevation = 5.dp
@@ -235,10 +234,7 @@ fun HomeScreen(
                 Text(
                     text = "Albums",
                     modifier = Modifier
-                        .padding(top = 16.dp, bottom = 16.dp, start = 16.dp)
-                        .clickable {
-                            navHostController.navigate(BrainzPlayerNavigationItem.Albums.route)
-                        },
+                        .padding(top = 16.dp, bottom = 16.dp, start = 16.dp),
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp,
                     textAlign = TextAlign.Start,
@@ -269,7 +265,9 @@ fun HomeScreen(
         
         // Playlists
         Card(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(16.dp).clickable {
+                navHostController.navigate(BrainzPlayerNavigationItem.Playlists.route)
+            },
             shape = RoundedCornerShape(16.dp),
             backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
             elevation = 5.dp
@@ -278,10 +276,7 @@ fun HomeScreen(
                 Text(
                     text = "Playlists",
                     modifier = Modifier
-                        .padding(top = 16.dp, bottom = 16.dp, start = 16.dp)
-                        .clickable {
-                            navHostController.navigate(BrainzPlayerNavigationItem.Playlists.route)
-                        },
+                        .padding(top = 16.dp, bottom = 16.dp, start = 16.dp),
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp,
                     textAlign = TextAlign.Start,
