@@ -11,9 +11,9 @@ import androidx.compose.material.BackdropValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberBackdropScaffoldState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,7 +21,7 @@ import org.listenbrainz.android.ui.components.BottomNavigationBar
 import org.listenbrainz.android.ui.components.DialogLB
 import org.listenbrainz.android.ui.components.TopAppBar
 import org.listenbrainz.android.ui.navigation.AppNavigation
-import org.listenbrainz.android.ui.screens.brainzplayer.ui.BrainzPlayerBackDropScreen
+import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.UserPreferences.PermissionStatus
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
@@ -111,13 +111,9 @@ class DashboardActivity : ComponentActivity() {
                 val backdropScaffoldState =
                     rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
                 Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            activity = this,
-                            navDestinationFlow = navController.currentBackStackEntryAsState().value
-                        )
-                    },
-                    bottomBar = { BottomNavigationBar(navController = navController, activity = this) }
+                    topBar = { TopAppBar(activity = this) },
+                    bottomBar = { BottomNavigationBar(navController = navController, activity = this) },
+                    backgroundColor = MaterialTheme.colorScheme.background
                 ) {
                     if (isGrantedPerms == PermissionStatus.GRANTED.name) {
                         BrainzPlayerBackDropScreen(

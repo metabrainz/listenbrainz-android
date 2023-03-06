@@ -26,13 +26,12 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -40,8 +39,6 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.navigation.AppNavigationItem
-import org.listenbrainz.android.ui.screens.brainzplayer.navigation.BrainzPlayerNavigationItem
-import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.SeekBar
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
 import org.listenbrainz.android.ui.screens.login.LoginActivity
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
@@ -60,15 +57,16 @@ fun BottomNavigationBar(
         AppNavigationItem.Profile,
     )
     BottomNavigation(
-        backgroundColor = MaterialTheme.colorScheme.background,
+        backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
+        elevation = 0.dp
     ) {
         items.forEach { item ->
             BottomNavigationItem(
                 icon = { Icon(painterResource(id = item.icon),
-                    modifier = Modifier.size(28.dp), contentDescription = item.title, tint = Color.Unspecified) },
+                    modifier = Modifier.size(28.dp).padding(top = 4.dp), contentDescription = item.title, tint = Color.Unspecified) },
                 label = { Text(text = item.title, fontSize = 11.sp) },
                 selectedContentColor = MaterialTheme.colorScheme.onSurface,
-                unselectedContentColor = colorResource(id = R.color.gray),      // TODO : Fix this color with consent.
+                unselectedContentColor = colorResource(id = R.color.gray),
                 alwaysShowLabel = true,
                 selected = true,
                 onClick = {
@@ -95,7 +93,7 @@ fun BottomNavigationBar(
 
 @ExperimentalPagerApi
 @Composable
-fun SongViewPager( modifier: Modifier = Modifier, viewModel: BrainzPlayerViewModel = hiltViewModel()) {
+fun SongViewPager(modifier: Modifier = Modifier, viewModel: BrainzPlayerViewModel = hiltViewModel()) {
     val songList = viewModel.mediaItem.collectAsState().value.data ?: listOf()
     val currentlyPlayingSong = viewModel.currentlyPlayingSong.collectAsState().value.toSong
     val pagerState = viewModel.pagerState.collectAsState().value
@@ -115,7 +113,7 @@ fun SongViewPager( modifier: Modifier = Modifier, viewModel: BrainzPlayerViewMod
                     modifier = Modifier
                         .height(10.dp)
                         .fillMaxWidth()
-                        .padding(top = 10.dp),
+                        .padding(top = 12.dp, start = 5.dp, end = 5.dp),
                     progress = progress,
                     onValueChange = viewModel::onSeek,
                     onValueChanged = viewModel::onSeeked
@@ -189,8 +187,14 @@ fun SongViewPager( modifier: Modifier = Modifier, viewModel: BrainzPlayerViewMod
                             )
                         }
                         Text(
-                            text = currentlyPlayingSong.artist + " - " + currentlyPlayingSong.title,
+                            text = when {
+                                currentlyPlayingSong.artist == "null" && currentlyPlayingSong.title == "null"-> ""
+                                currentlyPlayingSong.artist == "null" -> currentlyPlayingSong.title
+                                currentlyPlayingSong.title == "null" -> currentlyPlayingSong.artist
+                                else -> currentlyPlayingSong.artist + "  -  " + currentlyPlayingSong.title
+                            },
                             fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.basicMarquee()
@@ -200,42 +204,5 @@ fun SongViewPager( modifier: Modifier = Modifier, viewModel: BrainzPlayerViewMod
             }
         }
       //  TODO("Fix View Pager changing pages")
-    }
-}
-
-@Composable
-fun BrainzPlayerBottomBar( navController: NavController) {
-    val items = listOf(
-        BrainzPlayerNavigationItem.Home,
-        BrainzPlayerNavigationItem.Songs,
-        BrainzPlayerNavigationItem.Artists,
-        BrainzPlayerNavigationItem.Albums,
-        BrainzPlayerNavigationItem.Playlists,
-
-        )
-    val backStackEntry by navController.currentBackStackEntryAsState()
-    BottomNavigation(
-        backgroundColor = MaterialTheme.colorScheme.background,
-    ) {
-        items.forEach { item ->
-            val selected = item.route == backStackEntry?.destination?.route
-            BottomNavigationItem(
-                icon = { Icon(item.icon, contentDescription = item.title) },
-                label = { Text(text = item.title, fontSize = 11.sp) },
-                selectedContentColor = MaterialTheme.colorScheme.onSurface,
-                unselectedContentColor = MaterialTheme.colorScheme.onBackground,
-                alwaysShowLabel = true,
-                selected = selected,
-                onClick = {
-                    navController.navigate(item.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                }
-            )
-        }
     }
 }

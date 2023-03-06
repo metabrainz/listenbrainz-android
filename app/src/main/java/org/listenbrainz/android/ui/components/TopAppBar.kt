@@ -11,27 +11,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavBackStackEntry
 import org.listenbrainz.android.R
-import org.listenbrainz.android.ui.navigation.AppNavigationItem
 import org.listenbrainz.android.ui.screens.dashboard.DonateActivity
 import org.listenbrainz.android.ui.screens.settings.SettingsActivity
 
 @Composable
 fun TopAppBar(
-    activity: Activity,
-    navDestinationFlow : NavBackStackEntry?
+    activity: Activity
 ) {
     androidx.compose.material.TopAppBar(
-        title = {
-            Text(text = when(navDestinationFlow?.destination?.route){
-                AppNavigationItem.Home.route -> "Home"
-                AppNavigationItem.BrainzPlayer.route -> "BrainzPlayer"
-                AppNavigationItem.Listens.route -> "Listens"
-                AppNavigationItem.Profile.route -> "Profile"
-                else -> "ListenBrainz"
-            })
-        },
+        title = { Text(text = "ListenBrainz") },
         navigationIcon =  {
             IconButton(onClick = {
                 activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://listenbrainz.org")))
@@ -41,9 +30,9 @@ fun TopAppBar(
                     tint = Color.Unspecified)
             }
         },
-        backgroundColor = MaterialTheme.colorScheme.background,
+        backgroundColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onSurface,
-        elevation = 2.dp,
+        elevation = 0.dp,
         actions = {
             IconButton(onClick = {
                 activity.startActivity(Intent(activity, org.listenbrainz.android.ui.screens.about.AboutActivity::class.java))

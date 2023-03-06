@@ -1,8 +1,9 @@
-package org.listenbrainz.android.ui.screens.brainzplayer.ui
+package org.listenbrainz.android.ui.screens.brainzplayer
 
 import CacheService
 import android.annotation.SuppressLint
 import androidx.compose.animation.*
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -20,7 +21,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -43,8 +43,8 @@ import org.listenbrainz.android.model.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.ui.components.PlayPauseIcon
+import org.listenbrainz.android.ui.components.SeekBar
 import org.listenbrainz.android.ui.components.SongViewPager
-import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.SeekBar
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
 import org.listenbrainz.android.util.BrainzPlayerExtensions.duration
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
@@ -72,18 +72,17 @@ fun BrainzPlayerBackDropScreen(
         mutableStateOf(0F)
     }
     val repeatMode by brainzPlayerViewModel.repeatMode.collectAsState()
+    val headerHeight by animateDpAsState(targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null") 0.dp else 136.dp)
+    
     BackdropScaffold(
         frontLayerShape = RectangleShape,
         backLayerBackgroundColor = MaterialTheme.colorScheme.background,
         frontLayerScrimColor = Color.Unspecified,
-        headerHeight = 136.dp,
+        headerHeight = headerHeight, // 136.dp is optimal header height.
         peekHeight = 0.dp,
         scaffoldState = backdropScaffoldState,
         backLayerContent = {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background
-            ) {
+            Surface(modifier = Modifier.fillMaxSize(), color = Color.Transparent) {
                 backLayerContent()
             }
         },
@@ -96,13 +95,12 @@ fun BrainzPlayerBackDropScreen(
             PlayerScreen(
                 currentlyPlayingSong = currentlyPlayingSong,
                 isShuffled = isShuffled,
-                repeatMode = repeatMode,
-                modifier = Modifier
-                    .padding(5.dp)      // TODO: Fix here
-                    .alpha(1 - (delta / maxDelta).coerceIn(0f, 1f))
+                repeatMode = repeatMode
             )
             SongViewPager(
-                modifier = Modifier.alpha((delta / maxDelta).coerceIn(0f, 1f))
+                modifier = Modifier.graphicsLayer {
+                    alpha = ( delta / (maxDelta - headerHeight.toPx()) )
+                }
             )
         })
 }
@@ -180,29 +178,28 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
     }
 }
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun PlayerScreen(
     brainzPlayerViewModel: BrainzPlayerViewModel = viewModel(),
     currentlyPlayingSong: Song,
     isShuffled: Boolean,
-    repeatMode: RepeatMode,
-    modifier: Modifier) {
+    repeatMode: RepeatMode
+) {
     val coroutineScope = rememberCoroutineScope()
     val playlistViewModel = hiltViewModel<PlaylistViewModel>()
     val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
-    val playlist=playlists.filter{ it.id==(1).toLong() }
-    var listenLiked= false
-    if(playlist.isNotEmpty()) {
+    val playlist = playlists.filter { it.id == (1).toLong() }
+    var listenLiked = false
+    if (playlist.isNotEmpty()) {
         playlist[0].items.forEach {
             if (it.mediaID == currentlyPlayingSong.mediaID)
                 listenLiked = true
         }
-    }
-    else{
+    } else {
         println("Playlist is empty")
     }
-    LazyColumn(modifier = modifier) {
+    LazyColumn {
         item {
             AlbumArtViewPager(viewModel = brainzPlayerViewModel)
         }

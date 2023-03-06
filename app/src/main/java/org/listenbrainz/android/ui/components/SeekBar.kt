@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.brainzplayer.ui.components
+package org.listenbrainz.android.ui.components
 
 import androidx.annotation.FloatRange
 import androidx.compose.material.Slider
