@@ -19,6 +19,7 @@ import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.Playlist.Companion.currentlyPlaying
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.repository.SongRepository
 import org.listenbrainz.android.service.BrainzPlayerService
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
@@ -28,7 +29,6 @@ import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlaying
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPrepared
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID
-import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
 
@@ -36,6 +36,7 @@ import javax.inject.Inject
 class BrainzPlayerViewModel @Inject constructor(
     private val brainzPlayerServiceConnection: BrainzPlayerServiceConnection,
     private val songRepository: SongRepository,
+    private val appPreferences: AppPreferences,
 ) : ViewModel() {
     val pagerState = MutableStateFlow(0)
     private val _mediaItems = MutableStateFlow<Resource<List<Song>>>(Resource.loading())
@@ -148,8 +149,13 @@ class BrainzPlayerViewModel @Inject constructor(
     }
 
     fun changePlayable(newPlayableList: List<Song>, playableType: PlayableType, playableId: Long, currentIndex: Int ) {
-        LBSharedPreferences.currentPlayable =
+        appPreferences.currentPlayable =
             Playable(playableType, playableId, newPlayableList, currentIndex)
+    }
+    
+    /**Skip to the given song at given [index] in the current playlist.*/
+    fun skipToPlayable(index: Int){
+        appPreferences.currentPlayable = appPreferences.currentPlayable?.copy(currentSongIndex = index)
     }
 
     override fun onCleared() {

@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,9 +14,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
@@ -26,6 +29,7 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.CoverArt
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.ui.theme.lb_purple
+import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 
 @Composable
 fun ListenCard(listen: Listen, coverArt: CoverArt?, onItemClicked: (listen: Listen) -> Unit) {
@@ -118,19 +122,24 @@ fun ListenCard(listen: Listen, coverArt: CoverArt?, onItemClicked: (listen: List
 @Composable
 @OptIn(ExperimentalGlideComposeApi::class)
 fun ListenCardSmall(
+    modifier: Modifier = Modifier,
     releaseName: String,
     artistName: String,
     coverArtUrl: String,
-    onClick: () -> Unit
+    /** Default is 75 as it consume less internet if images are being fetched from a URL.
+     *
+     *  Best is 200*/
+    imageLoadSize: Int = 75,
+    useSystemTheme: Boolean = false,    // TODO: remove this when YIM is removed
+    @DrawableRes
+    errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
+    onClick: () -> Unit,
 ) {
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .clickable(enabled = true) {
-                onClick()
-                // Sends the user to recordings page just like website.
-            },
+            .clickable(enabled = true) { onClick() },
         shape = RoundedCornerShape(5.dp),
         shadowElevation = 5.dp
     ) {
@@ -147,8 +156,8 @@ fun ListenCardSmall(
                 contentScale = ContentScale.Fit,
                 contentDescription = "Album Cover Art"
             ) {
-                it.placeholder(R.drawable.ic_coverartarchive_logo_no_text)
-                    .override(75)
+                it.placeholder(errorAlbumArt)
+                    .override(imageLoadSize)
             }
             
             Spacer(modifier = Modifier.width(16.dp))
@@ -160,17 +169,21 @@ fun ListenCardSmall(
                         .copy(
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = lb_purple,
+                            color = if (onScreenUiModeIsDark() && useSystemTheme) Color.White else lb_purple,
                             lineHeight = 14.sp
                         ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 androidx.compose.material3.Text(
                     text = artistName,
                     style = androidx.compose.material3.MaterialTheme.typography.bodyMedium
                         .copy(
                             fontWeight = FontWeight.Bold,
-                            color = lb_purple.copy(alpha = 0.7f)
-                        )
+                            color = (if (onScreenUiModeIsDark() && useSystemTheme) Color.White else lb_purple).copy(alpha = 0.7f)
+                        ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }

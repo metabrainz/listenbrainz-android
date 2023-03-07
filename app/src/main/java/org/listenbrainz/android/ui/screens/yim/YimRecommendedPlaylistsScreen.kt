@@ -255,12 +255,14 @@ private fun YimTopDiscoveriesOrMissedList(
             ListenCardSmall(
                 releaseName = item.key.title,
                 artistName = item.key.creator,
-                coverArtUrl = item.value
-            ){
-                context.startActivity(
-                    Intent(Intent.ACTION_VIEW, Uri.parse(item.key.identifier))
-                )
-            }
+                coverArtUrl = item.value,
+                onClick = {
+                    context.startActivity(
+                        Intent(Intent.ACTION_VIEW, Uri.parse(item.key.identifier))
+                    )
+                },
+                errorAlbumArt = R.drawable.ic_erroralbumart
+            )
         }
     }
 }
