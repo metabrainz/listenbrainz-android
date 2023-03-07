@@ -39,6 +39,7 @@ import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.util.Constants.RECENTLY_PLAYED_KEY
 import org.listenbrainz.android.model.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.model.RepeatMode
@@ -249,7 +250,7 @@ fun PlayerScreen(
                             }
                         },
 
-                    tint = if (listenLiked) Color.Black else Color.Red
+                    tint = if (!listenLiked) Color.Red else Color.Black
                 )
             }
         }
@@ -381,7 +382,16 @@ fun PlayerScreen(
             Card(
                 modifier = Modifier
                     .padding(10.dp)
-                    .fillMaxWidth(0.98f),
+                    .fillMaxWidth(0.98f)
+                    .clickable {
+                        println(LBSharedPreferences.currentPlayable?.songs?.indexOf(it))
+                        LBSharedPreferences.currentPlayable?.songs?.let { it1 ->
+                            brainzPlayerViewModel.changePlayable(
+                                it1,
+                                PlayableType.ALL_SONGS,it.mediaID,LBSharedPreferences.currentPlayable?.songs?.indexOf(it) ?: 0)
+                        }
+                        brainzPlayerViewModel.playOrToggleSong(it, true)
+                    },
                 backgroundColor = androidx.compose.material.MaterialTheme.colors.onSurface
             ) {
                 Spacer(modifier = Modifier.height(50.dp))
