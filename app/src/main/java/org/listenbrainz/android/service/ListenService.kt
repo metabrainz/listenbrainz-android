@@ -10,8 +10,8 @@ import android.service.notification.StatusBarNotification
 import androidx.preference.PreferenceManager
 import org.listenbrainz.android.util.ListenHandler
 import org.listenbrainz.android.util.ListenSessionListener
-import org.listenbrainz.android.util.UserPreferences
 import org.listenbrainz.android.util.Log.d
+import org.listenbrainz.android.util.UserPreferences
 
 class ListenService : NotificationListenerService() {
     private var sessionManager: MediaSessionManager? = null

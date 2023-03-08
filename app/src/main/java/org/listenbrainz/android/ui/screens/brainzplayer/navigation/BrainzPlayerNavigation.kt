@@ -29,7 +29,7 @@ fun Navigation(
     NavHost(navController = localNavHostController, startDestination = BrainzPlayerNavigationItem.Home.route) {
         
         composable(route = BrainzPlayerNavigationItem.Home.route) {
-            HomeScreen(
+            BrainzPlayerHomeScreen(
                 songs = songs,
                 albums = albums,
                 artists = artists,

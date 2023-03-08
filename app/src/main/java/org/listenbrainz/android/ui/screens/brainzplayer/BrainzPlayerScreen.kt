@@ -54,16 +54,21 @@ import org.listenbrainz.android.viewmodel.*
 @Composable
 fun BrainzPlayerScreen(appNavController: NavController) {
     ListenBrainzTheme {
+        // Local nav controller
         val localNavController = rememberNavController()
+        
+        // View models
         val albumViewModel = hiltViewModel<AlbumViewModel>()
         val songsViewModel = hiltViewModel<SongViewModel>()
         val artistViewModel = hiltViewModel<ArtistViewModel>()
         val playlistViewModel = hiltViewModel<PlaylistViewModel>()
-        val artists = artistViewModel.artists.collectAsState(initial = listOf()).value   // TODO: Fix this initial value
+        
+        // Data streams
+        val albums = albumViewModel.albums.collectAsState(initial = listOf()).value     // TODO: Introduce initial values to avoid flicker.
         val songs = songsViewModel.songs.collectAsState(initial = listOf()).value
-        val recentlyPlayed = Playlist.recentlyPlayed
-        val albums = albumViewModel.albums.collectAsState(initial = listOf()).value
+        val artists = artistViewModel.artists.collectAsState(initial = listOf()).value
         val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
+        val recentlyPlayed = Playlist.recentlyPlayed
         
         Column(
             modifier = Modifier
@@ -76,7 +81,7 @@ fun BrainzPlayerScreen(appNavController: NavController) {
 
 
 @Composable
-fun HomeScreen(
+fun BrainzPlayerHomeScreen(
     songs : List<Song>,
     albums: List<Album>,
     artists: List<Artist>,
@@ -118,7 +123,7 @@ fun HomeScreen(
             textAlign = TextAlign.Start,
             color = MaterialTheme.colorScheme.onSurface
         )
-        LazyRow {
+        LazyRow(modifier = Modifier.height(200.dp)) {
             items(items = recentlyPlayedSongs.items) {
                 BrainzPlayerActivityCards(icon = it.albumArt,
                     errorIcon = R.drawable.ic_artist,
@@ -132,7 +137,7 @@ fun HomeScreen(
             }
         }
         
-        // All Songs button
+        // Songs button
         Card(
             modifier = Modifier.padding(16.dp).clickable {
                 navHostController.navigate(BrainzPlayerNavigationItem.Songs.route)
@@ -159,7 +164,7 @@ fun HomeScreen(
                 )
             }
         }
-        LazyRow {
+        LazyRow(modifier = Modifier.height(200.dp)) {
             items(items = songs) { song ->
                 BrainzPlayerActivityCards(icon = song.albumArt,
                     errorIcon = R.drawable.ic_artist,
@@ -207,7 +212,7 @@ fun HomeScreen(
             }
             
         }
-        LazyRow {
+        LazyRow(modifier = Modifier.height(200.dp)) {
             items(items = artists) {
                 BrainzPlayerActivityCards(icon = "",
                     errorIcon = R.drawable.ic_artist,
@@ -249,7 +254,7 @@ fun HomeScreen(
             }
             
         }
-        LazyRow {
+        LazyRow(modifier = Modifier.height(200.dp)) {
             items(albums) {
                 BrainzPlayerActivityCards(it.albumArt,
                     R.drawable.ic_album,
@@ -291,7 +296,7 @@ fun HomeScreen(
             }
             
         }
-        LazyRow {
+        LazyRow(modifier = Modifier.height(200.dp)) {
             items(playlists.filter {
                 it.id != (-1).toLong()
             }) {
