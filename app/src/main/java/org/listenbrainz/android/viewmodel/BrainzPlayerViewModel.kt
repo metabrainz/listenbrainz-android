@@ -85,11 +85,21 @@ class BrainzPlayerViewModel @Inject constructor(
     fun skipToNextSong() {
         brainzPlayerServiceConnection.transportControls.skipToNext()
         pagerState.value++
+        // Updating currently playing song.
+        appPreferences.currentPlayable = appPreferences.currentPlayable
+            ?.copy(currentSongIndex = ( appPreferences.currentPlayable?.currentSongIndex!! + 1)   // Since BP won't be visible to users with no songs, we don't need to worry.
+                .coerceAtMost(appPreferences.currentPlayable?.songs!!.size)
+            )
     }
 
     fun skipToPreviousSong() {
         brainzPlayerServiceConnection.transportControls.skipToPrevious()
         pagerState.value--.coerceAtLeast(0)
+        // Updating currently playing song.
+        appPreferences.currentPlayable = appPreferences.currentPlayable
+            ?.copy(currentSongIndex = ( appPreferences.currentPlayable?.currentSongIndex!! - 1)   // Since BP won't be visible to users with no songs, we don't need to worry.
+                .coerceAtLeast(0)
+            )
     }
 
     fun onSeek(seekTo: Float) {
