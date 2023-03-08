@@ -49,6 +49,14 @@
             </intent-filter>
         </service>
 
+        <!--TODO: To receive events from wired devices-->
+        <!--<receiver android:name="androidx.media.session.MediaButtonReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>-->
+
         <activity
             android:name=".ui.screens.onboarding.FeaturesActivity"
             android:theme="@style/AppThemeNoActionBar" />

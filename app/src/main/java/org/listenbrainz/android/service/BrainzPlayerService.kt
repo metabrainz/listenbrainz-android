@@ -15,17 +15,17 @@ import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
+import org.listenbrainz.android.model.Playable
+import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.repository.AlbumRepository
 import org.listenbrainz.android.repository.PlaylistRepository
 import org.listenbrainz.android.repository.SongRepository
-import org.listenbrainz.android.model.Playable
-import org.listenbrainz.android.model.PlayableType
-import org.listenbrainz.android.util.LocalMusicSource
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toMediaMetadataCompat
 import org.listenbrainz.android.util.BrainzPlayerNotificationManager
 import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID
 import org.listenbrainz.android.util.BrainzPlayerUtils.SERVICE_TAG
 import org.listenbrainz.android.util.LBSharedPreferences
+import org.listenbrainz.android.util.LocalMusicSource
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -151,7 +151,6 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
         serviceScope.cancel()
         exoPlayer.removeListener(brainzPlayerEventListener)
         exoPlayer.release()
-        brainzPlayerNotificationManager.hideNotification()
     }
 
     private fun preparePlayer(
