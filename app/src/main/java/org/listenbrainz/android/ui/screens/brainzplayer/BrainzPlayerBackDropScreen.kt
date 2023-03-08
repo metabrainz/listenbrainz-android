@@ -101,7 +101,8 @@ fun BrainzPlayerBackDropScreen(
             SongViewPager(
                 modifier = Modifier.graphicsLayer {
                     alpha = ( delta / (maxDelta - headerHeight.toPx()) )
-                }
+                },
+                backdropScaffoldState = backdropScaffoldState
             )
         })
 }
