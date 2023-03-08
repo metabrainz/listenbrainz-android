@@ -2,7 +2,6 @@ package org.listenbrainz.android.ui.navigation
 
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -34,7 +33,7 @@ fun AppNavigation(
             ListensScreen(navController = navController)
         }
         composable(route = AppNavigationItem.Profile.route){
-            Text(text = "Hello")
+            // TODO: Add profile composable here.
         }
     }
 }

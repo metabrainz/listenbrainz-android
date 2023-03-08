@@ -70,20 +70,21 @@ fun BottomNavigationBar(
                 alwaysShowLabel = true,
                 selected = true,
                 onClick = {
-                    // TODO: remove this
+                    // TODO: remove this after profile page has been converted to composable
                     if (item == AppNavigationItem.Profile){
                         activity.startActivity(Intent(activity,LoginActivity::class.java))
-                    }
-                    navController.navigate(item.route){
-                        // Avoid building large backstack
-                        popUpTo(AppNavigationItem.Home.route){
-                            saveState = true
+                    }else{
+                        navController.navigate(item.route){
+                            // Avoid building large backstack
+                            popUpTo(AppNavigationItem.Home.route){
+                                saveState = true
+                            }
+                            // Avoid copies
+                            launchSingleTop = true
+                            // Restore previous state
+                            restoreState = true
+                            // TODO: Implement refresh for listens Screen.
                         }
-                        // Avoid copies
-                        launchSingleTop = true
-                        // Restore previous state
-                        restoreState = true
-                        // TODO: Implement refresh for listens Screen.
                     }
                 }
             )
