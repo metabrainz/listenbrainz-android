@@ -1,16 +1,21 @@
 package org.listenbrainz.android.ui.screens.brainzplayer.ui
 
 import CacheService
+import android.R.attr.maxLines
 import android.annotation.SuppressLint
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.RepeatOn
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -29,6 +34,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
@@ -37,21 +43,21 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.application.App
 import org.listenbrainz.android.R
-import org.listenbrainz.android.util.Constants.RECENTLY_PLAYED_KEY
+import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
-import org.listenbrainz.android.ui.components.SongViewPager
 import org.listenbrainz.android.ui.components.PlayPauseIcon
+import org.listenbrainz.android.ui.components.SongViewPager
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.SeekBar
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
 import org.listenbrainz.android.util.BrainzPlayerExtensions.duration
-import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
+import org.listenbrainz.android.util.Constants.RECENTLY_PLAYED_KEY
 import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
+import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
@@ -265,22 +271,38 @@ fun PlayerScreen(
                     onValueChanged = brainzPlayerViewModel::onSeeked
                 )
             }
-            Row(verticalAlignment = Alignment.CenterVertically,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .fillMaxWidth(0.98F)
-                    .padding(start = 10.dp, top = 10.dp, end = 10.dp)) {
+                    .padding(start = 10.dp, top = 10.dp, end = 10.dp)
+            ) {
                 val song by brainzPlayerViewModel.currentlyPlayingSong.collectAsState()
                 val songCurrentPosition by brainzPlayerViewModel.songCurrentPosition.collectAsState()
                 var duration = "00:00"
                 var currentPosition = "00:00"
-                 if (song.duration / (1000 * 60 * 60) > 0 &&  songCurrentPosition / (1000 * 60 * 60) > 0){
-                     duration =String.format("%02d:%02d:%02d", song.duration/(1000 * 60 * 60),song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
-                     currentPosition = String.format("%02d:%02d:%02d", songCurrentPosition/(1000 * 60 * 60),songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
-                 }else{
-                     duration = String.format("%02d:%02d",song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
-                     currentPosition = String.format("%02d:%02d",songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
-                 }
+                if (song.duration / (1000 * 60 * 60) > 0 && songCurrentPosition / (1000 * 60 * 60) > 0) {
+                    duration = String.format(
+                        "%02d:%02d:%02d",
+                        song.duration / (1000 * 60 * 60),
+                        song.duration / (1000 * 60) % 60,
+                        song.duration / 1000 % 60
+                    )
+                    currentPosition = String.format(
+                        "%02d:%02d:%02d",
+                        songCurrentPosition / (1000 * 60 * 60),
+                        songCurrentPosition / (1000 * 60) % 60,
+                        songCurrentPosition / 1000 % 60
+                    )
+                } else {
+                    duration = String.format("%02d:%02d", song.duration / (1000 * 60) % 60, song.duration / 1000 % 60)
+                    currentPosition = String.format(
+                        "%02d:%02d",
+                        songCurrentPosition / (1000 * 60) % 60,
+                        songCurrentPosition / 1000 % 60
+                    )
+                }
 
                 Text(
                     text = currentPosition,
@@ -307,7 +329,7 @@ fun PlayerScreen(
                     .padding(top = 60.dp)
             ) {
                 Icon(
-                    imageVector =    when(repeatMode) {
+                    imageVector = when (repeatMode) {
                         RepeatMode.REPEAT_MODE_OFF -> Icons.Rounded.Loop
                         RepeatMode.REPEAT_MODE_ALL -> Icons.Filled.RepeatOn
                         RepeatMode.REPEAT_MODE_ONE -> Icons.Rounded.RepeatOne
@@ -383,25 +405,46 @@ fun PlayerScreen(
                 backgroundColor = androidx.compose.material.MaterialTheme.colors.onSurface
             ) {
                 Spacer(modifier = Modifier.height(50.dp))
-                Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     AsyncImage(
                         model = it.albumArt,
                         contentDescription = "",
-                        error = painterResource(
-                            id = R.drawable.ic_erroralbumart
-                        ),
+                        error = painterResource(id = R.drawable.ic_erroralbumart),
                         contentScale = ContentScale.FillBounds,
                         modifier = Modifier.size(70.dp)
                     )
-                    Column(Modifier.padding(start = 15.dp)) {
-                        Text(
-                            text = it.title,
-                            color = Color.White
-                        )
-                        Text(
-                            text = it.artist,
-                            color = Color.White
-                        )
+                    BoxWithConstraints {
+                        val maxWidth =
+                            (maxWidth - 60.dp).coerceAtMost(600.dp) // Replace 600.dp with your desired maximum width
+                        println(maxWidth)
+                        Column(
+                            Modifier.padding(start = 15.dp)
+                                .width(maxWidth)
+                        ) {
+                            Text(text = it.title, color = Color.White)
+                            Text(
+                                text = it.artist,
+                                color = Color.White,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+
+                        IconButton(
+                            onClick = { /* Handle click action */ },
+                            modifier = Modifier
+                                .size(70.dp)
+                                .padding(start = 5.dp, end = 15.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Menu,
+                                contentDescription = "Menu icon",
+                                tint = Color.White
+                            )
+                        }
                     }
                 }
             }
