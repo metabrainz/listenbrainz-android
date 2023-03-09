@@ -39,7 +39,10 @@ interface AppPreferences {
     /* Login related preferences */
     
     val loginStatus: Int
-    val accessToken: String?
+    /****MusicBrainz User Token:** Obtained when user logins in.*/
+    val mbAccessToken: String?
+    /****ListenBrainz User Token:** User has to manually fill this token.*/
+    val lbAccessToken: String?
     val username: String?
     val refreshToken: String?
     

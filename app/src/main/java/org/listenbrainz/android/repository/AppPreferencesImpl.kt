@@ -77,7 +77,7 @@ class AppPreferencesImpl: AppPreferences {
     
     override fun saveOAuthToken(token: AccessToken) {
         val editor = preferences.edit()
-        editor.putString(LBSharedPreferences.ACCESS_TOKEN, token.accessToken)
+        editor.putString(LBSharedPreferences.MB_ACCESS_TOKEN, token.accessToken)
         editor.putString(LBSharedPreferences.REFRESH_TOKEN, token.refreshToken)
         editor.apply()
     }
@@ -90,7 +90,7 @@ class AppPreferencesImpl: AppPreferences {
     
     override fun logoutUser() {
         val editor = preferences.edit()
-        editor.remove(LBSharedPreferences.ACCESS_TOKEN)
+        editor.remove(LBSharedPreferences.MB_ACCESS_TOKEN)
         editor.remove(LBSharedPreferences.REFRESH_TOKEN)
         editor.remove(LBSharedPreferences.USERNAME)
         editor.apply()
@@ -111,13 +111,15 @@ class AppPreferencesImpl: AppPreferences {
     
     override val loginStatus: Int
         get() {
-            val accessToken = accessToken
+            val accessToken = mbAccessToken
             val username = username
             return if (accessToken!!.isNotEmpty() && username!!.isNotEmpty()) LBSharedPreferences.STATUS_LOGGED_IN else LBSharedPreferences.STATUS_LOGGED_OUT
         }
     
-    override val accessToken: String?
-        get() = preferences.getString(LBSharedPreferences.ACCESS_TOKEN, "")
+    override val mbAccessToken: String?
+        get() = preferences.getString(LBSharedPreferences.MB_ACCESS_TOKEN, "")
+    override val lbAccessToken: String?
+        get() = preferences.getString(LBSharedPreferences.LB_ACCESS_TOKEN, "")
     override val username: String?
         get() = preferences.getString(LBSharedPreferences.USERNAME, "")
     override val refreshToken: String?
