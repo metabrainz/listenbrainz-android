@@ -134,6 +134,15 @@ internal val LocalPaddings = staticCompositionLocalOf { Paddings() }
 lateinit var isUiModeIsDark : MutableState<Boolean?>
 
 @Composable
+fun onScreenUiModeIsDark() : Boolean {
+    return when (isUiModeIsDark.value){
+        true -> true
+        false -> false
+        else -> isSystemInDarkTheme()
+    }
+}
+
+@Composable
 fun ListenBrainzTheme(
     systemTheme: Boolean = isSystemInDarkTheme(),
     systemUiController: SystemUiController = rememberSystemUiController(),

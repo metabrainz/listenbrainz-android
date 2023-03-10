@@ -111,7 +111,7 @@ class DashboardActivity : ComponentActivity() {
                     rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
                 Scaffold(
                     topBar = { TopAppBar(activity = this) },
-                    bottomBar = { BottomNavigationBar(navController = navController, activity = this) },
+                    bottomBar = { BottomNavigationBar(navController = navController, activity = this, backdropScaffoldState = backdropScaffoldState) },
                     backgroundColor = MaterialTheme.colorScheme.background
                 ) {
                     if (isGrantedPerms == PermissionStatus.GRANTED.name) {

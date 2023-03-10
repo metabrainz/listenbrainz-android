@@ -4,10 +4,10 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import org.listenbrainz.android.model.AlbumDao
-import org.listenbrainz.android.model.ArtistDao
-import org.listenbrainz.android.model.PlaylistDao
-import org.listenbrainz.android.model.SongDao
+import org.listenbrainz.android.model.dao.AlbumDao
+import org.listenbrainz.android.model.dao.ArtistDao
+import org.listenbrainz.android.model.dao.PlaylistDao
+import org.listenbrainz.android.model.dao.SongDao
 
 
 @Module

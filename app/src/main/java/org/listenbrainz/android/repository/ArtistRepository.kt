@@ -8,7 +8,7 @@ import org.listenbrainz.android.model.Song
 interface ArtistRepository {
  fun getArtist(artistID: String) : Flow<Artist>
  fun getArtists(): Flow<List<Artist>>
- suspend fun addArtists(): Boolean
- suspend fun addAllSongsOfArtist(artist: Artist): List<Song>
+ suspend fun addArtists(userRequestedRefresh: Boolean = false): Boolean
+ suspend fun addAllSongsOfArtist(artist: Artist, userRequestedRefresh: Boolean): List<Song>
  suspend fun addAllAlbumsOfArtist(artist: Artist): List<Album>
 }

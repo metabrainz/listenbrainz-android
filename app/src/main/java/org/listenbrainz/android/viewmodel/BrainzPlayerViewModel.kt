@@ -10,24 +10,25 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.repository.SongRepository
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.Playlist.Companion.currentlyPlaying
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.repository.AppPreferences
+import org.listenbrainz.android.repository.SongRepository
 import org.listenbrainz.android.service.BrainzPlayerService
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
 import org.listenbrainz.android.util.BrainzPlayerExtensions.currentPlaybackPosition
-import org.listenbrainz.android.util.BrainzPlayerExtensions.duration
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlayEnabled
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlaying
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPrepared
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID
-import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
 
@@ -35,6 +36,7 @@ import javax.inject.Inject
 class BrainzPlayerViewModel @Inject constructor(
     private val brainzPlayerServiceConnection: BrainzPlayerServiceConnection,
     private val songRepository: SongRepository,
+    private val appPreferences: AppPreferences,
 ) : ViewModel() {
     val pagerState = MutableStateFlow(0)
     private val _mediaItems = MutableStateFlow<Resource<List<Song>>>(Resource.loading())
@@ -71,7 +73,7 @@ class BrainzPlayerViewModel @Inject constructor(
 
                 }
             })
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             songs.collectLatest {
                 if (it.isEmpty()) songRepository.addSongs()
                 _mediaItems.value = Resource(Resource.Status.SUCCESS, it)
@@ -83,11 +85,21 @@ class BrainzPlayerViewModel @Inject constructor(
     fun skipToNextSong() {
         brainzPlayerServiceConnection.transportControls.skipToNext()
         pagerState.value++
+        // Updating currently playing song.
+        appPreferences.currentPlayable = appPreferences.currentPlayable
+            ?.copy(currentSongIndex = ( appPreferences.currentPlayable?.currentSongIndex!! + 1)   // Since BP won't be visible to users with no songs, we don't need to worry.
+                .coerceAtMost(appPreferences.currentPlayable?.songs!!.size)
+            )
     }
 
     fun skipToPreviousSong() {
         brainzPlayerServiceConnection.transportControls.skipToPrevious()
         pagerState.value--.coerceAtLeast(0)
+        // Updating currently playing song.
+        appPreferences.currentPlayable = appPreferences.currentPlayable
+            ?.copy(currentSongIndex = ( appPreferences.currentPlayable?.currentSongIndex!! - 1)   // Since BP won't be visible to users with no songs, we don't need to worry.
+                .coerceAtLeast(0)
+            )
     }
 
     fun onSeek(seekTo: Float) {
@@ -147,8 +159,13 @@ class BrainzPlayerViewModel @Inject constructor(
     }
 
     fun changePlayable(newPlayableList: List<Song>, playableType: PlayableType, playableId: Long, currentIndex: Int ) {
-        LBSharedPreferences.currentPlayable =
+        appPreferences.currentPlayable =
             Playable(playableType, playableId, newPlayableList, currentIndex)
+    }
+    
+    /**Skip to the given song at given [index] in the current playlist.*/
+    fun skipToPlayable(index: Int){
+        appPreferences.currentPlayable = appPreferences.currentPlayable?.copy(currentSongIndex = index)
     }
 
     override fun onCleared() {

@@ -8,7 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -42,6 +42,7 @@ import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.PlayPauseIcon
 import org.listenbrainz.android.ui.components.SeekBar
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
@@ -100,7 +101,8 @@ fun BrainzPlayerBackDropScreen(
             SongViewPager(
                 modifier = Modifier.graphicsLayer {
                     alpha = ( delta / (maxDelta - headerHeight.toPx()) )
-                }
+                },
+                backdropScaffoldState = backdropScaffoldState
             )
         })
 }
@@ -378,38 +380,31 @@ fun PlayerScreen(
             )
             Spacer(modifier = Modifier.height(12.dp))
         }
-        items(items = LBSharedPreferences.currentPlayable?.songs ?: listOf()) {
-            Card(
-                modifier = Modifier
-                    .padding(10.dp)
-                    .fillMaxWidth(0.98f),
-                backgroundColor = androidx.compose.material.MaterialTheme.colors.onSurface
+        
+        // Playlist
+        itemsIndexed(items = LBSharedPreferences.currentPlayable?.songs ?: listOf()) {index, song ->
+            ListenCardSmall(
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                releaseName = song.title,
+                artistName = song.artist,
+                coverArtUrl = song.albumArt,
+                imageLoadSize = 200,
+                useSystemTheme = true,
+                errorAlbumArt = R.drawable.ic_erroralbumart
             ) {
-                Spacer(modifier = Modifier.height(50.dp))
-                Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
-                    AsyncImage(
-                        model = it.albumArt,
-                        contentDescription = "",
-                        error = painterResource(
-                            id = R.drawable.ic_erroralbumart
-                        ),
-                        contentScale = ContentScale.FillBounds,
-                        modifier = Modifier.size(70.dp)
-                    )
-                    Column(Modifier.padding(start = 15.dp)) {
-                        Text(
-                            text = it.title,
-                            color = Color.White
-                        )
-                        Text(
-                            text = it.artist,
-                            color = Color.White
-                        )
-                    }
-                }
+                brainzPlayerViewModel.skipToPlayable(index)
+                brainzPlayerViewModel.playOrToggleSong(song, true)
             }
         }
+        
+        
+        item {
+            // Fixes bottom nav bar overlapping over last song
+            Spacer(modifier = Modifier.height(56.dp))
+        }
     }
+    
+    // TODO: fix this
     val cache= App.context?.let { CacheService<Song>(it, RECENTLY_PLAYED_KEY) }
     cache?.saveData(currentlyPlayingSong, Song::class.java)
     val data= cache?.getData(Song::class.java)

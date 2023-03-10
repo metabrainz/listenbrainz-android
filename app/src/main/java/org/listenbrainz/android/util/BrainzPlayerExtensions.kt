@@ -55,6 +55,7 @@ object BrainzPlayerExtensions {
         get() = this.let { song ->
             MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, song.artist)
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST, song.artist)
                 .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, song.mediaID.toString())
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE, song.title)
                 .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_URI, song.uri)
