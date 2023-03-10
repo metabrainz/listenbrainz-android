@@ -25,7 +25,6 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.repository.ListensRepository
-import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Resource.Status.*
 import javax.inject.Inject
@@ -58,10 +57,6 @@ class ListensViewModel @Inject constructor(
 
     init {
         SpotifyAppRemote.setDebugMode(BuildConfig.DEBUG)
-        LBSharedPreferences.username?.let {
-            d("ahhnwjdefk")
-            fetchUserListens(userName = it)
-        }
     }
     
     fun fetchUserListens(userName: String) {
