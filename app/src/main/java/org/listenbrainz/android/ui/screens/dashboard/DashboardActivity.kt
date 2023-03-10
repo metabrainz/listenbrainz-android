@@ -17,7 +17,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
-import org.listenbrainz.android.ui.components.BottomNavigationBar
+import org.listenbrainz.android.ui.navigation.BottomNavigationBar
 import org.listenbrainz.android.ui.components.DialogLB
 import org.listenbrainz.android.ui.components.TopAppBar
 import org.listenbrainz.android.ui.navigation.AppNavigation
@@ -36,8 +36,7 @@ class DashboardActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         setContent {
-            ListenBrainzTheme()
-            {
+            ListenBrainzTheme {
                 // TODO: Since this view-model will remain throughout the lifecycle of the app,
                 //  we can have tasks which require such lifecycle access or longevity. We can get this view-model's
                 //  instance anywhere when we initialize it as a hilt view-model.
@@ -117,7 +116,7 @@ class DashboardActivity : ComponentActivity() {
                 ) {
                     if (isGrantedPerms == PermissionStatus.GRANTED.name) {
                         BrainzPlayerBackDropScreen(
-                            backdropScaffoldState = backdropScaffoldState,
+                            backdropScaffoldState = backdropScaffoldState
                         ) {
                             AppNavigation(
                                 navController = navController,
@@ -129,5 +128,4 @@ class DashboardActivity : ComponentActivity() {
             }
         }
     }
-
 }
