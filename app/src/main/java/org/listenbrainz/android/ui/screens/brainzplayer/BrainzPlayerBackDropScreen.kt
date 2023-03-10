@@ -45,12 +45,12 @@ import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.PlayPauseIcon
 import org.listenbrainz.android.ui.components.SeekBar
-import org.listenbrainz.android.ui.components.SongViewPager
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
 import org.listenbrainz.android.util.BrainzPlayerExtensions.duration
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.Constants.RECENTLY_PLAYED_KEY
 import org.listenbrainz.android.util.LBSharedPreferences
+import org.listenbrainz.android.util.SongViewPager
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import kotlin.math.absoluteValue
@@ -251,7 +251,8 @@ fun PlayerScreen(
                                 }
                             }
                         },
-                    tint = if (!listenLiked) Color.Red else Color.Black
+
+                    tint = if (listenLiked) Color.Red else MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -277,13 +278,14 @@ fun PlayerScreen(
                 val songCurrentPosition by brainzPlayerViewModel.songCurrentPosition.collectAsState()
                 var duration = "00:00"
                 var currentPosition = "00:00"
-                 if (song.duration / (1000 * 60 * 60) > 0 &&  songCurrentPosition / (1000 * 60 * 60) > 0){
-                     duration =String.format("%02d:%02d:%02d", song.duration/(1000 * 60 * 60),song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
-                     currentPosition = String.format("%02d:%02d:%02d", songCurrentPosition/(1000 * 60 * 60),songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
-                 }else{
-                     duration = String.format("%02d:%02d",song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
-                     currentPosition = String.format("%02d:%02d",songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
-                 }
+                if (song.duration / (1000 * 60 * 60) > 0 &&  songCurrentPosition / (1000 * 60 * 60) > 0){
+                    duration =String.format("%02d:%02d:%02d", song.duration/(1000 * 60 * 60),song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
+                    currentPosition = String.format("%02d:%02d:%02d", songCurrentPosition/(1000 * 60 * 60),songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
+                }else{
+                    duration = String.format("%02d:%02d",song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
+                    currentPosition = String.format("%02d:%02d",songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
+                }
+
 
                 Text(
                     text = currentPosition,
@@ -403,10 +405,11 @@ fun PlayerScreen(
     }
     
     // TODO: fix this
-    var cache= App.context?.let { CacheService<Song>(it, RECENTLY_PLAYED_KEY) }
+    val cache= App.context?.let { CacheService<Song>(it, RECENTLY_PLAYED_KEY) }
     cache?.saveData(currentlyPlayingSong, Song::class.java)
-    var data= cache?.getData(Song::class.java)
+    val data= cache?.getData(Song::class.java)
     if (data != null) {
         recentlyPlayed.items=data.filter { it.title!="null" }.toList().reversed()
     }
 }
+
