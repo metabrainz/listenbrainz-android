@@ -171,7 +171,7 @@ class ListensViewModel @Inject constructor(
         updateTrackCoverArt(playerStateHere)
     }
     
-    private suspend fun connectToAppRemote(showAuthView: Boolean): SpotifyAppRemote? =
+    private suspend fun connectToAppRemote(showAuthView: Boolean): SpotifyAppRemote =
         suspendCoroutine { cont: Continuation<SpotifyAppRemote> ->
             SpotifyAppRemote.connect(
                 application,
