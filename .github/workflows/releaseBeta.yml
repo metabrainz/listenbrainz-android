@@ -54,12 +54,14 @@ jobs:
           echo "storePassword=$KEYSTORE_STORE_PASSWORD" >> keystore.properties
           echo "keyPassword=$KEYSTORE_KEY_PASSWORD" >> keystore.properties
           echo "sentryDsn=$SENTRY_DSN" >> keystore.properties
+          echo "youtubeApiKey=$YOUTUBE_API_KEY" >> keystore.properties
         env:
           ANDROID_KEYSTORE_FILE: ${{ secrets.ANDROID_KEYSTORE_FILE }}
           KEYSTORE_KEY_ALIAS: ${{ secrets.KEYSTORE_KEY_ALIAS }}
           KEYSTORE_KEY_PASSWORD: ${{ secrets.KEYSTORE_KEY_PASSWORD }}
           KEYSTORE_STORE_PASSWORD: ${{ secrets.KEYSTORE_STORE_PASSWORD }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
 
       - name: Create Google Play Config file
         run: |

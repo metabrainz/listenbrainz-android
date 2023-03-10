@@ -1,6 +1,8 @@
 package org.listenbrainz.android.ui.screens.listens
 
+import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -12,10 +14,17 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.ListenCard
 import org.listenbrainz.android.ui.components.Loader
 import org.listenbrainz.android.ui.navigation.AppNavigationItem
+import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.viewmodel.ListensViewModel
 
@@ -25,6 +34,9 @@ fun AllUserListens(
     viewModel: ListensViewModel,
     navController: NavController
 ) {
+    val context = LocalContext.current
+    val youtubeApiKey = stringResource(id = R.string.youtubeApiKey)
+
     if(LBSharedPreferences.username == "") {
         AlertDialog(
             onDismissRequest = { },
@@ -62,6 +74,29 @@ fun AllUserListens(
                     if(it.track_metadata.additional_info?.spotify_id != null) {
                         Uri.parse(it.track_metadata.additional_info.spotify_id).lastPathSegment?.let { trackId ->
                             viewModel.playUri("spotify:track:${trackId}")
+                        }
+                    }
+                    else{
+                        // Execute the API request asynchronously
+                        val scope = CoroutineScope(Dispatchers.Main)
+                        scope.launch {
+                            val videoId = viewModel
+                                .searchYoutubeMusicVideoId(
+                                    trackName = listen.track_metadata.track_name,
+                                    artist = listen.track_metadata.artist_name,
+                                    apiKey = youtubeApiKey
+                                )
+                            if (videoId != null) {
+                                // Play the track in the YouTube Music app
+                                val trackUri = Uri.parse("https://music.youtube.com/watch?v=$videoId")
+                                val intent = Intent(Intent.ACTION_VIEW)
+                                intent.data = trackUri
+                                intent.setPackage(Constants.YOUTUBE_MUSIC_PACKAGE_NAME)
+                                context.startActivity(intent)
+                            } else {
+                                // Display an error message
+                                Toast.makeText(context, "Unable to find track on YouTube Music", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
                 }
