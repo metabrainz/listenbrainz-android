@@ -5,8 +5,8 @@ import android.media.session.MediaController
 import android.media.session.MediaSession
 import android.media.session.MediaSessionManager.OnActiveSessionsChangedListener
 import android.media.session.PlaybackState
-import org.listenbrainz.android.util.UserPreferences.preferenceListeningSpotifyEnabled
 import org.listenbrainz.android.util.Log.d
+import org.listenbrainz.android.util.UserPreferences.preferenceListeningSpotifyEnabled
 
 class ListenSessionListener(private val handler: ListenHandler) : OnActiveSessionsChangedListener {
     private val controllers: MutableList<MediaController> = ArrayList()
@@ -66,7 +66,11 @@ class ListenSessionListener(private val handler: ListenHandler) : OnActiveSessio
                 submitted = true
             }
         }
-
+        // FIXME : Listens are only submitted when song is paused once, then played and skipped.
+        //  the next song is recorded then.
+        
+        // FIXME: Local songs listens are not recorded because the notification player doesn't hold any
+        //  media metadata for some reason.
         override fun onPlaybackStateChanged(state: PlaybackState?) {
             if (state == null) return
             this.state = state

@@ -23,7 +23,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.layout.ContentScale
@@ -41,8 +40,8 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Artist
 import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.ui.components.BpProgressIndicator
-import org.listenbrainz.android.ui.components.BrainzNavigationItem
 import org.listenbrainz.android.ui.components.forwardingPainter
+import org.listenbrainz.android.ui.screens.brainzplayer.navigation.BrainzPlayerNavigationItem
 import org.listenbrainz.android.viewmodel.ArtistViewModel
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
@@ -52,7 +51,7 @@ fun ArtistScreen(navHostController: NavHostController) {
     val artistViewModel = hiltViewModel<ArtistViewModel>()
     val artists = artistViewModel.artists.collectAsState(initial = listOf())
     if (artists.value.isEmpty()){
-        BpProgressIndicator(BrainzNavigationItem.Albums)
+        BpProgressIndicator(BrainzPlayerNavigationItem.Albums)
     } else {
         ArtistsScreen(artists, navHostController)
     }

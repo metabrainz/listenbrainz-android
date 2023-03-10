@@ -34,10 +34,10 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.ui.components.BpProgressIndicator
-import org.listenbrainz.android.ui.components.BrainzNavigationItem
 import org.listenbrainz.android.ui.components.forwardingPainter
-import org.listenbrainz.android.viewmodel.PlaylistViewModel
+import org.listenbrainz.android.ui.screens.brainzplayer.navigation.BrainzPlayerNavigationItem
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
+import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import org.listenbrainz.android.viewmodel.SongViewModel
 
 @ExperimentalMaterial3Api
@@ -181,7 +181,7 @@ fun SongScreen() {
     }
     
     if (songs.value.isEmpty()){
-        BpProgressIndicator(BrainzNavigationItem.Albums)
+        BpProgressIndicator(BrainzPlayerNavigationItem.Albums)
     } else {
         LazyVerticalGrid(columns = GridCells.Fixed(2)) {
             items(songs.value.sortedBy { it.discNumber }) {

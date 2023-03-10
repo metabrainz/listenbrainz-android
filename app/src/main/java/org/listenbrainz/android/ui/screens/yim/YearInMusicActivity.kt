@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.ui.screens.login.LoginActivity
+import org.listenbrainz.android.ui.screens.yim.navigation.YimNavigation
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModelImpl
 import org.listenbrainz.android.viewmodel.YimViewModel
 

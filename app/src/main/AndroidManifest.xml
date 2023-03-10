@@ -31,9 +31,6 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-        <activity
-            android:name=".ui.screens.brainzplayer.BrainzPlayerActivity"
-            android:exported="false" />
 
         <service
             android:name=".service.ListenService"
@@ -90,9 +87,6 @@
             android:name=".ui.screens.settings.SettingsActivity"
             android:label="@string/preferences_title" />
         <activity android:name=".ui.screens.newsbrainz.NewsBrainzActivity" />
-        <activity
-            android:name=".ui.screens.listens.ListensActivity"
-            android:theme="@style/AppThemeNoActionBar" />
         <activity
             android:name=".ui.screens.listens.RemotePlayerActivity"
             android:theme="@style/AppThemeNoActionBar" />

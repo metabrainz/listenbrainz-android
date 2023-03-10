@@ -16,7 +16,7 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
     @WorkerThread
     override suspend fun fetchUserListens(userName: String): Resource<List<Listen>> {
         return try {
-            val response = service.getUserListens(user_name = userName)
+            val response = service.getUserListens(user_name = userName, count = 100)
             Resource(SUCCESS, response.payload.listens)
         } catch (e: Exception) {
             e.printStackTrace()

@@ -1,73 +1,53 @@
 package org.listenbrainz.android.ui.screens.dashboard
 
-import android.Manifest.permission
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatDelegate.*
+import androidx.activity.viewModels
 import androidx.compose.material.BackdropValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
-import androidx.core.content.PermissionChecker
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.preference.PreferenceManager
+import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
-import org.listenbrainz.android.R
-import org.listenbrainz.android.util.UserPreferences.PermissionStatus
-import org.listenbrainz.android.util.UserPreferences.permissionsPreference
-import org.listenbrainz.android.ui.components.BottomNavigationBar
-import org.listenbrainz.android.ui.components.TopAppBar
-import org.listenbrainz.android.ui.components.BackLayerContent
-import org.listenbrainz.android.ui.screens.brainzplayer.ui.BrainzPlayerBackDropScreen
-import org.listenbrainz.android.ui.screens.onboarding.FeaturesActivity
-import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.ui.navigation.BottomNavigationBar
 import org.listenbrainz.android.ui.components.DialogLB
+import org.listenbrainz.android.ui.components.TopAppBar
+import org.listenbrainz.android.ui.navigation.AppNavigation
+import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.UserPreferences.PermissionStatus
+import org.listenbrainz.android.viewmodel.DashBoardViewModel
+
 
 @AndroidEntryPoint
 class DashboardActivity : ComponentActivity() {
 
     @OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
+    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
-        setUiMode()     // Set Ui Mode for XML layouts
-        if (!PreferenceManager.getDefaultSharedPreferences(this).getBoolean("onboarding", false)) {
-            startActivity(Intent(this, FeaturesActivity::class.java))
-            finish()
-        }
-
-        // TODO: Rework permissions
-        val neededPermissions = when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
-                arrayOf(
-                    permission.READ_MEDIA_IMAGES,
-                    permission.READ_MEDIA_AUDIO
-                )
-            }
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
-                arrayOf(permission.READ_EXTERNAL_STORAGE)
-            }
-            else -> {
-                arrayOf(permission.WRITE_EXTERNAL_STORAGE, permission.READ_EXTERNAL_STORAGE)
-            }
-        }
-
-        updatePermissionPreference()
-
         setContent {
-            ListenBrainzTheme()
-            {
+            ListenBrainzTheme {
+                // TODO: Since this view-model will remain throughout the lifecycle of the app,
+                //  we can have tasks which require such lifecycle access or longevity. We can get this view-model's
+                //  instance anywhere when we initialize it as a hilt view-model.
+                val dashBoardViewModel : DashBoardViewModel by viewModels()
+    
+                dashBoardViewModel.setUiMode()
+                dashBoardViewModel.beginOnboarding(this)
+                dashBoardViewModel.updatePermissionPreference()
+                
                 var isGrantedPerms by remember {
-                    mutableStateOf(permissionsPreference)
+                    mutableStateOf(dashBoardViewModel.appPreferences.permissionsPreference)
                 }
 
                 val launcher = rememberLauncherForActivityResult(
@@ -78,7 +58,7 @@ class DashboardActivity : ComponentActivity() {
                     when {
                         isGranted -> {
                             isGrantedPerms = PermissionStatus.GRANTED.name
-                            permissionsPreference  = PermissionStatus.GRANTED.name
+                            dashBoardViewModel.appPreferences.permissionsPreference  = PermissionStatus.GRANTED.name
                         }
                         else -> {
                             isGrantedPerms = when(isGrantedPerms){
@@ -90,14 +70,14 @@ class DashboardActivity : ComponentActivity() {
                                 }
                                 else -> {PermissionStatus.DENIED_TWICE.name}
                             }
-                            permissionsPreference = isGrantedPerms
+                            dashBoardViewModel.appPreferences.permissionsPreference = isGrantedPerms
                         }
                     }
                 }
 
                 LaunchedEffect(Unit) {
                     if (isGrantedPerms == PermissionStatus.NOT_REQUESTED.name) {
-                        launcher.launch(neededPermissions)
+                        launcher.launch(dashBoardViewModel.neededPermissions)
                     }
                 }
 
@@ -106,7 +86,7 @@ class DashboardActivity : ComponentActivity() {
                         DialogLB(
                             options = arrayOf("Grant"),
                             firstOptionListener = {
-                                launcher.launch(neededPermissions)
+                                launcher.launch(dashBoardViewModel.neededPermissions)
                             },
                             title = "Permissions required",
                             description = "BrainzPlayer requires local storage permission to play local songs.",
@@ -125,68 +105,27 @@ class DashboardActivity : ComponentActivity() {
                         )
                     }
                 }
-
+ 
+                val navController = rememberNavController()
                 val backdropScaffoldState =
                     rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
                 Scaffold(
-                    topBar = { TopAppBar(activity = this, title = "Home") },
-                    bottomBar = { BottomNavigationBar(activity = this) },
-                    backgroundColor = MaterialTheme.colorScheme.background,
-                ) { paddingValues ->
+                    topBar = { TopAppBar(activity = this) },
+                    bottomBar = { BottomNavigationBar(navController = navController, activity = this) },
+                    backgroundColor = MaterialTheme.colorScheme.background
+                ) {
                     if (isGrantedPerms == PermissionStatus.GRANTED.name) {
                         BrainzPlayerBackDropScreen(
-                            backdropScaffoldState = backdropScaffoldState,
-                            paddingValues = paddingValues,
+                            backdropScaffoldState = backdropScaffoldState
                         ) {
-                            BackLayerContent(activity = this)
+                            AppNavigation(
+                                navController = navController,
+                                activity = this
+                            )
                         }
                     }
                 }
             }
-        }
-    }
-
-    // If the user enables permission from settings, this function updates the preference.
-    private fun updatePermissionPreference(){
-        when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
-                if (
-                    checkSelfPermission(permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
-                    checkSelfPermission(permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED
-                ){
-                    permissionsPreference = PermissionStatus.GRANTED.name
-                }
-            }
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
-                if (checkSelfPermission(permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    permissionsPreference = PermissionStatus.GRANTED.name
-                }
-            }
-            else -> {
-                if (when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
-                        checkSelfPermission(permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                                checkSelfPermission(permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                    }
-                    else -> {
-                        PermissionChecker.checkSelfPermission(this, permission.WRITE_EXTERNAL_STORAGE) == PermissionChecker.PERMISSION_GRANTED &&
-                                PermissionChecker.checkSelfPermission(this, permission.READ_EXTERNAL_STORAGE) == PermissionChecker.PERMISSION_GRANTED
-                    }
-                }){
-                    permissionsPreference = PermissionStatus.GRANTED.name
-                }
-            }
-        }
-    }
-
-    // Sets Ui mode for XML layouts.
-    private fun setUiMode(){
-        when(PreferenceManager.getDefaultSharedPreferences(this)
-            .getString("app_theme", getString(R.string.settings_device_theme_use_device_theme)))
-        {
-            getString(R.string.settings_device_theme_dark) -> setDefaultNightMode(MODE_NIGHT_YES)
-            getString(R.string.settings_device_theme_light) -> setDefaultNightMode(MODE_NIGHT_NO)
-            else -> setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
         }
     }
 }

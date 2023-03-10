@@ -175,7 +175,7 @@ fun ListenBrainzTheme(
             }
             systemUiController.statusBarDarkContentEnabled = isDark
             systemUiController.navigationBarDarkContentEnabled = isDark
-            systemUiController.setNavigationBarColor(color = colorScheme.background)
+            systemUiController.setNavigationBarColor(color = colorScheme.tertiaryContainer)
         }
     }
     CompositionLocalProvider {
