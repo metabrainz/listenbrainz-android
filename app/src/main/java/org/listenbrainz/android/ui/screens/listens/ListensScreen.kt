@@ -7,12 +7,15 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.spotify.android.appremote.api.SpotifyAppRemote
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.LBSharedPreferences
+import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.viewmodel.ListensViewModel
 
 @Composable
@@ -20,17 +23,23 @@ fun ListensScreen(
     navController: NavController
 ) {
     val viewModel: ListensViewModel = hiltViewModel()
-    
+
     ListenBrainzTheme {
         
         DisposableEffect(Unit) {
             viewModel.connect()
-            
+
             onDispose {
                 SpotifyAppRemote.disconnect(viewModel.spotifyAppRemote)
             }
         }
-        
+
+        LaunchedEffect(Unit){
+            LBSharedPreferences.username?.let {
+                viewModel.fetchUserListens(userName = it)
+            }
+        }
+
         Column {
             if (viewModel.playerState?.track?.name != null) {
                 AnimatedVisibility(

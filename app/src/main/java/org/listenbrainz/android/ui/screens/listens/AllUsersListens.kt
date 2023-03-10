@@ -25,7 +25,7 @@ fun AllUserListens(
     viewModel: ListensViewModel,
     navController: NavController
 ) {
-    if(LBSharedPreferences.username == ""){
+    if(LBSharedPreferences.username == "") {
         AlertDialog(
             onDismissRequest = { },
             confirmButton = {
@@ -45,8 +45,6 @@ fun AllUserListens(
         )
         return
     }
-
-    LBSharedPreferences.username?.let { viewModel.fetchUserListens(userName = it) }
 
     AnimatedVisibility(
         visible = viewModel.isLoading,

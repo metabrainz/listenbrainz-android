@@ -1,5 +1,6 @@
 package org.listenbrainz.android.viewmodel
 
+import android.app.AlertDialog
 import android.app.Application
 import android.graphics.Bitmap
 import android.util.Log
@@ -21,8 +22,10 @@ import com.spotify.protocol.types.PlayerContext
 import com.spotify.protocol.types.PlayerState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.repository.ListensRepository
+import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Resource.Status.*
 import javax.inject.Inject
@@ -54,8 +57,11 @@ class ListensViewModel @Inject constructor(
     private val errorCallback = { throwable: Throwable -> logError(throwable) }
 
     init {
-        // TODO: Use BuildConfig[] ??
-        SpotifyAppRemote.setDebugMode(true)
+        SpotifyAppRemote.setDebugMode(BuildConfig.DEBUG)
+        LBSharedPreferences.username?.let {
+            d("ahhnwjdefk")
+            fetchUserListens(userName = it)
+        }
     }
     
     fun fetchUserListens(userName: String) {
@@ -230,7 +236,7 @@ class ListensViewModel @Inject constructor(
     
     private fun showDialog(title: String, message: String) {
         // TODO: Replace this
-        androidx.appcompat.app.AlertDialog.Builder(application.applicationContext).setTitle(title).setMessage(message).create().show()
+        AlertDialog.Builder(application.applicationContext).setTitle(title).setMessage(message).create().show()
     }
     
     companion object {

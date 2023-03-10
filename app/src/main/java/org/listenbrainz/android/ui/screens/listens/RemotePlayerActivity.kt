@@ -18,6 +18,7 @@ import com.spotify.protocol.types.Image
 import com.spotify.protocol.types.PlayerContext
 import com.spotify.protocol.types.PlayerState
 import kotlinx.coroutines.launch
+import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
 import org.listenbrainz.android.databinding.AppRemoteLayoutBinding
 import org.listenbrainz.android.ui.screens.listens.RemotePlayerActivity.AuthParams.CLIENT_ID
@@ -77,7 +78,7 @@ class RemotePlayerActivity : AppCompatActivity() {
             binding.skipNextButton,
             binding.seekTo)
 
-        SpotifyAppRemote.setDebugMode(true)
+        SpotifyAppRemote.setDebugMode(BuildConfig.DEBUG)
 
         onDisconnected()
         connect()
