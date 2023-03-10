@@ -4,12 +4,10 @@ import android.app.Activity
 import android.content.Intent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -19,16 +17,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
 import org.listenbrainz.android.ui.screens.login.LoginActivity
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun BottomNavigationBar(
     navController: NavController = rememberNavController(),
     activity: Activity,
-    backdropScaffoldState: BackdropScaffoldState
+    backdropScaffoldState: BackdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
 ) {
     val items = listOf(
         AppNavigationItem.Home,
@@ -83,6 +83,7 @@ fun BottomNavigationBar(
 }
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
 fun BottomNavigationBarPreview() {

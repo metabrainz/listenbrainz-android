@@ -5,8 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.SkipPrevious
@@ -14,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,6 +30,7 @@ import coil.compose.AsyncImage
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.PlayPauseIcon
 import org.listenbrainz.android.ui.components.SeekBar
@@ -37,19 +38,29 @@ import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarqu
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
+@OptIn(ExperimentalMaterialApi::class)
 @ExperimentalPagerApi
 @Composable
-fun SongViewPager(modifier: Modifier = Modifier, viewModel: BrainzPlayerViewModel = hiltViewModel()) {
+fun SongViewPager(modifier: Modifier = Modifier, backdropScaffoldState: BackdropScaffoldState, viewModel: BrainzPlayerViewModel = hiltViewModel()) {
     val songList = viewModel.mediaItem.collectAsState().value.data ?: listOf()
     val currentlyPlayingSong = viewModel.currentlyPlayingSong.collectAsState().value.toSong
     val pagerState = viewModel.pagerState.collectAsState().value
     val pageState = rememberPagerState(initialPage = pagerState)
+    val coroutineScope = rememberCoroutineScope()
+    
     HorizontalPager(count = songList.size, state = pageState, modifier = modifier
         .fillMaxWidth()
         .background(MaterialTheme.colorScheme.tertiaryContainer)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    coroutineScope.launch {
+                        // Click anywhere to open the front layer.
+                        backdropScaffoldState.conceal()
+                    }
+                },
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -153,9 +164,9 @@ fun SongViewPager(modifier: Modifier = Modifier, viewModel: BrainzPlayerViewMode
     }
 }
 
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
 @Preview
 @Composable
 fun SongViewPagerPreview() {
-    SongViewPager()
+    SongViewPager(backdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed))
 }
