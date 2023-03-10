@@ -248,7 +248,8 @@ fun PlayerScreen(
                                 }
                             }
                         },
-                    tint = if (!listenLiked) Color.Red else Color.Black
+
+                    tint = if (listenLiked) Color.Red else MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -274,13 +275,14 @@ fun PlayerScreen(
                 val songCurrentPosition by brainzPlayerViewModel.songCurrentPosition.collectAsState()
                 var duration = "00:00"
                 var currentPosition = "00:00"
-                 if (song.duration / (1000 * 60 * 60) > 0 &&  songCurrentPosition / (1000 * 60 * 60) > 0){
-                     duration =String.format("%02d:%02d:%02d", song.duration/(1000 * 60 * 60),song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
-                     currentPosition = String.format("%02d:%02d:%02d", songCurrentPosition/(1000 * 60 * 60),songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
-                 }else{
-                     duration = String.format("%02d:%02d",song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
-                     currentPosition = String.format("%02d:%02d",songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
-                 }
+                if (song.duration / (1000 * 60 * 60) > 0 &&  songCurrentPosition / (1000 * 60 * 60) > 0){
+                    duration =String.format("%02d:%02d:%02d", song.duration/(1000 * 60 * 60),song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
+                    currentPosition = String.format("%02d:%02d:%02d", songCurrentPosition/(1000 * 60 * 60),songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
+                }else{
+                    duration = String.format("%02d:%02d",song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
+                    currentPosition = String.format("%02d:%02d",songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
+                }
+
 
                 Text(
                     text = currentPosition,
@@ -414,3 +416,4 @@ fun PlayerScreen(
         recentlyPlayed.items=data.filter { it.title!="null" }.toList().reversed()
     }
 }
+
