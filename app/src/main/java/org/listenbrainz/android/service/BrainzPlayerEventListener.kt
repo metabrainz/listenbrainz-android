@@ -1,5 +1,7 @@
 package org.listenbrainz.android.service
 
+import android.app.Service.STOP_FOREGROUND_DETACH
+import android.os.Build
 import android.widget.Toast
 import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
@@ -8,10 +10,14 @@ class BrainzPlayerEventListener(
     private val brainzPlayerService : BrainzPlayerService
 ) : Player.Listener {
     override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
-        super.onPlayWhenReadyChanged(playWhenReady, reason)
-        if (reason == Player.STATE_READY && !playWhenReady) {
-            brainzPlayerService.stopForeground(false)
+        if (reason == Player.STATE_IDLE && !playWhenReady) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                brainzPlayerService.stopForeground(STOP_FOREGROUND_DETACH)
+            }else {
+                brainzPlayerService.stopForeground(false)
+            }
         }
+        super.onPlayWhenReadyChanged(playWhenReady, reason)
     }
 
     override fun onPlayerError(error: PlaybackException) {

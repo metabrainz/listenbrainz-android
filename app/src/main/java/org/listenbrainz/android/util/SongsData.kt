@@ -3,15 +3,24 @@ package org.listenbrainz.android.util
 import android.content.ContentUris
 import android.os.Build
 import android.provider.MediaStore
-import androidx.preference.PreferenceManager
 import org.listenbrainz.android.application.App.Companion.context
 import org.listenbrainz.android.model.Song
 import javax.inject.Singleton
 
-class SongData {
-    fun fetchSongs(): List<Song> {
-        if (songsList.isNotEmpty()){
-            return songsList
+@Singleton
+object SongsData {
+    // Temporary cache
+    private var songsListCache = listOf<Song>()
+    
+    /** Update cached songs list on demand. */
+    fun updateCache(){
+        fetchSongs(userRequestedRefresh = true)
+    }
+    
+    /** Fetch songs from device. Heavy task, so perform in `Dispacthers.IO`.*/
+    fun fetchSongs(userRequestedRefresh: Boolean = false): List<Song> {
+        if (songsListCache.isNotEmpty() && !userRequestedRefresh){
+            return songsListCache
         }
         val songs = mutableListOf<Song>()
         val collection =
@@ -39,7 +48,7 @@ class SongData {
             MediaStore.Audio.AudioColumns.DATE_MODIFIED
         )
         
-
+        
         val sortOrder = "${MediaStore.Audio.Media.TITLE} COLLATE NOCASE ASC"
         val isMusic = MediaStore.Audio.Media.IS_MUSIC + " != 0"
         val songQuery = context?.contentResolver?.query(
@@ -100,26 +109,7 @@ class SongData {
                 )
             }
         }
-        songsList = songs
-        // This means that there are no songs on the device.
-        if (songsList.isEmpty()){
-            songsOnDevice = false
-        }
-        return songsList
-    }
-    
-    @Singleton
-    companion object {
-        private var songsList = listOf<Song>()
-        const val PREFERENCE_SONGS_ON_DEVICE = "PREFERENCE_ALBUMS_ON_DEVICE"
-        var songsOnDevice       // Used for showing progress indicators.
-            get() = PreferenceManager.getDefaultSharedPreferences(context!!).getBoolean(
-                PREFERENCE_SONGS_ON_DEVICE, true)
-            set(value) {
-                PreferenceManager.getDefaultSharedPreferences(context!!)
-                    .edit()
-                    .putBoolean(PREFERENCE_SONGS_ON_DEVICE, value)
-                    .apply()
-            }
+        songsListCache = songs
+        return songsListCache
     }
 }

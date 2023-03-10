@@ -13,17 +13,21 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.layout.ContentScale
@@ -40,22 +44,43 @@ import coil.compose.AsyncImage
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Artist
 import org.listenbrainz.android.model.PlayableType
-import org.listenbrainz.android.ui.components.BpProgressIndicator
-import org.listenbrainz.android.ui.components.BrainzNavigationItem
+import org.listenbrainz.android.ui.components.BPLibraryEmptyMessage
 import org.listenbrainz.android.ui.components.forwardingPainter
 import org.listenbrainz.android.viewmodel.ArtistViewModel
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ArtistScreen(navHostController: NavHostController) {
     val artistViewModel = hiltViewModel<ArtistViewModel>()
     val artists = artistViewModel.artists.collectAsState(initial = listOf())
-    if (artists.value.isEmpty()){
-        BpProgressIndicator(BrainzNavigationItem.Albums)
-    } else {
-        ArtistsScreen(artists, navHostController)
+    val refreshing by artistViewModel.isRefreshing.collectAsState()
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = refreshing,
+        onRefresh = { artistViewModel.fetchArtistsFromDevice(userRequestedRefresh = true) }
+    )
+    
+    // Content
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .pullRefresh(state = pullRefreshState),
+        contentAlignment = Alignment.Center
+    ) {
+        if (refreshing) {
+            Text(text = "Preparing your artists.", color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface)
+        } else if (artists.value.isEmpty()){
+            BPLibraryEmptyMessage()
+        } else {
+            ArtistsScreen(artists = artists, navHostController = navHostController)
+        }
+        PullRefreshIndicator(
+            modifier = Modifier.align(Alignment.TopCenter),
+            refreshing = refreshing,
+            state = pullRefreshState
+        )
     }
+    
 }
 
 @Composable

@@ -25,7 +25,7 @@ internal class OAuthAuthenticator : Authenticator {
         if (token != null) {
             val editor = LBSharedPreferences.preferences.edit()
             editor.putString(LBSharedPreferences.REFRESH_TOKEN, token.refreshToken)
-            editor.putString(LBSharedPreferences.ACCESS_TOKEN, token.accessToken)
+            editor.putString(LBSharedPreferences.MB_ACCESS_TOKEN, token.accessToken)
             editor.apply()
         }
         return when {

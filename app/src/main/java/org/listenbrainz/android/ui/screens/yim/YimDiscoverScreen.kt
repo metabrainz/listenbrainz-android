@@ -246,8 +246,10 @@ private fun YimTopAlbumsFromArtistsList(
             ListenCardSmall(
                 releaseName = newReleasesOfTopArtist[index].title,
                 artistName = newReleasesOfTopArtist[index].artistCreditName,
-                coverArtUrl = "https://archive.org/download/mbid-${newReleasesOfTopArtist[index].caaReleaseMbid}/mbid-${newReleasesOfTopArtist[index].caaReleaseMbid}-${newReleasesOfTopArtist[index].caaId}_thumb250.jpg"
-            ) {}
+                coverArtUrl = "https://archive.org/download/mbid-${newReleasesOfTopArtist[index].caaReleaseMbid}/mbid-${newReleasesOfTopArtist[index].caaReleaseMbid}-${newReleasesOfTopArtist[index].caaId}_thumb250.jpg",
+                onClick = {},
+                errorAlbumArt = R.drawable.ic_erroralbumart
+            )
         }
     }
 }

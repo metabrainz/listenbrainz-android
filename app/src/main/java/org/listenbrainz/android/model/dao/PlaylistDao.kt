@@ -1,7 +1,9 @@
-package org.listenbrainz.android.model
+package org.listenbrainz.android.model.dao
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
+import org.listenbrainz.android.model.PlaylistEntity
+import org.listenbrainz.android.model.SongEntity
 
 @Dao
 interface PlaylistDao {
@@ -12,10 +14,10 @@ interface PlaylistDao {
     @Query("SELECT * FROM PLAYLISTS WHERE id LIKE :playlistId")
     fun getPlaylist(playlistId: Long): Flow<PlaylistEntity>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertPlaylist(playlistEntity: PlaylistEntity)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Upsert
     suspend fun insertPlaylists(playlistEntities: List<PlaylistEntity>)
 
     @Query("UPDATE playlists SET items =:songs WHERE id =:playlistId")

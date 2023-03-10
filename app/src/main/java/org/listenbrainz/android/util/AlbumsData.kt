@@ -2,15 +2,21 @@ package org.listenbrainz.android.util
 
 import android.os.Build
 import android.provider.MediaStore
-import androidx.preference.PreferenceManager
 import org.listenbrainz.android.application.App.Companion.context
 import org.listenbrainz.android.model.Album
 import javax.inject.Singleton
 
-class AlbumsData {
-    fun fetchAlbums(): List<Album> {
-        if(albumsList.isNotEmpty()){
-            return albumsList
+@Singleton
+object AlbumsData {
+    
+    /** Runtime cache to improve performance
+     *  Not using on device caching as songs need to be refreshed frequently.*/
+    private var albumsListCache = listOf<Album>()
+    
+    /** Fetch albums from device. Heavy task, so perform in `Dispacthers.IO`.*/
+    fun fetchAlbums(userRequestedRefresh: Boolean = false): List<Album> {
+        if(albumsListCache.isNotEmpty() && !userRequestedRefresh){
+            return albumsListCache
         }
         val albums = mutableListOf<Album>()
         val collection =
@@ -47,26 +53,8 @@ class AlbumsData {
                 albums.add(Album(albumId, albumName, artistName, albumArt))
             }
         }
-        albumsList = albums.distinct()
-        // This means there are no albums on the device.
-        if (albumsList.isEmpty()){
-            albumsOnDevice = false
-        }
-        return albumsList
+        albumsListCache = albums.distinct()
+        return albumsListCache
     }
     
-    @Singleton
-    companion object {
-        private var albumsList = listOf<Album>()
-        const val PREFERENCE_ALBUMS_ON_DEVICE = "PREFERENCE_ALBUMS_ON_DEVICE"
-        var albumsOnDevice       // Used for showing progress indicators.
-            get() = PreferenceManager.getDefaultSharedPreferences(context!!).getBoolean(
-                PREFERENCE_ALBUMS_ON_DEVICE, true)
-            set(value) {
-                PreferenceManager.getDefaultSharedPreferences(context!!)
-                    .edit()
-                    .putBoolean(PREFERENCE_ALBUMS_ON_DEVICE, value)
-                    .apply()
-            }
-    }
 }

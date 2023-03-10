@@ -1,13 +1,14 @@
-package org.listenbrainz.android.ui.screens.brainzplayer.ui
+package org.listenbrainz.android.ui.screens.brainzplayer
 
 import CacheService
 import android.annotation.SuppressLint
 import androidx.compose.animation.*
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -20,7 +21,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -37,21 +37,22 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.application.App
 import org.listenbrainz.android.R
-import org.listenbrainz.android.util.Constants.RECENTLY_PLAYED_KEY
+import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
-import org.listenbrainz.android.ui.components.SongViewPager
+import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.PlayPauseIcon
-import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.SeekBar
+import org.listenbrainz.android.ui.components.SeekBar
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
 import org.listenbrainz.android.util.BrainzPlayerExtensions.duration
-import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
+import org.listenbrainz.android.util.Constants.RECENTLY_PLAYED_KEY
 import org.listenbrainz.android.util.LBSharedPreferences
+import org.listenbrainz.android.util.SongViewPager
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
+import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
@@ -62,7 +63,6 @@ import kotlin.math.max
 @Composable
 fun BrainzPlayerBackDropScreen(
     backdropScaffoldState: BackdropScaffoldState,
-    paddingValues: PaddingValues,
     brainzPlayerViewModel: BrainzPlayerViewModel = viewModel(),
     backLayerContent: @Composable () -> Unit
 ) {
@@ -73,15 +73,19 @@ fun BrainzPlayerBackDropScreen(
         mutableStateOf(0F)
     }
     val repeatMode by brainzPlayerViewModel.repeatMode.collectAsState()
+    val headerHeight by animateDpAsState(targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null") 0.dp else 136.dp)
+    
     BackdropScaffold(
         frontLayerShape = RectangleShape,
         backLayerBackgroundColor = MaterialTheme.colorScheme.background,
         frontLayerScrimColor = Color.Unspecified,
-        headerHeight = 136.dp,
+        headerHeight = headerHeight, // 136.dp is optimal header height.
         peekHeight = 0.dp,
         scaffoldState = backdropScaffoldState,
         backLayerContent = {
-            backLayerContent()
+            Surface(modifier = Modifier.fillMaxSize(), color = Color.Transparent) {
+                backLayerContent()
+            }
         },
         frontLayerBackgroundColor = MaterialTheme.colorScheme.background,
         appBar = {},
@@ -92,13 +96,13 @@ fun BrainzPlayerBackDropScreen(
             PlayerScreen(
                 currentlyPlayingSong = currentlyPlayingSong,
                 isShuffled = isShuffled,
-                repeatMode = repeatMode,
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .alpha(1 - (delta / maxDelta).coerceIn(0f, 1f))
+                repeatMode = repeatMode
             )
             SongViewPager(
-                modifier = Modifier.alpha((delta / maxDelta).coerceIn(0f, 1f))
+                modifier = Modifier.graphicsLayer {
+                    alpha = ( delta / (maxDelta - headerHeight.toPx()) )
+                },
+                backdropScaffoldState = backdropScaffoldState
             )
         })
 }
@@ -136,7 +140,7 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
                             // scroll position. We use the absolute value which allows us to mirror
                             // any effects for both directions
                             val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
-
+        
                             // We animate the scaleX + scaleY, between 85% and 100%
                             lerp(
                                 start = 0.85f,
@@ -146,7 +150,7 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
                                 scaleX = scale
                                 scaleY = scale
                             }
-
+        
                             // We animate the alpha, between 50% and 100%
                             alpha = lerp(
                                 start = 0.5f,
@@ -176,29 +180,28 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
     }
 }
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun PlayerScreen(
     brainzPlayerViewModel: BrainzPlayerViewModel = viewModel(),
     currentlyPlayingSong: Song,
     isShuffled: Boolean,
-    repeatMode: RepeatMode,
-    modifier: Modifier) {
+    repeatMode: RepeatMode
+) {
     val coroutineScope = rememberCoroutineScope()
     val playlistViewModel = hiltViewModel<PlaylistViewModel>()
     val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
-    val playlist=playlists.filter{ it.id==(1).toLong() }
-    var listenLiked= false
-    if(playlist.isNotEmpty()) {
+    val playlist = playlists.filter { it.id == (1).toLong() }
+    var listenLiked = false
+    if (playlist.isNotEmpty()) {
         playlist[0].items.forEach {
             if (it.mediaID == currentlyPlayingSong.mediaID)
                 listenLiked = true
         }
-    }
-    else{
+    } else {
         println("Playlist is empty")
     }
-    LazyColumn(modifier = modifier) {
+    LazyColumn {
         item {
             AlbumArtViewPager(viewModel = brainzPlayerViewModel)
         }
@@ -248,7 +251,8 @@ fun PlayerScreen(
                                 }
                             }
                         },
-                    tint = if (!listenLiked) Color.Red else Color.Black
+
+                    tint = if (listenLiked) Color.Red else MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -274,13 +278,14 @@ fun PlayerScreen(
                 val songCurrentPosition by brainzPlayerViewModel.songCurrentPosition.collectAsState()
                 var duration = "00:00"
                 var currentPosition = "00:00"
-                 if (song.duration / (1000 * 60 * 60) > 0 &&  songCurrentPosition / (1000 * 60 * 60) > 0){
-                     duration =String.format("%02d:%02d:%02d", song.duration/(1000 * 60 * 60),song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
-                     currentPosition = String.format("%02d:%02d:%02d", songCurrentPosition/(1000 * 60 * 60),songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
-                 }else{
-                     duration = String.format("%02d:%02d",song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
-                     currentPosition = String.format("%02d:%02d",songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
-                 }
+                if (song.duration / (1000 * 60 * 60) > 0 &&  songCurrentPosition / (1000 * 60 * 60) > 0){
+                    duration =String.format("%02d:%02d:%02d", song.duration/(1000 * 60 * 60),song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
+                    currentPosition = String.format("%02d:%02d:%02d", songCurrentPosition/(1000 * 60 * 60),songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
+                }else{
+                    duration = String.format("%02d:%02d",song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
+                    currentPosition = String.format("%02d:%02d",songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
+                }
+
 
                 Text(
                     text = currentPosition,
@@ -375,42 +380,36 @@ fun PlayerScreen(
             )
             Spacer(modifier = Modifier.height(12.dp))
         }
-        items(items = LBSharedPreferences.currentPlayable?.songs ?: listOf()) {
-            Card(
-                modifier = Modifier
-                    .padding(10.dp)
-                    .fillMaxWidth(0.98f),
-                backgroundColor = androidx.compose.material.MaterialTheme.colors.onSurface
+        
+        // Playlist
+        itemsIndexed(items = LBSharedPreferences.currentPlayable?.songs ?: listOf()) {index, song ->
+            ListenCardSmall(
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                releaseName = song.title,
+                artistName = song.artist,
+                coverArtUrl = song.albumArt,
+                imageLoadSize = 200,
+                useSystemTheme = true,
+                errorAlbumArt = R.drawable.ic_erroralbumart
             ) {
-                Spacer(modifier = Modifier.height(50.dp))
-                Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
-                    AsyncImage(
-                        model = it.albumArt,
-                        contentDescription = "",
-                        error = painterResource(
-                            id = R.drawable.ic_erroralbumart
-                        ),
-                        contentScale = ContentScale.FillBounds,
-                        modifier = Modifier.size(70.dp)
-                    )
-                    Column(Modifier.padding(start = 15.dp)) {
-                        Text(
-                            text = it.title,
-                            color = Color.White
-                        )
-                        Text(
-                            text = it.artist,
-                            color = Color.White
-                        )
-                    }
-                }
+                brainzPlayerViewModel.skipToPlayable(index)
+                brainzPlayerViewModel.playOrToggleSong(song, true)
             }
         }
+        
+        
+        item {
+            // Fixes bottom nav bar overlapping over last song
+            Spacer(modifier = Modifier.height(56.dp))
+        }
     }
-    var cache= App.context?.let { CacheService<Song>(it, RECENTLY_PLAYED_KEY) }
+    
+    // TODO: fix this
+    val cache= App.context?.let { CacheService<Song>(it, RECENTLY_PLAYED_KEY) }
     cache?.saveData(currentlyPlayingSong, Song::class.java)
-    var data= cache?.getData(Song::class.java)
+    val data= cache?.getData(Song::class.java)
     if (data != null) {
         recentlyPlayed.items=data.filter { it.title!="null" }.toList().reversed()
     }
 }
+

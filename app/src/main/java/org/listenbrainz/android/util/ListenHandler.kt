@@ -6,18 +6,17 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import okhttp3.ResponseBody
-import org.listenbrainz.android.service.ListenSubmitService
-import org.listenbrainz.android.util.ListenBrainzServiceGenerator.createService
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.ListenTrackMetadata
+import org.listenbrainz.android.service.ListenSubmitService
 import org.listenbrainz.android.util.ListenBrainzServiceGenerator.createListensService
-import org.listenbrainz.android.util.UserPreferences.preferenceListenBrainzToken
 import org.listenbrainz.android.util.Log.d
+import org.listenbrainz.android.util.UserPreferences.preferenceListenBrainzToken
 import retrofit2.Call
 import retrofit2.Response
 
 class ListenHandler : Handler(Looper.getMainLooper()) {
-    private val delay = 30000
+    private val delay = 30000      // TODO: Revise delay as 30 secs is too long and gives a sense of feeling that listens service is not working.
     private val timestamp = "timestamp"
 
     override fun handleMessage(msg: Message) {

@@ -1,11 +1,11 @@
 package org.listenbrainz.sharedtest.mocks
 
-import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.model.AccessToken
-import org.listenbrainz.android.model.UserInfo
 import org.listenbrainz.android.model.Playable
-import org.listenbrainz.android.util.UserPreferences
+import org.listenbrainz.android.model.UserInfo
+import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.util.LBSharedPreferences
+import org.listenbrainz.android.util.UserPreferences
 
 /*
     For every new preference, add default value of the concerned shared
@@ -21,9 +21,12 @@ class MockAppPreferences(
     override val preferenceListeningSpotifyEnabled: Boolean = false,
     override var currentPlayable: Playable? = null,
     override val loginStatus: Int = LBSharedPreferences.STATUS_LOGGED_OUT,
-    override val accessToken: String? = "",
+    override val mbAccessToken: String? = "",
+    override val lbAccessToken: String? = "",
     override val username: String? = "",
-    override val refreshToken: String? = ""
+    override val refreshToken: String? = "",
+    override var albumsOnDevice: Boolean = true,
+    override var songsOnDevice: Boolean = true
 ) : AppPreferences {
     
     override fun saveOAuthToken(token: AccessToken) {

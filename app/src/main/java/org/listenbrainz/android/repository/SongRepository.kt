@@ -5,6 +5,6 @@ import org.listenbrainz.android.model.Song
 
 interface SongRepository {
     fun getSongsStream() : Flow<List<Song>>
-    suspend fun addSongs(): Boolean
+    suspend fun addSongs(userRequestedRefresh: Boolean = false): Boolean
 
 }
