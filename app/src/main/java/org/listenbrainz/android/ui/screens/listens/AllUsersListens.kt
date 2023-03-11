@@ -107,16 +107,16 @@ fun AllUserListens(
                                 }
                                 else -> {
                                     // Play track via Amazon Music
-                                    val intent = Intent()
-                                    val query = listen.track_metadata.track_name + " " + listen.track_metadata.artist_name
-                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                    intent.setClassName(
-                                        "com.amazon.mp3",
-                                        "com.amazon.mp3.activity.IntentProxyActivity"
-                                    )
-                                    intent.action = MediaStore.INTENT_ACTION_MEDIA_SEARCH
-                                    intent.putExtra(MediaStore.EXTRA_MEDIA_TITLE, query)
-                                    context.startActivity(intent)
+//                                    val intent = Intent()
+//                                    val query = listen.track_metadata.track_name + " " + listen.track_metadata.artist_name
+//                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+//                                    intent.setClassName(
+//                                        "com.amazon.mp3",
+//                                        "com.amazon.mp3.activity.IntentProxyActivity"
+//                                    )
+//                                    intent.action = MediaStore.INTENT_ACTION_MEDIA_SEARCH
+//                                    intent.putExtra(MediaStore.EXTRA_MEDIA_TITLE, query)
+//                                    context.startActivity(intent)
                                 }
                             }
                         }
