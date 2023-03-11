@@ -66,7 +66,7 @@ android {
                 def keystoreProperties = new Properties()
                 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
                 resValue("string", "youtubeApiKey", keystoreProperties['youtubeApiKey'])
-                resValue("string", "spotifyClientId", localProperties['spotifyClientId'])
+                resValue("string", "spotifyClientId", keystoreProperties['spotifyClientId'])
                 resValue("string", "sentryDsn", keystoreProperties['sentryDsn'])
 
                 signingConfig signingConfigs.release
