@@ -1,10 +1,8 @@
 package org.listenbrainz.android.viewmodel
 
-import android.app.AlertDialog
 import android.app.Application
 import android.graphics.Bitmap
 import android.util.Log
-import android.view.View
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -26,7 +24,10 @@ import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.repository.ListensRepository
 import org.listenbrainz.android.service.YouTubeApiService
+import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log.d
+import org.listenbrainz.android.util.Log.e
+import org.listenbrainz.android.util.Log.v
 import org.listenbrainz.android.util.Resource.Status.*
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -147,11 +148,11 @@ class ListensViewModel @Inject constructor(
         onSubscribedToPlayerContextButtonClicked()
     }
     
-    fun connect() {
+    fun connect(spotifyClientId: String) {
         SpotifyAppRemote.disconnect(spotifyAppRemote)
         viewModelScope.launch {
             try {
-                spotifyAppRemote = connectToAppRemote(true)
+                spotifyAppRemote = connectToAppRemote(true, spotifyClientId = spotifyClientId)
                 onConnected()
             } catch (error: Throwable) {
                 logError(error)
@@ -164,19 +165,19 @@ class ListensViewModel @Inject constructor(
     }
     
     private val playerStateEventCallback = Subscription.EventCallback<PlayerState> { playerStateHere ->
-        Log.v(TAG, String.format("Player State: %s", gson.toJson(playerStateHere)))
+        v(String.format("Player State: %s", gson.toJson(playerStateHere)))
         
         playerState = playerStateHere
         
         updateTrackCoverArt(playerStateHere)
     }
     
-    private suspend fun connectToAppRemote(showAuthView: Boolean): SpotifyAppRemote =
+    private suspend fun connectToAppRemote(showAuthView: Boolean, spotifyClientId: String): SpotifyAppRemote =
         suspendCoroutine { cont: Continuation<SpotifyAppRemote> ->
             SpotifyAppRemote.connect(
                 application,
-                ConnectionParams.Builder(CLIENT_ID)
-                    .setRedirectUri(REDIRECT_URI)
+                ConnectionParams.Builder(spotifyClientId)
+                    .setRedirectUri(Constants.SPOTIFY_REDIRECT_URI)
                     .showAuthView(showAuthView)
                     .build(),
                 object : Connector.ConnectionListener {
@@ -208,12 +209,6 @@ class ListensViewModel @Inject constructor(
         assertAppRemoteConnected()?.playerApi?.play(uri)?.setResultCallback {
             logMessage("play command successful!")      //getString(R.string.command_feedback, "play"))
         }?.setErrorCallback(errorCallback)
-    }
-    
-    fun showCurrentPlayerState(view: View) {
-        view.tag?.let {
-            showDialog("PlayerState", gson.toJson(it))
-        }
     }
     
     private fun onSubscribedToPlayerContextButtonClicked() {
@@ -259,23 +254,10 @@ class ListensViewModel @Inject constructor(
     }
     
     private fun logError(throwable: Throwable) {
-        Log.e(TAG, "", throwable)
+        throwable.message?.let { e(it) }
     }
     
     private fun logMessage(msg: String) {
-        Log.d(TAG, msg)
-    }
-    
-    private fun showDialog(title: String, message: String) {
-        // TODO: Replace this
-        AlertDialog.Builder(application.applicationContext).setTitle(title).setMessage(message).create().show()
-    }
-    
-    companion object {
-        const val TAG = "ListenBrainz Player"
-        
-        // Auth Params
-        const val CLIENT_ID = "fadec988097f4480bd71608cac76d82c"
-        const val REDIRECT_URI = "org.listenbrainz.android://callback"
+        d(msg)
     }
 }

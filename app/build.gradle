@@ -50,9 +50,11 @@ android {
                 localProperties.load(new FileInputStream(localPropertiesFile))
 
                 resValue("string", "youtubeApiKey", localProperties['youtubeApiKey'])
+                resValue("string", "spotifyClientId", localProperties['spotifyClientId'])
             }
             else{
                 resValue("string", "youtubeApiKey", "test")
+                resValue("string", "spotifyClientId", "test")
             }
             resValue("string", "sentryDsn", "")
 
@@ -64,6 +66,7 @@ android {
                 def keystoreProperties = new Properties()
                 keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
                 resValue("string", "youtubeApiKey", keystoreProperties['youtubeApiKey'])
+                resValue("string", "spotifyClientId", localProperties['spotifyClientId'])
                 resValue("string", "sentryDsn", keystoreProperties['sentryDsn'])
 
                 signingConfig signingConfigs.release
