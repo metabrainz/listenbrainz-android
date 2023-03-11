@@ -4,21 +4,21 @@ import android.util.Log
 
 object Log {
 
-    private const val TAG = Configuration.TAG
+    private const val TAG = Constants.TAG
 
-    fun e(message: String?) {
-        Log.e(TAG, message!!)
+    fun e(message: String) {
+        Log.e(TAG, message)
     }
 
-    fun d(message: String?) {
-        Log.d(TAG, message!!)
+    fun d(message: String) {
+        Log.d(TAG, message)
     }
 
-    fun v(message: String?) {
-        Log.v(TAG, message!!)
+    fun v(message: String) {
+        Log.v(TAG, message)
     }
     
-    fun w(message: String?) {
-        Log.w(TAG, message!!)
+    fun w(message: String) {
+        Log.w(TAG, message)
     }
 }

@@ -9,14 +9,13 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.R
-import org.listenbrainz.android.util.ListenBrainzServiceGenerator
+import org.listenbrainz.android.databinding.ActivityLoginBinding
 import org.listenbrainz.android.model.AccessToken
 import org.listenbrainz.android.model.UserInfo
-import org.listenbrainz.android.databinding.ActivityLoginBinding
 import org.listenbrainz.android.ui.components.ListenBrainzActivity
 import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
-import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.LBSharedPreferences
+import org.listenbrainz.android.util.ListenBrainzServiceGenerator
 import org.listenbrainz.android.viewmodel.LoginViewModel
 
 @AndroidEntryPoint
@@ -73,9 +72,8 @@ class LoginActivity : ListenBrainzActivity() {
     private fun saveOAuthToken(accessToken: AccessToken?) {
         when {
             accessToken != null -> {
-                d(accessToken.accessToken)
                 LBSharedPreferences.saveOAuthToken(accessToken)
-                loginViewModel!!.fetchUserInfo()
+                loginViewModel?.fetchUserInfo()
             }
             else -> {
                 Toast.makeText(applicationContext,
@@ -93,7 +91,6 @@ class LoginActivity : ListenBrainzActivity() {
                     "Login successful. " + userInfo.username + " is now logged in.",
                     Toast.LENGTH_LONG).show()
             startActivity(Intent(this, DashboardActivity::class.java))
-            d(userInfo.username)
             finish()
         }
     }

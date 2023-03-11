@@ -9,10 +9,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.spotify.android.appremote.api.SpotifyAppRemote
+import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.util.Log
@@ -23,11 +25,12 @@ fun ListensScreen(
     navController: NavController
 ) {
     val viewModel: ListensViewModel = hiltViewModel()
+    val spotifyClientId = stringResource(id = R.string.spotifyClientId)
 
     ListenBrainzTheme {
         
         DisposableEffect(Unit) {
-            viewModel.connect()
+            viewModel.connect(spotifyClientId = spotifyClientId)
 
             onDispose {
                 SpotifyAppRemote.disconnect(viewModel.spotifyAppRemote)

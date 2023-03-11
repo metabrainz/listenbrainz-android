@@ -2,6 +2,7 @@ package org.listenbrainz.android.ui.screens.listens
 
 import android.content.Intent
 import android.net.Uri
+import android.provider.MediaStore
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -27,6 +28,7 @@ import org.listenbrainz.android.ui.navigation.AppNavigationItem
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.viewmodel.ListensViewModel
+
 
 @Composable
 fun AllUserListens(
@@ -86,16 +88,36 @@ fun AllUserListens(
                                     artist = listen.track_metadata.artist_name,
                                     apiKey = youtubeApiKey
                                 )
-                            if (videoId != null) {
-                                // Play the track in the YouTube Music app
-                                val trackUri = Uri.parse("https://music.youtube.com/watch?v=$videoId")
-                                val intent = Intent(Intent.ACTION_VIEW)
-                                intent.data = trackUri
-                                intent.setPackage(Constants.YOUTUBE_MUSIC_PACKAGE_NAME)
-                                context.startActivity(intent)
-                            } else {
-                                // Display an error message
-                                Toast.makeText(context, "Unable to find track on YouTube Music", Toast.LENGTH_SHORT).show()
+                            when {
+                                videoId != null -> {
+                                    // Play the track in the YouTube Music app
+                                    val trackUri = Uri.parse("https://music.youtube.com/watch?v=$videoId")
+                                    val intent = Intent(Intent.ACTION_VIEW)
+                                    intent.data = trackUri
+                                    intent.setPackage(Constants.YOUTUBE_MUSIC_PACKAGE_NAME)
+                                    when {
+                                        intent.resolveActivity(context.packageManager) != null -> {
+                                            context.startActivity(intent)
+                                        }
+                                        else -> {
+                                            // Display an error message
+                                            Toast.makeText(context, "YouTube Music is not installed to play the track.", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                }
+                                else -> {
+                                    // Play track via Amazon Music
+//                                    val intent = Intent()
+//                                    val query = listen.track_metadata.track_name + " " + listen.track_metadata.artist_name
+//                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+//                                    intent.setClassName(
+//                                        "com.amazon.mp3",
+//                                        "com.amazon.mp3.activity.IntentProxyActivity"
+//                                    )
+//                                    intent.action = MediaStore.INTENT_ACTION_MEDIA_SEARCH
+//                                    intent.putExtra(MediaStore.EXTRA_MEDIA_TITLE, query)
+//                                    context.startActivity(intent)
+                                }
                             }
                         }
                     }

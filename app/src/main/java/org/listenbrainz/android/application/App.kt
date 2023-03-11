@@ -9,9 +9,9 @@ import android.provider.Settings
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ProcessLifecycleOwner
 import dagger.hilt.android.HiltAndroidApp
-import org.listenbrainz.android.util.Configuration
-import org.listenbrainz.android.util.UserPreferences.preferenceListeningEnabled
 import org.listenbrainz.android.service.ListenService
+import org.listenbrainz.android.util.UserPreferences.preferenceListeningEnabled
+
 
 @HiltAndroidApp
 class App : Application() {
@@ -52,13 +52,9 @@ class App : Application() {
         var context: App? = null
         var robotoLight: Typeface? = null
             private set
-        val userAgent: String
-            get() = Configuration.USER_AGENT + "/" + version
-        val clientId: String
-            get() = Configuration.CLIENT_NAME + "-" + version
         val version: String
             get() = try {
-                context!!.packageManager.getPackageInfo(context!!.packageName, 0).versionName
+                context?.packageManager?.getPackageInfo(context!!.packageName, 0)!!.versionName
             }
             catch (e: PackageManager.NameNotFoundException) {
                 "unknown"
