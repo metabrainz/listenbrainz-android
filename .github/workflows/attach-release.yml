@@ -17,6 +17,8 @@ jobs:
         with:
           distribution: 'oracle'
           java-version: '17'
+      - name: Make Gradle executable
+        run: chmod +x ./gradlew
       - name: Configure Keystore
         run: |
           echo "$ANDROID_KEYSTORE_FILE" | base64 --decode > app/keystore.jks
