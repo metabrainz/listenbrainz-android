@@ -15,7 +15,8 @@ jobs:
       - name: setup jdk
         uses: actions/setup-java@v3
         with:
-          java-version: 18
+          distribution: 'oracle'
+          java-version: 17
       - name: Make Gradle executable
         run: chmod +x ./gradlew
         
