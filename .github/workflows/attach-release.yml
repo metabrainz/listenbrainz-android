@@ -1,6 +1,7 @@
 name: Build & Publish Release APK
 
 on:
+  workflow_dispatch:
   push:
     tags:
       - '*'
@@ -17,6 +18,27 @@ jobs:
           java-version: 11
       - name: Make Gradle executable
         run: chmod +x ./gradlew
+        
+      - name: Configure Keystore
+        run: |
+          echo "$ANDROID_KEYSTORE_FILE" > keystore.jks.b64
+          base64 -d -i keystore.jks.b64 > app/keystore.jks
+          echo "storeFile=keystore.jks" >> keystore.properties
+          echo "keyAlias=$KEYSTORE_KEY_ALIAS" >> keystore.properties
+          echo "storePassword=$KEYSTORE_STORE_PASSWORD" >> keystore.properties
+          echo "keyPassword=$KEYSTORE_KEY_PASSWORD" >> keystore.properties
+          echo "sentryDsn=$SENTRY_DSN" >> keystore.properties
+          echo "youtubeApiKey=$YOUTUBE_API_KEY" >> keystore.properties
+          echo "spotifyClientId=$SPOTIFY_CLIENT_ID" >> keystore.properties
+        env:
+          ANDROID_KEYSTORE_FILE: ${{ secrets.ANDROID_KEYSTORE_FILE }}
+          KEYSTORE_KEY_ALIAS: ${{ secrets.KEYSTORE_KEY_ALIAS }}
+          KEYSTORE_KEY_PASSWORD: ${{ secrets.KEYSTORE_KEY_PASSWORD }}
+          KEYSTORE_STORE_PASSWORD: ${{ secrets.KEYSTORE_STORE_PASSWORD }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          
       - name: Build Release APK
         run: ./gradlew assembleRelease
       - name: Releasing using Hub
