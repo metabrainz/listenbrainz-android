@@ -146,6 +146,11 @@ class BrainzPlayerViewModel @Inject constructor(
         }
     }
 
+    fun changeQueue(mediaItem: Song, seekTo: Long) {
+        brainzPlayerServiceConnection.transportControls.playFromMediaId(mediaItem.mediaID.toString(), null)
+        }
+
+
     fun changePlayable(newPlayableList: List<Song>, playableType: PlayableType, playableId: Long, currentIndex: Int ) {
         LBSharedPreferences.currentPlayable =
             Playable(playableType, playableId, newPlayableList, currentIndex)

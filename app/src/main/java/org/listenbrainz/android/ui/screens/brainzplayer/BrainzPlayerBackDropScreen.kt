@@ -6,16 +6,12 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.RepeatOn
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -45,6 +41,7 @@ import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.application.App
+import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
@@ -385,19 +382,54 @@ fun PlayerScreen(
                 )
             }
         }
-
+        val checkedSongs = mutableStateListOf<Song>()
+        var songs = LBSharedPreferences.currentPlayable?.songs?.toMutableList() ?: mutableListOf()
         item {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                "Now Playing",
-                fontSize = 24.sp,
-                modifier = Modifier.padding(start = 25.dp),
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(start = 5.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Now Playing",
+                    fontSize = 24.sp,
+                    modifier = Modifier.padding(start = 25.dp),
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Button(
+                    onClick = {
+                        checkedSongs.forEach { song ->
+                            songs.remove(song)
+                        }
+                        brainzPlayerViewModel.changePlayable(
+                            songs,
+                            PlayableType.ALL_SONGS,
+                            LBSharedPreferences.currentPlayable?.id ?: 0,
+                            songs.indexOfFirst { it.mediaID == currentlyPlayingSong.mediaID } ?: 0
+                        )
+                        brainzPlayerViewModel.changeQueue(
+                            currentlyPlayingSong,
+                            brainzPlayerViewModel.songCurrentPosition.value
+                        )
+                        checkedSongs.clear()
+                    },
+                    enabled = checkedSongs.isNotEmpty(),
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                        .align(Alignment.CenterVertically)
+                        .alpha(if (checkedSongs.isNotEmpty()) 1f else 0f)
+                ) {
+                    Icon(
+                        Icons.Rounded.Delete,
+                        contentDescription = "",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
         }
-        items(items = LBSharedPreferences.currentPlayable?.songs ?: listOf()) {
+        items(items = songs) { song ->
+            val isChecked = checkedSongs.contains(song)
             Card(
                 modifier = Modifier
                     .padding(10.dp)
@@ -410,7 +442,7 @@ fun PlayerScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     AsyncImage(
-                        model = it.albumArt,
+                        model = song.albumArt,
                         contentDescription = "",
                         error = painterResource(id = R.drawable.ic_erroralbumart),
                         contentScale = ContentScale.FillBounds,
@@ -419,33 +451,39 @@ fun PlayerScreen(
                     BoxWithConstraints {
                         val maxWidth =
                             (maxWidth - 60.dp).coerceAtMost(600.dp) // Replace 600.dp with your desired maximum width
-                        println(maxWidth)
                         Column(
                             Modifier.padding(start = 15.dp)
                                 .width(maxWidth)
                         ) {
-                            Text(text = it.title, color = Color.White)
+                            Text(text = song.title, color = Color.White)
                             Text(
-                                text = it.artist,
+                                text = song.artist,
                                 color = Color.White,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis
                             )
                         }
-
-                        IconButton(
-                            onClick = { /* Handle click action */ },
-                            modifier = Modifier
-                                .size(70.dp)
-                                .padding(start = 5.dp, end = 15.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = "Menu icon",
-                                tint = Color.White
+                    }
+                        if (currentlyPlayingSong.mediaID!=song.mediaID) {
+                            Checkbox(
+                                checked = isChecked,
+                                onCheckedChange = {
+                                    if (isChecked) {
+                                        checkedSongs.remove(song)
+                                    } else {
+                                        checkedSongs.add(song)
+                                    }
+                                },
+                                modifier = Modifier
+                                    .size(45.dp)
+                                    .padding(start = 5.dp, end = 15.dp),
+                                colors = CheckboxDefaults.colors(
+                                    checkmarkColor = Color.White,
+                                    disabledColor = Color.White,
+                                    uncheckedColor = Color.White,
+                                )
                             )
                         }
-                    }
                 }
             }
         }
