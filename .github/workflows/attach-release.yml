@@ -10,18 +10,20 @@ jobs:
   Gradle:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Set up JDK
+      - name: checkout code
+        uses: actions/checkout@v3
+      - name: setup jdk
         uses: actions/setup-java@v3
         with:
           distribution: 'oracle'
-          java-version: '17'
+          java-version: 17
       - name: Make Gradle executable
         run: chmod +x ./gradlew
+        
       - name: Configure Keystore
         run: |
-          echo "$ANDROID_KEYSTORE_FILE" | base64 --decode > app/keystore.jks
+          echo "$ANDROID_KEYSTORE_FILE" > keystore.jks.b64
+          base64 -d -i keystore.jks.b64 > app/keystore.jks
           echo "storeFile=keystore.jks" >> keystore.properties
           echo "keyAlias=$KEYSTORE_KEY_ALIAS" >> keystore.properties
           echo "storePassword=$KEYSTORE_STORE_PASSWORD" >> keystore.properties
@@ -37,43 +39,30 @@ jobs:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          
       - name: Cache Gradle dependencies
         uses: actions/cache@v2
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle.properties') }}
           restore-keys: ${{ runner.os }}-gradle-
-      - name: Build Release APK
+
+      - name: Build APK
         run: ./gradlew assembleRelease
-      - name: Upload APK
-        uses: actions/upload-artifact@v2
-        with:
-          name: ListenBrainz
-          path: app/build/outputs/apk/release/app-release.apk
-        if: endsWith(github.ref, '/tags/v')
-      - name: Attach APK to Release
+
+      - name: Find release tag name
+        id: find_release
         uses: actions/github-script@v4
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const fs = require('fs');
-            const { data } = await github.repos.listReleases({
+            const release = await github.repos.getLatestRelease({
               owner: context.repo.owner,
-              repo: context.repo.repo,
-              per_page: 1,
+              repo: context.repo.repo
             });
-            const release = data[0];
-            const stats = fs.statSync('app/build/outputs/apk/release/app-release.apk');
-            const fileSizeInBytes = stats.size;
-            const { data: asset } = await github.repos.uploadReleaseAsset({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              release_id: release.id,
-              name: 'app-release.apk',
-              data: fs.readFileSync('app/build/outputs/apk/release/app-release.apk'),
-              headers: {
-                'content-type': 'application/vnd.android.package-archive',
-                'content-length': fileSizeInBytes,
-              },
-            });
-            console.log(`Attached APK to release: ${asset.browser_download_url}`);
+            return { tag_name: release.data.tag_name };
+      - name: Attach APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-release
+          path: app/build/outputs/apk/release/app-release.apk
+        if: github.ref == ('refs/tags/${{ steps.find_release.outputs.tag_name }}')
