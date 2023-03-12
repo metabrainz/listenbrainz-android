@@ -46,24 +46,53 @@ jobs:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle.properties') }}
           restore-keys: ${{ runner.os }}-gradle-
-
-      - name: Build APK
+      - name: Build Release APK
         run: ./gradlew assembleRelease
-
-      - name: Find release tag name
+      - name: Find Latest Release
         id: find_release
         uses: actions/github-script@v4
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const release = await github.repos.getLatestRelease({
+            const { data } = await github.repos.listReleases({
               owner: context.repo.owner,
-              repo: context.repo.repo
+              repo: context.repo.repo,
+              per_page: 1,
             });
-            return { tag_name: release.data.tag_name };
-
-      - name: Attach APK
+            return data[0];
+      - name: Upload APK
         uses: actions/upload-artifact@v2
         with:
           name: app-release
           path: app/build/outputs/apk/release/app-release.apk
-        if: github.ref == ('refs/tags/${{ steps.find_release.outputs.tag_name }}')
+        if: endsWith(github.ref, '/tags/v')
+      - name: Attach APK to Release
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const { data: assets } = await github.repos.listReleaseAssets({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: ${{ steps.find_release.outputs.id }},
+            });
+            const matchingAssets = assets.filter(asset => asset.name === 'app-release.apk');
+            if (matchingAssets.length === 0) {
+              const stats = fs.statSync('app/build/outputs/apk/release/app-release.apk');
+              const fileSizeInBytes = stats.size;
+              const { data: asset } = await github.repos.uploadReleaseAsset({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                release_id: ${{ steps.find_release.outputs.id }},
+                name: 'app-release.apk',
+                data: fs.readFileSync('app/build/outputs/apk/release/app-release.apk'),
+                headers: {
+                  'content-type': 'application/vnd.android.package-archive',
+                  'content-length': fileSizeInBytes,
+                },
+              });
+              console.log(`Attached APK to release: ${asset.browser_download_url}`);
+            } else {
+              console.log('APK is already attached to latest release.');
+            }
