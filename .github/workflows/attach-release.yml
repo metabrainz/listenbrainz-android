@@ -42,8 +42,9 @@ jobs:
           
       - name: Build Release APK
         run: ./gradlew assembleRelease
-      - name: Releasing using Hub
-        uses: kyze8439690/action-release-releaseapk@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          APP_FOLDER: app
+      - name: Upload APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-release
+          path: app/build/outputs/apk/release/app-release.apk
+        if: endsWith(github.ref, '/tags/v')
