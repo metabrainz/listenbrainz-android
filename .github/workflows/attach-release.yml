@@ -1,7 +1,6 @@
 name: Build & Publish Release APK
 
 on:
-  workflow_dispatch:
   push:
     tags:
       - '*'
@@ -10,20 +9,15 @@ jobs:
   Gradle:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout code
-        uses: actions/checkout@v3
-      - name: setup jdk
-        uses: actions/setup-java@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v2
         with:
-          distribution: 'oracle'
-          java-version: 17
-      - name: Make Gradle executable
-        run: chmod +x ./gradlew
-        
+          java-version: '17'
       - name: Configure Keystore
         run: |
-          echo "$ANDROID_KEYSTORE_FILE" > keystore.jks.b64
-          base64 -d -i keystore.jks.b64 > app/keystore.jks
+          echo "$ANDROID_KEYSTORE_FILE" | base64 --decode > app/keystore.jks
           echo "storeFile=keystore.jks" >> keystore.properties
           echo "keyAlias=$KEYSTORE_KEY_ALIAS" >> keystore.properties
           echo "storePassword=$KEYSTORE_STORE_PASSWORD" >> keystore.properties
@@ -39,7 +33,6 @@ jobs:
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
-          
       - name: Cache Gradle dependencies
         uses: actions/cache@v2
         with:
@@ -48,25 +41,12 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle-
       - name: Build Release APK
         run: ./gradlew assembleRelease
-      - name: Find Latest Release
-        id: find_release
-        uses: actions/github-script@v4
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { data } = await github.repos.listReleases({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              per_page: 1,
-            });
-            return data[0];
       - name: Upload APK
         uses: actions/upload-artifact@v2
         with:
-          name: app-release
+          name: ListenBrainz
           path: app/build/outputs/apk/release/app-release.apk
         if: endsWith(github.ref, '/tags/v')
-        
       - name: Attach APK to Release
         uses: actions/github-script@v4
         with:
