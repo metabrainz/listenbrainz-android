@@ -63,6 +63,6 @@ jobs:
       - name: Attach APK
         uses: actions/upload-artifact@v2
         with:
-          name: app-release
+          name: ListenBrainz
           path: app/build/outputs/apk/release/app-release.apk
         if: github.ref == ('refs/tags/${{ steps.find_release.outputs.tag_name }}')
