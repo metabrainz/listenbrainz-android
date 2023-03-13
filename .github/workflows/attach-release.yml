@@ -52,7 +52,7 @@ jobs:
 
       - name: Find release tag name
         id: find_release
-        uses: actions/github-script@v4
+        uses: actions/github-script@v6
         with:
           script: |
             const release = await github.repos.getLatestRelease({
