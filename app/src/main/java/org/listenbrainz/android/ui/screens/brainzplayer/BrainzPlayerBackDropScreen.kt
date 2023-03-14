@@ -396,9 +396,8 @@ fun PlayerScreen(
                             LBSharedPreferences.currentPlayable?.id ?: 0,
                             songs.indexOfFirst { it.mediaID == currentlyPlayingSong.mediaID } ?: 0
                         )
-                        brainzPlayerViewModel.playOrToggleSong(
-                            brainzPlayerViewModel.currentlyPlayingSong.value.toSong,
-                            false,
+                        brainzPlayerViewModel.queueChanged(
+                            !brainzPlayerViewModel.isPlaying.value
                         )
                         checkedSongs.clear()
                     },
