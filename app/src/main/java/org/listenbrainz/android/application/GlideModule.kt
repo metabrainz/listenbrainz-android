@@ -8,7 +8,6 @@ import com.bumptech.glide.module.AppGlideModule
 
 @GlideModule
 class GlideModule : AppGlideModule() {
-    
     /* Stops unnecessary logs from glide about no content found.*/
     override fun applyOptions(context: Context, builder: GlideBuilder) {
         builder.setLogLevel(Log.ERROR)
