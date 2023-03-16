@@ -41,7 +41,7 @@ jobs:
           SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
           
       - name: Cache Gradle dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle.properties') }}
@@ -52,7 +52,7 @@ jobs:
 
       - name: Find release tag name
         id: find_release
-        uses: actions/github-script@v4
+        uses: actions/github-script@v6
         with:
           script: |
             const release = await github.repos.getLatestRelease({
@@ -61,7 +61,7 @@ jobs:
             });
             return { tag_name: release.data.tag_name };
       - name: Attach APK
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ListenBrainz
           path: app/build/outputs/apk/release/app-release.apk
