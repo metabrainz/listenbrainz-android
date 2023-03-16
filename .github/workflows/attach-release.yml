@@ -17,8 +17,9 @@ jobs:
         with:
           distribution: 'oracle'
           java-version: 17
-      - name: Make Gradle executable
-        run: chmod +x ./gradlew
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
         
       - name: Configure Keystore
         run: |
