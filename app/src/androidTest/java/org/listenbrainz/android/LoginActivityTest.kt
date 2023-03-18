@@ -16,7 +16,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.listenbrainz.android.util.ListenBrainzServiceGenerator
-import org.listenbrainz.android.presentation.features.login.LoginActivity
+import org.listenbrainz.android.ui.screens.login.LoginActivity
 
 @RunWith(AndroidJUnit4ClassRunner::class)
 class LoginActivityTest {
@@ -26,18 +26,18 @@ class LoginActivityTest {
     @Before
     fun stubInternetIntent() {
         Intents.intending(IntentMatchers.hasAction(Intent.ACTION_VIEW))
-                .respondWith(Instrumentation.ActivityResult(
-                    0,
-                    Intent().setData(Uri.parse(ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI + "?code=" + code))
-                ))
+            .respondWith(Instrumentation.ActivityResult(
+                0,
+                Intent().setData(Uri.parse(ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI + "?code=" + code))
+            ))
     }
 
     @Test
     fun testLoginAuthorization() {
         Espresso.onView(ViewMatchers.withId(R.id.login_btn)).perform(ViewActions.click())
         Intents.intended(AllOf.allOf(IntentMatchers.hasAction(Intent.ACTION_VIEW),
-                IntentMatchers.hasData(Uri.parse(
-                    ListenBrainzServiceGenerator.AUTH_BASE_URL
+            IntentMatchers.hasData(Uri.parse(
+                ListenBrainzServiceGenerator.AUTH_BASE_URL
                         + "authorize"
                         + "?response_type=code"
                         + "&client_id=" + ListenBrainzServiceGenerator.CLIENT_ID

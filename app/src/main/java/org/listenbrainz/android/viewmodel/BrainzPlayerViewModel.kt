@@ -158,6 +158,11 @@ class BrainzPlayerViewModel @Inject constructor(
         }
     }
 
+    fun queueChanged(toggle: Boolean ) {
+         if (toggle) brainzPlayerServiceConnection.transportControls.pause()
+        else brainzPlayerServiceConnection.transportControls.play()
+    }
+
     fun changePlayable(newPlayableList: List<Song>, playableType: PlayableType, playableId: Long, currentIndex: Int ) {
         appPreferences.currentPlayable =
             Playable(playableType, playableId, newPlayableList, currentIndex)

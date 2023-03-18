@@ -21,6 +21,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -39,6 +40,7 @@ import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.application.App
+import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
@@ -368,36 +370,110 @@ fun PlayerScreen(
                 )
             }
         }
-
+        val checkedSongs = mutableStateListOf<Song>()
+        var songs = LBSharedPreferences.currentPlayable?.songs?.toMutableList() ?: mutableListOf()
         item {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                "Now Playing",
-                fontSize = 24.sp,
-                modifier = Modifier.padding(start = 25.dp),
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-        }
-        
-        // Playlist
-        itemsIndexed(items = LBSharedPreferences.currentPlayable?.songs ?: listOf()) {index, song ->
-            ListenCardSmall(
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                releaseName = song.title,
-                artistName = song.artist,
-                coverArtUrl = song.albumArt,
-                imageLoadSize = 200,
-                useSystemTheme = true,
-                errorAlbumArt = R.drawable.ic_erroralbumart
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(start = 5.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                brainzPlayerViewModel.skipToPlayable(index)
-                brainzPlayerViewModel.playOrToggleSong(song, true)
+                Text(
+                    "Now Playing",
+                    fontSize = 24.sp,
+                    modifier = Modifier.padding(start = 25.dp),
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Button(
+                    onClick = {
+                        checkedSongs.forEach { song ->
+                            songs.remove(song)
+                        }
+                        brainzPlayerViewModel.changePlayable(
+                            songs,
+                            PlayableType.ALL_SONGS,
+                            LBSharedPreferences.currentPlayable?.id ?: 0,
+                            songs.indexOfFirst { it.mediaID == currentlyPlayingSong.mediaID } ?: 0
+                        )
+                        brainzPlayerViewModel.queueChanged(
+                            !brainzPlayerViewModel.isPlaying.value
+                        )
+                        checkedSongs.clear()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    enabled = checkedSongs.isNotEmpty(),
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                        .align(Alignment.CenterVertically)
+                        .alpha(if (checkedSongs.isNotEmpty()) 1f else 0f)
+                ) {
+                    Icon(
+                        Icons.Rounded.Delete,
+                        contentDescription = "",
+                    )
+                }
             }
         }
         
-        
+        // Playlist
+        itemsIndexed(items = songs) {index, song ->
+            val isChecked = checkedSongs.contains(song)
+            BoxWithConstraints {
+                val maxWidth =
+                    (maxWidth - 60.dp).coerceAtMost(600.dp)
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                )
+                {
+                    val modifier = if (currentlyPlayingSong.mediaID == song.mediaID) {
+                        Modifier.padding(horizontal = 10.dp, vertical = 6.dp).fillMaxWidth()
+                    } else {
+                        Modifier.padding(horizontal = 10.dp, vertical = 6.dp).width(maxWidth)
+                    }
+                    ListenCardSmall(
+                        modifier = modifier,
+                        releaseName = song.title,
+                        artistName = song.artist,
+                        coverArtUrl = song.albumArt,
+                        imageLoadSize = 200,
+                        useSystemTheme = true,
+                        errorAlbumArt = R.drawable.ic_erroralbumart
+                    ) {
+                        brainzPlayerViewModel.skipToPlayable(index)
+                        brainzPlayerViewModel.playOrToggleSong(song, true)
+                    }
+                    if (currentlyPlayingSong.mediaID!=song.mediaID) {
+                        androidx.compose.material3.Surface(
+                            shape = RoundedCornerShape(5.dp),
+                            shadowElevation = 5.dp
+                        ) {
+                            Checkbox(
+                                checked = isChecked,
+                                onCheckedChange = {
+                                    if (isChecked) {
+                                        checkedSongs.remove(song)
+                                    } else {
+                                        checkedSongs.add(song)
+                                    }
+                                },
+                                modifier = Modifier
+                                    .size(45.dp),
+                                colors = CheckboxDefaults.colors(
+                                    checkmarkColor = androidx.compose.material.MaterialTheme.colors.onSurface,
+                                    disabledColor = androidx.compose.material.MaterialTheme.colors.onSurface,
+                                    uncheckedColor = androidx.compose.material.MaterialTheme.colors.onSurface,
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+        }
         item {
             // Fixes bottom nav bar overlapping over last song
             Spacer(modifier = Modifier.height(56.dp))
