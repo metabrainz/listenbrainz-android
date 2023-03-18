@@ -87,8 +87,8 @@ class YimViewModel @Inject constructor(
     }
     
     /** The day user listens the most music, every week.*/
-    fun getDayOfWeek() : String? {
-        return yimData.value.data?.payload?.data?.dayOfWeek
+    fun getDayOfWeek() : String {
+        return yimData.value.data?.payload?.data?.dayOfWeek.toString()
     }
     
     /** List of other ListenBrainz users with the same taste as user.
