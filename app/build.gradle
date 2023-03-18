@@ -71,6 +71,11 @@ android {
 
                 signingConfig signingConfigs.release
             }
+            else{
+                resValue("string", "youtubeApiKey", "")
+                resValue("string", "spotifyClientId", "")
+                resValue("string", "sentryDsn", "")
+            }
             minifyEnabled false
 //            shrinkResources true
 //            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
