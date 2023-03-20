@@ -27,6 +27,7 @@ import org.listenbrainz.android.util.LBSharedPreferences.STATUS_LOGGED_OUT
 import org.listenbrainz.android.util.ListenBrainzServiceGenerator
 import org.listenbrainz.android.viewmodel.LoginViewModel
 
+/** ***NOTE:*** Always start this activity by passing a boolean extra with key **"startLogin"** as **true**.*/
 @AndroidEntryPoint
 class LoginActivity : ListenBrainzActivity() {
 
