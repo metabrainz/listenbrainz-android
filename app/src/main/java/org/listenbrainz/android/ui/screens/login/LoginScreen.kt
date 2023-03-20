@@ -9,12 +9,15 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,11 +26,11 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
+import kotlinx.coroutines.Dispatchers
 import org.listenbrainz.android.R
 import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.repository.AppPreferencesImpl
 import org.listenbrainz.android.util.LBSharedPreferences.STATUS_LOGGED_IN
-import org.listenbrainz.android.util.LBSharedPreferences.STATUS_LOGGED_OUT
 import org.listenbrainz.android.viewmodel.LoginViewModel
 
 @Composable
@@ -39,16 +42,12 @@ fun ProfileScreen(
     // Initializing app preferences.
     viewModel.appPreferences = appPreferences
     
-    var loginStatus by remember { mutableStateOf(viewModel.appPreferences.loginStatus) }
-    
-    LaunchedEffect(key1 = Unit){
-        loginStatus = viewModel.appPreferences.loginStatus
-    }
-    
+    val loginStatus = viewModel.getLoginStatusFlow()
+        .collectAsState(initial = viewModel.appPreferences.loginStatus, context = Dispatchers.Default)
+        .value
     
     Column(
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -67,7 +66,6 @@ fun ProfileScreen(
                 when (loginStatus) {
                     STATUS_LOGGED_IN -> {
                         viewModel.logoutUser(context)
-                        loginStatus = STATUS_LOGGED_OUT
                     }
                     else -> {
                         val intent = Intent(context, LoginActivity::class.java)
@@ -79,7 +77,7 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
-                .padding(start = 10.dp, end = 10.dp),
+                .padding(horizontal = 10.dp),
             colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.onSurface)
         ) {
             Text(
@@ -88,6 +86,7 @@ fun ProfileScreen(
                     else -> stringResource(id = R.string.login)
                 },
                 color = Color.White,
+                fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
             )
         }
@@ -96,12 +95,11 @@ fun ProfileScreen(
             text = when (loginStatus) {
                 STATUS_LOGGED_IN -> stringResource(id = R.string.logout_prompt)
                 else -> stringResource(id = R.string.login_prompt)
-                
             },
-            color = MaterialTheme.colors.surface,
+            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
             fontSize = 18.sp,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 20.dp, start = 5.dp, end = 5.dp)
+            modifier = Modifier.padding(top = 16.dp, start = 10.dp, end = 10.dp)
         )
     }
 }

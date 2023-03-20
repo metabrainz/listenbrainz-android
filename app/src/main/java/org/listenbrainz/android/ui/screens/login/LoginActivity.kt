@@ -72,7 +72,7 @@ class LoginActivity : ListenBrainzActivity() {
                 launch {
                     // Login session Timeout
                     if (!(isIntentLaunched as Boolean)){
-                        delay(5000)
+                        delay(5500)
                         Toast.makeText(this@LoginActivity, "Login failed, please try again.", Toast.LENGTH_SHORT).show()
                         finish()
                     }
@@ -87,21 +87,7 @@ class LoginActivity : ListenBrainzActivity() {
     }
 
     override fun onResume() {
-    
-        /*var loginStatus by Delegates.notNull<Int>()
-        PreferenceManager.getDefaultSharedPreferences(this).apply {
-            loginStatus = if (
-                getString(MB_ACCESS_TOKEN, "")?.isNotEmpty() == true &&
-                getString(USERNAME, "")?.isNotEmpty() == true
-            ){
-                STATUS_LOGGED_IN
-            }else{
-                STATUS_LOGGED_OUT
-            }
-        }*/
-        
         if (viewModel.appPreferences.loginStatus == STATUS_LOGGED_OUT){
-        //if (loginStatus == STATUS_LOGGED_OUT){
             val callbackUri = intent.data
             if (callbackUri != null && callbackUri.toString().startsWith(ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI)) {
                 val code = callbackUri.getQueryParameter("code")

@@ -6,9 +6,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import org.listenbrainz.android.model.AccessToken
 import org.listenbrainz.android.model.UserInfo
 import org.listenbrainz.android.repository.AppPreferences
@@ -42,6 +40,15 @@ class LoginViewModel @Inject constructor(
         repository.fetchUserInfo()
     }
 
+    fun getLoginStatusFlow(): Flow<Int> {
+        return flow {
+            while (true){
+                kotlinx.coroutines.delay(200)
+                emit(appPreferences.loginStatus)
+            }
+        }.distinctUntilChanged()
+    }
+    
     fun startLogin(context: Context) {
         val intent = Intent(
             Intent.ACTION_VIEW,
