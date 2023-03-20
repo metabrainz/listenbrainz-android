@@ -2,6 +2,7 @@ package org.listenbrainz.android
 
 import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -10,10 +11,11 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.listenbrainz.android.viewmodel.YimViewModel
 import org.listenbrainz.android.ui.screens.yim.navigation.YimNavigation
+import org.listenbrainz.android.ui.theme.isUiModeIsDark
 import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
+import org.listenbrainz.android.viewmodel.YimViewModel
 import org.listenbrainz.sharedtest.mocks.MockAppPreferences
 import org.listenbrainz.sharedtest.mocks.MockNetworkConnectivityViewModel
 import org.listenbrainz.sharedtest.mocks.MockYimRepository
@@ -41,7 +43,10 @@ class YearInMusicActivityTest {
         rule.setContent {
             YimNavigation(yimViewModel = yimViewModel, activity = activity, networkConnectivityViewModel = networkViewModel)
         }
+        
+        isUiModeIsDark = mutableStateOf(true)
     }
+    
     @Test
     fun screenFlowTest(){
 
@@ -63,6 +68,7 @@ class YearInMusicActivityTest {
         nextPage()
 
         verifyExistence(R.string.tt_yim_recommended_playlists_heading)
+        scrollToEnd(R.string.tt_yim_recommended_playlists_parent)
         scrollToEnd(R.string.tt_yim_recommended_playlists_parent)
         nextPage()
 

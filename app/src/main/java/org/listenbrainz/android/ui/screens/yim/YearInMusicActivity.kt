@@ -1,13 +1,11 @@
 package org.listenbrainz.android.ui.screens.yim
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import dagger.hilt.android.AndroidEntryPoint
-import org.listenbrainz.android.ui.screens.login.LoginActivity
 import org.listenbrainz.android.ui.screens.yim.navigation.YimNavigation
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModelImpl
 import org.listenbrainz.android.viewmodel.YimViewModel
@@ -24,7 +22,7 @@ class YearInMusicActivity : ComponentActivity() {
         // Login Check
         if (!yimViewModel.isLoggedIn()){
             Toast.makeText(this, "Please Login to access your Year in Music!", Toast.LENGTH_LONG).show()
-            startActivity(Intent(this, LoginActivity::class.java))
+            //startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
         

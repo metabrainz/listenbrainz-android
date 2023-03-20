@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import org.listenbrainz.android.ui.components.BackLayerContent
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen
 import org.listenbrainz.android.ui.screens.listens.ListensScreen
+import org.listenbrainz.android.ui.screens.login.ProfileScreen
 
 @Composable
 fun AppNavigation(
@@ -33,7 +34,7 @@ fun AppNavigation(
             ListensScreen(navController = navController)
         }
         composable(route = AppNavigationItem.Profile.route){
-            // TODO: Add profile composable here.
+            ProfileScreen()
         }
     }
 }
