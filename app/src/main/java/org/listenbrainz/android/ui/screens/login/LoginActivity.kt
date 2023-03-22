@@ -18,21 +18,21 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AccessToken
 import org.listenbrainz.android.model.UserInfo
 import org.listenbrainz.android.repository.AppPreferencesImpl
 import org.listenbrainz.android.ui.components.ListenBrainzActivity
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.LBSharedPreferences.STATUS_LOGGED_OUT
 import org.listenbrainz.android.util.ListenBrainzServiceGenerator
 import org.listenbrainz.android.viewmodel.LoginViewModel
 
-/** ***NOTE:*** Always start this activity by passing a boolean extra with key **"startLogin"** as **true**.*/
+/** ***NOTE:*** Always start this activity by passing a boolean extra with key **"startLogin"** (or [R.string.login_key]) as **true**.*/
 @AndroidEntryPoint
 class LoginActivity : ListenBrainzActivity() {
 
     private lateinit var viewModel: LoginViewModel
-    var isIntentLaunched : Boolean? = null
+    private var isIntentLaunched : Boolean? = null
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,7 +88,8 @@ class LoginActivity : ListenBrainzActivity() {
     }
 
     override fun onResume() {
-        if (viewModel.appPreferences.loginStatus == STATUS_LOGGED_OUT){
+        // This should not be launched in case login is started.
+        if (!(isIntentLaunched as Boolean)){
             val callbackUri = intent.data
             if (callbackUri != null && callbackUri.toString().startsWith(ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI)) {
                 val code = callbackUri.getQueryParameter("code")

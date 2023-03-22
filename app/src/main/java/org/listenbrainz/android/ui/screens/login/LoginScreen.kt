@@ -52,14 +52,11 @@ fun ProfileScreen(
         verticalArrangement = Arrangement.Center
     ) {
         
-        Box {
-            val comp by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.login))
-            LottieAnimation(
-                composition = comp,
-                iterations = LottieConstants.IterateForever,
-                modifier = Modifier.requiredHeightIn(max = 400.dp),
-            )
-        }
+        val comp by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.login))
+        LottieAnimation(
+            composition = comp,
+            iterations = LottieConstants.IterateForever, modifier = Modifier.requiredHeightIn(max = 400.dp),
+        )
         
         Button(
             onClick = {
@@ -69,7 +66,7 @@ fun ProfileScreen(
                     }
                     else -> {
                         val intent = Intent(context, LoginActivity::class.java)
-                        intent.putExtra("startLogin", true)
+                        intent.putExtra(context.getString(R.string.login_key), true)
                         context.startActivity(intent)
                     }
                 }

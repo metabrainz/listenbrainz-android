@@ -49,7 +49,7 @@ class LoginActivityTest {
         // Starting login activity.
         loginTestRule.scenario.onActivity {
             val intent = Intent(it, LoginActivity::class.java)
-            intent.putExtra("startLogin", true)
+            intent.putExtra(it.getString(R.string.login_key), true)
             it.startActivity(intent)
         }
     }
