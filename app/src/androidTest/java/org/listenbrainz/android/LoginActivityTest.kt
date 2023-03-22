@@ -48,21 +48,25 @@ class LoginActivityTest {
         
         // Starting login activity.
         loginTestRule.scenario.onActivity {
-            val intent = Intent(it, LoginActivity::class.java)
-            intent.putExtra("startLogin", true)
-            it.startActivity(intent)
+            it.startActivity(Intent(it, LoginActivity::class.java))
         }
     }
 
     @Test
     fun testLoginAuthorization() {
-        Intents.intended(AllOf.allOf(IntentMatchers.hasAction(Intent.ACTION_VIEW),
-            IntentMatchers.hasData(Uri.parse(
-                ListenBrainzServiceGenerator.AUTH_BASE_URL
-                        + "authorize"
-                        + "?response_type=code"
-                        + "&client_id=" + ListenBrainzServiceGenerator.CLIENT_ID
-                        + "&redirect_uri=" + ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI
-                        + "&scope=profile%20collection%20tag%20rating"))))
+        Intents.intended(
+            AllOf.allOf(IntentMatchers.hasAction(Intent.ACTION_VIEW),
+                IntentMatchers.hasData(
+                    Uri.parse(
+                    ListenBrainzServiceGenerator.AUTH_BASE_URL
+                            + "authorize"
+                            + "?response_type=code"
+                            + "&client_id=" + ListenBrainzServiceGenerator.CLIENT_ID
+                            + "&redirect_uri=" + ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI
+                            + "&scope=profile%20collection%20tag%20rating"
+                    )
+                )
+            )
+        )
     }
 }
