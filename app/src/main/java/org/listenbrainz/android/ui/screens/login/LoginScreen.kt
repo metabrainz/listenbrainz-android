@@ -68,7 +68,9 @@ fun ProfileScreen(
                         viewModel.logoutUser(context)
                     }
                     else -> {
-                        context.startActivity(Intent(context, LoginActivity::class.java))
+                        val intent = Intent(context, LoginActivity::class.java)
+                        intent.putExtra("startLogin", true)
+                        context.startActivity(intent)
                     }
                 }
             },
