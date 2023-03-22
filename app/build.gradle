@@ -49,8 +49,19 @@ android {
                 def localProperties = new Properties()
                 localProperties.load(new FileInputStream(localPropertiesFile))
 
-                resValue("string", "youtubeApiKey", localProperties['youtubeApiKey'])
-                resValue("string", "spotifyClientId", localProperties['spotifyClientId'])
+                if(localProperties.getProperty('youtubeApiKey') != null && !localProperties.getProperty('youtubeApiKey').isEmpty()){
+                    resValue("string", "youtubeApiKey", localProperties['youtubeApiKey'])
+                }
+                else{
+                    resValue("string", "youtubeApiKey", "test")
+                }
+
+                if (localProperties.getProperty('spotifyClientId') != null && !localProperties.getProperty('spotifyClientId').isEmpty()){
+                    resValue("string", "spotifyClientId", localProperties['spotifyClientId'])
+                }
+                else{
+                    resValue("string", "spotifyClientId", "test")
+                }
             }
             else{
                 resValue("string", "youtubeApiKey", "test")
