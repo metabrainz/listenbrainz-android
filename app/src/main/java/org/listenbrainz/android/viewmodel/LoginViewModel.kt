@@ -6,7 +6,9 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AccessToken
 import org.listenbrainz.android.model.UserInfo
@@ -27,9 +29,11 @@ class LoginViewModel @Inject constructor(
     lateinit var appPreferences: AppPreferences
     
     private val _accessTokenFlow: MutableStateFlow<AccessToken?> = repository.accessTokenFlow
+    /** Initial value: **null** */
     val accessTokenFlow: Flow<AccessToken?> = _accessTokenFlow
     
     private val _userInfoFlow: MutableStateFlow<UserInfo?> = repository.userInfoFlow
+    /** Initial value: **null** */
     val userInfoFlow: Flow<UserInfo?> = _userInfoFlow
 
     private fun fetchAccessToken(code: String) {
@@ -38,15 +42,6 @@ class LoginViewModel @Inject constructor(
 
     private fun fetchUserInfo() {
         repository.fetchUserInfo()
-    }
-
-    fun getLoginStatusFlow(): Flow<Int> {
-        return flow {
-            while (true){
-                kotlinx.coroutines.delay(200)
-                emit(appPreferences.loginStatus)
-            }
-        }.distinctUntilChanged()
     }
     
     /** Starts the web-view and controls redirection from website.*/
@@ -91,7 +86,16 @@ class LoginViewModel @Inject constructor(
         context.startActivity(intent)
     }
     
-    /** @param accessToken should be **non-null**. */
+    /**Should be called using [accessTokenFlow] as follows:
+     * ```
+     *  viewModel.accessTokenFlow.collectLatest { accessToken: AccessToken? ->
+     *      if (accessToken != null)
+     *      viewModel.saveOAuthToken(accessToken, this@LoginActivity)
+     *  }
+     * ```
+     *
+     * Automatically calls [fetchUserInfo] which updates [userInfoFlow].
+     * @param accessToken should be **non-null**. */
     fun saveOAuthToken(
         accessToken: AccessToken,
         context: Context
@@ -110,7 +114,14 @@ class LoginViewModel @Inject constructor(
         }
     }
     
-    /** @param userInfo should be **non-null**. */
+    /** Should be called using [userInfoFlow] as follows:
+     * ```
+     *   viewModel.userInfoFlow.collectLatest { userInfo: UserInfo? ->
+     *      if (userInfo != null)
+     *          viewModel.saveUserInfo(userInfo, this@LoginActivity)
+     *   }
+     *   ```
+     * @param userInfo should be **non-null**. */
     fun saveUserInfo(userInfo: UserInfo, context: Context) {
         when (userInfo) {
             errorUserInfo -> {
@@ -131,10 +142,4 @@ class LoginViewModel @Inject constructor(
         context.findActivity()?.finish()
     }
     
-    fun logoutUser(context: Context) {
-        appPreferences.logoutUser()
-        Toast.makeText(context, "User has successfully logged out.", Toast.LENGTH_SHORT).show()
-        _accessTokenFlow.update { null }
-        _userInfoFlow.update { null }
-    }
 }

@@ -28,19 +28,14 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import kotlinx.coroutines.Dispatchers
 import org.listenbrainz.android.R
-import org.listenbrainz.android.repository.AppPreferences
-import org.listenbrainz.android.repository.AppPreferencesImpl
 import org.listenbrainz.android.util.LBSharedPreferences.STATUS_LOGGED_IN
-import org.listenbrainz.android.viewmodel.LoginViewModel
+import org.listenbrainz.android.viewmodel.ProfileViewModel
 
 @Composable
 fun ProfileScreen(
     context : Context = LocalContext.current,
-    viewModel: LoginViewModel = hiltViewModel(),
-    appPreferences: AppPreferences = AppPreferencesImpl(context)
+    viewModel: ProfileViewModel = hiltViewModel()
 ) {
-    // Initializing app preferences.
-    viewModel.appPreferences = appPreferences
     
     val loginStatus = viewModel.getLoginStatusFlow()
         .collectAsState(initial = viewModel.appPreferences.loginStatus, context = Dispatchers.Default)
@@ -61,14 +56,8 @@ fun ProfileScreen(
         Button(
             onClick = {
                 when (loginStatus) {
-                    STATUS_LOGGED_IN -> {
-                        viewModel.logoutUser(context)
-                    }
-                    else -> {
-                        val intent = Intent(context, LoginActivity::class.java)
-                        intent.putExtra(context.getString(R.string.login_key), true)
-                        context.startActivity(intent)
-                    }
+                    STATUS_LOGGED_IN -> viewModel.logoutUser(context)
+                    else -> context.startActivity(Intent(context, LoginActivity::class.java))
                 }
             },
             modifier = Modifier
