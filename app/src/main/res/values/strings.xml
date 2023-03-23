@@ -123,6 +123,7 @@
     <string name="logout">Logout</string>
     <string name="logout_prompt">Hey! You are logged in already.</string>
     <string name="login_failed">Login failed, please try again.</string>
+    <string name="login_denied">Login Denied.</string>
     <string name="login">Login</string>
     <string name="login_prompt">To Login, connect your ListenBrainz account with our app. You will
     be prompted to login in ListenBrainz website. Follow the instructions and return to complete

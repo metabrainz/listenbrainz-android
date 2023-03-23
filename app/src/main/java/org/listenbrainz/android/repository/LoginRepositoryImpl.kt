@@ -29,9 +29,7 @@ class LoginRepositoryImpl @Inject constructor(private val service: LoginService)
                 ListenBrainzServiceGenerator.CLIENT_SECRET,
                 ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI)!!.enqueue(object : Callback<AccessToken?> {
                     override fun onResponse(call: Call<AccessToken?>, response: Response<AccessToken?>) {
-                        accessTokenFlow.update {
-                            response.body() ?: errorToken
-                        }
+                        accessTokenFlow.update { response.body() ?: errorToken }
                     }
 
                     override fun onFailure(call: Call<AccessToken?>, t: Throwable) {

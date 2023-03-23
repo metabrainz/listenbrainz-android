@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.screens.login
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.CircularProgressIndicator
@@ -15,33 +14,27 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AccessToken
 import org.listenbrainz.android.model.UserInfo
 import org.listenbrainz.android.repository.AppPreferencesImpl
 import org.listenbrainz.android.ui.components.ListenBrainzActivity
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.ListenBrainzServiceGenerator
 import org.listenbrainz.android.viewmodel.LoginViewModel
 
-/** ***NOTE:*** Always start this activity by passing a boolean extra with key **"startLogin"** (or [R.string.login_key]) as **true**.*/
 @AndroidEntryPoint
 class LoginActivity : ListenBrainzActivity() {
 
     private lateinit var viewModel: LoginViewModel
-    private var isIntentLaunched : Boolean? = null
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-    
-        // Controls launch of startLogin
-        isIntentLaunched = intent.getBooleanExtra("startLogin", false)
         
         viewModel = ViewModelProvider(this)[LoginViewModel::class.java]
         viewModel.appPreferences = AppPreferencesImpl(this)
+    
+        viewModel.checkRedirectUri(callbackUri = intent.data, context = this)
         
         setContent {
             ListenBrainzTheme {
@@ -62,42 +55,18 @@ class LoginActivity : ListenBrainzActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     viewModel.accessTokenFlow.collectLatest { accessToken: AccessToken? ->
-                        viewModel.saveOAuthToken(accessToken, this@LoginActivity)
+                        if (accessToken != null)
+                            viewModel.saveOAuthToken(accessToken, this@LoginActivity)
                     }
                 }
                 launch {
                     viewModel.userInfoFlow.collectLatest { userInfo: UserInfo? ->
-                        viewModel.saveUserInfo(userInfo, this@LoginActivity)
-                    }
-                }
-                launch {
-                    // Login session Timeout
-                    if (!(isIntentLaunched as Boolean)){
-                        delay(5500)
-                        Toast.makeText(this@LoginActivity, "Login failed, please try again.", Toast.LENGTH_SHORT).show()
-                        finish()
+                        if (userInfo != null)
+                            viewModel.saveUserInfo(userInfo, this@LoginActivity)
                     }
                 }
             }
         }
-        
-        if (isIntentLaunched as Boolean){
-            viewModel.startLogin(this)
-        }
-        
     }
 
-    override fun onResume() {
-        // This should not be launched in case login is started.
-        if (!(isIntentLaunched as Boolean)){
-            val callbackUri = intent.data
-            if (callbackUri != null && callbackUri.toString().startsWith(ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI)) {
-                val code = callbackUri.getQueryParameter("code")
-                if (code != null) {
-                    viewModel.fetchAccessToken(code)
-                }
-            }
-        }
-        super.onResume()
-    }
 }
