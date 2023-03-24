@@ -130,7 +130,7 @@ fun BrainzPlayerHomeScreen(
                     title = it.title,
                     modifier = Modifier
                         .clickable {
-                            brainzPlayerViewModel.changePlayable(recentlyPlayedSongs.items, PlayableType.ALL_SONGS, it.mediaID,recentlyPlayedSongs.items.sortedBy { it.discNumber }.indexOf(it))
+                            brainzPlayerViewModel.changePlayable(recentlyPlayedSongs.items, PlayableType.ALL_SONGS, it.mediaID,recentlyPlayedSongs.items.sortedBy { it.discNumber }.indexOf(it),0L)
                             brainzPlayerViewModel.playOrToggleSong(it, true)
                         }
                 )

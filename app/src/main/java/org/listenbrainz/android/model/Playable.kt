@@ -4,7 +4,8 @@ data class Playable(
     val type: PlayableType,
     val id: Long,
     val songs: List<Song>,
-    var currentSongIndex : Int
+    var currentSongIndex : Int,
+    var seekTo: Long = 0L
 )
 
 enum class PlayableType{
