@@ -8,11 +8,12 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
 import org.listenbrainz.android.R
-import org.listenbrainz.android.util.IntentFactory.getSettings
-import org.listenbrainz.android.util.UserPreferences.systemLanguagePreference
 import org.listenbrainz.android.ui.screens.onboarding.FeaturesActivity
 import org.listenbrainz.android.util.Constants
+import org.listenbrainz.android.util.IntentFactory.getSettings
+import org.listenbrainz.android.util.UserPreferences
 import org.listenbrainz.android.util.Utils.changeLanguage
 import org.listenbrainz.android.util.Utils.emailIntent
 
@@ -50,7 +51,7 @@ abstract class ListenBrainzActivity : AppCompatActivity() {
     }
 
     override fun attachBaseContext(newBase: Context) {
-        if (systemLanguagePreference) {
+        if (PreferenceManager.getDefaultSharedPreferences(newBase).getBoolean(UserPreferences.PREFERENCE_SYSTEM_LANGUAGE, false)) {
             val context: Context = changeLanguage(newBase, "en")
             super.attachBaseContext(context)
         } else super.attachBaseContext(newBase)

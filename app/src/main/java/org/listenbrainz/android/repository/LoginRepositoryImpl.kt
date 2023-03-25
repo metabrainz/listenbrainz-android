@@ -1,10 +1,13 @@
 package org.listenbrainz.android.repository
 
-import androidx.lifecycle.MutableLiveData
-import org.listenbrainz.android.service.LoginService
-import org.listenbrainz.android.util.ListenBrainzServiceGenerator
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import org.listenbrainz.android.model.AccessToken
 import org.listenbrainz.android.model.UserInfo
+import org.listenbrainz.android.repository.LoginRepository.Companion.errorToken
+import org.listenbrainz.android.repository.LoginRepository.Companion.errorUserInfo
+import org.listenbrainz.android.service.LoginService
+import org.listenbrainz.android.util.ListenBrainzServiceGenerator
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -14,8 +17,8 @@ import javax.inject.Singleton
 @Singleton
 class LoginRepositoryImpl @Inject constructor(private val service: LoginService) : LoginRepository {
 
-    override val accessTokenLiveData: MutableLiveData<AccessToken?> = MutableLiveData()
-    override val userInfoLiveData: MutableLiveData<UserInfo?> = MutableLiveData()
+    override val accessTokenFlow: MutableStateFlow<AccessToken?> = MutableStateFlow(null)
+    override val userInfoFlow: MutableStateFlow<UserInfo?> = MutableStateFlow(null)
 
     override fun fetchAccessToken(code: String?) {
         service.getAccessToken(
@@ -26,12 +29,12 @@ class LoginRepositoryImpl @Inject constructor(private val service: LoginService)
                 ListenBrainzServiceGenerator.CLIENT_SECRET,
                 ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI)!!.enqueue(object : Callback<AccessToken?> {
                     override fun onResponse(call: Call<AccessToken?>, response: Response<AccessToken?>) {
-                        val token = response.body()
-                        accessTokenLiveData.value = token
+                        accessTokenFlow.update { response.body() ?: errorToken }
                     }
 
                     override fun onFailure(call: Call<AccessToken?>, t: Throwable) {
                         t.printStackTrace()
+                        accessTokenFlow.update { errorToken }
                     }
                 })
     }
@@ -40,10 +43,13 @@ class LoginRepositoryImpl @Inject constructor(private val service: LoginService)
         service.userInfo!!.enqueue(object : Callback<UserInfo?> {
             override fun onResponse(call: Call<UserInfo?>, response: Response<UserInfo?>) {
                 val info = response.body()
-                userInfoLiveData.postValue(info)
+                userInfoFlow.update { info ?: errorUserInfo }
             }
 
-            override fun onFailure(call: Call<UserInfo?>, t: Throwable) {}
+            override fun onFailure(call: Call<UserInfo?>, t: Throwable) {
+                t.printStackTrace()
+                userInfoFlow.update { errorUserInfo }
+            }
         })
     }
 

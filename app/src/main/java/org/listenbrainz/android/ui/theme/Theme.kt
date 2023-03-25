@@ -130,7 +130,9 @@ internal val LocalPaddings = staticCompositionLocalOf { Paddings() }
  *
  *            NULL -> Selected Ui Mode is System Theme
  *
- * This variable is public because it is used in system settings */
+ * This variable is public because it is used in system settings
+ * @exception UninitializedPropertyAccessException Every **test** that is theme dependent should initialize this variable
+ * before executing instrumented tests.*/
 lateinit var isUiModeIsDark : MutableState<Boolean?>
 
 @Composable
