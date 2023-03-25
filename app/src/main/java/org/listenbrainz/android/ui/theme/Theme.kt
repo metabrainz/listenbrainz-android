@@ -3,6 +3,9 @@ package org.listenbrainz.android.ui.theme
 import android.app.Activity
 import android.content.Context
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material.MaterialTheme.colors
+import androidx.compose.material.darkColors
+import androidx.compose.material.lightColors
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -108,6 +111,29 @@ fun YearInMusicTheme(
         content = content
     )
 }
+
+//// For Light Color Scheme on favourite screen
+//private val LightFavTheme = lightColorScheme(
+//    onSurface = Color.Black,
+//    surface= Color.White
+//)
+//
+//// For Dark Color Scheme on favourite screen
+//private val DarkFavTheme = darkColorScheme(
+//    onSurface = Color.White,
+//    surface= Color.Black
+//)
+
+//@Composable
+//fun PlayListScreenTheme(
+//    darkTheme: Boolean = isUiModeIsDark.value == true,
+//    content: @Composable () -> Unit
+//) {
+//    MaterialTheme(
+//        colorScheme=  if (darkTheme) DarkFavTheme else LightFavTheme,
+//        content = content
+//    )
+//}
 
 // Padding suggestions for out compose part
 @Immutable

@@ -30,3 +30,4 @@ val yimYellow = Color(0xFFFECB49)
 val yimRed = Color(0xFFFE0E25)
 val yimWhite = Color(0xFFFEFEFE)
 val yimOffWhite = Color(0xFFF4F4F4)
+
