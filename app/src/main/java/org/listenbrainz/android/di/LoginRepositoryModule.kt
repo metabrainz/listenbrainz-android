@@ -1,9 +1,9 @@
 package org.listenbrainz.android.di
 
-import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ActivityRetainedComponent
 import dagger.Binds
 import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ActivityRetainedComponent
 import org.listenbrainz.android.repository.LoginRepository
 import org.listenbrainz.android.repository.LoginRepositoryImpl
 
@@ -11,5 +11,5 @@ import org.listenbrainz.android.repository.LoginRepositoryImpl
 @InstallIn(ActivityRetainedComponent::class)
 abstract class LoginRepositoryModule {
     @Binds
-    abstract fun bindsLoginRepository(repository: LoginRepositoryImpl?): LoginRepository?
+    abstract fun bindsLoginRepository(repository: LoginRepositoryImpl): LoginRepository
 }

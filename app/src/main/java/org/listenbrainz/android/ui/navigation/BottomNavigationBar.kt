@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.navigation
 
 import android.app.Activity
-import android.content.Intent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.*
@@ -20,7 +19,6 @@ import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
-import org.listenbrainz.android.ui.screens.login.LoginActivity
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -57,21 +55,16 @@ fun BottomNavigationBar(
                         // A quick way to navigate to back layer content.
                         backdropScaffoldState.reveal()
                         
-                        // TODO: remove this after profile page has been converted to composable
-                        if (item == AppNavigationItem.Profile){
-                            activity.startActivity(Intent(activity,LoginActivity::class.java))
-                        }else{
-                            navController.navigate(item.route){
-                                // Avoid building large backstack
-                                popUpTo(AppNavigationItem.Home.route){
-                                    saveState = true
-                                }
-                                // Avoid copies
-                                launchSingleTop = true
-                                // Restore previous state
-                                restoreState = true
-                                // TODO: Implement refresh for listens Screen.
+                        navController.navigate(item.route){
+                            // Avoid building large backstack
+                            popUpTo(AppNavigationItem.Home.route){
+                                saveState = true
                             }
+                            // Avoid copies
+                            launchSingleTop = true
+                            // Restore previous state
+                            restoreState = true
+                        // TODO: Implement refresh for listens Screen.
                         }
                     }
                     
