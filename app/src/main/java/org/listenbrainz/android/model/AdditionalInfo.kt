@@ -22,7 +22,4 @@ data class AdditionalInfo(
     var media_player: String? = null,
     var submission_client: String? = null,
     var submission_client_version: String? = null
-    /*"media_player": "Rhythmbox",
-    "submission_client": "Rhythmbox ListenBrainz Plugin",
-    "submission_client_version": "1.0",*/
 )
