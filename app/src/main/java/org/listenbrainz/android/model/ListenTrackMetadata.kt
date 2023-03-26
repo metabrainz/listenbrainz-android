@@ -11,6 +11,10 @@ class ListenTrackMetadata {
 
     @SerializedName("release_name")
     var release: String? = null
+    
+    @SerializedName("additional_info")
+    var additionalInfo: AdditionalInfo = AdditionalInfo()
+    
     override fun toString(): String {
         return "ListenTrackMetadata{" +
                 "artist='" + artist + '\'' +
