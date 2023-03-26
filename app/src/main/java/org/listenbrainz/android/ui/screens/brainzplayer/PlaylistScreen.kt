@@ -349,7 +349,7 @@ fun OnPlaylistClickScreen(playlistID: Long) {
                         brainzPlayerViewModel.playOrToggleSong(it, true)
                     }
                     .fillMaxWidth(0.98f),
-                backgroundColor = MaterialTheme.colors.onSurface
+                backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.surface
             ) {
                 Spacer(modifier = Modifier.height(50.dp))
                 Row(horizontalArrangement = Arrangement.Start) {
