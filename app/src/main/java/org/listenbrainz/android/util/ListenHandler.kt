@@ -16,7 +16,7 @@ import retrofit2.Call
 import retrofit2.Response
 
 class ListenHandler : Handler(Looper.getMainLooper()) {
-    private val delay = 30000      // TODO: Revise delay as 30 secs is too long and gives a sense of feeling that listens service is not working.
+    private val delay = 1000
     private val timestamp = "timestamp"
 
     override fun handleMessage(msg: Message) {

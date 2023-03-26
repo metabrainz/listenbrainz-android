@@ -6,6 +6,7 @@ import android.media.session.MediaSession
 import android.media.session.MediaSessionManager.OnActiveSessionsChangedListener
 import android.media.session.PlaybackState
 import org.listenbrainz.android.util.Log.d
+import org.listenbrainz.android.util.Log.w
 import org.listenbrainz.android.util.UserPreferences.preferenceListeningSpotifyEnabled
 
 class ListenSessionListener(private val handler: ListenHandler) : OnActiveSessionsChangedListener {
@@ -44,24 +45,39 @@ class ListenSessionListener(private val handler: ListenHandler) : OnActiveSessio
         var state: PlaybackState? = null
         var submitted = true
         override fun onMetadataChanged(metadata: MediaMetadata?) {
+            
             if (metadata == null) return
+            
             when {
                 state != null -> d("Listen Metadata " + state!!.state)
                 else -> d("Listen Metadata")
             }
-            artist = metadata.getString(MediaMetadata.METADATA_KEY_ARTIST)
-            if (artist == null || artist!!.isEmpty()) {
-                artist = metadata.getString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST)
+            
+            artist = when {
+                !metadata.getString(MediaMetadata.METADATA_KEY_ARTIST).isNullOrEmpty() -> metadata.getString(MediaMetadata.METADATA_KEY_ARTIST)
+                !metadata.getString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST).isNullOrEmpty() -> metadata.getString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST)
+                !metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE).isNullOrEmpty() -> metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE)
+                !metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION).isNullOrEmpty() -> metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION)
+                else -> null
             }
-            title = metadata.getString(MediaMetadata.METADATA_KEY_TITLE)
+            
+            title = when {
+                !metadata.getString(MediaMetadata.METADATA_KEY_TITLE).isNullOrEmpty() -> metadata.getString(MediaMetadata.METADATA_KEY_TITLE)
+                !metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE).isNullOrEmpty() -> metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE)
+                else -> null
+            }
+            
             if (artist == null || title == null || artist!!.isEmpty() || title!!.isEmpty()){
-                d("Any one of the metadata fields is empty, listen cancelled." +
-                        " || artist = $artist || title = $title")
+                w("${if (artist == null) "Artist" else "Title"} is null, listen cancelled.")
                 return
             }
-            if (System.currentTimeMillis() / 1000 - timestamp >= 1000) {
+            
+            // If the difference between the timestamp of this listen and previously
+            // submitted listen is less that 1 second, listen should not be submitted.
+            if ( (System.currentTimeMillis() / 1000 - timestamp) >= 1000) {
                 submitted = false
             }
+            
             timestamp = System.currentTimeMillis() / 1000
             if (state != null && state!!.state == PlaybackState.STATE_PLAYING && !submitted) {
                 handler.submitListen(artist, title, timestamp)
@@ -71,8 +87,6 @@ class ListenSessionListener(private val handler: ListenHandler) : OnActiveSessio
         // FIXME : Listens are only submitted when song is paused once, then played and skipped.
         //  the next song is recorded then.
         
-        // FIXME: Local songs listens are not recorded because the notification player doesn't hold any
-        //  artist metadata (but holds title metadata) for some reason.
         override fun onPlaybackStateChanged(state: PlaybackState?) {
             if (state == null) return
             this.state = state
@@ -84,6 +98,7 @@ class ListenSessionListener(private val handler: ListenHandler) : OnActiveSessio
             if (state.state == PlaybackState.STATE_PAUSED ||
                     state.state == PlaybackState.STATE_STOPPED) {
                 handler.cancelListen(timestamp)
+                d("Listen Cancelled.")
                 artist = ""
                 title = ""
                 timestamp = 0

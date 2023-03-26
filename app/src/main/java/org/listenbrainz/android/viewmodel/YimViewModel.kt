@@ -12,9 +12,9 @@ import androidx.lifecycle.viewModelScope
 import com.caverock.androidsvg.SVG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import org.listenbrainz.android.model.yimdata.*
 import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.repository.YimRepository
-import org.listenbrainz.android.model.yimdata.*
 import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.saveBitmap
@@ -95,9 +95,9 @@ class YimViewModel @Inject constructor(
      *
      *  @return `null` for users with less listens.
      */
-    fun getSimilarUsers(): List<Pair<String, Double>> {
-        val list = yimData.value.data?.payload?.data?.similarUsers!!.toList()
-        return list.sortedByDescending {
+    fun getSimilarUsers(): List<Pair<String, Double>>? {
+        val list = yimData.value.data?.payload?.data?.similarUsers?.toList()
+        return list?.sortedByDescending {
             it.second
         }
     }
