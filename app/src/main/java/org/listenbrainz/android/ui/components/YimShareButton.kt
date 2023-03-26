@@ -1,7 +1,9 @@
 package org.listenbrainz.android.ui.components
 
 import android.content.Context
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.icons.Icons
@@ -10,7 +12,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -39,8 +44,9 @@ fun YimShareButton(
     
     IconButton(
         modifier = modifier
-            .size(45.dp)
-            .testTag(stringResource(id = R.string.tt_yim_share) ),
+            .size(50.dp)
+            .testTag(stringResource(id = R.string.tt_yim_share))
+            .clip(CircleShape),
         onClick = { dialogState = true },
         colors = IconButtonDefaults.filledIconButtonColors(
             containerColor = MaterialTheme.colorScheme.onBackground,
@@ -48,11 +54,11 @@ fun YimShareButton(
         ),
         enabled = !disableButton
     ) {
-        Icon(
+        Image (
             imageVector = Icons.Rounded.Share,
             contentDescription = "Share your Year in Music",
-            tint = MaterialTheme.colorScheme.background,
-            modifier = Modifier.size(30.dp)
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.background),
+            contentScale = ContentScale.Fit
         )
     }
 }
