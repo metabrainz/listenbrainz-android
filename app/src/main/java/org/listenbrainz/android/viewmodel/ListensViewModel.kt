@@ -93,13 +93,8 @@ class ListensViewModel @Inject constructor(
                             }
                         }
                         val responseCoverArt = releaseMBID?.let { repository.fetchCoverArt(it) }
-                        when(responseCoverArt?.status) {
-                            SUCCESS -> {
-                                responseListens[index].coverArt = responseCoverArt.data!!
-                            }
-                            else -> {
-                                // TODO: Use cover art archive
-                            }
+                        if (responseCoverArt?.status == SUCCESS) {
+                            responseListens[index].coverArt = responseCoverArt.data!!
                         }
                     }
                     // Updating coverArts
