@@ -466,9 +466,9 @@ fun PlayerScreen(
                                 modifier = Modifier
                                     .size(45.dp),
                                 colors = CheckboxDefaults.colors(
-                                    checkmarkColor = androidx.compose.material.MaterialTheme.colors.onSurface,
-                                    disabledColor = androidx.compose.material.MaterialTheme.colors.onSurface,
-                                    uncheckedColor = androidx.compose.material.MaterialTheme.colors.onSurface,
+                                    checkmarkColor = MaterialTheme.colorScheme.onSurface,
+                                    disabledColor = MaterialTheme.colorScheme.onSurface,
+                                    uncheckedColor = MaterialTheme.colorScheme.onSurface,
                                 )
                             )
                         }
