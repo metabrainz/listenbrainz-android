@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.components
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,13 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import org.listenbrainz.android.R
@@ -31,6 +27,7 @@ import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun ListenCard(listen: Listen, coverArt: CoverArt?, onItemClicked: (listen: Listen) -> Unit) {
     Card(
@@ -38,7 +35,7 @@ fun ListenCard(listen: Listen, coverArt: CoverArt?, onItemClicked: (listen: List
             .fillMaxWidth()
             .padding(8.dp)
             .clip(RoundedCornerShape(16.dp))
-            .clickable(onClick = { onItemClicked(listen) }),
+            .clickable { onItemClicked(listen) },
         elevation = 0.dp,
         backgroundColor = MaterialTheme.colors.onSurface
     ) {
@@ -47,23 +44,14 @@ fun ListenCard(listen: Listen, coverArt: CoverArt?, onItemClicked: (listen: List
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            val painter = rememberAsyncImagePainter(
-                ImageRequest.Builder(LocalContext.current)
-                    .data(data = coverArt?.images?.get(0)?.thumbnails?.large)
-                    .placeholder(R.drawable.ic_coverartarchive_logo_no_text)
-                    .error(R.drawable.ic_coverartarchive_logo_no_text)
-                    .build()
-            )
-
-            Image(
-                modifier = Modifier
-                    .size(80.dp, 80.dp)
+            GlideImage(
+                model = coverArt?.images?.get(0)?.thumbnails?.large.toString(),
+                modifier = Modifier.size(80.dp, 80.dp)
                     .clip(RoundedCornerShape(16.dp)),
-                painter = painter,
-                alignment = Alignment.CenterStart,
-                contentDescription = "",
-                contentScale = ContentScale.Crop
-            )
+                contentDescription = null
+            ){
+                it.placeholder(R.drawable.ic_metabrainz_logo_no_text).override(250)
+            }
 
             Spacer(modifier = Modifier.width(16.dp))
 
