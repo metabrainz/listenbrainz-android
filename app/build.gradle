@@ -49,8 +49,19 @@ android {
                 def localProperties = new Properties()
                 localProperties.load(new FileInputStream(localPropertiesFile))
 
-                resValue("string", "youtubeApiKey", localProperties['youtubeApiKey'])
-                resValue("string", "spotifyClientId", localProperties['spotifyClientId'])
+                if(localProperties.getProperty('youtubeApiKey') != null && !localProperties.getProperty('youtubeApiKey').isEmpty()){
+                    resValue("string", "youtubeApiKey", localProperties['youtubeApiKey'])
+                }
+                else{
+                    resValue("string", "youtubeApiKey", "test")
+                }
+
+                if (localProperties.getProperty('spotifyClientId') != null && !localProperties.getProperty('spotifyClientId').isEmpty()){
+                    resValue("string", "spotifyClientId", localProperties['spotifyClientId'])
+                }
+                else{
+                    resValue("string", "spotifyClientId", "test")
+                }
             }
             else{
                 resValue("string", "youtubeApiKey", "test")
@@ -97,6 +108,7 @@ dependencies {
     implementation 'androidx.browser:browser:1.5.0'
     implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation 'androidx.core:core-splashscreen:1.0.0'
+    //implementation 'androidx.datastore:datastore-preferences:1.0.0'
 
     //Web Service Setup
     implementation 'com.google.code.gson:gson:2.10.1'

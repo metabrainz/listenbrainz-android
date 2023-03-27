@@ -73,11 +73,11 @@ class DaoTest {
             "Title$it",
             (11..20).map { song ->
                 SongEntity(
-                    "mediaID$song".toLong(),
+                    song.toLong(),
                     "SongTitle$song",
                     "Artist$song",
                     "Uri$song",
-                    "AlbumID$song".toLong(),
+                    song.toLong(),
                     "Album$song",
                     "AlbumArt$song",
                     song,
@@ -97,7 +97,7 @@ class DaoTest {
             "Artist$it",
             (121..130).map { song ->
                 SongEntity(
-                    "mediaID$song".toLong(),
+                    song.toLong(),
                     "SongTitle$song",
                     "Artist$it",
                     "Uri$song",

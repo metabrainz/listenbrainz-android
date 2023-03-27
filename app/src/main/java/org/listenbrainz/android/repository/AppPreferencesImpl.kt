@@ -1,5 +1,6 @@
 package org.listenbrainz.android.repository
 
+import android.content.Context
 import androidx.preference.PreferenceManager
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.AccessToken
@@ -20,9 +21,9 @@ import org.listenbrainz.android.util.UserPreferences.PREFERENCE_SYSTEM_LANGUAGE
 import org.listenbrainz.android.util.UserPreferences.PREFERENCE_SYSTEM_THEME
 import org.listenbrainz.android.util.UserPreferences.PermissionStatus
 
-class AppPreferencesImpl: AppPreferences {
+class AppPreferencesImpl(context : Context = App.context!!): AppPreferences {
     
-    private val preferences = PreferenceManager.getDefaultSharedPreferences(App.context!!)
+    private val preferences = PreferenceManager.getDefaultSharedPreferences(context)
     
     // Helper Functions
     
