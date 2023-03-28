@@ -69,7 +69,7 @@ class SettingsActivity : AppCompatActivity() {
             if (preference.key == PREFERENCE_SYSTEM_THEME){
 
                  val intent = Intent(this@SettingsActivity, DashboardActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 when (newValue) {
                     "Dark" -> {
                         setDefaultNightMode(MODE_NIGHT_YES)
