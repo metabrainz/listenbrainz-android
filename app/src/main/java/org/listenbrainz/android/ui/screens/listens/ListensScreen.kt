@@ -17,25 +17,19 @@ import com.spotify.android.appremote.api.SpotifyAppRemote
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.LBSharedPreferences
-import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
-import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
-import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModelImpl
 import org.listenbrainz.android.viewmodel.ListensViewModel
 
 @Composable
 fun ListensScreen(
     navController: NavController,
     viewModel: ListensViewModel = hiltViewModel(),
-    internetConnectivityViewModel: NetworkConnectivityViewModel = NetworkConnectivityViewModelImpl(LocalContext.current),
     spotifyClientId: String = stringResource(id = R.string.spotifyClientId)
 ) {
-
     ListenBrainzTheme {
         
         DisposableEffect(Unit) {
             
-            if (internetConnectivityViewModel.getNetworkStatus() == ConnectivityObserver.NetworkStatus.Available)
-                viewModel.connect(spotifyClientId = spotifyClientId)
+            viewModel.connect(spotifyClientId = spotifyClientId)
 
             onDispose {
                 SpotifyAppRemote.disconnect(viewModel.spotifyAppRemote)

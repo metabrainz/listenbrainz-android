@@ -1,5 +1,7 @@
 package org.listenbrainz.android.util.connectivityobserver
 
+import kotlinx.coroutines.flow.Flow
+
 /**
  * Use `NetworkConnectivityViewModelImpl` for instantiating view-model inside activities.
  *
@@ -12,4 +14,6 @@ package org.listenbrainz.android.util.connectivityobserver
 */
 interface NetworkConnectivityViewModel {
     fun getNetworkStatus() : ConnectivityObserver.NetworkStatus
+    
+    fun getNetworkStatusFlow() : Flow<ConnectivityObserver.NetworkStatus>
 }
