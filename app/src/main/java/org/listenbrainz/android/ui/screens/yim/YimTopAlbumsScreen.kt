@@ -36,6 +36,7 @@ import org.listenbrainz.android.ui.components.YimNavigationStation
 import org.listenbrainz.android.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.ui.theme.YimPaddings
+import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.YimViewModel
 
 @OptIn(ExperimentalGlideComposeApi::class)
@@ -97,7 +98,13 @@ fun YimTopAlbumsScreen(
                         val topReleases : List<TopRelease>? = yimViewModel.getTopReleases()?.toList()
                         topReleases?.forEach { item ->
                             // https://archive.org/download/mbid-{caa_release_mbid}/mbid-{caa_release_mbid}-{caa_id}_thumb500.jpg
-                            uriList.add("https://archive.org/download/mbid-${item.caaReleaseMbid}/mbid-${item.caaReleaseMbid}-${item.caaId}_thumb500.jpg")
+                            uriList.add(
+                                Utils.getCoverArtUrl(
+                                    caaReleaseMbid = item.caaReleaseMbid,
+                                    caaId = item.caaId,
+                                    size = 500
+                                )
+                            )
                         }
                         
                         // Pre-loading images
@@ -184,7 +191,11 @@ private fun YimAlbumViewer(list: List<TopRelease>?, listState: LazyListState) {
                 ) {
                     
                     GlideImage(
-                        model = "https://archive.org/download/mbid-${item.caaReleaseMbid}/mbid-${item.caaReleaseMbid}-${item.caaId}_thumb500.jpg",
+                        model = Utils.getCoverArtUrl(
+                            caaReleaseMbid = item.caaReleaseMbid,
+                            caaId = item.caaId,
+                            size = 500
+                        ),
                         modifier = Modifier
                             .size(300.dp)
                             .clip(RoundedCornerShape(10.dp)),

@@ -31,6 +31,7 @@ import org.listenbrainz.android.ui.components.Loader
 import org.listenbrainz.android.ui.navigation.AppNavigationItem
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.LBSharedPreferences
+import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.ListensViewModel
 
 
@@ -80,17 +81,14 @@ fun AllUserListens(
     
     // Preloader.
     val listState = rememberLazyListState()
-    if (coverArtList.isNotEmpty()){
-        GlideLazyListPreloader(
-            state = listState,
-            data = coverArtList,
-            size = Size(250f,250f),
-            numberOfItemsToPreload = 15
-        ){ item, requestBuilder ->
-            requestBuilder.load(item).placeholder(R.drawable.ic_metabrainz_logo_no_text).override(250)
-        }
+    GlideLazyListPreloader(
+        state = listState,
+        data = coverArtList,
+        size = Size(250f,250f),
+        numberOfItemsToPreload = 15
+    ){ item, requestBuilder ->
+        requestBuilder.placeholder(R.drawable.ic_metabrainz_logo_no_text).override(250).load(item)
     }
-    
     
     LazyColumn(
         modifier = modifier,
@@ -99,7 +97,10 @@ fun AllUserListens(
         items(listens) { listen->
             ListenCard(
                 listen,
-                coverArt = listen.coverArt
+                coverArtUrl = getCoverArtUrl(
+                    caaReleaseMbid = listen.track_metadata.mbid_mapping?.caa_release_mbid,
+                    caaId = listen.track_metadata.mbid_mapping?.caa_id
+                )
             )
             {
                 if (it.track_metadata.additional_info?.spotify_id != null) {

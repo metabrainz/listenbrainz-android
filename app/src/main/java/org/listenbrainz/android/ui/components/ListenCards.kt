@@ -22,14 +22,13 @@ import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.CoverArt
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun ListenCard(listen: Listen, coverArt: CoverArt?, onItemClicked: (listen: Listen) -> Unit) {
+fun ListenCard(listen: Listen, coverArtUrl: String, onItemClicked: (listen: Listen) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -45,7 +44,7 @@ fun ListenCard(listen: Listen, coverArt: CoverArt?, onItemClicked: (listen: List
                 .padding(16.dp)
         ) {
             GlideImage(
-                model = coverArt?.images?.get(0)?.thumbnails?.large.toString(),
+                model = coverArtUrl,
                 modifier = Modifier.size(80.dp, 80.dp)
                     .clip(RoundedCornerShape(16.dp)),
                 contentDescription = null

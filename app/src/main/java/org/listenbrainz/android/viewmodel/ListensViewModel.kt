@@ -32,6 +32,7 @@ import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.e
 import org.listenbrainz.android.util.Log.v
 import org.listenbrainz.android.util.Resource.Status.*
+import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Inject
@@ -76,37 +77,22 @@ class ListensViewModel @Inject constructor(
             val response = repository.fetchUserListens(userName)
             when(response.status){
                 SUCCESS -> {
-                    val responseListens = response.data!!.toMutableList()
-                    // Initializing screen and show data without cover arts.
-                    _listensFlow.update { responseListens }
-                    isLoading = false
+                    val responseListens = response.data!!
                     
-                    responseListens.forEachIndexed { index, listen ->
-                        var releaseMBID : String? = null
-
-                        when {
-                            listen.track_metadata.additional_info?.release_mbid != null -> {
-                                releaseMBID = listen.track_metadata.additional_info.release_mbid
-                            }
-                            listen.track_metadata.mbid_mapping?.release_mbid != null -> {
-                                releaseMBID = listen.track_metadata.mbid_mapping.release_mbid
-                            }
-                        }
-                        val responseCoverArt = releaseMBID?.let { repository.fetchCoverArt(it) }
-                        if (responseCoverArt?.status == SUCCESS) {
-                            responseListens[index].coverArt = responseCoverArt.data!!
-                        }
-                    }
                     // Updating coverArts
                     _coverArtFlow.update {
                         val list = mutableListOf<String>()
                         responseListens.forEach {
-                            list.add(it.coverArt?.images?.get(0)?.thumbnails?.large.toString())
+                            list.add(getCoverArtUrl(
+                                caaReleaseMbid = it.track_metadata.mbid_mapping?.caa_release_mbid,
+                                caaId = it.track_metadata.mbid_mapping?.caa_id
+                            ))
                         }
                         list
                     }
                     // Updating listens
-                    _listensFlow.update { responseListens }
+                    _listensFlow.update { response.data }
+                    isLoading = false
                 }
                 LOADING -> {
                     isLoading = true
