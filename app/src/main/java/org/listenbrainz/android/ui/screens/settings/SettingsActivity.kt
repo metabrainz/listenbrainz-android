@@ -16,6 +16,7 @@ import androidx.preference.SwitchPreference
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.R
 import org.listenbrainz.android.databinding.ActivityPreferencesBinding
+import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
 import org.listenbrainz.android.util.UserPreferences.PREFERENCE_LISTENING_ENABLED
 import org.listenbrainz.android.util.UserPreferences.PREFERENCE_SYSTEM_THEME
 import org.listenbrainz.android.util.UserPreferences.preferenceListeningEnabled
@@ -66,6 +67,8 @@ class SettingsActivity : AppCompatActivity() {
             
             // Explicit Ui Mode functionality.
             if (preference.key == PREFERENCE_SYSTEM_THEME){
+                val intent = Intent(this@SettingsActivity, DashboardActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 when (newValue) {
                     "Dark" -> {
                         setDefaultNightMode(MODE_NIGHT_YES)
@@ -79,7 +82,11 @@ class SettingsActivity : AppCompatActivity() {
                         setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
                         isUiModeIsDark.value = null
                     }
+
+
                 }
+                startActivity(intent)
+                finish()
                 return@OnPreferenceChangeListener true
             }
             false
