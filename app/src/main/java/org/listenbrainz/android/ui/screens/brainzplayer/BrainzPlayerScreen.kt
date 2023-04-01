@@ -61,7 +61,7 @@ fun BrainzPlayerScreen(appNavController: NavController) {
     ListenBrainzTheme {
         // Local nav controller
         val localNavController = rememberNavController()
-
+        val coroutineScope = rememberCoroutineScope()
         // View models
         val albumViewModel = hiltViewModel<AlbumViewModel>()
         val songsViewModel = hiltViewModel<SongViewModel>()
@@ -539,70 +539,77 @@ fun fetchPlaylist(
                 val body = response.body.string()
                 val gson = Gson()
                 val data = gson.fromJson(body, onlinePlaylistDetails::class.java)
-                for (i in data.playlists) {
-                    val last = i.playlist.identifier.length
-                    mbid.add(i.playlist.identifier.substring(34, last))
-                    val requestDetails = Request.Builder()
-                        .url("https://api.listenbrainz.org/1/playlist/${i.playlist.identifier.substring(34, last)}")
-                        .build()
-                    client.newCall(requestDetails).enqueue(object : Callback {
-                        override fun onFailure(call: Call, e: IOException) {
-                            println("error $e")
-                        }
+                if (data.playlists.isNotEmpty()) {
+                    for (i in data.playlists) {
+                        val last = i.playlist.identifier.length
+                        mbid.add(i.playlist.identifier.substring(34, last))
+                        val requestDetails = Request.Builder()
+                            .url("https://api.listenbrainz.org/1/playlist/${i.playlist.identifier.substring(34, last)}")
+                            .build()
+                        client.newCall(requestDetails).enqueue(object : Callback {
+                            override fun onFailure(call: Call, e: IOException) {
+                                println("error $e")
+                            }
 
-                        override fun onResponse(call: Call, response: Response) {
-                            //var isPresent = false
-                            val body = response.body.string()
-                            val gson = Gson()
-                            val data = gson.fromJson(body, PlaylistResponse::class.java)
-                            coroutineScope.launch {
-                                val last = i.playlist.identifier.length
-                                val mbid = i.playlist.identifier.substring(34, last)
-                                val isPresent = playlists.any { it.mbid == mbid }
-                                if (!isPresent) {
-                                    println("Creating playlist ${data.playlist.title}")
-                                    // Create the new playlist in your database
-                                    playlistViewModel.createPlaylist(
-                                        data.playlist.title,
-                                        mbid
-                                    )
-                                }
-                                else{
-                                    val length=playlists.filter { it.mbid == mbid }.toList()
-                                    if(length.lastIndex>0) {
-                                        println("Updating playlist ${data.playlist.title}")
-                                        // Update the playlist in your database
-                                        playlistViewModel.deletePlaylist(
-                                            Playlist(
-                                                id = playlists.find { it.mbid == mbid }!!.id,
-                                                title = data.playlist.title,
-                                                mbid = mbid
-                                            )
+                            override fun onResponse(call: Call, response: Response) {
+                                //var isPresent = false
+                                val body = response.body.string()
+                                val gson = Gson()
+                                val data = gson.fromJson(body, PlaylistResponse::class.java)
+                                coroutineScope.launch {
+                                    val last = i.playlist.identifier.length
+                                    val mbid = i.playlist.identifier.substring(34, last)
+                                    val isPresent = playlists.any { it.mbid == mbid }
+                                    if (!isPresent) {
+                                        println("Creating playlist ${data.playlist.title}")
+                                        // Create the new playlist in your database
+                                        playlistViewModel.createPlaylist(
+                                            data.playlist.title,
+                                            mbid
                                         )
-                                    }
-                                }
-                                val playlist = playlists.find { it.mbid == mbid }
-                                if (playlist != null) {
-                                    for (track in data.playlist.track) {
-                                        val uri = track.identifier.substring(35, track.identifier.length)
-                                        if (!playlist.items.any { it.uri == uri }) {
-                                            // Add the track to the playlist in your database
-                                            playlistViewModel.addSongToPlaylist(
-                                                Song(
-                                                    uri = uri,
-                                                    artist = track.creator,
-                                                    title = track.title
-                                                ), playlist
+                                    } else {
+                                        val length = playlists.filter { it.mbid == mbid }.toList()
+                                        if (length.lastIndex > 0) {
+                                            // Delete the playlist in your database
+                                            playlistViewModel.deletePlaylist(
+                                                Playlist(
+                                                    id = playlists.find { it.mbid == mbid }!!.id,
+                                                    title = data.playlist.title,
+                                                    mbid = mbid
+                                                )
                                             )
+                                        }
+                                    }
+                                    val playlist = playlists.find { it.mbid == mbid }
+                                    if (playlist != null) {
+                                        for (track in data.playlist.track) {
+                                            val uri = track.identifier.substring(35, track.identifier.length)
+                                            if (!playlist.items.any { it.uri == uri }) {
+                                                // Add the track to the playlist in your database
+                                                playlistViewModel.addSongToPlaylist(
+                                                    Song(
+                                                        uri = uri,
+                                                        artist = track.creator,
+                                                        title = track.title
+                                                    ), playlist
+                                                )
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
 
-                    })
+                        })
+                    }
                 }
-
+                else {
+                    val toDelete= playlists.filter { it.mbid !="" }.toList()
+                    for (i in toDelete) {
+                        coroutineScope.launch {
+                            playlistViewModel.deletePlaylist(i)
+                        }
+                    }
+                }
             }
         })
     }
