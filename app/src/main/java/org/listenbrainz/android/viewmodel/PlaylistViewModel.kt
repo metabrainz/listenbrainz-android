@@ -34,9 +34,9 @@ class PlaylistViewModel @Inject constructor(
     fun getPlaylistByID(playlistID: Long): Flow<Playlist> {
         return playlistRepository.getPlaylist(playlistID)
     }
-    suspend fun createPlaylist(name: String){
+    suspend fun createPlaylist(name: String,mbid: String = ""){
         val id = Random.nextLong()
-        val newPlaylist = Playlist(id, name, listOf())
+        val newPlaylist = Playlist(id, name, listOf(), mbid)
         playlistRepository.insertPlaylist(newPlaylist)
     }
     suspend fun addSongToPlaylist(song: Song, playlist: Playlist){

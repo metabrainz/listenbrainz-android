@@ -41,6 +41,9 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.google.gson.Gson
+import kotlinx.coroutines.launch
+import okhttp3.*
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.*
 import org.listenbrainz.android.ui.components.forwardingPainter
@@ -48,7 +51,9 @@ import org.listenbrainz.android.ui.navigation.AppNavigationItem
 import org.listenbrainz.android.ui.screens.brainzplayer.navigation.BrainzPlayerNavigationItem
 import org.listenbrainz.android.ui.screens.brainzplayer.navigation.Navigation
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.viewmodel.*
+import java.io.IOException
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,20 +61,22 @@ fun BrainzPlayerScreen(appNavController: NavController) {
     ListenBrainzTheme {
         // Local nav controller
         val localNavController = rememberNavController()
-        
+
         // View models
         val albumViewModel = hiltViewModel<AlbumViewModel>()
         val songsViewModel = hiltViewModel<SongViewModel>()
         val artistViewModel = hiltViewModel<ArtistViewModel>()
         val playlistViewModel = hiltViewModel<PlaylistViewModel>()
-        
         // Data streams
         val albums = albumViewModel.albums.collectAsState(initial = listOf()).value     // TODO: Introduce initial values to avoid flicker.
         val songs = songsViewModel.songs.collectAsState(initial = listOf()).value
         val artists = artistViewModel.artists.collectAsState(initial = listOf()).value
         val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
         val recentlyPlayed = Playlist.recentlyPlayed
-        
+
+        // Fetch Playlist
+        fetchPlaylist(playlists, playlistViewModel)
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -109,9 +116,9 @@ fun BrainzPlayerHomeScreen(
         ) {
             SearchView(state = searchTextState, brainzPlayerViewModel)
         }
-        
+
         ListenBrainzHistoryCard(appNavController = appNavController)
-        
+
         // Recently Played
         Text(
             text = "Recently Played",
@@ -136,7 +143,7 @@ fun BrainzPlayerHomeScreen(
                 )
             }
         }
-        
+
         // Songs button
         Card(
             modifier = Modifier.padding(16.dp).clickable {
@@ -184,7 +191,7 @@ fun BrainzPlayerHomeScreen(
                 )
             }
         }
-        
+
         // Artists
         Card(
             modifier = Modifier.padding(16.dp).clickable {
@@ -210,7 +217,7 @@ fun BrainzPlayerHomeScreen(
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
-            
+
         }
         LazyRow(modifier = Modifier.height(200.dp)) {
             items(items = artists) {
@@ -224,8 +231,8 @@ fun BrainzPlayerHomeScreen(
                 )
             }
         }
-        
-        
+
+
         // Albums
         Card(
             modifier = Modifier.padding(16.dp).clickable {
@@ -252,7 +259,7 @@ fun BrainzPlayerHomeScreen(
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
-            
+
         }
         LazyRow(modifier = Modifier.height(200.dp)) {
             items(albums) {
@@ -266,8 +273,8 @@ fun BrainzPlayerHomeScreen(
                 )
             }
         }
-        
-        
+
+
         // Playlists
         Card(
             modifier = Modifier.padding(16.dp).clickable {
@@ -294,7 +301,6 @@ fun BrainzPlayerHomeScreen(
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
-            
         }
         LazyRow(modifier = Modifier.height(200.dp)) {
             items(playlists.filter {
@@ -307,8 +313,8 @@ fun BrainzPlayerHomeScreen(
                     modifier = Modifier.clickable { navHostController.navigate("onPlaylistClick/${it.id}") })
             }
         }
-        
-        
+
+
     }
 }
 
@@ -401,14 +407,14 @@ fun SearchView(state: MutableState<TextFieldValue>, brainzPlayerViewModel: Brain
 
             DropdownMenuItem(
                 modifier = Modifier.onSizeChanged {
-                        itemHeights[index] = it.height
+                    itemHeights[index] = it.height
 
                 },
                 onClick = {
                     brainzPlayerViewModel.changePlayable(listOf(song), PlayableType.SONG, song.mediaID,0)
                     brainzPlayerViewModel.playOrToggleSong(song, true)
-                searchStarted = false
-                state.value.text.removeRange(0, state.value.text.length-1.coerceAtLeast(0))}) {
+                    searchStarted = false
+                    state.value.text.removeRange(0, state.value.text.length-1.coerceAtLeast(0))}) {
                 androidx.compose.material3.Text(text = song.title )
             }
         }
@@ -512,5 +518,92 @@ fun BrainzPlayerActivityCards(icon: String, errorIcon : Int, title: String, modi
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
+    }
+}
+@Composable
+fun fetchPlaylist(
+    playlists: List<Playlist>,
+    playlistViewModel: PlaylistViewModel,
+){
+    val coroutineScope = rememberCoroutineScope()
+    val client = OkHttpClient()
+    val user = LBSharedPreferences.username ?: ""
+    if (user != "") {
+        val request = Request.Builder()
+            .url("https://api.listenbrainz.org/1/user/$user/playlists")
+            .build()
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {}
+            override fun onResponse(call: Call, response: Response) {
+                var mbid = mutableListOf<String>()
+                val body = response.body.string()
+                val gson = Gson()
+                val data = gson.fromJson(body, onlinePlaylistDetails::class.java)
+                for (i in data.playlists) {
+                    val last = i.playlist.identifier.length
+                    mbid.add(i.playlist.identifier.substring(34, last))
+                    val requestDetails = Request.Builder()
+                        .url("https://api.listenbrainz.org/1/playlist/${i.playlist.identifier.substring(34, last)}")
+                        .build()
+                    client.newCall(requestDetails).enqueue(object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
+                            println("error $e")
+                        }
+
+                        override fun onResponse(call: Call, response: Response) {
+                            //var isPresent = false
+                            val body = response.body.string()
+                            val gson = Gson()
+                            val data = gson.fromJson(body, PlaylistResponse::class.java)
+                            coroutineScope.launch {
+                                val last = i.playlist.identifier.length
+                                val mbid = i.playlist.identifier.substring(34, last)
+                                val isPresent = playlists.any { it.mbid == mbid }
+                                if (!isPresent) {
+                                    println("Creating playlist ${data.playlist.title}")
+                                    // Create the new playlist in your database
+                                    playlistViewModel.createPlaylist(
+                                        data.playlist.title,
+                                        mbid
+                                    )
+                                }
+                                else{
+                                    val length=playlists.filter { it.mbid == mbid }.toList()
+                                    if(length.lastIndex>0) {
+                                        println("Updating playlist ${data.playlist.title}")
+                                        // Update the playlist in your database
+                                        playlistViewModel.deletePlaylist(
+                                            Playlist(
+                                                id = playlists.find { it.mbid == mbid }!!.id,
+                                                title = data.playlist.title,
+                                                mbid = mbid
+                                            )
+                                        )
+                                    }
+                                }
+                                val playlist = playlists.find { it.mbid == mbid }
+                                if (playlist != null) {
+                                    for (track in data.playlist.track) {
+                                        val uri = track.identifier.substring(35, track.identifier.length)
+                                        if (!playlist.items.any { it.uri == uri }) {
+                                            // Add the track to the playlist in your database
+                                            playlistViewModel.addSongToPlaylist(
+                                                Song(
+                                                    uri = uri,
+                                                    artist = track.creator,
+                                                    title = track.title
+                                                ), playlist
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                    })
+                }
+
+            }
+        })
     }
 }

@@ -11,5 +11,6 @@ data class PlaylistEntity (
     val id: Long,
     val title: String,
     val items: List<SongEntity>,
+    val mbid: String,
     @DrawableRes val art: Int = R.drawable.ic_queue_music
 )

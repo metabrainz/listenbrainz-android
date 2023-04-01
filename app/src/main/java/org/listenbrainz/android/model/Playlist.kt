@@ -8,6 +8,7 @@ data class Playlist(
     var id: Long = Random.nextLong(),
     var title: String = "",
     var items: List<Song> = listOf(),
+    var mbid: String = "",
     @DrawableRes val art: Int = R.drawable.ic_queue_music
 ) {
     companion object {

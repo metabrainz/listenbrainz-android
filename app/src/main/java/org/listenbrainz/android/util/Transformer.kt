@@ -83,6 +83,7 @@ object Transformer {
         items = items.map {
             it.toSongEntity()
         },
+        mbid= mbid,
         art = art
     )
 
@@ -92,6 +93,7 @@ object Transformer {
         items = items.map {
             it.toSong()
         },
+        mbid= mbid,
         art = art
     )
 }
