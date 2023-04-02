@@ -34,6 +34,9 @@ We're completely open-source and publish our data as open data.
 
 ## About ListenBrainz?
 ListenBrainz is operated by the MetaBrainz Foundation which has a long-standing history of curating, protecting and making music data available to the public. MetaBrainz commits itself to safe-guarding the ListenBrainz data indefinitely.
+The data collected by the ListenBrainz Android app, such as your listening history, is sent to the ListenBrainz server, where it is stored and aggregated. The server uses this data to generate personalized music recommendations based on your listening habits and preferences.
+
+When you use the ListenBrainz Android app, you need to create an account with ListenBrainz, and your listening history will be associated with this account. This data is not kept on the device but is transmitted to the ListenBrainz server. The data collected is used to improve the recommendations and is accessible to other users.
 
 ## Development
 	    
@@ -43,6 +46,7 @@ ListenBrainz is operated by the MetaBrainz Foundation which has a long-standing 
 
 ## Downloading
 
+* [Google Play Store](https://play.google.com/store/apps/details?id=org.listenbrainz.android)
 	    
 ## Contributing
 	  
@@ -50,9 +54,7 @@ Got **something interesting** you'd like to **ask or share**? Start a discussion
 
 ## Roadmap
 
-Proposed future plans for the app are as follows:
-
-- Introduce Jetpack Compose to the app.
+Proposed future plans for the app are discussed [here](https://docs.google.com/document/d/1hY5oloIiANeXg1R9oSBIr2ZUHSlm7LU8qy6tW1VJMQg/edit?usp=sharing).
 	    
 ## Issues
 	  
