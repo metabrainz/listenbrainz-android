@@ -34,6 +34,7 @@ import org.listenbrainz.android.ui.components.YimNavigationStation
 import org.listenbrainz.android.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.ui.theme.YimPaddings
+import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.YimViewModel
 
 @Composable
@@ -180,7 +181,7 @@ private fun YimSimilarUsersList(
     paddings: YimPaddings = LocalYimPaddings.current
 ) {
     val similarUsers = remember {
-        yimViewModel.getSimilarUsers()
+        yimViewModel.getSimilarUsers() ?: listOf()
     }
     
     LazyColumn(
@@ -217,7 +218,10 @@ private fun YimTopAlbumsFromArtistsList(
     }
     
     newReleasesOfTopArtist!!.forEach { item ->
-        uriList.add("https://archive.org/download/mbid-${item.caaReleaseMbid}/mbid-${item.caaReleaseMbid}-${item.caaId}_thumb250.jpg")
+        uriList.add(getCoverArtUrl(
+            caaReleaseMbid = item.caaReleaseMbid,
+            caaId = item.caaId
+        ))
     }
     
     // Pre-loading images
@@ -246,7 +250,10 @@ private fun YimTopAlbumsFromArtistsList(
             ListenCardSmall(
                 releaseName = newReleasesOfTopArtist[index].title,
                 artistName = newReleasesOfTopArtist[index].artistCreditName,
-                coverArtUrl = "https://archive.org/download/mbid-${newReleasesOfTopArtist[index].caaReleaseMbid}/mbid-${newReleasesOfTopArtist[index].caaReleaseMbid}-${newReleasesOfTopArtist[index].caaId}_thumb250.jpg",
+                coverArtUrl = getCoverArtUrl(
+                    caaReleaseMbid = newReleasesOfTopArtist[index].caaReleaseMbid,
+                    caaId = newReleasesOfTopArtist[index].caaId
+                ),
                 onClick = {},
                 errorAlbumArt = R.drawable.ic_erroralbumart
             )

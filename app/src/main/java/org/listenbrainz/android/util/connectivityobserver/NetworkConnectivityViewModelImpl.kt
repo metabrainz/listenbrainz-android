@@ -5,6 +5,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -30,5 +31,9 @@ class NetworkConnectivityViewModelImpl (context: Context) : ViewModel(), Network
     }
     override fun getNetworkStatus() : ConnectivityObserver.NetworkStatus{
         return networkStatus.value
+    }
+    
+    override fun getNetworkStatusFlow() : Flow<ConnectivityObserver.NetworkStatus> {
+        return connectivityObserver.observe()
     }
 }

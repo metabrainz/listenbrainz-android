@@ -17,19 +17,18 @@ import com.spotify.android.appremote.api.SpotifyAppRemote
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.LBSharedPreferences
-import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.viewmodel.ListensViewModel
 
 @Composable
 fun ListensScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: ListensViewModel = hiltViewModel(),
+    spotifyClientId: String = stringResource(id = R.string.spotifyClientId)
 ) {
-    val viewModel: ListensViewModel = hiltViewModel()
-    val spotifyClientId = stringResource(id = R.string.spotifyClientId)
-
     ListenBrainzTheme {
         
         DisposableEffect(Unit) {
+            
             viewModel.connect(spotifyClientId = spotifyClientId)
 
             onDispose {

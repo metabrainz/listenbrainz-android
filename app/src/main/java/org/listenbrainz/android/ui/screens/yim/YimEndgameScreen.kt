@@ -10,21 +10,23 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material3.*
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -36,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.YimLabelText
 import org.listenbrainz.android.ui.theme.LocalYimPaddings
@@ -238,16 +241,18 @@ fun YimEndgameScreen(
                 Spacer(modifier = Modifier.height(paddings.largePadding))
                 
                 IconButton(
+                    modifier = Modifier.clip(CircleShape).size(50.dp),
                     onClick = {
                         Toast.makeText(context, "Have a great 2023!", Toast.LENGTH_SHORT).show()
                         activity.finish()
                     },
                     colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.onBackground)
                 ) {
-                    Icon(
+                    Image(
                         imageVector = Icons.Rounded.Home,
-                        tint = yimRed,
-                        contentDescription = "Navigate to home"
+                        colorFilter = ColorFilter.tint(yimRed),
+                        contentDescription = "Navigate to home",
+                        contentScale = ContentScale.Fit
                     )
                 }
                 

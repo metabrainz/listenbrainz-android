@@ -101,8 +101,10 @@ android {
 dependencies {
     //AndroidX
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.browser:browser:1.5.0'
@@ -123,8 +125,6 @@ dependencies {
     implementation "com.github.bumptech.glide:compose:1.0.0-alpha.1"
     implementation 'io.coil-kt:coil-compose:2.2.2'
     implementation 'com.caverock:androidsvg-aar:1.4'
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.0'
     kapt 'com.github.bumptech.glide:compiler:4.15.0'
 
     //Permissions
@@ -134,7 +134,6 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.0'
 
     //Design Setup
     implementation 'com.google.android.material:material:1.9.0-beta01'
@@ -145,27 +144,25 @@ dependencies {
     //Dagger-Hilt
     implementation("com.google.dagger:hilt-android:$hilt_version")
     kapt("com.google.dagger:hilt-android-compiler:$hilt_version")
-    implementation group: 'androidx.lifecycle', name: 'lifecycle-viewmodel-ktx', version: '2.6.0'
     kapt("androidx.hilt:hilt-compiler:1.0.0")
 
     //Jetpack Compose
-    implementation "androidx.compose.ui:ui:1.3.3"
+    implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.ui:ui-tooling:$compose_version"
-    implementation "androidx.compose.ui:ui-util:1.3.3"
-    implementation "androidx.compose.material:material:1.3.1"
-    implementation "androidx.compose.material:material-icons-extended:1.3.1"
+    implementation "androidx.compose.ui:ui-util:$compose_version"
+    implementation "androidx.compose.material:material:$compose_version"
+    implementation "androidx.compose.material:material-icons-extended:$compose_version"
     implementation 'androidx.compose.material3:material3:1.0.1'
     implementation 'androidx.compose.material3:material3-window-size-class:1.0.1'
     implementation "androidx.compose.animation:animation:$compose_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
     implementation 'androidx.constraintlayout:constraintlayout-compose:1.0.1'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.0'
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
     implementation 'com.airbnb.android:lottie-compose:6.0.0'
-    implementation 'androidx.activity:activity-compose:1.6.1'
+    implementation 'androidx.activity:activity-compose:1.7.0'
 
     // Compose Navigation
-    implementation 'androidx.navigation:navigation-compose:2.6.0-alpha07'     // Stable one
+    implementation 'androidx.navigation:navigation-compose:2.6.0-alpha08'     // Stable one
     implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"     // Experimental but has animations
 
     //Spotify
@@ -176,7 +173,6 @@ dependencies {
     testImplementation 'com.squareup.okhttp3:mockwebserver:5.0.0-alpha.11'
     testImplementation 'androidx.arch.core:core-testing:2.2.0'
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4'
-    testImplementation "androidx.room:room-testing:2.5.0"
 
     debugImplementation "androidx.test:monitor:1.6.1"       // Solves "class PlatformTestStorageRegistery not found" error for ui tests.
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
@@ -200,14 +196,15 @@ dependencies {
     implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
 
     //Exoplayer
-    api 'com.google.android.exoplayer:exoplayer-core:2.18.4'
-    api 'com.google.android.exoplayer:exoplayer-ui:2.18.4'
-    api 'com.google.android.exoplayer:extension-mediasession:2.18.4'
+    api "com.google.android.exoplayer:exoplayer-core:$exoplayer_version"
+    api "com.google.android.exoplayer:exoplayer-ui:$exoplayer_version"
+    api "com.google.android.exoplayer:extension-mediasession:$exoplayer_version"
 
     //Room db
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
+    testImplementation "androidx.room:room-testing:$room_version"
 
     //Jetpack Compose accompanists (https://github.com/google/accompanist)
     implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"

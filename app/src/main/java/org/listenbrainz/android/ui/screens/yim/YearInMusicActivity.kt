@@ -22,7 +22,6 @@ class YearInMusicActivity : ComponentActivity() {
         // Login Check
         if (!yimViewModel.isLoggedIn()){
             Toast.makeText(this, "Please Login to access your Year in Music!", Toast.LENGTH_LONG).show()
-            //startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
         

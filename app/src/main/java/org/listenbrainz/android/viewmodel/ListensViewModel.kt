@@ -19,6 +19,9 @@ import com.spotify.protocol.client.Subscription
 import com.spotify.protocol.types.PlayerContext
 import com.spotify.protocol.types.PlayerState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.Listen
@@ -29,6 +32,7 @@ import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.e
 import org.listenbrainz.android.util.Log.v
 import org.listenbrainz.android.util.Resource.Status.*
+import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Inject
@@ -45,7 +49,12 @@ class ListensViewModel @Inject constructor(
     // TODO: remove dependency of this view-model on application
     //  by moving spotify app remote to a repository.
     
-    var listens: List<Listen> by mutableStateOf(listOf())
+    private val _listensFlow = MutableStateFlow(listOf<Listen>())
+    val listensFlow = _listensFlow.asStateFlow()
+    
+    private val _coverArtFlow = MutableStateFlow(listOf<String>())
+    val coverArtFlow = _coverArtFlow.asStateFlow()
+    
     var isLoading: Boolean  by mutableStateOf(true)
     
     var playerState: PlayerState? by mutableStateOf(null)
@@ -68,29 +77,22 @@ class ListensViewModel @Inject constructor(
             val response = repository.fetchUserListens(userName)
             when(response.status){
                 SUCCESS -> {
-                    isLoading = false
-                    listens = response.data!!
-                    listens.forEachIndexed { index, listen ->
-                        var releaseMBID:String? = null
-
-                        when {
-                            listen.track_metadata.additional_info?.release_mbid != null -> {
-                                releaseMBID = listen.track_metadata.additional_info.release_mbid
-                            }
-                            listen.track_metadata.mbid_mapping?.release_mbid != null -> {
-                                releaseMBID = listen.track_metadata.mbid_mapping.release_mbid
-                            }
+                    val responseListens = response.data!!
+                    
+                    // Updating coverArts
+                    _coverArtFlow.update {
+                        val list = mutableListOf<String>()
+                        responseListens.forEach {
+                            list.add(getCoverArtUrl(
+                                caaReleaseMbid = it.track_metadata.mbid_mapping?.caa_release_mbid,
+                                caaId = it.track_metadata.mbid_mapping?.caa_id
+                            ))
                         }
-                        val responseCoverArt = releaseMBID?.let { repository.fetchCoverArt(it) }
-                        when(responseCoverArt?.status) {
-                            SUCCESS -> {
-                                listens[index].coverArt = responseCoverArt.data!!
-                            }
-                            else -> {
-
-                            }
-                        }
+                        list
                     }
+                    // Updating listens
+                    _listensFlow.update { response.data }
+                    isLoading = false
                 }
                 LOADING -> {
                     isLoading = true
