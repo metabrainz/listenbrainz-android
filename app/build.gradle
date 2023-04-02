@@ -125,7 +125,7 @@ dependencies {
     implementation "com.github.bumptech.glide:compose:1.0.0-alpha.1"
     implementation 'io.coil-kt:coil-compose:2.2.2'
     implementation 'com.caverock:androidsvg-aar:1.4'
-    kapt 'com.github.bumptech.glide:compiler:4.15.0'
+    kapt 'com.github.bumptech.glide:compiler:4.15.1'
 
     //Permissions
     implementation "com.google.accompanist:accompanist-permissions:$accompanist_version"
