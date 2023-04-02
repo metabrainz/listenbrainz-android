@@ -40,6 +40,9 @@ fun YimNavigationStation(
     val topReleases : List<TopRelease>? = viewModel.getTopReleases()?.toList()
     topReleases?.forEach { item ->
         // https://archive.org/download/mbid-{caa_release_mbid}/mbid-{caa_release_mbid}-{caa_id}_thumb500.jpg
+        if(uriList.size == 10) {
+            return@forEach
+        }
         uriList.add("https://archive.org/download/mbid-${item.caaReleaseMbid}/mbid-${item.caaReleaseMbid}-${item.caaId}_thumb500.jpg")
     }
     val imageUrlString: String = TextUtils.join(",", uriList)
