@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.*
@@ -37,8 +38,13 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.Playlist
+import org.listenbrainz.android.service.BrainzPlayerService
+import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.forwardingPainter
+import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
+import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 
@@ -50,6 +56,11 @@ fun PlaylistScreen(
     navHostController: NavHostController,
     context: Context = LocalContext.current
 ) {
+    val brainzPlayerViewModel = hiltViewModel<BrainzPlayerViewModel>()
+    val currentlyPlayingSong =
+        brainzPlayerViewModel.currentlyPlayingSong.collectAsState().value.toSong
+    val currentSongIndex =
+        BrainzPlayerService.playableSongs!!.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID } + 1
     var isFABDialogVisible by rememberSaveable {
         mutableStateOf(false)
     }
@@ -59,7 +70,6 @@ fun PlaylistScreen(
     var deletePlaylistState by remember {
         mutableStateOf(false)
     }
-    val brainzPlayerViewModel = hiltViewModel<BrainzPlayerViewModel>()
     val coroutineScope = rememberCoroutineScope()
     val playlistViewModel = hiltViewModel<PlaylistViewModel>()
     val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
@@ -316,6 +326,43 @@ fun PlaylistScreen(
                                     renamePlaylistDialog = true
                                     selectedPlaylistItemIndex = playlists.indexOf(it)
                                 })
+                                DropdownMenuItem(
+                                    text = { Text(text = "Play Next") },
+                                    onClick = {
+                                        BrainzPlayerService.playableSongs.addAll(currentSongIndex, it.items)
+                                        brainzPlayerViewModel.changePlayable(
+                                            BrainzPlayerService.playableSongs,
+                                            PlayableType.ALL_SONGS,
+                                            LBSharedPreferences.currentPlayable?.id ?: 0,
+                                            BrainzPlayerService.playableSongs.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+                                                ?: 0, brainzPlayerViewModel.songCurrentPosition.value
+                                        )
+                                        brainzPlayerViewModel.queueChanged(
+                                            currentlyPlayingSong,
+                                            brainzPlayerViewModel.isPlaying.value
+                                        )
+                                        selectedPlaylistItemIndex = -1
+                                    })
+                                DropdownMenuItem(
+                                    text = { Text(text = "Add to queue") },
+                                    onClick = {
+                                        BrainzPlayerService.playableSongs.addAll(
+                                            BrainzPlayerService.playableSongs.size,
+                                            it.items
+                                        )
+                                        brainzPlayerViewModel.changePlayable(
+                                            BrainzPlayerService.playableSongs,
+                                            PlayableType.ALL_SONGS,
+                                            LBSharedPreferences.currentPlayable?.id ?: 0,
+                                            BrainzPlayerService.playableSongs.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+                                                ?: 0, brainzPlayerViewModel.songCurrentPosition.value
+                                        )
+                                        brainzPlayerViewModel.queueChanged(
+                                            currentlyPlayingSong,
+                                            brainzPlayerViewModel.isPlaying.value
+                                        )
+                                        selectedPlaylistItemIndex = -1
+                                    })
                                 if (it.id != (-1).toLong() && it.id != (0).toLong() && it.id != (1).toLong())
                                     DropdownMenuItem(
                                         text = { Text(text = "Delete Playlist") },
@@ -340,37 +387,101 @@ fun OnPlaylistClickScreen(playlistID: Long) {
     val playlistViewModel = hiltViewModel<PlaylistViewModel>()
     val selectedPlaylist =
         playlistViewModel.getPlaylistByID(playlistID).collectAsState(Playlist()).value
+    var selectedPlaylistItemIndex by remember {
+        mutableStateOf(-1)
+    }
+    val currentlyPlayingSong =
+        brainzPlayerViewModel.currentlyPlayingSong.collectAsState().value.toSong
+    val currentSongIndex =
+        BrainzPlayerService.playableSongs!!.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID } + 1
     LazyColumn {
         items(selectedPlaylist.items) {
-            androidx.compose.material.Card(
-                modifier = Modifier
-                    .padding(10.dp)
-                    .clickable {
+            BoxWithConstraints {
+                val maxWidth =
+                    (maxWidth - 60.dp).coerceAtMost(600.dp)
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                )
+                {
+                    val modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp).width(maxWidth)
+                    ListenCardSmall(
+                        modifier = modifier,
+                        releaseName = it.title,
+                        artistName = it.artist,
+                        coverArtUrl = it.albumArt,
+                        imageLoadSize = 200,
+                        useSystemTheme = true,
+                        errorAlbumArt = R.drawable.ic_erroralbumart
+                    ) {
+                        brainzPlayerViewModel.changePlayable(
+                            selectedPlaylist.items.sortedBy { it.trackNumber },
+                            PlayableType.ALBUM,
+                            it.albumID,
+                            selectedPlaylist.items
+                                .sortedBy { it.trackNumber }
+                                .indexOf(it),
+                            0L
+                        )
                         brainzPlayerViewModel.playOrToggleSong(it, true)
                     }
-                    .fillMaxWidth(0.98f),
-                backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.surface
-            ) {
-                Spacer(modifier = Modifier.height(50.dp))
-                Row(horizontalArrangement = Arrangement.Start) {
-                    AsyncImage(
-                        model = it.albumArt,
-                        contentDescription = "",
-                        error = painterResource(
-                            id = R.drawable.ic_erroralbumart
-                        ),
-                        contentScale = ContentScale.FillBounds,
-                        modifier = Modifier.size(70.dp)
-                    )
-                    Column(Modifier.padding(start = 10.dp)) {
-                        Text(
-                            text = it.title,
-                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+                    androidx.compose.material3.Surface(
+                        shape = RoundedCornerShape(5.dp),
+                        shadowElevation = 5.dp
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Menu,
+                            contentDescription = "",
+                            modifier = Modifier
+                                .padding(10.dp)
+                                .clickable {
+                                    selectedPlaylistItemIndex = selectedPlaylist.items.indexOf(it)
+                                }
                         )
-                        Text(
-                            text = it.artist,
-                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
-                        )
+                        DropdownMenu(
+                            expanded = selectedPlaylistItemIndex == selectedPlaylist.items.indexOf(it),
+                            onDismissRequest = {
+                                selectedPlaylistItemIndex = -1
+                            }) {
+                            DropdownMenuItem(
+                                text = { Text(text = "Play Next") },
+                                onClick = {
+                                    BrainzPlayerService.playableSongs.add(currentSongIndex, it)
+                                    brainzPlayerViewModel.changePlayable(
+                                        BrainzPlayerService.playableSongs,
+                                        PlayableType.ALL_SONGS,
+                                        LBSharedPreferences.currentPlayable?.id ?: 0,
+                                        BrainzPlayerService.playableSongs.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+                                            ?: 0, brainzPlayerViewModel.songCurrentPosition.value
+                                    )
+                                    brainzPlayerViewModel.queueChanged(
+                                        currentlyPlayingSong,
+                                        brainzPlayerViewModel.isPlaying.value
+                                    )
+                                    selectedPlaylistItemIndex = -1
+                                })
+                            DropdownMenuItem(
+                                text = { Text(text = "Add to queue") },
+                                onClick = {
+                                    BrainzPlayerService.playableSongs.add(
+                                        BrainzPlayerService.playableSongs.size,
+                                        it
+                                    )
+                                    brainzPlayerViewModel.changePlayable(
+                                        BrainzPlayerService.playableSongs,
+                                        PlayableType.ALL_SONGS,
+                                        LBSharedPreferences.currentPlayable?.id ?: 0,
+                                        BrainzPlayerService.playableSongs.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+                                            ?: 0, brainzPlayerViewModel.songCurrentPosition.value
+                                    )
+                                    brainzPlayerViewModel.queueChanged(
+                                        currentlyPlayingSong,
+                                        brainzPlayerViewModel.isPlaying.value
+                                    )
+                                    selectedPlaylistItemIndex = -1
+                                }
+                            )
+                        }
                     }
                 }
             }

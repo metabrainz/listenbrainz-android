@@ -7,6 +7,8 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.toMutableStateList
 import androidx.media.MediaBrowserServiceCompat
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
@@ -61,6 +63,8 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
     companion object {
         var currentSongDuration = 0L
             private set
+
+        var playableSongs = LBSharedPreferences.currentPlayable?.songs?.toMutableStateList() ?: mutableStateListOf()
     }
     override fun onCreate() {
         super.onCreate()
@@ -90,7 +94,6 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
         brainzPlayerNotificationManager = BrainzPlayerNotificationManager(this, mediaSession.sessionToken, BrainzPlayerNotificationListener(this)) {
             currentSongDuration = exoPlayer.duration
         }
-
         val musicPlaybackPreparer =
             MusicPlaybackPreparer(localMusicSource) { currentlyPlayingSong ->
                 currentSong = currentlyPlayingSong
@@ -157,14 +160,15 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
         playNow: Boolean
     ) {
         serviceScope.launch(Dispatchers.Main) {
-            val songs = LBSharedPreferences.currentPlayable?.songs?.map {
+            playableSongs = LBSharedPreferences.currentPlayable?.songs?.toMutableStateList()!!
+            val songs = playableSongs.map {
                 it.toMediaMetadataCompat
-            }?.toMutableList() ?: mutableListOf()
+            }.toMutableList() ?: mutableListOf()
             localMusicSource.setMediaSource(songs)
             val currentSongIndex = LBSharedPreferences.currentPlayable?.currentSongIndex ?: 0
             exoPlayer.setMediaItems(localMusicSource.asMediaSource())
             exoPlayer.prepare()
-            exoPlayer.seekTo(currentSongIndex, 0L)
+            exoPlayer.seekTo(currentSongIndex,LBSharedPreferences.currentPlayable?.seekTo ?: 0L)
             exoPlayer.playWhenReady = playNow
             brainzPlayerNotificationManager.showNotification(exoPlayer)
         }
