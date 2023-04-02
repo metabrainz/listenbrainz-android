@@ -87,7 +87,7 @@ fun AllUserListens(
         size = Size(250f,250f),
         numberOfItemsToPreload = 15
     ){ item, requestBuilder ->
-        requestBuilder.placeholder(R.drawable.ic_metabrainz_logo_no_text).override(250).load(item)
+        requestBuilder.placeholder(R.drawable.ic_coverartarchive_logo_no_text).override(250).load(item)
     }
     
     LazyColumn(

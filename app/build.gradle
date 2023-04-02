@@ -121,11 +121,11 @@ dependencies {
     implementation 'androidx.paging:paging-runtime-ktx:3.1.1'
 
     //Image downloading and Caching library
-    implementation 'com.github.bumptech.glide:glide:4.15.0'
+    implementation 'com.github.bumptech.glide:glide:4.15.1'
     implementation "com.github.bumptech.glide:compose:1.0.0-alpha.1"
-    implementation 'io.coil-kt:coil-compose:2.2.2'
+    implementation 'io.coil-kt:coil-compose:2.3.0'
     implementation 'com.caverock:androidsvg-aar:1.4'
-    kapt 'com.github.bumptech.glide:compiler:4.15.0'
+    kapt 'com.github.bumptech.glide:compiler:4.15.1'
 
     //Permissions
     implementation "com.google.accompanist:accompanist-permissions:$accompanist_version"
@@ -186,7 +186,7 @@ dependencies {
     androidTestImplementation 'androidx.arch.core:core-testing:2.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
-    androidTestImplementation 'app.cash.turbine:turbine:0.12.1'
+    androidTestImplementation 'app.cash.turbine:turbine:0.12.3'
     androidTestImplementation 'tools.fastlane:screengrab:2.1.1'     // Fastlane ScreenGrab
 
     testImplementation project(path: ':sharedTest')
