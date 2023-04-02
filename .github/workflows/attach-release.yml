@@ -57,8 +57,8 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const repo = github.repo(context.repo.owner, context.repo.repo);
-            const releases = await repo.listReleases();
+            const { owner, repo } = context.repo;
+            const releases = await github.rest.repos.listReleases({ owner, repo });
             const latestRelease = releases.data[0];
             return { tag_name: latestRelease.tag_name };
             
