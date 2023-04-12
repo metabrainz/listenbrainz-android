@@ -45,9 +45,6 @@ fun LBLoadingAnimation(
     translateDuration: Int = 600,
     rotateDuration: Int = 1000
 ) {
-    
-    var startRotate by remember { mutableStateOf(false) }
-    
     var startTranslateAndAlpha by remember { mutableStateOf(false) }
     
     val translateAnimation by animateDpAsState(
@@ -67,7 +64,6 @@ fun LBLoadingAnimation(
             while (true) {
                 startTranslateAndAlpha = true
                 delay(translateDuration.toLong())   // Wait for translate animation to finish
-                startRotate = true
                 rotateAnim.animateTo(    // Automatically runs blocking.
                     targetValue = 180f,
                     animationSpec = tween(rotateDuration)
