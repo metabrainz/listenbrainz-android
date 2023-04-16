@@ -9,6 +9,8 @@ import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,10 +20,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.spotify.protocol.types.PlayerState
 import org.listenbrainz.android.R
+import org.listenbrainz.android.ui.components.SeekBar
+import org.listenbrainz.android.viewmodel.ListensViewModel
 
 @Composable
 fun NowPlaying(
@@ -42,7 +47,7 @@ fun NowPlaying(
     ) {
         Row(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(10.dp)
         ) {
             Text(
                 text = "Now playing",
@@ -53,11 +58,12 @@ fun NowPlaying(
                 textAlign = TextAlign.Center,
             )
         }
+        Column {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-                .padding(top = 40.dp)
+                .padding(top = 30.dp)
         ) {
             val painter = rememberAsyncImagePainter(
                 ImageRequest.Builder(LocalContext.current)
@@ -84,7 +90,7 @@ fun NowPlaying(
                     Text(
                         text = track,
 
-                        modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
+                        modifier = Modifier.padding(0.dp, 0.dp, 5.dp, 0.dp),
                         color = MaterialTheme.colors.surface,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.subtitle1,
@@ -97,13 +103,13 @@ fun NowPlaying(
                     text = buildString {
                         append(playerState?.track?.artist?.name)
                     },
-                    modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
+                    modifier = Modifier.padding(0.dp, 0.dp, 5.dp, 0.dp),
                     color = MaterialTheme.colors.surface,
                     style = MaterialTheme.typography.caption,
                     maxLines = 2
                 )
 
-                Row(verticalAlignment = Alignment.Bottom) {
+                Row {
                     playerState?.track?.album?.name?.let { album ->
                         Text(
                             text = album,
@@ -116,6 +122,16 @@ fun NowPlaying(
                 }
             }
         }
+            Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.Bottom,
+        ) {
+                ProgressBar()
+            }
+        }
+
     }
 }
 
@@ -126,4 +142,20 @@ fun NowPlayingPreview() {
         playerState = null,
         bitmap = null
     )
+}
+@Composable
+fun ProgressBar() {
+    val listenViewModel = hiltViewModel<ListensViewModel>()
+    val progress by listenViewModel.progress.collectAsState(initial = 0f)
+    Box {
+        SeekBar(
+            modifier = Modifier
+                .height(10.dp)
+                .fillMaxWidth(0.98F)
+                .padding(0.dp),
+            progress = progress,
+            onValueChange = { },
+            onValueChanged = { }
+        )
+    }
 }

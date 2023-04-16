@@ -19,6 +19,8 @@ import com.spotify.protocol.client.Subscription
 import com.spotify.protocol.types.PlayerContext
 import com.spotify.protocol.types.PlayerState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -26,7 +28,9 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.repository.ListensRepository
+import org.listenbrainz.android.service.BrainzPlayerService
 import org.listenbrainz.android.service.YouTubeApiService
+import org.listenbrainz.android.util.BrainzPlayerExtensions.currentPlaybackPosition
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.e
@@ -58,8 +62,12 @@ class ListensViewModel @Inject constructor(
     var isLoading: Boolean  by mutableStateOf(true)
     
     var playerState: PlayerState? by mutableStateOf(null)
+    private val _songDuration = MutableStateFlow(0L)
+    private val _songCurrentPosition = MutableStateFlow(0L)
+    private val _progress = MutableStateFlow(0F)
     var bitmap: Bitmap? by mutableStateOf(null)
-    
+    val progress = _progress.asStateFlow()
+    val songCurrentPosition = _songCurrentPosition.asStateFlow()
     private val gson = GsonBuilder().setPrettyPrinting().create()
     
     private var playerStateSubscription: Subscription<PlayerState>? = null
@@ -70,6 +78,7 @@ class ListensViewModel @Inject constructor(
 
     init {
         SpotifyAppRemote.setDebugMode(BuildConfig.DEBUG)
+        trackProgress()
     }
     
     fun fetchUserListens(userName: String) {
@@ -211,8 +220,31 @@ class ListensViewModel @Inject constructor(
         assertAppRemoteConnected()?.playerApi?.play(uri)?.setResultCallback {
             logMessage("play command successful!")      //getString(R.string.command_feedback, "play"))
         }?.setErrorCallback(errorCallback)
+        //trackProgress()
     }
-    
+
+    fun trackProgress() {
+        viewModelScope.launch(Dispatchers.Default) {
+            var state: PlayerState? = null
+
+            while (true) {
+                assertAppRemoteConnected()?.playerApi?.subscribeToPlayerState()?.setEventCallback { playerState ->
+                    state = playerState
+                }?.setErrorCallback(errorCallback)
+                val pos = state?.playbackPosition?.toFloat() ?: 0f
+                val duration=state?.track?.duration ?: 1
+                if (progress.value != pos) {
+                    _progress.emit(pos / duration.toFloat())
+                    _songDuration.emit(duration)
+                    _songCurrentPosition.emit(((pos / duration) * duration).toLong())
+
+                }
+
+                delay(1000L)
+            }
+        }
+    }
+
     private fun onSubscribedToPlayerContextButtonClicked() {
         playerContextSubscription = cancelAndResetSubscription(playerContextSubscription)
         playerContextSubscription = assertAppRemoteConnected()?.playerApi?.subscribeToPlayerContext()?.setEventCallback(playerContextEventCallback)?.setErrorCallback { throwable ->
