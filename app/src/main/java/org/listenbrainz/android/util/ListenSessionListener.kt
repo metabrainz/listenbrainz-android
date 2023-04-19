@@ -10,30 +10,39 @@ import org.listenbrainz.android.util.Log.w
 
 class ListenSessionListener(private val handler: ListenHandler, private val appPreferences: AppPreferences) : OnActiveSessionsChangedListener {
     
-    private val registeredControllers: MutableSet<String> = mutableSetOf()        // TODO: Use shared preferences.
+    // TODO: Use shared preferences for blocking purposes.
     private val activeSessions: MutableMap<MediaController, ListenCallback?> = HashMap()
+    private val registeredControllers: Set<String>
+        get() {
+            val set = mutableSetOf<String>()
+            activeSessions.keys.forEach {
+                set.add(it.packageName)
+            }
+            return set
+        }
 
     override fun onActiveSessionsChanged(controllers: List<MediaController>?) {
         println("onActiveSessionsChanged: EXECUTED")
         if (controllers == null) return
+        clearSessions()
         for (controller in controllers) {
     
             // TODO: Wall here to block registering of unwanted controllers.
             
             // Avoids registering multiple callbacks.
             if (controller.packageName in registeredControllers) {
+                println("${controller.packageName} already registered.")
                 continue
             }
             
             // Enable listens from spotify option.
             if (!appPreferences.preferenceListeningSpotifyEnabled && controller.packageName == Constants.SPOTIFY_PACKAGE_NAME) {
-                print("Spotify listens blocked from Listens Service.")
+                println("Spotify listens blocked from Listens Service.")
                 continue
             }
             
             val callback = ListenCallback()
             controller.registerCallback(callback)
-            registeredControllers.add(controller.packageName)
             activeSessions[controller] = callback
             println("### REGISTERED MediaController callback for ${controller.packageName}.")
         }
@@ -45,7 +54,6 @@ class ListenSessionListener(private val handler: ListenHandler, private val appP
             println("### UNREGISTERED MediaController Callback for ${controller.packageName}.")
         }
         activeSessions.clear()
-        registeredControllers.clear()
     }
 
     private inner class ListenCallback : MediaController.Callback() {
@@ -60,8 +68,8 @@ class ListenSessionListener(private val handler: ListenHandler, private val appP
             if (metadata == null) return
             
             when {
-                state != null -> d("Listen Metadata " + state!!.state)
-                else -> d("Listen Metadata")
+                state != null -> d("onMetadataChanged: Listen Metadata " + state!!.state)
+                else -> d("onMetadataChanged: Listen Metadata")
             }
             
             artist = when {
@@ -78,7 +86,7 @@ class ListenSessionListener(private val handler: ListenHandler, private val appP
                 else -> null
             }
             
-            if (artist == null || title == null || artist!!.isEmpty() || title!!.isEmpty()){
+            if (artist.isNullOrEmpty() || title.isNullOrEmpty()){
                 w("${if (artist == null) "Artist" else "Title"} is null, listen cancelled.")
                 return
             }
@@ -99,12 +107,18 @@ class ListenSessionListener(private val handler: ListenHandler, private val appP
         
         override fun onPlaybackStateChanged(state: PlaybackState?) {
             if (state == null) return
+            
             this.state = state
-            d("Listen PlaybackState " + state.state)
+            d("onPlaybackStateChanged: Listen PlaybackState " + state.state)
+            
             if (state.state == PlaybackState.STATE_PLAYING && !submitted) {
+                
+                if (artist.isNullOrEmpty() || title.isNullOrEmpty()) return
+                
                 handler.submitListen(artist, title, timestamp)
                 submitted = true
             }
+            
             if (state.state == PlaybackState.STATE_PAUSED ||
                     state.state == PlaybackState.STATE_STOPPED) {
                 handler.cancelListen(timestamp)
