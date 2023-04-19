@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -31,8 +32,9 @@ import org.listenbrainz.android.viewmodel.ListensViewModel
 @Composable
 fun NowPlaying(
     playerState: PlayerState?,
-    bitmap: Bitmap?
+    bitmap: listenPoster
 ){
+    val listenViewModel = hiltViewModel<ListensViewModel>()
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -40,7 +42,12 @@ fun NowPlaying(
             .clip(RoundedCornerShape(16.dp))
             .height(180.dp)
             .clickable(onClick = {
-                //onItemClicked(listen)
+               val isPaused = playerState?.isPaused ?: false
+                if (isPaused) {
+                     listenViewModel.play()
+                } else {
+                     listenViewModel.pause()
+                }
             }),
         elevation = 0.dp,
         backgroundColor = MaterialTheme.colors.onSurface
@@ -67,7 +74,7 @@ fun NowPlaying(
         ) {
             val painter = rememberAsyncImagePainter(
                 ImageRequest.Builder(LocalContext.current)
-                    .data(data = bitmap)
+                    .data(data = bitmap.bitmap)
                     .placeholder(R.drawable.ic_coverartarchive_logo_no_text)
                     .error(R.drawable.ic_coverartarchive_logo_no_text)
                     .build()
@@ -89,7 +96,6 @@ fun NowPlaying(
                 playerState?.track?.name?.let { track ->
                     Text(
                         text = track,
-
                         modifier = Modifier.padding(0.dp, 0.dp, 5.dp, 0.dp),
                         color = MaterialTheme.colors.surface,
                         fontWeight = FontWeight.Bold,
@@ -97,7 +103,7 @@ fun NowPlaying(
                         maxLines = 1
                     )
                 }
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
                     text = buildString {
@@ -113,7 +119,7 @@ fun NowPlaying(
                     playerState?.track?.album?.name?.let { album ->
                         Text(
                             text = album,
-                            modifier = Modifier.padding(0.dp, 12.dp, 12.dp, 0.dp),
+                            modifier = Modifier.padding(0.dp, 6.dp, 12.dp, 0.dp),
                             color = MaterialTheme.colors.surface,
                             style = MaterialTheme.typography.caption,
                             maxLines = 2
@@ -128,8 +134,8 @@ fun NowPlaying(
                 .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.Bottom,
         ) {
-                ProgressBar()
-            }
+                ProgressBar(playerState = playerState)
+          }
         }
 
     }
@@ -140,22 +146,78 @@ fun NowPlaying(
 fun NowPlayingPreview() {
     NowPlaying(
         playerState = null,
-        bitmap = null
+        bitmap = listenPoster()
     )
 }
 @Composable
-fun ProgressBar() {
+fun ProgressBar(playerState: PlayerState?) {
     val listenViewModel = hiltViewModel<ListensViewModel>()
     val progress by listenViewModel.progress.collectAsState(initial = 0f)
-    Box {
-        SeekBar(
+    Column {
+        Box {
+            SeekBar(
+                modifier = Modifier
+                    .height(10.dp)
+                    .fillMaxWidth(0.98F)
+                    .padding(0.dp),
+                progress = progress,
+                onValueChange = {//get the value of the seekbar
+                    listenViewModel.seekTo(it, playerState)
+                },
+                onValueChanged = { }
+            )
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
-                .height(10.dp)
                 .fillMaxWidth(0.98F)
-                .padding(0.dp),
-            progress = progress,
-            onValueChange = { },
-            onValueChanged = { }
-        )
+                .padding(start = 10.dp, top = 0.dp, end = 10.dp)
+        ) {
+            val song = playerState?.track
+            var duration = "00:00"
+            val songCurrentPosition by listenViewModel.songCurrentPosition.collectAsState()
+            var currentPosition = "00:00"
+            if ((song?.duration ?: 0) / (1000 * 60 * 60) > 0 && songCurrentPosition / (1000 * 60 * 60) > 0) {
+                duration = String.format(
+                    "%02d:%02d:%02d",
+                    (song?.duration ?: 0) / (1000 * 60 * 60),
+                    (song?.duration ?: 0) / (1000 * 60) % 60,
+                    (song?.duration ?: 0) / 1000 % 60
+                )
+                currentPosition = String.format(
+                    "%02d:%02d:%02d",
+                    songCurrentPosition / (1000 * 60 * 60),
+                    songCurrentPosition / (1000 * 60) % 60,
+                    songCurrentPosition / 1000 % 60
+                )
+            } else {
+                duration = String.format(
+                    "%02d:%02d",
+                    (song?.duration ?: 0) / (1000 * 60) % 60,
+                    (song?.duration ?: 0) / 1000 % 60
+                )
+                currentPosition =
+                    String.format("%02d:%02d", songCurrentPosition / (1000 * 60) % 60, songCurrentPosition / 1000 % 60)
+            }
+            Text(
+                text = currentPosition,
+                textAlign = TextAlign.Start,
+                color = Color.White,
+                modifier = Modifier.padding(end = 5.dp)
+            )
+
+            Text(
+                text = duration,
+                textAlign = TextAlign.Start,
+                color = Color.White,
+                modifier = Modifier.padding(start = 5.dp)
+            )
+        }
     }
 }
+
+data class listenPoster(
+    val bitmap: Bitmap?=null,
+    val id:String?=""
+)

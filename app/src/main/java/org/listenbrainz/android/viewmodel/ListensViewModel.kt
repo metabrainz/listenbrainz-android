@@ -1,7 +1,6 @@
 package org.listenbrainz.android.viewmodel
 
 import android.app.Application
-import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,13 +27,11 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.repository.ListensRepository
-import org.listenbrainz.android.service.BrainzPlayerService
 import org.listenbrainz.android.service.YouTubeApiService
-import org.listenbrainz.android.util.BrainzPlayerExtensions.currentPlaybackPosition
+import org.listenbrainz.android.ui.screens.listens.listenPoster
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.e
-import org.listenbrainz.android.util.Log.v
 import org.listenbrainz.android.util.Resource.Status.*
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import retrofit2.Retrofit
@@ -60,12 +57,12 @@ class ListensViewModel @Inject constructor(
     val coverArtFlow = _coverArtFlow.asStateFlow()
     
     var isLoading: Boolean  by mutableStateOf(true)
-    
+
     var playerState: PlayerState? by mutableStateOf(null)
     private val _songDuration = MutableStateFlow(0L)
     private val _songCurrentPosition = MutableStateFlow(0L)
     private val _progress = MutableStateFlow(0F)
-    var bitmap: Bitmap? by mutableStateOf(null)
+    var bitmap: listenPoster = listenPoster()
     val progress = _progress.asStateFlow()
     val songCurrentPosition = _songCurrentPosition.asStateFlow()
     private val gson = GsonBuilder().setPrettyPrinting().create()
@@ -80,7 +77,7 @@ class ListensViewModel @Inject constructor(
         SpotifyAppRemote.setDebugMode(BuildConfig.DEBUG)
         trackProgress()
     }
-    
+
     fun fetchUserListens(userName: String) {
         viewModelScope.launch {
             val response = repository.fetchUserListens(userName)
@@ -150,7 +147,10 @@ class ListensViewModel @Inject constructor(
     private fun updateTrackCoverArt(playerState: PlayerState) {
         // Get image from track
         assertAppRemoteConnected()?.imagesApi?.getImage(playerState.track.imageUri, com.spotify.protocol.types.Image.Dimension.LARGE)?.setResultCallback { bitmapHere ->
-            bitmap = bitmapHere
+            bitmap =listenPoster(
+                bitmap=bitmapHere,
+                id = playerState.track.uri
+            )
         }
     }
     
@@ -176,11 +176,7 @@ class ListensViewModel @Inject constructor(
     }
     
     private val playerStateEventCallback = Subscription.EventCallback<PlayerState> { playerStateHere ->
-        v(String.format("Player State: %s", gson.toJson(playerStateHere)))
-        
         playerState = playerStateHere
-        
-        updateTrackCoverArt(playerStateHere)
     }
     
     private suspend fun connectToAppRemote(showAuthView: Boolean, spotifyClientId: String): SpotifyAppRemote =
@@ -220,29 +216,56 @@ class ListensViewModel @Inject constructor(
         assertAppRemoteConnected()?.playerApi?.play(uri)?.setResultCallback {
             logMessage("play command successful!")      //getString(R.string.command_feedback, "play"))
         }?.setErrorCallback(errorCallback)
-        //trackProgress()
+        trackProgress()
+    }
+    fun play(){
+        assertAppRemoteConnected()?.playerApi?.resume()?.setResultCallback {
+            logMessage("play command successful!")      //getString(R.string.command_feedback, "play"))
+        }?.setErrorCallback(errorCallback)
+        trackProgress()
     }
 
+    fun pause(){
+        assertAppRemoteConnected()?.playerApi?.pause()?.setResultCallback {
+            logMessage("pause command successful!")      //getString(R.string.command_feedback, "play"))
+        }?.setErrorCallback(errorCallback)
+    }
     fun trackProgress() {
+        assertAppRemoteConnected()?.playerApi?.subscribeToPlayerState()?.setEventCallback { playerState ->
+            if(bitmap.id!=playerState.track.uri) {
+                updateTrackCoverArt(playerState)
+            }
+        }?.setErrorCallback(errorCallback)
         viewModelScope.launch(Dispatchers.Default) {
             var state: PlayerState? = null
-
+            var isPaused=false
             while (true) {
                 assertAppRemoteConnected()?.playerApi?.subscribeToPlayerState()?.setEventCallback { playerState ->
                     state = playerState
+                    isPaused = playerState?.isPaused ?: false
+
                 }?.setErrorCallback(errorCallback)
                 val pos = state?.playbackPosition?.toFloat() ?: 0f
                 val duration=state?.track?.duration ?: 1
                 if (progress.value != pos) {
                     _progress.emit(pos / duration.toFloat())
-                    _songDuration.emit(duration)
+                    _songDuration.emit(duration ?: 0)
                     _songCurrentPosition.emit(((pos / duration) * duration).toLong())
-
                 }
-
+                if (isPaused) {
+                    break
+                }
                 delay(1000L)
             }
         }
+    }
+
+    fun seekTo(pos:Float,state: PlayerState?){
+        val duration=state?.track?.duration ?: 1
+        val position=(pos*duration).toLong()
+        assertAppRemoteConnected()?.playerApi?.seekTo(position)?.setResultCallback {
+            logMessage("seek command successful!")      //getString(R.string.command_feedback, "play"))
+        }?.setErrorCallback(errorCallback)
     }
 
     private fun onSubscribedToPlayerContextButtonClicked() {
