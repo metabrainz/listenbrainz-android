@@ -22,7 +22,7 @@ class ListenHandler : Handler(Looper.getMainLooper()) {
     override fun handleMessage(msg: Message) {
         super.handleMessage(msg)
         val token = preferenceListenBrainzToken
-        if (token == null || token.isEmpty()) {
+        if (token.isNullOrEmpty()) {
             d("ListenBrainz User token has not been set!")
             return
         }

@@ -2,40 +2,50 @@ package org.listenbrainz.android.util
 
 import android.media.MediaMetadata
 import android.media.session.MediaController
-import android.media.session.MediaSession
 import android.media.session.MediaSessionManager.OnActiveSessionsChangedListener
 import android.media.session.PlaybackState
+import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.w
-import org.listenbrainz.android.util.UserPreferences.preferenceListeningSpotifyEnabled
 
-class ListenSessionListener(private val handler: ListenHandler) : OnActiveSessionsChangedListener {
-    private val controllers: MutableList<MediaController> = ArrayList()
-    private val activeSessions: MutableMap<MediaSession.Token, ListenCallback?> = HashMap()
+class ListenSessionListener(private val handler: ListenHandler, private val appPreferences: AppPreferences) : OnActiveSessionsChangedListener {
+    
+    private val registeredControllers: MutableSet<String> = mutableSetOf()        // TODO: Use shared preferences.
+    private val activeSessions: MutableMap<MediaController, ListenCallback?> = HashMap()
 
     override fun onActiveSessionsChanged(controllers: List<MediaController>?) {
+        println("onActiveSessionsChanged: EXECUTED")
         if (controllers == null) return
-        clearSessions()
-        this.controllers.addAll(controllers)
         for (controller in controllers) {
-            if (!preferenceListeningSpotifyEnabled && controller.packageName == Constants.SPOTIFY_PACKAGE_NAME){
+    
+            // TODO: Wall here to block registering of unwanted controllers.
+            
+            // Avoids registering multiple callbacks.
+            if (controller.packageName in registeredControllers) {
                 continue
             }
+            
+            // Enable listens from spotify option.
+            if (!appPreferences.preferenceListeningSpotifyEnabled && controller.packageName == Constants.SPOTIFY_PACKAGE_NAME) {
+                print("Spotify listens blocked from Listens Service.")
+                continue
+            }
+            
             val callback = ListenCallback()
             controller.registerCallback(callback)
+            registeredControllers.add(controller.packageName)
+            activeSessions[controller] = callback
+            println("### REGISTERED MediaController callback for ${controller.packageName}.")
         }
     }
 
     fun clearSessions() {
-        for ((key, value) in activeSessions) {
-            for (controller in controllers) {
-                if (controller.sessionToken == key){
-                    controller.unregisterCallback(value!!)
-                }
-            }
+        for ((controller, callback) in activeSessions) {
+            controller.unregisterCallback(callback!!)
+            println("### UNREGISTERED MediaController Callback for ${controller.packageName}.")
         }
         activeSessions.clear()
-        controllers.clear()
+        registeredControllers.clear()
     }
 
     private inner class ListenCallback : MediaController.Callback() {
@@ -44,6 +54,7 @@ class ListenSessionListener(private val handler: ListenHandler) : OnActiveSessio
         var timestamp: Long = 0
         var state: PlaybackState? = null
         var submitted = true
+        
         override fun onMetadataChanged(metadata: MediaMetadata?) {
             
             if (metadata == null) return
@@ -85,7 +96,6 @@ class ListenSessionListener(private val handler: ListenHandler) : OnActiveSessio
             }
         }
         // FIXME : Listens are only submitted when song is paused once, then played and skipped.
-        //  the next song is recorded then.
         
         override fun onPlaybackStateChanged(state: PlaybackState?) {
             if (state == null) return
