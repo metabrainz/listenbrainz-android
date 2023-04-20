@@ -1,4 +1,4 @@
-package org.listenbrainz.android
+package org.listenbrainz.android.di
 
 import android.content.Context
 import dagger.Module

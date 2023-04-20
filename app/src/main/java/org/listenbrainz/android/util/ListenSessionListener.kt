@@ -10,48 +10,43 @@ import org.listenbrainz.android.util.Log.w
 
 class ListenSessionListener(private val handler: ListenHandler, private val appPreferences: AppPreferences) : OnActiveSessionsChangedListener {
     
-    // TODO: Use shared preferences for blocking purposes.
     private val activeSessions: MutableMap<MediaController, ListenCallback?> = HashMap()
-    private val registeredControllers: Set<String>
-        get() {
-            val set = mutableSetOf<String>()
-            activeSessions.keys.forEach {
-                set.add(it.packageName)
-            }
-            return set
-        }
 
     override fun onActiveSessionsChanged(controllers: List<MediaController>?) {
-        println("onActiveSessionsChanged: EXECUTED")
+        d("onActiveSessionsChanged: EXECUTED")
         if (controllers == null) return
         clearSessions()
         for (controller in controllers) {
     
-            // TODO: Wall here to block registering of unwanted controllers.
-            
-            // Avoids registering multiple callbacks.
-            if (controller.packageName in registeredControllers) {
-                println("${controller.packageName} already registered.")
+            if (controller.packageName in appPreferences.listeningBlacklist)
                 continue
-            }
             
             // Enable listens from spotify option.
             if (!appPreferences.preferenceListeningSpotifyEnabled && controller.packageName == Constants.SPOTIFY_PACKAGE_NAME) {
-                println("Spotify listens blocked from Listens Service.")
+                d("Spotify listens blocked from Listens Service.")
                 continue
             }
             
             val callback = ListenCallback()
-            controller.registerCallback(callback)
             activeSessions[controller] = callback
-            println("### REGISTERED MediaController callback for ${controller.packageName}.")
+            controller.registerCallback(callback)
+            d("### REGISTERED MediaController callback for ${controller.packageName}.")
         }
+        
+        // Adding any new app packages found in the notification.
+        controllers.forEach { controller ->
+            val appList = appPreferences.listeningApps
+            if (controller.packageName !in appList){
+                appPreferences.listeningApps = appList.plus(controller.packageName)
+            }
+        }
+        // println(appPreferences.listeningApps)
     }
 
     fun clearSessions() {
         for ((controller, callback) in activeSessions) {
             controller.unregisterCallback(callback!!)
-            println("### UNREGISTERED MediaController Callback for ${controller.packageName}.")
+            d("### UNREGISTERED MediaController Callback for ${controller.packageName}.")
         }
         activeSessions.clear()
     }

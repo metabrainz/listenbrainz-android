@@ -26,7 +26,9 @@ class MockAppPreferences(
     override val username: String? = "",
     override val refreshToken: String? = "",
     override var albumsOnDevice: Boolean = true,
-    override var songsOnDevice: Boolean = true
+    override var songsOnDevice: Boolean = true,
+    override var listeningBlacklist: List<String> = listOf(),
+    override var listeningApps: List<String> = listOf()
 ) : AppPreferences {
     
     override fun saveOAuthToken(token: AccessToken) {

@@ -47,6 +47,8 @@ class ListenService : NotificationListenerService() {
         if (token.isNullOrEmpty())
             d("ListenBrainz User token has not been set!")
         
+        appPreferences.listeningBlacklist = listOf()
+        
         handler = ListenHandler()
         sessionManager = applicationContext.getSystemService(MEDIA_SESSION_SERVICE) as MediaSessionManager
         sessionListener = ListenSessionListener(handler!!, appPreferences)

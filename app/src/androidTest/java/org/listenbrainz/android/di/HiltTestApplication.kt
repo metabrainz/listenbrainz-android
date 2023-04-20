@@ -3,7 +3,9 @@ package org.listenbrainz.android
 import android.app.Application
 import android.content.Context
 import android.os.Bundle
-import android.provider.Settings.Global.*
+import android.provider.Settings.Global.ANIMATOR_DURATION_SCALE
+import android.provider.Settings.Global.TRANSITION_ANIMATION_SCALE
+import android.provider.Settings.Global.WINDOW_ANIMATION_SCALE
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnitRunner
 import dagger.hilt.android.testing.HiltTestApplication
