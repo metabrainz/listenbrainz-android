@@ -17,11 +17,12 @@ class ListenSessionListener(private val handler: ListenHandler, private val appP
         if (controllers == null) return
         clearSessions()
         for (controller in controllers) {
-    
+            
+            // BlackList
             if (controller.packageName in appPreferences.listeningBlacklist)
                 continue
             
-            // Enable listens from spotify option.
+            // TODO: Remove this
             if (!appPreferences.preferenceListeningSpotifyEnabled && controller.packageName == Constants.SPOTIFY_PACKAGE_NAME) {
                 d("Spotify listens blocked from Listens Service.")
                 continue
