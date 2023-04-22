@@ -162,7 +162,7 @@ dependencies {
     implementation 'androidx.activity:activity-compose:1.7.0'
 
     // Compose Navigation
-    implementation 'androidx.navigation:navigation-compose:2.6.0-alpha09'     // Stable one
+    implementation 'androidx.navigation:navigation-compose:2.6.0-beta01'     // Stable one
     implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"     // Experimental but has animations
 
     //Spotify
