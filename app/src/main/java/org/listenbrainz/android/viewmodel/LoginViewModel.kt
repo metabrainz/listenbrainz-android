@@ -17,10 +17,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val repository: LoginRepository
+    private val repository: LoginRepository,
+    val appPreferences: AppPreferences
 ) : ViewModel() {
-    
-    lateinit var appPreferences: AppPreferences
     
     /** Initial value: **null** */
     val accessTokenFlow: Flow<AccessToken?> = repository.accessTokenFlow

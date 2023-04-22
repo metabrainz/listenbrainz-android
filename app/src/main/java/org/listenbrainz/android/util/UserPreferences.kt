@@ -5,6 +5,8 @@ import org.listenbrainz.android.application.App
 
 object UserPreferences {
     const val PREFERENCE_LISTENBRAINZ_TOKEN = "listenbrainz_user_token"
+    const val PREFERENCE_LISTENING_BLACKLIST = "listening_blacklist"
+    const val PREFERENCE_LISTENING_APPS = "listening_apps"
     const val PREFERENCE_LISTENING_ENABLED = "listening_enabled"
     const val PREFERENCE_LISTENING_SPOTIFY = "listening_spotify_enabled"
     const val PREFERENCE_SYSTEM_LANGUAGE = "use_english"

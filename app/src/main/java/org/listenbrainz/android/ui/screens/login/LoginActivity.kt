@@ -3,8 +3,13 @@ package org.listenbrainz.android.ui.screens.login
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,7 +30,6 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AccessToken
 import org.listenbrainz.android.model.UserInfo
-import org.listenbrainz.android.repository.AppPreferencesImpl
 import org.listenbrainz.android.ui.components.ListenBrainzActivity
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.LoginViewModel
@@ -37,7 +41,6 @@ class LoginActivity : ListenBrainzActivity() {
         super.onCreate(savedInstanceState)
         
         val viewModel = ViewModelProvider(this)[LoginViewModel::class.java]
-        viewModel.appPreferences = AppPreferencesImpl(this)
         
         // Variable used to show progress of login process.
         var loginState by mutableStateOf(R.string.login_uninitialized)

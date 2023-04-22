@@ -23,7 +23,7 @@ android {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.core:core-ktx:1.10.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.8.0'
 
@@ -40,8 +40,8 @@ dependencies {
     implementation 'com.squareup.okhttp3:mockwebserver:5.0.0-alpha.11'
     implementation 'androidx.arch.core:core-testing:2.2.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4'
-    implementation "androidx.room:room-testing:2.5.0"
-    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation "androidx.room:room-testing:2.5.1"
+    implementation 'androidx.core:core-ktx:1.10.0'
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
 
     implementation 'androidx.test:runner:1.5.2'
@@ -50,7 +50,7 @@ dependencies {
     implementation 'androidx.test.espresso:espresso-core:3.5.1'
     implementation 'androidx.test.espresso:espresso-intents:3.5.1'
     implementation "androidx.compose.ui:ui-test-junit4:$compose_version"
-    implementation 'app.cash.turbine:turbine:0.12.1'
+    implementation 'app.cash.turbine:turbine:0.12.3'
 
     implementation project(path: ':app')
 }

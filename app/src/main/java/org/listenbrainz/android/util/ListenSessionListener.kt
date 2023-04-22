@@ -2,40 +2,54 @@ package org.listenbrainz.android.util
 
 import android.media.MediaMetadata
 import android.media.session.MediaController
-import android.media.session.MediaSession
 import android.media.session.MediaSessionManager.OnActiveSessionsChangedListener
 import android.media.session.PlaybackState
+import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.w
-import org.listenbrainz.android.util.UserPreferences.preferenceListeningSpotifyEnabled
 
-class ListenSessionListener(private val handler: ListenHandler) : OnActiveSessionsChangedListener {
-    private val controllers: MutableList<MediaController> = ArrayList()
-    private val activeSessions: MutableMap<MediaSession.Token, ListenCallback?> = HashMap()
+class ListenSessionListener(private val handler: ListenHandler, private val appPreferences: AppPreferences) : OnActiveSessionsChangedListener {
+    
+    private val activeSessions: MutableMap<MediaController, ListenCallback?> = HashMap()
 
     override fun onActiveSessionsChanged(controllers: List<MediaController>?) {
+        d("onActiveSessionsChanged: EXECUTED")
         if (controllers == null) return
         clearSessions()
-        this.controllers.addAll(controllers)
         for (controller in controllers) {
-            if (!preferenceListeningSpotifyEnabled && controller.packageName == Constants.SPOTIFY_PACKAGE_NAME){
+            
+            // BlackList
+            if (controller.packageName in appPreferences.listeningBlacklist)
+                continue
+            
+            // TODO: Remove this
+            if (!appPreferences.preferenceListeningSpotifyEnabled && controller.packageName == Constants.SPOTIFY_PACKAGE_NAME) {
+                d("Spotify listens blocked from Listens Service.")
                 continue
             }
+            
             val callback = ListenCallback()
+            activeSessions[controller] = callback
             controller.registerCallback(callback)
+            d("### REGISTERED MediaController callback for ${controller.packageName}.")
         }
+        
+        // Adding any new app packages found in the notification.
+        controllers.forEach { controller ->
+            val appList = appPreferences.listeningApps
+            if (controller.packageName !in appList){
+                appPreferences.listeningApps = appList.plus(controller.packageName)
+            }
+        }
+        // println(appPreferences.listeningApps)
     }
 
     fun clearSessions() {
-        for ((key, value) in activeSessions) {
-            for (controller in controllers) {
-                if (controller.sessionToken == key){
-                    controller.unregisterCallback(value!!)
-                }
-            }
+        for ((controller, callback) in activeSessions) {
+            controller.unregisterCallback(callback!!)
+            d("### UNREGISTERED MediaController Callback for ${controller.packageName}.")
         }
         activeSessions.clear()
-        controllers.clear()
     }
 
     private inner class ListenCallback : MediaController.Callback() {
@@ -44,13 +58,14 @@ class ListenSessionListener(private val handler: ListenHandler) : OnActiveSessio
         var timestamp: Long = 0
         var state: PlaybackState? = null
         var submitted = true
+        
         override fun onMetadataChanged(metadata: MediaMetadata?) {
             
             if (metadata == null) return
             
             when {
-                state != null -> d("Listen Metadata " + state!!.state)
-                else -> d("Listen Metadata")
+                state != null -> d("onMetadataChanged: Listen Metadata " + state!!.state)
+                else -> d("onMetadataChanged: Listen Metadata")
             }
             
             artist = when {
@@ -67,7 +82,7 @@ class ListenSessionListener(private val handler: ListenHandler) : OnActiveSessio
                 else -> null
             }
             
-            if (artist == null || title == null || artist!!.isEmpty() || title!!.isEmpty()){
+            if (artist.isNullOrEmpty() || title.isNullOrEmpty()){
                 w("${if (artist == null) "Artist" else "Title"} is null, listen cancelled.")
                 return
             }
@@ -85,16 +100,21 @@ class ListenSessionListener(private val handler: ListenHandler) : OnActiveSessio
             }
         }
         // FIXME : Listens are only submitted when song is paused once, then played and skipped.
-        //  the next song is recorded then.
         
         override fun onPlaybackStateChanged(state: PlaybackState?) {
             if (state == null) return
+            
             this.state = state
-            d("Listen PlaybackState " + state.state)
+            d("onPlaybackStateChanged: Listen PlaybackState " + state.state)
+            
             if (state.state == PlaybackState.STATE_PLAYING && !submitted) {
+                
+                if (artist.isNullOrEmpty() || title.isNullOrEmpty()) return
+                
                 handler.submitListen(artist, title, timestamp)
                 submitted = true
             }
+            
             if (state.state == PlaybackState.STATE_PAUSED ||
                     state.state == PlaybackState.STATE_STOPPED) {
                 handler.cancelListen(timestamp)

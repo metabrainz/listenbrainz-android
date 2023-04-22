@@ -7,13 +7,19 @@ import android.os.Handler
 import android.os.Looper
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
-import androidx.preference.PreferenceManager
+import dagger.hilt.android.AndroidEntryPoint
+import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.util.ListenHandler
 import org.listenbrainz.android.util.ListenSessionListener
 import org.listenbrainz.android.util.Log.d
-import org.listenbrainz.android.util.UserPreferences
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ListenService : NotificationListenerService() {
+    
+    @Inject
+    lateinit var appPreferences: AppPreferences
+    
     private var sessionManager: MediaSessionManager? = null
     private var handler: ListenHandler? = null
     private var sessionListener: ListenSessionListener? = null
@@ -36,14 +42,14 @@ class ListenService : NotificationListenerService() {
 
     private fun initialize() {
         d("Initializing Listener Service")
-        val token = PreferenceManager.getDefaultSharedPreferences(this).getString(UserPreferences.PREFERENCE_LISTENBRAINZ_TOKEN, null)
-        d("Your token is: $token")
-        if (token == null || token.isEmpty()){
+        val token = appPreferences.lbAccessToken
+        
+        if (token.isNullOrEmpty())
             d("ListenBrainz User token has not been set!")
-        }
+        
         handler = ListenHandler()
         sessionManager = applicationContext.getSystemService(MEDIA_SESSION_SERVICE) as MediaSessionManager
-        sessionListener = ListenSessionListener(handler!!)
+        sessionListener = ListenSessionListener(handler!!, appPreferences)
         listenServiceComponent = ComponentName(this, this.javaClass)
         sessionManager?.addOnActiveSessionsChangedListener(sessionListener!!, listenServiceComponent)
     }

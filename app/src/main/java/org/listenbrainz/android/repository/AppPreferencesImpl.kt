@@ -2,16 +2,18 @@ package org.listenbrainz.android.repository
 
 import android.content.Context
 import androidx.preference.PreferenceManager
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.AccessToken
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UserInfo
-
 import org.listenbrainz.android.util.LBSharedPreferences
-
 import org.listenbrainz.android.util.TypeConverter
 import org.listenbrainz.android.util.UserPreferences.PREFERENCE_ALBUMS_ON_DEVICE
 import org.listenbrainz.android.util.UserPreferences.PREFERENCE_LISTENBRAINZ_TOKEN
+import org.listenbrainz.android.util.UserPreferences.PREFERENCE_LISTENING_APPS
+import org.listenbrainz.android.util.UserPreferences.PREFERENCE_LISTENING_BLACKLIST
 import org.listenbrainz.android.util.UserPreferences.PREFERENCE_LISTENING_ENABLED
 import org.listenbrainz.android.util.UserPreferences.PREFERENCE_LISTENING_SPOTIFY
 import org.listenbrainz.android.util.UserPreferences.PREFERENCE_ONBOARDING
@@ -24,7 +26,7 @@ import org.listenbrainz.android.util.UserPreferences.PermissionStatus
 class AppPreferencesImpl(context : Context = App.context!!): AppPreferences {
     
     private val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-    
+    private val gson = Gson()
     // Helper Functions
     
     private fun setString(key: String?, value: String?) {
@@ -63,6 +65,28 @@ class AppPreferencesImpl(context : Context = App.context!!): AppPreferences {
     override var preferenceListeningEnabled: Boolean
         get() = preferences.getBoolean(PREFERENCE_LISTENING_ENABLED, false)
         set(value) = setBoolean(PREFERENCE_LISTENING_ENABLED, value)
+    
+    override var listeningBlacklist: List<String>
+        get() {
+            val jsonString = preferences.getString(PREFERENCE_LISTENING_BLACKLIST, "")
+            val type = object : TypeToken<List<String>>() {}.type
+            return gson.fromJson(jsonString, type) ?: listOf()
+        }
+        set(value) {
+            val jsonString = gson.toJson(value)
+            setString(PREFERENCE_LISTENING_BLACKLIST, jsonString)
+        }
+    
+    override var listeningApps: List<String>    // No need to use Set here
+        get() {
+            val jsonString = preferences.getString(PREFERENCE_LISTENING_APPS, "")
+            val type = object : TypeToken<List<String>>() {}.type
+            return gson.fromJson(jsonString, type) ?: listOf()
+        }
+        set(value) {
+            val jsonString = gson.toJson(value)
+            setString(PREFERENCE_LISTENING_APPS, jsonString)
+        }
     
     override var preferenceListenBrainzToken: String?
         get() = preferences.getString(PREFERENCE_LISTENBRAINZ_TOKEN, null)

@@ -24,6 +24,12 @@ interface AppPreferences {
     
     var preferenceListeningEnabled: Boolean
     
+    /** Blacklist for ListenService.*/
+    var listeningBlacklist: List<String>
+    
+    /** Music Apps in users device registered by listenService.*/
+    var listeningApps: List<String>
+    
     val preferenceListenBrainzToken : String?
     
     val onboardingPreference: Boolean
