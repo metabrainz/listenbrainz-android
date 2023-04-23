@@ -75,7 +75,8 @@ fun BrainzPlayerBackDropScreen(
         mutableStateOf(0F)
     }
     val repeatMode by brainzPlayerViewModel.repeatMode.collectAsState()
-    val headerHeight by animateDpAsState(targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null") 0.dp else 136.dp)
+    /** 56.dp is default bottom navigation height. 80.dp is our mini player's height. */
+    val headerHeight by animateDpAsState(targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null") 56.dp else 136.dp)
     
     BackdropScaffold(
         frontLayerShape = RectangleShape,

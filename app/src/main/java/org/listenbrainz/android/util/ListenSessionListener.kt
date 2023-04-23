@@ -8,7 +8,10 @@ import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.w
 
-class ListenSessionListener(private val handler: ListenHandler, private val appPreferences: AppPreferences) : OnActiveSessionsChangedListener {
+class ListenSessionListener(
+    private val handler: ListenHandler,
+    private val appPreferences: AppPreferences
+) : OnActiveSessionsChangedListener {
     
     private val activeSessions: MutableMap<MediaController, ListenCallback?> = HashMap()
 
@@ -22,11 +25,11 @@ class ListenSessionListener(private val handler: ListenHandler, private val appP
             if (controller.packageName in appPreferences.listeningBlacklist)
                 continue
             
-            // TODO: Remove this
+            /*// TODO: Remove this
             if (!appPreferences.preferenceListeningSpotifyEnabled && controller.packageName == Constants.SPOTIFY_PACKAGE_NAME) {
                 d("Spotify listens blocked from Listens Service.")
                 continue
-            }
+            }*/
             
             val callback = ListenCallback()
             activeSessions[controller] = callback

@@ -1,6 +1,5 @@
 package org.listenbrainz.android.ui.navigation
 
-import android.app.Activity
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.*
@@ -18,14 +17,12 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
-import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
 
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun BottomNavigationBar(
     navController: NavController = rememberNavController(),
-    activity: Activity,
     backdropScaffoldState: BackdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
 ) {
     val items = listOf(
@@ -64,7 +61,7 @@ fun BottomNavigationBar(
                             launchSingleTop = true
                             // Restore previous state
                             restoreState = true
-                        // TODO: Implement refresh for listens Screen.
+                        
                         }
                     }
                     
@@ -80,5 +77,5 @@ fun BottomNavigationBar(
 @Preview
 @Composable
 fun BottomNavigationBarPreview() {
-    BottomNavigationBar(navController = rememberNavController(), activity = DashboardActivity())
+    BottomNavigationBar(navController = rememberNavController())
 }
