@@ -25,12 +25,6 @@ class ListenSessionListener(
             if (controller.packageName in appPreferences.listeningBlacklist)
                 continue
             
-            /*// TODO: Remove this
-            if (!appPreferences.preferenceListeningSpotifyEnabled && controller.packageName == Constants.SPOTIFY_PACKAGE_NAME) {
-                d("Spotify listens blocked from Listens Service.")
-                continue
-            }*/
-            
             val callback = ListenCallback()
             activeSessions[controller] = callback
             controller.registerCallback(callback)
