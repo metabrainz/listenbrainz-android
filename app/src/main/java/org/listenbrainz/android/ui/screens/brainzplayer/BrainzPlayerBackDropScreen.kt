@@ -44,6 +44,7 @@ import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.service.BrainzPlayerService
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.PlayPauseIcon
 import org.listenbrainz.android.ui.components.SeekBar
@@ -75,9 +76,10 @@ fun BrainzPlayerBackDropScreen(
         mutableStateOf(0F)
     }
     val repeatMode by brainzPlayerViewModel.repeatMode.collectAsState()
+
     /** 56.dp is default bottom navigation height. 80.dp is our mini player's height. */
     val headerHeight by animateDpAsState(targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null") 56.dp else 136.dp)
-    
+
     BackdropScaffold(
         frontLayerShape = RectangleShape,
         backLayerBackgroundColor = MaterialTheme.colorScheme.background,
@@ -143,7 +145,7 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
                             // scroll position. We use the absolute value which allows us to mirror
                             // any effects for both directions
                             val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
-        
+
                             // We animate the scaleX + scaleY, between 85% and 100%
                             lerp(
                                 start = 0.85f,
@@ -153,7 +155,7 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
                                 scaleX = scale
                                 scaleY = scale
                             }
-        
+
                             // We animate the alpha, between 50% and 100%
                             alpha = lerp(
                                 start = 0.5f,
@@ -372,7 +374,7 @@ fun PlayerScreen(
             }
         }
         val checkedSongs = mutableStateListOf<Song>()
-        var songs = LBSharedPreferences.currentPlayable?.songs?.toMutableList() ?: mutableListOf()
+        val songs = BrainzPlayerService.playableSongs ?: mutableListOf()
         item {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(start = 5.dp),
@@ -389,16 +391,17 @@ fun PlayerScreen(
                 Button(
                     onClick = {
                         checkedSongs.forEach { song ->
-                            songs.remove(song)
+                            BrainzPlayerService.playableSongs.remove(song)
                         }
                         brainzPlayerViewModel.changePlayable(
-                            songs,
+                            BrainzPlayerService.playableSongs,
                             PlayableType.ALL_SONGS,
                             LBSharedPreferences.currentPlayable?.id ?: 0,
-                            songs.indexOfFirst { it.mediaID == currentlyPlayingSong.mediaID } ?: 0
+                            BrainzPlayerService.playableSongs.indexOfFirst { it.mediaID == currentlyPlayingSong.mediaID } ?: 0,brainzPlayerViewModel.songCurrentPosition.value
                         )
                         brainzPlayerViewModel.queueChanged(
-                            !brainzPlayerViewModel.isPlaying.value
+                            currentlyPlayingSong,
+                            brainzPlayerViewModel.isPlaying.value
                         )
                         checkedSongs.clear()
                     },
@@ -419,9 +422,8 @@ fun PlayerScreen(
                 }
             }
         }
-        
         // Playlist
-        itemsIndexed(items = songs) {index, song ->
+        itemsIndexed(items = BrainzPlayerService.playableSongs) {index, song ->
             val isChecked = checkedSongs.contains(song)
             BoxWithConstraints {
                 val maxWidth =
@@ -446,6 +448,7 @@ fun PlayerScreen(
                         errorAlbumArt = R.drawable.ic_erroralbumart
                     ) {
                         brainzPlayerViewModel.skipToPlayable(index)
+                        brainzPlayerViewModel.changePlayable(BrainzPlayerService.playableSongs, PlayableType.ALL_SONGS, LBSharedPreferences.currentPlayable?.id ?: 0, index,0L)
                         brainzPlayerViewModel.playOrToggleSong(song, true)
                     }
                     if (currentlyPlayingSong.mediaID!=song.mediaID) {
@@ -465,9 +468,9 @@ fun PlayerScreen(
                                 modifier = Modifier
                                     .size(45.dp),
                                 colors = CheckboxDefaults.colors(
-                                    checkmarkColor = androidx.compose.material.MaterialTheme.colors.onSurface,
-                                    disabledColor = androidx.compose.material.MaterialTheme.colors.onSurface,
-                                    uncheckedColor = androidx.compose.material.MaterialTheme.colors.onSurface,
+                                    checkmarkColor = MaterialTheme.colorScheme.onSurface,
+                                    disabledColor = MaterialTheme.colorScheme.onSurface,
+                                    uncheckedColor = MaterialTheme.colorScheme.onSurface,
                                 )
                             )
                         }
@@ -480,7 +483,7 @@ fun PlayerScreen(
             Spacer(modifier = Modifier.height(56.dp))
         }
     }
-    
+
     // TODO: fix this
     val cache= App.context?.let { CacheService<Song>(it, RECENTLY_PLAYED_KEY) }
     cache?.saveData(currentlyPlayingSong, Song::class.java)

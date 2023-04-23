@@ -37,8 +37,11 @@ import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.PlayableType
+import org.listenbrainz.android.service.BrainzPlayerService
 import org.listenbrainz.android.ui.components.BPLibraryEmptyMessage
 import org.listenbrainz.android.ui.components.forwardingPainter
+import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
+import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import org.listenbrainz.android.viewmodel.SongViewModel
@@ -50,6 +53,8 @@ import org.listenbrainz.android.viewmodel.SongViewModel
 fun SongScreen() {
     val brainzPlayerViewModel = hiltViewModel<BrainzPlayerViewModel>()
     val songViewModel = hiltViewModel<SongViewModel>()
+    val currentlyPlayingSong =
+        brainzPlayerViewModel.currentlyPlayingSong.collectAsState().value.toSong
     val songs = songViewModel.songs.collectAsState(initial = listOf())
     val coroutineScope = rememberCoroutineScope()
     var songCardMoreOptionsDropMenuExpanded by rememberSaveable { mutableStateOf(-1) }
@@ -188,7 +193,7 @@ fun SongScreen() {
         refreshing = refreshing,
         onRefresh = { songViewModel.fetchSongsFromDevice(userRequestedRefresh = true) }
     )
-    
+    val currentSongIndex = BrainzPlayerService.playableSongs!!.indexOfFirst { song -> song.mediaID==currentlyPlayingSong.mediaID   }+1
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -211,7 +216,8 @@ fun SongScreen() {
                                 it.mediaID,
                                 songs.value
                                     .sortedBy { it.discNumber }
-                                    .indexOf(it)
+                                    .indexOf(it),
+                                0L
                             )
                             brainzPlayerViewModel.playOrToggleSong(it, true)
                         }
@@ -229,6 +235,38 @@ fun SongScreen() {
                             DropdownMenuItem(
                                 text = { Text(text = "Add to existing playlist") },
                                 onClick = { addToExistingPlaylistState = true })
+                            DropdownMenuItem(
+                                text = { Text(text = "Play Next") },
+                                onClick = {
+                                    BrainzPlayerService.playableSongs.add(currentSongIndex, it)
+                                    brainzPlayerViewModel.changePlayable(
+                                        BrainzPlayerService.playableSongs,
+                                        PlayableType.ALL_SONGS,
+                                        LBSharedPreferences.currentPlayable?.id ?: 0,
+                                        BrainzPlayerService.playableSongs.indexOfFirst { song -> song.mediaID==currentlyPlayingSong.mediaID   } ?: 0,brainzPlayerViewModel.songCurrentPosition.value
+                                    )
+                                    brainzPlayerViewModel.queueChanged(
+                                        currentlyPlayingSong,
+                                        brainzPlayerViewModel.isPlaying.value
+                                    )
+                                    songCardMoreOptionsDropMenuExpanded = -1
+                                })
+                            DropdownMenuItem(
+                                text = { Text(text = "Add to queue") },
+                                onClick = {
+                                    BrainzPlayerService.playableSongs.add(BrainzPlayerService.playableSongs.size,it)
+                                    brainzPlayerViewModel.changePlayable(
+                                        BrainzPlayerService.playableSongs,
+                                        PlayableType.ALL_SONGS,
+                                        LBSharedPreferences.currentPlayable?.id ?: 0,
+                                        BrainzPlayerService.playableSongs.indexOfFirst { song -> song.mediaID==currentlyPlayingSong.mediaID   } ?: 0,brainzPlayerViewModel.songCurrentPosition.value
+                                    )
+                                    brainzPlayerViewModel.queueChanged(
+                                        currentlyPlayingSong,
+                                        brainzPlayerViewModel.isPlaying.value
+                                    )
+                                    songCardMoreOptionsDropMenuExpanded = -1
+                                })
                         }
                         
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {

@@ -57,11 +57,11 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const release = await github.repos.getLatestRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo
-            });
-            return { tag_name: release.data.tag_name };
+            const { owner, repo } = context.repo;
+            const releases = await github.rest.repos.listReleases({ owner, repo });
+            const latestRelease = releases.data[0];
+            return { tag_name: latestRelease.tag_name };
+            
       - name: Attach APK
         uses: actions/upload-artifact@v3
         with:

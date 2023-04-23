@@ -49,7 +49,7 @@ fun ListenCard(listen: Listen, coverArtUrl: String, onItemClicked: (listen: List
                     .clip(RoundedCornerShape(16.dp)),
                 contentDescription = null
             ){
-                it.placeholder(R.drawable.ic_metabrainz_logo_no_text).override(250)
+                it.placeholder(R.drawable.ic_coverartarchive_logo_no_text).override(250)
             }
 
             Spacer(modifier = Modifier.width(16.dp))

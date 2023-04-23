@@ -59,7 +59,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.ListenCard
-import org.listenbrainz.android.ui.components.Loader
+import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.navigation.AppNavigationItem
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.LBSharedPreferences
@@ -90,7 +90,7 @@ fun AllUserListens(
             enter = fadeIn(initialAlpha = 0.4f),
             exit = fadeOut(animationSpec = tween(durationMillis = 250))
         ){
-            Loader()
+            LoadingAnimation()
         }
         
         ListensList(viewModel, modifier)
@@ -163,8 +163,8 @@ private fun ListensList(
         data = coverArtList,
         size = Size(250f, 250f),
         numberOfItemsToPreload = 15
-    ) { item, requestBuilder ->
-        requestBuilder.placeholder(R.drawable.ic_metabrainz_logo_no_text).override(250).load(item)
+    ){ item, requestBuilder ->
+        requestBuilder.placeholder(R.drawable.ic_coverartarchive_logo_no_text).override(250).load(item)
     }
     
     LazyColumn(

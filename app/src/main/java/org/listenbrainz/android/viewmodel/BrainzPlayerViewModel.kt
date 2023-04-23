@@ -158,14 +158,20 @@ class BrainzPlayerViewModel @Inject constructor(
         }
     }
 
-    fun queueChanged(toggle: Boolean ) {
-         if (toggle) brainzPlayerServiceConnection.transportControls.pause()
-        else brainzPlayerServiceConnection.transportControls.play()
+    fun queueChanged(mediaItem: Song,toggle: Boolean ) {
+        brainzPlayerServiceConnection.transportControls.playFromMediaId(mediaItem.mediaID.toString(), null)
+        playbackState.value.let { playbackState ->
+            when {
+                playbackState.isPlaying -> if (!toggle) brainzPlayerServiceConnection.transportControls.pause()
+                playbackState.isPlayEnabled -> brainzPlayerServiceConnection.transportControls.play()
+                else -> Unit
+            }
+        }
     }
 
-    fun changePlayable(newPlayableList: List<Song>, playableType: PlayableType, playableId: Long, currentIndex: Int ) {
+    fun changePlayable(newPlayableList: List<Song>, playableType: PlayableType, playableId: Long, currentIndex: Int, seekTo: Long = 0L ) {
         appPreferences.currentPlayable =
-            Playable(playableType, playableId, newPlayableList, currentIndex)
+            Playable(playableType, playableId, newPlayableList, currentIndex, seekTo)
     }
     
     /**Skip to the given song at given [index] in the current playlist.*/
