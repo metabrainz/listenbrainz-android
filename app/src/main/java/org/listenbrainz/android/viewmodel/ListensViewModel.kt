@@ -266,6 +266,5 @@ class ListensViewModel @Inject constructor(
     private fun logMessage(msg: String) {
         d(msg)
     }
-    
-    // Get
+
 }
