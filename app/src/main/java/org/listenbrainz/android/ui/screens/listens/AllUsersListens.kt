@@ -2,7 +2,6 @@ package org.listenbrainz.android.ui.screens.listens
 
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
@@ -47,7 +46,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -97,7 +95,7 @@ fun AllUserListens(
         
         // BlackList Dialog
         if (showBlacklist){
-            ListeningAppsList() { showBlacklist = false }
+            ListeningAppsList(viewModel = viewModel) { showBlacklist = false }
         }
         
         // FAB
@@ -241,12 +239,10 @@ private fun ListensList(
     }
 }
 
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Composable
 fun ListeningAppsList(
     viewModel: ListensViewModel = hiltViewModel(),
-    onDismiss: () -> Unit = {}
+    onDismiss: () -> Unit
 ){
     var blacklist by remember { mutableStateOf(viewModel.appPreferences.listeningBlacklist) }
     
