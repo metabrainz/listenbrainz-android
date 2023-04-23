@@ -29,8 +29,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
-import org.listenbrainz.android.ui.components.LBLoadingAnimation
 import org.listenbrainz.android.ui.components.ListenCard
+import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.navigation.AppNavigationItem
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.LBSharedPreferences
@@ -78,7 +78,7 @@ fun AllUserListens(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ){
-            LBLoadingAnimation()
+            LoadingAnimation()
         }
     }
     

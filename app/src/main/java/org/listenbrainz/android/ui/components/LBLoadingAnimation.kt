@@ -5,8 +5,17 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
@@ -28,20 +37,20 @@ import kotlinx.coroutines.launch
  * @param middleGap Gap between the parallelograms. Automatically adjusted with [logoSize].
  * @param sideOffset Half the total length of the outer side of the parallelogram. Automatically adjusted with [logoSize].
  * @param backgroundColor Background of the animation. Defaults to [Color.Transparent].
- * @param lb_orange Tint of orange rectangle of the logo.
- * @param lb_purple Tint of purple rectangle of the logo.
+ * @param rightQuadColor Tint of right quadrilateral/parallelogram of the logo.
+ * @param leftQuadColor Tint of left quadrilateral/parallelogram of the logo.
  * @param translateDuration Duration of translation and alpha animation.
  * @param rotateDuration Duration of rotate animation.
  */
 @Preview
 @Composable
-fun LBLoadingAnimation(
+fun LoadingAnimation(
     logoSize: Dp = 60.dp,
     middleGap: Dp = logoSize / 20,
     sideOffset: Dp = logoSize / 4,
     backgroundColor: Color = Color.Transparent,
-    lb_orange: Color = Color(0xFFEA743B),
-    lb_purple: Color = Color(0xFF353070),
+    rightQuadColor: Color = Color(0xFFEA743B),
+    leftQuadColor: Color = Color(0xFF353070),
     translateDuration: Int = 600,
     rotateDuration: Int = 1000
 ) {
@@ -97,7 +106,7 @@ fun LBLoadingAnimation(
                     orangeRectPath.lineTo(size.width, (size.height / 2 - sideOffset.toPx()))
                     orangeRectPath.close()
                     
-                    val orangeRectColor = lb_orange.copy(alpha = alphaAnim)
+                    val orangeRectColor = rightQuadColor.copy(alpha = alphaAnim)
                     
                     val purpleRectPath = Path()
                     purpleRectPath.moveTo(center.x - middleGap.toPx(), 0f)
@@ -106,7 +115,7 @@ fun LBLoadingAnimation(
                     purpleRectPath.lineTo(0f, (size.height / 2 - sideOffset.toPx()))
                     purpleRectPath.close()
                     
-                    val purpleRectColor = lb_purple.copy(alpha = alphaAnim)
+                    val purpleRectColor = leftQuadColor.copy(alpha = alphaAnim)
                     
                     onDrawBehind {
                         
