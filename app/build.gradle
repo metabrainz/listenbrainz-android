@@ -208,4 +208,7 @@ dependencies {
 
     //Jetpack Compose accompanists (https://github.com/google/accompanist)
     implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"
+
+    // Util
+    implementation 'com.github.dariobrux:Timer:1.1.0'
 }
