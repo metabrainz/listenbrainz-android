@@ -135,8 +135,10 @@ class ListenSessionListener(
         /** Run [artist] and [title] value-check before invoking this function.*/
         private fun setDurationAndCallbacks(metadata: MediaMetadata) {
             duration = roundDuration(duration = metadata.getLong(MediaMetadata.METADATA_KEY_DURATION) / 2L)
+                .coerceAtMost(240000)   // Since maximum time required to validate a listen as submittable listen is 4 minutes.
             timestamp = System.currentTimeMillis() / 1000
             
+            // d(duration.toString())
             timer.setDuration(duration)
             
             // Setting listener
@@ -169,15 +171,8 @@ class ListenSessionListener(
             submitted = false
         }
         
-        private fun roundDuration(duration: Long): Long{
-            val str = duration.toString()
-            
-            val seconds = if (duration >= 1000L){
-                str.substring(0, str.lastIndex - 2)
-            }else {
-                ""
-            }
-            return (seconds + "000").toLong()
+        private fun roundDuration(duration: Long): Long {
+            return (duration / 1000) * 1000
         }
         
     }
