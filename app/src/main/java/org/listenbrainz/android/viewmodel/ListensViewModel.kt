@@ -57,7 +57,7 @@ class ListensViewModel @Inject constructor(
     val coverArtFlow = _coverArtFlow.asStateFlow()
     
     var isLoading: Boolean  by mutableStateOf(true)
-
+    var isPaused=false
     var playerState: PlayerState? by mutableStateOf(null)
     private val _songDuration = MutableStateFlow(0L)
     private val _songCurrentPosition = MutableStateFlow(0L)
@@ -217,11 +217,13 @@ class ListensViewModel @Inject constructor(
             logMessage("play command successful!")      //getString(R.string.command_feedback, "play"))
         }?.setErrorCallback(errorCallback)
         trackProgress()
+        isPaused=false
     }
     fun play(){
         assertAppRemoteConnected()?.playerApi?.resume()?.setResultCallback {
             logMessage("play command successful!")      //getString(R.string.command_feedback, "play"))
         }?.setErrorCallback(errorCallback)
+        isPaused=false
         trackProgress()
     }
 
@@ -229,22 +231,20 @@ class ListensViewModel @Inject constructor(
         assertAppRemoteConnected()?.playerApi?.pause()?.setResultCallback {
             logMessage("pause command successful!")      //getString(R.string.command_feedback, "play"))
         }?.setErrorCallback(errorCallback)
+        isPaused=true
+        trackProgress()
     }
     fun trackProgress() {
+        var state: PlayerState? = null
         assertAppRemoteConnected()?.playerApi?.subscribeToPlayerState()?.setEventCallback { playerState ->
             if(bitmap.id!=playerState.track.uri) {
                 updateTrackCoverArt(playerState)
+                state=playerState
             }
         }?.setErrorCallback(errorCallback)
         viewModelScope.launch(Dispatchers.Default) {
-            var state: PlayerState? = null
-            var isPaused=false
-            while (true) {
-                assertAppRemoteConnected()?.playerApi?.subscribeToPlayerState()?.setEventCallback { playerState ->
-                    state = playerState
-                    isPaused = playerState?.isPaused ?: false
-
-                }?.setErrorCallback(errorCallback)
+            do {
+                state = assertAppRemoteConnected()?.playerApi?.playerState?.await()?.data
                 val pos = state?.playbackPosition?.toFloat() ?: 0f
                 val duration=state?.track?.duration ?: 1
                 if (progress.value != pos) {
@@ -252,11 +252,8 @@ class ListensViewModel @Inject constructor(
                     _songDuration.emit(duration ?: 0)
                     _songCurrentPosition.emit(((pos / duration) * duration).toLong())
                 }
-                if (isPaused) {
-                    break
-                }
-                delay(1000L)
-            }
+                delay(900L)
+            }while (!isPaused)
         }
     }
 
@@ -266,6 +263,13 @@ class ListensViewModel @Inject constructor(
         assertAppRemoteConnected()?.playerApi?.seekTo(position)?.setResultCallback {
             logMessage("seek command successful!")      //getString(R.string.command_feedback, "play"))
         }?.setErrorCallback(errorCallback)
+        viewModelScope.launch(Dispatchers.Default) {
+            if (progress.value != pos) {
+                _progress.emit(pos / duration.toFloat())
+                _songDuration.emit(duration ?: 0)
+                _songCurrentPosition.emit(((pos / duration) * duration).toLong())
+            }
+        }
     }
 
     private fun onSubscribedToPlayerContextButtonClicked() {
