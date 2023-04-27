@@ -26,9 +26,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.Listen
+import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.repository.ListensRepository
 import org.listenbrainz.android.service.YouTubeApiService
-import org.listenbrainz.android.ui.screens.listens.listenPoster
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.e
@@ -62,7 +62,7 @@ class ListensViewModel @Inject constructor(
     private val _songDuration = MutableStateFlow(0L)
     private val _songCurrentPosition = MutableStateFlow(0L)
     private val _progress = MutableStateFlow(0F)
-    var bitmap: listenPoster = listenPoster()
+    var bitmap: ListenBitmap = ListenBitmap()
     val progress = _progress.asStateFlow()
     val songCurrentPosition = _songCurrentPosition.asStateFlow()
     private val gson = GsonBuilder().setPrettyPrinting().create()
@@ -147,7 +147,7 @@ class ListensViewModel @Inject constructor(
     private fun updateTrackCoverArt(playerState: PlayerState) {
         // Get image from track
         assertAppRemoteConnected()?.imagesApi?.getImage(playerState.track.imageUri, com.spotify.protocol.types.Image.Dimension.LARGE)?.setResultCallback { bitmapHere ->
-            bitmap =listenPoster(
+            bitmap =ListenBitmap(
                 bitmap=bitmapHere,
                 id = playerState.track.uri
             )

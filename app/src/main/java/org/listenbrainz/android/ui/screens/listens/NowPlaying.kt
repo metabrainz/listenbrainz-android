@@ -26,13 +26,14 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.spotify.protocol.types.PlayerState
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.ui.components.SeekBar
 import org.listenbrainz.android.viewmodel.ListensViewModel
 
 @Composable
 fun NowPlaying(
     playerState: PlayerState?,
-    bitmap: listenPoster
+    bitmap: ListenBitmap
 ){
     val listenViewModel = hiltViewModel<ListensViewModel>()
     Card(
@@ -146,78 +147,6 @@ fun NowPlaying(
 fun NowPlayingPreview() {
     NowPlaying(
         playerState = null,
-        bitmap = listenPoster()
+        bitmap = ListenBitmap()
     )
 }
-@Composable
-fun ProgressBar(playerState: PlayerState?) {
-    val listenViewModel = hiltViewModel<ListensViewModel>()
-    val progress by listenViewModel.progress.collectAsState(initial = 0f)
-    Column {
-        Box {
-            SeekBar(
-                modifier = Modifier
-                    .height(10.dp)
-                    .fillMaxWidth(0.98F)
-                    .padding(0.dp),
-                progress = progress,
-                onValueChange = {//get the value of the seekbar
-                    listenViewModel.seekTo(it, playerState)
-                },
-                onValueChanged = { }
-            )
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .fillMaxWidth(0.98F)
-                .padding(start = 10.dp, top = 0.dp, end = 10.dp)
-        ) {
-            val song = playerState?.track
-            var duration = "00:00"
-            val songCurrentPosition by listenViewModel.songCurrentPosition.collectAsState()
-            var currentPosition = "00:00"
-            if ((song?.duration ?: 0) / (1000 * 60 * 60) > 0 && songCurrentPosition / (1000 * 60 * 60) > 0) {
-                duration = String.format(
-                    "%02d:%02d:%02d",
-                    (song?.duration ?: 0) / (1000 * 60 * 60),
-                    (song?.duration ?: 0) / (1000 * 60) % 60,
-                    (song?.duration ?: 0) / 1000 % 60
-                )
-                currentPosition = String.format(
-                    "%02d:%02d:%02d",
-                    songCurrentPosition / (1000 * 60 * 60),
-                    songCurrentPosition / (1000 * 60) % 60,
-                    songCurrentPosition / 1000 % 60
-                )
-            } else {
-                duration = String.format(
-                    "%02d:%02d",
-                    (song?.duration ?: 0) / (1000 * 60) % 60,
-                    (song?.duration ?: 0) / 1000 % 60
-                )
-                currentPosition =
-                    String.format("%02d:%02d", songCurrentPosition / (1000 * 60) % 60, songCurrentPosition / 1000 % 60)
-            }
-            Text(
-                text = currentPosition,
-                textAlign = TextAlign.Start,
-                color = Color.White,
-                modifier = Modifier.padding(end = 5.dp)
-            )
-
-            Text(
-                text = duration,
-                textAlign = TextAlign.Start,
-                color = Color.White,
-                modifier = Modifier.padding(start = 5.dp)
-            )
-        }
-    }
-}
-
-data class listenPoster(
-    val bitmap: Bitmap?=null,
-    val id:String?=""
-)
