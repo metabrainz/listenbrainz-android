@@ -25,13 +25,16 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.Listen
+import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.repository.ListensRepository
 import org.listenbrainz.android.service.YouTubeApiService
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.e
 import org.listenbrainz.android.util.Log.v
-import org.listenbrainz.android.util.Resource.Status.*
+import org.listenbrainz.android.util.Resource.Status.FAILED
+import org.listenbrainz.android.util.Resource.Status.LOADING
+import org.listenbrainz.android.util.Resource.Status.SUCCESS
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -44,6 +47,7 @@ import kotlin.coroutines.suspendCoroutine
 @HiltViewModel
 class ListensViewModel @Inject constructor(
     val repository: ListensRepository,
+    val appPreferences: AppPreferences,
     private val application: Application
 ) : AndroidViewModel(application) {
     // TODO: remove dependency of this view-model on application
@@ -262,4 +266,5 @@ class ListensViewModel @Inject constructor(
     private fun logMessage(msg: String) {
         d(msg)
     }
+
 }

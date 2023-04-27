@@ -1,13 +1,13 @@
 package org.listenbrainz.android.ui.screens.listens
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,18 +42,17 @@ fun ListensScreen(
             }
         }
 
+        val showNowPlaying by remember(viewModel.playerState?.track?.name) {
+            mutableStateOf(viewModel.playerState?.track?.name != null)
+        }
+        
         Column {
-            if (viewModel.playerState?.track?.name != null) {
-                AnimatedVisibility(
-                    visible = true,
-                    enter = fadeIn(initialAlpha = 0.4f),
-                    exit = fadeOut(animationSpec = tween(durationMillis = 250))
-                ) {
-                    NowPlaying(
-                        playerState = viewModel.playerState,
-                        bitmap = viewModel.bitmap
-                    )
-                }
+            
+            AnimatedVisibility(visible = showNowPlaying) {
+                NowPlaying(
+                    playerState = viewModel.playerState,
+                    bitmap = viewModel.bitmap
+                )
             }
 
             AllUserListens(

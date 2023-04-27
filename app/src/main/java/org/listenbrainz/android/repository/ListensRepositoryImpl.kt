@@ -1,9 +1,11 @@
 package org.listenbrainz.android.repository
 
+import android.graphics.drawable.Drawable
 import androidx.annotation.WorkerThread
-import org.listenbrainz.android.service.ListensService
+import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.CoverArt
 import org.listenbrainz.android.model.Listen
+import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Resource.Status.FAILED
 import org.listenbrainz.android.util.Resource.Status.SUCCESS
@@ -33,5 +35,30 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
             e.printStackTrace()
             Resource.failure()
         }
+    }
+    
+    /** Retrieve any installed application's icon. If the requested application is not installed, null is returned.
+     *
+     * Usage:
+     * ```
+     * Image(
+     *    painter = rememberDrawablePainter( drawable = getPackageIcon(packageName) ),
+     *    contentDescription = "Example Description"
+     * )
+     * ```
+     * */
+    override fun getPackageIcon(packageName: String): Drawable? {
+        return try {
+            App.context!!.packageManager.getApplicationIcon(packageName)
+        }
+        catch (e: Exception) {
+            null
+        }
+    }
+    
+    @Suppress("DEPRECATION")
+    override fun getPackageLabel(packageName: String): String {
+        val info = App.context!!.packageManager.getApplicationInfo(packageName, 0)   // Replacement requires SDK 33
+        return App.context!!.packageManager.getApplicationLabel(info).toString()
     }
 }
