@@ -52,7 +52,7 @@ private val RedColorScheme = darkColorScheme(
     background = yimRed,
     onBackground = yimYellow,
     surface = yimWhite,
-    secondary = yimOffWhite
+    secondary = offWhite
 
 )
 
@@ -60,7 +60,7 @@ private val YellowColorScheme = lightColorScheme(
     background = yimYellow,
     onBackground = yimRed,
     surface = yimWhite,
-    secondary = yimOffWhite
+    secondary = offWhite
 )
 
 @Immutable

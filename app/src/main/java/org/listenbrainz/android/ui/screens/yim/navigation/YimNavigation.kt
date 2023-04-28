@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.yim.navigation
+package org.payloadbrainz.android.ui.screens.yim.navigation
 
 import androidx.activity.ComponentActivity
 import androidx.compose.animation.*

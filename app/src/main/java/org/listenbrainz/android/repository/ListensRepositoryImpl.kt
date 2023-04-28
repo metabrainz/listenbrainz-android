@@ -1,5 +1,6 @@
 package org.listenbrainz.android.repository
 
+import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import androidx.annotation.WorkerThread
 import org.listenbrainz.android.application.App
@@ -55,10 +56,13 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
             null
         }
     }
-    
-    @Suppress("DEPRECATION")
+
     override fun getPackageLabel(packageName: String): String {
-        val info = App.context!!.packageManager.getApplicationInfo(packageName, 0)   // Replacement requires SDK 33
-        return App.context!!.packageManager.getApplicationLabel(info).toString()
+        return try {
+            val info = App.context!!.packageManager.getApplicationInfo(packageName, 0)
+            App.context!!.packageManager.getApplicationLabel(info).toString()
+        } catch (e: PackageManager.NameNotFoundException) {
+            packageName
+        }
     }
 }

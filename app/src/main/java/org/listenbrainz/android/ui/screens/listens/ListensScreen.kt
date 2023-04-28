@@ -47,7 +47,6 @@ fun ListensScreen(
         }
         
         Column {
-            
             AnimatedVisibility(visible = showNowPlaying) {
                 NowPlaying(
                     playerState = viewModel.playerState,
