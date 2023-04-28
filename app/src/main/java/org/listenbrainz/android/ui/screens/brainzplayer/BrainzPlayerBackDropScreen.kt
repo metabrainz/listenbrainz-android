@@ -113,7 +113,7 @@ fun BrainzPlayerBackDropScreen(
 }
 
 
-@ExperimentalPagerApi
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
     val songList = viewModel.mediaItem.collectAsState().value
@@ -185,7 +185,6 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
     }
 }
 
-@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun PlayerScreen(
     brainzPlayerViewModel: BrainzPlayerViewModel = viewModel(),
@@ -374,7 +373,6 @@ fun PlayerScreen(
             }
         }
         val checkedSongs = mutableStateListOf<Song>()
-        val songs = BrainzPlayerService.playableSongs ?: mutableListOf()
         item {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(start = 5.dp),

@@ -41,7 +41,7 @@ import org.listenbrainz.android.ui.components.YimNavigationStation
 import org.listenbrainz.android.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.ui.theme.YimPaddings
-import org.listenbrainz.android.ui.theme.yimOffWhite
+import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.viewmodel.YimViewModel
 
 @Composable
@@ -147,7 +147,7 @@ fun YimStatisticsScreen(
                                             item in 100..149 -> Color(0xFFE5743E)
                                             item in 50..99 -> Color(0xFFF9CC4E)
                                             item in 1..49 -> Color(0xFFF6E4B3)
-                                            else -> yimOffWhite
+                                            else -> offWhite
                                         }
                                     ),
                             )
@@ -297,7 +297,7 @@ private fun HeatMapExampleSquare(
                         listenCount in 100..149 -> Color(0xFFE5743E)
                         listenCount in 50..99 -> Color(0xFFF9CC4E)
                         listenCount in 1..49 -> Color(0xFFF6E4B3)
-                        else -> yimOffWhite
+                        else -> offWhite
                     }
                 ),
         )

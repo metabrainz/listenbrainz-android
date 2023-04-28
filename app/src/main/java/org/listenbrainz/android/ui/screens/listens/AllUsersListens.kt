@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -248,7 +249,8 @@ fun ListeningAppsList(
     onDismiss: () -> Unit
 ){
     var blacklist by remember { mutableStateOf(viewModel.appPreferences.listeningBlacklist) }
-    
+    val context = LocalContext.current
+
     AlertDialog(
         onDismissRequest = onDismiss,
         backgroundColor = MaterialTheme.colorScheme.background,
@@ -295,7 +297,9 @@ fun ListeningAppsList(
                                 modifier = Modifier
                                     .fillMaxWidth(0.15f)
                                     .padding(end = 5.dp),
-                                painter = rememberDrawablePainter(drawable = viewModel.repository.getPackageIcon(packageName)),
+                                painter = rememberDrawablePainter(
+                                    drawable = viewModel.repository.getPackageIcon(packageName) ?: AppCompatResources.getDrawable(context, R.drawable.music_solid)
+                                ),
                                 contentDescription = null
                             )
                             

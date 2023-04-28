@@ -24,6 +24,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.ui.theme.lb_purple
+import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 
 @OptIn(ExperimentalGlideComposeApi::class)
@@ -36,7 +37,7 @@ fun ListenCard(listen: Listen, coverArtUrl: String, onItemClicked: (listen: List
             .clip(RoundedCornerShape(16.dp))
             .clickable { onItemClicked(listen) },
         elevation = 0.dp,
-        backgroundColor = MaterialTheme.colors.onSurface
+        backgroundColor = if (onScreenUiModeIsDark()) Color.Black else offWhite,
     ) {
         Row(
             modifier = Modifier
@@ -58,7 +59,7 @@ fun ListenCard(listen: Listen, coverArtUrl: String, onItemClicked: (listen: List
                 Text(
                     text = listen.track_metadata.track_name,
                     modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
-                    color = MaterialTheme.colors.surface,
+                    color = if (onScreenUiModeIsDark()) Color.White else lb_purple,
                     fontWeight = FontWeight.Bold,
                     style = typography.subtitle1
                 )
@@ -69,7 +70,7 @@ fun ListenCard(listen: Listen, coverArtUrl: String, onItemClicked: (listen: List
                         append(listen.track_metadata.artist_name)
                     },
                     modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
-                    color = MaterialTheme.colors.surface,
+                    color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(alpha = 0.7f),
                     style = typography.caption
                 )
 
@@ -77,7 +78,7 @@ fun ListenCard(listen: Listen, coverArtUrl: String, onItemClicked: (listen: List
                     Text(
                         text = listen.track_metadata.release_name ?: "",
                         modifier = Modifier.padding(0.dp, 12.dp, 12.dp, 0.dp),
-                        color = MaterialTheme.colors.surface,
+                        color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(alpha = 0.7f),
                         style = typography.caption
                     )
                 }
