@@ -16,7 +16,7 @@ import retrofit2.Call
 import retrofit2.Response
 
 class ListenHandler : Handler(Looper.getMainLooper()) {
-    private val delay = 30000
+    
     private val timestamp = "timestamp"
 
     override fun handleMessage(msg: Message) {
@@ -52,7 +52,7 @@ class ListenHandler : Handler(Looper.getMainLooper()) {
         data.putLong(this.timestamp, timestamp)
         message.what = timestamp.toInt()
         message.data = data
-        sendMessageDelayed(message, delay.toLong())
+        sendMessageDelayed(message, 0)
     }
 
     fun cancelListen(timestamp: Long) {
