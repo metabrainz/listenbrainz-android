@@ -44,7 +44,12 @@ class NotificationHelper(base: Context?,val icon: Bitmap) : ContextWrapper(base)
         .setPriority(NotificationCompat.PRIORITY_MAX)
         .setTimeoutAfter(1800000)
         .setAutoCancel(true)
-        .setContentIntent(PendingIntent.getActivity(baseContext, 0, Intent(baseContext, intentActivity), 0))
+        .setContentIntent(PendingIntent.getActivity(
+            baseContext,
+            0,
+            Intent(baseContext, intentActivity),
+            PendingIntent.FLAG_IMMUTABLE
+        ))
 
     companion object {
         const val channelID = "channelId"
