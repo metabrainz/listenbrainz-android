@@ -188,6 +188,7 @@ private fun ListensList(
                     scope.launch {
                         val videoId = viewModel
                             .searchYoutubeMusicVideoId(
+                                context = context,
                                 trackName = listen.track_metadata.track_name,
                                 artist = listen.track_metadata.artist_name,
                                 apiKey = youtubeApiKey
@@ -200,8 +201,10 @@ private fun ListensList(
                                 val intent = Intent(Intent.ACTION_VIEW)
                                 intent.data = trackUri
                                 intent.setPackage(Constants.YOUTUBE_MUSIC_PACKAGE_NAME)
+                                val activities = context.packageManager.queryIntentActivities(intent, 0)
+
                                 when {
-                                    intent.resolveActivity(context.packageManager) != null -> {
+                                    activities.isNotEmpty() -> {
                                         context.startActivity(intent)
                                     }
     
