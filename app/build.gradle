@@ -92,9 +92,15 @@ android {
 //            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
     composeOptions {
-        kotlinCompilerExtensionVersion '1.4.3'
+        kotlinCompilerExtensionVersion '1.4.6'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
     }
 }
 
@@ -106,11 +112,9 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.core:core-ktx:1.10.0'
     implementation 'androidx.browser:browser:1.5.0'
     implementation 'androidx.preference:preference-ktx:1.2.0'
-    implementation 'androidx.core:core-splashscreen:1.0.0'
-    //implementation 'androidx.datastore:datastore-preferences:1.0.0'
 
     //Web Service Setup
     implementation 'com.google.code.gson:gson:2.10.1'
@@ -136,7 +140,7 @@ dependencies {
     implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
 
     //Design Setup
-    implementation 'com.google.android.material:material:1.9.0-beta01'
+    implementation 'com.google.android.material:material:1.8.0'
     implementation 'com.airbnb.android:lottie:6.0.0'
     implementation 'com.github.akshaaatt:Onboarding:1.0.5'
     implementation 'com.github.akshaaatt:Share-Android:1.0.0'
@@ -159,10 +163,10 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout-compose:1.0.1'
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
     implementation 'com.airbnb.android:lottie-compose:6.0.0'
-    implementation 'androidx.activity:activity-compose:1.7.0'
+    implementation 'androidx.activity:activity-compose:1.7.1'
 
     // Compose Navigation
-    implementation 'androidx.navigation:navigation-compose:2.6.0-alpha09'     // Stable one
+    implementation 'androidx.navigation:navigation-compose:2.6.0-beta01'     // Stable one
     implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"     // Experimental but has animations
 
     //Spotify

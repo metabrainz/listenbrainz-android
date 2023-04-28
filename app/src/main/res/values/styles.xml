@@ -13,16 +13,6 @@
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
     </style>
 
-    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        // Set the splash screen background, animated icon, and animation duration.
-        <item name="windowSplashScreenBackground">@color/app_bg</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
-        <item name="windowSplashScreenAnimationDuration">800</item>
-
-        // Set the theme of the Activity that directly follows your splash screen.
-        <item name="postSplashScreenTheme">@style/AppThemeNoActionBar</item>
-    </style>
-
     <style name="settingsDialog" parent="Theme.MaterialComponents.Light.Dialog.Alert">
         <item name="colorPrimary">@color/colorPrimary</item>
     </style>

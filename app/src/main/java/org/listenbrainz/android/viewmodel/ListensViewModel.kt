@@ -1,6 +1,7 @@
 package org.listenbrainz.android.viewmodel
 
 import android.app.Application
+import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -23,6 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.repository.AppPreferences
@@ -36,6 +38,7 @@ import org.listenbrainz.android.util.Resource.Status.FAILED
 import org.listenbrainz.android.util.Resource.Status.LOADING
 import org.listenbrainz.android.util.Resource.Status.SUCCESS
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
+import org.listenbrainz.android.util.Utils.getSHA1
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Inject
@@ -108,10 +111,24 @@ class ListensViewModel @Inject constructor(
         }
     }
 
-    suspend fun searchYoutubeMusicVideoId(trackName: String, artist: String, apiKey: String): String? {
+    suspend fun searchYoutubeMusicVideoId(context: Context, trackName: String, artist: String, apiKey: String): String? {
+        val packageName = context.packageName
+        val sha1 = getSHA1(context, packageName)
+
+        val okHttpClient = OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val request = chain.request().newBuilder()
+                    .addHeader("X-Android-Package", packageName)
+                    .addHeader("X-Android-Cert", sha1 ?: "")
+                    .build()
+                chain.proceed(request)
+            }
+            .build()
+
         val retrofit = Retrofit.Builder()
             .baseUrl("https://www.googleapis.com/")
             .addConverterFactory(GsonConverterFactory.create())
+            .client(okHttpClient)
             .build()
 
         val service = retrofit.create(YouTubeApiService::class.java)
