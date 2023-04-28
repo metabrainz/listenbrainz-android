@@ -8,7 +8,7 @@ import androidx.activity.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModelImpl
 import org.listenbrainz.android.viewmodel.YimViewModel
-import org.payloadbrainz.android.ui.screens.yim.navigation.YimNavigation
+import org.listenbrainz.android.ui.screens.yim.navigation.YimNavigation
 
 @AndroidEntryPoint
 class YearInMusicActivity : ComponentActivity() {
