@@ -5,6 +5,7 @@ import android.os.Build
 import android.widget.Toast
 import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
+import org.listenbrainz.android.util.Log.e
 
 class BrainzPlayerEventListener(
     private val brainzPlayerService : BrainzPlayerService
@@ -22,6 +23,6 @@ class BrainzPlayerEventListener(
 
     override fun onPlayerError(error: PlaybackException) {
         super.onPlayerError(error)
-        Toast.makeText(brainzPlayerService, "BrainzPlayer Error", Toast.LENGTH_SHORT).show()
+        e("BrainzPlayer Error")
     }
 }

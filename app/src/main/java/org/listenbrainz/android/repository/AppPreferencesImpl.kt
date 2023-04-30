@@ -10,6 +10,7 @@ import org.listenbrainz.android.model.AccessToken
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UserInfo
+import org.listenbrainz.android.util.Constants.ONBOARDING
 import org.listenbrainz.android.util.Constants.Strings.CURRENT_PLAYABLE
 import org.listenbrainz.android.util.Constants.Strings.LB_ACCESS_TOKEN
 import org.listenbrainz.android.util.Constants.Strings.MB_ACCESS_TOKEN
@@ -18,7 +19,6 @@ import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_APPS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_BLACKLIST
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_ENABLED
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_SPOTIFY
-import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_ONBOARDING
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_PERMS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SONGS_ON_DEVICE
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SYSTEM_LANGUAGE
@@ -108,9 +108,9 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
             "unknown"
         }
 
-    override var preferenceOnboardingCompleted: Boolean
-        get() = preferences.getBoolean(PREFERENCE_ONBOARDING, false)
-        set(value) = setBoolean(PREFERENCE_ONBOARDING, value)
+    override var onboardingCompleted: Boolean
+        get() = preferences.getBoolean(ONBOARDING, false)
+        set(value) = setBoolean(ONBOARDING, value)
     
     override val preferenceListeningSpotifyEnabled
         get() = preferences.getBoolean(PREFERENCE_LISTENING_SPOTIFY, false)

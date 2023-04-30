@@ -29,8 +29,8 @@ interface AppPreferences {
     /** Music Apps in users device registered by listenService.*/
     var listeningApps: List<String>
 
-    var preferenceOnboardingCompleted: Boolean
-    
+    var onboardingCompleted: Boolean
+
     val preferenceListeningSpotifyEnabled: Boolean
     
     fun saveOAuthToken(token: AccessToken)

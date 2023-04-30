@@ -13,6 +13,7 @@ object Constants {
     const val CLIENT_ID = "XqCukyOoCAH9PRrHpwiINlvJ1T-x4ffQ"
     const val CLIENT_SECRET = "CJrUcF_jyzj-MVCPhNXSwPIpu_eeb_Ye"
     const val OAUTH_REDIRECT_URI = "org.listenbrainz.android://oauth"
+    const val ONBOARDING = "onboarding_lb"
 
     object Strings {
         const val TIMESTAMP = "timestamp"
@@ -23,7 +24,6 @@ object Constants {
         const val PREFERENCE_SYSTEM_LANGUAGE = "use_english"
         const val PREFERENCE_SYSTEM_THEME = "app_theme"
         const val PREFERENCE_PERMS = "perms_code"
-        const val PREFERENCE_ONBOARDING = "onboarding"
         const val PREFERENCE_ALBUMS_ON_DEVICE = "PREFERENCE_ALBUMS_ON_DEVICE"
         const val PREFERENCE_SONGS_ON_DEVICE = "PREFERENCE_SONGS_ON_DEVICE"
         const val USERNAME = "username"

@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.screens.onboarding
 
+import android.Manifest
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -12,6 +13,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.R
 import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
+import org.listenbrainz.android.util.Log.d
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -28,7 +30,23 @@ class FeaturesActivity : OnboardAdvanced() {
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
                 askForPermissions(
-                    permissions = arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                    permissions = arrayOf(Manifest.permission.POST_NOTIFICATIONS,
+                        Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_AUDIO
+                    ),
+                    slideNumber = 1,
+                    required = true
+                )
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                askForPermissions(
+                    permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    slideNumber = 1,
+                    required = true
+                )
+            }
+            else -> {
+                askForPermissions(
+                    permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE),
                     slideNumber = 1,
                     required = true
                 )
@@ -74,9 +92,10 @@ class FeaturesActivity : OnboardAdvanced() {
         setTransformer(OnboardPageTransformerType.Parallax())
     }
 
-    public override fun onDonePressed(currentFragment: Fragment?) {
+    override fun onDonePressed(currentFragment: Fragment?) {
         super.onDonePressed(currentFragment)
-        appPreferences.preferenceOnboardingCompleted = true
+        d("Onboarding completed")
+        appPreferences.onboardingCompleted = true
         val intent = Intent(this, DashboardActivity::class.java)
         startActivity(intent)
         finish()

@@ -15,6 +15,7 @@ import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.UiModes
 import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.ui.screens.onboarding.FeaturesActivity
+import org.listenbrainz.android.util.Log.d
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,7 +38,8 @@ class DashBoardViewModel @Inject constructor(
     }
     
     fun beginOnboarding(activity: ComponentActivity) {
-        if (!appPreferences.preferenceOnboardingCompleted){
+        d("Onboarding status: ${appPreferences.onboardingCompleted}")
+        if (!appPreferences.onboardingCompleted){
             // TODO: Convert onboarding to a nav component.
             activity.startActivity(Intent(activity, FeaturesActivity::class.java))
             activity.finish()
