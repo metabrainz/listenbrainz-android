@@ -28,9 +28,7 @@ interface AppPreferences {
     
     /** Music Apps in users device registered by listenService.*/
     var listeningApps: List<String>
-    
-    val preferenceListenBrainzToken : String?
-    
+
     var preferenceOnboardingCompleted: Boolean
     
     val preferenceListeningSpotifyEnabled: Boolean
@@ -49,7 +47,7 @@ interface AppPreferences {
     /****MusicBrainz User Token:** Obtained when user logins in.*/
     val mbAccessToken: String?
     /****ListenBrainz User Token:** User has to manually fill this token.*/
-    val lbAccessToken: String?
+    var lbAccessToken: String?
     val username: String?
     val refreshToken: String?
 

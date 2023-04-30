@@ -16,7 +16,7 @@
         android:title="@string/settings_listens">
 
         <EditTextPreference
-            android:key="listenbrainz_user_token"
+            android:key="lb_access_token"
             android:selectAllOnFocus="true"
             android:singleLine="true"
             android:summary="@string/settings_listenbrainz_token_summary"

@@ -6,10 +6,8 @@ import android.media.session.MediaSessionManager.OnActiveSessionsChangedListener
 import android.media.session.PlaybackState
 import com.dariobrux.kotimer.Timer
 import com.dariobrux.kotimer.interfaces.OnTimerListener
-import okhttp3.ResponseBody
 import org.listenbrainz.android.model.ListenBrainzExternalServices
 import org.listenbrainz.android.repository.AppPreferences
-import org.listenbrainz.android.service.ListenBrainzService
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.w
 import retrofit2.Call
@@ -18,7 +16,6 @@ import retrofit2.Response
 class ListenSessionListener(
     private val handler: ListenHandler,
     private val appPreferences: AppPreferences,
-    private val service: ListenBrainzService
 ) : OnActiveSessionsChangedListener {
     
     private val activeSessions: MutableMap<MediaController, ListenCallback?> = HashMap()
@@ -34,16 +31,16 @@ class ListenSessionListener(
             return
         }
 
-        service.getServicesLinkedToAccount(token, LBSharedPreferences.USERNAME)?.enqueue(object : retrofit2.Callback<ListenBrainzExternalServices?> {
-            override fun onResponse(call: Call<ListenBrainzExternalServices?>, response: Response<ListenBrainzExternalServices?>) {
-                println("Services found: " + response.body())
-                registerControllers(controllers, services = response.body())
-            }
-            override fun onFailure(call: Call<ListenBrainzExternalServices?>, t: Throwable) {
-                println("Services found not found")
-                registerControllers(controllers)
-            }
-        })
+//        service.getServicesLinkedToAccount(token, appPreferences.username!!)?.enqueue(object : retrofit2.Callback<ListenBrainzExternalServices?> {
+//            override fun onResponse(call: Call<ListenBrainzExternalServices?>, response: Response<ListenBrainzExternalServices?>) {
+//                println("Services found: " + response.body())
+//                registerControllers(controllers, services = response.body())
+//            }
+//            override fun onFailure(call: Call<ListenBrainzExternalServices?>, t: Throwable) {
+//                println("Services found not found")
+//                registerControllers(controllers)
+//            }
+//        })
     }
 
     fun registerControllers(controllers: List<MediaController>, services: ListenBrainzExternalServices? = null) {

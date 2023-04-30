@@ -6,12 +6,12 @@ import android.view.MenuItem
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
-import org.listenbrainz.android.application.App
 import org.listenbrainz.android.R
 import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
-import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SYSTEM_THEME
+import org.listenbrainz.android.util.Constants.Strings.LB_ACCESS_TOKEN
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_ENABLED
+import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SYSTEM_THEME
 
 class SettingsFragment(private val appPreferences: AppPreferences) : PreferenceFragmentCompat() {
     private var preferenceChangeListener: Preference.OnPreferenceChangeListener? = null
@@ -28,6 +28,7 @@ class SettingsFragment(private val appPreferences: AppPreferences) : PreferenceF
             appPreferences.preferenceListeningEnabled = false
         }
         findPreference<Preference>(PREFERENCE_LISTENING_ENABLED)!!.onPreferenceChangeListener = preferenceChangeListener
+        findPreference<Preference>(LB_ACCESS_TOKEN)!!.onPreferenceChangeListener = preferenceChangeListener
     }
 
     override fun onResume() {

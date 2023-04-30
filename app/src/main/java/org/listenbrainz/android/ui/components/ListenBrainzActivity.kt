@@ -12,9 +12,8 @@ import androidx.preference.PreferenceManager
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.screens.onboarding.FeaturesActivity
 import org.listenbrainz.android.util.Constants
-import org.listenbrainz.android.util.IntentFactory.getSettings
-import org.listenbrainz.android.util.Constants.Strings
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SYSTEM_LANGUAGE
+import org.listenbrainz.android.util.IntentFactory.getSettings
 import org.listenbrainz.android.util.Utils.changeLanguage
 import org.listenbrainz.android.util.Utils.emailIntent
 

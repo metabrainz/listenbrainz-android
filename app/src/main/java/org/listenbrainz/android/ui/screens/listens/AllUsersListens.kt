@@ -61,7 +61,6 @@ import org.listenbrainz.android.ui.components.ListenCard
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.navigation.AppNavigationItem
 import org.listenbrainz.android.util.Constants
-import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.ListensViewModel
 
@@ -77,11 +76,10 @@ fun AllUserListens(
         var showBlacklist by remember { mutableStateOf(false) }
         
         // Error Dialog
-        if(LBSharedPreferences.username == "") {
+        if(viewModel.appPreferences.username == "") {
             NotLoggedInErrorDialog(navController)
             return
         }
-      
         
         // Loading Animation
         AnimatedVisibility(

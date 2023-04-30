@@ -52,7 +52,6 @@ import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarqu
 import org.listenbrainz.android.util.BrainzPlayerExtensions.duration
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.Constants.RECENTLY_PLAYED_KEY
-import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.util.SongViewPager
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
@@ -389,14 +388,16 @@ fun PlayerScreen(
                 Button(
                     onClick = {
                         checkedSongs.forEach { song ->
-                            BrainzPlayerService.playableSongs.remove(song)
+                            brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()?.remove(song)
                         }
-                        brainzPlayerViewModel.changePlayable(
-                            BrainzPlayerService.playableSongs,
-                            PlayableType.ALL_SONGS,
-                            LBSharedPreferences.currentPlayable?.id ?: 0,
-                            BrainzPlayerService.playableSongs.indexOfFirst { it.mediaID == currentlyPlayingSong.mediaID } ?: 0,brainzPlayerViewModel.songCurrentPosition.value
-                        )
+                        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let {
+                            brainzPlayerViewModel.changePlayable(
+                                it,
+                                PlayableType.ALL_SONGS,
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0,
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { it.mediaID == currentlyPlayingSong.mediaID } ?: 0,brainzPlayerViewModel.songCurrentPosition.value
+                            )
+                        }
                         brainzPlayerViewModel.queueChanged(
                             currentlyPlayingSong,
                             brainzPlayerViewModel.isPlaying.value
@@ -421,7 +422,7 @@ fun PlayerScreen(
             }
         }
         // Playlist
-        itemsIndexed(items = BrainzPlayerService.playableSongs) {index, song ->
+        itemsIndexed(items = brainzPlayerViewModel.appPreferences.currentPlayable?.songs!!) {index, song ->
             val isChecked = checkedSongs.contains(song)
             BoxWithConstraints {
                 val maxWidth =
@@ -446,7 +447,7 @@ fun PlayerScreen(
                         errorAlbumArt = R.drawable.ic_erroralbumart
                     ) {
                         brainzPlayerViewModel.skipToPlayable(index)
-                        brainzPlayerViewModel.changePlayable(BrainzPlayerService.playableSongs, PlayableType.ALL_SONGS, LBSharedPreferences.currentPlayable?.id ?: 0, index,0L)
+                        brainzPlayerViewModel.changePlayable(brainzPlayerViewModel.appPreferences.currentPlayable?.songs!!, PlayableType.ALL_SONGS, brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0, index,0L)
                         brainzPlayerViewModel.playOrToggleSong(song, true)
                     }
                     if (currentlyPlayingSong.mediaID!=song.mediaID) {

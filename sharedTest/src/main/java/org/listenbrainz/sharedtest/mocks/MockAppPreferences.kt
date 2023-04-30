@@ -5,7 +5,7 @@ import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UserInfo
 import org.listenbrainz.android.repository.AppPreferences
-import org.listenbrainz.android.util.LBSharedPreferences
+import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
 
 /*
     For every new preference, add default value of the concerned shared
@@ -16,20 +16,19 @@ class MockAppPreferences(
     override val themePreference: String? = "Use device theme",
     override var permissionsPreference: String? = PermissionStatus.NOT_REQUESTED.name,
     override var preferenceListeningEnabled: Boolean = false,
-    override val preferenceListenBrainzToken: String? = null,
     override var preferenceOnboardingCompleted: Boolean = false,
     override val preferenceListeningSpotifyEnabled: Boolean = false,
     override var currentPlayable: Playable? = null,
-    override val loginStatus: Int = LBSharedPreferences.STATUS_LOGGED_OUT,
+    override val loginStatus: Int = STATUS_LOGGED_OUT,
     override val mbAccessToken: String? = "",
-    override val lbAccessToken: String? = "",
+    override var lbAccessToken: String? = "",
     override val username: String? = "",
     override val refreshToken: String? = "",
     override var albumsOnDevice: Boolean = true,
     override var songsOnDevice: Boolean = true,
     override var listeningBlacklist: List<String> = listOf(),
     override var listeningApps: List<String> = listOf(),
-    override val version: String = "" ,
+    override val version: String = "",
     override val isNotificationServiceAllowed: Boolean = true
 ) : AppPreferences {
     

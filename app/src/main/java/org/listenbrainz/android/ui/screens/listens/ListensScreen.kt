@@ -16,7 +16,6 @@ import androidx.navigation.NavController
 import com.spotify.android.appremote.api.SpotifyAppRemote
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.viewmodel.ListensViewModel
 
 @Composable
@@ -37,8 +36,10 @@ fun ListensScreen(
         }
 
         LaunchedEffect(Unit){
-            LBSharedPreferences.username?.let {
-                viewModel.fetchUserListens(userName = it)
+            viewModel.appPreferences.username.let {username ->
+                if (username != null) {
+                    viewModel.fetchUserListens(userName = username)
+                }
             }
         }
 

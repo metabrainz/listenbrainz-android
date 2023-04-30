@@ -3,7 +3,6 @@ package org.listenbrainz.android.application
 import android.app.Application
 import android.content.Intent
 import android.os.Build
-import android.provider.Settings
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ProcessLifecycleOwner
 import dagger.hilt.android.HiltAndroidApp

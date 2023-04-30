@@ -9,7 +9,6 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.repository.AppPreferences
-import org.listenbrainz.android.util.ListenBrainzServiceGenerator
 import org.listenbrainz.android.util.ListenHandler
 import org.listenbrainz.android.util.ListenSessionListener
 import org.listenbrainz.android.util.Log.d
@@ -25,7 +24,6 @@ class ListenService : NotificationListenerService() {
     private var handler: ListenHandler? = null
     private var sessionListener: ListenSessionListener? = null
     private var listenServiceComponent: ComponentName? = null
-    private var service: ListenBrainzService? = null
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         d("Listen Service Started")
@@ -49,10 +47,9 @@ class ListenService : NotificationListenerService() {
         if (token.isNullOrEmpty())
             d("ListenBrainz User token has not been set!")
 
-        service = ListenBrainzServiceGenerator.createListensService(ListenBrainzService::class.java, true)
-        handler = ListenHandler(service!!, appPreferences)
+        handler = ListenHandler(appPreferences)
         sessionManager = applicationContext.getSystemService(MEDIA_SESSION_SERVICE) as MediaSessionManager
-        sessionListener = ListenSessionListener(handler!!, appPreferences, service!!)
+        sessionListener = ListenSessionListener(handler!!, appPreferences)
         listenServiceComponent = ComponentName(this, this.javaClass)
         sessionManager?.addOnActiveSessionsChangedListener(sessionListener!!, listenServiceComponent)
     }
