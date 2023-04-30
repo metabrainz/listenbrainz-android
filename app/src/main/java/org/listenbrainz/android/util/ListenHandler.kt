@@ -15,10 +15,7 @@ import org.listenbrainz.android.util.Log.d
 import retrofit2.Call
 import retrofit2.Response
 
-class ListenHandler(
-    val appPreferences: AppPreferences,
-    val service: ListensService
-    ) : Handler(Looper.getMainLooper()) {
+class ListenHandler(val appPreferences: AppPreferences, val service: ListensService) : Handler(Looper.getMainLooper()) {
 
     override fun handleMessage(msg: Message) {
         super.handleMessage(msg)

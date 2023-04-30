@@ -44,10 +44,9 @@ class ListenScrobbleService : NotificationListenerService() {
 
     private fun initialize() {
         d("Initializing Listener Service")
-
         handler = ListenHandler(appPreferences, service)
         sessionManager = applicationContext.getSystemService(MEDIA_SESSION_SERVICE) as MediaSessionManager
-        sessionListener = ListenSessionListener(handler!!, appPreferences, service)
+        sessionListener = ListenSessionListener(handler!!, appPreferences)
         listenServiceComponent = ComponentName(this, this.javaClass)
         sessionManager?.addOnActiveSessionsChangedListener(sessionListener!!, listenServiceComponent)
     }
