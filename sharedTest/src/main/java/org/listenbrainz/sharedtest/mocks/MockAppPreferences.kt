@@ -16,7 +16,7 @@ class MockAppPreferences(
     override val themePreference: String? = "Use device theme",
     override var permissionsPreference: String? = PermissionStatus.NOT_REQUESTED.name,
     override var preferenceListeningEnabled: Boolean = false,
-    override var preferenceOnboardingCompleted: Boolean = false,
+    override var onboardingCompleted: Boolean = false,
     override val preferenceListeningSpotifyEnabled: Boolean = false,
     override var currentPlayable: Playable? = null,
     override val loginStatus: Int = STATUS_LOGGED_OUT,
