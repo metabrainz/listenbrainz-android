@@ -15,7 +15,10 @@ import org.listenbrainz.android.util.Log.d
 import retrofit2.Call
 import retrofit2.Response
 
-class ListenHandler(private val appPreferences: AppPreferences) : Handler(Looper.getMainLooper()) {
+class ListenHandler(
+    val appPreferences: AppPreferences,
+    val service: ListensService
+    ) : Handler(Looper.getMainLooper()) {
 
     override fun handleMessage(msg: Message) {
         super.handleMessage(msg)
@@ -31,14 +34,14 @@ class ListenHandler(private val appPreferences: AppPreferences) : Handler(Looper
         body.addListen(msg.data.getLong(TIMESTAMP), metadata)
         body.listenType = "single"
 
-//        service.submitListen("Token $token", body)?.enqueue(object : retrofit2.Callback<ResponseBody?> {
-//            override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
-//                d(response.message())
-//            }
-//            override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
-//                d("Something went wrong: ${t.message}")
-//            }
-//        })
+        service.submitListen("Token $token", body)?.enqueue(object : retrofit2.Callback<ResponseBody?> {
+            override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
+                d(response.message())
+            }
+            override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
+                d("Something went wrong: ${t.message}")
+            }
+        })
     }
 
     fun submitListen(artist: String?, title: String?, timestamp: Long) {

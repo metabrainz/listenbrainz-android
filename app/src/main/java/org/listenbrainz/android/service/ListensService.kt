@@ -28,5 +28,5 @@ interface ListensService {
     fun getServicesLinkedToAccount(
         @Header("Authorization") token: String?,
         @Path("user_name") user_name: String,
-    ): Call<ListenBrainzExternalServices>?
+    ): Call<ListenBrainzExternalServices>
 }

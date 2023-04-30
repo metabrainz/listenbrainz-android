@@ -7,7 +7,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ProcessLifecycleOwner
 import dagger.hilt.android.HiltAndroidApp
 import org.listenbrainz.android.repository.AppPreferences
-import org.listenbrainz.android.service.ListenService
+import org.listenbrainz.android.service.ListenScrobbleService
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -27,14 +27,14 @@ class App : Application() {
     }
 
     fun startListenService() {
-        val intent = Intent(this.applicationContext, ListenService::class.java)
+        val intent = Intent(this.applicationContext, ListenScrobbleService::class.java)
         if (ProcessLifecycleOwner.get().lifecycle.currentState == Lifecycle.State.CREATED) {
             startService(intent)
         }
     }
 
     fun stopListenService() {
-        val intent = Intent(this.applicationContext, ListenService::class.java)
+        val intent = Intent(this.applicationContext, ListenScrobbleService::class.java)
         stopService(intent)
     }
 

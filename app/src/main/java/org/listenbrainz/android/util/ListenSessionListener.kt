@@ -8,14 +8,17 @@ import com.dariobrux.kotimer.Timer
 import com.dariobrux.kotimer.interfaces.OnTimerListener
 import org.listenbrainz.android.model.ListenBrainzExternalServices
 import org.listenbrainz.android.repository.AppPreferences
+import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.w
 import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.Response
 
 class ListenSessionListener(
     private val handler: ListenHandler,
-    private val appPreferences: AppPreferences,
+    val appPreferences: AppPreferences,
+    val service: ListensService,
 ) : OnActiveSessionsChangedListener {
     
     private val activeSessions: MutableMap<MediaController, ListenCallback?> = HashMap()
@@ -26,28 +29,45 @@ class ListenSessionListener(
         clearSessions()
 
         val token = appPreferences.lbAccessToken
-        if (!token.isNullOrEmpty()) {
+        val username = appPreferences.username
+        if (token.isNullOrEmpty()) {
             d("ListenBrainz User token has not been set!")
             return
         }
 
-//        service.getServicesLinkedToAccount(token, appPreferences.username!!)?.enqueue(object : retrofit2.Callback<ListenBrainzExternalServices?> {
-//            override fun onResponse(call: Call<ListenBrainzExternalServices?>, response: Response<ListenBrainzExternalServices?>) {
-//                println("Services found: " + response.body())
-//                registerControllers(controllers, services = response.body())
-//            }
-//            override fun onFailure(call: Call<ListenBrainzExternalServices?>, t: Throwable) {
-//                println("Services found not found")
-//                registerControllers(controllers)
-//            }
-//        })
+        if (username != null) {
+            service.getServicesLinkedToAccount("Bearer: $token", username).enqueue(object : Callback<ListenBrainzExternalServices> {
+                override fun onResponse(call: Call<ListenBrainzExternalServices>, response: Response<ListenBrainzExternalServices>) {
+
+                    if (response.isSuccessful) {
+                        d("Services found: " + response.body().toString())
+                        registerControllers(controllers, services = response.body())
+                    } else {
+                        d("Services api failed: " + response.message())
+                        registerControllers(controllers)
+                    }
+                }
+
+                override fun onFailure(call: Call<ListenBrainzExternalServices?>, t: Throwable) {
+                    d("Services not found")
+                    registerControllers(controllers)
+                }
+            })
+        }
+        else {
+            registerControllers(controllers)
+        }
     }
 
     fun registerControllers(controllers: List<MediaController>, services: ListenBrainzExternalServices? = null) {
         for (controller in controllers) {
             // Check if spotify is already linked with web. Skip if yes.
             if (controller.packageName == Constants.SPOTIFY_PACKAGE_NAME && services?.services?.contains("spotify") == true) {
-                appPreferences.listeningBlacklist.plus(controller.packageName)
+               d("Spotify is already linked with web. Skipping.")
+                if(!appPreferences.listeningBlacklist.contains(controller.packageName)) {
+                    d("Adding Spotify to blacklist.")
+                    appPreferences.listeningBlacklist = appPreferences.listeningBlacklist.plus(controller.packageName)
+                }
                 continue
             }
 

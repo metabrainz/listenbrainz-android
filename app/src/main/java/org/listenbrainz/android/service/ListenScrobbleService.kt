@@ -15,11 +15,13 @@ import org.listenbrainz.android.util.Log.d
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ListenService : NotificationListenerService() {
-    
+class ListenScrobbleService : NotificationListenerService() {
+
     @Inject
     lateinit var appPreferences: AppPreferences
-    
+    @Inject
+    lateinit var service: ListensService
+
     private var sessionManager: MediaSessionManager? = null
     private var handler: ListenHandler? = null
     private var sessionListener: ListenSessionListener? = null
@@ -42,14 +44,10 @@ class ListenService : NotificationListenerService() {
 
     private fun initialize() {
         d("Initializing Listener Service")
-        val token = appPreferences.lbAccessToken
-        
-        if (token.isNullOrEmpty())
-            d("ListenBrainz User token has not been set!")
 
-        handler = ListenHandler(appPreferences)
+        handler = ListenHandler(appPreferences, service)
         sessionManager = applicationContext.getSystemService(MEDIA_SESSION_SERVICE) as MediaSessionManager
-        sessionListener = ListenSessionListener(handler!!, appPreferences)
+        sessionListener = ListenSessionListener(handler!!, appPreferences, service)
         listenServiceComponent = ComponentName(this, this.javaClass)
         sessionManager?.addOnActiveSessionsChangedListener(sessionListener!!, listenServiceComponent)
     }
