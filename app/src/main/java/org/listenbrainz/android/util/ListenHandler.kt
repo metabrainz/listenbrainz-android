@@ -8,30 +8,27 @@ import android.os.Message
 import okhttp3.ResponseBody
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.ListenTrackMetadata
-import org.listenbrainz.android.service.ListenSubmitService
-import org.listenbrainz.android.util.ListenBrainzServiceGenerator.createListensService
+import org.listenbrainz.android.repository.AppPreferences
+import org.listenbrainz.android.service.ListenBrainzService
+import org.listenbrainz.android.util.Constants.Strings.TIMESTAMP
 import org.listenbrainz.android.util.Log.d
-import org.listenbrainz.android.util.UserPreferences.preferenceListenBrainzToken
 import retrofit2.Call
 import retrofit2.Response
 
-class ListenHandler : Handler(Looper.getMainLooper()) {
-    
-    private val timestamp = "timestamp"
+class ListenHandler(private val service: ListenBrainzService, private val appPreferences: AppPreferences) : Handler(Looper.getMainLooper()) {
 
     override fun handleMessage(msg: Message) {
         super.handleMessage(msg)
-        val token = preferenceListenBrainzToken
+        val token = appPreferences.lbAccessToken
         if (token.isNullOrEmpty()) {
             d("ListenBrainz User token has not been set!")
             return
         }
-        val service = createListensService(ListenSubmitService::class.java, true)
         val metadata = ListenTrackMetadata()
         metadata.artist = msg.data.getString(MediaMetadata.METADATA_KEY_ARTIST)
         metadata.track = msg.data.getString(MediaMetadata.METADATA_KEY_TITLE)
         val body = ListenSubmitBody()
-        body.addListen(msg.data.getLong(timestamp), metadata)
+        body.addListen(msg.data.getLong(TIMESTAMP), metadata)
         body.listenType = "single"
 
         service.submitListen("Token $token", body)?.enqueue(object : retrofit2.Callback<ResponseBody?> {
@@ -49,13 +46,9 @@ class ListenHandler : Handler(Looper.getMainLooper()) {
         val data = Bundle()
         data.putString(MediaMetadata.METADATA_KEY_ARTIST, artist)
         data.putString(MediaMetadata.METADATA_KEY_TITLE, title)
-        data.putLong(this.timestamp, timestamp)
+        data.putLong(TIMESTAMP, timestamp)
         message.what = timestamp.toInt()
         message.data = data
         sendMessageDelayed(message, 0)
-    }
-
-    fun cancelListen(timestamp: Long) {
-        removeMessages(timestamp.toInt())
     }
 }

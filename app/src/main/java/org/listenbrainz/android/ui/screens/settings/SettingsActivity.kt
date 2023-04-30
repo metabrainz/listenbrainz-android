@@ -9,20 +9,27 @@ import android.provider.Settings
 import android.view.MenuItem
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate.*
-import androidx.fragment.app.FragmentOnAttachListener
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
+import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
 import androidx.preference.Preference
 import androidx.preference.SwitchPreference
-import org.listenbrainz.android.application.App
+import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.R
+import org.listenbrainz.android.application.App
 import org.listenbrainz.android.databinding.ActivityPreferencesBinding
+import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
-import org.listenbrainz.android.util.UserPreferences.PREFERENCE_LISTENING_ENABLED
-import org.listenbrainz.android.util.UserPreferences.PREFERENCE_SYSTEM_THEME
-import org.listenbrainz.android.util.UserPreferences.preferenceListeningEnabled
 import org.listenbrainz.android.ui.theme.isUiModeIsDark
+import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_ENABLED
+import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SYSTEM_THEME
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class SettingsActivity : AppCompatActivity() {
+    @Inject
+    lateinit var appPreferences: AppPreferences
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +40,7 @@ class SettingsActivity : AppCompatActivity() {
     
         supportFragmentManager
                 .beginTransaction()
-                .replace(R.id.settings_container, SettingsFragment())
+                .replace(R.id.settings_container, SettingsFragment(appPreferences))
                 .commit()
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1){
@@ -45,7 +52,7 @@ class SettingsActivity : AppCompatActivity() {
             if (preference.key == PREFERENCE_LISTENING_ENABLED) {
                 val enabled = newValue as Boolean
                 when {
-                    enabled && !App.context!!.isNotificationServiceAllowed -> {
+                    enabled && !appPreferences.isNotificationServiceAllowed -> {
                         val builder = AlertDialog.Builder(this)
                         builder.setTitle("Grant Media Control Permissions")
                         builder.setMessage("The listen service requires the special Notification " +
@@ -55,7 +62,7 @@ class SettingsActivity : AppCompatActivity() {
                             startActivity(Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS))
                         }
                         builder.setNegativeButton("Cancel") { dialog: DialogInterface?, which: Int ->
-                            preferenceListeningEnabled = false
+                            appPreferences.preferenceListeningEnabled = false
                             (preference as SwitchPreference).isChecked = false
                         }
                         builder.create().show()

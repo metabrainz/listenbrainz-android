@@ -4,6 +4,18 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@+id/menu_features"
+        android:icon="@drawable/ic_waving_hand"
+        android:title="Features"
+        app:showAsAction="always|withText" />
+
+    <item
+        android:id="@+id/menu_feedback"
+        android:icon="@drawable/ic_feedback"
+        android:title="@string/action_feedback"
+        app:showAsAction="always|withText" />
+
+    <item
         android:id="@+id/menu_preferences"
         android:icon="@drawable/action_settings"
         android:orderInCategory="1"

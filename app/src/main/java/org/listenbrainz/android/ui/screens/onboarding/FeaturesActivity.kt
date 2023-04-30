@@ -8,11 +8,16 @@ import androidx.fragment.app.Fragment
 import com.limurse.onboard.OnboardAdvanced
 import com.limurse.onboard.OnboardFragment
 import com.limurse.onboard.OnboardPageTransformerType
+import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.R
+import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
-import org.listenbrainz.android.util.UserPreferences
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class FeaturesActivity : OnboardAdvanced() {
+    @Inject
+    lateinit var appPreferences: AppPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,7 +76,7 @@ class FeaturesActivity : OnboardAdvanced() {
 
     public override fun onDonePressed(currentFragment: Fragment?) {
         super.onDonePressed(currentFragment)
-        UserPreferences.setOnBoardingCompleted()
+        appPreferences.preferenceOnboardingCompleted = true
         val intent = Intent(this, DashboardActivity::class.java)
         startActivity(intent)
         finish()

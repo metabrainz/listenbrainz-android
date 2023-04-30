@@ -8,12 +8,12 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.R
+import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
-import org.listenbrainz.android.util.UserPreferences.PREFERENCE_LISTENING_ENABLED
-import org.listenbrainz.android.util.UserPreferences.PREFERENCE_SYSTEM_THEME
-import org.listenbrainz.android.util.UserPreferences.preferenceListeningEnabled
+import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SYSTEM_THEME
+import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_ENABLED
 
-class SettingsFragment : PreferenceFragmentCompat() {
+class SettingsFragment(private val appPreferences: AppPreferences) : PreferenceFragmentCompat() {
     private var preferenceChangeListener: Preference.OnPreferenceChangeListener? = null
 
     fun setPreferenceChangeListener(preferenceChangeListener: Preference.OnPreferenceChangeListener?) {
@@ -23,18 +23,18 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
         findPreference<Preference>(PREFERENCE_SYSTEM_THEME)!!.onPreferenceChangeListener = preferenceChangeListener
-        if (!App.context!!.isNotificationServiceAllowed) {
+        if (!appPreferences.isNotificationServiceAllowed) {
             (findPreference<Preference>(PREFERENCE_LISTENING_ENABLED) as SwitchPreference?)!!.isChecked = false
-            preferenceListeningEnabled = false
+            appPreferences.preferenceListeningEnabled = false
         }
         findPreference<Preference>(PREFERENCE_LISTENING_ENABLED)!!.onPreferenceChangeListener = preferenceChangeListener
     }
 
     override fun onResume() {
         super.onResume()
-        if (!App.context!!.isNotificationServiceAllowed) {
+        if (!appPreferences.isNotificationServiceAllowed) {
             (findPreference<Preference>(PREFERENCE_LISTENING_ENABLED) as SwitchPreference?)!!.isChecked = false
-            preferenceListeningEnabled = false
+            appPreferences.preferenceListeningEnabled = false
         }
     }
 

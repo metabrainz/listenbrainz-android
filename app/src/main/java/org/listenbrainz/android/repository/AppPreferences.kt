@@ -4,7 +4,6 @@ import org.listenbrainz.android.model.AccessToken
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UserInfo
 
-
 interface AppPreferences {
     
     val systemLanguagePreference: Boolean
@@ -32,13 +31,15 @@ interface AppPreferences {
     
     val preferenceListenBrainzToken : String?
     
-    val onboardingPreference: Boolean
+    var preferenceOnboardingCompleted: Boolean
     
     val preferenceListeningSpotifyEnabled: Boolean
     
     fun saveOAuthToken(token: AccessToken)
     fun saveUserInfo(userInfo: UserInfo)
     fun logoutUser()
+
+    val version: String
     
     var currentPlayable : Playable?
     
@@ -51,6 +52,8 @@ interface AppPreferences {
     val lbAccessToken: String?
     val username: String?
     val refreshToken: String?
+
+    val isNotificationServiceAllowed: Boolean
     
     /* BrainzPlayer Preferences */
     
@@ -59,5 +62,4 @@ interface AppPreferences {
     
     /** Used to tell the user that they don't have any songs on their device. */
     var songsOnDevice: Boolean
-    
 }

@@ -9,11 +9,6 @@
             android:entries="@array/Themes"
             android:entryValues="@array/ThemeData"
             android:defaultValue="@string/settings_device_theme_use_device_theme" />
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="use_english"
-            android:summary="@string/settings_use_language_summary"
-            android:title="@string/settings_use_language" />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -32,13 +27,6 @@
             android:defaultValue="false"
             android:key="listening_enabled"
             android:title="@string/settings_listenbrainz_enabled" />
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="listening_spotify_enabled"
-            android:title="@string/settings_listenbrainz_spotify"
-            android:summary="@string/settings_listenbrainz_spotify_summary" />
-
     </PreferenceCategory>
 
 

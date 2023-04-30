@@ -2,33 +2,29 @@ package org.listenbrainz.android.application
 
 import android.app.Application
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Typeface
 import android.os.Build
 import android.provider.Settings
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ProcessLifecycleOwner
 import dagger.hilt.android.HiltAndroidApp
+import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.service.ListenService
-import org.listenbrainz.android.util.UserPreferences.preferenceListeningEnabled
-
+import javax.inject.Inject
 
 @HiltAndroidApp
 class App : Application() {
-    
+    @Inject
+    lateinit var appPreferences: AppPreferences
+
     override fun onCreate() {
         super.onCreate()
         context = this
-        loadCustomTypefaces()
+
         when {
-            preferenceListeningEnabled && Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP -> {
+            appPreferences.preferenceListeningEnabled && Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP -> {
                 startListenService()
             }
         }
-    }
-
-    private fun loadCustomTypefaces() {
-        robotoLight = Typeface.createFromAsset(context!!.assets, "Roboto-Light.ttf")
     }
 
     fun startListenService() {
@@ -42,22 +38,9 @@ class App : Application() {
         val intent = Intent(this.applicationContext, ListenService::class.java)
         stopService(intent)
     }
-    val isNotificationServiceAllowed: Boolean
-        get() {
-            val listeners = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
-            return listeners != null && listeners.contains(packageName)
-        }
 
     companion object {
         var context: App? = null
-        var robotoLight: Typeface? = null
             private set
-        val version: String
-            get() = try {
-                context?.packageManager?.getPackageInfo(context!!.packageName, 0)!!.versionName
-            }
-            catch (e: PackageManager.NameNotFoundException) {
-                "unknown"
-            }
     }
 }
