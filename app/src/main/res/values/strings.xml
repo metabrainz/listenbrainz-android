@@ -115,9 +115,6 @@
     <string name="select_button">Select</string>
     <string name="up_button">Up</string>
     <string name="settings_appearance">Appearance</string>
-    <string name="settings_use_language">Use English only</string>
-    <string name="settings_use_language_summary">This option overrides the user specified system language and
-    displays all the user interface in English only.</string>
 
     <!--    loginScreen texts-->
     <string name="logout">Logout</string>
@@ -170,11 +167,6 @@
     <string name="settings_listenbrainz_token_summary">Enter the ListenBrainz User Token available
         at https://listenbrainz.org/profile/</string>
     <string name="settings_listenbrainz_enabled">Enable Listens Service</string>
-    <string name="settings_listenbrainz_spotify">Enable submitting listens from Spotify</string>
-    <string name="settings_listenbrainz_spotify_summary">Submit listens from Spotify. By default,
-        listens from Spotify are not submitted to ListenBrainz from this app. This is to avoid
-        duplicate listens. If you have not linked Spotify to ListenBrainz, you can enable submitting
-    listens from Spotify on this device to ListenBrainz through this option.</string>
 
     <!-- Errors -->
     <string name="err_spotify_disconnected">"Spotify is not Connected. Use one of the 'connect' buttons"</string>

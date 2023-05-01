@@ -107,6 +107,7 @@ class LoginActivity : ListenBrainzActivity() {
                 launch {
                     viewModel.userInfoFlow.collectLatest { userInfo: UserInfo? ->
                         if (userInfo != null) {
+                            println("userInfo: ${userInfo.username}")
                             val userInfoResponse = viewModel.saveUserInfo(userInfo)
                             
                             // Updating loginState

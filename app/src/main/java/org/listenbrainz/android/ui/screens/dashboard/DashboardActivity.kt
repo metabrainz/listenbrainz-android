@@ -16,13 +16,13 @@ import androidx.compose.runtime.*
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
+import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.components.DialogLB
 import org.listenbrainz.android.ui.components.TopAppBar
 import org.listenbrainz.android.ui.navigation.AppNavigation
 import org.listenbrainz.android.ui.navigation.BottomNavigationBar
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.UserPreferences.PermissionStatus
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
 

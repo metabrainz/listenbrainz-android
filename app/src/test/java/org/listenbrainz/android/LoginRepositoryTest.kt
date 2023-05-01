@@ -8,8 +8,10 @@ import okhttp3.mockwebserver.MockResponse
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
-import org.listenbrainz.android.util.ListenBrainzServiceGenerator
 import org.listenbrainz.android.service.LoginService
+import org.listenbrainz.android.util.Constants.CLIENT_ID
+import org.listenbrainz.android.util.Constants.CLIENT_SECRET
+import org.listenbrainz.android.util.Constants.OAUTH_REDIRECT_URI
 import org.listenbrainz.sharedtest.utils.RetrofitUtils
 import java.io.IOException
 import java.util.*
@@ -39,7 +41,7 @@ class LoginRepositoryTest {
                     "/oauth2/authorize" -> response = MockResponse()
                         .setResponseCode(200)
                         .setStatus("OK")
-                        .setBody(ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI + "?code=" + code)
+                        .setBody("$OAUTH_REDIRECT_URI?code=$code")
                     "/oauth2/token" -> {
                         val parameters: MutableMap<String, String> = HashMap()
                         val args = request.body.readUtf8().split("&").toTypedArray()
@@ -58,12 +60,12 @@ class LoginRepositoryTest {
                                 ignoreCase = true
                             )
                         ) invalid = "Invalid grant type" else if (!parameters["client_id"].equals(
-                                ListenBrainzServiceGenerator.CLIENT_ID,
+                                CLIENT_ID,
                                 ignoreCase = true
                             )
                         ) invalid =
                             "Invalid Client ID" else if (!parameters["client_secret"].equals(
-                                ListenBrainzServiceGenerator.CLIENT_SECRET,
+                                CLIENT_SECRET,
                                 ignoreCase = true
                             )
                         ) invalid = "Invalid Client Secret" else if (!parameters["code"].equals(
@@ -97,9 +99,9 @@ class LoginRepositoryTest {
                 webServer!!.url("/oauth2/").toString() + "token",
                 code,
                 "authorization_code",
-                ListenBrainzServiceGenerator.CLIENT_ID,
-                ListenBrainzServiceGenerator.CLIENT_SECRET,
-                ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI
+                CLIENT_ID,
+                CLIENT_SECRET,
+                OAUTH_REDIRECT_URI
             )
             ?.execute()
             ?.body()!!

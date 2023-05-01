@@ -10,10 +10,7 @@ import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.w
 
-class ListenSessionListener(
-    private val handler: ListenHandler,
-    private val appPreferences: AppPreferences
-) : OnActiveSessionsChangedListener {
+class ListenSessionListener(private val handler: ListenHandler, val appPreferences: AppPreferences) : OnActiveSessionsChangedListener {
     
     private val activeSessions: MutableMap<MediaController, ListenCallback?> = HashMap()
 
@@ -21,18 +18,21 @@ class ListenSessionListener(
         d("onActiveSessionsChanged: EXECUTED")
         if (controllers == null) return
         clearSessions()
+        registerControllers(controllers)
+    }
+
+    private fun registerControllers(controllers: List<MediaController>) {
         for (controller in controllers) {
-            
             // BlackList
             if (controller.packageName in appPreferences.listeningBlacklist)
                 continue
-            
+
             val callback = ListenCallback()
             activeSessions[controller] = callback
             controller.registerCallback(callback)
             d("### REGISTERED MediaController callback for ${controller.packageName}.")
         }
-        
+
         // Adding any new app packages found in the notification.
         controllers.forEach { controller ->
             val appList = appPreferences.listeningApps

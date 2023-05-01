@@ -36,7 +36,7 @@ import javax.inject.Inject
 class BrainzPlayerViewModel @Inject constructor(
     private val brainzPlayerServiceConnection: BrainzPlayerServiceConnection,
     private val songRepository: SongRepository,
-    private val appPreferences: AppPreferences,
+    val appPreferences: AppPreferences,
 ) : ViewModel() {
     val pagerState = MutableStateFlow(0)
     private val _mediaItems = MutableStateFlow<Resource<List<Song>>>(Resource.loading())

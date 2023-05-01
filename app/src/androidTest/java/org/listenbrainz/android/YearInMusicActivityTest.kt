@@ -15,7 +15,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.listenbrainz.android.ui.screens.yim.navigation.YimNavigation
 import org.listenbrainz.android.ui.theme.isUiModeIsDark
-import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 import org.listenbrainz.android.viewmodel.YimViewModel
 import org.listenbrainz.sharedtest.mocks.MockAppPreferences

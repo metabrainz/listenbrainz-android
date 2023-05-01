@@ -11,7 +11,7 @@ interface LoginRepository {
 
     fun fetchAccessToken(code: String?)
 
-    fun fetchUserInfo()
+    fun fetchUserInfo(accessToken: String)
     
     companion object {
         val errorToken: AccessToken = AccessToken()

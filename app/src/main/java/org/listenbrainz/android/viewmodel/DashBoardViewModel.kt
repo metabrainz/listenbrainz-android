@@ -11,10 +11,11 @@ import androidx.core.content.PermissionChecker
 import androidx.core.content.PermissionChecker.checkSelfPermission
 import androidx.lifecycle.AndroidViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.UiModes
 import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.ui.screens.onboarding.FeaturesActivity
-import org.listenbrainz.android.util.UserPreferences
+import org.listenbrainz.android.util.Log.d
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,7 +38,8 @@ class DashBoardViewModel @Inject constructor(
     }
     
     fun beginOnboarding(activity: ComponentActivity) {
-        if (!appPreferences.onboardingPreference){
+        d("Onboarding status: ${appPreferences.onboardingCompleted}")
+        if (!appPreferences.onboardingCompleted){
             // TODO: Convert onboarding to a nav component.
             activity.startActivity(Intent(activity, FeaturesActivity::class.java))
             activity.finish()
@@ -70,12 +72,12 @@ class DashBoardViewModel @Inject constructor(
                     checkSelfPermission(application.applicationContext, Manifest.permission.READ_MEDIA_IMAGES) == PermissionChecker.PERMISSION_GRANTED &&
                     checkSelfPermission(application.applicationContext, Manifest.permission.READ_MEDIA_AUDIO) == PermissionChecker.PERMISSION_GRANTED
                 ){
-                    appPreferences.permissionsPreference = UserPreferences.PermissionStatus.GRANTED.name
+                    appPreferences.permissionsPreference = PermissionStatus.GRANTED.name
                 }
             }
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
                 if (checkSelfPermission(application.applicationContext, Manifest.permission.READ_EXTERNAL_STORAGE) == PermissionChecker.PERMISSION_GRANTED) {
-                    appPreferences.permissionsPreference = UserPreferences.PermissionStatus.GRANTED.name
+                    appPreferences.permissionsPreference = PermissionStatus.GRANTED.name
                 }
             }
             else -> {
@@ -90,7 +92,7 @@ class DashBoardViewModel @Inject constructor(
                         }
                     }
                 ){
-                    appPreferences.permissionsPreference = UserPreferences.PermissionStatus.GRANTED.name
+                    appPreferences.permissionsPreference = PermissionStatus.GRANTED.name
                 }
             }
         }
