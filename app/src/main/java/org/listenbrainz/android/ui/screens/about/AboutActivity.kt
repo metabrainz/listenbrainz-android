@@ -22,11 +22,11 @@ class AboutActivity : ListenBrainzActivity() {
         binding = ActivityAboutBinding.inflate(layoutInflater)
         setContentView(binding!!.root)
 
-        binding!!.aboutText.setAsset("about.html")
+        binding?.aboutText?.setAsset("about.html")
         val version = getText(R.string.version_text).toString() + " " + appPreferences.version
-        binding!!.versionText.text = version
+        binding?.versionText?.text = version
 
-        supportActionBar!!.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.app_bg)))
+        supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.app_bg)))
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }

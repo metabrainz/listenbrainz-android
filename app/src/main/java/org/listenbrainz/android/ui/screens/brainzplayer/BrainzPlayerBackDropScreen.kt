@@ -422,7 +422,7 @@ fun PlayerScreen(
             }
         }
         // Playlist
-        itemsIndexed(items = brainzPlayerViewModel.appPreferences.currentPlayable?.songs!!) {index, song ->
+        itemsIndexed(items = brainzPlayerViewModel.appPreferences.currentPlayable?.songs ?: mutableListOf()) { index, song ->
             val isChecked = checkedSongs.contains(song)
             BoxWithConstraints {
                 val maxWidth =
@@ -447,7 +447,10 @@ fun PlayerScreen(
                         errorAlbumArt = R.drawable.ic_erroralbumart
                     ) {
                         brainzPlayerViewModel.skipToPlayable(index)
-                        brainzPlayerViewModel.changePlayable(brainzPlayerViewModel.appPreferences.currentPlayable?.songs!!, PlayableType.ALL_SONGS, brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0, index,0L)
+                        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let {
+                            brainzPlayerViewModel.changePlayable(
+                                it, PlayableType.ALL_SONGS, brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0, index,0L)
+                        }
                         brainzPlayerViewModel.playOrToggleSong(song, true)
                     }
                     if (currentlyPlayingSong.mediaID!=song.mediaID) {

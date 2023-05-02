@@ -171,7 +171,7 @@ class YimViewModel @Inject constructor(
         
         val resultMap = mutableMapOf<Track, String>()
     
-        listOfTracks!!.forEach { track ->
+        listOfTracks?.forEach { track ->
             val mbid = track.identifier.substringAfterLast('/')
         
             if (artCoverMap!!.containsKey(mbid)){
