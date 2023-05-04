@@ -1,7 +1,10 @@
+
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
-import java.io.*
+import java.io.File
+import java.io.FileWriter
+import java.io.IOException
 
 class CacheService<T>(private val context: Context, private val key: String,private val maxSize:Int=10000) {
     fun saveData(value: T, dataType: Class<T>) {
@@ -18,7 +21,7 @@ class CacheService<T>(private val context: Context, private val key: String,priv
             if (!data.contains(value)) {
                 if (file.length() >= maxSize) {
                     val newData = data.toMutableList()
-                    newData.removeAt(0)
+                    if (newData.size > 0) newData.removeAt(0)
                     newData.add(value)
                     var tostore=gson.toJson(newData)
                     val fileWriter = FileWriter(file, false)

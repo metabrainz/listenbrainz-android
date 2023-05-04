@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.rounded.Add
@@ -40,14 +39,11 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.Playlist
-import org.listenbrainz.android.service.BrainzPlayerService
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.forwardingPainter
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
-import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
-
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @ExperimentalMaterial3Api
@@ -60,7 +56,8 @@ fun PlaylistScreen(
     val currentlyPlayingSong =
         brainzPlayerViewModel.currentlyPlayingSong.collectAsState().value.toSong
     val currentSongIndex =
-        BrainzPlayerService.playableSongs!!.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID } + 1
+        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+            ?.plus(1)
     var isFABDialogVisible by rememberSaveable {
         mutableStateOf(false)
     }
@@ -329,14 +326,18 @@ fun PlaylistScreen(
                                 DropdownMenuItem(
                                     text = { Text(text = "Play Next") },
                                     onClick = {
-                                        BrainzPlayerService.playableSongs.addAll(currentSongIndex, it.items)
-                                        brainzPlayerViewModel.changePlayable(
-                                            BrainzPlayerService.playableSongs,
-                                            PlayableType.ALL_SONGS,
-                                            LBSharedPreferences.currentPlayable?.id ?: 0,
-                                            BrainzPlayerService.playableSongs.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
-                                                ?: 0, brainzPlayerViewModel.songCurrentPosition.value
-                                        )
+                                        if (currentSongIndex != null) {
+                                            brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()?.addAll(currentSongIndex, it.items)
+                                        }
+                                        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let { it1 ->
+                                            brainzPlayerViewModel.changePlayable(
+                                                it1,
+                                                PlayableType.ALL_SONGS,
+                                                brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0,
+                                                brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+                                                    ?: 0, brainzPlayerViewModel.songCurrentPosition.value
+                                            )
+                                        }
                                         brainzPlayerViewModel.queueChanged(
                                             currentlyPlayingSong,
                                             brainzPlayerViewModel.isPlaying.value
@@ -346,17 +347,21 @@ fun PlaylistScreen(
                                 DropdownMenuItem(
                                     text = { Text(text = "Add to queue") },
                                     onClick = {
-                                        BrainzPlayerService.playableSongs.addAll(
-                                            BrainzPlayerService.playableSongs.size,
-                                            it.items
-                                        )
-                                        brainzPlayerViewModel.changePlayable(
-                                            BrainzPlayerService.playableSongs,
-                                            PlayableType.ALL_SONGS,
-                                            LBSharedPreferences.currentPlayable?.id ?: 0,
-                                            BrainzPlayerService.playableSongs.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
-                                                ?: 0, brainzPlayerViewModel.songCurrentPosition.value
-                                        )
+                                        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.size?.let { it1 ->
+                                            brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()?.addAll(
+                                                it1,
+                                                it.items
+                                            )
+                                        }
+                                        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let { it1 ->
+                                            brainzPlayerViewModel.changePlayable(
+                                                it1,
+                                                PlayableType.ALL_SONGS,
+                                                brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0,
+                                                brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+                                                    ?: 0, brainzPlayerViewModel.songCurrentPosition.value
+                                            )
+                                        }
                                         brainzPlayerViewModel.queueChanged(
                                             currentlyPlayingSong,
                                             brainzPlayerViewModel.isPlaying.value
@@ -393,7 +398,8 @@ fun OnPlaylistClickScreen(playlistID: Long) {
     val currentlyPlayingSong =
         brainzPlayerViewModel.currentlyPlayingSong.collectAsState().value.toSong
     val currentSongIndex =
-        BrainzPlayerService.playableSongs!!.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID } + 1
+        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+            ?.plus(1)
     LazyColumn {
         items(selectedPlaylist.items) {
             BoxWithConstraints {
@@ -446,14 +452,18 @@ fun OnPlaylistClickScreen(playlistID: Long) {
                             DropdownMenuItem(
                                 text = { Text(text = "Play Next") },
                                 onClick = {
-                                    BrainzPlayerService.playableSongs.add(currentSongIndex, it)
-                                    brainzPlayerViewModel.changePlayable(
-                                        BrainzPlayerService.playableSongs,
-                                        PlayableType.ALL_SONGS,
-                                        LBSharedPreferences.currentPlayable?.id ?: 0,
-                                        BrainzPlayerService.playableSongs.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
-                                            ?: 0, brainzPlayerViewModel.songCurrentPosition.value
-                                    )
+                                    if (currentSongIndex != null) {
+                                        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()?.add(currentSongIndex, it)
+                                    }
+                                    brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let { it1 ->
+                                        brainzPlayerViewModel.changePlayable(
+                                            it1,
+                                            PlayableType.ALL_SONGS,
+                                            brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0,
+                                            brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+                                                ?: 0, brainzPlayerViewModel.songCurrentPosition.value
+                                        )
+                                    }
                                     brainzPlayerViewModel.queueChanged(
                                         currentlyPlayingSong,
                                         brainzPlayerViewModel.isPlaying.value
@@ -463,17 +473,21 @@ fun OnPlaylistClickScreen(playlistID: Long) {
                             DropdownMenuItem(
                                 text = { Text(text = "Add to queue") },
                                 onClick = {
-                                    BrainzPlayerService.playableSongs.add(
-                                        BrainzPlayerService.playableSongs.size,
-                                        it
-                                    )
-                                    brainzPlayerViewModel.changePlayable(
-                                        BrainzPlayerService.playableSongs,
-                                        PlayableType.ALL_SONGS,
-                                        LBSharedPreferences.currentPlayable?.id ?: 0,
-                                        BrainzPlayerService.playableSongs.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
-                                            ?: 0, brainzPlayerViewModel.songCurrentPosition.value
-                                    )
+                                    brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.size?.let { it1 ->
+                                        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()?.add(
+                                            it1,
+                                            it
+                                        )
+                                    }
+                                    brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let { it1 ->
+                                        brainzPlayerViewModel.changePlayable(
+                                            it1,
+                                            PlayableType.ALL_SONGS,
+                                            brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0,
+                                            brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+                                                ?: 0, brainzPlayerViewModel.songCurrentPosition.value
+                                        )
+                                    }
                                     brainzPlayerViewModel.queueChanged(
                                         currentlyPlayingSong,
                                         brainzPlayerViewModel.isPlaying.value

@@ -15,7 +15,7 @@ import kotlinx.coroutines.*
 import org.listenbrainz.android.model.yimdata.*
 import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.repository.YimRepository
-import org.listenbrainz.android.util.LBSharedPreferences
+import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.saveBitmap
 import java.net.URL
@@ -53,7 +53,7 @@ class YimViewModel @Inject constructor(
         return appPreferences.username
     }
     fun isLoggedIn() : Boolean{
-        return (appPreferences.loginStatus == LBSharedPreferences.STATUS_LOGGED_IN)
+        return (appPreferences.loginStatus == STATUS_LOGGED_IN)
     }
     
     /** Get Data functions
@@ -171,7 +171,7 @@ class YimViewModel @Inject constructor(
         
         val resultMap = mutableMapOf<Track, String>()
     
-        listOfTracks!!.forEach { track ->
+        listOfTracks?.forEach { track ->
             val mbid = track.identifier.substringAfterLast('/')
         
             if (artCoverMap!!.containsKey(mbid)){

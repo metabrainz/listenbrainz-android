@@ -7,7 +7,10 @@ import org.listenbrainz.android.model.UserInfo
 import org.listenbrainz.android.repository.LoginRepository.Companion.errorToken
 import org.listenbrainz.android.repository.LoginRepository.Companion.errorUserInfo
 import org.listenbrainz.android.service.LoginService
-import org.listenbrainz.android.util.ListenBrainzServiceGenerator
+import org.listenbrainz.android.util.Constants.CLIENT_ID
+import org.listenbrainz.android.util.Constants.CLIENT_SECRET
+import org.listenbrainz.android.util.Constants.MUSICBRAINZ_AUTH_BASE_URL
+import org.listenbrainz.android.util.Constants.OAUTH_REDIRECT_URI
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -22,25 +25,26 @@ class LoginRepositoryImpl @Inject constructor(private val service: LoginService)
 
     override fun fetchAccessToken(code: String?) {
         service.getAccessToken(
-            ListenBrainzServiceGenerator.AUTH_BASE_URL + "token",
+            MUSICBRAINZ_AUTH_BASE_URL + "token",
                 code,
                 "authorization_code",
-                ListenBrainzServiceGenerator.CLIENT_ID,
-                ListenBrainzServiceGenerator.CLIENT_SECRET,
-                ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI)!!.enqueue(object : Callback<AccessToken?> {
-                    override fun onResponse(call: Call<AccessToken?>, response: Response<AccessToken?>) {
-                        accessTokenFlow.update { response.body() ?: errorToken }
-                    }
+                CLIENT_ID,
+                CLIENT_SECRET,
+                OAUTH_REDIRECT_URI
+        ).enqueue(object : Callback<AccessToken?> {
+            override fun onResponse(call: Call<AccessToken?>, response: Response<AccessToken?>) {
+                accessTokenFlow.update { response.body() ?: errorToken }
+            }
 
-                    override fun onFailure(call: Call<AccessToken?>, t: Throwable) {
-                        t.printStackTrace()
-                        accessTokenFlow.update { errorToken }
-                    }
-                })
+            override fun onFailure(call: Call<AccessToken?>, t: Throwable) {
+                t.printStackTrace()
+                accessTokenFlow.update { errorToken }
+            }
+        })
     }
 
-    override fun fetchUserInfo() {
-        service.userInfo!!.enqueue(object : Callback<UserInfo?> {
+    override fun fetchUserInfo(accessToken: String) {
+        service.userInfo("Bearer $accessToken").enqueue(object : Callback<UserInfo?> {
             override fun onResponse(call: Call<UserInfo?>, response: Response<UserInfo?>) {
                 val info = response.body()
                 userInfoFlow.update { info ?: errorUserInfo }

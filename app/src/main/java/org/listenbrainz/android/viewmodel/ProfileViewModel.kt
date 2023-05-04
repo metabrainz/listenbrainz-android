@@ -22,6 +22,8 @@ class ProfileViewModel @Inject constructor(val appPreferences: AppPreferences) :
             }
         }.distinctUntilChanged()
     }
+
+    
     
     fun logoutUser(context: Context) {
         appPreferences.logoutUser()

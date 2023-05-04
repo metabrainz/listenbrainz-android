@@ -28,7 +28,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import kotlinx.coroutines.Dispatchers
 import org.listenbrainz.android.R
-import org.listenbrainz.android.util.LBSharedPreferences.STATUS_LOGGED_IN
+import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.viewmodel.ProfileViewModel
 
 @Composable

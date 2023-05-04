@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.screens.dashboard
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -17,13 +18,13 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
-import org.listenbrainz.android.ui.navigation.BottomNavigationBar
+import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.components.DialogLB
 import org.listenbrainz.android.ui.components.TopAppBar
 import org.listenbrainz.android.ui.navigation.AppNavigation
+import org.listenbrainz.android.ui.navigation.BottomNavigationBar
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.UserPreferences.PermissionStatus
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
 
@@ -34,7 +35,9 @@ class DashboardActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
         installSplashScreen()
+    
         setContent {
             ListenBrainzTheme {
                 // TODO: Since this view-model will remain throughout the lifecycle of the app,
@@ -111,7 +114,7 @@ class DashboardActivity : ComponentActivity() {
                     rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
                 Scaffold(
                     topBar = { TopAppBar(activity = this) },
-                    bottomBar = { BottomNavigationBar(navController = navController, activity = this, backdropScaffoldState = backdropScaffoldState) },
+                    bottomBar = { BottomNavigationBar(navController = navController, backdropScaffoldState = backdropScaffoldState) },
                     backgroundColor = MaterialTheme.colorScheme.background
                 ) {
                     if (isGrantedPerms == PermissionStatus.GRANTED.name) {

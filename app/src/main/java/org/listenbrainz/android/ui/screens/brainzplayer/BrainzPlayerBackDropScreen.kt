@@ -52,7 +52,6 @@ import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarqu
 import org.listenbrainz.android.util.BrainzPlayerExtensions.duration
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.Constants.RECENTLY_PLAYED_KEY
-import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.util.SongViewPager
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
@@ -76,7 +75,9 @@ fun BrainzPlayerBackDropScreen(
         mutableStateOf(0F)
     }
     val repeatMode by brainzPlayerViewModel.repeatMode.collectAsState()
-    val headerHeight by animateDpAsState(targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null") 0.dp else 136.dp)
+
+    /** 56.dp is default bottom navigation height. 80.dp is our mini player's height. */
+    val headerHeight by animateDpAsState(targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null") 56.dp else 136.dp)
 
     BackdropScaffold(
         frontLayerShape = RectangleShape,
@@ -111,7 +112,7 @@ fun BrainzPlayerBackDropScreen(
 }
 
 
-@ExperimentalPagerApi
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
     val songList = viewModel.mediaItem.collectAsState().value
@@ -183,7 +184,6 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
     }
 }
 
-@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun PlayerScreen(
     brainzPlayerViewModel: BrainzPlayerViewModel = viewModel(),
@@ -372,7 +372,6 @@ fun PlayerScreen(
             }
         }
         val checkedSongs = mutableStateListOf<Song>()
-        val songs = BrainzPlayerService.playableSongs ?: mutableListOf()
         item {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(start = 5.dp),
@@ -389,14 +388,16 @@ fun PlayerScreen(
                 Button(
                     onClick = {
                         checkedSongs.forEach { song ->
-                            BrainzPlayerService.playableSongs.remove(song)
+                            brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()?.remove(song)
                         }
-                        brainzPlayerViewModel.changePlayable(
-                            BrainzPlayerService.playableSongs,
-                            PlayableType.ALL_SONGS,
-                            LBSharedPreferences.currentPlayable?.id ?: 0,
-                            BrainzPlayerService.playableSongs.indexOfFirst { it.mediaID == currentlyPlayingSong.mediaID } ?: 0,brainzPlayerViewModel.songCurrentPosition.value
-                        )
+                        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let {
+                            brainzPlayerViewModel.changePlayable(
+                                it,
+                                PlayableType.ALL_SONGS,
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0,
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { it.mediaID == currentlyPlayingSong.mediaID } ?: 0,brainzPlayerViewModel.songCurrentPosition.value
+                            )
+                        }
                         brainzPlayerViewModel.queueChanged(
                             currentlyPlayingSong,
                             brainzPlayerViewModel.isPlaying.value
@@ -421,7 +422,7 @@ fun PlayerScreen(
             }
         }
         // Playlist
-        itemsIndexed(items = BrainzPlayerService.playableSongs) {index, song ->
+        itemsIndexed(items = brainzPlayerViewModel.appPreferences.currentPlayable?.songs ?: mutableListOf()) { index, song ->
             val isChecked = checkedSongs.contains(song)
             BoxWithConstraints {
                 val maxWidth =
@@ -446,7 +447,10 @@ fun PlayerScreen(
                         errorAlbumArt = R.drawable.ic_erroralbumart
                     ) {
                         brainzPlayerViewModel.skipToPlayable(index)
-                        brainzPlayerViewModel.changePlayable(BrainzPlayerService.playableSongs, PlayableType.ALL_SONGS, LBSharedPreferences.currentPlayable?.id ?: 0, index,0L)
+                        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let {
+                            brainzPlayerViewModel.changePlayable(
+                                it, PlayableType.ALL_SONGS, brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0, index,0L)
+                        }
                         brainzPlayerViewModel.playOrToggleSong(song, true)
                     }
                     if (currentlyPlayingSong.mediaID!=song.mediaID) {

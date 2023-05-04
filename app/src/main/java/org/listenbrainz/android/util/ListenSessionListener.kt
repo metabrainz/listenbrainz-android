@@ -2,57 +2,124 @@ package org.listenbrainz.android.util
 
 import android.media.MediaMetadata
 import android.media.session.MediaController
-import android.media.session.MediaSession
 import android.media.session.MediaSessionManager.OnActiveSessionsChangedListener
 import android.media.session.PlaybackState
+import com.dariobrux.kotimer.Timer
+import com.dariobrux.kotimer.interfaces.OnTimerListener
+import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.w
-import org.listenbrainz.android.util.UserPreferences.preferenceListeningSpotifyEnabled
 
-class ListenSessionListener(private val handler: ListenHandler) : OnActiveSessionsChangedListener {
-    private val controllers: MutableList<MediaController> = ArrayList()
-    private val activeSessions: MutableMap<MediaSession.Token, ListenCallback?> = HashMap()
+class ListenSessionListener(private val handler: ListenHandler, val appPreferences: AppPreferences) : OnActiveSessionsChangedListener {
+    
+    private val activeSessions: MutableMap<MediaController, ListenCallback?> = HashMap()
 
     override fun onActiveSessionsChanged(controllers: List<MediaController>?) {
+        d("onActiveSessionsChanged: EXECUTED")
         if (controllers == null) return
         clearSessions()
-        this.controllers.addAll(controllers)
+        registerControllers(controllers)
+    }
+
+    private fun registerControllers(controllers: List<MediaController>) {
         for (controller in controllers) {
-            if (!preferenceListeningSpotifyEnabled && controller.packageName == Constants.SPOTIFY_PACKAGE_NAME){
+            // BlackList
+            if (controller.packageName in appPreferences.listeningBlacklist)
                 continue
-            }
+
             val callback = ListenCallback()
+            activeSessions[controller] = callback
             controller.registerCallback(callback)
+            d("### REGISTERED MediaController callback for ${controller.packageName}.")
         }
+
+        // Adding any new app packages found in the notification.
+        controllers.forEach { controller ->
+            val appList = appPreferences.listeningApps
+            if (controller.packageName !in appList){
+                appPreferences.listeningApps = appList.plus(controller.packageName)
+            }
+        }
+        // println(appPreferences.listeningApps)
     }
 
     fun clearSessions() {
-        for ((key, value) in activeSessions) {
-            for (controller in controllers) {
-                if (controller.sessionToken == key){
-                    controller.unregisterCallback(value!!)
-                }
-            }
+        for ((controller, callback) in activeSessions) {
+            controller.unregisterCallback(callback!!)
+            d("### UNREGISTERED MediaController Callback for ${controller.packageName}.")
         }
         activeSessions.clear()
-        controllers.clear()
     }
 
     private inner class ListenCallback : MediaController.Callback() {
         var artist: String? = null
         var title: String? = null
         var timestamp: Long = 0
+        var duration: Long = 0
+        val timer: Timer = Timer()
         var state: PlaybackState? = null
-        var submitted = true
+        var submitted = false
+        
+        // FIXME:
+        //  1) First ever session song isn't recorded. This is because onMetadataChanged
+        //      isn't called by callback itself.
+        
         override fun onMetadataChanged(metadata: MediaMetadata?) {
             
             if (metadata == null) return
             
+            // Stop timer and reset metadata.
+            resetMetadata()     // Do not perform this action in timer's onTimerStop due to concurrency issues.
+            timer.stop()
+    
             when {
-                state != null -> d("Listen Metadata " + state!!.state)
-                else -> d("Listen Metadata")
+                state != null -> d("onMetadataChanged: Listen Metadata " + state!!.state)
+                else -> d("onMetadataChanged: Listen Metadata")
             }
             
+            setArtist(metadata)
+            setTitle(metadata)
+            
+            if (isMetadataFaulty()){
+                w("${if (artist == null) "Artist" else "Title"} is null, listen cancelled.")
+                return
+            }
+            
+            setDurationAndCallbacks(metadata)
+            
+        }
+    
+        override fun onPlaybackStateChanged(state: PlaybackState?) {
+            if (state == null) return
+            
+            this.state = state
+            d("onPlaybackStateChanged: Listen PlaybackState " + state.state)
+    
+            if (isDurationUndefined() || submitted) return
+            
+            if (state.state == PlaybackState.STATE_PLAYING){
+                timer.start()
+                // d("Timer started")
+            }
+            
+            if (state.state == PlaybackState.STATE_PAUSED){
+                timer.pause()
+                // d("Timer paused")
+            }
+            
+        }
+        
+        // UTILITY FUNCTIONS
+        
+        private fun setTitle(metadata: MediaMetadata) {
+            title = when {
+                !metadata.getString(MediaMetadata.METADATA_KEY_TITLE).isNullOrEmpty() -> metadata.getString(MediaMetadata.METADATA_KEY_TITLE)
+                !metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE).isNullOrEmpty() -> metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE)
+                else -> null
+            }
+        }
+    
+        private fun setArtist(metadata: MediaMetadata) {
             artist = when {
                 !metadata.getString(MediaMetadata.METADATA_KEY_ARTIST).isNullOrEmpty() -> metadata.getString(MediaMetadata.METADATA_KEY_ARTIST)
                 !metadata.getString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST).isNullOrEmpty() -> metadata.getString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST)
@@ -60,49 +127,53 @@ class ListenSessionListener(private val handler: ListenHandler) : OnActiveSessio
                 !metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION).isNullOrEmpty() -> metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION)
                 else -> null
             }
-            
-            title = when {
-                !metadata.getString(MediaMetadata.METADATA_KEY_TITLE).isNullOrEmpty() -> metadata.getString(MediaMetadata.METADATA_KEY_TITLE)
-                !metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE).isNullOrEmpty() -> metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE)
-                else -> null
-            }
-            
-            if (artist == null || title == null || artist!!.isEmpty() || title!!.isEmpty()){
-                w("${if (artist == null) "Artist" else "Title"} is null, listen cancelled.")
-                return
-            }
-            
-            // If the difference between the timestamp of this listen and previously
-            // submitted listen is less that 1 second, listen should not be submitted.
-            if ( (System.currentTimeMillis() / 1000 - timestamp) >= 1000) {
-                submitted = false
-            }
-            
-            timestamp = System.currentTimeMillis() / 1000
-            if (state != null && state!!.state == PlaybackState.STATE_PLAYING && !submitted) {
-                handler.submitListen(artist, title, timestamp)
-                submitted = true
-            }
         }
-        // FIXME : Listens are only submitted when song is paused once, then played and skipped.
-        //  the next song is recorded then.
         
-        override fun onPlaybackStateChanged(state: PlaybackState?) {
-            if (state == null) return
-            this.state = state
-            d("Listen PlaybackState " + state.state)
-            if (state.state == PlaybackState.STATE_PLAYING && !submitted) {
-                handler.submitListen(artist, title, timestamp)
-                submitted = true
-            }
-            if (state.state == PlaybackState.STATE_PAUSED ||
-                    state.state == PlaybackState.STATE_STOPPED) {
-                handler.cancelListen(timestamp)
-                d("Listen Cancelled.")
-                artist = ""
-                title = ""
-                timestamp = 0
-            }
+        private fun isMetadataFaulty() : Boolean
+            = artist.isNullOrEmpty() || title.isNullOrEmpty()
+        
+        /** Run [artist] and [title] value-check before invoking this function.*/
+        private fun setDurationAndCallbacks(metadata: MediaMetadata) {
+            duration = roundDuration(duration = metadata.getLong(MediaMetadata.METADATA_KEY_DURATION) / 2L)
+                .coerceAtMost(240000)   // Since maximum time required to validate a listen as submittable listen is 4 minutes.
+            timestamp = System.currentTimeMillis() / 1000
+            
+            // d(duration.toString())
+            timer.setDuration(duration)
+            
+            // Setting listener
+            timer.setOnTimerListener(listener = object : OnTimerListener {
+                override fun onTimerEnded() {
+                    handler.submitListen(artist, title, timestamp)
+                    submitted = true
+                }
+    
+                override fun onTimerPaused(remainingMillis: Long) {
+                    d("${remainingMillis / 1000} seconds left to submit listen.")
+                }
+                override fun onTimerRun(milliseconds: Long) {}
+                override fun onTimerStarted() {}
+                override fun onTimerStopped() {}
+                
+            }, callbacksOnMainThread = true)
+            d("Listener Set")
         }
+    
+        private fun isDurationUndefined() : Boolean
+            = duration <= 0
+        
+        private fun resetMetadata() {
+            d("Metadata Reset")
+            artist = null
+            title = null
+            timestamp = 0
+            duration = 0
+            submitted = false
+        }
+        
+        private fun roundDuration(duration: Long): Long {
+            return (duration / 1000) * 1000
+        }
+        
     }
 }

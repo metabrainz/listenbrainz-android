@@ -7,13 +7,14 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.listenbrainz.android.ui.screens.yim.navigation.YimNavigation
 import org.listenbrainz.android.ui.theme.isUiModeIsDark
-import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 import org.listenbrainz.android.viewmodel.YimViewModel
 import org.listenbrainz.sharedtest.mocks.MockAppPreferences
@@ -21,11 +22,15 @@ import org.listenbrainz.sharedtest.mocks.MockNetworkConnectivityViewModel
 import org.listenbrainz.sharedtest.mocks.MockYimRepository
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testYimUsername
 
-@LargeTest
 @RunWith(AndroidJUnit4::class)
+@LargeTest
+@HiltAndroidTest
 class YearInMusicActivityTest {
-
+    
     @get:Rule(order = 0)
+    var hiltRule = HiltAndroidRule(this)
+    
+    @get:Rule(order = 1)
     val rule = createAndroidComposeRule<ComponentActivity>()
 
     private lateinit var activity : ComponentActivity

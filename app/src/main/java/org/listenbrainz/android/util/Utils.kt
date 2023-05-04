@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.media.MediaScannerConnection
 import android.net.Uri
@@ -16,6 +17,8 @@ import kotlinx.coroutines.Dispatchers
 import okhttp3.*
 import org.listenbrainz.android.util.Log.e
 import java.io.*
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
 import java.util.*
 
 /**
@@ -39,6 +42,22 @@ object Utils {
         val intent = Intent(Intent.ACTION_SENDTO, uri)
         intent.putExtra(Intent.EXTRA_SUBJECT, subject)
         return intent
+    }
+
+    fun getSHA1(context: Context, packageName: String): String? {
+        try {
+            val signatures = context.packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES).signatures
+            for (signature in signatures) {
+                val md = MessageDigest.getInstance("SHA-1")
+                md.update(signature.toByteArray())
+                return md.digest().joinToString("") { "%02X".format(it) }
+            }
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+        } catch (e: NoSuchAlgorithmException) {
+            e.printStackTrace()
+        }
+        return null
     }
 
     fun stringFromAsset(context: Context, asset: String?): String {
