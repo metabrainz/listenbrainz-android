@@ -5,10 +5,14 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "wednesday"
+      time: "00:00"
 
   # Updates for Gradle dependencies used in the app
   - package-ecosystem: gradle
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "wednesday"
+      time: "00:00"
     open-pull-requests-limit: 10
