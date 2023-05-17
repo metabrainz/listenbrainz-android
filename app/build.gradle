@@ -191,7 +191,7 @@ dependencies {
     androidTestImplementation 'androidx.arch.core:core-testing:2.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
-    androidTestImplementation 'app.cash.turbine:turbine:0.12.3'
+    androidTestImplementation 'app.cash.turbine:turbine:0.13.0'
     androidTestImplementation 'tools.fastlane:screengrab:2.1.1'     // Fastlane ScreenGrab
 
     testImplementation project(path: ':sharedTest')
