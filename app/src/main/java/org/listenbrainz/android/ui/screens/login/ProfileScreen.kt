@@ -4,7 +4,16 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
@@ -42,16 +51,23 @@ fun ProfileScreen(
         .value
     
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         
         val comp by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.login))
         LottieAnimation(
+            modifier = Modifier
+                .fillMaxWidth(0.7f)
+                .aspectRatio(1f),
             composition = comp,
-            iterations = LottieConstants.IterateForever, modifier = Modifier.requiredHeightIn(max = 400.dp),
+            iterations = LottieConstants.IterateForever,
         )
+        
+        Spacer(modifier = Modifier.height(16.dp))
         
         Button(
             onClick = {
