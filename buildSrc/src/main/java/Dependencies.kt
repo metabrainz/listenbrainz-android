@@ -28,14 +28,6 @@ object Versions {
     object androidx {
         const val core = "1.10.1"
     }
-    /*
-    def kotlin_version = '1.8.20'
-    def navigationVersion = '2.5.3'
-    def hilt_version = '2.45'
-    def compose_version = '1.4.2'
-    def room_version = '2.5.1'
-    def accompanist_version = '0.30.0'
-    def exoplayer_version = '2.18.6'*/
     
     const val navigationVersion = "2.5.3"
     const val room = "2.5.1"
