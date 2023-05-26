@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" >
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -11,8 +11,9 @@
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28"/>
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
     <queries>
         <package android:name="com.google.android.apps.youtube.music" />
@@ -26,12 +27,17 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
-        tools:targetApi="32" >
+        tools:targetApi="32">
+        <activity
+            android:name=".ui.screens.explore.ExploreScreen"
+            android:exported="false"
+            android:label="@string/title_activity_explore_screen"
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".ui.screens.yim.YearInMusicActivity"
             android:exported="false"
             android:label="@string/title_activity_year_in_music"
-            android:theme="@style/AppTheme" >
+            android:theme="@style/AppTheme">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -48,27 +54,26 @@
         </service>
         <service
             android:name=".service.BrainzPlayerService"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.media.browse.MediaMrowserService" />
             </intent-filter>
-        </service>
-
-        <!--TODO: To receive events from wired devices-->
-        <!--<receiver android:name="androidx.media.session.MediaButtonReceiver"
+        </service> <!-- TODO: To receive events from wired devices -->
+        <!--
+<receiver android:name="androidx.media.session.MediaButtonReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
-        </receiver>-->
-
+        </receiver>
+        -->
         <activity
             android:name=".ui.screens.onboarding.FeaturesActivity"
             android:theme="@style/AppThemeNoActionBar" />
         <activity
             android:name=".ui.screens.dashboard.DashboardActivity"
             android:exported="true"
-            android:theme="@style/Theme.App.Starting" >
+            android:theme="@style/Theme.App.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -78,7 +83,7 @@
         <activity
             android:name=".ui.screens.login.LoginActivity"
             android:exported="true"
-            android:label="@string/auth_title" >
+            android:label="@string/auth_title">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -102,12 +107,16 @@
         <activity android:name=".ui.screens.newsbrainz.NewsBrainzActivity" />
         <activity
             android:name=".ui.screens.listens.RemotePlayerActivity"
-            android:theme="@style/AppThemeNoActionBar" />
-
-        <!-- Sentry Setup-->
-        <meta-data android:name="io.sentry.dsn" android:value="@string/sentryDsn" />
-        <meta-data android:name="io.sentry.traces.sample-rate" android:value="1.0" />
-        <meta-data android:name="io.sentry.traces.user-interaction.enable" android:value="true" />
+            android:theme="@style/AppThemeNoActionBar" /> <!-- Sentry Setup -->
+        <meta-data
+            android:name="io.sentry.dsn"
+            android:value="@string/sentryDsn" />
+        <meta-data
+            android:name="io.sentry.traces.sample-rate"
+            android:value="1.0" />
+        <meta-data
+            android:name="io.sentry.traces.user-interaction.enable"
+            android:value="true" />
     </application>
 
 </manifest>

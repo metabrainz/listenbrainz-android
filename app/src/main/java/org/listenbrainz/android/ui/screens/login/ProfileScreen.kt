@@ -1,8 +1,6 @@
 package org.listenbrainz.android.ui.screens.login
 
-import android.app.Activity
 import android.content.Context
-import android.content.ContextWrapper
 import android.content.Intent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,12 +29,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.compose.rememberNavController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import kotlinx.coroutines.Dispatchers
 import org.listenbrainz.android.R
+import org.listenbrainz.android.ui.screens.listens.ListensScreen
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.viewmodel.ProfileViewModel
 
@@ -49,65 +49,57 @@ fun ProfileScreen(
     val loginStatus = viewModel.getLoginStatusFlow()
         .collectAsState(initial = viewModel.appPreferences.loginStatus, context = Dispatchers.Default)
         .value
-    
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        
-        val comp by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.login))
-        LottieAnimation(
-            modifier = Modifier
-                .fillMaxWidth(0.7f)
-                .aspectRatio(1f),
-            composition = comp,
-            iterations = LottieConstants.IterateForever,
-        )
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        Button(
-            onClick = {
-                when (loginStatus) {
-                    STATUS_LOGGED_IN -> viewModel.logoutUser(context)
-                    else -> context.startActivity(Intent(context, LoginActivity::class.java))
-                }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-                .padding(horizontal = 10.dp),
-            colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.onSurface)
-        ) {
-            Text(
-                text = when (loginStatus) {
-                    STATUS_LOGGED_IN -> stringResource(id = R.string.logout)
-                    else -> stringResource(id = R.string.login)
-                },
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
-            )
-        }
-        
-        Text(
-            text = when (loginStatus) {
-                STATUS_LOGGED_IN -> stringResource(id = R.string.logout_prompt)
-                else -> stringResource(id = R.string.login_prompt)
-            },
-            color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
-            fontSize = 18.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 16.dp, start = 10.dp, end = 10.dp)
-        )
-    }
-}
 
-fun Context.findActivity(): Activity? = when (this) {
-    is Activity -> this
-    is ContextWrapper -> baseContext.findActivity()
-    else -> null
+    when(loginStatus) {
+        STATUS_LOGGED_IN -> {
+            ListensScreen(navController = rememberNavController())
+        }
+        else -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+
+                val comp by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.login))
+                LottieAnimation(
+                    modifier = Modifier
+                        .fillMaxWidth(0.7f)
+                        .aspectRatio(1f),
+                    composition = comp,
+                    iterations = LottieConstants.IterateForever,
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        context.startActivity(Intent(context, LoginActivity::class.java))
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .padding(horizontal = 10.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.onSurface)
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.login),
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                }
+
+                Text(
+                    text = stringResource(id = R.string.login_prompt),
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
+                    fontSize = 18.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(top = 16.dp, start = 10.dp, end = 10.dp)
+                )
+            }
+        }
+    }
 }

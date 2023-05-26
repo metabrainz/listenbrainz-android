@@ -9,9 +9,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.components.BackLayerContent
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen
-import org.listenbrainz.android.ui.screens.listens.ListensScreen
+import org.listenbrainz.android.ui.screens.explore.ExploreScreen
 import org.listenbrainz.android.ui.screens.login.ProfileScreen
 
 @Composable
@@ -30,8 +31,8 @@ fun AppNavigation(
         composable(route = AppNavigationItem.BrainzPlayer.route){
             BrainzPlayerScreen(appNavController = navController)
         }
-        composable(route = AppNavigationItem.Listens.route){
-            ListensScreen(navController = navController)
+        composable(route = AppNavigationItem.Explore.route){
+            ExploreScreen()
         }
         composable(route = AppNavigationItem.Profile.route){
             ProfileScreen()

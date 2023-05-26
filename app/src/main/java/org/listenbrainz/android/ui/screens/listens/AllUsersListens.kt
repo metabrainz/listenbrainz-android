@@ -26,7 +26,6 @@ import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Switch
 import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material3.Button
@@ -59,11 +58,9 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.ListenCard
 import org.listenbrainz.android.ui.components.LoadingAnimation
-import org.listenbrainz.android.ui.navigation.AppNavigationItem
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.ListensViewModel
-
 
 @Composable
 fun AllUserListens(
@@ -74,12 +71,6 @@ fun AllUserListens(
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         
         var showBlacklist by remember { mutableStateOf(false) }
-        
-        // Error Dialog
-        if(viewModel.appPreferences.username == "") {
-            NotLoggedInErrorDialog(navController)
-            return
-        }
         
         // Loading Animation
         AnimatedVisibility(
@@ -117,28 +108,6 @@ fun AllUserListens(
     }
     
 }
-
-@Composable
-private fun NotLoggedInErrorDialog(navController: NavController) {
-    AlertDialog(
-        onDismissRequest = { /*DON'T DO ANYTHING*/ },
-        confirmButton = {
-            TextButton(onClick = {
-                navController.navigate(AppNavigationItem.Profile.route)
-            })
-            { Text(text = "OK") }
-        },
-        dismissButton = {
-            TextButton(onClick = {
-                navController.popBackStack()
-            })
-            { Text(text = "Cancel") }
-        },
-        title = { Text(text = "Please login to your profile") },
-        text = { Text(text = "We will fetch your listens once you have logged in") }
-    )
-}
-
 
 @Composable
 @OptIn(ExperimentalGlideComposeApi::class)

@@ -225,5 +225,6 @@
     <string name="tt_yim_recommended_playlists_parent">tt_yim_recommended_playlists_parent</string>
     <string name="tt_yim_charts_parent">tt_yim_charts_parent</string>
     <string name="tt_yim_statistics_parent">tt_yim_statistics_parent</string>
+    <string name="title_activity_explore_screen">ExploreScreen</string>
 
 </resources>
