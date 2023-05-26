@@ -15,6 +15,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.spotify.android.appremote.api.SpotifyAppRemote
 import org.listenbrainz.android.R
+import org.listenbrainz.android.ui.screens.login.UserData
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.ListensViewModel
 
@@ -48,6 +49,8 @@ fun ListensScreen(
         }
         
         Column {
+            UserData()
+
             AnimatedVisibility(visible = showNowPlaying) {
                 NowPlaying(
                     playerState = viewModel.playerState,

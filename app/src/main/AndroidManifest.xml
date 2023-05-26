@@ -29,11 +29,6 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="32">
         <activity
-            android:name=".ui.screens.explore.ExploreScreen"
-            android:exported="false"
-            android:label="@string/title_activity_explore_screen"
-            android:theme="@style/AppTheme" />
-        <activity
             android:name=".ui.screens.yim.YearInMusicActivity"
             android:exported="false"
             android:label="@string/title_activity_year_in_music"
