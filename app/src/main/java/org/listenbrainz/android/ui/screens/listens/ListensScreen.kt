@@ -49,7 +49,9 @@ fun ListensScreen(
         }
         
         Column {
-            UserData()
+            UserData(
+                viewModel = viewModel,
+            )
 
             AnimatedVisibility(visible = showNowPlaying) {
                 NowPlaying(

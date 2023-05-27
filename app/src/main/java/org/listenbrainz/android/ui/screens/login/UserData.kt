@@ -21,12 +21,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
+import org.listenbrainz.android.viewmodel.ListensViewModel
 
 @Composable
-fun UserData(){
+fun UserData(viewModel: ListensViewModel) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -44,7 +46,7 @@ fun UserData(){
                 .padding(16.dp)
         ) {
             Text(
-                text = "abc",
+                text = viewModel.appPreferences.username!!,
                 modifier = Modifier.padding(4.dp),
                 color = if (onScreenUiModeIsDark()) Color.White else Color.Black,
                 fontWeight = FontWeight.Bold,
@@ -97,5 +99,5 @@ fun UserData(){
 @Preview
 @Composable
 fun UserDataPreview() {
-    UserData()
+    UserData(viewModel = hiltViewModel())
 }

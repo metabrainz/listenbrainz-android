@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.screens.dashboard
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -20,7 +19,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.components.DialogLB
-import org.listenbrainz.android.ui.components.TopAppBar
+import org.listenbrainz.android.ui.components.TopBar
 import org.listenbrainz.android.ui.navigation.AppNavigation
 import org.listenbrainz.android.ui.navigation.BottomNavigationBar
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
@@ -113,7 +112,7 @@ class DashboardActivity : ComponentActivity() {
                 val backdropScaffoldState =
                     rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
                 Scaffold(
-                    topBar = { TopAppBar(activity = this) },
+                    topBar = { TopBar(activity = this, navController = navController) },
                     bottomBar = { BottomNavigationBar(navController = navController, backdropScaffoldState = backdropScaffoldState) },
                     backgroundColor = MaterialTheme.colorScheme.background
                 ) {
