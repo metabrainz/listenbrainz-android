@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.login
+package org.listenbrainz.android.ui.screens.profile
 
 import android.os.Bundle
 import android.widget.Toast

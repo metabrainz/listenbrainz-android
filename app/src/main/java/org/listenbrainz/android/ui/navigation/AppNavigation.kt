@@ -3,6 +3,7 @@ package org.listenbrainz.android.ui.navigation
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -13,12 +14,13 @@ import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.components.BackLayerContent
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen
 import org.listenbrainz.android.ui.screens.explore.ExploreScreen
-import org.listenbrainz.android.ui.screens.login.ProfileScreen
+import org.listenbrainz.android.ui.screens.profile.ProfileScreen
 
 @Composable
 fun AppNavigation(
     navController: NavController = rememberNavController(),
-    activity: ComponentActivity
+    activity: ComponentActivity,
+    shouldScrollToTop: MutableState<Boolean>
 ) {
     NavHost(
         navController = navController as NavHostController,
@@ -35,7 +37,7 @@ fun AppNavigation(
             ExploreScreen()
         }
         composable(route = AppNavigationItem.Profile.route){
-            ProfileScreen()
+            ProfileScreen(shouldScrollToTop = shouldScrollToTop)
         }
     }
 }

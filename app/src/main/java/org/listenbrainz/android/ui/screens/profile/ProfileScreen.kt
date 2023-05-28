@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.login
+package org.listenbrainz.android.ui.screens.profile
 
 import android.content.Context
 import android.content.Intent
@@ -17,6 +17,8 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -29,7 +31,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.compose.rememberNavController
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -42,17 +43,27 @@ import org.listenbrainz.android.viewmodel.ProfileViewModel
 
 @Composable
 fun ProfileScreen(
-    context : Context = LocalContext.current,
-    viewModel: ProfileViewModel = hiltViewModel()
+    context: Context = LocalContext.current,
+    viewModel: ProfileViewModel = hiltViewModel(),
+    shouldScrollToTop: MutableState<Boolean>
 ) {
-    
+    val scrollState = rememberScrollState()
+
+    // Scroll to the top when shouldScrollToTop becomes true
+    LaunchedEffect(shouldScrollToTop.value) {
+        if (shouldScrollToTop.value) {
+            scrollState.animateScrollTo(0)
+            shouldScrollToTop.value = false
+        }
+    }
+
     val loginStatus = viewModel.getLoginStatusFlow()
         .collectAsState(initial = viewModel.appPreferences.loginStatus, context = Dispatchers.Default)
         .value
 
     when(loginStatus) {
         STATUS_LOGGED_IN -> {
-            ListensScreen(navController = rememberNavController())
+            ListensScreen(shouldScrollToTop = shouldScrollToTop)
         }
         else -> {
             Column(

@@ -76,7 +76,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.screens.login.LoginActivity"
+            android:name=".ui.screens.profile.LoginActivity"
             android:exported="true"
             android:label="@string/auth_title">
             <intent-filter>

@@ -111,9 +111,17 @@ class DashboardActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val backdropScaffoldState =
                     rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
+                val shouldScrollToTop = remember { mutableStateOf(false) }
+
                 Scaffold(
                     topBar = { TopBar(activity = this, navController = navController) },
-                    bottomBar = { BottomNavigationBar(navController = navController, backdropScaffoldState = backdropScaffoldState) },
+                    bottomBar = {
+                        BottomNavigationBar(
+                            navController = navController,
+                            backdropScaffoldState = backdropScaffoldState,
+                            shouldScrollToTop = shouldScrollToTop
+                        )
+                    },
                     backgroundColor = MaterialTheme.colorScheme.background
                 ) {
                     if (isGrantedPerms == PermissionStatus.GRANTED.name) {
@@ -122,7 +130,8 @@ class DashboardActivity : ComponentActivity() {
                         ) {
                             AppNavigation(
                                 navController = navController,
-                                activity = this
+                                activity = this,
+                                shouldScrollToTop = shouldScrollToTop
                             )
                         }
                     }

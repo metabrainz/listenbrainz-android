@@ -1,7 +1,6 @@
-package org.listenbrainz.android.ui.screens.login
+package org.listenbrainz.android.ui.screens.profile
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,7 +12,6 @@ import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -22,7 +20,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.viewmodel.ListensViewModel
@@ -60,8 +57,14 @@ fun UserData(viewModel: ListensViewModel) {
                 .padding(16.dp)
                 .padding(top = 40.dp)
         ) {
+            val accessToken: String = if (viewModel.appPreferences.lbAccessToken.isNullOrEmpty()) {
+                "Add your access token from the website"
+            } else {
+                viewModel.appPreferences.lbAccessToken!!
+            }
+
             Text(
-                text = "abc",
+                text = accessToken,
                 modifier = Modifier.padding(4.dp),
                 color = if (onScreenUiModeIsDark()) Color.White else Color.Black,
                 fontWeight = FontWeight.Bold,
@@ -70,28 +73,6 @@ fun UserData(viewModel: ListensViewModel) {
             )
 
             Spacer(modifier = Modifier.width(16.dp))
-
-            Column(modifier = Modifier.align(Alignment.CenterVertically)) {
-                Text(
-                    text = "abc",
-
-                    modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
-                    color = if (onScreenUiModeIsDark()) Color.White else lb_purple,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.subtitle1,
-                    maxLines = 1
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = "abc",
-                    modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
-                    color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(alpha = 0.7f),
-                    style = MaterialTheme.typography.caption,
-                    maxLines = 2
-                )
-            }
         }
     }
 }

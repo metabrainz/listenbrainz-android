@@ -5,7 +5,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,6 +27,7 @@ import org.listenbrainz.android.model.AppNavigationItem
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun BottomNavigationBar(
+    shouldScrollToTop: MutableState<Boolean>,
     navController: NavController = rememberNavController(),
     backdropScaffoldState: BackdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
 ) {
@@ -54,13 +58,15 @@ fun BottomNavigationBar(
                         .size(24.dp)
                         .padding(top = 5.dp), contentDescription = item.title, tint = Color.Unspecified
                     )
-                       },
+                },
                 selectedContentColor = MaterialTheme.colorScheme.onSurface,
                 unselectedContentColor = colorResource(id = R.color.gray),
                 alwaysShowLabel = true,
                 selected = selected,
                 onClick = {
                     coroutineScope.launch {
+                        shouldScrollToTop.value = true
+
                         // A quick way to navigate to back layer content.
                         backdropScaffoldState.reveal()
                         
@@ -73,7 +79,6 @@ fun BottomNavigationBar(
                             launchSingleTop = true
                             // Restore previous state
                             restoreState = true
-                        
                         }
                     }
                     
@@ -88,5 +93,5 @@ fun BottomNavigationBar(
 @Preview
 @Composable
 fun BottomNavigationBarPreview() {
-    BottomNavigationBar(navController = rememberNavController())
+    BottomNavigationBar(shouldScrollToTop = remember { mutableStateOf(false) }, navController = rememberNavController())
 }
