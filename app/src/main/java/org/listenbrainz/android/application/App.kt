@@ -30,7 +30,7 @@ class App : Application() {
         context = this
 
         when {
-            appPreferences.preferenceListeningEnabled && Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP -> {
+            Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP -> {
                 startListenService()
             }
         }

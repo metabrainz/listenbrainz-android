@@ -17,11 +17,8 @@ import org.listenbrainz.android.util.Constants.Strings.MB_ACCESS_TOKEN
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_ALBUMS_ON_DEVICE
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_APPS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_BLACKLIST
-import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_ENABLED
-import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_SPOTIFY
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_PERMS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SONGS_ON_DEVICE
-import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SYSTEM_LANGUAGE
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SYSTEM_THEME
 import org.listenbrainz.android.util.Constants.Strings.REFRESH_TOKEN
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
@@ -57,20 +54,12 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
     }
     
     // Preferences Implementation
-    
-    override val systemLanguagePreference: Boolean
-        get() = preferences.getBoolean(PREFERENCE_SYSTEM_LANGUAGE, false)
-    
     override val themePreference: String?
         get() = preferences.getString(PREFERENCE_SYSTEM_THEME, "Use device theme")
     
     override var permissionsPreference: String?
         get() = preferences.getString(PREFERENCE_PERMS, PermissionStatus.NOT_REQUESTED.name)
         set(value) = setString(PREFERENCE_PERMS, value)
-    
-    override var preferenceListeningEnabled: Boolean
-        get() = preferences.getBoolean(PREFERENCE_LISTENING_ENABLED, false)
-        set(value) = setBoolean(PREFERENCE_LISTENING_ENABLED, value)
     
     override var listeningBlacklist: List<String>
         get() {
@@ -111,10 +100,6 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
     override var onboardingCompleted: Boolean
         get() = preferences.getBoolean(ONBOARDING, false)
         set(value) = setBoolean(ONBOARDING, value)
-    
-    override val preferenceListeningSpotifyEnabled
-        get() = preferences.getBoolean(PREFERENCE_LISTENING_SPOTIFY, false)
-    
     
     override fun saveOAuthToken(token: AccessToken) {
         val editor = preferences.edit()
