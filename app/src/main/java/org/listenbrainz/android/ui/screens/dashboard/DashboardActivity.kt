@@ -24,19 +24,23 @@ import org.listenbrainz.android.ui.navigation.AppNavigation
 import org.listenbrainz.android.ui.navigation.BottomNavigationBar
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.Utils.isNotificationServiceEnabled
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
-
+import kotlin.properties.Delegates
 
 @AndroidEntryPoint
 class DashboardActivity : ComponentActivity() {
+
+    private var isNotificationServiceEnabled by Delegates.notNull<Boolean>()
 
     @OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+        isNotificationServiceEnabled = isNotificationServiceEnabled(context = this)
+
         installSplashScreen()
-    
+
         setContent {
             ListenBrainzTheme {
                 // TODO: Since this view-model will remain throughout the lifecycle of the app,
@@ -138,5 +142,11 @@ class DashboardActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        isNotificationServiceEnabled = isNotificationServiceEnabled(context = this)
+        println("Notification service enabled: $isNotificationServiceEnabled")
     }
 }

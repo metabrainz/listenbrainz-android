@@ -12,6 +12,7 @@ import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.util.ListenHandler
 import org.listenbrainz.android.util.ListenSessionListener
 import org.listenbrainz.android.util.Log.d
+import org.listenbrainz.android.util.Utils.isNotificationServiceEnabled
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -35,7 +36,7 @@ class ListenScrobbleService : NotificationListenerService() {
     override fun onListenerConnected() {
         super.onListenerConnected()
         when {
-            Looper.myLooper() == null -> {
+            Looper.myLooper() == null && isNotificationServiceEnabled(applicationContext) -> {
                 Handler(Looper.getMainLooper()).post { initialize() }
             }
             else -> initialize()

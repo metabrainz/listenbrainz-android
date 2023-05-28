@@ -222,5 +222,7 @@ fun ListensScreen(
 @Preview
 @Composable
 fun ListensScreenPreview() {
-    ListensScreen(shouldScrollToTop = remember { mutableStateOf(false) })
+    ListensScreen(
+        shouldScrollToTop = remember { mutableStateOf(false) }
+    )
 }

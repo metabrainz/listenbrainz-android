@@ -17,7 +17,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Post
 import org.listenbrainz.android.databinding.ActivityNewsbrainzBinding
-import org.listenbrainz.android.util.IntentFactory
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.e
 import org.listenbrainz.android.viewmodel.NewsListViewModel
@@ -62,12 +61,8 @@ class NewsBrainzActivity : AppCompatActivity(), BlogAdapter.ClickListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.menu_preferences -> {
-                startActivity(IntentFactory.getSettings(this))
-                true
-            }
             android.R.id.home -> {
-                onBackPressedDispatcher.onBackPressed()     // Replaced onBackPressed() as its deprecated.
+                onBackPressedDispatcher.onBackPressed()
                 true
             }
             else -> super.onOptionsItemSelected(item)
