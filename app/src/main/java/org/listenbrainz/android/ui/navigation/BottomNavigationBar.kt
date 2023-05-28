@@ -11,7 +11,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,7 +55,7 @@ fun BottomNavigationBar(
                             ?: item.iconUnselected),
                         modifier = Modifier
                         .size(24.dp)
-                        .padding(top = 5.dp), contentDescription = item.title, tint = Color.Unspecified
+                        .padding(top = 5.dp), contentDescription = item.title, tint = MaterialTheme.colorScheme.onSurface
                     )
                 },
                 selectedContentColor = MaterialTheme.colorScheme.onSurface,

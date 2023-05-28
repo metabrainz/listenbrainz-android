@@ -1,13 +1,13 @@
 package org.listenbrainz.android.ui.components
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -18,23 +18,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.preference.PreferenceManager
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.screens.about.AboutActivity
 import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
 import org.listenbrainz.android.ui.screens.dashboard.DonateActivity
 import org.listenbrainz.android.ui.theme.isUiModeIsDark
+import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
+import org.listenbrainz.android.util.Constants
 
 @Composable
 fun TopBar(
     activity: Activity,
-    navController: NavController = rememberNavController()
+    navController: NavController = rememberNavController(),
+    context: Context = LocalContext.current
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -48,7 +53,7 @@ fun TopBar(
         }
     } ?: "ListenBrainz"
 
-    val darkTheme = isSystemInDarkTheme()
+    val darkTheme = onScreenUiModeIsDark()
     val themeIcon = remember(darkTheme) {
         mutableStateOf(
             when (darkTheme) {
@@ -92,25 +97,38 @@ fun TopBar(
             IconButton(onClick = {
                 val intent = Intent(activity, DashboardActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                val preferences = PreferenceManager.getDefaultSharedPreferences(context).edit()
                 when (themeIcon.value) {
                     R.drawable.moon_solid -> {
                         setDefaultNightMode(MODE_NIGHT_YES)
                         isUiModeIsDark.value = true
+                        preferences.putString(
+                            Constants.Strings.PREFERENCE_SYSTEM_THEME,
+                            context.getString(R.string.settings_device_theme_dark)
+                        ).apply()
                     }
                     R.drawable.sun_solid -> {
                         setDefaultNightMode(MODE_NIGHT_NO)
                         isUiModeIsDark.value = false
+                        preferences.putString(
+                            Constants.Strings.PREFERENCE_SYSTEM_THEME,
+                            context.getString(R.string.settings_device_theme_light)
+                        ).apply()
                     }
                     else -> {
-                        setDefaultNightMode(MODE_NIGHT_NO)
-                        isUiModeIsDark.value = false
+                        setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
+                        isUiModeIsDark.value = null
+                        preferences.putString(
+                            Constants.Strings.PREFERENCE_SYSTEM_THEME,
+                            context.getString(R.string.settings_device_theme_use_device_theme)
+                        ).apply()
                     }
                 }
                 activity.startActivity(intent)
             }) {
                 Icon(painterResource(id = themeIcon.value),
                     "Theme",
-                    tint = Color.Unspecified)
+                    tint = MaterialTheme.colorScheme.onSurface)
             }
         }
     )
