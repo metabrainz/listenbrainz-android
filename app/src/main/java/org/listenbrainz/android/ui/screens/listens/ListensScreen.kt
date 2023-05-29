@@ -198,7 +198,7 @@ fun ListensScreen(
         }
 
         // FAB
-        if(!viewModel.appPreferences.lbAccessToken.isNullOrEmpty() && !viewModel.appPreferences.isNotificationServiceAllowed) {
+        if(!viewModel.appPreferences.lbAccessToken.isNullOrEmpty() && viewModel.appPreferences.isNotificationServiceAllowed) {
             AnimatedVisibility(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
