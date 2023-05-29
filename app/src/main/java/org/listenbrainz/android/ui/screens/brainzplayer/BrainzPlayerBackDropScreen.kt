@@ -30,6 +30,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
@@ -56,7 +57,6 @@ import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import kotlin.math.absoluteValue
 import kotlin.math.max
-
 
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @ExperimentalMaterialApi
@@ -373,7 +373,9 @@ fun PlayerScreen(
         val checkedSongs = mutableStateListOf<Song>()
         item {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(start = 5.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 5.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -432,9 +434,13 @@ fun PlayerScreen(
                 )
                 {
                     val modifier = if (currentlyPlayingSong.mediaID == song.mediaID) {
-                        Modifier.padding(horizontal = 10.dp, vertical = 6.dp).fillMaxWidth()
+                        Modifier
+                            .padding(horizontal = 10.dp, vertical = 6.dp)
+                            .fillMaxWidth()
                     } else {
-                        Modifier.padding(horizontal = 10.dp, vertical = 6.dp).width(maxWidth)
+                        Modifier
+                            .padding(horizontal = 10.dp, vertical = 6.dp)
+                            .width(maxWidth)
                     }
                     ListenCardSmall(
                         modifier = modifier,
@@ -492,5 +498,12 @@ fun PlayerScreen(
     if (data != null) {
         recentlyPlayed.items=data.filter { it.title!="null" }.toList().reversed()
     }
+}
+
+@OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
+@Preview
+@Composable
+fun BrainzPlayerBackDropScreenPreview() {
+    BrainzPlayerBackDropScreen(backdropScaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed)) {}
 }
 

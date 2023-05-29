@@ -8,10 +8,4 @@
         android:icon="@drawable/ic_listenbrainz_logo_icon"
         app:showAsAction="ifRoom" />
 
-    <item
-        android:id="@+id/menu_preferences"
-        android:title="@string/action_settings"
-        android:icon="@drawable/action_settings"
-        app:showAsAction="ifRoom" />
-
 </menu>

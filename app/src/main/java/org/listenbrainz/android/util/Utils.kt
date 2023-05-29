@@ -2,7 +2,6 @@ package org.listenbrainz.android.util
 
 import android.content.ContentValues
 import android.content.Context
-import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -11,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.provider.Settings
 import android.util.Log
 import androidx.annotation.WorkerThread
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +34,17 @@ object Utils {
     
     fun authHeader(accessToken: String) : String{
         return "Bearer $accessToken"
+    }
+
+    fun isNotificationServiceEnabled(context: Context): Boolean {
+        val packageNames = Settings.Secure.getString(
+            context.contentResolver,
+            "enabled_notification_listeners"
+        )
+        if (packageNames != null && packageNames.contains(context.packageName)) {
+            return true
+        }
+        return false
     }
 
     fun shareIntent(text: String?): Intent {
@@ -80,29 +91,6 @@ object Utils {
         }
     }
 
-    fun changeLanguage(context: Context, lang_code: String): ContextWrapper {
-        var context = context
-        val sysLocale: Locale
-        val rs = context.resources
-        val config = rs.configuration
-        sysLocale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            config.locales[0]
-        } else {
-            config.locale
-        }
-        if (lang_code != "" && sysLocale.language != lang_code) {
-            val locale = Locale(lang_code)
-            Locale.setDefault(locale)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                config.setLocale(locale)
-            } else {
-                config.locale = locale
-            }
-            context = context.createConfigurationContext(config)
-        }
-        return ContextWrapper(context)
-    }
-    
     /** Save a given bitmap to the default images directory inside the "ListenBrainz"
      * directory of the device.
      *

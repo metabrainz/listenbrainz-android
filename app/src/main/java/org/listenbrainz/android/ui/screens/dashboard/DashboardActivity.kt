@@ -19,24 +19,28 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.components.DialogLB
-import org.listenbrainz.android.ui.components.TopAppBar
+import org.listenbrainz.android.ui.components.TopBar
 import org.listenbrainz.android.ui.navigation.AppNavigation
 import org.listenbrainz.android.ui.navigation.BottomNavigationBar
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.Utils.isNotificationServiceEnabled
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
-
+import kotlin.properties.Delegates
 
 @AndroidEntryPoint
 class DashboardActivity : ComponentActivity() {
+
+    private var isNotificationServiceEnabled by Delegates.notNull<Boolean>()
 
     @OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+        isNotificationServiceEnabled = isNotificationServiceEnabled(context = this)
+
         installSplashScreen()
-    
+
         setContent {
             ListenBrainzTheme {
                 // TODO: Since this view-model will remain throughout the lifecycle of the app,
@@ -111,9 +115,17 @@ class DashboardActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val backdropScaffoldState =
                     rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
+                val shouldScrollToTop = remember { mutableStateOf(false) }
+
                 Scaffold(
-                    topBar = { TopAppBar(activity = this, navController = navController) },
-                    bottomBar = { BottomNavigationBar(navController = navController, backdropScaffoldState = backdropScaffoldState) },
+                    topBar = { TopBar(activity = this, navController = navController) },
+                    bottomBar = {
+                        BottomNavigationBar(
+                            navController = navController,
+                            backdropScaffoldState = backdropScaffoldState,
+                            shouldScrollToTop = shouldScrollToTop
+                        )
+                    },
                     backgroundColor = MaterialTheme.colorScheme.background
                 ) {
                     if (isGrantedPerms == PermissionStatus.GRANTED.name) {
@@ -122,12 +134,19 @@ class DashboardActivity : ComponentActivity() {
                         ) {
                             AppNavigation(
                                 navController = navController,
-                                activity = this
+                                activity = this,
+                                shouldScrollToTop = shouldScrollToTop
                             )
                         }
                     }
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        isNotificationServiceEnabled = isNotificationServiceEnabled(context = this)
+        println("Notification service enabled: $isNotificationServiceEnabled")
     }
 }
