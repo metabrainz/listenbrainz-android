@@ -58,7 +58,7 @@ fun TopBar(
         mutableStateOf(
             when (darkTheme) {
                 true -> {
-                    R.drawable.sun_solid
+                    R.drawable.moon_regular
                 }
                 else -> {
                     R.drawable.moon_solid
@@ -107,7 +107,7 @@ fun TopBar(
                             context.getString(R.string.settings_device_theme_dark)
                         ).apply()
                     }
-                    R.drawable.sun_solid -> {
+                    R.drawable.moon_regular -> {
                         setDefaultNightMode(MODE_NIGHT_NO)
                         isUiModeIsDark.value = false
                         preferences.putString(
