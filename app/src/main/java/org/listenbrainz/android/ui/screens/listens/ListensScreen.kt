@@ -198,22 +198,24 @@ fun ListensScreen(
         }
 
         // FAB
-        AnimatedVisibility(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp), visible = !showBlacklist
-        ) {
-            FloatingActionButton(
-                modifier = Modifier.border(1.dp, Color.Gray, shape = CircleShape),
-                shape = CircleShape,
-                onClick = { showBlacklist = true },
-                backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
+        if(!viewModel.appPreferences.lbAccessToken.isNullOrEmpty() && !viewModel.appPreferences.isNotificationServiceAllowed) {
+            AnimatedVisibility(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp), visible = !showBlacklist
             ) {
-                Icon(
-                    imageVector = Icons.Default.Block,
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    contentDescription = "Blacklist"
-                )
+                FloatingActionButton(
+                    modifier = Modifier.border(1.dp, Color.Gray, shape = CircleShape),
+                    shape = CircleShape,
+                    onClick = { showBlacklist = true },
+                    backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Block,
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        contentDescription = "Blacklist"
+                    )
+                }
             }
         }
     }
