@@ -33,7 +33,7 @@ fun BottomNavigationBar(
     val items = listOf(
         AppNavigationItem.Home,
         AppNavigationItem.BrainzPlayer,
-        AppNavigationItem.Explore,
+//        AppNavigationItem.Explore,
         AppNavigationItem.Profile,
     )
     BottomNavigation(
