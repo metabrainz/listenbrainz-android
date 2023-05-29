@@ -38,6 +38,11 @@
                 android:value="" />
         </activity>
 
+        <activity
+            android:name=".ui.screens.newsbrainz.NewsBrainzActivity"
+            android:label="@string/title_activity_news_brainz">
+        </activity>
+
         <service
             android:name=".service.ListenScrobbleService"
             android:enabled="true"
