@@ -22,7 +22,7 @@ class ListenSubmitBody {
     }
 
     fun addListen(timestamp: Long, metadata: ListenTrackMetadata, insertedAt: Int) {
-        payload.add(Payload(timestamp,insertedAt, metadata).setClientDetails())
+        payload.add(Payload(timestamp = timestamp, /*insertedAt = insertedAt,*/ metadata = metadata).setClientDetails())
     }
 
     private fun Payload.setClientDetails(): Payload{
@@ -40,7 +40,7 @@ class ListenSubmitBody {
 
     class Payload(
             @SerializedName("listened_at") var timestamp: Long,
-            @SerializedName("inserted_at") var insertedAt: Int,
+            /*@SerializedName("inserted_at") var insertedAt: Int,*/
             @SerializedName("track_metadata") var metadata: ListenTrackMetadata
         ) {
 

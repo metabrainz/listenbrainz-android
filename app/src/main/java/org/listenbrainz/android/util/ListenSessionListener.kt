@@ -151,7 +151,14 @@ class ListenSessionListener(private val handler: ListenHandler, val appPreferenc
             // Setting listener
             timer.setOnTimerListener(listener = object : OnTimerListener {
                 override fun onTimerEnded() {
-                    handler.submitListen(artist, title, timestamp, duration, player, releaseName)
+                    handler.submitListen(
+                        artist,
+                        title,
+                        timestamp,
+                        metadata.getLong(MediaMetadata.METADATA_KEY_DURATION),
+                        player,
+                        releaseName
+                    )
                     submitted = true
                 }
     

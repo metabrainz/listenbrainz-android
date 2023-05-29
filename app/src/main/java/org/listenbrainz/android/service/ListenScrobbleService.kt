@@ -21,8 +21,7 @@ class ListenScrobbleService : NotificationListenerService() {
 
     @Inject
     lateinit var appPreferences: AppPreferences
-    @Inject
-    lateinit var service: ListensService
+    
     @Inject
     lateinit var listensRepository: ListensRepository
 
@@ -48,7 +47,7 @@ class ListenScrobbleService : NotificationListenerService() {
 
     private fun initialize() {
         d("Initializing Listener Service")
-        handler = ListenHandler(appPreferences, service, listensRepository)
+        handler = ListenHandler(appPreferences, listensRepository)
         sessionManager = applicationContext.getSystemService(MEDIA_SESSION_SERVICE) as MediaSessionManager
         sessionListener = ListenSessionListener(handler!!, appPreferences)
         listenServiceComponent = ComponentName(this, this.javaClass)

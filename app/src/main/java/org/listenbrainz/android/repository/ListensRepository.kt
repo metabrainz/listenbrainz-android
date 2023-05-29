@@ -3,6 +3,7 @@ package org.listenbrainz.android.repository
 import android.graphics.drawable.Drawable
 import org.listenbrainz.android.model.CoverArt
 import org.listenbrainz.android.model.Listen
+import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.TokenValidation
 import org.listenbrainz.android.util.Resource
 
@@ -17,4 +18,6 @@ interface ListensRepository {
     fun getPackageIcon(packageName: String): Drawable?
     
     fun getPackageLabel(packageName: String): String
+    
+    fun submitListen(token: String, body: ListenSubmitBody)
 }
