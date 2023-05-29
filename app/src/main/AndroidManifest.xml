@@ -40,12 +40,7 @@
 
         <activity
             android:name=".ui.screens.newsbrainz.NewsBrainzActivity"
-            android:exported="false"
-            android:label="@string/title_activity_news_brainz"
-            android:theme="@style/AppTheme">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
+            android:label="@string/title_activity_news_brainz">
         </activity>
 
         <service
