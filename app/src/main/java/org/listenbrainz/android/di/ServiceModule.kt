@@ -13,6 +13,7 @@ import org.listenbrainz.android.model.yimdata.YimData
 import org.listenbrainz.android.service.BlogService
 import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.service.LoginService
+import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.util.Constants.LISTENBRAINZ_API_BASE_URL
 import org.listenbrainz.android.util.Constants.MUSICBRAINZ_AUTH_BASE_URL
@@ -21,9 +22,21 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.reflect.Type
 import javax.inject.Singleton
 
-@Module
+@Module(includes = [AppModule::class])
 @InstallIn(SingletonComponent::class)
 class ServiceModule {
+    
+    /** Retrofit instance with LB api url.*/
+    private val retrofitBuilderLB: Retrofit = Retrofit.Builder()
+        .baseUrl(LISTENBRAINZ_API_BASE_URL)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+    
+    /** Retrofit instance with MB api url.*/
+    private val retrofitBuilderMB: Retrofit = Retrofit.Builder()
+    .baseUrl(MUSICBRAINZ_AUTH_BASE_URL)
+    .addConverterFactory(GsonConverterFactory.create())
+    .build()
     
     @get:Provides
     @get:Singleton
@@ -32,20 +45,22 @@ class ServiceModule {
         .addConverterFactory(GsonConverterFactory.create())
         .build().create(BlogService::class.java)
 
+    
     @get:Provides
     @get:Singleton
-    val listensService: ListensService = Retrofit.Builder()
-        .baseUrl(LISTENBRAINZ_API_BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build().create(ListensService::class.java)
-
+    val listensService: ListensService = retrofitBuilderLB.create(ListensService::class.java)
+    
     @get:Provides
     @get:Singleton
-    val loginService: LoginService =  Retrofit.Builder()
-        .baseUrl(MUSICBRAINZ_AUTH_BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build().create(LoginService::class.java)
-
+    val loginService: LoginService = retrofitBuilderMB.create(LoginService::class.java)
+    
+    @get:Provides
+    @get:Singleton
+    val socialService: SocialService = retrofitBuilderLB.create(SocialService::class.java)
+    
+    
+    /* YIM */
+    
     private val yimGson: Gson = GsonBuilder()
         /** Since a TopRelease may or may not contain "caaId", "caaReleaseMbid" or "releaseMbid", so we perform a check. */
         /*.registerTypeAdapter(

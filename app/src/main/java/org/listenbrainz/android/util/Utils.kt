@@ -31,6 +31,10 @@ object Utils {
     fun getCoverArtUrl(caaReleaseMbid: String?, caaId: Long?, size: Int = 250): String {
         return  "https://archive.org/download/mbid-${caaReleaseMbid}/mbid-${caaReleaseMbid}-${caaId}_thumb${size}.jpg"
     }
+    
+    fun authHeader(accessToken: String) : String{
+        return "Bearer $accessToken"
+    }
 
     fun shareIntent(text: String?): Intent {
         val intent = Intent(Intent.ACTION_SEND).setType("text/plain")

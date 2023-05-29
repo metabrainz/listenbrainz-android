@@ -29,7 +29,7 @@ fun BottomNavigationBar(
         AppNavigationItem.Home,
         AppNavigationItem.BrainzPlayer,
         AppNavigationItem.Listens,
-        AppNavigationItem.Profile,
+        AppNavigationItem.Profile
     )
     BottomNavigation(
         backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,

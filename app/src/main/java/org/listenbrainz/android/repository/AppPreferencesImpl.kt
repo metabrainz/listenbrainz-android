@@ -28,7 +28,9 @@ import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
 import org.listenbrainz.android.util.Constants.Strings.USERNAME
 import org.listenbrainz.android.util.TypeConverter
+import javax.inject.Singleton
 
+@Singleton
 class AppPreferencesImpl(private val context : Context): AppPreferences {
     
     private val preferences = PreferenceManager.getDefaultSharedPreferences(context)

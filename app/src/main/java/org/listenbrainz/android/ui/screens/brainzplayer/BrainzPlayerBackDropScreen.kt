@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.screens.brainzplayer
 
-import CacheService
+import org.listenbrainz.android.util.CacheService
 import android.annotation.SuppressLint
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateDpAsState
@@ -44,7 +44,6 @@ import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
-import org.listenbrainz.android.service.BrainzPlayerService
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.PlayPauseIcon
 import org.listenbrainz.android.ui.components.SeekBar

@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.screens.dashboard
 
 import android.annotation.SuppressLint
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -113,7 +112,7 @@ class DashboardActivity : ComponentActivity() {
                 val backdropScaffoldState =
                     rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
                 Scaffold(
-                    topBar = { TopAppBar(activity = this) },
+                    topBar = { TopAppBar(activity = this, navController = navController) },
                     bottomBar = { BottomNavigationBar(navController = navController, backdropScaffoldState = backdropScaffoldState) },
                     backgroundColor = MaterialTheme.colorScheme.background
                 ) {

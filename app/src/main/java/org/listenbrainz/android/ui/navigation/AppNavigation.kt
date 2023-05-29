@@ -13,6 +13,7 @@ import org.listenbrainz.android.ui.components.BackLayerContent
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen
 import org.listenbrainz.android.ui.screens.listens.ListensScreen
 import org.listenbrainz.android.ui.screens.login.ProfileScreen
+import org.listenbrainz.android.ui.screens.search.SearchScreen
 
 @Composable
 fun AppNavigation(
@@ -35,6 +36,9 @@ fun AppNavigation(
         }
         composable(route = AppNavigationItem.Profile.route){
             ProfileScreen()
+        }
+        composable(route = AppNavigationItem.Search.route){
+            SearchScreen()
         }
     }
 }

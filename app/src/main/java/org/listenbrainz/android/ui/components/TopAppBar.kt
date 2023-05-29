@@ -11,13 +11,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import org.listenbrainz.android.R
+import org.listenbrainz.android.ui.navigation.AppNavigationItem
 import org.listenbrainz.android.ui.screens.dashboard.DonateActivity
 import org.listenbrainz.android.ui.screens.settings.SettingsActivity
 
 @Composable
 fun TopAppBar(
-    activity: Activity
+    activity: Activity,
+    navController: NavController
 ) {
     androidx.compose.material.TopAppBar(
         title = { Text(text = "ListenBrainz") },
@@ -34,11 +37,25 @@ fun TopAppBar(
         contentColor = MaterialTheme.colorScheme.onSurface,
         elevation = 0.dp,
         actions = {
-            IconButton(onClick = {
+            // TODO: Move about-section to settings.
+            /*IconButton(onClick = {
                 activity.startActivity(Intent(activity, org.listenbrainz.android.ui.screens.about.AboutActivity::class.java))
             }) {
                 Icon(painterResource(id = R.drawable.ic_information),
                     "About",
+                    tint = Color.Unspecified)
+            }*/
+            IconButton(onClick = {
+                navController.navigate(route = AppNavigationItem.Search.route){
+                    // Avoid building large backstack
+                    popUpTo(AppNavigationItem.Home.route)
+                    // Avoid copies
+                    launchSingleTop = true
+    
+                }
+            }) {
+                Icon(painterResource(id = AppNavigationItem.Search.icon),
+                    AppNavigationItem.Search.title,
                     tint = Color.Unspecified)
             }
             IconButton(onClick = {
