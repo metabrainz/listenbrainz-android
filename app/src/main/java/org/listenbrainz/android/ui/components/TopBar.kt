@@ -90,16 +90,16 @@ fun TopBar(
                     tint = Color.Unspecified)
             }*/
             IconButton(onClick = {
-                navController.navigate(route = org.listenbrainz.android.ui.navigation.AppNavigationItem.Search.route){
+                navController.navigate(route = AppNavigationItem.Search.route){
                     // Avoid building large backstack
-                    popUpTo(org.listenbrainz.android.ui.navigation.AppNavigationItem.Home.route)
+                    popUpTo(AppNavigationItem.Home.route)
                     // Avoid copies
                     launchSingleTop = true
             
                 }
             }) {
-                Icon(painterResource(id = org.listenbrainz.android.ui.navigation.AppNavigationItem.Search.icon),
-                    org.listenbrainz.android.ui.navigation.AppNavigationItem.Search.title,
+                Icon(painterResource(id = AppNavigationItem.Search.iconSelected),
+                    AppNavigationItem.Search.title,
                     tint = Color.Unspecified)
             }
             IconButton(onClick = {
