@@ -15,8 +15,8 @@ import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.sharedtest.utils.AssertionUtils.checkYimAssertions
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.loadResourceAsString
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testYimData
-import org.listenbrainz.sharedtest.utils.EntityTestUtils.testYimUsername
 import org.listenbrainz.sharedtest.utils.RetrofitUtils
 
 class YimRepositoryTest {
@@ -41,7 +41,7 @@ class YimRepositoryTest {
     @Test
     fun getYimData() = runBlocking {
         val expected = testYimData
-        val resource = repository.getYimData(testYimUsername)
+        val resource = repository.getYimData(testUsername)
         assertEquals(Resource.Status.SUCCESS, resource.status)
         checkYimAssertions(resource.data, expected)
     }

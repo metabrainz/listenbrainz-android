@@ -5,5 +5,5 @@ data class SocialData(
     val error: String? = null,
     var followers: List<String>? = null,
     var following: List<String>? = null,
-    val user: String
+    val user: String? = null
 )
