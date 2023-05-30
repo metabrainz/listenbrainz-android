@@ -1,4 +1,4 @@
-package org.listenbrainz.android
+package org.listenbrainz.android.di
 
 import android.app.Application
 import android.content.Context

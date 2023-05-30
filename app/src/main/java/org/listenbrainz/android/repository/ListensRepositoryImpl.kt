@@ -6,6 +6,7 @@ import androidx.annotation.WorkerThread
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.CoverArt
 import org.listenbrainz.android.model.Listen
+import org.listenbrainz.android.model.TokenValidation
 import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Resource.Status.FAILED
@@ -37,7 +38,19 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
             Resource.failure()
         }
     }
-    
+
+    @WorkerThread
+    override suspend fun validateUserToken(token: String): Resource<TokenValidation> {
+        return try {
+            val tokenIsValid = service.checkIfTokenIsValid("Token $token")
+            Resource(SUCCESS, tokenIsValid)
+        }
+        catch (e: Exception) {
+            e.printStackTrace()
+            Resource.failure()
+        }
+    }
+
     /** Retrieve any installed application's icon. If the requested application is not installed, null is returned.
      *
      * Usage:

@@ -5,9 +5,6 @@ import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UserInfo
 
 interface AppPreferences {
-    
-    val systemLanguagePreference: Boolean
-    
     val themePreference : String?
     
     /**
@@ -20,9 +17,7 @@ interface AppPreferences {
      *
      * [PermissionStatus.DENIED_TWICE] -> permission is denied twice and cannot be asked again. User need to go to settings to enable the permission.*/
     var permissionsPreference: String?
-    
-    var preferenceListeningEnabled: Boolean
-    
+
     /** Blacklist for ListenService.*/
     var listeningBlacklist: List<String>
     
@@ -31,8 +26,6 @@ interface AppPreferences {
 
     var onboardingCompleted: Boolean
 
-    val preferenceListeningSpotifyEnabled: Boolean
-    
     fun saveOAuthToken(token: AccessToken)
     fun saveUserInfo(userInfo: UserInfo)
     fun logoutUser()

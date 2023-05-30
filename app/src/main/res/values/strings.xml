@@ -207,6 +207,9 @@
     <!-- Year in Music -->
     <string name="title_activity_year_in_music">YearInMusicActivity</string>
 
+    <!-- News Brainz Acitivity -->
+    <string name="title_activity_news_brainz">NewsBrainzActivity</string>
+
     <!-- BrainzPlayer -->
     <string name="bp_loading_text">Loading your music library</string>
 
@@ -225,5 +228,4 @@
     <string name="tt_yim_recommended_playlists_parent">tt_yim_recommended_playlists_parent</string>
     <string name="tt_yim_charts_parent">tt_yim_charts_parent</string>
     <string name="tt_yim_statistics_parent">tt_yim_statistics_parent</string>
-
 </resources>
