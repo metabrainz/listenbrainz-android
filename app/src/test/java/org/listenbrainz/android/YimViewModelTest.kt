@@ -11,7 +11,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.listenbrainz.android.util.LBSharedPreferences
+import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.viewmodel.YimViewModel
 import org.listenbrainz.sharedtest.mocks.MockAppPreferences
@@ -28,7 +28,7 @@ class YimViewModelTest{
     @Before
     fun setup(){
         Dispatchers.setMain(StandardTestDispatcher())
-        viewModel = YimViewModel(MockYimRepository(), MockAppPreferences(username = testYimUsername, loginStatus = LBSharedPreferences.STATUS_LOGGED_IN))
+        viewModel = YimViewModel(MockYimRepository(), MockAppPreferences(username = testYimUsername, loginStatus = STATUS_LOGGED_IN))
     }
     
     @OptIn(ExperimentalCoroutinesApi::class)

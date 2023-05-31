@@ -14,8 +14,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AlbumViewModel @Inject constructor(
-    private val albumRepository: AlbumRepository,
-    private val appPreferences: AppPreferences
+    val albumRepository: AlbumRepository,
+    val appPreferences: AppPreferences
 ) : ViewModel() {
     val albums = albumRepository.getAlbums()
     

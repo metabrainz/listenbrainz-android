@@ -10,10 +10,7 @@ import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.w
 
-class ListenSessionListener(
-    private val handler: ListenHandler,
-    private val appPreferences: AppPreferences
-) : OnActiveSessionsChangedListener {
+class ListenSessionListener(private val handler: ListenHandler, val appPreferences: AppPreferences) : OnActiveSessionsChangedListener {
     
     private val activeSessions: MutableMap<MediaController, ListenCallback?> = HashMap()
 
@@ -21,18 +18,21 @@ class ListenSessionListener(
         d("onActiveSessionsChanged: EXECUTED")
         if (controllers == null) return
         clearSessions()
+        registerControllers(controllers)
+    }
+
+    private fun registerControllers(controllers: List<MediaController>) {
         for (controller in controllers) {
-            
             // BlackList
             if (controller.packageName in appPreferences.listeningBlacklist)
                 continue
-            
-            val callback = ListenCallback()
+
+            val callback = ListenCallback(controller.packageName)
             activeSessions[controller] = callback
             controller.registerCallback(callback)
             d("### REGISTERED MediaController callback for ${controller.packageName}.")
         }
-        
+
         // Adding any new app packages found in the notification.
         controllers.forEach { controller ->
             val appList = appPreferences.listeningApps
@@ -51,9 +51,10 @@ class ListenSessionListener(
         activeSessions.clear()
     }
 
-    private inner class ListenCallback : MediaController.Callback() {
+    private inner class ListenCallback(private val player: String) : MediaController.Callback() {
         var artist: String? = null
         var title: String? = null
+        var releaseName: String? = null
         var timestamp: Long = 0
         var duration: Long = 0
         val timer: Timer = Timer()
@@ -85,6 +86,7 @@ class ListenSessionListener(
                 return
             }
             
+            setMiscellaneousDetails(metadata)
             setDurationAndCallbacks(metadata)
             
         }
@@ -129,6 +131,11 @@ class ListenSessionListener(
             }
         }
         
+        /** Sets releaseName*/
+        private fun setMiscellaneousDetails(metadata: MediaMetadata) {
+            releaseName = metadata.getString(MediaMetadata.METADATA_KEY_ALBUM)
+        }
+        
         private fun isMetadataFaulty() : Boolean
             = artist.isNullOrEmpty() || title.isNullOrEmpty()
         
@@ -144,7 +151,14 @@ class ListenSessionListener(
             // Setting listener
             timer.setOnTimerListener(listener = object : OnTimerListener {
                 override fun onTimerEnded() {
-                    handler.submitListen(artist, title, timestamp)
+                    handler.submitListen(
+                        artist,
+                        title,
+                        timestamp,
+                        metadata.getLong(MediaMetadata.METADATA_KEY_DURATION),
+                        player,
+                        releaseName
+                    )
                     submitted = true
                 }
     
@@ -169,6 +183,7 @@ class ListenSessionListener(
             timestamp = 0
             duration = 0
             submitted = false
+            releaseName = null
         }
         
         private fun roundDuration(duration: Long): Long {

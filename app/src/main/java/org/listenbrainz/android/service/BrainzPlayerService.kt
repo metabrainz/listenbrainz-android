@@ -20,18 +20,18 @@ import kotlinx.coroutines.flow.first
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.repository.AlbumRepository
+import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.repository.PlaylistRepository
 import org.listenbrainz.android.repository.SongRepository
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toMediaMetadataCompat
 import org.listenbrainz.android.util.BrainzPlayerNotificationManager
 import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID
 import org.listenbrainz.android.util.BrainzPlayerUtils.SERVICE_TAG
-import org.listenbrainz.android.util.LBSharedPreferences
 import org.listenbrainz.android.util.LocalMusicSource
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class BrainzPlayerService: MediaBrowserServiceCompat() {
+class BrainzPlayerService : MediaBrowserServiceCompat() {
 
     @Inject
     lateinit var exoPlayer: ExoPlayer
@@ -48,6 +48,9 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
     @Inject
     lateinit var playlistRepository: PlaylistRepository
 
+    @Inject
+    lateinit var appPreferences: AppPreferences
+
     private lateinit var mediaSession: MediaSessionCompat
     private lateinit var mediaSessionConnector : MediaSessionConnector
     private lateinit var brainzPlayerEventListener : BrainzPlayerEventListener
@@ -58,23 +61,21 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
     private var currentSong: MediaMetadataCompat? = null
 
     private val serviceJob = SupervisorJob()
-     private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
+    private val serviceScope = CoroutineScope(Dispatchers.Main + serviceJob)
 
     companion object {
         var currentSongDuration = 0L
             private set
-
-        var playableSongs = LBSharedPreferences.currentPlayable?.songs?.toMutableStateList() ?: mutableStateListOf()
     }
     override fun onCreate() {
         super.onCreate()
         serviceScope.launch {
-            if (LBSharedPreferences.currentPlayable == null){
-                LBSharedPreferences.currentPlayable = Playable(PlayableType.ALL_SONGS, -1L, songRepository.getSongsStream().first().map {
+            if (appPreferences.currentPlayable == null){
+                appPreferences.currentPlayable = Playable(PlayableType.ALL_SONGS, -1L, songRepository.getSongsStream().first().map {
                     it
                 }, 0 )
             }
-            localMusicSource.setMediaSource(LBSharedPreferences.currentPlayable?.songs?.map { song->
+            localMusicSource.setMediaSource(appPreferences.currentPlayable?.songs?.map { song->
                 song.toMediaMetadataCompat }?.toMutableList() ?: mutableListOf() )
         }
         val activityIntent = packageManager?.getLaunchIntentForPackage(packageName)?.let {
@@ -160,15 +161,14 @@ class BrainzPlayerService: MediaBrowserServiceCompat() {
         playNow: Boolean
     ) {
         serviceScope.launch(Dispatchers.Main) {
-            playableSongs = LBSharedPreferences.currentPlayable?.songs?.toMutableStateList()!!
-            val songs = playableSongs.map {
+            val songs = appPreferences.currentPlayable?.songs?.map {
                 it.toMediaMetadataCompat
-            }.toMutableList() ?: mutableListOf()
+            }?.toMutableList() ?: mutableListOf()
             localMusicSource.setMediaSource(songs)
-            val currentSongIndex = LBSharedPreferences.currentPlayable?.currentSongIndex ?: 0
+            val currentSongIndex = appPreferences.currentPlayable?.currentSongIndex ?: 0
             exoPlayer.setMediaItems(localMusicSource.asMediaSource())
             exoPlayer.prepare()
-            exoPlayer.seekTo(currentSongIndex,LBSharedPreferences.currentPlayable?.seekTo ?: 0L)
+            exoPlayer.seekTo(currentSongIndex,appPreferences.currentPlayable?.seekTo ?: 0L)
             exoPlayer.playWhenReady = playNow
             brainzPlayerNotificationManager.showNotification(exoPlayer)
         }

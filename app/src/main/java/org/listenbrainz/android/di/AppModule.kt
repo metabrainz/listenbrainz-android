@@ -17,8 +17,7 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun providesServiceConnection( @ApplicationContext context: Context
-    ) = BrainzPlayerServiceConnection(context)
+    fun providesServiceConnection(@ApplicationContext context: Context) = BrainzPlayerServiceConnection(context)
 
     @Singleton
     @Provides
@@ -26,5 +25,5 @@ object AppModule {
     
     @Singleton
     @Provides
-    fun providesAppPreferences() : AppPreferences = AppPreferencesImpl()
+    fun providesAppPreferences(@ApplicationContext context: Context) : AppPreferences = AppPreferencesImpl(context)
 }

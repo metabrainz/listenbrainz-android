@@ -12,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.ArrowForwardIos
-import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -20,7 +19,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.layout.ContentScale
@@ -44,7 +42,6 @@ import coil.compose.AsyncImage
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.*
 import org.listenbrainz.android.ui.components.forwardingPainter
-import org.listenbrainz.android.ui.navigation.AppNavigationItem
 import org.listenbrainz.android.ui.screens.brainzplayer.navigation.BrainzPlayerNavigationItem
 import org.listenbrainz.android.ui.screens.brainzplayer.navigation.Navigation
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -109,9 +106,7 @@ fun BrainzPlayerHomeScreen(
         ) {
             SearchView(state = searchTextState, brainzPlayerViewModel)
         }
-        
-        ListenBrainzHistoryCard(appNavController = appNavController)
-        
+
         // Recently Played
         Text(
             text = "Recently Played",
@@ -413,55 +408,6 @@ fun SearchView(state: MutableState<TextFieldValue>, brainzPlayerViewModel: Brain
             }
         }
     }
-}
-
-
-@Composable
-fun ListenBrainzHistoryCard(appNavController: NavController) {
-    val gradientColors =
-        Brush.horizontalGradient(0f to Color(0xff353070), 1000f to Color(0xffFFA500))
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(gradientColors)
-            .height(120.dp)
-            .clickable { appNavController.navigate(AppNavigationItem.Listens.route) },
-    ) {
-        Column {
-            Icon(
-                imageVector = Icons.Rounded.PlayArrow, contentDescription = "",
-                Modifier
-                    .size(30.dp)
-                    .padding(start = 3.dp, top = 3.dp), tint = Color.White
-            )
-            Text(
-                text = "Listen to \nplayback history",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                fontWeight = FontWeight.Bold,
-                fontSize = 26.sp,
-                textAlign = TextAlign.Start,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
-    }
-}
-
-@Composable
-fun RecentlyPlayedCard() {
-    val gradientColors = Brush.verticalGradient(0f to Color(0xff263238), 100f to Color(0xff324147))
-    Box(
-        modifier = Modifier
-            .height(175.dp)
-            .width(180.dp)
-            .padding(10.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(gradientColors)
-            .border(color = Color(0xff324147), width = 1.dp, shape = RoundedCornerShape(8.dp))
-    )
 }
 
 @Composable
