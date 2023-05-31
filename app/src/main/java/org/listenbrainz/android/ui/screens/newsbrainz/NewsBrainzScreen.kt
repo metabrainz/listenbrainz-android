@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.screens.newsbrainz
 
 import android.os.Build
+import android.text.Html
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -13,17 +14,24 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import android.text.Html
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -38,7 +46,8 @@ import org.listenbrainz.android.viewmodel.NewsListViewModel
 fun NewsBrainzScreen(
     viewModel: NewsListViewModel,
     onItemClicked: (BlogPost) -> Unit,
-    onItemLongClicked: (BlogPost) -> Unit
+    onItemLongClicked: (BlogPost) -> Unit,
+    onBack: () -> Unit
 ) {
     val posts = viewModel.blogPostsFlow.collectAsState().value
 
@@ -46,26 +55,43 @@ fun NewsBrainzScreen(
         viewModel.fetchBlogs()
     }
 
-    LazyColumn {
-        item {
-            Image(
-                painter = painterResource(id = R.drawable.all_projects),
-                contentDescription = "All Projects",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(160.dp),
-                contentScale = ContentScale.Fit
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "NewsBrainz") },
+                backgroundColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                elevation = 0.dp,
+                navigationIcon = {
+                    IconButton(onClick = { onBack() }) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                }
             )
-        }
+        },
+        content = {
+            LazyColumn(modifier = Modifier.padding(it)) {
+                item {
+                    Image(
+                        painter = painterResource(id = R.drawable.all_projects),
+                        contentDescription = "All Projects",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(160.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
 
-        items(posts) { post ->
-            BlogCard(
-                post = post,
-                onClick = { onItemClicked(post) },
-                onLongClick = { onItemLongClicked(post) }
-            )
+                items(posts) { post ->
+                    BlogCard(
+                        post = post,
+                        onClick = { onItemClicked(post) },
+                        onLongClick = { onItemLongClicked(post) }
+                    )
+                }
+            }
         }
-    }
+    )
 
     // Loading Animation
     AnimatedVisibility(

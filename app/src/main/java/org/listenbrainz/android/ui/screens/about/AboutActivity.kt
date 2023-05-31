@@ -16,7 +16,9 @@ class AboutActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            AboutScreen(version = appPreferences.version)
+            AboutScreen(version = appPreferences.version) {
+                finish()
+            }
         }
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

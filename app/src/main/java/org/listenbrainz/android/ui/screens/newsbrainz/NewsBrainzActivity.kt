@@ -51,7 +51,9 @@ class NewsBrainzActivity : AppCompatActivity() {
                             }
                         )
                 }
-            )
+            ) {
+                finish()
+            }
         }
     }
 }

@@ -1,17 +1,24 @@
 package org.listenbrainz.android.ui.screens.about
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,15 +32,22 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.screens.onboarding.FeaturesActivity
 import org.listenbrainz.android.util.Utils.sendFeedback
 
-@OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun AboutScreen(version: String) {
+fun AboutScreen(version: String, onBack: () -> Unit) {
     val context = LocalContext.current
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(text = "About") },
+                backgroundColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                elevation = 0.dp,
+                navigationIcon = {
+                    IconButton(onClick = { onBack() }) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
                 actions = {
                     IconButton(onClick = {
                         context.startActivity(Intent(context, FeaturesActivity::class.java))
@@ -49,6 +63,7 @@ fun AboutScreen(version: String) {
         content = {
             Box(
                 modifier = Modifier
+                    .padding(it)
                     .fillMaxSize()
                     .background(Color(R.color.app_bg))
                     .padding(16.dp)

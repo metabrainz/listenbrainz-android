@@ -66,8 +66,7 @@
         <activity android:name=".ui.screens.onboarding.FeaturesActivity"/>
         <activity
             android:name=".ui.screens.dashboard.DashboardActivity"
-            android:exported="true"
-            android:theme="@style/Theme.App.Starting">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
