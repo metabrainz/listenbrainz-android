@@ -3,6 +3,7 @@ package org.listenbrainz.android.ui.screens.profile
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -30,12 +31,11 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AccessToken
 import org.listenbrainz.android.model.UserInfo
-import org.listenbrainz.android.ui.components.ListenBrainzActivity
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.LoginViewModel
 
 @AndroidEntryPoint
-class LoginActivity : ListenBrainzActivity() {
+class LoginActivity : AppCompatActivity() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
