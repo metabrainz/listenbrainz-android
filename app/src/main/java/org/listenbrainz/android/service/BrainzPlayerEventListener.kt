@@ -23,6 +23,6 @@ class BrainzPlayerEventListener(
 
     override fun onPlayerError(error: PlaybackException) {
         super.onPlayerError(error)
-        e("BrainzPlayer Error")
+        e("BrainzPlayer LBResponseError")
     }
 }

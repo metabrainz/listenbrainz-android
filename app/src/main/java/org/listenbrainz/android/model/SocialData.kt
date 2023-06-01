@@ -1,9 +1,10 @@
 package org.listenbrainz.android.model
 
-data class SocialData(
-    val code: Int? = null,
-    val error: String? = null,
+import org.listenbrainz.android.util.LBResponseError
+
+data class SocialData (
     var followers: List<String>? = null,
     var following: List<String>? = null,
-    val user: String? = null
+    val user: String? = null,
+    var error: LBResponseError? = null
 )

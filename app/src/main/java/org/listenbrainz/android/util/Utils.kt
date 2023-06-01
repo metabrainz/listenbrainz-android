@@ -86,7 +86,7 @@ object Utils {
             input.close()
             output.toString()
         } catch (e: IOException) {
-            e("Error reading text file from assets folder.")
+            e("LBResponseError reading text file from assets folder.")
             ""
         }
     }

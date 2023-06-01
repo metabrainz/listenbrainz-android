@@ -18,7 +18,6 @@ object Constants {
     object Headers {
         const val AUTHORIZATION = "Authorization"
     }
-    
 
     object Strings {
         const val TIMESTAMP = "timestamp"

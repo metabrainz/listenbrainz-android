@@ -150,11 +150,11 @@ class ListensViewModel @Inject constructor(
                     null
                 }
             } else {
-                Log.e("YouTube API Error", response.errorBody()?.string() ?: "")
+                Log.e("YouTube API LBResponseError", response.errorBody()?.string() ?: "")
                 null
             }
         } catch (e: Exception) {
-            Log.e("YouTube API Error", "Error occurred while searching for video ID", e)
+            Log.e("YouTube API LBResponseError", "LBResponseError occurred while searching for video ID", e)
             null
         }
     }

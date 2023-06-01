@@ -1,7 +1,8 @@
 package org.listenbrainz.android.model
 
+import org.listenbrainz.android.util.LBResponseError
+
 data class SocialResponse(
     var status: String? = null,
-    var code: Int? = null,
-    var error: String? = null
+    var error: LBResponseError? = null
 )

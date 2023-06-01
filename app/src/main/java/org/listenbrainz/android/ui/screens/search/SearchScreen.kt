@@ -27,7 +27,7 @@ fun SearchScreen(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.CenterStart
             ) {
-                Text(text = it.userName)
+                Text(text = it.username)
             }
         }*/
         
@@ -36,7 +36,7 @@ fun SearchScreen(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.CenterStart
             ) {
-                Text(text = it.userName)
+                Text(text = it)
             }
         }
     }

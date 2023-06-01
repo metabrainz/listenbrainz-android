@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.SearchResult
-import org.listenbrainz.android.model.SimilarUserPayload
 import org.listenbrainz.android.repository.SocialRepository
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
@@ -19,11 +18,12 @@ class SearchViewModel @Inject constructor(private val repository: SocialReposito
     private val _searchState = MutableStateFlow<Resource<SearchResult>>(Resource.loading())
     val searchState = _searchState.asStateFlow()
     
-    private val _test = MutableStateFlow<List<SimilarUserPayload>>(emptyList())
+    private val _test = MutableStateFlow<List<String>>(emptyList())
     val test = _test.asStateFlow()
     
     init {
         searchUser("Jasjeet")
+        updateFollowers()
     }
     
     fun searchUser(username: String) {
@@ -34,5 +34,11 @@ class SearchViewModel @Inject constructor(private val repository: SocialReposito
         }
     }
     
+    fun updateFollowers(){
+        viewModelScope.launch {
+            val result = repository.getFollowers("Jasjeeet")
+            _test.value = result.data?.followers ?: listOf("Error")
+        }
+    }
     
 }

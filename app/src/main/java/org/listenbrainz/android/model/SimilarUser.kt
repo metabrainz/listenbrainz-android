@@ -2,7 +2,7 @@ package org.listenbrainz.android.model
 
 import com.google.gson.annotations.SerializedName
 
-data class SimilarUserPayload(
+data class SimilarUser(
     val similarity: Double,
-    @SerializedName("user_name") val userName: String
+    @SerializedName("user_name") val username: String
 )
