@@ -1,21 +1,28 @@
 package org.listenbrainz.android.util
 
+import android.content.ActivityNotFoundException
 import android.content.ContentValues
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.provider.Settings
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.WorkerThread
 import kotlinx.coroutines.Dispatchers
 import okhttp3.*
+import org.listenbrainz.android.R
 import org.listenbrainz.android.util.Log.e
 import java.io.*
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
 import java.util.*
 
 /**
@@ -29,6 +36,25 @@ object Utils {
         return  "https://archive.org/download/mbid-${caaReleaseMbid}/mbid-${caaReleaseMbid}-${caaId}_thumb${size}.jpg"
     }
 
+    fun sendFeedback(context: Context) {
+        try {
+            context.startActivity(emailIntent(Constants.FEEDBACK_EMAIL, Constants.FEEDBACK_SUBJECT))
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(context, R.string.toast_feedback_fail, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    fun isNotificationServiceEnabled(context: Context): Boolean {
+        val packageNames = Settings.Secure.getString(
+            context.contentResolver,
+            "enabled_notification_listeners"
+        )
+        if (packageNames != null && packageNames.contains(context.packageName)) {
+            return true
+        }
+        return false
+    }
+
     fun shareIntent(text: String?): Intent {
         val intent = Intent(Intent.ACTION_SEND).setType("text/plain")
         return intent.putExtra(Intent.EXTRA_TEXT, text)
@@ -39,6 +65,22 @@ object Utils {
         val intent = Intent(Intent.ACTION_SENDTO, uri)
         intent.putExtra(Intent.EXTRA_SUBJECT, subject)
         return intent
+    }
+
+    fun getSHA1(context: Context, packageName: String): String? {
+        try {
+            val signatures = context.packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES).signatures
+            for (signature in signatures) {
+                val md = MessageDigest.getInstance("SHA-1")
+                md.update(signature.toByteArray())
+                return md.digest().joinToString("") { "%02X".format(it) }
+            }
+        } catch (e: PackageManager.NameNotFoundException) {
+            e.printStackTrace()
+        } catch (e: NoSuchAlgorithmException) {
+            e.printStackTrace()
+        }
+        return null
     }
 
     fun stringFromAsset(context: Context, asset: String?): String {
@@ -57,29 +99,6 @@ object Utils {
         }
     }
 
-    fun changeLanguage(context: Context, lang_code: String): ContextWrapper {
-        var context = context
-        val sysLocale: Locale
-        val rs = context.resources
-        val config = rs.configuration
-        sysLocale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            config.locales[0]
-        } else {
-            config.locale
-        }
-        if (lang_code != "" && sysLocale.language != lang_code) {
-            val locale = Locale(lang_code)
-            Locale.setDefault(locale)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                config.setLocale(locale)
-            } else {
-                config.locale = locale
-            }
-            context = context.createConfigurationContext(config)
-        }
-        return ContextWrapper(context)
-    }
-    
     /** Save a given bitmap to the default images directory inside the "ListenBrainz"
      * directory of the device.
      *

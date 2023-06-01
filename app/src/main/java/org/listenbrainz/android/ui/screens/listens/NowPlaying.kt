@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.screens.listens
 
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -29,6 +30,9 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.ui.components.SeekBar
 import org.listenbrainz.android.viewmodel.ListensViewModel
+import org.listenbrainz.android.ui.theme.lb_purple
+import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
+import org.listenbrainz.android.ui.theme.offWhite
 
 @Composable
 fun NowPlaying(
@@ -51,7 +55,7 @@ fun NowPlaying(
                 }
             }),
         elevation = 0.dp,
-        backgroundColor = MaterialTheme.colors.onSurface
+        backgroundColor = if (onScreenUiModeIsDark()) Color.Black else offWhite,
     ) {
         Row(
             modifier = Modifier
@@ -60,7 +64,7 @@ fun NowPlaying(
             Text(
                 text = "Now playing",
                 modifier = Modifier.padding(4.dp),
-                color = MaterialTheme.colors.surface,
+                color = if (onScreenUiModeIsDark()) Color.White else Color.Black,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.subtitle1,
                 textAlign = TextAlign.Center,
@@ -98,7 +102,7 @@ fun NowPlaying(
                     Text(
                         text = track,
                         modifier = Modifier.padding(0.dp, 0.dp, 5.dp, 0.dp),
-                        color = MaterialTheme.colors.surface,
+                        color = if (onScreenUiModeIsDark()) Color.White else lb_purple,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.subtitle1,
                         maxLines = 1
@@ -111,7 +115,8 @@ fun NowPlaying(
                         append(playerState?.track?.artist?.name)
                     },
                     modifier = Modifier.padding(0.dp, 0.dp, 5.dp, 0.dp),
-                    color = MaterialTheme.colors.surface,
+                    modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
+                    color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.caption,
                     maxLines = 2
                 )
@@ -121,7 +126,7 @@ fun NowPlaying(
                         Text(
                             text = album,
                             modifier = Modifier.padding(0.dp, 6.dp, 12.dp, 0.dp),
-                            color = MaterialTheme.colors.surface,
+                            color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(alpha = 0.7f),
                             style = MaterialTheme.typography.caption,
                             maxLines = 2
                         )
@@ -143,6 +148,7 @@ fun NowPlaying(
 }
 
 @Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun NowPlayingPreview() {
     NowPlaying(

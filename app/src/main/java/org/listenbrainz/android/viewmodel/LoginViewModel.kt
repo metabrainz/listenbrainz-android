@@ -12,15 +12,16 @@ import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.repository.LoginRepository
 import org.listenbrainz.android.repository.LoginRepository.Companion.errorToken
 import org.listenbrainz.android.repository.LoginRepository.Companion.errorUserInfo
-import org.listenbrainz.android.util.ListenBrainzServiceGenerator
+import org.listenbrainz.android.util.Constants.CLIENT_ID
+import org.listenbrainz.android.util.Constants.MUSICBRAINZ_AUTH_BASE_URL
+import org.listenbrainz.android.util.Constants.OAUTH_REDIRECT_URI
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val repository: LoginRepository
+    private val repository: LoginRepository,
+    val appPreferences: AppPreferences
 ) : ViewModel() {
-    
-    lateinit var appPreferences: AppPreferences
     
     /** Initial value: **null** */
     val accessTokenFlow: Flow<AccessToken?> = repository.accessTokenFlow
@@ -32,14 +33,14 @@ class LoginViewModel @Inject constructor(
         repository.fetchAccessToken(code)
     }
 
-    private fun fetchUserInfo() {
-        repository.fetchUserInfo()
+    private fun fetchUserInfo(accessToken: String) {
+        repository.fetchUserInfo(accessToken)
     }
     
     /** Starts the web-view and controls redirection from website.*/
     fun checkRedirectUri(callbackUri: Uri?) : Int {
         with(callbackUri){
-            if (this != null && this.toString().startsWith(ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI)) {
+            if (this != null && this.toString().startsWith(OAUTH_REDIRECT_URI)) {
                 
                 if (getQueryParameter("error") != null){
                     // User denies access
@@ -65,11 +66,11 @@ class LoginViewModel @Inject constructor(
         return Intent(
             Intent.ACTION_VIEW,
             Uri.parse(
-                ListenBrainzServiceGenerator.AUTH_BASE_URL
+                MUSICBRAINZ_AUTH_BASE_URL
                         + "authorize"
                         + "?response_type=code"
-                        + "&client_id=" + ListenBrainzServiceGenerator.CLIENT_ID
-                        + "&redirect_uri=" + ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI
+                        + "&client_id=" + CLIENT_ID
+                        + "&redirect_uri=" + OAUTH_REDIRECT_URI
                         + "&scope=profile%20collection%20tag%20rating"
             )
         )
@@ -95,8 +96,9 @@ class LoginViewModel @Inject constructor(
                 R.string.login_failed_access_token
             }
             else -> {
+                println("Access token: $accessToken")
                 appPreferences.saveOAuthToken(accessToken)
-                fetchUserInfo()     // UserInfo flow is then updated which finishes the activity.
+                accessToken.accessToken?.let { fetchUserInfo(it) }     // UserInfo flow is then updated which finishes the activity.
                 R.string.login_success_access_token
             }
         }

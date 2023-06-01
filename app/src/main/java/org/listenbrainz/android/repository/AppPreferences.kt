@@ -4,11 +4,7 @@ import org.listenbrainz.android.model.AccessToken
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UserInfo
 
-
 interface AppPreferences {
-    
-    val systemLanguagePreference: Boolean
-    
     val themePreference : String?
     
     /**
@@ -21,18 +17,20 @@ interface AppPreferences {
      *
      * [PermissionStatus.DENIED_TWICE] -> permission is denied twice and cannot be asked again. User need to go to settings to enable the permission.*/
     var permissionsPreference: String?
+
+    /** Blacklist for ListenService.*/
+    var listeningBlacklist: List<String>
     
-    var preferenceListeningEnabled: Boolean
-    
-    val preferenceListenBrainzToken : String?
-    
-    val onboardingPreference: Boolean
-    
-    val preferenceListeningSpotifyEnabled: Boolean
-    
+    /** Music Apps in users device registered by listenService.*/
+    var listeningApps: List<String>
+
+    var onboardingCompleted: Boolean
+
     fun saveOAuthToken(token: AccessToken)
     fun saveUserInfo(userInfo: UserInfo)
     fun logoutUser()
+
+    val version: String
     
     var currentPlayable : Playable?
     
@@ -42,9 +40,11 @@ interface AppPreferences {
     /****MusicBrainz User Token:** Obtained when user logins in.*/
     val mbAccessToken: String?
     /****ListenBrainz User Token:** User has to manually fill this token.*/
-    val lbAccessToken: String?
+    var lbAccessToken: String?
     val username: String?
     val refreshToken: String?
+
+    val isNotificationServiceAllowed: Boolean
     
     /* BrainzPlayer Preferences */
     
@@ -53,5 +53,4 @@ interface AppPreferences {
     
     /** Used to tell the user that they don't have any songs on their device. */
     var songsOnDevice: Boolean
-    
 }

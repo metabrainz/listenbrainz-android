@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -29,6 +30,8 @@ import org.listenbrainz.android.ui.screens.newsbrainz.NewsBrainzActivity
 import org.listenbrainz.android.ui.screens.yim.YearInMusicActivity
 import org.listenbrainz.android.ui.theme.lb_orange
 import org.listenbrainz.android.ui.theme.lb_purple
+import org.listenbrainz.android.ui.theme.offWhite
+import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 
 @Composable
 fun BackLayerContent(activity: Activity) {
@@ -117,7 +120,7 @@ private fun HomeScreenCard(
                     )
                 )
             },
-        backgroundColor = MaterialTheme.colors.onSurface
+        backgroundColor = if (onScreenUiModeIsDark()) Color.Black else offWhite,
     ) {
         Row(
             modifier = Modifier
@@ -140,7 +143,7 @@ private fun HomeScreenCard(
                 Text(
                     text = title,
                     modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
-                    color = MaterialTheme.colors.surface,
+                    color = if (onScreenUiModeIsDark()) Color.White else lb_purple,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.subtitle1
                 )
@@ -148,7 +151,7 @@ private fun HomeScreenCard(
                 Text(
                     text = subTitle,
                     modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
-                    color = MaterialTheme.colors.surface,
+                    color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.caption
                 )
             }
