@@ -115,7 +115,6 @@ fun NowPlaying(
                         append(playerState?.track?.artist?.name)
                     },
                     modifier = Modifier.padding(0.dp, 0.dp, 5.dp, 0.dp),
-                    modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
                     color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.caption,
                     maxLines = 2
