@@ -1,6 +1,6 @@
 package org.listenbrainz.android.model
 
-data class Post (
+data class BlogPost (
     val ID: String,
     val title: String,
     val URL: String,

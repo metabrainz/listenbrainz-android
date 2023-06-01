@@ -1,13 +1,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/app_bg</item>
         <item name="colorPrimaryDark">@color/app_bg</item>
         <item name="colorAccent">@color/light_blue</item>
 
         <item name="colorControlActivated">@color/colorPrimary</item>
-        <item name="alertDialogTheme">@style/settingsDialog</item>
         <item name="android:navigationBarColor">@color/app_bg</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
         <item name="android:windowLightNavigationBar" tools:targetApi="o_mr1">true</item>
@@ -18,29 +17,5 @@
         <item name="windowSplashScreenBackground">@color/app_bg</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
         <item name="windowSplashScreenAnimationDuration">800</item>
-
-        // Set the theme of the Activity that directly follows your splash screen.
-        <item name="postSplashScreenTheme">@style/AppThemeNoActionBar</item>
-    </style>
-
-    <style name="settingsDialog" parent="Theme.MaterialComponents.Light.Dialog.Alert">
-        <item name="colorPrimary">@color/colorPrimary</item>
-    </style>
-
-    <style name="loginrequiredDialogAnimation">
-        <item name="android:windowEnterAnimation">@anim/alertdialog_popin</item>
-    </style>
-
-    <style name="loginrequiredDialog" parent="@style/settingsDialog">
-        <item name="android:windowAnimationStyle">@style/loginrequiredDialogAnimation</item>
-    </style>
-
-    <style name="AppThemeNoActionBar" parent="Theme.MaterialComponents.Light.NoActionBar" >
-        <item name="colorPrimaryDark">@color/app_bg</item>
-    </style>
-
-    <style name="SettingsSwitchTheme" parent="@style/Widget.MaterialComponents.CompoundButton.Switch">
-        <item name="android:colorForeground">#f57f17</item>
-        <item name="android:textAppearance">@style/TextAppearance.AppCompat</item>
     </style>
 </resources>
