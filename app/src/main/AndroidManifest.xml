@@ -7,10 +7,12 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
@@ -30,12 +32,11 @@
         tools:targetApi="32">
         <activity
             android:name=".ui.screens.yim.YearInMusicActivity"
-            android:exported="false"
-            android:label="@string/title_activity_year_in_music"
-            android:theme="@style/AppTheme">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
+            android:label="@string/title_activity_year_in_music"/>
+
+        <activity
+            android:name=".ui.screens.newsbrainz.NewsBrainzActivity"
+            android:label="@string/title_activity_news_brainz">
         </activity>
 
         <service
@@ -62,13 +63,10 @@
             </intent-filter>
         </receiver>
         -->
-        <activity
-            android:name=".ui.screens.onboarding.FeaturesActivity"
-            android:theme="@style/AppThemeNoActionBar" />
+        <activity android:name=".ui.screens.onboarding.FeaturesActivity"/>
         <activity
             android:name=".ui.screens.dashboard.DashboardActivity"
-            android:exported="true"
-            android:theme="@style/Theme.App.Starting">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -97,7 +95,7 @@
             android:name=".ui.screens.dashboard.DonateActivity"
             android:label="@string/donate_title" />
 
-       <!-- Sentry Setup -->
+        <!-- Sentry Setup -->
         <meta-data
             android:name="io.sentry.dsn"
             android:value="@string/sentryDsn" />

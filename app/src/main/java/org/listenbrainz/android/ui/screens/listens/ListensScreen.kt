@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.FloatingActionButton
@@ -47,7 +47,6 @@ import org.listenbrainz.android.ui.components.ListenCard
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.UserData
 import org.listenbrainz.android.util.Constants
-import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.ListensViewModel
 
 @Composable
@@ -89,6 +88,7 @@ fun ListensScreen(
     val youtubeApiKey = stringResource(id = R.string.youtubeApiKey)
     // Listens list
     val listens = viewModel.listensFlow.collectAsState().value
+    val coverArtUrls = viewModel.coverArtFlow.collectAsState().value
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
@@ -110,13 +110,10 @@ fun ListensScreen(
                 }
             }
 
-            items(listens) { listen ->
+            itemsIndexed(listens) { index, listen ->
                 ListenCard(
                     listen,
-                    coverArtUrl = Utils.getCoverArtUrl(
-                        caaReleaseMbid = listen.track_metadata.mbid_mapping?.caa_release_mbid,
-                        caaId = listen.track_metadata.mbid_mapping?.caa_id
-                    )
+                    coverArtUrls[index]
                 )
                 {
                     if (it.track_metadata.additional_info?.spotify_id != null) {
@@ -198,22 +195,24 @@ fun ListensScreen(
         }
 
         // FAB
-        AnimatedVisibility(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp), visible = !showBlacklist
-        ) {
-            FloatingActionButton(
-                modifier = Modifier.border(1.dp, Color.Gray, shape = CircleShape),
-                shape = CircleShape,
-                onClick = { showBlacklist = true },
-                backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
+        if(!viewModel.appPreferences.lbAccessToken.isNullOrEmpty() && viewModel.appPreferences.isNotificationServiceAllowed) {
+            AnimatedVisibility(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp), visible = !showBlacklist
             ) {
-                Icon(
-                    imageVector = Icons.Default.Block,
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    contentDescription = "Blacklist"
-                )
+                FloatingActionButton(
+                    modifier = Modifier.border(1.dp, Color.Gray, shape = CircleShape),
+                    shape = CircleShape,
+                    onClick = { showBlacklist = true },
+                    backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Block,
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        contentDescription = "Blacklist"
+                    )
+                }
             }
         }
     }

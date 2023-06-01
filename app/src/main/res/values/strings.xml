@@ -207,6 +207,9 @@
     <!-- Year in Music -->
     <string name="title_activity_year_in_music">YearInMusicActivity</string>
 
+    <!-- News Brainz Acitivity -->
+    <string name="title_activity_news_brainz">NewsBrainzActivity</string>
+
     <!-- BrainzPlayer -->
     <string name="bp_loading_text">Loading your music library</string>
 

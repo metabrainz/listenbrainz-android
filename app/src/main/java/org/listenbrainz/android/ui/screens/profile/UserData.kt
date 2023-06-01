@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
+import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -26,6 +26,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -44,6 +45,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.viewmodel.ListensViewModel
@@ -58,6 +61,8 @@ fun UserData(
     val focusManager = LocalFocusManager.current
     var showDialog by remember { mutableStateOf(false) }
     val lifecycleOwner = LocalLifecycleOwner.current
+    val coroutineScope = rememberCoroutineScope()
+
     var isNotificationServiceAllowed by remember {
         mutableStateOf(
             viewModel.appPreferences.isNotificationServiceAllowed
@@ -119,13 +124,26 @@ fun UserData(
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(
                         onDone = {
-                            viewModel.appPreferences.lbAccessToken = accessToken
-                            keyboardController?.hide()
-                            focusManager.clearFocus()
+                            coroutineScope.launch {
+                                val tokenValid = viewModel.validateUserToken(accessToken)
+                                if (tokenValid != null && tokenValid) {
+                                    viewModel.appPreferences.lbAccessToken = accessToken
+                                    keyboardController?.hide()
+                                    focusManager.clearFocus()
+                                }
+                                else {
+                                    viewModel.appPreferences.lbAccessToken = ""
+                                    Toast.makeText(
+                                        context,
+                                        "Invalid token",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
                         }
                     ),
                     textStyle = TextStyle(
-                        color = if (isSystemInDarkTheme()) Color.White else Color.Black,
+                        color = if (onScreenUiModeIsDark()) Color.White else Color.Black,
                     ),
                     modifier = Modifier
                         .padding(4.dp)
@@ -133,13 +151,13 @@ fun UserData(
                     label = {
                         Text(
                             "Your access token from the website",
-                            color = if (isSystemInDarkTheme()) Color.White else Color.Black
+                            color = if (onScreenUiModeIsDark()) Color.White else Color.Black
                         )
                     },
                     colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = if (isSystemInDarkTheme()) Color.White else Color.Black,
-                        unfocusedBorderColor = if (isSystemInDarkTheme()) Color.White else Color.Black,
-                        cursorColor = if (isSystemInDarkTheme()) Color.White else Color.Black
+                        focusedBorderColor = if (onScreenUiModeIsDark()) Color.White else Color.Black,
+                        unfocusedBorderColor = if (onScreenUiModeIsDark()) Color.White else Color.Black,
+                        cursorColor = if (onScreenUiModeIsDark()) Color.White else Color.Black
                     )
                 )
             }
@@ -165,7 +183,7 @@ fun UserData(
                                 "Start submitting listens by giving the app permission to your notifications"
                             }
                         },
-                        color = if (isSystemInDarkTheme()) Color.White else Color.Black
+                        color = if (onScreenUiModeIsDark()) Color.White else Color.Black
                     )
                 }
             }

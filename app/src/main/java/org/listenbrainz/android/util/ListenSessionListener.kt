@@ -27,7 +27,7 @@ class ListenSessionListener(private val handler: ListenHandler, val appPreferenc
             if (controller.packageName in appPreferences.listeningBlacklist)
                 continue
 
-            val callback = ListenCallback()
+            val callback = ListenCallback(controller.packageName)
             activeSessions[controller] = callback
             controller.registerCallback(callback)
             d("### REGISTERED MediaController callback for ${controller.packageName}.")
@@ -51,9 +51,10 @@ class ListenSessionListener(private val handler: ListenHandler, val appPreferenc
         activeSessions.clear()
     }
 
-    private inner class ListenCallback : MediaController.Callback() {
+    private inner class ListenCallback(private val player: String) : MediaController.Callback() {
         var artist: String? = null
         var title: String? = null
+        var releaseName: String? = null
         var timestamp: Long = 0
         var duration: Long = 0
         val timer: Timer = Timer()
@@ -85,6 +86,7 @@ class ListenSessionListener(private val handler: ListenHandler, val appPreferenc
                 return
             }
             
+            setMiscellaneousDetails(metadata)
             setDurationAndCallbacks(metadata)
             
         }
@@ -129,6 +131,11 @@ class ListenSessionListener(private val handler: ListenHandler, val appPreferenc
             }
         }
         
+        /** Sets releaseName*/
+        private fun setMiscellaneousDetails(metadata: MediaMetadata) {
+            releaseName = metadata.getString(MediaMetadata.METADATA_KEY_ALBUM)
+        }
+        
         private fun isMetadataFaulty() : Boolean
             = artist.isNullOrEmpty() || title.isNullOrEmpty()
         
@@ -144,7 +151,14 @@ class ListenSessionListener(private val handler: ListenHandler, val appPreferenc
             // Setting listener
             timer.setOnTimerListener(listener = object : OnTimerListener {
                 override fun onTimerEnded() {
-                    handler.submitListen(artist, title, timestamp)
+                    handler.submitListen(
+                        artist,
+                        title,
+                        timestamp,
+                        metadata.getLong(MediaMetadata.METADATA_KEY_DURATION),
+                        player,
+                        releaseName
+                    )
                     submitted = true
                 }
     
@@ -169,6 +183,7 @@ class ListenSessionListener(private val handler: ListenHandler, val appPreferenc
             timestamp = 0
             duration = 0
             submitted = false
+            releaseName = null
         }
         
         private fun roundDuration(duration: Long): Long {

@@ -21,12 +21,12 @@ class ListenSubmitBody {
         this.payload.add(payload)
     }
 
-    fun addListen(timestamp: Long, metadata: ListenTrackMetadata) {
-        payload.add(Payload(timestamp, metadata).setClientDetails())
+    fun addListen(timestamp: Long, metadata: ListenTrackMetadata, insertedAt: Int) {
+        payload.add(Payload(timestamp = timestamp, /*insertedAt = insertedAt,*/ metadata = metadata).setClientDetails())
     }
 
     private fun Payload.setClientDetails(): Payload{
-        this.metadata.additionalInfo.submission_client = BuildConfig.APPLICATION_ID
+        this.metadata.additionalInfo.submission_client = "ListenBrainz Android"
         this.metadata.additionalInfo.submission_client_version = BuildConfig.VERSION_NAME
         return this
     }
@@ -38,7 +38,11 @@ class ListenSubmitBody {
                 '}'
     }
 
-    class Payload(@field:SerializedName("listened_at") var timestamp: Long, @field:SerializedName("track_metadata") var metadata: ListenTrackMetadata) {
+    class Payload(
+            @SerializedName("listened_at") var timestamp: Long,
+            /*@SerializedName("inserted_at") var insertedAt: Int,*/
+            @SerializedName("track_metadata") var metadata: ListenTrackMetadata
+        ) {
 
         override fun toString(): String {
             return "Payload{" +

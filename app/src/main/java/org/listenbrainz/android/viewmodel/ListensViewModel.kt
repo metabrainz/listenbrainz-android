@@ -58,7 +58,7 @@ class ListensViewModel @Inject constructor(
     
     private val _listensFlow = MutableStateFlow(listOf<Listen>())
     val listensFlow = _listensFlow.asStateFlow()
-    
+
     private val _coverArtFlow = MutableStateFlow(listOf<String>())
     val coverArtFlow = _coverArtFlow.asStateFlow()
     
@@ -77,6 +77,10 @@ class ListensViewModel @Inject constructor(
 
     init {
         SpotifyAppRemote.setDebugMode(BuildConfig.DEBUG)
+    }
+
+    suspend fun validateUserToken(token: String): Boolean? {
+        return repository.validateUserToken(token).data?.valid
     }
     
     fun fetchUserListens(userName: String) {

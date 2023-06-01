@@ -1,5 +1,6 @@
 package org.listenbrainz.android.util
 
+import android.content.ActivityNotFoundException
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -12,9 +13,11 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.WorkerThread
 import kotlinx.coroutines.Dispatchers
 import okhttp3.*
+import org.listenbrainz.android.R
 import org.listenbrainz.android.util.Log.e
 import java.io.*
 import java.security.MessageDigest
@@ -34,6 +37,14 @@ object Utils {
     
     fun authHeader(accessToken: String) : String{
         return "Bearer $accessToken"
+    }
+
+    fun sendFeedback(context: Context) {
+        try {
+            context.startActivity(emailIntent(Constants.FEEDBACK_EMAIL, Constants.FEEDBACK_SUBJECT))
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(context, R.string.toast_feedback_fail, Toast.LENGTH_LONG).show()
+        }
     }
 
     fun isNotificationServiceEnabled(context: Context): Boolean {

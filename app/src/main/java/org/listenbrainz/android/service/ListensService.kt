@@ -6,6 +6,7 @@ import org.listenbrainz.android.model.ListenBrainzExternalServices
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.util.Constants.Headers.AUTHORIZATION
+import org.listenbrainz.android.model.TokenValidation
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -22,7 +23,11 @@ interface ListensService {
     suspend fun getCoverArt(@Path("MBID") MBID: String): CoverArt
 
     @POST("submit-listens")
-    fun submitListen(@Header("Authorization") token: String?,
+    @GET("validate-token")
+    suspend fun checkIfTokenIsValid(@Header(AUTHORIZATION) token: String?): TokenValidation
+
+    @POST("submit-listens")
+    fun submitListen(@Header(AUTHORIZATION) token: String?,
                      @Body body: ListenSubmitBody?): Call<ResponseBody?>?
 
     @GET("user/{user_name}/services")

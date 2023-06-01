@@ -17,6 +17,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.listenbrainz.android.ui.screens.profile.LoginActivity
+import org.listenbrainz.android.util.Constants
 
 @RunWith(AndroidJUnit4ClassRunner::class)
 @LargeTest
@@ -40,7 +41,7 @@ class LoginActivityTest {
         Intents.intending(IntentMatchers.hasAction(Intent.ACTION_VIEW))
             .respondWith(Instrumentation.ActivityResult(
                 0,
-                Intent().setData(Uri.parse(ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI + "?code=" + code))
+                Intent().setData(Uri.parse(Constants.OAUTH_REDIRECT_URI + "?code=" + code))
             ))
     }
 
@@ -48,11 +49,11 @@ class LoginActivityTest {
     fun testLoginAuthorization() {
         Intents.intended(AllOf.allOf(IntentMatchers.hasAction(Intent.ACTION_VIEW),
             IntentMatchers.hasData(Uri.parse(
-                ListenBrainzServiceGenerator.AUTH_BASE_URL
+                Constants.MUSICBRAINZ_AUTH_BASE_URL
                         + "authorize"
                         + "?response_type=code"
-                        + "&client_id=" + ListenBrainzServiceGenerator.CLIENT_ID
-                        + "&redirect_uri=" + ListenBrainzServiceGenerator.OAUTH_REDIRECT_URI
+                        + "&client_id=" + Constants.CLIENT_ID
+                        + "&redirect_uri=" + Constants.OAUTH_REDIRECT_URI
                         + "&scope=profile%20collection%20tag%20rating"))))
     }
 }
