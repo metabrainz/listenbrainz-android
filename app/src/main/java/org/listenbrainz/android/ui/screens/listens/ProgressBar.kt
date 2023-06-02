@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.spotify.protocol.types.PlayerState
 import org.listenbrainz.android.ui.components.SeekBar
+import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.viewmodel.ListensViewModel
 
 @Composable
@@ -69,14 +70,14 @@ fun ProgressBar(playerState: PlayerState?) {
             Text(
                 text = currentPosition,
                 textAlign = TextAlign.Start,
-                color = Color.White,
+                color = if (onScreenUiModeIsDark()) Color.White else Color.Black,
                 modifier = Modifier.padding(end = 5.dp)
             )
 
             Text(
                 text = duration,
                 textAlign = TextAlign.Start,
-                color = Color.White,
+                color = if (onScreenUiModeIsDark()) Color.White else Color.Black,
                 modifier = Modifier.padding(start = 5.dp)
             )
         }
