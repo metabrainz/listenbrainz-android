@@ -10,6 +10,8 @@ import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,10 +22,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.spotify.protocol.types.PlayerState
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.ListenBitmap
+import org.listenbrainz.android.ui.components.SeekBar
+import org.listenbrainz.android.viewmodel.ListensViewModel
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.ui.theme.offWhite
@@ -31,8 +37,9 @@ import org.listenbrainz.android.ui.theme.offWhite
 @Composable
 fun NowPlaying(
     playerState: PlayerState?,
-    bitmap: Bitmap?
+    bitmap: ListenBitmap
 ){
+    val listenViewModel = hiltViewModel<ListensViewModel>()
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -40,14 +47,19 @@ fun NowPlaying(
             .clip(RoundedCornerShape(16.dp))
             .height(180.dp)
             .clickable(onClick = {
-                //onItemClicked(listen)
+               val isPaused = playerState?.isPaused ?: false
+                if (isPaused) {
+                     listenViewModel.play()
+                } else {
+                     listenViewModel.pause()
+                }
             }),
         elevation = 0.dp,
         backgroundColor = if (onScreenUiModeIsDark()) Color.Black else offWhite,
     ) {
         Row(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(10.dp)
         ) {
             Text(
                 text = "Now playing",
@@ -58,15 +70,16 @@ fun NowPlaying(
                 textAlign = TextAlign.Center,
             )
         }
+        Column {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-                .padding(top = 40.dp)
+                .padding(top = 30.dp)
         ) {
             val painter = rememberAsyncImagePainter(
                 ImageRequest.Builder(LocalContext.current)
-                    .data(data = bitmap)
+                    .data(data = bitmap.bitmap)
                     .placeholder(R.drawable.ic_coverartarchive_logo_no_text)
                     .error(R.drawable.ic_coverartarchive_logo_no_text)
                     .build()
@@ -88,31 +101,30 @@ fun NowPlaying(
                 playerState?.track?.name?.let { track ->
                     Text(
                         text = track,
-
-                        modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
+                        modifier = Modifier.padding(0.dp, 0.dp, 5.dp, 0.dp),
                         color = if (onScreenUiModeIsDark()) Color.White else lb_purple,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.subtitle1,
                         maxLines = 1
                     )
                 }
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
                     text = buildString {
                         append(playerState?.track?.artist?.name)
                     },
-                    modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
+                    modifier = Modifier.padding(0.dp, 0.dp, 5.dp, 0.dp),
                     color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.caption,
                     maxLines = 2
                 )
 
-                Row(verticalAlignment = Alignment.Bottom) {
+                Row {
                     playerState?.track?.album?.name?.let { album ->
                         Text(
                             text = album,
-                            modifier = Modifier.padding(0.dp, 12.dp, 12.dp, 0.dp),
+                            modifier = Modifier.padding(0.dp, 6.dp, 12.dp, 0.dp),
                             color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(alpha = 0.7f),
                             style = MaterialTheme.typography.caption,
                             maxLines = 2
@@ -121,6 +133,16 @@ fun NowPlaying(
                 }
             }
         }
+            Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.Bottom,
+        ) {
+                ProgressBar(playerState = playerState)
+          }
+        }
+
     }
 }
 
@@ -130,6 +152,6 @@ fun NowPlaying(
 fun NowPlayingPreview() {
     NowPlaying(
         playerState = null,
-        bitmap = null
+        bitmap = ListenBitmap()
     )
 }

@@ -20,6 +20,8 @@ import com.spotify.protocol.client.Subscription
 import com.spotify.protocol.types.PlayerContext
 import com.spotify.protocol.types.PlayerState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -27,12 +29,14 @@ import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.Listen
+import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.repository.ListensRepository
 import org.listenbrainz.android.service.YouTubeApiService
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.e
+import org.listenbrainz.android.util.Resource.Status.*
 import org.listenbrainz.android.util.Log.v
 import org.listenbrainz.android.util.Resource.Status.FAILED
 import org.listenbrainz.android.util.Resource.Status.LOADING
@@ -55,41 +59,46 @@ class ListensViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
     // TODO: remove dependency of this view-model on application
     //  by moving spotify app remote to a repository.
-    
+
     private val _listensFlow = MutableStateFlow(listOf<Listen>())
     val listensFlow = _listensFlow.asStateFlow()
 
     private val _coverArtFlow = MutableStateFlow(listOf<String>())
     val coverArtFlow = _coverArtFlow.asStateFlow()
-    
+
     var isLoading: Boolean  by mutableStateOf(true)
-    
+    var isPaused=false
     var playerState: PlayerState? by mutableStateOf(null)
-    var bitmap: Bitmap? by mutableStateOf(null)
-    
+    private val _songDuration = MutableStateFlow(0L)
+    private val _songCurrentPosition = MutableStateFlow(0L)
+    private val _progress = MutableStateFlow(0F)
+    var bitmap: ListenBitmap = ListenBitmap()
+    val progress = _progress.asStateFlow()
+    val songCurrentPosition = _songCurrentPosition.asStateFlow()
     private val gson = GsonBuilder().setPrettyPrinting().create()
-    
+
     private var playerStateSubscription: Subscription<PlayerState>? = null
     private var playerContextSubscription: Subscription<PlayerContext>? = null
     var spotifyAppRemote: SpotifyAppRemote? = null
-    
+
     private val errorCallback = { throwable: Throwable -> logError(throwable) }
 
     init {
         SpotifyAppRemote.setDebugMode(BuildConfig.DEBUG)
+        trackProgress()
     }
 
     suspend fun validateUserToken(token: String): Boolean? {
         return repository.validateUserToken(token).data?.valid
     }
-    
+
     fun fetchUserListens(userName: String) {
         viewModelScope.launch {
             val response = repository.fetchUserListens(userName)
             when(response.status){
                 SUCCESS -> {
                     val responseListens = response.data!!
-                    
+
                     // Updating coverArts
                     _coverArtFlow.update {
                         val list = mutableListOf<String>()
@@ -166,15 +175,18 @@ class ListensViewModel @Inject constructor(
     private fun updateTrackCoverArt(playerState: PlayerState) {
         // Get image from track
         assertAppRemoteConnected()?.imagesApi?.getImage(playerState.track.imageUri, com.spotify.protocol.types.Image.Dimension.LARGE)?.setResultCallback { bitmapHere ->
-            bitmap = bitmapHere
+            bitmap =ListenBitmap(
+                bitmap=bitmapHere,
+                id = playerState.track.uri
+            )
         }
     }
-    
+
     private fun onConnected() {
         onSubscribedToPlayerStateButtonClicked()
         onSubscribedToPlayerContextButtonClicked()
     }
-    
+
     fun connect(spotifyClientId: String) {
         SpotifyAppRemote.disconnect(spotifyAppRemote)
         viewModelScope.launch {
@@ -186,19 +198,15 @@ class ListensViewModel @Inject constructor(
             }
         }
     }
-    
+
     private val playerContextEventCallback = Subscription.EventCallback<PlayerContext> { playerContext ->
-    
+
     }
-    
+
     private val playerStateEventCallback = Subscription.EventCallback<PlayerState> { playerStateHere ->
-        v(String.format("Player State: %s", gson.toJson(playerStateHere)))
-        
         playerState = playerStateHere
-        
-        updateTrackCoverArt(playerStateHere)
     }
-    
+
     private suspend fun connectToAppRemote(showAuthView: Boolean, spotifyClientId: String): SpotifyAppRemote =
         suspendCoroutine { cont: Continuation<SpotifyAppRemote> ->
             SpotifyAppRemote.connect(
@@ -212,16 +220,16 @@ class ListensViewModel @Inject constructor(
                         d("App remote Connected!")
                         cont.resume(spotifyAppRemote)
                     }
-                    
+
                     override fun onFailure(error: Throwable) {
                         if (error is CouldNotFindSpotifyApp) {
                             // TODO: Tell user that they need to install the spotify app on the phone
                         }
-    
+
                         if (error is NotLoggedInException) {
                             // TODO: Tell user that they need to login in the spotify app
                         }
-    
+
                         if (error is UserNotAuthorizedException) {
                             // TODO: Explicit user authorization is required to use Spotify.
                             //  The user has to complete the auth-flow to allow the app to use Spotify on their behalf
@@ -231,20 +239,74 @@ class ListensViewModel @Inject constructor(
                 }
             )
         }
-    
+
     fun playUri(uri: String) {
         assertAppRemoteConnected()?.playerApi?.play(uri)?.setResultCallback {
             logMessage("play command successful!")      //getString(R.string.command_feedback, "play"))
         }?.setErrorCallback(errorCallback)
+        trackProgress()
+        isPaused=false
     }
-    
+    fun play(){
+        assertAppRemoteConnected()?.playerApi?.resume()?.setResultCallback {
+            logMessage("play command successful!")      //getString(R.string.command_feedback, "play"))
+        }?.setErrorCallback(errorCallback)
+        isPaused=false
+        trackProgress()
+    }
+
+    fun pause(){
+        assertAppRemoteConnected()?.playerApi?.pause()?.setResultCallback {
+            logMessage("pause command successful!")      //getString(R.string.command_feedback, "play"))
+        }?.setErrorCallback(errorCallback)
+        isPaused=true
+        trackProgress()
+    }
+    fun trackProgress() {
+        var state: PlayerState? = null
+        assertAppRemoteConnected()?.playerApi?.subscribeToPlayerState()?.setEventCallback { playerState ->
+            if(bitmap.id!=playerState.track.uri) {
+                updateTrackCoverArt(playerState)
+                state=playerState
+            }
+        }?.setErrorCallback(errorCallback)
+        viewModelScope.launch(Dispatchers.Default) {
+            do {
+                state = assertAppRemoteConnected()?.playerApi?.playerState?.await()?.data
+                val pos = state?.playbackPosition?.toFloat() ?: 0f
+                val duration=state?.track?.duration ?: 1
+                if (progress.value != pos) {
+                    _progress.emit(pos / duration.toFloat())
+                    _songDuration.emit(duration ?: 0)
+                    _songCurrentPosition.emit(((pos / duration) * duration).toLong())
+                }
+                delay(900L)
+            }while (!isPaused)
+        }
+    }
+
+    fun seekTo(pos:Float,state: PlayerState?){
+        val duration=state?.track?.duration ?: 1
+        val position=(pos*duration).toLong()
+        assertAppRemoteConnected()?.playerApi?.seekTo(position)?.setResultCallback {
+            logMessage("seek command successful!")      //getString(R.string.command_feedback, "play"))
+        }?.setErrorCallback(errorCallback)
+        viewModelScope.launch(Dispatchers.Default) {
+            if (progress.value != pos) {
+                _progress.emit(pos / duration.toFloat())
+                _songDuration.emit(duration ?: 0)
+                _songCurrentPosition.emit(((pos / duration) * duration).toLong())
+            }
+        }
+    }
+
     private fun onSubscribedToPlayerContextButtonClicked() {
         playerContextSubscription = cancelAndResetSubscription(playerContextSubscription)
         playerContextSubscription = assertAppRemoteConnected()?.playerApi?.subscribeToPlayerContext()?.setEventCallback(playerContextEventCallback)?.setErrorCallback { throwable ->
             logError(throwable)
         } as Subscription<PlayerContext>
     }
-    
+
     private fun onSubscribedToPlayerStateButtonClicked() {
         playerStateSubscription = cancelAndResetSubscription(playerStateSubscription)
         playerStateSubscription = assertAppRemoteConnected()?.playerApi?.subscribeToPlayerState()?.setEventCallback(playerStateEventCallback)?.setLifecycleCallback(
@@ -252,15 +314,15 @@ class ListensViewModel @Inject constructor(
                 override fun onStart() {
                     logMessage("Event: start")
                 }
-                
+
                 override fun onStop() {
                     logMessage("Event: end")
                 }
             })?.setErrorCallback {
-            
+
         } as Subscription<PlayerState>
     }
-    
+
     private fun <T : Any?> cancelAndResetSubscription(subscription: Subscription<T>?): Subscription<T>? {
         return subscription?.let {
             if (!it.isCanceled) {
@@ -269,7 +331,7 @@ class ListensViewModel @Inject constructor(
             null
         }
     }
-    
+
     private fun assertAppRemoteConnected(): SpotifyAppRemote? {
         spotifyAppRemote?.let {
             if (it.isConnected) {
@@ -279,13 +341,12 @@ class ListensViewModel @Inject constructor(
         logMessage("Spotify is not Connected. Use one of the 'connect' buttons")        //getString(R.string.err_spotify_disconnected))
         return null
     }
-    
+
     private fun logError(throwable: Throwable) {
         throwable.message?.let { e(it) }
     }
-    
+
     private fun logMessage(msg: String) {
         d(msg)
     }
-
 }
