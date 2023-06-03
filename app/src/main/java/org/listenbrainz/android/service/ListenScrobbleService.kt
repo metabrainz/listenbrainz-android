@@ -1,5 +1,6 @@
 package org.listenbrainz.android.service
 
+import android.app.Service
 import android.content.ComponentName
 import android.content.Intent
 import android.media.session.MediaSessionManager
@@ -30,20 +31,12 @@ class ListenScrobbleService : NotificationListenerService() {
     private var sessionListener: ListenSessionListener? = null
     private var listenServiceComponent: ComponentName? = null
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
-        d("Listen Service Started")
-        return START_STICKY
+    override fun onCreate() {
+        super.onCreate()
+        initialize()
     }
 
-    override fun onListenerConnected() {
-        super.onListenerConnected()
-        when {
-            Looper.myLooper() == null && isNotificationServiceEnabled(applicationContext) -> {
-                Handler(Looper.getMainLooper()).post { initialize() }
-            }
-            else -> initialize()
-        }
-    }
+    override fun onStartCommand(intent: Intent, flags: Int, startId: Int) = Service.START_STICKY
 
     private fun initialize() {
         d("Initializing Listener Service")
