@@ -21,6 +21,10 @@ class ListenHandler(val appPreferences: AppPreferences, val repository: ListensR
             d("ListenBrainz User token has not been set!")
             return
         }
+        if(msg.data.getInt(MediaMetadata.METADATA_KEY_DURATION) < 30000) {
+            d("Track is too short to submit")
+            return
+        }
         val metadata = ListenTrackMetadata()
         
         // Main metadata
