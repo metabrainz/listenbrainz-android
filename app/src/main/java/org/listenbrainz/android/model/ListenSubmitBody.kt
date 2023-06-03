@@ -6,7 +6,7 @@ import java.util.*
 
 class ListenSubmitBody {
     @SerializedName("listen_type")
-    var listenType: String? = null
+    var listenType: String? = "single"
     @JvmField
     var payload: MutableList<Payload> = ArrayList()
     fun getPayload(): List<Payload> {
@@ -21,7 +21,7 @@ class ListenSubmitBody {
         this.payload.add(payload)
     }
 
-    fun addListen(timestamp: Long, metadata: ListenTrackMetadata, insertedAt: Int) {
+    fun addListen(timestamp: Long?, metadata: ListenTrackMetadata, insertedAt: Int) {
         payload.add(Payload(timestamp = timestamp, /*insertedAt = insertedAt,*/ metadata = metadata).setClientDetails())
     }
 
@@ -39,7 +39,7 @@ class ListenSubmitBody {
     }
 
     class Payload(
-            @SerializedName("listened_at") var timestamp: Long,
+            @SerializedName("listened_at") var timestamp: Long?,
             /*@SerializedName("inserted_at") var insertedAt: Int,*/
             @SerializedName("track_metadata") var metadata: ListenTrackMetadata
         ) {
