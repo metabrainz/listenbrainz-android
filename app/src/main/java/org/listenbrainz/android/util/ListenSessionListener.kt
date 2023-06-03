@@ -6,6 +6,7 @@ import android.media.session.MediaSessionManager.OnActiveSessionsChangedListener
 import android.media.session.PlaybackState
 import com.dariobrux.kotimer.Timer
 import com.dariobrux.kotimer.interfaces.OnTimerListener
+import org.listenbrainz.android.model.ListenType
 import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.w
@@ -157,7 +158,8 @@ class ListenSessionListener(private val handler: ListenHandler, val appPreferenc
                         timestamp,
                         metadata.getLong(MediaMetadata.METADATA_KEY_DURATION),
                         player,
-                        releaseName
+                        releaseName,
+                        ListenType.SINGLE
                     )
                     submitted = true
                 }
@@ -166,7 +168,17 @@ class ListenSessionListener(private val handler: ListenHandler, val appPreferenc
                     d("${remainingMillis / 1000} seconds left to submit listen.")
                 }
                 override fun onTimerRun(milliseconds: Long) {}
-                override fun onTimerStarted() {}
+                override fun onTimerStarted() {
+                    handler.submitListen(
+                        artist,
+                        title,
+                        null,
+                        metadata.getLong(MediaMetadata.METADATA_KEY_DURATION),
+                        player,
+                        releaseName,
+                        ListenType.PLAYING_NOW
+                    )
+                }
                 override fun onTimerStopped() {}
                 
             }, callbacksOnMainThread = true)
