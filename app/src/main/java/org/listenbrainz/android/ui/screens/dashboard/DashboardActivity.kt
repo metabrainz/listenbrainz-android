@@ -1,6 +1,5 @@
 package org.listenbrainz.android.ui.screens.dashboard
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -15,7 +14,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.components.DialogLB
@@ -33,8 +31,7 @@ class DashboardActivity : ComponentActivity() {
 
     private var isNotificationServiceEnabled by Delegates.notNull<Boolean>()
 
-    @OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
-    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         isNotificationServiceEnabled = isNotificationServiceEnabled(context = this)
@@ -130,7 +127,8 @@ class DashboardActivity : ComponentActivity() {
                 ) {
                     if (isGrantedPerms == PermissionStatus.GRANTED.name) {
                         BrainzPlayerBackDropScreen(
-                            backdropScaffoldState = backdropScaffoldState
+                            backdropScaffoldState = backdropScaffoldState,
+                            paddingValues = it
                         ) {
                             AppNavigation(
                                 navController = navController,

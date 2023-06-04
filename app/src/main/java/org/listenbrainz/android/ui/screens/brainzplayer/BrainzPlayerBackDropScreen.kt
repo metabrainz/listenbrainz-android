@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.screens.brainzplayer
 
 import CacheService
-import android.annotation.SuppressLint
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
@@ -58,13 +57,12 @@ import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @ExperimentalMaterialApi
-@ExperimentalPagerApi
 @Composable
 fun BrainzPlayerBackDropScreen(
     backdropScaffoldState: BackdropScaffoldState,
     brainzPlayerViewModel: BrainzPlayerViewModel = viewModel(),
+    paddingValues: PaddingValues,
     backLayerContent: @Composable () -> Unit
 ) {
     val isShuffled by brainzPlayerViewModel.isShuffled.collectAsState()
@@ -111,7 +109,6 @@ fun BrainzPlayerBackDropScreen(
 }
 
 
-@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
     val songList = viewModel.mediaItem.collectAsState().value
@@ -500,10 +497,13 @@ fun PlayerScreen(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
 fun BrainzPlayerBackDropScreenPreview() {
-    BrainzPlayerBackDropScreen(backdropScaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed)) {}
+    BrainzPlayerBackDropScreen(
+        backdropScaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed),
+        paddingValues = PaddingValues(0.dp)
+    ) {}
 }
 
