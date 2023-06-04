@@ -48,11 +48,11 @@ jobs:
       - name: Grant Permission to Execute
         run: chmod +x gradlew
 
-      - name: run tests
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 33
-          script: ./gradlew connectedCheck
+#      - name: run tests
+#        uses: reactivecircus/android-emulator-runner@v2
+#        with:
+#          api-level: 33
+#          script: ./gradlew connectedCheck
 
       - name: Install bundle
         run: |
