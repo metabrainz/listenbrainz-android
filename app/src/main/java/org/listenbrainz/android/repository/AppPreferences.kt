@@ -41,7 +41,7 @@ interface AppPreferences {
     val mbAccessToken: String?
     /****ListenBrainz User Token:** User has to manually fill this token.*/
     var lbAccessToken: String?
-    val username: String?
+    var username: String?
     val refreshToken: String?
 
     val isNotificationServiceAllowed: Boolean

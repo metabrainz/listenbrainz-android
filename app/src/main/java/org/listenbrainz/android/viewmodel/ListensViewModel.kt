@@ -92,6 +92,10 @@ class ListensViewModel @Inject constructor(
         return repository.validateUserToken(token).data?.valid
     }
 
+    suspend fun retrieveUsername(token: String): String? {
+        return repository.validateUserToken(token).data?.user_name
+    }
+
     fun fetchUserListens(userName: String) {
         viewModelScope.launch {
             val response = repository.fetchUserListens(userName)
