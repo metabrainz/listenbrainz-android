@@ -29,8 +29,8 @@ interface ListensService {
                      @Body body: ListenSubmitBody?): Call<ResponseBody?>?
 
     @GET("1/user/{user_name}/services")
-    fun getServicesLinkedToAccount(
+    suspend fun getServicesLinkedToAccount(
         @Header("Authorization") token: String?,
         @Path("user_name") user_name: String,
-    ): Call<ListenBrainzExternalServices>
+    ): ListenBrainzExternalServices
 }
