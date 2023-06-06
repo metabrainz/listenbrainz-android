@@ -277,7 +277,7 @@ class ListensViewModel @Inject constructor(
                 val duration=state?.track?.duration ?: 1
                 if (progress.value != pos) {
                     _progress.emit(pos / duration.toFloat())
-                    _songDuration.emit(duration)
+                    _songDuration.emit(duration ?: 0)
                     _songCurrentPosition.emit(((pos / duration) * duration).toLong())
                 }
                 delay(900L)
@@ -294,7 +294,7 @@ class ListensViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.Default) {
             if (progress.value != pos) {
                 _progress.emit(pos / duration.toFloat())
-                _songDuration.emit(duration)
+                _songDuration.emit(duration ?: 0)
                 _songCurrentPosition.emit(((pos / duration) * duration).toLong())
             }
         }

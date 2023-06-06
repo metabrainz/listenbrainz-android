@@ -34,7 +34,7 @@ object AlbumsData {
         )
         val sortOrderAlbum = MediaStore.Audio.Media.ALBUM + " COLLATE NOCASE ASC"
         val isMusic = MediaStore.Audio.Media.IS_MUSIC + " != 0"
-        val albumQuery = context.contentResolver?.query(
+        val albumQuery = context?.contentResolver?.query(
             collection,
             albumsProjections,
             isMusic,
