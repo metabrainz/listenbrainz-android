@@ -3,6 +3,7 @@ package org.listenbrainz.android.util
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -27,8 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
+import com.google.accompanist.pager.PagerScope
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.PlayPauseIcon
@@ -43,13 +43,20 @@ fun SongViewPager(modifier: Modifier = Modifier, backdropScaffoldState: Backdrop
     val songList = viewModel.mediaItem.collectAsState().value.data ?: listOf()
     val currentlyPlayingSong = viewModel.currentlyPlayingSong.collectAsState().value.toSong
     val pagerState = viewModel.pagerState.collectAsState().value
-    val pageState = rememberPagerState(initialPage = pagerState)
+    val pageState = androidx.compose.foundation.pager.rememberPagerState(initialPage = pagerState)
     val coroutineScope = rememberCoroutineScope()
-    
-    HorizontalPager(count = songList.size, state = pageState, modifier = modifier
+
+    modifier
         .fillMaxWidth()
         .background(MaterialTheme.colorScheme.tertiaryContainer)
-    ) {
+    PaddingValues(0.dp)
+    PagerDefaults.flingBehavior(
+        state = state,
+        endContentPadding = contentPadding.calculateEndPadding(LayoutDirection.Ltr),
+    )
+    // Click anywhere to open the front layer.
+    //  TODO("Fix View Pager changing pages")
+    fun PagerScope.(it: Int) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -143,7 +150,7 @@ fun SongViewPager(modifier: Modifier = Modifier, backdropScaffoldState: Backdrop
                         }
                         Text(
                             text = when {
-                                currentlyPlayingSong.artist == "null" && currentlyPlayingSong.title == "null"-> ""
+                                currentlyPlayingSong.artist == "null" && currentlyPlayingSong.title == "null" -> ""
                                 currentlyPlayingSong.artist == "null" -> currentlyPlayingSong.title
                                 currentlyPlayingSong.title == "null" -> currentlyPlayingSong.artist
                                 else -> currentlyPlayingSong.artist + "  -  " + currentlyPlayingSong.title

@@ -68,7 +68,7 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
      * */
     override fun getPackageIcon(packageName: String): Drawable? {
         return try {
-            App.context!!.packageManager.getApplicationIcon(packageName)
+            App.context.packageManager.getApplicationIcon(packageName)
         }
         catch (e: Exception) {
             null
@@ -77,8 +77,8 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
 
     override fun getPackageLabel(packageName: String): String {
         return try {
-            val info = App.context!!.packageManager.getApplicationInfo(packageName, 0)
-            App.context!!.packageManager.getApplicationLabel(info).toString()
+            val info = App.context.packageManager.getApplicationInfo(packageName, 0)
+            App.context.packageManager.getApplicationLabel(info).toString()
         } catch (e: PackageManager.NameNotFoundException) {
             packageName
         }

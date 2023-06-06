@@ -19,6 +19,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -154,10 +155,10 @@ fun UserData(
                             color = if (onScreenUiModeIsDark()) Color.White else Color.Black
                         )
                     },
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
+                    colors = OutlinedTextFieldDefaults.colors(
+                        cursorColor = if (onScreenUiModeIsDark()) Color.White else Color.Black,
                         focusedBorderColor = if (onScreenUiModeIsDark()) Color.White else Color.Black,
                         unfocusedBorderColor = if (onScreenUiModeIsDark()) Color.White else Color.Black,
-                        cursorColor = if (onScreenUiModeIsDark()) Color.White else Color.Black
                     )
                 )
             }

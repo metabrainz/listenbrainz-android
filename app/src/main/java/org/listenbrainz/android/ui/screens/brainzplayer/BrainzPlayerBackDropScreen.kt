@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -114,16 +115,19 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
     val songList = viewModel.mediaItem.collectAsState().value
     val currentlyPlayingSong = viewModel.currentlyPlayingSong.collectAsState().value.toSong
     val pagerState = viewModel.pagerState.collectAsState().value
-    val pageState = rememberPagerState(initialPage = pagerState)
+    val pageState = androidx.compose.foundation.pager.rememberPagerState(initialPage = pagerState)
     songList.data?.let {
-        HorizontalPager(
-            count = it.size, state = pageState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    MaterialTheme.colorScheme.background
-                ),
-        ) { page ->
+        Modifier
+            .fillMaxWidth()
+            .background(
+                MaterialTheme.colorScheme.background
+            )
+        PaddingValues(0.dp)
+        PagerDefaults.flingBehavior(
+            state = state,
+            endContentPadding = contentPadding.calculateEndPadding(LayoutDirection.Ltr),
+        )
+        fun PagerScope.(page: Int) {
             Column(
                 Modifier
                     .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally
@@ -176,6 +180,14 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
                 }
             }
         }
+        // Calculate the absolute offset for the current page from the
+        // scroll position. We use the absolute value which allows us to mirror
+        // any effects for both directions
+
+        // We animate the scaleX + scaleY, between 85% and 100%
+        Unit
+
+        // We animate the alpha, between 50% and 100%
         //  TODO("Fix View Pager changing pages")
     }
 }
@@ -489,7 +501,7 @@ fun PlayerScreen(
     }
 
     // TODO: fix this
-    val cache= App.context?.let { CacheService<Song>(it, RECENTLY_PLAYED_KEY) }
+    val cache= App.context.let { CacheService<Song>(it, RECENTLY_PLAYED_KEY) }
     cache?.saveData(currentlyPlayingSong, Song::class.java)
     val data= cache?.getData(Song::class.java)
     if (data != null) {
