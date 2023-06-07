@@ -4,8 +4,6 @@ import android.app.Service
 import android.content.ComponentName
 import android.content.Intent
 import android.media.session.MediaSessionManager
-import android.os.Handler
-import android.os.Looper
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import dagger.hilt.android.AndroidEntryPoint
@@ -14,7 +12,6 @@ import org.listenbrainz.android.repository.ListensRepository
 import org.listenbrainz.android.util.ListenHandler
 import org.listenbrainz.android.util.ListenSessionListener
 import org.listenbrainz.android.util.Log.d
-import org.listenbrainz.android.util.Utils.isNotificationServiceEnabled
 import javax.inject.Inject
 
 @AndroidEntryPoint

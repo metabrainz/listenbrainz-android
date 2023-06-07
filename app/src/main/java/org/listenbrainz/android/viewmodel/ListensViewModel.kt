@@ -2,7 +2,6 @@ package org.listenbrainz.android.viewmodel
 
 import android.app.Application
 import android.content.Context
-import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,8 +35,6 @@ import org.listenbrainz.android.service.YouTubeApiService
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.e
-import org.listenbrainz.android.util.Resource.Status.*
-import org.listenbrainz.android.util.Log.v
 import org.listenbrainz.android.util.Resource.Status.FAILED
 import org.listenbrainz.android.util.Resource.Status.LOADING
 import org.listenbrainz.android.util.Resource.Status.SUCCESS
@@ -91,6 +88,10 @@ class ListensViewModel @Inject constructor(
 
     suspend fun validateUserToken(token: String): Boolean? {
         return repository.validateUserToken(token).data?.valid
+    }
+
+    suspend fun retrieveUsername(token: String): String? {
+        return repository.validateUserToken(token).data?.user_name
     }
 
     fun fetchUserListens(userName: String) {

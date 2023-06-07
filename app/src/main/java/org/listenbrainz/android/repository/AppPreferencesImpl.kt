@@ -113,7 +113,7 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
         editor.putString(USERNAME, userInfo.username)
         editor.apply()
     }
-    
+
     override fun logoutUser() {
         val editor = preferences.edit()
         editor.remove(MB_ACCESS_TOKEN)
@@ -137,7 +137,7 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
     
     override val loginStatus: Int
         get() {
-            val accessToken = mbAccessToken
+            val accessToken = lbAccessToken
             val username = username
             return when {
                 accessToken!!.isNotEmpty() && username!!.isNotEmpty() -> STATUS_LOGGED_IN
@@ -151,8 +151,10 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
         get() = preferences.getString(LB_ACCESS_TOKEN, "")
         set(value) = setString(LB_ACCESS_TOKEN, value)
 
-    override val username: String?
+    override var username: String?
         get() = preferences.getString(USERNAME, "")
+        set(value) = setString(USERNAME, value)
+
     override val refreshToken: String?
         get() = preferences.getString(REFRESH_TOKEN, "")
     

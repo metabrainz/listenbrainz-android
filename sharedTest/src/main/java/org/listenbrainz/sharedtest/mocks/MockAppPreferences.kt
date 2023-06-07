@@ -19,7 +19,7 @@ class MockAppPreferences(
     override val loginStatus: Int = STATUS_LOGGED_OUT,
     override val mbAccessToken: String? = "",
     override var lbAccessToken: String? = "",
-    override val username: String? = "",
+    override var username: String? = "",
     override val refreshToken: String? = "",
     override var albumsOnDevice: Boolean = true,
     override var songsOnDevice: Boolean = true,
