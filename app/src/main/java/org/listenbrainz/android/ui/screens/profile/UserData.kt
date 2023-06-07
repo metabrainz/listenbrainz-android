@@ -45,7 +45,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
@@ -105,86 +104,89 @@ fun UserData(
                     textAlign = TextAlign.Center,
                 )
             }
-            Row(
-                modifier = Modifier
-                    .padding(16.dp)
-            ) {
-                var accessToken by remember {
-                    mutableStateOf(
-                        viewModel.appPreferences.lbAccessToken ?: ""
+            if(viewModel.appPreferences.lbAccessToken.isNullOrEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .padding(16.dp)
+                ) {
+                    var accessToken by remember {
+                        mutableStateOf(
+                            viewModel.appPreferences.lbAccessToken ?: ""
+                        )
+                    }
+                    OutlinedTextField(
+                        value = accessToken,
+                        onValueChange = { newText ->
+                            accessToken = newText
+                        },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                coroutineScope.launch {
+                                    val tokenValid = viewModel.validateUserToken(accessToken)
+                                    if (tokenValid != null && tokenValid) {
+                                        viewModel.appPreferences.lbAccessToken = accessToken
+                                        keyboardController?.hide()
+                                        focusManager.clearFocus()
+                                    } else {
+                                        viewModel.appPreferences.lbAccessToken = ""
+                                        Toast.makeText(
+                                            context,
+                                            "Invalid token",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                }
+                            }
+                        ),
+                        textStyle = TextStyle(
+                            color = if (onScreenUiModeIsDark()) Color.White else Color.Black,
+                        ),
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .background(Color.Transparent),
+                        label = {
+                            Text(
+                                "Your access token from the website",
+                                color = if (onScreenUiModeIsDark()) Color.White else Color.Black
+                            )
+                        },
+                        colors = TextFieldDefaults.outlinedTextFieldColors(
+                            focusedBorderColor = if (onScreenUiModeIsDark()) Color.White else Color.Black,
+                            unfocusedBorderColor = if (onScreenUiModeIsDark()) Color.White else Color.Black,
+                            cursorColor = if (onScreenUiModeIsDark()) Color.White else Color.Black
+                        )
                     )
                 }
-
-                OutlinedTextField(
-                    value = accessToken,
-                    onValueChange = { newText ->
-                        accessToken = newText
-                    },
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            coroutineScope.launch {
-                                val tokenValid = viewModel.validateUserToken(accessToken)
-                                if (tokenValid != null && tokenValid) {
-                                    viewModel.appPreferences.lbAccessToken = accessToken
-                                    keyboardController?.hide()
-                                    focusManager.clearFocus()
-                                }
-                                else {
-                                    viewModel.appPreferences.lbAccessToken = ""
-                                    Toast.makeText(
-                                        context,
-                                        "Invalid token",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-                        }
-                    ),
-                    textStyle = TextStyle(
-                        color = if (onScreenUiModeIsDark()) Color.White else Color.Black,
-                    ),
-                    modifier = Modifier
-                        .padding(4.dp)
-                        .background(Color.Transparent),
-                    label = {
-                        Text(
-                            "Your access token from the website",
-                            color = if (onScreenUiModeIsDark()) Color.White else Color.Black
-                        )
-                    },
-                    colors = TextFieldDefaults.outlinedTextFieldColors(
-                        focusedBorderColor = if (onScreenUiModeIsDark()) Color.White else Color.Black,
-                        unfocusedBorderColor = if (onScreenUiModeIsDark()) Color.White else Color.Black,
-                        cursorColor = if (onScreenUiModeIsDark()) Color.White else Color.Black
-                    )
-                )
             }
 
-            Row(
-                modifier = Modifier
-                    .padding(16.dp)
-            ) {
-                Button(
-                    modifier = Modifier.padding(4.dp),
-                    onClick = {
-                        if (!isNotificationServiceAllowed) {
-                            showDialog = true
-                        }
-                    }
+            if(!viewModel.appPreferences.isNotificationServiceAllowed) {
+                Row(
+                    modifier = Modifier
+                        .padding(16.dp)
                 ) {
-                    Text(
-                        text = when {
-                            viewModel.appPreferences.isNotificationServiceAllowed -> {
-                                "Great! You've already given the app permission to your notifications"
+                    Button(
+                        modifier = Modifier.padding(4.dp),
+                        onClick = {
+                            if (!isNotificationServiceAllowed) {
+                                showDialog = true
                             }
-                            else -> {
-                                "Start submitting listens by giving the app permission to your notifications"
-                            }
-                        },
-                        color = if (onScreenUiModeIsDark()) Color.White else Color.Black
-                    )
+                        }
+                    ) {
+                        Text(
+                            text = when {
+                                viewModel.appPreferences.isNotificationServiceAllowed -> {
+                                    "Great! You've already given the app permission to your notifications"
+                                }
+
+                                else -> {
+                                    "Start submitting listens by giving the app permission to your notifications"
+                                }
+                            },
+                            color = if (onScreenUiModeIsDark()) Color.White else Color.Black
+                        )
+                    }
                 }
             }
         }
