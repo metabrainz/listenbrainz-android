@@ -31,7 +31,7 @@ class App : Application() {
         super.onCreate()
         context = this
 
-        if(appPreferences.isNotificationServiceAllowed) {
+        if(appPreferences.isNotificationServiceAllowed && !appPreferences.lbAccessToken.isNullOrEmpty()) {
             startListenService()
         }
 
@@ -50,13 +50,6 @@ class App : Application() {
         }
     }
 
-    private fun startListenService() {
-        val intent = Intent(this.applicationContext, ListenScrobbleService::class.java)
-        if (ProcessLifecycleOwner.get().lifecycle.currentState == Lifecycle.State.CREATED) {
-            startService(intent)
-        }
-    }
-
     override fun onTerminate() {
         super.onTerminate()
         applicationScope.cancel()
@@ -65,5 +58,12 @@ class App : Application() {
     companion object {
         lateinit var context: App
             private set
+
+        fun startListenService() {
+            val intent = Intent(context, ListenScrobbleService::class.java)
+            if (ProcessLifecycleOwner.get().lifecycle.currentState == Lifecycle.State.CREATED) {
+                context.startService(intent)
+            }
+        }
     }
 }

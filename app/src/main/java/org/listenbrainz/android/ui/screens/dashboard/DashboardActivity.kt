@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.components.DialogLB
 import org.listenbrainz.android.ui.components.TopBar
@@ -146,5 +147,8 @@ class DashboardActivity : ComponentActivity() {
         super.onResume()
         isNotificationServiceEnabled = isNotificationServiceEnabled(context = this)
         println("Notification service enabled: $isNotificationServiceEnabled")
+        if(isNotificationServiceEnabled) {
+            App.startListenService()
+        }
     }
 }
