@@ -12,10 +12,8 @@ import dagger.hilt.components.SingletonComponent
 import org.listenbrainz.android.model.yimdata.YimData
 import org.listenbrainz.android.service.BlogService
 import org.listenbrainz.android.service.ListensService
-import org.listenbrainz.android.service.LoginService
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.util.Constants.LISTENBRAINZ_API_BASE_URL
-import org.listenbrainz.android.util.Constants.MUSICBRAINZ_AUTH_BASE_URL
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.reflect.Type
@@ -38,13 +36,6 @@ class ServiceModule {
         .baseUrl(LISTENBRAINZ_API_BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build().create(ListensService::class.java)
-
-    @get:Provides
-    @get:Singleton
-    val loginService: LoginService =  Retrofit.Builder()
-        .baseUrl(MUSICBRAINZ_AUTH_BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build().create(LoginService::class.java)
 
     private val yimGson: Gson = GsonBuilder()
         /** Since a TopRelease may or may not contain "caaId", "caaReleaseMbid" or "releaseMbid", so we perform a check. */

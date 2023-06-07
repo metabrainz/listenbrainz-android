@@ -1,5 +1,7 @@
 package org.listenbrainz.android.util
 
+import org.listenbrainz.android.util.Constants.SPOTIFY_PACKAGE_NAME
+
 object Constants {
     const val RECENTLY_PLAYED_KEY = "recently_played"
     const val SPOTIFY_PACKAGE_NAME = "com.spotify.music"
@@ -8,11 +10,7 @@ object Constants {
     const val FEEDBACK_EMAIL = "support@metabrainz.org"
     const val FEEDBACK_SUBJECT = "[LBAndroid] Feedback"
     const val SPOTIFY_REDIRECT_URI = "org.listenbrainz.android://callback"
-    const val MUSICBRAINZ_AUTH_BASE_URL = "https://musicbrainz.org/oauth2/"
     const val LISTENBRAINZ_API_BASE_URL = "https://api.listenbrainz.org/"
-    const val CLIENT_ID = "XqCukyOoCAH9PRrHpwiINlvJ1T-x4ffQ"
-    const val CLIENT_SECRET = "CJrUcF_jyzj-MVCPhNXSwPIpu_eeb_Ye"
-    const val OAUTH_REDIRECT_URI = "org.listenbrainz.android://oauth"
     const val ONBOARDING = "onboarding_lb"
 
     object Strings {
@@ -23,6 +21,7 @@ object Constants {
         const val PREFERENCE_PERMS = "perms_code"
         const val PREFERENCE_ALBUMS_ON_DEVICE = "PREFERENCE_ALBUMS_ON_DEVICE"
         const val PREFERENCE_SONGS_ON_DEVICE = "PREFERENCE_SONGS_ON_DEVICE"
+        const val LINKED_SERVICES = "LINKED_SERVICES"
         const val USERNAME = "username"
         const val CURRENT_PLAYABLE = "CURRENT_PLAYABLE"
         const val MB_ACCESS_TOKEN = "mb_access_token"
@@ -31,4 +30,25 @@ object Constants {
         const val STATUS_LOGGED_IN = 1
         const val STATUS_LOGGED_OUT = 0
     }
+    
+}
+
+enum class LinkedService(code: String, packageName: String? = null) {
+    
+    SPOTIFY("spotify", SPOTIFY_PACKAGE_NAME),
+    CRITIQUEBRAINZ("critiquebrainz"),
+    MUSICBRAINZ("musicbrainz"),
+    UNKNOWN("");
+    
+    companion object {
+        fun parseService(code: String) : LinkedService {
+            return when (code[0]) {
+                's' -> SPOTIFY
+                'c' -> CRITIQUEBRAINZ
+                'm' -> MUSICBRAINZ
+                else -> UNKNOWN
+            }
+        }
+    }
+    
 }

@@ -3,7 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
-    id "io.sentry.android.gradle" version "3.7.0"
+    id "io.sentry.android.gradle" version "3.8.0"
 }
 
 def keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -179,6 +179,9 @@ dependencies {
 
     //Spotify
     implementation files('./lib/spotify-app-remote-release-0.7.2.aar')
+
+    // HTML Parser for retrieving token
+    implementation "org.jsoup:jsoup:1.16.1"
 
     //Test Setup
     testImplementation 'junit:junit:4.13.2'

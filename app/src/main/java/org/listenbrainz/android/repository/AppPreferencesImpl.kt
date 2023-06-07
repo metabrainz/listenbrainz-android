@@ -13,6 +13,7 @@ import org.listenbrainz.android.model.UserInfo
 import org.listenbrainz.android.util.Constants.ONBOARDING
 import org.listenbrainz.android.util.Constants.Strings.CURRENT_PLAYABLE
 import org.listenbrainz.android.util.Constants.Strings.LB_ACCESS_TOKEN
+import org.listenbrainz.android.util.Constants.Strings.LINKED_SERVICES
 import org.listenbrainz.android.util.Constants.Strings.MB_ACCESS_TOKEN
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_ALBUMS_ON_DEVICE
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_APPS
@@ -24,6 +25,7 @@ import org.listenbrainz.android.util.Constants.Strings.REFRESH_TOKEN
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
 import org.listenbrainz.android.util.Constants.Strings.USERNAME
+import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.android.util.TypeConverter
 
 class AppPreferencesImpl(private val context : Context): AppPreferences {
@@ -113,7 +115,7 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
         editor.putString(USERNAME, userInfo.username)
         editor.apply()
     }
-    
+
     override fun logoutUser() {
         val editor = preferences.edit()
         editor.remove(MB_ACCESS_TOKEN)
@@ -137,7 +139,7 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
     
     override val loginStatus: Int
         get() {
-            val accessToken = mbAccessToken
+            val accessToken = lbAccessToken
             val username = username
             return when {
                 accessToken!!.isNotEmpty() && username!!.isNotEmpty() -> STATUS_LOGGED_IN
@@ -151,8 +153,21 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
         get() = preferences.getString(LB_ACCESS_TOKEN, "")
         set(value) = setString(LB_ACCESS_TOKEN, value)
 
-    override val username: String?
+    override var username: String?
         get() = preferences.getString(USERNAME, "")
+        set(value) = setString(USERNAME, value)
+    
+    override var linkedServices: List<LinkedService>
+        get() {
+            val jsonString = preferences.getString(LINKED_SERVICES, "")
+            val type = object : TypeToken<List<LinkedService>>() {}.type
+            return gson.fromJson(jsonString, type) ?: emptyList()
+        }
+        set(value) {
+            val jsonString = gson.toJson(value)
+            setString(LINKED_SERVICES, jsonString)
+        }
+
     override val refreshToken: String?
         get() = preferences.getString(REFRESH_TOKEN, "")
     

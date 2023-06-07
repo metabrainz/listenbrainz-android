@@ -10,6 +10,7 @@ import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.TokenValidation
 import org.listenbrainz.android.service.ListensService
+import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Resource.Status.FAILED
@@ -98,4 +99,17 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
             }
         })
     }
+    
+    override suspend fun getLinkedServices(token: String, username: String): List<LinkedService> {
+        val services = service.getServicesLinkedToAccount(
+            authHeader = "Bearer $token",       // TODO: Refactor this after feed section phase 1 is completed.
+            user_name = username
+        )
+        val result = mutableListOf<LinkedService>()
+        services.services.forEach {
+            result.add(LinkedService.parseService(it))
+        }
+        return result
+    }
+    
 }

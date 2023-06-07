@@ -73,27 +73,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.screens.profile.LoginActivity"
-            android:exported="true"
-            android:label="@string/auth_title">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:host="oauth"
-                    android:scheme="org.listenbrainz.android" />
-            </intent-filter>
-        </activity>
         <activity
             android:name=".ui.screens.about.AboutActivity"
             android:label="@string/about_title" />
         <activity
             android:name=".ui.screens.dashboard.DonateActivity"
             android:label="@string/donate_title" />
+
+        <activity android:name="org.listenbrainz.android.ui.screens.profile.LoginActivity" />
 
         <!-- Sentry Setup -->
         <meta-data

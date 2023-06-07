@@ -2,14 +2,12 @@ package org.listenbrainz.android.viewmodel
 
 import android.app.Application
 import android.content.Context
-import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.GsonBuilder
 import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.Connector
 import com.spotify.android.appremote.api.SpotifyAppRemote
@@ -34,14 +32,12 @@ import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.repository.ListensRepository
 import org.listenbrainz.android.service.YouTubeApiService
 import org.listenbrainz.android.util.Constants
+import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.e
-import org.listenbrainz.android.util.Resource.Status.*
-import org.listenbrainz.android.util.Log.v
 import org.listenbrainz.android.util.Resource.Status.FAILED
 import org.listenbrainz.android.util.Resource.Status.LOADING
 import org.listenbrainz.android.util.Resource.Status.SUCCESS
-import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.util.Utils.getSHA1
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -62,10 +58,10 @@ class ListensViewModel @Inject constructor(
 
     private val _listensFlow = MutableStateFlow(listOf<Listen>())
     val listensFlow = _listensFlow.asStateFlow()
-
-    private val _coverArtFlow = MutableStateFlow(listOf<String>())
-    val coverArtFlow = _coverArtFlow.asStateFlow()
-
+    
+    private val _isSpotifyLinked = MutableStateFlow(appPreferences.linkedServices.contains(LinkedService.SPOTIFY))
+    val isSpotifyLinked = _isSpotifyLinked.asStateFlow()
+    
     var isLoading: Boolean  by mutableStateOf(true)
     var isPaused=false
     var playerState: PlayerState? by mutableStateOf(null)
@@ -75,13 +71,13 @@ class ListensViewModel @Inject constructor(
     var bitmap: ListenBitmap = ListenBitmap()
     val progress = _progress.asStateFlow()
     val songCurrentPosition = _songCurrentPosition.asStateFlow()
-    private val gson = GsonBuilder().setPrettyPrinting().create()
 
     private var playerStateSubscription: Subscription<PlayerState>? = null
     private var playerContextSubscription: Subscription<PlayerContext>? = null
     var spotifyAppRemote: SpotifyAppRemote? = null
 
     private val errorCallback = { throwable: Throwable -> logError(throwable) }
+    private var isResumed = false
 
     init {
         SpotifyAppRemote.setDebugMode(BuildConfig.DEBUG)
@@ -92,34 +88,33 @@ class ListensViewModel @Inject constructor(
         return repository.validateUserToken(token).data?.valid
     }
 
+    suspend fun retrieveUsername(token: String): String? {
+        return repository.validateUserToken(token).data?.user_name
+    }
+    
+    fun fetchLinkedServices() {
+        viewModelScope.launch {
+            val token = appPreferences.lbAccessToken
+            val userName = appPreferences.username
+            if (!token.isNullOrEmpty() && !userName.isNullOrEmpty()){
+                val result = repository.getLinkedServices(token = token, username = userName)
+                _isSpotifyLinked.emit(result.contains(LinkedService.SPOTIFY))
+                appPreferences.linkedServices = result
+            }
+        }
+    }
+
     fun fetchUserListens(userName: String) {
         viewModelScope.launch {
             val response = repository.fetchUserListens(userName)
-            when(response.status){
+            isLoading = when(response.status){
                 SUCCESS -> {
-                    val responseListens = response.data!!
-
-                    // Updating coverArts
-                    _coverArtFlow.update {
-                        val list = mutableListOf<String>()
-                        responseListens.forEach {
-                            list.add(getCoverArtUrl(
-                                caaReleaseMbid = it.track_metadata.mbid_mapping?.caa_release_mbid,
-                                caaId = it.track_metadata.mbid_mapping?.caa_id
-                            ))
-                        }
-                        list
-                    }
                     // Updating listens
-                    _listensFlow.update { response.data }
-                    isLoading = false
+                    _listensFlow.update { response.data ?: emptyList() }
+                    false
                 }
-                LOADING -> {
-                    isLoading = true
-                }
-                FAILED -> {
-                    isLoading = false
-                }
+                LOADING -> true
+                FAILED -> false
             }
         }
     }
@@ -217,8 +212,11 @@ class ListensViewModel @Inject constructor(
                     .build(),
                 object : Connector.ConnectionListener {
                     override fun onConnected(spotifyAppRemote: SpotifyAppRemote) {
-                        d("App remote Connected!")
-                        cont.resume(spotifyAppRemote)
+                        if (!isResumed) {
+                            d("App remote Connected!")
+                            cont.resume(spotifyAppRemote)
+                            isResumed = true
+                        }
                     }
 
                     override fun onFailure(error: Throwable) {
@@ -234,7 +232,10 @@ class ListensViewModel @Inject constructor(
                             // TODO: Explicit user authorization is required to use Spotify.
                             //  The user has to complete the auth-flow to allow the app to use Spotify on their behalf
                         }
-                        cont.resumeWithException(error)
+                        if (!isResumed) {
+                            cont.resumeWithException(error)
+                            isResumed = true
+                        }
                     }
                 }
             )
