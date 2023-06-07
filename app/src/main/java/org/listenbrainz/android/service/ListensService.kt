@@ -30,7 +30,7 @@ interface ListensService {
 
     @GET("1/user/{user_name}/services")
     suspend fun getServicesLinkedToAccount(
-        @Header("Authorization") token: String?,
+        @Header("Authorization") authHeader: String?,
         @Path("user_name") user_name: String,
     ): ListenBrainzExternalServices
 }

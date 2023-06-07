@@ -3,6 +3,7 @@ package org.listenbrainz.android.repository
 import org.listenbrainz.android.model.AccessToken
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UserInfo
+import org.listenbrainz.android.util.LinkedService
 
 interface AppPreferences {
     val themePreference : String?
@@ -43,6 +44,7 @@ interface AppPreferences {
     var lbAccessToken: String?
     var username: String?
     val refreshToken: String?
+    var linkedServices: List<LinkedService>
 
     val isNotificationServiceAllowed: Boolean
     
