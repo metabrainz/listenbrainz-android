@@ -44,17 +44,6 @@ object Utils {
         }
     }
 
-    fun isNotificationServiceEnabled(context: Context): Boolean {
-        val packageNames = Settings.Secure.getString(
-            context.contentResolver,
-            "enabled_notification_listeners"
-        )
-        if (packageNames != null && packageNames.contains(context.packageName)) {
-            return true
-        }
-        return false
-    }
-
     fun shareIntent(text: String?): Intent {
         val intent = Intent(Intent.ACTION_SEND).setType("text/plain")
         return intent.putExtra(Intent.EXTRA_TEXT, text)

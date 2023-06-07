@@ -17,26 +17,24 @@ import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.PermissionStatus
+import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.ui.components.DialogLB
 import org.listenbrainz.android.ui.components.TopBar
 import org.listenbrainz.android.ui.navigation.AppNavigation
 import org.listenbrainz.android.ui.navigation.BottomNavigationBar
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.Utils.isNotificationServiceEnabled
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
-import kotlin.properties.Delegates
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class DashboardActivity : ComponentActivity() {
-
-    private var isNotificationServiceEnabled by Delegates.notNull<Boolean>()
+    @Inject
+    lateinit var appPreferences: AppPreferences
 
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        isNotificationServiceEnabled = isNotificationServiceEnabled(context = this)
-
         installSplashScreen()
 
         setContent {
@@ -145,9 +143,7 @@ class DashboardActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        isNotificationServiceEnabled = isNotificationServiceEnabled(context = this)
-        println("Notification service enabled: $isNotificationServiceEnabled")
-        if(isNotificationServiceEnabled) {
+        if(appPreferences.isNotificationServiceAllowed && !appPreferences.lbAccessToken.isNullOrEmpty()) {
             App.startListenService()
         }
     }
