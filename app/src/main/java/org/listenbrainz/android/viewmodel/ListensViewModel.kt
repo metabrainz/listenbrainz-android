@@ -82,6 +82,7 @@ class ListensViewModel @Inject constructor(
     var spotifyAppRemote: SpotifyAppRemote? = null
 
     private val errorCallback = { throwable: Throwable -> logError(throwable) }
+    private var isResumed = false
 
     init {
         SpotifyAppRemote.setDebugMode(BuildConfig.DEBUG)
@@ -217,8 +218,11 @@ class ListensViewModel @Inject constructor(
                     .build(),
                 object : Connector.ConnectionListener {
                     override fun onConnected(spotifyAppRemote: SpotifyAppRemote) {
-                        d("App remote Connected!")
-                        cont.resume(spotifyAppRemote)
+                        if (!isResumed) {
+                            d("App remote Connected!")
+                            cont.resume(spotifyAppRemote)
+                            isResumed = true
+                        }
                     }
 
                     override fun onFailure(error: Throwable) {
@@ -234,7 +238,10 @@ class ListensViewModel @Inject constructor(
                             // TODO: Explicit user authorization is required to use Spotify.
                             //  The user has to complete the auth-flow to allow the app to use Spotify on their behalf
                         }
-                        cont.resumeWithException(error)
+                        if (!isResumed) {
+                            cont.resumeWithException(error)
+                            isResumed = true
+                        }
                     }
                 }
             )
