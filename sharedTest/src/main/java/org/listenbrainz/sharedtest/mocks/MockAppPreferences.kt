@@ -6,6 +6,7 @@ import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UserInfo
 import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
+import org.listenbrainz.android.util.LinkedService
 
 /*
     For every new preference, add default value of the concerned shared
@@ -26,7 +27,8 @@ class MockAppPreferences(
     override var listeningBlacklist: List<String> = listOf(),
     override var listeningApps: List<String> = listOf(),
     override val version: String = "",
-    override val isNotificationServiceAllowed: Boolean = true
+    override val isNotificationServiceAllowed: Boolean = true,
+    override var linkedServices: List<LinkedService> = listOf()
 ) : AppPreferences {
     
     override fun saveOAuthToken(token: AccessToken) {
