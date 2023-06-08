@@ -1,6 +1,5 @@
 package org.listenbrainz.android.ui.screens.dashboard
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -15,30 +14,27 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
+import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.PermissionStatus
+import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.ui.components.DialogLB
 import org.listenbrainz.android.ui.components.TopBar
 import org.listenbrainz.android.ui.navigation.AppNavigation
 import org.listenbrainz.android.ui.navigation.BottomNavigationBar
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.Utils.isNotificationServiceEnabled
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
-import kotlin.properties.Delegates
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class DashboardActivity : ComponentActivity() {
+    @Inject
+    lateinit var appPreferences: AppPreferences
 
-    private var isNotificationServiceEnabled by Delegates.notNull<Boolean>()
-
-    @OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
-    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        isNotificationServiceEnabled = isNotificationServiceEnabled(context = this)
-
         installSplashScreen()
 
         setContent {
@@ -130,7 +126,8 @@ class DashboardActivity : ComponentActivity() {
                 ) {
                     if (isGrantedPerms == PermissionStatus.GRANTED.name) {
                         BrainzPlayerBackDropScreen(
-                            backdropScaffoldState = backdropScaffoldState
+                            backdropScaffoldState = backdropScaffoldState,
+                            paddingValues = it
                         ) {
                             AppNavigation(
                                 navController = navController,
@@ -146,7 +143,8 @@ class DashboardActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        isNotificationServiceEnabled = isNotificationServiceEnabled(context = this)
-        println("Notification service enabled: $isNotificationServiceEnabled")
+        if(appPreferences.isNotificationServiceAllowed && !appPreferences.lbAccessToken.isNullOrEmpty()) {
+            App.startListenService()
+        }
     }
 }

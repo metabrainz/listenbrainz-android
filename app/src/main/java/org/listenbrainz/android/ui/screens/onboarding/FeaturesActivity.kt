@@ -27,6 +27,9 @@ class FeaturesActivity : OnboardAdvanced() {
 //        setSignInButton(true)
         isWizardMode = true
 
+        showStatusBar(true)
+        setStatusBarColorRes(R.color.app_bg)
+
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
                 askForPermissions(

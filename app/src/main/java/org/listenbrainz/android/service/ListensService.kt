@@ -32,7 +32,7 @@ interface ListensService {
 
     @GET("user/{user_name}/services")
     fun getServicesLinkedToAccount(
-        @Header(AUTHORIZATION) token: String?,
+        @Header(AUTHORIZATION) authHeader: String?,
         @Path("user_name") user_name: String,
-    ): Call<ListenBrainzExternalServices>
+    ): ListenBrainzExternalServices
 }
