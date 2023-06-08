@@ -3,7 +3,6 @@ package org.listenbrainz.android.ui.screens.brainzplayer
 
 import org.listenbrainz.android.util.CacheService
 import android.annotation.SuppressLint
-import CacheService
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
