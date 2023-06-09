@@ -45,7 +45,7 @@ fun AboutScreen(version: String, onBack: () -> Unit) {
                 elevation = 0.dp,
                 navigationIcon = {
                     IconButton(onClick = { onBack() }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onSurface)
                     }
                 },
                 actions = {
@@ -66,7 +66,7 @@ fun AboutScreen(version: String, onBack: () -> Unit) {
                 modifier = Modifier
                     .padding(it)
                     .fillMaxSize()
-                    .background(Color(R.color.app_bg))
+                    .background(Color.Transparent)
                     .padding(16.dp)
                     .verticalScroll(rememberScrollState())
             ) {
@@ -82,32 +82,62 @@ fun AboutScreen(version: String, onBack: () -> Unit) {
 
                     Text(
                         text = "Version $version",
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                            .padding(top = 10.dp, bottom = 10.dp),
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 14.sp
                     )
 
-                    Text("ListenBrainz keeps track of music you listen to and provides you with insights into your listening habits. We're completely open-source and publish our data as open data.")
+                    Text("ListenBrainz keeps track of music you listen to and provides you with insights into your listening habits. We're completely open-source and publish our data as open data.",
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
 
-                    Text("What does it do?", fontWeight = FontWeight.Bold)
-                    Text("ListenBrainz is operated by the MetaBrainz Foundation which has a long-standing history of curating, protecting and making music data available to the public. MetaBrainz commits itself to safe-guarding the ListenBrainz data indefinitely.")
+                    Text("What does it do?",
+                        modifier = Modifier.padding(top = 30.dp, bottom = 2.dp),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
 
-                    Text("Development", fontWeight = FontWeight.Bold)
+                    Text("ListenBrainz is operated by the MetaBrainz Foundation which has a long-standing history of curating, protecting and making music data available to the public. MetaBrainz commits itself to safe-guarding the ListenBrainz data indefinitely.",
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Text("Development",
+                        modifier = Modifier.padding(top = 30.dp, bottom = 2.dp),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
+
                     Text(
                         "The source code for this app is available on GitHub at https://github.com/metabrainz/listenbrainz-android\n\n" +
                                 "Got something interesting you'd like to ask or share? Start a discussion at #metabrainz IRC channel on libera.chat.\n\n" +
-                                "Reports, comments and suggestions are welcomed, just tap 'Feedback' in the menu to send us an email!"
+                                "Reports, comments and suggestions are welcomed, just tap 'Feedback' in the menu to send us an email!",
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
-                    Text("Bugs", fontWeight = FontWeight.Bold)
-                    Text("You should be aware that error logs are sent from this app in the event of a crash. Personally identifiable information is not included. You can disable this in the settings menu if you like.")
+                    Text("Bugs",
+                        modifier = Modifier.padding(top = 30.dp, bottom = 2.dp),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
 
-                    Text("Attributions", fontWeight = FontWeight.Bold)
+                    Text("You should be aware that error logs are sent from this app in the event of a crash. Personally identifiable information is not included. You can disable this in the settings menu if you like.",
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Text("Attributions",
+                        modifier = Modifier.padding(top = 30.dp, bottom = 2.dp),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontWeight = FontWeight.Bold
+                    )
+
                     Text(
                         "This app uses\n\n" +
                                 "Icons designed by Freepik, Pixel Perfect, Good Ware, photo3idea_studio and Pixelmeetup from www.flaticon.com and www.freepik.com\n\n" +
                                 "Animations by Korhan Ulusoy, Jake Cowan, KidA Studio, puput Santoso and Paul Roux on LottieFiles from lottiefiles.com\n\n" +
                                 "The complete resources with links can be found at\n" +
-                                "https://github.com/metabrainz/listenbrainz-android/blob/master/app/src/main/play/asset_attributions.md"
+                                "https://github.com/metabrainz/listenbrainz-android/blob/master/app/src/main/play/asset_attributions.md",
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }

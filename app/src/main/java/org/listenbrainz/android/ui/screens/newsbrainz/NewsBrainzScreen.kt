@@ -58,13 +58,13 @@ fun NewsBrainzScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "NewsBrainz") },
+                title = { Text(text = "NewsBrainz", color = MaterialTheme.colorScheme.onSurface) },
                 backgroundColor = Color.Transparent,
                 contentColor = MaterialTheme.colorScheme.onSurface,
                 elevation = 0.dp,
                 navigationIcon = {
                     IconButton(onClick = { onBack() }) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = MaterialTheme.colorScheme.onSurface)
                     }
                 }
             )
