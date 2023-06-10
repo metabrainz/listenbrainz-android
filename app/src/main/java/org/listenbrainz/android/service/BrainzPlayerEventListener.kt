@@ -2,7 +2,6 @@ package org.listenbrainz.android.service
 
 import android.app.Service.STOP_FOREGROUND_DETACH
 import android.os.Build
-import android.widget.Toast
 import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
 import org.listenbrainz.android.util.Log.e
@@ -23,6 +22,6 @@ class BrainzPlayerEventListener(
 
     override fun onPlayerError(error: PlaybackException) {
         super.onPlayerError(error)
-        e("BrainzPlayer LBResponseError")
+        e("BrainzPlayer error")
     }
 }

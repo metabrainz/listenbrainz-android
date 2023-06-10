@@ -7,9 +7,9 @@ import org.listenbrainz.android.model.SocialResponse
 import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.util.ErrorUtil.getSocialErrorType
 import org.listenbrainz.android.util.ErrorUtil.parseError
-import org.listenbrainz.android.util.Log.e
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.authHeader
+import org.listenbrainz.android.util.Utils.logAndReturn
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -139,10 +139,4 @@ class SocialRepositoryImpl @Inject constructor(private val service: SocialServic
         
         }.getOrElse { logAndReturn(it) }
     
-    
-    
-    private fun <T> logAndReturn(it: Throwable) : Resource<T> {
-        e(message = "SocialRepository: ${it.message.toString()}")
-        return Resource.failure()
-    }
 }

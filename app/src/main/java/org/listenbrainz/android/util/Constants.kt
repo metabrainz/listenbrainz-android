@@ -10,11 +10,7 @@ object Constants {
     const val FEEDBACK_EMAIL = "support@metabrainz.org"
     const val FEEDBACK_SUBJECT = "[LBAndroid] Feedback"
     const val SPOTIFY_REDIRECT_URI = "org.listenbrainz.android://callback"
-    const val MUSICBRAINZ_AUTH_BASE_URL = "https://musicbrainz.org/oauth2/"
     const val LISTENBRAINZ_API_BASE_URL = "https://api.listenbrainz.org/1/"
-    const val CLIENT_ID = "XqCukyOoCAH9PRrHpwiINlvJ1T-x4ffQ"
-    const val CLIENT_SECRET = "CJrUcF_jyzj-MVCPhNXSwPIpu_eeb_Ye"
-    const val OAUTH_REDIRECT_URI = "org.listenbrainz.android://oauth"
     const val ONBOARDING = "onboarding_lb"
     
     object Headers {
