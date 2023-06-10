@@ -8,13 +8,17 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.icons.Icons
@@ -51,6 +55,7 @@ import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.ListensViewModel
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ListensScreen(
     viewModel: ListensViewModel = hiltViewModel(),
@@ -165,15 +170,34 @@ fun ListensScreen(
             }
 
             item {
-                AnimatedVisibility(visible = viewModel.listeningNow.collectAsState().value != null) {
-                    ListeningNowCard(
-                        listeningNow!!,
-                        getCoverArtUrl(
-                            caaReleaseMbid = listeningNow.track_metadata.mbid_mapping?.caa_release_mbid,
-                            caaId = listeningNow.track_metadata.mbid_mapping?.caa_id
-                        )
-                    ) {
-                        onListenTap(listeningNow)
+                val pagerState = rememberPagerState(
+                    initialPage = 0
+                )
+
+                HorizontalPager(state = pagerState, pageCount = 2, modifier = Modifier.fillMaxSize()) { page ->
+                    when (page) {
+                        0 -> {
+                            AnimatedVisibility(visible = viewModel.listeningNow.collectAsState().value != null) {
+                                ListeningNowCard(
+                                    listeningNow!!,
+                                    getCoverArtUrl(
+                                        caaReleaseMbid = listeningNow.track_metadata.mbid_mapping?.caa_release_mbid,
+                                        caaId = listeningNow.track_metadata.mbid_mapping?.caa_id
+                                    )
+                                ) {
+                                    onListenTap(listeningNow)
+                                }
+                            }
+                        }
+
+                        1 -> {
+                            AnimatedVisibility(visible = viewModel.playerState?.track?.name != null) {
+                                ListeningNowOnSpotify(
+                                    playerState = viewModel.playerState,
+                                    bitmap = viewModel.bitmap
+                                )
+                            }
+                        }
                     }
                 }
             }
