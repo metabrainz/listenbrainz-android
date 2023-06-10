@@ -10,11 +10,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -25,7 +21,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -50,7 +45,6 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.ui.components.ListenCard
-import org.listenbrainz.android.ui.components.ListeningNowCard
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.UserData
 import org.listenbrainz.android.util.Constants
