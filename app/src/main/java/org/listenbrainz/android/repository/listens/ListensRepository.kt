@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository
+package org.listenbrainz.android.repository.listens
 
 import android.graphics.drawable.Drawable
 import org.listenbrainz.android.model.CoverArt

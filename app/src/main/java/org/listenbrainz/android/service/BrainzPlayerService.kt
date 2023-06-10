@@ -17,10 +17,10 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.PlayableType
-import org.listenbrainz.android.repository.AlbumRepository
-import org.listenbrainz.android.repository.AppPreferences
-import org.listenbrainz.android.repository.PlaylistRepository
-import org.listenbrainz.android.repository.SongRepository
+import org.listenbrainz.android.repository.brainzplayer.AlbumRepository
+import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.repository.brainzplayer.PlaylistRepository
+import org.listenbrainz.android.repository.brainzplayer.SongRepository
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toMediaMetadataCompat
 import org.listenbrainz.android.util.BrainzPlayerNotificationManager
 import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID

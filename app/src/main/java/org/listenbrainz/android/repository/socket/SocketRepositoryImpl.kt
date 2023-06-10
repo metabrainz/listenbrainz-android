@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository
+package org.listenbrainz.android.repository.socket
 
 import com.google.gson.Gson
 import io.socket.client.IO
@@ -28,8 +28,8 @@ class SocketRepositoryImpl @Inject constructor(): SocketRepository {
             .on("playing_now") {
                 val listen = Gson().fromJson(it[0] as String, Listen::class.java)
                 trySendBlocking(listen)
-                    .onFailure {
-                        it?.printStackTrace()
+                    .onFailure {throwable->
+                        throwable?.printStackTrace()
                     }
             }
 

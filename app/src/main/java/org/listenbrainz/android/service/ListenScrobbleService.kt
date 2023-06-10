@@ -7,8 +7,8 @@ import android.media.session.MediaSessionManager
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import dagger.hilt.android.AndroidEntryPoint
-import org.listenbrainz.android.repository.AppPreferences
-import org.listenbrainz.android.repository.ListensRepository
+import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.util.ListenHandler
 import org.listenbrainz.android.util.ListenSessionListener
 import org.listenbrainz.android.util.Log.d

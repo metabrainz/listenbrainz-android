@@ -1,7 +1,5 @@
 package org.listenbrainz.android.ui.screens.listens
 
-import android.content.res.Configuration
-import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -10,8 +8,6 @@ import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,14 +24,13 @@ import coil.request.ImageRequest
 import com.spotify.protocol.types.PlayerState
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ListenBitmap
-import org.listenbrainz.android.ui.components.SeekBar
 import org.listenbrainz.android.viewmodel.ListensViewModel
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.ui.theme.offWhite
 
 @Composable
-fun NowPlaying(
+fun ListeningNowOnSpotify(
     playerState: PlayerState?,
     bitmap: ListenBitmap
 ){
@@ -62,7 +57,7 @@ fun NowPlaying(
                 .padding(10.dp)
         ) {
             Text(
-                text = "Now playing",
+                text = "Listening now on spotify",
                 modifier = Modifier.padding(4.dp),
                 color = if (onScreenUiModeIsDark()) Color.White else Color.Black,
                 fontWeight = FontWeight.Bold,
@@ -147,10 +142,9 @@ fun NowPlaying(
 }
 
 @Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun NowPlayingPreview() {
-    NowPlaying(
+fun ListeningNowOnSpotifygPreview() {
+    ListeningNowOnSpotify(
         playerState = null,
         bitmap = ListenBitmap()
     )

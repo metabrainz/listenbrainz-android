@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.BlogPost
-import org.listenbrainz.android.repository.BlogRepository
+import org.listenbrainz.android.repository.blog.BlogRepository
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Resource.Status.SUCCESS
 import javax.inject.Inject

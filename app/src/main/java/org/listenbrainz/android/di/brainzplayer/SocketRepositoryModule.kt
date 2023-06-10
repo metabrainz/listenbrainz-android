@@ -4,8 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import org.listenbrainz.android.repository.SocketRepository
-import org.listenbrainz.android.repository.SocketRepositoryImpl
+import org.listenbrainz.android.repository.socket.SocketRepository
+import org.listenbrainz.android.repository.socket.SocketRepositoryImpl
 
 @Module
 @InstallIn(SingletonComponent::class)

@@ -17,7 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.PermissionStatus
-import org.listenbrainz.android.repository.AppPreferences
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.ui.components.DialogLB
 import org.listenbrainz.android.ui.components.TopBar
 import org.listenbrainz.android.ui.navigation.AppNavigation

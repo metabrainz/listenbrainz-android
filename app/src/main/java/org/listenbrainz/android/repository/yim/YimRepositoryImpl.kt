@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository
+package org.listenbrainz.android.repository.yim
 
 import androidx.annotation.WorkerThread
 import org.listenbrainz.android.service.YimService

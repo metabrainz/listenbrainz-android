@@ -10,7 +10,11 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -43,7 +48,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.ui.components.ListenCard
+import org.listenbrainz.android.ui.components.ListeningNowCard
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.UserData
 import org.listenbrainz.android.util.Constants
@@ -82,14 +89,75 @@ fun ListensScreen(
         }
     }
 
-    val showNowPlaying by remember(viewModel.playerState?.track?.name) {
-        mutableStateOf(viewModel.playerState?.track?.name != null)
+    val youtubeApiKey = stringResource(id = R.string.youtubeApiKey)
+
+    fun onListenTap(listen: Listen) {
+        if (listen.track_metadata.additional_info?.spotify_id != null) {
+            Uri.parse(listen.track_metadata.additional_info.spotify_id).lastPathSegment?.let { trackId ->
+                viewModel.playUri("spotify:track:${trackId}")
+            }
+        } else {
+            // Execute the API request asynchronously
+            val scope = CoroutineScope(Dispatchers.Main)
+            scope.launch {
+                val videoId = viewModel
+                    .searchYoutubeMusicVideoId(
+                        context = context,
+                        trackName = listen.track_metadata.track_name,
+                        artist = listen.track_metadata.artist_name,
+                        apiKey = youtubeApiKey
+                    )
+                when {
+                    videoId != null -> {
+                        // Play the track in the YouTube Music app
+                        val trackUri =
+                            Uri.parse("https://music.youtube.com/watch?v=$videoId")
+                        val intent = Intent(Intent.ACTION_VIEW)
+                        intent.data = trackUri
+                        intent.setPackage(Constants.YOUTUBE_MUSIC_PACKAGE_NAME)
+                        val activities =
+                            context.packageManager.queryIntentActivities(intent, 0)
+
+                        when {
+                            activities.isNotEmpty() -> {
+                                context.startActivity(intent)
+                            }
+
+                            else -> {
+                                // Display an error message
+                                Toast.makeText(
+                                    context,
+                                    "YouTube Music is not installed to play the track.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
+
+                    else -> {
+                        /*
+                        // Play track via Amazon Music
+                        val intent = Intent()
+                        val query = listen.track_metadata.track_name + " " + listen.track_metadata.artist_name
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                        intent.setClassName(
+                            "com.amazon.mp3",
+                            "com.amazon.mp3.activity.IntentProxyActivity"
+                        )
+                        intent.action = MediaStore.INTENT_ACTION_MEDIA_SEARCH
+                        intent.putExtra(MediaStore.EXTRA_MEDIA_TITLE, query)
+                        context.startActivity(intent)
+                        */
+                    }
+                }
+            }
+        }
     }
 
-    val youtubeApiKey = stringResource(id = R.string.youtubeApiKey)
-    
+
     // Listens list
     val listens = viewModel.listensFlow.collectAsState().value
+    val listeningNow = viewModel.listeningNow.collectAsState().value
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 
@@ -103,11 +171,16 @@ fun ListensScreen(
             }
 
             item {
-                AnimatedVisibility(visible = showNowPlaying) {
-                    NowPlaying(
-                        playerState = viewModel.playerState,
-                        bitmap = viewModel.bitmap
-                    )
+                AnimatedVisibility(visible = viewModel.listeningNow.collectAsState().value != null) {
+                    ListeningNowCard(
+                        listeningNow!!,
+                        getCoverArtUrl(
+                            caaReleaseMbid = listeningNow.track_metadata.mbid_mapping?.caa_release_mbid,
+                            caaId = listeningNow.track_metadata.mbid_mapping?.caa_id
+                        )
+                    ) {
+                        onListenTap(listeningNow)
+                    }
                 }
             }
 
@@ -120,66 +193,7 @@ fun ListensScreen(
                     )
                 )
                 {
-                    if (it.track_metadata.additional_info?.spotify_id != null) {
-                        Uri.parse(it.track_metadata.additional_info.spotify_id).lastPathSegment?.let { trackId ->
-                            viewModel.playUri("spotify:track:${trackId}")
-                        }
-                    } else {
-                        // Execute the API request asynchronously
-                        val scope = CoroutineScope(Dispatchers.Main)
-                        scope.launch {
-                            val videoId = viewModel
-                                .searchYoutubeMusicVideoId(
-                                    context = context,
-                                    trackName = listen.track_metadata.track_name,
-                                    artist = listen.track_metadata.artist_name,
-                                    apiKey = youtubeApiKey
-                                )
-                            when {
-                                videoId != null -> {
-                                    // Play the track in the YouTube Music app
-                                    val trackUri =
-                                        Uri.parse("https://music.youtube.com/watch?v=$videoId")
-                                    val intent = Intent(Intent.ACTION_VIEW)
-                                    intent.data = trackUri
-                                    intent.setPackage(Constants.YOUTUBE_MUSIC_PACKAGE_NAME)
-                                    val activities =
-                                        context.packageManager.queryIntentActivities(intent, 0)
-
-                                    when {
-                                        activities.isNotEmpty() -> {
-                                            context.startActivity(intent)
-                                        }
-
-                                        else -> {
-                                            // Display an error message
-                                            Toast.makeText(
-                                                context,
-                                                "YouTube Music is not installed to play the track.",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        }
-                                    }
-                                }
-
-                                else -> {
-                                    /*
-                                    // Play track via Amazon Music
-                                    val intent = Intent()
-                                    val query = listen.track_metadata.track_name + " " + listen.track_metadata.artist_name
-                                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                    intent.setClassName(
-                                        "com.amazon.mp3",
-                                        "com.amazon.mp3.activity.IntentProxyActivity"
-                                    )
-                                    intent.action = MediaStore.INTENT_ACTION_MEDIA_SEARCH
-                                    intent.putExtra(MediaStore.EXTRA_MEDIA_TITLE, query)
-                                    context.startActivity(intent)
-                                    */
-                                }
-                            }
-                        }
-                    }
+                  onListenTap(listen)
                 }
             }
         }

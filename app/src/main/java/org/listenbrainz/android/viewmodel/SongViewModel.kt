@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.repository.AppPreferences
-import org.listenbrainz.android.repository.SongRepository
+import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.repository.brainzplayer.SongRepository
 import javax.inject.Inject
 
 @HiltViewModel

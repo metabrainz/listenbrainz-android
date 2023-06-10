@@ -7,7 +7,7 @@ import android.media.session.PlaybackState
 import com.dariobrux.kotimer.Timer
 import com.dariobrux.kotimer.interfaces.OnTimerListener
 import org.listenbrainz.android.model.ListenType
-import org.listenbrainz.android.repository.AppPreferences
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.w
 

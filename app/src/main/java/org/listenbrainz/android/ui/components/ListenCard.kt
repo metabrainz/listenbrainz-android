@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.MaterialTheme.typography
 import androidx.compose.material.Text
 import androidx.compose.material3.Surface
@@ -46,7 +45,8 @@ fun ListenCard(listen: Listen, coverArtUrl: String, onItemClicked: (listen: List
         ) {
             GlideImage(
                 model = coverArtUrl,
-                modifier = Modifier.size(80.dp, 80.dp)
+                modifier = Modifier
+                    .size(80.dp, 80.dp)
                     .clip(RoundedCornerShape(16.dp)),
                 contentDescription = null
             ){
@@ -103,6 +103,103 @@ fun ListenCard(listen: Listen, coverArtUrl: String, onItemClicked: (listen: List
                 )
             }
 */
+        }
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun ListeningNowCard(listen: Listen, coverArtUrl: String, onItemClicked: (listen: Listen) -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .clickable { onItemClicked(listen) },
+        elevation = 0.dp,
+        backgroundColor = if (onScreenUiModeIsDark()) Color.Black else offWhite,
+    ) {
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "Listening now",
+                    modifier = Modifier.padding(0.dp, 12.dp, 12.dp, 0.dp),
+                    color = if (onScreenUiModeIsDark()) Color.White else Color.Black,
+                    style = typography.caption
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                GlideImage(
+                    model = coverArtUrl,
+                    modifier = Modifier
+                        .size(80.dp, 80.dp)
+                        .clip(RoundedCornerShape(16.dp)),
+                    contentDescription = null
+                ) {
+                    it.placeholder(R.drawable.ic_coverartarchive_logo_no_text).override(250)
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Column(modifier = Modifier.align(Alignment.CenterVertically)) {
+                    Text(
+                        text = listen.track_metadata.track_name,
+                        modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
+                        color = if (onScreenUiModeIsDark()) Color.White else lb_purple,
+                        fontWeight = FontWeight.Bold,
+                        style = typography.subtitle1
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = buildString {
+                            append(listen.track_metadata.artist_name)
+                        },
+                        modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
+                        color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(alpha = 0.7f),
+                        style = typography.caption
+                    )
+
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        Text(
+                            text = listen.track_metadata.release_name ?: "",
+                            modifier = Modifier.padding(0.dp, 12.dp, 12.dp, 0.dp),
+                            color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(
+                                alpha = 0.7f
+                            ),
+                            style = typography.caption
+                        )
+                    }
+                }
+                /*  Love/Hate Button
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_baseline_heart_broken_24),
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp, 16.dp),
+                                tint = Color.Red
+                            )
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_baseline_heart_broken_24),
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp, 16.dp),
+                                tint = Color.Red
+                            )
+                        }
+            */
+            }
         }
     }
 }

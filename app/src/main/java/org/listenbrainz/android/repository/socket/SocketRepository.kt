@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository
+package org.listenbrainz.android.repository.socket
 
 import kotlinx.coroutines.flow.Flow
 import org.listenbrainz.android.model.Listen

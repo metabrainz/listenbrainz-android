@@ -11,7 +11,7 @@ import com.limurse.onboard.OnboardFragment
 import com.limurse.onboard.OnboardPageTransformerType
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.R
-import org.listenbrainz.android.repository.AppPreferences
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
 import org.listenbrainz.android.util.Log.d
 import javax.inject.Inject
