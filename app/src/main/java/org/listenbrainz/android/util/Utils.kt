@@ -35,7 +35,7 @@ object Utils {
     }
     
     fun <T> logAndReturn(it: Throwable) : Resource<T> {
-        e(message = "SocialRepository: ${it.message.toString()}")
+        it.printStackTrace()
         return Resource.failure()
     }
     
