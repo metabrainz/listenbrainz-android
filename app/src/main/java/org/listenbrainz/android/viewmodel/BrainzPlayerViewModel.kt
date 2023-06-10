@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.socket.client.Socket
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +21,7 @@ import org.listenbrainz.android.model.Playlist.Companion.currentlyPlaying
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.repository.AppPreferences
+import org.listenbrainz.android.repository.SocketRepository
 import org.listenbrainz.android.repository.SongRepository
 import org.listenbrainz.android.service.BrainzPlayerService
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
@@ -29,7 +31,9 @@ import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlaying
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPrepared
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID
+import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource
+import java.util.logging.Level
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,6 +41,7 @@ class BrainzPlayerViewModel @Inject constructor(
     private val brainzPlayerServiceConnection: BrainzPlayerServiceConnection,
     private val songRepository: SongRepository,
     val appPreferences: AppPreferences,
+    private val socketRepository: SocketRepository,
 ) : ViewModel() {
     val pagerState = MutableStateFlow(0)
     private val _mediaItems = MutableStateFlow<Resource<List<Song>>>(Resource.loading())
@@ -79,6 +84,13 @@ class BrainzPlayerViewModel @Inject constructor(
                 _mediaItems.value = Resource(Resource.Status.SUCCESS, it)
                 currentlyPlaying.items.plus(it)
             }
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            socketRepository
+                .listen(appPreferences.username!!)
+                .collect {
+                    Log.d("Listen: $it")
+                }
         }
     }
 

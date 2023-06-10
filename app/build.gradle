@@ -183,6 +183,8 @@ dependencies {
     // HTML Parser for retrieving token
     implementation "org.jsoup:jsoup:1.16.1"
 
+    implementation ('io.socket:socket.io-client:2.0.0')
+
     //Test Setup
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'com.squareup.okhttp3:mockwebserver:5.0.0-alpha.11'
