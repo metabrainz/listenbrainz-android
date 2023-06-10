@@ -183,7 +183,10 @@ dependencies {
     // HTML Parser for retrieving token
     implementation "org.jsoup:jsoup:1.16.1"
 
-    implementation ('io.socket:socket.io-client:2.0.0')
+    //Socket IO
+    implementation ('io.socket:socket.io-client:2.1.0') {
+        exclude group: 'org.json', module: 'json'
+    }
 
     //Test Setup
     testImplementation 'junit:junit:4.13.2'
