@@ -8,8 +8,8 @@ import android.os.Message
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.ListenTrackMetadata
 import org.listenbrainz.android.model.ListenType
-import org.listenbrainz.android.repository.AppPreferences
-import org.listenbrainz.android.repository.ListensRepository
+import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.util.Constants.Strings.TIMESTAMP
 import org.listenbrainz.android.util.Log.d
 

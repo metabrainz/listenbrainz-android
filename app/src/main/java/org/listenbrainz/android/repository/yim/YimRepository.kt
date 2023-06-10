@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository
+package org.listenbrainz.android.repository.yim
 
 import org.listenbrainz.android.model.yimdata.YimPayload
 import org.listenbrainz.android.util.Resource

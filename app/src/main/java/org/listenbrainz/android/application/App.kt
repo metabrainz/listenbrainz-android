@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ProcessLifecycleOwner
 import dagger.hilt.android.HiltAndroidApp
-import org.listenbrainz.android.repository.AppPreferences
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.ListenScrobbleService
 import org.listenbrainz.android.service.ListensService
 import javax.inject.Inject

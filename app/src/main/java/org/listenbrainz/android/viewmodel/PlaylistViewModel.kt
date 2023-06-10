@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.repository.PlaylistRepository
+import org.listenbrainz.android.repository.brainzplayer.PlaylistRepository
 import org.listenbrainz.android.model.Playlist
 import org.listenbrainz.android.model.Playlist.Companion.currentlyPlaying
 import org.listenbrainz.android.model.Playlist.Companion.favourite

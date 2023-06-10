@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository
+package org.listenbrainz.android.repository.blog
 
 import org.listenbrainz.android.model.Blog
 import org.listenbrainz.android.util.Resource

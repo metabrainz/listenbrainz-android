@@ -1,6 +1,6 @@
 package org.listenbrainz.sharedtest.mocks
 
-import org.listenbrainz.android.repository.YimRepository
+import org.listenbrainz.android.repository.yim.YimRepository
 import org.listenbrainz.android.model.yimdata.YimPayload
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testYimData

@@ -13,8 +13,8 @@ import com.caverock.androidsvg.SVG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import org.listenbrainz.android.model.yimdata.*
-import org.listenbrainz.android.repository.AppPreferences
-import org.listenbrainz.android.repository.YimRepository
+import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.repository.yim.YimRepository
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.saveBitmap

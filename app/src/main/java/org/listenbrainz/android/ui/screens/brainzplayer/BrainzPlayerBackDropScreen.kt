@@ -376,7 +376,7 @@ fun PlayerScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Now Playing",
+                    "Listening now",
                     fontSize = 24.sp,
                     modifier = Modifier.padding(start = 25.dp),
                     fontWeight = FontWeight.SemiBold,

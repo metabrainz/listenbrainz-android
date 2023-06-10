@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository
+package org.listenbrainz.android.repository.preferences
 
 import android.content.Context
 import android.content.pm.PackageManager

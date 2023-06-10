@@ -1,7 +1,11 @@
 package org.listenbrainz.android.viewmodel
 
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.session.PlaybackStateCompat.*
+import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ALL
+import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_NONE
+import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ONE
+import android.support.v4.media.session.PlaybackStateCompat.SHUFFLE_MODE_ALL
+import android.support.v4.media.session.PlaybackStateCompat.SHUFFLE_MODE_NONE
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -19,8 +23,8 @@ import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.Playlist.Companion.currentlyPlaying
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
-import org.listenbrainz.android.repository.AppPreferences
-import org.listenbrainz.android.repository.SongRepository
+import org.listenbrainz.android.repository.brainzplayer.SongRepository
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.BrainzPlayerService
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
 import org.listenbrainz.android.util.BrainzPlayerExtensions.currentPlaybackPosition
