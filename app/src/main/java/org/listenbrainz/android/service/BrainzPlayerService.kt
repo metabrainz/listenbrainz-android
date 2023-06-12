@@ -7,8 +7,6 @@ import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.toMutableStateList
 import androidx.media.MediaBrowserServiceCompat
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
@@ -19,10 +17,10 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.PlayableType
-import org.listenbrainz.android.repository.AlbumRepository
-import org.listenbrainz.android.repository.AppPreferences
-import org.listenbrainz.android.repository.PlaylistRepository
-import org.listenbrainz.android.repository.SongRepository
+import org.listenbrainz.android.repository.brainzplayer.AlbumRepository
+import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.repository.brainzplayer.PlaylistRepository
+import org.listenbrainz.android.repository.brainzplayer.SongRepository
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toMediaMetadataCompat
 import org.listenbrainz.android.util.BrainzPlayerNotificationManager
 import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID

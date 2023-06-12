@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository
+package org.listenbrainz.android.repository.listens
 
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable

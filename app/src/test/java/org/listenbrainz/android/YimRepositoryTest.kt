@@ -9,8 +9,8 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.listenbrainz.android.repository.YimRepository
-import org.listenbrainz.android.repository.YimRepositoryImpl
+import org.listenbrainz.android.repository.yim.YimRepository
+import org.listenbrainz.android.repository.yim.YimRepositoryImpl
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.sharedtest.utils.AssertionUtils.checkYimAssertions

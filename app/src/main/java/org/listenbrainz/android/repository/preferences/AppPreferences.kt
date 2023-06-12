@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository
+package org.listenbrainz.android.repository.preferences
 
 import org.listenbrainz.android.model.AccessToken
 import org.listenbrainz.android.model.Playable

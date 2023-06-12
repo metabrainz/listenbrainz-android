@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository
+package org.listenbrainz.android.repository.brainzplayer
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
