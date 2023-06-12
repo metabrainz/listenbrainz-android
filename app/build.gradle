@@ -140,14 +140,9 @@ dependencies {
     //Permissions
     implementation "com.google.accompanist:accompanist-permissions:$accompanist_version"
 
-    //Fragment Setup For Kotlin
-    implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
-    implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
-    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
-
     //Design Setup
     implementation 'com.google.android.material:material:1.9.0'
-    implementation 'com.airbnb.android:lottie:6.0.0'
+    implementation 'com.airbnb.android:lottie:6.0.1'
     implementation 'com.github.akshaaatt:Onboarding:1.0.5'
     implementation 'com.github.akshaaatt:Share-Android:1.0.0'
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
@@ -174,7 +169,9 @@ dependencies {
     implementation 'androidx.activity:activity-compose'
 
     // Compose Navigation
-    implementation 'androidx.navigation:navigation-compose:2.5.3'     // Stable one
+    implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
+    implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
+    implementation "androidx.navigation:navigation-compose:$navigationVersion"     // Stable one
     implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"     // Experimental but has animations
 
     //Spotify
