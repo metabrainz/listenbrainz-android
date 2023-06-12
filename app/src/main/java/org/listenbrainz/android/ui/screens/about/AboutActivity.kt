@@ -23,7 +23,5 @@ class AboutActivity : AppCompatActivity() {
                 }
             }
         }
-
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 }
