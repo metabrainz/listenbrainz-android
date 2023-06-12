@@ -5,8 +5,8 @@ import org.listenbrainz.android.model.CoverArt
 import org.listenbrainz.android.model.ListenBrainzExternalServices
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.Listens
-import org.listenbrainz.android.util.Constants.Headers.AUTHORIZATION
 import org.listenbrainz.android.model.TokenValidation
+import org.listenbrainz.android.util.Constants.Headers.AUTHORIZATION
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -31,7 +31,7 @@ interface ListensService {
                      @Body body: ListenSubmitBody?): Call<ResponseBody?>?
 
     @GET("user/{user_name}/services")
-    fun getServicesLinkedToAccount(
+    suspend fun getServicesLinkedToAccount(
         @Header(AUTHORIZATION) authHeader: String?,
         @Path("user_name") user_name: String,
     ): ListenBrainzExternalServices
