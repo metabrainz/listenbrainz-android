@@ -18,7 +18,7 @@ import org.listenbrainz.sharedtest.mocks.MockAppPreferences
 import org.listenbrainz.sharedtest.mocks.MockYimRepository
 import org.listenbrainz.sharedtest.utils.AssertionUtils.checkYimAssertions
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testYimData
-import org.listenbrainz.sharedtest.utils.EntityTestUtils.testYimUsername
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername
 
 class YimViewModelTest{
     
@@ -28,7 +28,7 @@ class YimViewModelTest{
     @Before
     fun setup(){
         Dispatchers.setMain(StandardTestDispatcher())
-        viewModel = YimViewModel(MockYimRepository(), MockAppPreferences(username = testYimUsername, loginStatus = STATUS_LOGGED_IN))
+        viewModel = YimViewModel(MockYimRepository(), MockAppPreferences(username = testUsername, loginStatus = STATUS_LOGGED_IN))
     }
     
     @OptIn(ExperimentalCoroutinesApi::class)

@@ -7,5 +7,6 @@ sealed class AppNavigationItem(var route: String, var iconUnselected: Int, var i
     object BrainzPlayer : AppNavigationItem("brainzplayer", R.drawable.headphone_regular, R.drawable.headphones_solid, "Player")
     object Explore : AppNavigationItem("explore", R.drawable.music_regular, R.drawable.music_solid, "Explore")
     object Profile : AppNavigationItem("profile", R.drawable.user_regular, R.drawable.user_solid, "Profile")
+    object Search : AppNavigationItem("search", R.drawable.ic_search, R.drawable.ic_search, "Search")
 }
 

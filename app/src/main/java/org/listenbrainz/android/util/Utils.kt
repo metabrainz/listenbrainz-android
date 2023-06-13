@@ -3,7 +3,6 @@ package org.listenbrainz.android.util
 import android.content.ActivityNotFoundException
 import android.content.ContentValues
 import android.content.Context
-import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -12,7 +11,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.WorkerThread
@@ -34,6 +32,15 @@ object Utils {
      * @param size Allowed sizes are 250, 500, 750 and 1000. Default is 250.*/
     fun getCoverArtUrl(caaReleaseMbid: String?, caaId: Long?, size: Int = 250): String {
         return  "https://archive.org/download/mbid-${caaReleaseMbid}/mbid-${caaReleaseMbid}-${caaId}_thumb${size}.jpg"
+    }
+    
+    fun <T> logAndReturn(it: Throwable) : Resource<T> {
+        it.printStackTrace()
+        return Resource.failure()
+    }
+    
+    fun authHeader(accessToken: String) : String{
+        return "Bearer $accessToken"
     }
 
     fun sendFeedback(context: Context) {

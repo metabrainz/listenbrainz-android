@@ -28,7 +28,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.preference.PreferenceManager
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AppNavigationItem
-import org.listenbrainz.android.ui.screens.about.AboutActivity
 import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
 import org.listenbrainz.android.ui.screens.dashboard.DonateActivity
 import org.listenbrainz.android.ui.theme.isUiModeIsDark
@@ -82,11 +81,25 @@ fun TopBar(
         contentColor = MaterialTheme.colorScheme.onSurface,
         elevation = 0.dp,
         actions = {
-            IconButton(onClick = {
-                activity.startActivity(Intent(activity, AboutActivity::class.java))
+            // TODO: Move about-section to settings.
+            /*IconButton(onClick = {
+                activity.startActivity(Intent(activity, org.listenbrainz.android.ui.screens.about.AboutActivity::class.java))
             }) {
                 Icon(painterResource(id = R.drawable.ic_information),
                     "About",
+                    tint = Color.Unspecified)
+            }*/
+            IconButton(onClick = {
+                navController.navigate(route = AppNavigationItem.Search.route){
+                    // Avoid building large backstack
+                    popUpTo(AppNavigationItem.Home.route)
+                    // Avoid copies
+                    launchSingleTop = true
+            
+                }
+            }) {
+                Icon(painterResource(id = AppNavigationItem.Search.iconSelected),
+                    AppNavigationItem.Search.title,
                     tint = Color.Unspecified)
             }
             IconButton(onClick = {

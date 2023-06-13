@@ -1,3 +1,4 @@
+package org.listenbrainz.android.util
 
 import android.content.Context
 import com.google.gson.Gson
@@ -6,7 +7,7 @@ import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 
-class CacheService<T>(private val context: Context, private val key: String,private val maxSize:Int=10000) {
+class CacheService <T> (private val context: Context, private val key: String, private val maxSize:Int = 10000) {
     fun saveData(value: T, dataType: Class<T>) {
         val cacheDir: File = context.cacheDir
         val gson = Gson()
@@ -23,9 +24,9 @@ class CacheService<T>(private val context: Context, private val key: String,priv
                     val newData = data.toMutableList()
                     if (newData.size > 0) newData.removeAt(0)
                     newData.add(value)
-                    var tostore=gson.toJson(newData)
+                    val toStore= gson.toJson(newData)
                     val fileWriter = FileWriter(file, false)
-                    fileWriter.write(tostore.substring(1,tostore.length-2))
+                    fileWriter.write(toStore.substring(1,toStore.length-2))
                     fileWriter.close()
                 } else {
                     val fileWriter = FileWriter(file, true)
@@ -35,7 +36,7 @@ class CacheService<T>(private val context: Context, private val key: String,priv
                 }
             }
         } catch (e: IOException) {
-            println(e)
+            Log.w(e.localizedMessage ?: e.message ?: e.toString())
         }
     }
 
