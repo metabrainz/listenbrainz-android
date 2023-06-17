@@ -162,7 +162,7 @@ class ListensViewModel @Inject constructor(
                 null
             }
         } catch (e: Exception) {
-            Log.e("YouTube API error", "LBResponseError occurred while searching for video ID", e)
+            Log.e("YouTube API error", "Error occurred while searching for video ID", e)
             null
         }
     }

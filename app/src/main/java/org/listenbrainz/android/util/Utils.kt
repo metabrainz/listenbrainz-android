@@ -11,7 +11,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.WorkerThread
@@ -33,6 +32,11 @@ object Utils {
      * @param size Allowed sizes are 250, 500, 750 and 1000. Default is 250.*/
     fun getCoverArtUrl(caaReleaseMbid: String?, caaId: Long?, size: Int = 250): String {
         return  "https://archive.org/download/mbid-${caaReleaseMbid}/mbid-${caaReleaseMbid}-${caaId}_thumb${size}.jpg"
+    }
+    
+    fun <T> logAndReturn(it: Throwable) : Resource<T> {
+        it.printStackTrace()
+        return Resource.failure()
     }
     
     fun authHeader(accessToken: String) : String{
@@ -86,7 +90,7 @@ object Utils {
             input.close()
             output.toString()
         } catch (e: IOException) {
-            e("LBResponseError reading text file from assets folder.")
+            e("Error reading text file from assets folder.")
             ""
         }
     }
