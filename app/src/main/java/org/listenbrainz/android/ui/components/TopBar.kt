@@ -12,11 +12,15 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -30,10 +34,12 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
 import org.listenbrainz.android.ui.screens.dashboard.DonateActivity
+import org.listenbrainz.android.ui.screens.search.SearchScreen
 import org.listenbrainz.android.ui.theme.isUiModeIsDark
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.util.Constants
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
     activity: Activity,
@@ -65,6 +71,10 @@ fun TopBar(
             }
         )
     }
+    
+    var showSearchScreen by remember {
+        mutableStateOf(false)
+    }
 
     TopAppBar(
         title = { Text(text = title) },
@@ -90,18 +100,11 @@ fun TopBar(
                     tint = Color.Unspecified)
             }*/
             IconButton(onClick = {
-                navController.navigate(route = AppNavigationItem.Search.route){
-                    // Avoid building large backstack
-                    popUpTo(AppNavigationItem.Home.route)
-                    // Avoid copies
-                    launchSingleTop = true
-            
-                }
+                showSearchScreen = true
             }) {
-                Icon(painterResource(id = AppNavigationItem.Search.iconSelected),
-                    AppNavigationItem.Search.title,
-                    tint = Color.Unspecified)
+                Icon(imageVector = Icons.Rounded.Search, contentDescription = "Search users")
             }
+            
             IconButton(onClick = {
                 activity.startActivity(Intent(activity, DonateActivity::class.java))
             }) {
@@ -145,6 +148,12 @@ fun TopBar(
             }
         }
     )
+    
+    SearchScreen(
+        showSearchScreen = showSearchScreen,
+        onDismiss = { showSearchScreen = false }
+    )
+    
 }
 
 @Preview

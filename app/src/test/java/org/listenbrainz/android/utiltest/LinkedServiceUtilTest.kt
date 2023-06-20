@@ -1,4 +1,4 @@
-package org.listenbrainz.android
+package org.listenbrainz.android.utiltest
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

@@ -36,7 +36,10 @@ object Utils {
     
     fun <T> logAndReturn(it: Throwable) : Resource<T> {
         it.printStackTrace()
-        return Resource.failure()
+        return if (it is IOException)
+            Resource.failure(error = ResponseError.NETWORK_ERROR)
+        else
+            Resource.failure(error = ResponseError.UNKNOWN)
     }
     
     fun authHeader(accessToken: String) : String{

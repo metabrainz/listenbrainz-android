@@ -13,7 +13,6 @@ import androidx.navigation.compose.rememberNavController
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.components.BackLayerContent
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen
-import org.listenbrainz.android.ui.screens.search.SearchScreen
 import org.listenbrainz.android.ui.screens.explore.ExploreScreen
 import org.listenbrainz.android.ui.screens.profile.ProfileScreen
 
@@ -39,9 +38,6 @@ fun AppNavigation(
         }
         composable(route = AppNavigationItem.Profile.route){
             ProfileScreen(shouldScrollToTop = shouldScrollToTop)
-        }
-        composable(route = AppNavigationItem.Search.route){
-            SearchScreen()
         }
     }
 }

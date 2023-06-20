@@ -1,42 +1,59 @@
 package org.listenbrainz.android.ui.screens.search
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
+import android.content.Context
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Text
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SearchBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
+import org.listenbrainz.android.model.SearchUiState
 import org.listenbrainz.android.viewmodel.SearchViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
-    viewModel: SearchViewModel = hiltViewModel()
+    showSearchScreen: Boolean,
+    onDismiss: () -> Unit,
+    viewModel: SearchViewModel = hiltViewModel(),
+    context: Context = LocalContext.current
 ) {
-    val result by viewModel.searchState.collectAsState()
-    val testResult by viewModel.test.collectAsState()
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
+    AnimatedVisibility(
+        visible = showSearchScreen,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
         
-        /*items(result.data?.users ?: emptyList()){
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Text(text = it.username)
+        val uiState = viewModel.uiState.collectAsState(initial = SearchUiState(emptyList(), "")).value
+        
+        SearchBar(
+            query = uiState.query,
+            onQueryChange = {
+                viewModel.updateQueryFlow(it)
+            },
+            onSearch = {
+                viewModel.updateQueryFlow(it)
+            },
+            active = showSearchScreen,
+            onActiveChange = { isActive ->
+                if (!isActive)
+                    onDismiss()
+            },
+            placeholder = {
+                Text(text = "Search users", color = MaterialTheme.colorScheme.onSurface.copy(0.5f))
             }
-        }*/
-        
-        items(testResult){
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Text(text = it)
+        ) {
+            LazyColumn {
+                items(uiState.result){
+                    Text(text = it.username)
+                }
             }
         }
     }

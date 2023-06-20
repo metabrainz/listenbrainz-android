@@ -6,15 +6,23 @@ import org.listenbrainz.android.model.ApiError
 import retrofit2.Response
 
 /** These exceptions need to handled in view-model, shown via UI and not just thrown.*/
-sealed class LBResponseError(val genericToast: String, var actualResponse: String? = null) {
+enum class ResponseError(private val genericToast: String, var actualResponse: String? = null) {
     
-    object UserNotFound : LBResponseError(genericToast = "User not found.")     // "User Some_User_That_Does_Not_Exist not found"
-    object AuthHeaderNotFound : LBResponseError(genericToast = "You need to provide an Authorization header."){    // "You need to provide an Authorization header."
-        // TODO: Add a composable function that shows dialog to fill token.
-    }
-    object AlreadyFollowing : LBResponseError(genericToast = "Already following user.")      // "Jasjeet is already following user someotheruser"
-    object CannotFollowSelf : LBResponseError(genericToast = "Whoops, cannot follow yourself.")  // "Whoops, cannot follow yourself."
-    object Unknown : LBResponseError(genericToast = "Some error has occurred.")
+    USER_NOT_FOUND(genericToast = "User not found."),     // "User Some_User_That_Does_Not_Exist not found"
+    
+    ALREADY_FOLLOWING(genericToast = "Already following user."),     // "Jasjeet is already following user someotheruser"
+    
+    CANNOT_FOLLOW_SELF(genericToast = "Whoops, cannot follow yourself."),  // "Whoops, cannot follow yourself."
+    
+    AUTH_HEADER_NOT_FOUND(genericToast = "You need to provide an Authorization header."),    // "You need to provide an Authorization header.
+    
+    RATE_LIMIT_EXCEEDED(genericToast = "Server slow down detected."),
+    
+    NETWORK_ERROR(genericToast = "App is experiencing network issues at the moment."),
+    
+    UNKNOWN(genericToast = "Some error has occurred.");
+    
+    fun toast(): String = actualResponse ?: genericToast
     
 }
 
@@ -27,21 +35,23 @@ object ErrorUtil {
         )
     
     
-    /** Get errors only for social type API endpoints.*/
-    fun getSocialErrorType(error: String?) : LBResponseError {
+    /** Get [ResponseError] for social type API endpoints. Automatically puts actual error message.*/
+    fun getSocialErrorType(error: String?) : ResponseError {
         return if (error != null) {
             when {
-                error.contains("User") && error.slice((error.lastIndex - 9)..error.lastIndex).contains("not found") -> LBResponseError.UserNotFound
-                error.slice(12..(error.lastIndex - 8)) == "provide an Authorization" -> LBResponseError.AuthHeaderNotFound
-                error.substringAfter(' ').contains("is already") -> LBResponseError.AlreadyFollowing
-                error.substringAfter(' ') == "cannot follow yourself." -> LBResponseError.CannotFollowSelf
-                else -> LBResponseError.Unknown
-            }
+                error.contains("User") && error.slice((error.lastIndex - 9)..error.lastIndex).contains("not found") -> ResponseError.USER_NOT_FOUND
+                error.slice(12..(error.lastIndex - 8)) == "provide an Authorization" -> ResponseError.AUTH_HEADER_NOT_FOUND
+                error.substringAfter(' ').contains("is already") -> ResponseError.ALREADY_FOLLOWING
+                error.substringAfter(' ') == "cannot follow yourself." -> ResponseError.CANNOT_FOLLOW_SELF
+                else -> ResponseError.UNKNOWN
+            }.putActualErrorMessage(error)
         } else {
-            LBResponseError.Unknown
+            ResponseError.UNKNOWN
         }
     }
     
+    private fun ResponseError.putActualErrorMessage(message: String?): ResponseError =
+        this.apply { actualResponse = message }
 }
 
 

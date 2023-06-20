@@ -43,7 +43,7 @@ class YearInMusicActivityTest {
             MockYimRepository(),
             MockAppPreferences(username = testUsername, loginStatus = STATUS_LOGGED_IN)
         )
-        val networkViewModel = MockNetworkConnectivityViewModel(ConnectivityObserver.NetworkStatus.Available)
+        val networkViewModel = MockNetworkConnectivityViewModel(ConnectivityObserver.NetworkStatus.AVAILABLE)
 
         rule.setContent {
             YimNavigation(yimViewModel = yimViewModel, activity = activity, networkConnectivityViewModel = networkViewModel)

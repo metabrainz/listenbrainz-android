@@ -36,7 +36,7 @@ object EntityTestUtils {
     object ErrorUtil {
         const val userNotFoundError = "User Some_User_That_Does_Not_Exist not found"
         const val authHeaderNotFoundError = "You need to provide an Authorization header."
-        const val alreadyFollowingError = "Jasjeet is already following user someotheruser"
+        const val alreadyFollowingError = "Jasjeet is already following user JasjeetTest"
         const val cannotFollowSelfError = "Whoops, cannot follow yourself."
     }
     
@@ -61,7 +61,6 @@ object EntityTestUtils {
     val testFollowersSuccessData: SocialData
         get() {
             return SocialData(
-                error = null,
                 followers = listOf("jivteshs20","arsh331","Vac31.","JasjeetTest"),
                 following = null,
                 user = testUsername
@@ -71,7 +70,6 @@ object EntityTestUtils {
     val testFollowingSuccessData : SocialData
         get() {
             return SocialData(
-                error = null,
                 followers = null,
                 following = listOf("jivteshs20","akshaaatt","riksucks","lucifer"),
                 user = testUsername
@@ -86,7 +84,8 @@ object EntityTestUtils {
     const val testAuthHeader = "Bearer 8OC8as-1VpATqk-M79Kf-cdTw123a"
     const val testAccessToken = "8OC8as-1VpATqk-M79Kf-cdTw123a"
     
-    const val testUsername : String = "Jasjeet"
-    const val testSomeOtherUser = "Jasjeettest"
-    const val testUserDNE : String = "Some_User_That_Does_Not_Exist"
+    const val testUsername = "Jasjeet"
+    const val testFamiliarUser = "Jasjeettest"
+    const val testSomeOtherUser = "AnotherUser"
+    const val testUserDNE = "Some_User_That_Does_Not_Exist"
 }

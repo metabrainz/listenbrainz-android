@@ -69,7 +69,7 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
      * */
     override fun getPackageIcon(packageName: String): Drawable? {
         return try {
-            App.context!!.packageManager.getApplicationIcon(packageName)
+            App.context.packageManager.getApplicationIcon(packageName)
         }
         catch (e: Exception) {
             null

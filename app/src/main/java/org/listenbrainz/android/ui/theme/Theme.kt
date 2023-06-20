@@ -7,7 +7,14 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -109,15 +116,22 @@ fun YearInMusicTheme(
     )
 }
 
-// Padding suggestions for out compose part
+
 @Immutable
 data class Paddings(
     val defaultPadding: Dp = 16.dp,
     val tinyPadding: Dp = 4.dp,
     val smallPadding: Dp = 8.dp,
-    val largePadding: Dp = 24.dp
+    val largePadding: Dp = 24.dp,
+    
+    // New set
+    val horizontal: Dp = 8.dp,
+    val vertical: Dp = 8.dp,
+    val lazyListAdjacent: Dp = 8.dp,
+    val listenCoverArtAndTextGap: Dp = 8.dp
 )
 internal val LocalPaddings = staticCompositionLocalOf { Paddings() }
+
 
 /**
  * This variable defines the ui mode of the system.
@@ -135,6 +149,9 @@ internal val LocalPaddings = staticCompositionLocalOf { Paddings() }
  * before executing instrumented tests.*/
 lateinit var isUiModeIsDark : MutableState<Boolean?>
 
+
+/** This function determines if the absolute UI mode of the app is dark (True) or not, irrespective of
+ * what theme the device is using. Different from [isSystemInDarkTheme].*/
 @Composable
 fun onScreenUiModeIsDark() : Boolean {
     return when (isUiModeIsDark.value){
