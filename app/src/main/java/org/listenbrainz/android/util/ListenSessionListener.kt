@@ -10,6 +10,7 @@ import org.listenbrainz.android.model.ListenType
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Log.w
+import org.listenbrainz.android.util.Utils.roundDuration
 
 class ListenSessionListener(private val handler: ListenHandler, val appPreferences: AppPreferences) : OnActiveSessionsChangedListener {
     
@@ -197,10 +198,5 @@ class ListenSessionListener(private val handler: ListenHandler, val appPreferenc
             submitted = false
             releaseName = null
         }
-        
-        private fun roundDuration(duration: Long): Long {
-            return (duration / 1000) * 1000
-        }
-        
     }
 }

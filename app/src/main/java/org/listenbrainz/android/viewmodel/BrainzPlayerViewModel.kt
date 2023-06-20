@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dariobrux.kotimer.Timer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -24,6 +25,7 @@ import org.listenbrainz.android.model.Playlist.Companion.currentlyPlaying
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.repository.brainzplayer.SongRepository
+import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.BrainzPlayerService
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
@@ -58,6 +60,7 @@ class BrainzPlayerViewModel @Inject constructor(
     val playButton = brainzPlayerServiceConnection.playButtonState
     val repeatMode = brainzPlayerServiceConnection.repeatModeState
     var isSearching by mutableStateOf(false)
+    val timer: Timer = Timer()
 
     init {
         updatePlayerPosition()
@@ -148,12 +151,11 @@ class BrainzPlayerViewModel @Inject constructor(
 
     fun playOrToggleSong(mediaItem: Song, toggle: Boolean = false) {
         val isPrepared = playbackState.value.isPrepared
-        if (isPrepared && mediaItem.mediaID == currentlyPlayingSong.value.toSong.mediaID
-        ) {
+        if (isPrepared && mediaItem.mediaID == currentlyPlayingSong.value.toSong.mediaID) {
             playbackState.value.let { playbackState ->
                 when {
                     playbackState.isPlaying -> if (toggle) brainzPlayerServiceConnection.transportControls.pause()
-                    playbackState.isPlayEnabled -> brainzPlayerServiceConnection.transportControls.play()
+                    playbackState.isPlayEnabled -> { brainzPlayerServiceConnection.transportControls.play() }
                     else -> Unit
                 }
             }
@@ -162,7 +164,7 @@ class BrainzPlayerViewModel @Inject constructor(
         }
     }
 
-    fun queueChanged(mediaItem: Song,toggle: Boolean ) {
+    fun queueChanged(mediaItem: Song, toggle: Boolean ) {
         brainzPlayerServiceConnection.transportControls.playFromMediaId(mediaItem.mediaID.toString(), null)
         playbackState.value.let { playbackState ->
             when {

@@ -24,7 +24,6 @@ object Constants {
         const val LINKED_SERVICES = "LINKED_SERVICES"
         const val USERNAME = "username"
         const val CURRENT_PLAYABLE = "CURRENT_PLAYABLE"
-        const val MB_ACCESS_TOKEN = "mb_access_token"
         const val LB_ACCESS_TOKEN = "lb_access_token"
         const val REFRESH_TOKEN = "refresh_token"
         const val STATUS_LOGGED_IN = 1
