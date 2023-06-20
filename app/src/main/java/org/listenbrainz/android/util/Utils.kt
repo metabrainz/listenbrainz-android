@@ -56,6 +56,10 @@ object Utils {
         return intent
     }
 
+    fun roundDuration(duration: Long): Long {
+        return (duration / 1000) * 1000
+    }
+
     fun getSHA1(context: Context, packageName: String): String? {
         try {
             val signatures = context.packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES).signatures

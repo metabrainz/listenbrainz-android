@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dariobrux.kotimer.Timer
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -148,8 +149,7 @@ class BrainzPlayerViewModel @Inject constructor(
 
     fun playOrToggleSong(mediaItem: Song, toggle: Boolean = false) {
         val isPrepared = playbackState.value.isPrepared
-        if (isPrepared && mediaItem.mediaID == currentlyPlayingSong.value.toSong.mediaID
-        ) {
+        if (isPrepared && mediaItem.mediaID == currentlyPlayingSong.value.toSong.mediaID) {
             playbackState.value.let { playbackState ->
                 when {
                     playbackState.isPlaying -> if (toggle) brainzPlayerServiceConnection.transportControls.pause()
@@ -162,7 +162,7 @@ class BrainzPlayerViewModel @Inject constructor(
         }
     }
 
-    fun queueChanged(mediaItem: Song,toggle: Boolean ) {
+    fun queueChanged(mediaItem: Song, toggle: Boolean ) {
         brainzPlayerServiceConnection.transportControls.playFromMediaId(mediaItem.mediaID.toString(), null)
         playbackState.value.let { playbackState ->
             when {
