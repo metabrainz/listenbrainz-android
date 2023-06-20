@@ -18,7 +18,6 @@ class MockAppPreferences(
     override var onboardingCompleted: Boolean = false,
     override var currentPlayable: Playable? = null,
     override val loginStatus: Int = STATUS_LOGGED_OUT,
-    override val mbAccessToken: String? = "",
     override var lbAccessToken: String? = "",
     override var username: String? = "",
     override val refreshToken: String? = "",
