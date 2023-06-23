@@ -26,8 +26,8 @@ object EntityTestUtils {
         return builder.toString()
     }
     
-    const val testAuthHeader = "Bearer 8OC8as-1VpATqk-M79Kf-cdTw123a"
     const val testAccessToken = "8OC8as-1VpATqk-M79Kf-cdTw123a"
+    const val testAuthHeader = "Bearer $testAccessToken"
     
     const val testUsername = "Jasjeet"
     const val testFamiliarUser = "Jasjeettest"
