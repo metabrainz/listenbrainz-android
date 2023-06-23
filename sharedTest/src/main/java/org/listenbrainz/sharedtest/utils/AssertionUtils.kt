@@ -8,9 +8,9 @@ import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername
 
 object AssertionUtils {
     
-    fun checkYimAssertions(testYimData: YimPayload?, yimData : YimPayload) {
+    fun checkYimAssertions(testYimData: YimPayload, yimData : YimPayload?) {
         assertEquals(testYimData, yimData)
-        assertEquals(testUsername, yimData.payload.userName)
+        assertEquals(testUsername, yimData?.payload?.userName)
     }
     
     fun checkFollowingAssertions(result: Resource<SocialData>, expected: SocialData) {

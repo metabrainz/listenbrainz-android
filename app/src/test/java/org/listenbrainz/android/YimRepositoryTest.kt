@@ -13,10 +13,10 @@ import org.listenbrainz.android.repository.YimRepository
 import org.listenbrainz.android.repository.YimRepositoryImpl
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.util.Resource
+import org.listenbrainz.sharedtest.testdata.YimRepositoryTestData.testYimData
 import org.listenbrainz.sharedtest.utils.AssertionUtils.checkYimAssertions
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.loadResourceAsString
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername
-import org.listenbrainz.sharedtest.utils.EntityTestUtils.testYimData
 import org.listenbrainz.sharedtest.utils.RetrofitUtils
 
 class YimRepositoryTest {
