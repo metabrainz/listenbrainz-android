@@ -43,7 +43,7 @@ class YimRepositoryTest {
         val expected = testYimData
         val resource = repository.getYimData(testUsername)
         assertEquals(Resource.Status.SUCCESS, resource.status)
-        checkYimAssertions(resource.data, expected)
+        checkYimAssertions(expected, resource.data)
     }
     
     @After
