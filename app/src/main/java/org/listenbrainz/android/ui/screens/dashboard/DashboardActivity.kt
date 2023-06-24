@@ -8,9 +8,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.material.BackdropValue
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
@@ -53,8 +56,7 @@ class DashboardActivity : ComponentActivity() {
                 }
 
                 val launcher = rememberLauncherForActivityResult(
-                    contract =
-                    ActivityResultContracts.RequestMultiplePermissions()
+                    contract = ActivityResultContracts.RequestMultiplePermissions()
                 ) { permission ->
                     val isGranted = permission.values.any { it }
                     when {
@@ -112,9 +114,10 @@ class DashboardActivity : ComponentActivity() {
                 val backdropScaffoldState =
                     rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
                 val shouldScrollToTop = remember { mutableStateOf(false) }
-
+                val snackbarState = SnackbarHostState()
+                
                 Scaffold(
-                    topBar = { TopBar(activity = this, navController = navController) },
+                    topBar = { TopBar(navController = navController, snackbarHostState = snackbarState) },
                     bottomBar = {
                         BottomNavigationBar(
                             navController = navController,
@@ -122,7 +125,20 @@ class DashboardActivity : ComponentActivity() {
                             shouldScrollToTop = shouldScrollToTop
                         )
                     },
-                    backgroundColor = MaterialTheme.colorScheme.background
+                    
+                    snackbarHost = {
+                        SnackbarHost(hostState = snackbarState) { snackbarData ->
+                            Snackbar(
+                                snackbarData = snackbarData,
+                                containerColor = MaterialTheme.colorScheme.background,
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                                actionColor = MaterialTheme.colorScheme.inverseOnSurface,
+                                dismissActionContentColor = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    },
+                    containerColor = MaterialTheme.colorScheme.background
+                
                 ) {
                     if (isGrantedPerms == PermissionStatus.GRANTED.name) {
                         BrainzPlayerBackDropScreen(
@@ -131,7 +147,6 @@ class DashboardActivity : ComponentActivity() {
                         ) {
                             AppNavigation(
                                 navController = navController,
-                                activity = this,
                                 shouldScrollToTop = shouldScrollToTop
                             )
                         }

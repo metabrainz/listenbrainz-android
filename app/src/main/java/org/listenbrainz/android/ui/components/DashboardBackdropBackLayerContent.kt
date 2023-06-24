@@ -1,11 +1,23 @@
 package org.listenbrainz.android.ui.components
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
+import androidx.activity.ComponentActivity
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -34,7 +46,7 @@ import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 
 @Composable
-fun BackLayerContent(activity: Activity) {
+fun HomeScreen() {
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -78,8 +90,7 @@ fun BackLayerContent(activity: Activity) {
             
             // Yim Card
             HomeScreenCard(
-                activity = activity,
-                nextActivity = YearInMusicActivity(),
+                nextActivity = YearInMusicActivity::class.java,
                 iconId = R.drawable.yim_radio,
                 title = "Year in Music",
                 subTitle = "Your Whole Year Summarized"
@@ -87,8 +98,7 @@ fun BackLayerContent(activity: Activity) {
             
             // NewsBrainz Card
             HomeScreenCard(
-                activity = activity,
-                nextActivity = NewsBrainzActivity(),
+                nextActivity = NewsBrainzActivity::class.java,
                 iconId = R.drawable.ic_news,
                 title = "News",
                 subTitle = stringResource(id = R.string.news_card)
@@ -100,8 +110,7 @@ fun BackLayerContent(activity: Activity) {
 
 @Composable
 private fun HomeScreenCard(
-    activity: Activity,
-    nextActivity: Activity,
+    nextActivity: Class<out ComponentActivity>,
     iconId: Int,
     title: String,
     subTitle: String,
@@ -113,12 +122,10 @@ private fun HomeScreenCard(
             .padding(horizontal = 18.dp, vertical = 10.dp)
             .clip(RoundedCornerShape(16.dp))
             .clickable {
-                activity.startActivity(
-                    Intent(
-                        context,
-                        nextActivity::class.java
-                    )
-                )
+                context.startActivity(Intent(
+                    context,
+                    nextActivity
+                ))
             },
         backgroundColor = if (onScreenUiModeIsDark()) Color.Black else offWhite,
     ) {

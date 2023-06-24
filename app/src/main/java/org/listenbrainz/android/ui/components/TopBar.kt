@@ -1,6 +1,5 @@
 package org.listenbrainz.android.ui.components
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -14,8 +13,8 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,15 +34,15 @@ import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
 import org.listenbrainz.android.ui.screens.dashboard.DonateActivity
 import org.listenbrainz.android.ui.screens.search.SearchScreen
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.isUiModeIsDark
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.util.Constants
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
-    activity: Activity,
     navController: NavController = rememberNavController(),
+    snackbarHostState: SnackbarHostState,
     context: Context = LocalContext.current
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -80,7 +79,7 @@ fun TopBar(
         title = { Text(text = title) },
         navigationIcon =  {
             IconButton(onClick = {
-                activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://listenbrainz.org")))
+                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://listenbrainz.org")))
             }) {
                 Icon(painterResource(id = R.drawable.ic_listenbrainz_logo_icon),
                     "MusicBrainz",
@@ -106,12 +105,12 @@ fun TopBar(
             }
             
             IconButton(onClick = {
-                activity.startActivity(Intent(activity, DonateActivity::class.java))
+                context.startActivity(Intent(context, DonateActivity::class.java))
             }) {
                 Icon(painterResource(id = R.drawable.ic_donate), "Donate", tint = Color.Unspecified)
             }
             IconButton(onClick = {
-                val intent = Intent(activity, DashboardActivity::class.java)
+                val intent = Intent(context, DashboardActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 val preferences = PreferenceManager.getDefaultSharedPreferences(context).edit()
                 when (themeIcon.value) {
@@ -140,7 +139,7 @@ fun TopBar(
                         ).apply()
                     }
                 }
-                activity.startActivity(intent)
+                context.startActivity(intent)
             }) {
                 Icon(painterResource(id = themeIcon.value),
                     "Theme",
@@ -151,6 +150,7 @@ fun TopBar(
     
     SearchScreen(
         showSearchScreen = showSearchScreen,
+        snackbarHostState = snackbarHostState,
         onDismiss = { showSearchScreen = false }
     )
     
@@ -159,5 +159,7 @@ fun TopBar(
 @Preview
 @Composable
 fun TopBarPreview() {
-    TopBar(activity = Activity(), navController = rememberNavController())
+    ListenBrainzTheme {
+        TopBar(navController = rememberNavController(), snackbarHostState = SnackbarHostState())
+    }
 }
