@@ -67,8 +67,8 @@ private val colorSchemeLight = Theme(
     tabsUnfocused = Color(0xFFFEFEFE),
     tabsFocused = Color(0xFFD8D8D8),
     lbSignature = lb_purple,
-    lbSignatureInverse = lb_orange,
     lbSignatureSecondary = lb_yellow,
+    lbSignatureInverse = lb_orange,
     onLbSignature = Color.White,
     text = Color.Black
 )
@@ -86,8 +86,6 @@ private val DarkColorScheme = darkColorScheme(
 
     surfaceTint = bp_lavender_dark,
     onSurface = Color.White,     // Text color (Which is ON surface/canvas)
-
-
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -178,7 +176,7 @@ data class Paddings(
     val lazyListAdjacent: Dp = 8.dp,
     val listenCoverArtAndTextGap: Dp = 8.dp
 )
-internal val LocalPaddings = staticCompositionLocalOf { Paddings() }
+private val LocalPaddings = staticCompositionLocalOf { Paddings() }
 
 
 /**
@@ -282,6 +280,10 @@ object ListenBrainzTheme {
         @ReadOnlyComposable
         get() = LocalColorScheme.current
     
+    val paddings: Paddings
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalPaddings.current
 }
 
 
