@@ -3,7 +3,6 @@ package org.listenbrainz.android.ui.theme
 import android.app.Activity
 import android.content.Context
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -12,6 +11,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -73,8 +73,7 @@ private val colorSchemeLight = Theme(
     text = Color.Black
 )
 
-internal lateinit var LocalColorScheme: ProvidableCompositionLocal<Theme>
-    private set
+private lateinit var LocalColorScheme: ProvidableCompositionLocal<Theme>
 
 private val DarkColorScheme = darkColorScheme(
     background = app_bg_dark,
@@ -276,22 +275,13 @@ fun ListenBrainzTheme(
     )
 }
 
-// We can access Custom defined values for our theme from this object.
-object ListenBrainzThemeValues {
-    val colorScheme: ColorScheme
+
+object ListenBrainzTheme {
+    val colorScheme: Theme
         @Composable
-        get() = when (userSelectedThemeIsNight(context = LocalContext.current)) {
-            true -> DarkColorScheme
-            false -> LightColorScheme
-            else -> if (isSystemInDarkTheme()) DarkColorScheme else LightColorScheme
-        }
+        @ReadOnlyComposable
+        get() = LocalColorScheme.current
     
-    // TODO: Can Introduce saved shapes and typography.
-    // TODO: Can Integrate Padding Values from here.
-    
-    val paddings: Paddings
-        @Composable
-        get() = LocalPaddings.current
 }
 
 
