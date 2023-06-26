@@ -264,7 +264,7 @@ class ListensViewModel @Inject constructor(
         trackProgress()
     }
     fun trackProgress() {
-        var state: PlayerState? = null
+        var state: PlayerState?
         assertAppRemoteConnected()?.playerApi?.subscribeToPlayerState()?.setEventCallback { playerState ->
             if(bitmap.id!=playerState.track.uri) {
                 updateTrackCoverArt(playerState)
@@ -273,12 +273,13 @@ class ListensViewModel @Inject constructor(
         }?.setErrorCallback(errorCallback)
         viewModelScope.launch(Dispatchers.Default) {
             do {
+                // FIXME: Called even if spotify isn't there which leads to infinite logging.
                 state = assertAppRemoteConnected()?.playerApi?.playerState?.await()?.data
                 val pos = state?.playbackPosition?.toFloat() ?: 0f
                 val duration=state?.track?.duration ?: 1
                 if (progress.value != pos) {
                     _progress.emit(pos / duration.toFloat())
-                    _songDuration.emit(duration ?: 0)
+                    _songDuration.emit(duration)
                     _songCurrentPosition.emit(((pos / duration) * duration).toLong())
                 }
                 delay(900L)
@@ -339,7 +340,7 @@ class ListensViewModel @Inject constructor(
                 return it
             }
         }
-        logMessage("Spotify is not Connected. Use one of the 'connect' buttons")        //getString(R.string.err_spotify_disconnected))
+        // TODO: logMessage("Spotify is not Connected. Use one of the 'connect' buttons")        //getString(R.string.err_spotify_disconnected))
         return null
     }
 

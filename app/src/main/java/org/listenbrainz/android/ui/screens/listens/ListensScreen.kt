@@ -118,8 +118,7 @@ fun ListensScreen(
                         caaReleaseMbid = listen.track_metadata.mbid_mapping?.caa_release_mbid,
                         caaId = listen.track_metadata.mbid_mapping?.caa_id
                     )
-                )
-                {
+                ) {
                     if (it.track_metadata.additional_info?.spotify_id != null) {
                         Uri.parse(it.track_metadata.additional_info.spotify_id).lastPathSegment?.let { trackId ->
                             viewModel.playUri("spotify:track:${trackId}")
