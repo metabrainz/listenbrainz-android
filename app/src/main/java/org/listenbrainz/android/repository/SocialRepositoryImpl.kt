@@ -7,8 +7,8 @@ import org.listenbrainz.android.model.SocialResponse
 import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.util.ErrorUtil.getSocialErrorType
 import org.listenbrainz.android.util.ErrorUtil.parseError
-import org.listenbrainz.android.util.ResponseError
 import org.listenbrainz.android.util.Resource
+import org.listenbrainz.android.util.ResponseError
 import org.listenbrainz.android.util.Utils.authHeader
 import org.listenbrainz.android.util.Utils.logAndReturn
 import javax.inject.Inject

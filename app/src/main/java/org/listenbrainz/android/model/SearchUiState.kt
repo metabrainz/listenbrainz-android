@@ -1,3 +1,5 @@
 package org.listenbrainz.android.model
 
-data class SearchUiState(val result: List<User>, val query: String)
+import org.listenbrainz.android.util.ResponseError
+
+data class SearchUiState(val query: String, val result: List<User>, val error: ResponseError?)
