@@ -8,17 +8,16 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Cancel
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
@@ -38,11 +37,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.SearchUiState
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.ui.components.FollowButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.ResponseError
 import org.listenbrainz.android.viewmodel.SearchViewModel
 
 @Composable
@@ -67,6 +66,7 @@ fun SearchScreen(
             onFollow = { user ->
                 viewModel.toggleFollowStatus(user)
             },
+            onClear = { viewModel.clearUi() },
             showError = { error ->
                 snackbarHostState.showSnackbar(message = error.toast())
                 viewModel.clearErrorFlow()
@@ -85,11 +85,11 @@ private fun SearchScreen(
     onQueryChange: (String) -> Unit,
     /** Must return if the operation was successful.*/
     onFollow: suspend (User) -> Flow<Boolean>,
+    onClear: () -> Unit,
     onSearch: (String) -> Unit = onQueryChange,
     showError: suspend (ResponseError) -> Unit,
     showSearchScreen: Boolean,
-    
-    ) {
+) {
     
     LaunchedEffect(uiState.error){
         if (uiState.error != null){
@@ -107,12 +107,18 @@ private fun SearchScreen(
                 onDismiss()
         },
         leadingIcon = {
-            Icon(imageVector = Icons.Rounded.Search, contentDescription = "Search users")
+            Icon(
+                imageVector = Icons.Rounded.ArrowBack,
+                modifier = Modifier.clickable { onDismiss() },
+                contentDescription = "Search users",
+                tint = ListenBrainzTheme.colorScheme.hintText
+            )
         },
         trailingIcon = {
             Icon(imageVector = Icons.Rounded.Cancel,
-                modifier = Modifier.clickable { onDismiss() },
-                contentDescription = "Close Search"
+                modifier = Modifier.clickable { onClear() },
+                contentDescription = "Close Search",
+                tint = ListenBrainzTheme.colorScheme.hintText
             )
         },
         placeholder = {
@@ -132,12 +138,10 @@ private fun SearchScreen(
             )
         )
     ) {
-        // Initial spacing
-        Spacer(modifier = Modifier.height(ListenBrainzTheme.paddings.lazyListAdjacent))
     
         val scope = rememberCoroutineScope()
         
-        LazyColumn {
+        LazyColumn(contentPadding = PaddingValues(ListenBrainzTheme.paddings.lazyListAdjacent)) {
             items(uiState.result, key = { it.username }){ user ->
                 
                 Column {
@@ -165,8 +169,6 @@ private fun SearchScreen(
             }
         }
         
-        // End spacing
-        Spacer(modifier = Modifier.height(ListenBrainzTheme.paddings.lazyListAdjacent))
     }
 }
 
@@ -179,13 +181,14 @@ fun SearchScreenPreview() {
             uiState = SearchUiState(
                 query = "Jasjeet",
                 result = listOf(User("Jasjeet"),
-                    User("JasjeettTest"),
+                    User("JasjeetTest"),
                     User("Jako")
                 ),
                 error = null),
             onDismiss = {},
             onQueryChange = {},
-            onFollow = { invertState -> flow { emit(true) }},
+            onFollow = { flow { emit(true) }},
+            onClear = {},
             showError = {},
             showSearchScreen = true
         )

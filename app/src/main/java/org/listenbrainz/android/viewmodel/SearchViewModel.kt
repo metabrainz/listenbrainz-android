@@ -26,7 +26,7 @@ import org.listenbrainz.android.model.User
 import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.repository.SocialRepository
 import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.ResponseError
+import org.listenbrainz.android.model.ResponseError
 import javax.inject.Inject
 
 @HiltViewModel
@@ -51,7 +51,11 @@ class SearchViewModel @Inject constructor(
         // Engage query flow
         viewModelScope.launch(ioDispatcher) {
             queryFlow.collectLatest { username ->
-                if (username.isEmpty()) return@collectLatest
+                if (username.isEmpty()){
+                    resultFlow.emit(emptyList())
+                    return@collectLatest
+                }
+                
                 val result = repository.searchUser(username)
                 when (result.status) {
                     Resource.Status.SUCCESS -> resultFlow.emit(result.data?.users ?: emptyList())
@@ -157,4 +161,10 @@ class SearchViewModel @Inject constructor(
         }
     }
     
+    fun clearUi() {
+        viewModelScope.launch {
+            resultFlow.emit(emptyList())
+            inputQueryFlow.emit("")
+        }
+    }
 }

@@ -5,10 +5,10 @@ import org.listenbrainz.android.model.SimilarUserData
 import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.SocialResponse
 import org.listenbrainz.android.service.SocialService
-import org.listenbrainz.android.util.ErrorUtil.getSocialErrorType
-import org.listenbrainz.android.util.ErrorUtil.parseError
 import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.ResponseError
+import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.android.model.ResponseError.Companion.getSocialErrorType
+import org.listenbrainz.android.model.ResponseError.Companion.parseError
 import org.listenbrainz.android.util.Utils.authHeader
 import org.listenbrainz.android.util.Utils.logAndReturn
 import javax.inject.Inject

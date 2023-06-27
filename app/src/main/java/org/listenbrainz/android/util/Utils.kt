@@ -17,6 +17,7 @@ import androidx.annotation.WorkerThread
 import kotlinx.coroutines.Dispatchers
 import okhttp3.*
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.util.Log.e
 import java.io.*
 import java.security.MessageDigest

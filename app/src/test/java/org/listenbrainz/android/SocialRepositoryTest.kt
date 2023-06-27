@@ -13,7 +13,7 @@ import org.listenbrainz.android.repository.SocialRepository
 import org.listenbrainz.android.repository.SocialRepositoryImpl
 import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.ResponseError
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.alreadyFollowingError
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.authHeaderNotFoundError
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.cannotFollowSelfError
