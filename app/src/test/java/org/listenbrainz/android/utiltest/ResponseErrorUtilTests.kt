@@ -4,11 +4,12 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.listenbrainz.android.model.ApiError
-import org.listenbrainz.android.model.SocialData
-import org.listenbrainz.android.model.SocialResponse
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.android.model.GeneralError
 import org.listenbrainz.android.model.ResponseError.Companion.getSocialErrorType
 import org.listenbrainz.android.model.ResponseError.Companion.parseError
+import org.listenbrainz.android.model.SocialData
+import org.listenbrainz.android.model.SocialError
+import org.listenbrainz.android.model.SocialResponse
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.alreadyFollowingError
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.authHeaderNotFoundError
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.cannotFollowSelfError
@@ -30,19 +31,22 @@ class ResponseErrorUtilTests {
     
     @Test
     fun getSocialErrorTypeTest() {
-        var result = getSocialErrorType(userNotFoundError)
-        assertEquals(ResponseError.USER_NOT_FOUND, result)
+        var result = getSocialErrorType(userNotFoundError, 404)
+        assertEquals(SocialError.USER_NOT_FOUND, result)
         
-        result = getSocialErrorType(authHeaderNotFoundError)
-        assertEquals(ResponseError.AUTH_HEADER_NOT_FOUND, result)
+        result = getSocialErrorType(authHeaderNotFoundError, 401)
+        assertEquals(GeneralError.AUTH_HEADER_NOT_FOUND, result)
         
-        result = getSocialErrorType(alreadyFollowingError)
-        assertEquals(ResponseError.ALREADY_FOLLOWING, result)
+        result = getSocialErrorType(alreadyFollowingError, 400)
+        assertEquals(SocialError.ALREADY_FOLLOWING, result)
         
-        result = getSocialErrorType(cannotFollowSelfError)
-        assertEquals(ResponseError.CANNOT_FOLLOW_SELF, result)
+        result = getSocialErrorType(cannotFollowSelfError, 400)
+        assertEquals(SocialError.CANNOT_FOLLOW_SELF, result)
         
-        result = getSocialErrorType("Wow new error")
-        assertEquals(ResponseError.UNKNOWN, result)
+        result = getSocialErrorType("", 429)
+        assertEquals(GeneralError.RATE_LIMIT_EXCEEDED, result)
+        
+        result = getSocialErrorType("Wow new error", 400)
+        assertEquals(GeneralError.UNKNOWN, result)
     }
 }

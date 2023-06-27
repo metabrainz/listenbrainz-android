@@ -1,14 +1,14 @@
 package org.listenbrainz.android.repository
 
+import org.listenbrainz.android.model.GeneralError
+import org.listenbrainz.android.model.ResponseError.Companion.getSocialErrorType
+import org.listenbrainz.android.model.ResponseError.Companion.parseError
 import org.listenbrainz.android.model.SearchResult
 import org.listenbrainz.android.model.SimilarUserData
 import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.SocialResponse
 import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.model.ResponseError
-import org.listenbrainz.android.model.ResponseError.Companion.getSocialErrorType
-import org.listenbrainz.android.model.ResponseError.Companion.parseError
 import org.listenbrainz.android.util.Utils.authHeader
 import org.listenbrainz.android.util.Utils.logAndReturn
 import javax.inject.Inject
@@ -29,7 +29,7 @@ class SocialRepositoryImpl @Inject constructor(private val service: SocialServic
                 // Parsing server response into ApiError
                 val error = parseError(response)
         
-                Resource.failure(error = getSocialErrorType(error.error))
+                Resource.failure(error = getSocialErrorType(error.error, response.code() ))
             }
     
         }.getOrElse { logAndReturn(it) }
@@ -46,7 +46,7 @@ class SocialRepositoryImpl @Inject constructor(private val service: SocialServic
                 // Parsing server response into ApiError
                 val error = parseError(response)
         
-                Resource.failure(error = getSocialErrorType(error.error))
+                Resource.failure(error = getSocialErrorType(error.error, response.code()))
             }
     
         }.getOrElse { logAndReturn(it) }
@@ -63,7 +63,7 @@ class SocialRepositoryImpl @Inject constructor(private val service: SocialServic
                 // Parsing server response into ApiError
                 val error = parseError(response)
         
-                Resource.failure(error = getSocialErrorType(error.error))
+                Resource.failure(error = getSocialErrorType(error.error, response.code()))
             }
     
         }.getOrElse { logAndReturn(it) }
@@ -81,7 +81,7 @@ class SocialRepositoryImpl @Inject constructor(private val service: SocialServic
                 // Parsing server response into ApiError
                 val error = parseError(response)
     
-                Resource.failure(error = getSocialErrorType(error.error))
+                Resource.failure(error = getSocialErrorType(error.error, response.code()))
             }
             
         }.getOrElse { logAndReturn(it) }
@@ -97,13 +97,13 @@ class SocialRepositoryImpl @Inject constructor(private val service: SocialServic
                 // Parsing server response into ApiError
                 val error = parseError(response)
         
-                Resource.failure(error = getSocialErrorType(error.error))
+                Resource.failure(error = getSocialErrorType(error.error, response.code()))
             }
     
         }.getOrElse { logAndReturn(it) }
     
     
-    /** @return Network Failure, [ResponseError.RATE_LIMIT_EXCEEDED], Success. */
+    /** @return Network Failure, [GeneralError.RATE_LIMIT_EXCEEDED], Success. */
     override suspend fun searchUser(username: String): Resource<SearchResult> =
         runCatching {
             val response = service.searchUser(username = username)
@@ -113,7 +113,7 @@ class SocialRepositoryImpl @Inject constructor(private val service: SocialServic
                 // Parsing server response into ApiError
                 val error = parseError(response)
         
-                Resource.failure(error = getSocialErrorType(error.error))
+                Resource.failure(error = getSocialErrorType(error.error, response.code()))
             }
     
         }.getOrElse { logAndReturn(it) }

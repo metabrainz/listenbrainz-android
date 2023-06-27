@@ -126,7 +126,6 @@ class SearchViewModel @Inject constructor(
         }
     }
     
-    
     private suspend fun emitError(error: ResponseError?){ errorFlow.emit(error) }
     
     /** Call this function to reset [errorFlow]'s latest emission.*/

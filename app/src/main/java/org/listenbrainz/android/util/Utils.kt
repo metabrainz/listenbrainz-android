@@ -17,7 +17,7 @@ import androidx.annotation.WorkerThread
 import kotlinx.coroutines.Dispatchers
 import okhttp3.*
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.android.model.GeneralError
 import org.listenbrainz.android.util.Log.e
 import java.io.*
 import java.security.MessageDigest
@@ -38,9 +38,9 @@ object Utils {
     fun <T> logAndReturn(it: Throwable) : Resource<T> {
         it.printStackTrace()
         return if (it is IOException)
-            Resource.failure(error = ResponseError.NETWORK_ERROR)
+            Resource.failure(error = GeneralError.NETWORK_ERROR)
         else
-            Resource.failure(error = ResponseError.UNKNOWN)
+            Resource.failure(error = GeneralError.UNKNOWN)
     }
     
     fun authHeader(accessToken: String) : String{
