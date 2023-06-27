@@ -36,12 +36,11 @@ class SearchViewModel @Inject constructor(
     private val inputQueryFlow = MutableStateFlow("")
     
     @OptIn(FlowPreview::class)
-    private val queryFlow = inputQueryFlow.asStateFlow().debounce(750).distinctUntilChanged()
+    private val queryFlow = inputQueryFlow.asStateFlow().debounce(500).distinctUntilChanged()
     private val resultFlow = MutableStateFlow<List<User>>(emptyList())
     private val errorFlow = MutableStateFlow<ResponseError?>(null)
     
     val uiState = createUiStateFlow()
-    
     
     init {
         // Engage query flow

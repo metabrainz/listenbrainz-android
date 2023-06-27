@@ -105,6 +105,7 @@ private fun SearchScreen(
     focusRequester: FocusRequester = remember { FocusRequester() },
     window: WindowInfo = LocalWindowInfo.current
 ) {
+    // Used for initial window focus.
     LaunchedEffect(window){
         snapshotFlow { window.isWindowFocused }.collect { isWindowFocused ->
             if (isWindowFocused){
@@ -165,53 +166,64 @@ private fun SearchScreen(
         
         Column {
             
+            // Error bar for showing errors
             ErrorBar(uiState.error, onErrorShown)
-    
-            val scope = rememberCoroutineScope()
-    
-            LazyColumn(contentPadding = PaddingValues(ListenBrainzTheme.paddings.lazyListAdjacent)) {
-                items(uiState.result, key = { it.username }) { user ->
             
-                    Column {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(ListenBrainzTheme.paddings.lazyListAdjacent)
-                        ) {
-                            Row(
-                                modifier = Modifier.align(Alignment.CenterStart),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Person,
-                                    contentDescription = "Profile",
-                                    tint = ListenBrainzTheme.colorScheme.hint
-                                )
-                        
-                                Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.coverArtAndTextGap))
-                        
-                                Text(
-                                    text = user.username,
-                                    color = ListenBrainzTheme.colorScheme.text,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                    
-                            FollowButton(
-                                modifier = Modifier.align(Alignment.CenterEnd),
-                                isFollowed = user.isFollowed,
-                                scope = scope
-                            ) { currentFollowStatus ->
-                                onFollowClick(user, currentFollowStatus)
-                            }
-                        }
-                    }
-            
-                }
-            }
+            // Main Content
+            UserList(uiState, onFollowClick)
         }
     }
 }
+
+@Composable
+private fun UserList(
+    uiState: SearchUiState,
+    onFollowClick: suspend (User, Boolean) -> Flow<Boolean>
+) {
+    val scope = rememberCoroutineScope()
+    
+    LazyColumn(contentPadding = PaddingValues(ListenBrainzTheme.paddings.lazyListAdjacent)) {
+        items(uiState.result, key = { it.username }) { user ->
+            
+            Column {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(ListenBrainzTheme.paddings.lazyListAdjacent)
+                ) {
+                    Row(
+                        modifier = Modifier.align(Alignment.CenterStart),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Person,
+                            contentDescription = "Profile",
+                            tint = ListenBrainzTheme.colorScheme.hint
+                        )
+                        
+                        Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.coverArtAndTextGap))
+                        
+                        Text(
+                            text = user.username,
+                            color = ListenBrainzTheme.colorScheme.text,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    
+                    FollowButton(
+                        modifier = Modifier.align(Alignment.CenterEnd),
+                        isFollowed = user.isFollowed,
+                        scope = scope
+                    ) { currentFollowStatus ->
+                        onFollowClick(user, currentFollowStatus)
+                    }
+                }
+            }
+            
+        }
+    }
+}
+
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Preview(uiMode = UI_MODE_NIGHT_YES)
