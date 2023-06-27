@@ -140,6 +140,7 @@ class DashboardActivity : ComponentActivity() {
                     containerColor = MaterialTheme.colorScheme.background
                 
                 ) {
+                    
                     if (isGrantedPerms == PermissionStatus.GRANTED.name) {
                         BrainzPlayerBackDropScreen(
                             backdropScaffoldState = backdropScaffoldState,
