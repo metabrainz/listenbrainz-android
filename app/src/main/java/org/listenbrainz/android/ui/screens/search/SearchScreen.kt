@@ -3,9 +3,11 @@ package org.listenbrainz.android.ui.screens.search
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,7 +30,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -43,11 +44,13 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.SearchUiState
+import org.listenbrainz.android.model.SocialError
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.ui.components.FollowButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -55,15 +58,11 @@ import org.listenbrainz.android.viewmodel.SearchViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SearchScreen(
-    showSearchScreen: Boolean,
-    onDismiss: () -> Unit,
-    snackbarHostState: SnackbarHostState
-) {
+fun SearchScreen(searchBarState: SearchBarState, ) {
     AnimatedVisibility(
-        visible = showSearchScreen,
+        visible = searchBarState.isActive,
         enter = fadeIn(),
-        exit = fadeOut(tween(100))
+        exit = fadeOut()
     ) {
         
         val viewModel: SearchViewModel = hiltViewModel()
@@ -72,7 +71,7 @@ fun SearchScreen(
         SearchScreen(
             uiState = uiState,
             onDismiss = {
-                onDismiss()
+                searchBarState.deactivate()
                 viewModel.clearUi()
             },
             onQueryChange = { query -> viewModel.updateQueryFlow(query) },
@@ -80,11 +79,8 @@ fun SearchScreen(
                 viewModel.toggleFollowStatus(user, currentFollowStatus)
             },
             onClear = { viewModel.clearUi() },
-            showError = { error ->
-                snackbarHostState.showSnackbar(message = error.toast())
-                viewModel.clearErrorFlow()
-            },
-            showSearchScreen = showSearchScreen
+            onErrorShown = { viewModel.clearErrorFlow() },
+            showSearchScreen = searchBarState.isActive
         )
         
     }
@@ -104,15 +100,9 @@ private fun SearchScreen(
         onQueryChange(it)
         keyboardController?.hide()
     },
-    showError: suspend (ResponseError) -> Unit,
+    onErrorShown: () -> Unit,
     showSearchScreen: Boolean
 ) {
-    
-    LaunchedEffect(uiState.error){
-        if (uiState.error != null){
-            showError(uiState.error)
-        }
-    }
     
     SearchBar(
         query = uiState.query,
@@ -158,49 +148,78 @@ private fun SearchScreen(
             )
         )
     ) {
-    
-        val scope = rememberCoroutineScope()
         
-        LazyColumn(contentPadding = PaddingValues(ListenBrainzTheme.paddings.lazyListAdjacent)) {
-            items(uiState.result, key = { it.username }){ user ->
-                
-                Column {
-                    Box(modifier = Modifier
+        Column {
+            
+            LaunchedEffect(uiState.error){
+                if (uiState.error != null){
+                    delay(2000)
+                    onErrorShown()
+                }
+            }
+            
+            AnimatedVisibility(
+                visible = uiState.error != null,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Box(
+                    modifier = Modifier
                         .fillMaxWidth()
-                        .padding(ListenBrainzTheme.paddings.lazyListAdjacent)
-                    ) {
-                        Row(
-                            modifier = Modifier.align(Alignment.CenterStart),
-                            verticalAlignment = Alignment.CenterVertically
+                        .background(ListenBrainzTheme.colorScheme.lbSignature),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = uiState.error?.toast() ?: "",
+                        modifier = Modifier.padding(vertical = 2.dp),
+                        color = ListenBrainzTheme.colorScheme.onLbSignature
+                    )
+                }
+            }
+    
+            val scope = rememberCoroutineScope()
+    
+            LazyColumn(contentPadding = PaddingValues(ListenBrainzTheme.paddings.lazyListAdjacent)) {
+                items(uiState.result, key = { it.username }) { user ->
+            
+                    Column {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(ListenBrainzTheme.paddings.lazyListAdjacent)
                         ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Person,
-                                contentDescription = "Profile",
-                                tint = ListenBrainzTheme.colorScheme.hint
-                            )
-                            
-                            Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.coverArtAndTextGap))
-                            
-                            Text(
-                                text = user.username,
-                                color = ListenBrainzTheme.colorScheme.text,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+                            Row(
+                                modifier = Modifier.align(Alignment.CenterStart),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Person,
+                                    contentDescription = "Profile",
+                                    tint = ListenBrainzTheme.colorScheme.hint
+                                )
                         
-                        FollowButton(
-                            modifier = Modifier.align(Alignment.CenterEnd),
-                            isFollowed = user.isFollowed,
-                            scope = scope
-                        ) { currentFollowStatus ->
-                            onFollowClick(user, currentFollowStatus)
+                                Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.coverArtAndTextGap))
+                        
+                                Text(
+                                    text = user.username,
+                                    color = ListenBrainzTheme.colorScheme.text,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                    
+                            FollowButton(
+                                modifier = Modifier.align(Alignment.CenterEnd),
+                                isFollowed = user.isFollowed,
+                                scope = scope
+                            ) { currentFollowStatus ->
+                                onFollowClick(user, currentFollowStatus)
+                            }
                         }
                     }
+            
                 }
-                
             }
         }
-        
     }
 }
 
@@ -217,12 +236,13 @@ fun SearchScreenPreview() {
                     User("JasjeetTest"),
                     User("Jako")
                 ),
-                error = null),
+                error = SocialError.USER_NOT_FOUND
+            ),
             onDismiss = {},
             onQueryChange = {},
             onFollowClick = { _, _ -> flow { emit(true) }},
             onClear = {},
-            showError = {},
+            onErrorShown = {},
             showSearchScreen = true
         )
     }

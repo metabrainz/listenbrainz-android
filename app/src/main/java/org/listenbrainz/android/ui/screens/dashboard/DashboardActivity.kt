@@ -6,6 +6,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.captionBar
 import androidx.compose.material.BackdropValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.rememberBackdropScaffoldState
@@ -26,6 +28,8 @@ import org.listenbrainz.android.ui.components.TopBar
 import org.listenbrainz.android.ui.navigation.AppNavigation
 import org.listenbrainz.android.ui.navigation.BottomNavigationBar
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
+import org.listenbrainz.android.ui.screens.search.SearchScreen
+import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import javax.inject.Inject
@@ -115,9 +119,10 @@ class DashboardActivity : ComponentActivity() {
                     rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
                 val shouldScrollToTop = remember { mutableStateOf(false) }
                 val snackbarState = SnackbarHostState()
+                val searchBarState = rememberSearchBarState()
                 
                 Scaffold(
-                    topBar = { TopBar(navController = navController, snackbarHostState = snackbarState) },
+                    topBar = { TopBar(navController = navController, searchBarState = searchBarState) },
                     bottomBar = {
                         BottomNavigationBar(
                             navController = navController,
@@ -125,7 +130,6 @@ class DashboardActivity : ComponentActivity() {
                             shouldScrollToTop = shouldScrollToTop
                         )
                     },
-                    
                     snackbarHost = {
                         SnackbarHost(hostState = snackbarState) { snackbarData ->
                             Snackbar(
@@ -137,14 +141,16 @@ class DashboardActivity : ComponentActivity() {
                             )
                         }
                     },
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = MaterialTheme.colorScheme.background,
+                    contentWindowInsets = WindowInsets.captionBar
                 
                 ) {
                     
                     if (isGrantedPerms == PermissionStatus.GRANTED.name) {
+                        
                         BrainzPlayerBackDropScreen(
                             backdropScaffoldState = backdropScaffoldState,
-                            paddingValues = it
+                            paddingValues = it,
                         ) {
                             AppNavigation(
                                 navController = navController,
@@ -153,6 +159,9 @@ class DashboardActivity : ComponentActivity() {
                         }
                     }
                 }
+                
+                SearchScreen(searchBarState = searchBarState)
+                
             }
         }
     }

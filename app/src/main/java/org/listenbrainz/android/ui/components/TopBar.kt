@@ -14,12 +14,10 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -33,7 +31,8 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
 import org.listenbrainz.android.ui.screens.dashboard.DonateActivity
-import org.listenbrainz.android.ui.screens.search.SearchScreen
+import org.listenbrainz.android.ui.screens.search.SearchBarState
+import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.isUiModeIsDark
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
@@ -42,7 +41,7 @@ import org.listenbrainz.android.util.Constants
 @Composable
 fun TopBar(
     navController: NavController = rememberNavController(),
-    snackbarHostState: SnackbarHostState,
+    searchBarState: SearchBarState,
     context: Context = LocalContext.current
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -71,10 +70,6 @@ fun TopBar(
         )
     }
     
-    var showSearchScreen by remember {
-        mutableStateOf(false)
-    }
-
     TopAppBar(
         title = { Text(text = title) },
         navigationIcon =  {
@@ -98,9 +93,7 @@ fun TopBar(
                     "About",
                     tint = Color.Unspecified)
             }*/
-            IconButton(onClick = {
-                showSearchScreen = true
-            }) {
+            IconButton(onClick = { searchBarState.activate() }) {
                 Icon(imageVector = Icons.Rounded.Search, contentDescription = "Search users")
             }
             
@@ -148,18 +141,15 @@ fun TopBar(
         }
     )
     
-    SearchScreen(
-        showSearchScreen = showSearchScreen,
-        snackbarHostState = snackbarHostState,
-        onDismiss = { showSearchScreen = false }
-    )
-    
 }
 
 @Preview
 @Composable
 fun TopBarPreview() {
     ListenBrainzTheme {
-        TopBar(navController = rememberNavController(), snackbarHostState = SnackbarHostState())
+        TopBar(
+            navController = rememberNavController(),
+            searchBarState = rememberSearchBarState()
+        )
     }
 }
