@@ -40,7 +40,7 @@ data class Theme(
     val lbSignatureInverse: Color,
     val onLbSignature: Color,
     val text: Color,
-    val hint: Color = Color(0xFF8C8C8C)
+    val hint: Color
 )
 
 private val colorSchemeDark = Theme(
@@ -55,7 +55,8 @@ private val colorSchemeDark = Theme(
     lbSignatureSecondary = lb_yellow,
     lbSignatureInverse = lb_purple,
     onLbSignature = Color.Black,
-    text = Color.White
+    text = Color.White,
+    hint = Color(0xFF8C8C8C)
 )
 
 private val colorSchemeLight = Theme(
@@ -70,7 +71,8 @@ private val colorSchemeLight = Theme(
     lbSignatureSecondary = lb_yellow,
     lbSignatureInverse = lb_orange,
     onLbSignature = Color.White,
-    text = Color.Black
+    text = Color.Black,
+    hint = Color(0xFF707070)
 )
 
 private lateinit var LocalColorScheme: ProvidableCompositionLocal<Theme>

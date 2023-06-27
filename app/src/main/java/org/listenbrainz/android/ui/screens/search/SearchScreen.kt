@@ -3,11 +3,8 @@ package org.listenbrainz.android.ui.screens.search
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,31 +31,36 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.listenbrainz.android.model.SearchUiState
 import org.listenbrainz.android.model.SocialError
 import org.listenbrainz.android.model.User
+import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.FollowButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.SearchViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SearchScreen(searchBarState: SearchBarState, ) {
+fun SearchScreen(searchBarState: SearchBarState) {
     AnimatedVisibility(
         visible = searchBarState.isActive,
         enter = fadeIn(),
@@ -80,7 +82,6 @@ fun SearchScreen(searchBarState: SearchBarState, ) {
             },
             onClear = { viewModel.clearUi() },
             onErrorShown = { viewModel.clearErrorFlow() },
-            showSearchScreen = searchBarState.isActive
         )
         
     }
@@ -101,14 +102,24 @@ private fun SearchScreen(
         keyboardController?.hide()
     },
     onErrorShown: () -> Unit,
-    showSearchScreen: Boolean
+    focusRequester: FocusRequester = remember { FocusRequester() },
+    window: WindowInfo = LocalWindowInfo.current
 ) {
+    LaunchedEffect(window){
+        snapshotFlow { window.isWindowFocused }.collect { isWindowFocused ->
+            if (isWindowFocused){
+                focusRequester.requestFocus()
+                keyboardController?.show()
+            }
+        }
+    }
     
     SearchBar(
+        modifier = Modifier.focusRequester(focusRequester),
         query = uiState.query,
         onQueryChange = onQueryChange,
         onSearch = onSearch,
-        active = showSearchScreen,
+        active = true,
         onActiveChange = { isActive ->
             if (!isActive)
                 onDismiss()
@@ -118,7 +129,10 @@ private fun SearchScreen(
                 imageVector = Icons.Rounded.ArrowBack,
                 modifier = Modifier
                     .clip(CircleShape)
-                    .clickable { onDismiss() },
+                    .clickable {
+                        keyboardController?.hide()
+                        onDismiss()
+                    },
                 contentDescription = "Search users",
                 tint = ListenBrainzTheme.colorScheme.hint
             )
@@ -146,36 +160,12 @@ private fun SearchScreen(
                 focusedTextColor = ListenBrainzTheme.colorScheme.text,
                 cursorColor = ListenBrainzTheme.colorScheme.lbSignatureInverse,
             )
-        )
+        ),
     ) {
         
         Column {
             
-            LaunchedEffect(uiState.error){
-                if (uiState.error != null){
-                    delay(2000)
-                    onErrorShown()
-                }
-            }
-            
-            AnimatedVisibility(
-                visible = uiState.error != null,
-                enter = expandVertically(),
-                exit = shrinkVertically()
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(ListenBrainzTheme.colorScheme.lbSignature),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = uiState.error?.toast() ?: "",
-                        modifier = Modifier.padding(vertical = 2.dp),
-                        color = ListenBrainzTheme.colorScheme.onLbSignature
-                    )
-                }
-            }
+            ErrorBar(uiState.error, onErrorShown)
     
             val scope = rememberCoroutineScope()
     
@@ -227,7 +217,7 @@ private fun SearchScreen(
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Preview(uiMode = UI_MODE_NIGHT_NO)
 @Composable
-fun SearchScreenPreview() {
+private fun SearchScreenPreview() {
     ListenBrainzTheme {
         SearchScreen(
             uiState = SearchUiState(
@@ -242,8 +232,7 @@ fun SearchScreenPreview() {
             onQueryChange = {},
             onFollowClick = { _, _ -> flow { emit(true) }},
             onClear = {},
-            onErrorShown = {},
-            showSearchScreen = true
+            onErrorShown = {}
         )
     }
 }
