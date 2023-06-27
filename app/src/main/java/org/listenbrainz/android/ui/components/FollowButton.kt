@@ -12,8 +12,8 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,7 +52,7 @@ fun FollowButton(
     buttonColor: Color = ListenBrainzTheme.colorScheme.lbSignature,
     onClick: suspend (Boolean) -> Flow<Boolean>,
 ) {
-    var isFollowedState by remember { mutableStateOf(isFollowed) }
+    var isFollowedState by rememberSaveable { mutableStateOf(isFollowed) }
     
     val transition = updateTransition(
         targetState = isFollowedState,
@@ -69,18 +69,18 @@ fun FollowButton(
             .width(height * (2.5f))
             .clickable {
                 fun invertState() { isFollowedState = !isFollowedState }
-                
+        
                 // Optimistically invert state.
                 invertState()
-                
+        
                 scope.launch(Dispatchers.IO) {
                     onClick(!isFollowedState).collect { isSuccessful ->
                         if (!isSuccessful)
-                            // Invert state again if operation is unsuccessful.
+                        // Invert state again if operation is unsuccessful.
                             invertState()
                     }
                 }
-                
+        
             }
             .drawWithCache {
         
