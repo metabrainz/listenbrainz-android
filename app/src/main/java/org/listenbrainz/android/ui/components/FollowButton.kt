@@ -34,13 +34,14 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
-/**
+/** State of this button changes optimistically and will revert back if something goes wrong. This inversion of state is determined by
+ * the resulting flow returned by [onClick].
  * @param cornerRadius Acts as corner radius as well as border width.
  * @param onClick This param must perform the follow-unfollow function and return a flow which tells
  * the composable whether the operation was successful or not. The flow **must** complete so that a lot of
  * streams are not accumulated.
  * @param scope Usually, there will be a lot of follow buttons in a view, it is advised to pass one scope
- * and avoid creating unnecessary scopes for each button that exists.*/
+ * and avoid creating unnecessary scopes for each button that exists. */
 @Composable
 fun FollowButton(
     modifier: Modifier = Modifier,
@@ -49,7 +50,7 @@ fun FollowButton(
     cornerRadius: Dp = 2.dp,
     scope: CoroutineScope,
     buttonColor: Color = ListenBrainzTheme.colorScheme.lbSignature,
-    onClick: suspend () -> Flow<Boolean>,
+    onClick: suspend (Boolean) -> Flow<Boolean>,
 ) {
     var isFollowedState by remember { mutableStateOf(isFollowed) }
     
@@ -73,7 +74,7 @@ fun FollowButton(
                 invertState()
                 
                 scope.launch(Dispatchers.IO) {
-                    onClick().collect { isSuccessful ->
+                    onClick(!isFollowedState).collect { isSuccessful ->
                         if (!isSuccessful)
                             // Invert state again if operation is unsuccessful.
                             invertState()
@@ -130,6 +131,6 @@ fun FollowButton(
 @Composable
 fun FollowButtonPreview() {
     ListenBrainzTheme {
-        FollowButton(isFollowed = true, cornerRadius = 2.dp, scope = rememberCoroutineScope()){ flow {}}
+        FollowButton(isFollowed = true, cornerRadius = 2.dp, scope = rememberCoroutineScope()){ flow {} }
     }
 }

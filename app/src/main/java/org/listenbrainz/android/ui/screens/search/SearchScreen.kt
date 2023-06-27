@@ -9,15 +9,20 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Cancel
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
@@ -30,10 +35,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -61,10 +66,13 @@ fun SearchScreen(
         
         SearchScreen(
             uiState = uiState,
-            onDismiss = onDismiss,
+            onDismiss = {
+                onDismiss()
+                viewModel.clearUi()
+            },
             onQueryChange = { query -> viewModel.updateQueryFlow(query) },
-            onFollow = { user ->
-                viewModel.toggleFollowStatus(user)
+            onFollowClick = { user, currentFollowStatus ->
+                viewModel.toggleFollowStatus(user, currentFollowStatus)
             },
             onClear = { viewModel.clearUi() },
             showError = { error ->
@@ -84,7 +92,7 @@ private fun SearchScreen(
     onDismiss: () -> Unit,
     onQueryChange: (String) -> Unit,
     /** Must return if the operation was successful.*/
-    onFollow: suspend (User) -> Flow<Boolean>,
+    onFollowClick: suspend (User, Boolean) -> Flow<Boolean>,
     onClear: () -> Unit,
     onSearch: (String) -> Unit = onQueryChange,
     showError: suspend (ResponseError) -> Unit,
@@ -109,16 +117,20 @@ private fun SearchScreen(
         leadingIcon = {
             Icon(
                 imageVector = Icons.Rounded.ArrowBack,
-                modifier = Modifier.clickable { onDismiss() },
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .clickable { onDismiss() },
                 contentDescription = "Search users",
-                tint = ListenBrainzTheme.colorScheme.hintText
+                tint = ListenBrainzTheme.colorScheme.hint
             )
         },
         trailingIcon = {
             Icon(imageVector = Icons.Rounded.Cancel,
-                modifier = Modifier.clickable { onClear() },
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .clickable { onClear() },
                 contentDescription = "Close Search",
-                tint = ListenBrainzTheme.colorScheme.hintText
+                tint = ListenBrainzTheme.colorScheme.hint
             )
         },
         placeholder = {
@@ -129,11 +141,7 @@ private fun SearchScreen(
             dividerColor = ListenBrainzTheme.colorScheme.text,
             inputFieldColors = SearchBarDefaults.inputFieldColors(
                 focusedPlaceholderColor = Color.Unspecified,
-                focusedLeadingIconColor = ListenBrainzTheme.colorScheme.text,
-                focusedTrailingIconColor = ListenBrainzTheme.colorScheme.text,
                 focusedTextColor = ListenBrainzTheme.colorScheme.text,
-                unfocusedLeadingIconColor = Color.LightGray,
-                unfocusedTrailingIconColor = Color.LightGray,
                 cursorColor = ListenBrainzTheme.colorScheme.lbSignatureInverse,
             )
         )
@@ -147,21 +155,33 @@ private fun SearchScreen(
                 Column {
                     Box(modifier = Modifier
                         .fillMaxWidth()
-                        .padding(ListenBrainzTheme.paddings.lazyListAdjacent)) {
-                        Text(
-                            text = user.username,
-                            modifier = Modifier
-                                .align(Alignment.CenterStart)
-                                .padding(start = 6.dp),
-                            color = ListenBrainzTheme.colorScheme.text,
-                            fontWeight = FontWeight.Bold,
-                        )
+                        .padding(ListenBrainzTheme.paddings.lazyListAdjacent)
+                    ) {
+                        Row(
+                            modifier = Modifier.align(Alignment.CenterStart),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Person,
+                                contentDescription = "Profile",
+                                tint = ListenBrainzTheme.colorScheme.hint
+                            )
+                            
+                            Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.coverArtAndTextGap))
+                            
+                            Text(
+                                text = user.username,
+                                color = ListenBrainzTheme.colorScheme.text,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                        
                         FollowButton(
                             modifier = Modifier.align(Alignment.CenterEnd),
                             isFollowed = user.isFollowed,
                             scope = scope
-                        ) {
-                            onFollow(user)
+                        ) { currentFollowStatus ->
+                            onFollowClick(user, currentFollowStatus)
                         }
                     }
                 }
@@ -187,7 +207,7 @@ fun SearchScreenPreview() {
                 error = null),
             onDismiss = {},
             onQueryChange = {},
-            onFollow = { flow { emit(true) }},
+            onFollowClick = { _, _ -> flow { emit(true) }},
             onClear = {},
             showError = {},
             showSearchScreen = true

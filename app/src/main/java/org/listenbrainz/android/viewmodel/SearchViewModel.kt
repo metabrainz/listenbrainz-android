@@ -16,25 +16,21 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import org.listenbrainz.android.di.DefaultDispatcher
 import org.listenbrainz.android.di.IoDispatcher
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.SearchUiState
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.repository.SocialRepository
 import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.model.ResponseError
 import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val repository: SocialRepository,
     private val appPreferences: AppPreferences,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     
     private val inputQueryFlow = MutableStateFlow("")
@@ -89,13 +85,13 @@ class SearchViewModel @Inject constructor(
     }
     
     
-    suspend fun toggleFollowStatus(user: User): Flow<Boolean> = flow {
+    suspend fun toggleFollowStatus(user: User, currentFollowStatus: Boolean): Flow<Boolean> = flow {
         if (user.username.isEmpty()) {
             emit(false)
             return@flow
         }
         
-        val isSuccessful = if (user.isFollowed)
+        val isSuccessful = if (currentFollowStatus)
             optimisticallyUnfollowUser(user)
         else
             optimisticallyFollowUser(user)
@@ -106,14 +102,10 @@ class SearchViewModel @Inject constructor(
     
     
     private suspend fun optimisticallyFollowUser(user: User): Boolean {
-        // Updating the list's follow button for the given user beforehand.
-        invertFollowStatus(user)
         
         val result = repository.followUser(user.username, appPreferences.lbAccessToken ?: "")
         return when (result.status) {
             Resource.Status.FAILED -> {
-                // Revert back ui state of follow button in case something goes wrong.
-                invertFollowStatus(user)
                 emitError(result.error)
                 false
             }
@@ -123,14 +115,10 @@ class SearchViewModel @Inject constructor(
     
     
     private suspend fun optimisticallyUnfollowUser(user: User): Boolean {
-        // Updating the list's follow button for the given user beforehand.
-        invertFollowStatus(user)
         
         val result = repository.unfollowUser(user.username, appPreferences.lbAccessToken ?: "")
         return when (result.status) {
             Resource.Status.FAILED -> {
-                // Revert back ui state of follow button in case something goes wrong.
-                invertFollowStatus(user)
                 emitError(result.error)
                 false
             }
@@ -138,19 +126,6 @@ class SearchViewModel @Inject constructor(
         }
     }
     
-    /** Inverts the follow button's state for a particular user. Runs on [DefaultDispatcher].*/
-    private suspend fun invertFollowStatus(user: User) = withContext(defaultDispatcher) {
-        resultFlow.update {
-            /* Since we know the result set is limited to 10, calculation is easy.*/
-            val list = resultFlow.value
-            val index = list.indexOf(user)
-            if (index == -1) return@withContext     // User may have commenced the search of another query by now.
-    
-            // Inverting state
-            list[index].isFollowed = !list[index].isFollowed
-            return@update list
-        }
-    }
     
     private suspend fun emitError(error: ResponseError?){ errorFlow.emit(error) }
     

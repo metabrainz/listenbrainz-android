@@ -40,7 +40,7 @@ data class Theme(
     val lbSignatureInverse: Color,
     val onLbSignature: Color,
     val text: Color,
-    val hintText: Color = Color(0xFF8C8C8C)
+    val hint: Color = Color(0xFF8C8C8C)
 )
 
 private val colorSchemeDark = Theme(
@@ -174,7 +174,7 @@ data class Paddings(
     val horizontal: Dp = 8.dp,
     val vertical: Dp = 8.dp,
     val lazyListAdjacent: Dp = 8.dp,
-    val listenCoverArtAndTextGap: Dp = 8.dp
+    val coverArtAndTextGap: Dp = 8.dp
 )
 private val LocalPaddings = staticCompositionLocalOf { Paddings() }
 
