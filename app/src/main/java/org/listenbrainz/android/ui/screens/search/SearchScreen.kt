@@ -3,6 +3,7 @@ package org.listenbrainz.android.ui.screens.search
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
@@ -34,9 +35,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -49,6 +53,7 @@ import org.listenbrainz.android.ui.components.FollowButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.SearchViewModel
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SearchScreen(
     showSearchScreen: Boolean,
@@ -58,7 +63,7 @@ fun SearchScreen(
     AnimatedVisibility(
         visible = showSearchScreen,
         enter = fadeIn(),
-        exit = fadeOut()
+        exit = fadeOut(tween(100))
     ) {
         
         val viewModel: SearchViewModel = hiltViewModel()
@@ -85,7 +90,7 @@ fun SearchScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 private fun SearchScreen(
     uiState: SearchUiState,
@@ -94,9 +99,13 @@ private fun SearchScreen(
     /** Must return if the operation was successful.*/
     onFollowClick: suspend (User, Boolean) -> Flow<Boolean>,
     onClear: () -> Unit,
-    onSearch: (String) -> Unit = onQueryChange,
+    keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current,
+    onSearch: (String) -> Unit = {
+        onQueryChange(it)
+        keyboardController?.hide()
+    },
     showError: suspend (ResponseError) -> Unit,
-    showSearchScreen: Boolean,
+    showSearchScreen: Boolean
 ) {
     
     LaunchedEffect(uiState.error){
@@ -128,7 +137,10 @@ private fun SearchScreen(
             Icon(imageVector = Icons.Rounded.Cancel,
                 modifier = Modifier
                     .clip(CircleShape)
-                    .clickable { onClear() },
+                    .clickable {
+                        onClear()
+                        keyboardController?.show()
+                    },
                 contentDescription = "Close Search",
                 tint = ListenBrainzTheme.colorScheme.hint
             )
@@ -192,6 +204,7 @@ private fun SearchScreen(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Preview(uiMode = UI_MODE_NIGHT_NO)
 @Composable
