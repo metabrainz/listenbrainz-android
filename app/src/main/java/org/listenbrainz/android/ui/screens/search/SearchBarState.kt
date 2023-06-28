@@ -11,39 +11,43 @@ import androidx.compose.runtime.setValue
 /** Get state of app's main search bar.*/
 @Composable
 fun rememberSearchBarState(): SearchBarState {
-    return rememberSaveable(saver = SearchBarStateSaver()) { SearchBarState() }
+    return SearchBarState.instance ?: rememberSaveable(saver = SearchBarStateSaver()) { SearchBarState() }
 }
 
-class SearchBarStateSaver : Saver<SearchBarState, Boolean> {
+private class SearchBarStateSaver : Saver<SearchBarState, Boolean> {
     override fun restore(value: Boolean): SearchBarState
         = SearchBarState(value)
     
-    override fun SaverScope.save(value: SearchBarState): Boolean
-        = value.isActive
-    
+    override fun SaverScope.save(value: SearchBarState): Boolean {
+        value.resetInstance()
+        return value.isActive
+    }
 }
 
-/** State class which controls the main search bar of the app.*/
+/** State class which controls the main search bar of the app. */
 class SearchBarState(initialState: Boolean = false) {
     
-    private var state by mutableStateOf(initialState)
+    private var state by mutableStateOf(initialState,)
+    
+    init {
+        instance = this
+    }
     
     /** True is search bar is active.*/
     val isActive: Boolean
         get() = this.state
     
     /** Show or activate the search bar.*/
-    fun activate() {
-        if (!state){
-            state = true
-        }
-    }
+    fun activate() { state = true }
     
     /** Hide or deactivate the search bar.*/
-    fun deactivate() {
-        if (state){
-            state = false
-        }
+    fun deactivate() { state = false }
+    
+    internal fun resetInstance() { instance = null }
+    
+    companion object {
+        var instance: SearchBarState? = null
+            private set
     }
     
 }

@@ -1,7 +1,7 @@
 package org.listenbrainz.android.ui.components
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -59,8 +59,8 @@ fun FollowButton(
         label = "Parent"
     )
     
-    val colorAlpha by transition.animateColor(label = "Color") { isFollowedByUser ->
-        if (isFollowedByUser) Color.Unspecified else ListenBrainzTheme.colorScheme.lbSignature
+    val colorAlpha by transition.animateFloat(label = "Alpha") { isFollowedByUser ->
+        if (isFollowedByUser) 0f else 1f
     }
     
     Surface(
@@ -103,21 +103,23 @@ fun FollowButton(
                     quadraticBezierTo(x, h - x, x, h - 2 * x)
                     close()
                 }
-        
+                
+                val buttonColorWithAlpha = buttonColor.copy(alpha = colorAlpha)
+                
                 onDrawBehind {
             
                     clipPath(path, clipOp = ClipOp.Difference) {
                         drawRoundRect(color = buttonColor, cornerRadius = CornerRadius(x, x))
                     }
             
-                    drawRoundRect(color = colorAlpha, cornerRadius = CornerRadius(x, x))
+                    drawRoundRect(color = buttonColorWithAlpha, cornerRadius = CornerRadius(x, x))
+                    
                 }
             },
-        color = Color.Unspecified,
+        color = Color.Unspecified
     ) {
         Box(contentAlignment = Alignment.Center) {
             Text(
-                modifier = Modifier,
                 text = if (isFollowedState) "Following" else "Follow",
                 color = if (isFollowedState) ListenBrainzTheme.colorScheme.lbSignature else ListenBrainzTheme.colorScheme.onLbSignature,
                 fontWeight = FontWeight.Medium
