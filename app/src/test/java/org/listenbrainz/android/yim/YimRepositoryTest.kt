@@ -1,4 +1,4 @@
-package org.listenbrainz.android
+package org.listenbrainz.android.yim
 
 import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.Dispatcher
