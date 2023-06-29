@@ -6,6 +6,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -41,6 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.SoftwareKeyboardController
@@ -48,6 +50,7 @@ import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.listenbrainz.android.model.SearchUiState
@@ -98,7 +101,6 @@ private fun SearchScreen(
     onClear: () -> Unit,
     keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current,
     onSearch: (String) -> Unit = {
-        onQueryChange(it)
         keyboardController?.hide()
     },
     onErrorShown: () -> Unit,
@@ -159,12 +161,20 @@ private fun SearchScreen(
             inputFieldColors = SearchBarDefaults.inputFieldColors(
                 focusedPlaceholderColor = Color.Unspecified,
                 focusedTextColor = ListenBrainzTheme.colorScheme.text,
-                cursorColor = ListenBrainzTheme.colorScheme.lbSignatureInverse,
+                cursorColor = ListenBrainzTheme.colorScheme.lbSignature,
             )
         ),
     ) {
         
-        Column {
+        Column(
+            modifier = Modifier
+                .pointerInput(key1 = "Keyboard"){
+                    // Tap to hide keyboard.
+                    detectTapGestures {
+                        keyboardController?.hide()
+                    }
+                }
+        ) {
             
             // Error bar for showing errors
             ErrorBar(uiState.error, onErrorShown)
@@ -178,9 +188,9 @@ private fun SearchScreen(
 @Composable
 private fun UserList(
     uiState: SearchUiState,
-    onFollowClick: suspend (User, Boolean) -> Flow<Boolean>
+    onFollowClick: suspend (User, Boolean) -> Flow<Boolean>,
+    scope: CoroutineScope = rememberCoroutineScope()
 ) {
-    val scope = rememberCoroutineScope()
     
     LazyColumn(contentPadding = PaddingValues(ListenBrainzTheme.paddings.lazyListAdjacent)) {
         items(uiState.result, key = { it.username }) { user ->

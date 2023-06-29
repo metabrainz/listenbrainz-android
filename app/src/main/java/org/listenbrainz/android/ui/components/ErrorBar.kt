@@ -22,7 +22,8 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 /** Error bar to be used to show [ResponseError] if any. ResponseError should be mutable.
  * @param error The error of type [ResponseError] to be shown. Error is shown is error is non-null.
- * @param onErrorShown This function should set the error value to null.*/
+ * @param onErrorShown This function should set the error value to null and is executed after the error
+ * bar hides again.*/
 @Composable
 fun ErrorBar(
     error: ResponseError?,
@@ -31,7 +32,7 @@ fun ErrorBar(
     
     LaunchedEffect(error) {
         if (error != null) {
-            delay(2000)
+            delay(2500)
             onErrorShown()
         }
     }

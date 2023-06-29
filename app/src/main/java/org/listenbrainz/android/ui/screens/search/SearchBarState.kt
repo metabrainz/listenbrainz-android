@@ -8,7 +8,7 @@ import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
-/** Get state of app's main search bar.*/
+/** Get state of app's main search bar. If an instance is already defined, that instance will be returned.*/
 @Composable
 fun rememberSearchBarState(): SearchBarState {
     return SearchBarState.instance ?: rememberSaveable(saver = SearchBarStateSaver()) { SearchBarState() }
