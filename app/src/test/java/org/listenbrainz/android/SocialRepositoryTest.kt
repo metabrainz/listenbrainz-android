@@ -32,7 +32,7 @@ import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUserDNE
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername
 import org.listenbrainz.sharedtest.utils.ResourceString.auth_header_not_found_error
 import org.listenbrainz.sharedtest.utils.ResourceString.cannot_follow_self_error
-import org.listenbrainz.sharedtest.utils.ResourceString.follow_error_response
+import org.listenbrainz.sharedtest.utils.ResourceString.already_following_error
 import org.listenbrainz.sharedtest.utils.ResourceString.followers_response
 import org.listenbrainz.sharedtest.utils.ResourceString.following_response
 import org.listenbrainz.sharedtest.utils.ResourceString.search_response
@@ -78,7 +78,7 @@ class SocialRepositoryTest {
                     "/user/${testFamiliarUser}/follow" -> return MockResponse().apply {
                         if (request.getHeader("Authorization") == testAuthHeader){
                             setResponseCode(400).setBody(
-                                follow_error_response
+                                already_following_error
                             )
                         }else {
                             setResponseCode(401).setBody(
