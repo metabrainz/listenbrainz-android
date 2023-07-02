@@ -10,5 +10,4 @@ enum class GeneralError(override val genericToast: String, override var actualRe
     
     UNKNOWN(genericToast = "Some error has occurred.");
     
-    override fun toast(): String = genericToast
 }

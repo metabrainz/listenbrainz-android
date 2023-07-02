@@ -8,7 +8,4 @@ enum class SocialError(override val genericToast: String, override var actualRes
     
     CANNOT_FOLLOW_SELF(genericToast = "Whoops, cannot follow yourself.");  // "Whoops, cannot follow yourself."
     
-    override fun toast(): String {
-        return if (actualResponse.isNullOrEmpty()) genericToast else actualResponse!!
-    }
 }

@@ -1,8 +1,7 @@
 package org.listenbrainz.android.repository
 
 import org.listenbrainz.android.model.GeneralError
-import org.listenbrainz.android.model.ResponseError.Companion.getSocialErrorType
-import org.listenbrainz.android.model.ResponseError.Companion.parseError
+import org.listenbrainz.android.model.ResponseError.Companion.getSocialResponseError
 import org.listenbrainz.android.model.SearchResult
 import org.listenbrainz.android.model.SimilarUserData
 import org.listenbrainz.android.model.SocialData
@@ -26,10 +25,7 @@ class SocialRepositoryImpl @Inject constructor(private val service: SocialServic
             return@runCatching if (response.isSuccessful) {
                 Resource.success(response.body()!!)
             } else {
-                // Parsing server response into ApiError
-                val error = parseError(response)
-        
-                Resource.failure(error = getSocialErrorType(error.error, response.code() ))
+                Resource.failure(error = getSocialResponseError(response = response))
             }
     
         }.getOrElse { logAndReturn(it) }
@@ -43,10 +39,7 @@ class SocialRepositoryImpl @Inject constructor(private val service: SocialServic
             return@runCatching if (response.isSuccessful) {
                 Resource.success(response.body()!!)
             } else {
-                // Parsing server response into ApiError
-                val error = parseError(response)
-        
-                Resource.failure(error = getSocialErrorType(error.error, response.code()))
+                Resource.failure(error = getSocialResponseError(response = response))
             }
     
         }.getOrElse { logAndReturn(it) }
@@ -60,10 +53,7 @@ class SocialRepositoryImpl @Inject constructor(private val service: SocialServic
             return@runCatching if (response.isSuccessful) {
                 Resource.success(response.body()!!)
             } else {
-                // Parsing server response into ApiError
-                val error = parseError(response)
-        
-                Resource.failure(error = getSocialErrorType(error.error, response.code()))
+                Resource.failure(error = getSocialResponseError(response = response))
             }
     
         }.getOrElse { logAndReturn(it) }
@@ -78,10 +68,7 @@ class SocialRepositoryImpl @Inject constructor(private val service: SocialServic
             return@runCatching if (response.isSuccessful) {
                 Resource.success(response.body()!!)
             } else {
-                // Parsing server response into ApiError
-                val error = parseError(response)
-    
-                Resource.failure(error = getSocialErrorType(error.error, response.code()))
+                Resource.failure(error = getSocialResponseError(response = response))
             }
             
         }.getOrElse { logAndReturn(it) }
@@ -94,10 +81,7 @@ class SocialRepositoryImpl @Inject constructor(private val service: SocialServic
             return@runCatching if (response.isSuccessful) {
                 Resource.success(response.body()!!)
             } else {
-                // Parsing server response into ApiError
-                val error = parseError(response)
-        
-                Resource.failure(error = getSocialErrorType(error.error, response.code()))
+                Resource.failure(error = getSocialResponseError(response = response))
             }
     
         }.getOrElse { logAndReturn(it) }
@@ -110,10 +94,7 @@ class SocialRepositoryImpl @Inject constructor(private val service: SocialServic
             return@runCatching if (response.isSuccessful) {
                 Resource.success(response.body()!!)
             } else {
-                // Parsing server response into ApiError
-                val error = parseError(response)
-        
-                Resource.failure(error = getSocialErrorType(error.error, response.code()))
+                Resource.failure(error = getSocialResponseError(response = response))
             }
     
         }.getOrElse { logAndReturn(it) }

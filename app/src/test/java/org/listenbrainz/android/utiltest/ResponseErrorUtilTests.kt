@@ -5,7 +5,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.listenbrainz.android.model.ApiError
 import org.listenbrainz.android.model.GeneralError
-import org.listenbrainz.android.model.ResponseError.Companion.getSocialErrorType
+import org.listenbrainz.android.model.ResponseError.Companion.getSocialResponseError
 import org.listenbrainz.android.model.ResponseError.Companion.parseError
 import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.SocialError
@@ -30,23 +30,47 @@ class ResponseErrorUtilTests {
     }
     
     @Test
-    fun getSocialErrorTypeTest() {
-        var result = getSocialErrorType(userNotFoundError, 404)
+    fun getSocialResponseErrorTest() {
+        var result = getSocialResponseError(
+            Response.error<SocialData>(
+                404,
+                userNotFoundError.toResponseBody())
+        )
         assertEquals(SocialError.USER_NOT_FOUND, result)
         
-        result = getSocialErrorType(authHeaderNotFoundError, 401)
+        result = getSocialResponseError(
+            Response.error<SocialData>(
+                401,
+                authHeaderNotFoundError.toResponseBody())
+        )
         assertEquals(GeneralError.AUTH_HEADER_NOT_FOUND, result)
         
-        result = getSocialErrorType(alreadyFollowingError, 400)
+        result = getSocialResponseError(
+            Response.error<SocialData>(
+                400,
+                alreadyFollowingError.toResponseBody())
+        )
         assertEquals(SocialError.ALREADY_FOLLOWING, result)
         
-        result = getSocialErrorType(cannotFollowSelfError, 400)
+        result = getSocialResponseError(
+            Response.error<SocialData>(
+                400,
+                cannotFollowSelfError.toResponseBody())
+        )
         assertEquals(SocialError.CANNOT_FOLLOW_SELF, result)
         
-        result = getSocialErrorType("", 429)
+        result = getSocialResponseError(
+            Response.error<SocialData>(
+                429,
+                "".toResponseBody())
+        )
         assertEquals(GeneralError.RATE_LIMIT_EXCEEDED, result)
         
-        result = getSocialErrorType("Wow new error", 400)
+        result = getSocialResponseError(
+            Response.error<SocialData>(
+                400,
+                "Wow new error".toResponseBody())
+        )
         assertEquals(GeneralError.UNKNOWN, result)
     }
 }
