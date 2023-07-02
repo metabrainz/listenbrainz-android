@@ -135,6 +135,7 @@ dependencies {
     implementation "com.github.bumptech.glide:compose:1.0.0-alpha.1"
     implementation 'io.coil-kt:coil-compose:2.4.0'
     implementation 'com.caverock:androidsvg-aar:1.4'
+    implementation 'androidx.test.ext:junit-ktx:1.1.5'
     kapt 'com.github.bumptech.glide:compiler:4.15.1'
 
     //Permissions
@@ -188,6 +189,10 @@ dependencies {
     testImplementation 'com.squareup.okhttp3:mockwebserver:5.0.0-alpha.11'
     testImplementation 'androidx.arch.core:core-testing:2.2.0'
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1'
+    // Optional -- Mockito framework
+    testImplementation "org.mockito:mockito-core:5.3.1"
+    // Optional -- mockito-kotlin
+    testImplementation "org.mockito.kotlin:mockito-kotlin:4.1.0"
 
     debugImplementation "androidx.test:monitor:1.6.1"       // Solves "class PlatformTestStorageRegistery not found" error for ui tests.
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"

@@ -3,6 +3,7 @@ package org.listenbrainz.sharedtest.mocks
 import org.listenbrainz.android.model.SearchResult
 import org.listenbrainz.android.model.SimilarUserData
 import org.listenbrainz.android.model.SocialData
+import org.listenbrainz.android.model.SocialError
 import org.listenbrainz.android.model.SocialResponse
 import org.listenbrainz.android.repository.SocialRepository
 import org.listenbrainz.android.util.Resource
@@ -22,18 +23,20 @@ class MockSocialRepository(): SocialRepository {
         return Resource(Resource.Status.SUCCESS, testFollowingSuccessData)
     }
     
+    /** Success for this request.*/
     override suspend fun followUser(
         username: String,
         accessToken: String
     ): Resource<SocialResponse> {
-        return Resource(Resource.Status.SUCCESS, testFollowUnfollowSuccessResponse)
+        return Resource.success(testFollowUnfollowSuccessResponse)
     }
     
+    /** Failure for this request.*/
     override suspend fun unfollowUser(
         username: String,
         accessToken: String
     ): Resource<SocialResponse> {
-        return Resource(Resource.Status.SUCCESS, testFollowUnfollowSuccessResponse)
+        return Resource.failure(error = SocialError.ALREADY_FOLLOWING)
     }
     
     override suspend fun getSimilarUsers(username: String): Resource<SimilarUserData> {

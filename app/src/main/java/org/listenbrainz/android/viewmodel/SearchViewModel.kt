@@ -55,7 +55,7 @@ class SearchViewModel @Inject constructor(
                 when (result.status) {
                     Resource.Status.SUCCESS -> resultFlow.emit(result.data?.users ?: emptyList())
                     Resource.Status.FAILED -> emitError(result.error)
-                    Resource.Status.LOADING -> return@collectLatest
+                    else -> return@collectLatest
                 }
             }
         }
