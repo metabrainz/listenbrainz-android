@@ -6,7 +6,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.listenbrainz.android.model.Error
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.viewmodel.SearchViewModel
@@ -69,6 +69,6 @@ class SearchViewModelTest : BaseUnitTest() {
         }
         
         advanceUntilIdle()
-        assertEquals(viewModel.uiState.value.error, Error.BAD_REQUEST)
+        assertEquals(viewModel.uiState.value.error, ResponseError.BAD_REQUEST)
     }
 }

@@ -17,7 +17,7 @@ import androidx.annotation.WorkerThread
 import kotlinx.coroutines.Dispatchers
 import okhttp3.*
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.Error
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.util.Log.e
 import java.io.*
 import java.security.MessageDigest
@@ -38,9 +38,9 @@ object Utils {
     fun <T> logAndReturn(it: Throwable) : Resource<T> {
         it.printStackTrace()
         return when (it){
-            is FileNotFoundException -> Resource.failure(error = Error.FILE_NOT_FOUND)
-            is IOException -> Resource.failure(error = Error.NETWORK_ERROR)
-            else -> Resource.failure(error = Error.UNKNOWN)
+            is FileNotFoundException -> Resource.failure(error = ResponseError.FILE_NOT_FOUND)
+            is IOException -> Resource.failure(error = ResponseError.NETWORK_ERROR)
+            else -> Resource.failure(error = ResponseError.UNKNOWN)
         }
         
     }

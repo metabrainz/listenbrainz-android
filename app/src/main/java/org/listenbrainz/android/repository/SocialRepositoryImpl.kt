@@ -1,7 +1,6 @@
 package org.listenbrainz.android.repository
 
-import org.listenbrainz.android.model.Error.Companion.getError
-import org.listenbrainz.android.model.GeneralError
+import org.listenbrainz.android.model.ResponseError.Companion.getError
 import org.listenbrainz.android.model.SearchResult
 import org.listenbrainz.android.model.SimilarUserData
 import org.listenbrainz.android.model.SocialData

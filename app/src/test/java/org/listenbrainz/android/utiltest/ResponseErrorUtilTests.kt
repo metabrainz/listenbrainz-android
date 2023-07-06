@@ -4,8 +4,8 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.listenbrainz.android.model.ApiError
-import org.listenbrainz.android.model.Error
-import org.listenbrainz.android.model.Error.Companion.getError
+import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.android.model.ResponseError.Companion.getError
 import org.listenbrainz.android.model.ResponseError.Companion.parseError
 import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.SocialResponse
@@ -37,41 +37,41 @@ class ResponseErrorUtilTests {
                 404,
                 user_does_not_exist_error.toResponseBody())
         )
-        assertEquals(Error.DOES_NOT_EXIST, result)
+        assertEquals(ResponseError.DOES_NOT_EXIST, result)
         
         result = getError(
             Response.error<SocialData>(
                 401,
                 auth_header_not_found_error.toResponseBody())
         )
-        assertEquals(Error.AUTH_HEADER_NOT_FOUND, result)
+        assertEquals(ResponseError.AUTH_HEADER_NOT_FOUND, result)
         
         result = getError(
             Response.error<SocialData>(
                 400,
                 already_following_error.toResponseBody())
         )
-        assertEquals(Error.BAD_REQUEST, result)
+        assertEquals(ResponseError.BAD_REQUEST, result)
         
         result = getError(
             Response.error<SocialData>(
                 400,
                 cannot_follow_self_error.toResponseBody())
         )
-        assertEquals(Error.BAD_REQUEST, result)
+        assertEquals(ResponseError.BAD_REQUEST, result)
         
         result = getError(
             Response.error<SocialData>(
                 429,
                 rate_limiting_error.toResponseBody())
         )
-        assertEquals(Error.RATE_LIMIT_EXCEEDED, result)
+        assertEquals(ResponseError.RATE_LIMIT_EXCEEDED, result)
         
         result = getError(
             Response.error<SocialData>(
                 400,
                 unknown_error.toResponseBody())
         )
-        assertEquals(Error.UNKNOWN, result)
+        assertEquals(ResponseError.UNKNOWN, result)
     }
 }

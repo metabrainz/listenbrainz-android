@@ -9,7 +9,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.listenbrainz.android.model.Error
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.repository.SocialRepository
 import org.listenbrainz.android.repository.SocialRepositoryImpl
 import org.listenbrainz.android.service.SocialService
@@ -190,7 +190,7 @@ class SocialRepositoryTest {
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null, data?.following)
         assertEquals(null, data?.user)
-        assertEquals(Error.DOES_NOT_EXIST, result.error)
+        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
     }
     
     /* getFollowers() tests */
@@ -213,7 +213,7 @@ class SocialRepositoryTest {
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null, data?.followers)
         assertEquals(null, data?.user)
-        assertEquals(Error.DOES_NOT_EXIST, result.error)
+        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
         assertEquals(userNotFoundError, result.error?.actualResponse)
     }
     
@@ -234,7 +234,7 @@ class SocialRepositoryTest {
         
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(Error.DOES_NOT_EXIST, result.error)
+        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
         assertEquals(userNotFoundError, result.error?.actualResponse)
         
         // Cannot follow self
@@ -242,14 +242,14 @@ class SocialRepositoryTest {
         
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(Error.BAD_REQUEST, result.error)
+        assertEquals(ResponseError.BAD_REQUEST, result.error)
         assertEquals(cannotFollowSelfError, result.error?.actualResponse)
         
         // Already following
         result = repository.followUser(testFamiliarUser, accessToken = testAccessToken)
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(Error.BAD_REQUEST, result.error)
+        assertEquals(ResponseError.BAD_REQUEST, result.error)
         assertEquals(alreadyFollowingError, result.error?.actualResponse)
         
         // No Auth Header
@@ -257,7 +257,7 @@ class SocialRepositoryTest {
     
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(Error.AUTH_HEADER_NOT_FOUND, result.error)
+        assertEquals(ResponseError.AUTH_HEADER_NOT_FOUND, result.error)
         assertEquals(authHeaderNotFoundError, result.error?.actualResponse)
     }
     
@@ -278,7 +278,7 @@ class SocialRepositoryTest {
         
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(Error.DOES_NOT_EXIST, result.error)
+        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
         assertEquals(userNotFoundError, result.error?.actualResponse)
         
         // NOTE: Server does not send error response for when a user tries to unfollow themselves.
@@ -288,7 +288,7 @@ class SocialRepositoryTest {
     
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(Error.AUTH_HEADER_NOT_FOUND, result.error)
+        assertEquals(ResponseError.AUTH_HEADER_NOT_FOUND, result.error)
         assertEquals(authHeaderNotFoundError, result.error?.actualResponse)
     }
     
@@ -308,7 +308,7 @@ class SocialRepositoryTest {
         val result = repository.getSimilarUsers(testUserDNE)
     
         assertEquals(Resource.Status.FAILED, result.status)
-        assertEquals(Error.DOES_NOT_EXIST, result.error)
+        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
         assertEquals(null, result.data?.payload)
         assertEquals(userNotFoundError, result.error?.actualResponse)
     }
