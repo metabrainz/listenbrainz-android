@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -51,11 +51,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import org.listenbrainz.android.model.Error
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.SearchUiState
 import org.listenbrainz.android.model.User
+import org.listenbrainz.android.model.UserListUiState
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.FollowButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -80,8 +80,8 @@ fun SearchScreen(searchBarState: SearchBarState) {
                 viewModel.clearUi()
             },
             onQueryChange = { query -> viewModel.updateQueryFlow(query) },
-            onFollowClick = { user, currentFollowStatus ->
-                viewModel.toggleFollowStatus(user, currentFollowStatus)
+            onFollowClick = { user, index ->
+                viewModel.toggleFollowStatus(user, index)
             },
             onClear = { viewModel.clearUi() },
             onErrorShown = { viewModel.clearErrorFlow() },
@@ -97,7 +97,7 @@ private fun SearchScreen(
     onDismiss: () -> Unit,
     onQueryChange: (String) -> Unit,
     /** Must return if the operation was successful.*/
-    onFollowClick: suspend (User, Boolean) -> Flow<Boolean>,
+    onFollowClick: suspend (User, Int) -> Unit,
     onClear: () -> Unit,
     keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current,
     onSearch: (String) -> Unit = {
@@ -188,12 +188,12 @@ private fun SearchScreen(
 @Composable
 private fun UserList(
     uiState: SearchUiState,
-    onFollowClick: suspend (User, Boolean) -> Flow<Boolean>,
+    onFollowClick: suspend (User, Int) -> Unit,
     scope: CoroutineScope = rememberCoroutineScope()
 ) {
     
     LazyColumn(contentPadding = PaddingValues(ListenBrainzTheme.paddings.lazyListAdjacent)) {
-        items(uiState.result, key = { it.username }) { user ->
+        itemsIndexed(uiState.result.userList) { index, user ->
             
             Column {
                 Box(
@@ -222,10 +222,10 @@ private fun UserList(
                     
                     FollowButton(
                         modifier = Modifier.align(Alignment.CenterEnd),
-                        isFollowed = user.isFollowed,
-                        scope = scope
-                    ) { currentFollowStatus ->
-                        onFollowClick(user, currentFollowStatus)
+                        isFollowedState = uiState.result.isFollowedList[index],
+                        scope = scope,
+                    ) {
+                        onFollowClick(user, index)
                     }
                 }
             }
@@ -244,11 +244,14 @@ private fun SearchScreenPreview() {
         SearchScreen(
             uiState = SearchUiState(
                 query = "Jasjeet",
-                result = listOf(User("Jasjeet"),
-                    User("JasjeetTest"),
-                    User("Jako")
-                ),
-                error = Error.DOES_NOT_EXIST
+                result = UserListUiState(
+                    listOf(User("Jasjeet"),
+                        User("JasjeetTest"),
+                        User("Jako")
+                    ),
+                    listOf(false, true, true)
+                ) ,
+                error = ResponseError.DOES_NOT_EXIST
             ),
             onDismiss = {},
             onQueryChange = {},

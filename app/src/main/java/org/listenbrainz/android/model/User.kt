@@ -4,5 +4,5 @@ import com.google.gson.annotations.SerializedName
 
 data class User(
     @SerializedName("user_name") val username: String,
-    @SerializedName("is_followed") var isFollowed: Boolean = false
+    @SerializedName("is_followed") val isFollowed: Boolean = false
 )

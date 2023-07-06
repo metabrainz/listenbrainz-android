@@ -12,13 +12,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,16 +27,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import org.listenbrainz.android.model.UserListUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 /** State of this button changes optimistically and will revert back if something goes wrong. This inversion of state is determined by
  * the resulting flow returned by [onClick].
  * @param cornerRadius Corner radius of the button.
- * @param isFollowed Initial follow state. Does not need to be a subtype of [State]. As this initial state is
- * used as initial value to a [MutableState] inside.
+ * @param isFollowedState Initial follow state. Needs to be a subtype of [State]. Consider using [UserListUiState] for this
+ * purpose.
  * @param scope Usually, there will be a lot of follow buttons in a view, it is advised to pass one scope
  * and avoid creating unnecessary scopes for each button that exists.
  * @param onClick This param must perform the follow-unfollow function and return a flow which tells
@@ -49,15 +44,14 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 @Composable
 fun FollowButton(
     modifier: Modifier = Modifier,
-    isFollowed: Boolean = false,
+    isFollowedState: Boolean = false,
     height: Dp = 30.dp,
     fontSize: TextUnit = (height.value/2 - 1).sp,
     cornerRadius: Dp = 6.dp,
     scope: CoroutineScope,
     buttonColor: Color = ListenBrainzTheme.colorScheme.lbSignature,
-    onClick: suspend (Boolean) -> Flow<Boolean>,
+    onClick: suspend () -> Unit,
 ) {
-    var isFollowedState by rememberSaveable { mutableStateOf(isFollowed) }
     
     val transition = updateTransition(
         targetState = isFollowedState,
@@ -82,18 +76,8 @@ fun FollowButton(
             .height(height)
             .width(height * (2.5f))
             .clickable {
-                fun invertState() {
-                    isFollowedState = !isFollowedState
-                }
-        
-                // Optimistically invert state.
-                invertState()
-        
                 scope.launch(Dispatchers.IO) {
-                    onClick(!isFollowedState).collect { isSuccessful ->
-                        if (!isSuccessful) // Invert state again if operation is unsuccessful.
-                            invertState()
-                    }
+                    onClick()
                 }
             },
         border = BorderStroke(2.dp, buttonColor),
@@ -116,6 +100,6 @@ fun FollowButton(
 @Composable
 fun FollowButtonPreview() {
     ListenBrainzTheme {
-        FollowButton(isFollowed = true, scope = rememberCoroutineScope()){ flow {} }
+        FollowButton(isFollowedState = true, scope = rememberCoroutineScope()){}
     }
 }
