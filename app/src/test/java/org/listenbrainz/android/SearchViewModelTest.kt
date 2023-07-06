@@ -6,7 +6,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.listenbrainz.android.model.SocialError
+import org.listenbrainz.android.model.Error
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.viewmodel.SearchViewModel
@@ -50,11 +50,13 @@ class SearchViewModelTest : BaseUnitTest() {
     fun `test if follow or unfollow request is executed correctly`() = test {
         var flow = viewModel.toggleFollowStatus(User(EntityTestUtils.testSomeOtherUser), false)
         flow.collect {
+            // Hardcoded success response for testing
             assertEquals(it, true)
         }
         
         flow = viewModel.toggleFollowStatus(User(EntityTestUtils.testSomeOtherUser), true)
         flow.collect{
+            // Hardcoded error response for testing
             assertEquals(it, false)
         }
     }
@@ -67,6 +69,6 @@ class SearchViewModelTest : BaseUnitTest() {
         }
         
         advanceUntilIdle()
-        assertEquals(viewModel.uiState.value.error, SocialError.ALREADY_FOLLOWING)
+        assertEquals(viewModel.uiState.value.error, Error.BAD_REQUEST)
     }
 }

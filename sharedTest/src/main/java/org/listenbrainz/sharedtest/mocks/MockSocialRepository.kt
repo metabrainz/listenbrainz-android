@@ -1,9 +1,9 @@
 package org.listenbrainz.sharedtest.mocks
 
+import org.listenbrainz.android.model.Error
 import org.listenbrainz.android.model.SearchResult
 import org.listenbrainz.android.model.SimilarUserData
 import org.listenbrainz.android.model.SocialData
-import org.listenbrainz.android.model.SocialError
 import org.listenbrainz.android.model.SocialResponse
 import org.listenbrainz.android.repository.SocialRepository
 import org.listenbrainz.android.util.Resource
@@ -36,7 +36,7 @@ class MockSocialRepository(): SocialRepository {
         username: String,
         accessToken: String
     ): Resource<SocialResponse> {
-        return Resource.failure(error = SocialError.ALREADY_FOLLOWING)
+        return Resource.failure(error = Error.BAD_REQUEST)
     }
     
     override suspend fun getSimilarUsers(username: String): Resource<SimilarUserData> {

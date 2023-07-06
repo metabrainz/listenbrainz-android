@@ -53,8 +53,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import org.listenbrainz.android.model.Error
 import org.listenbrainz.android.model.SearchUiState
-import org.listenbrainz.android.model.SocialError
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.FollowButton
@@ -248,7 +248,7 @@ private fun SearchScreenPreview() {
                     User("JasjeetTest"),
                     User("Jako")
                 ),
-                error = SocialError.USER_NOT_FOUND
+                error = Error.DOES_NOT_EXIST
             ),
             onDismiss = {},
             onQueryChange = {},

@@ -9,8 +9,7 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.listenbrainz.android.model.GeneralError
-import org.listenbrainz.android.model.SocialError
+import org.listenbrainz.android.model.Error
 import org.listenbrainz.android.repository.SocialRepository
 import org.listenbrainz.android.repository.SocialRepositoryImpl
 import org.listenbrainz.android.service.SocialService
@@ -30,9 +29,9 @@ import org.listenbrainz.sharedtest.utils.EntityTestUtils.testFamiliarUser
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testSomeOtherUser
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUserDNE
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername
+import org.listenbrainz.sharedtest.utils.ResourceString.already_following_error
 import org.listenbrainz.sharedtest.utils.ResourceString.auth_header_not_found_error
 import org.listenbrainz.sharedtest.utils.ResourceString.cannot_follow_self_error
-import org.listenbrainz.sharedtest.utils.ResourceString.already_following_error
 import org.listenbrainz.sharedtest.utils.ResourceString.followers_response
 import org.listenbrainz.sharedtest.utils.ResourceString.following_response
 import org.listenbrainz.sharedtest.utils.ResourceString.search_response
@@ -191,7 +190,7 @@ class SocialRepositoryTest {
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null, data?.following)
         assertEquals(null, data?.user)
-        assertEquals(SocialError.USER_NOT_FOUND, result.error)
+        assertEquals(Error.DOES_NOT_EXIST, result.error)
     }
     
     /* getFollowers() tests */
@@ -214,7 +213,7 @@ class SocialRepositoryTest {
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null, data?.followers)
         assertEquals(null, data?.user)
-        assertEquals(SocialError.USER_NOT_FOUND, result.error)
+        assertEquals(Error.DOES_NOT_EXIST, result.error)
         assertEquals(userNotFoundError, result.error?.actualResponse)
     }
     
@@ -235,7 +234,7 @@ class SocialRepositoryTest {
         
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(SocialError.USER_NOT_FOUND, result.error)
+        assertEquals(Error.DOES_NOT_EXIST, result.error)
         assertEquals(userNotFoundError, result.error?.actualResponse)
         
         // Cannot follow self
@@ -243,14 +242,14 @@ class SocialRepositoryTest {
         
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(SocialError.CANNOT_FOLLOW_SELF, result.error)
+        assertEquals(Error.BAD_REQUEST, result.error)
         assertEquals(cannotFollowSelfError, result.error?.actualResponse)
         
         // Already following
         result = repository.followUser(testFamiliarUser, accessToken = testAccessToken)
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(SocialError.ALREADY_FOLLOWING, result.error)
+        assertEquals(Error.BAD_REQUEST, result.error)
         assertEquals(alreadyFollowingError, result.error?.actualResponse)
         
         // No Auth Header
@@ -258,7 +257,7 @@ class SocialRepositoryTest {
     
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(GeneralError.AUTH_HEADER_NOT_FOUND, result.error)
+        assertEquals(Error.AUTH_HEADER_NOT_FOUND, result.error)
         assertEquals(authHeaderNotFoundError, result.error?.actualResponse)
     }
     
@@ -279,7 +278,7 @@ class SocialRepositoryTest {
         
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(SocialError.USER_NOT_FOUND, result.error)
+        assertEquals(Error.DOES_NOT_EXIST, result.error)
         assertEquals(userNotFoundError, result.error?.actualResponse)
         
         // NOTE: Server does not send error response for when a user tries to unfollow themselves.
@@ -289,7 +288,7 @@ class SocialRepositoryTest {
     
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(GeneralError.AUTH_HEADER_NOT_FOUND, result.error)
+        assertEquals(Error.AUTH_HEADER_NOT_FOUND, result.error)
         assertEquals(authHeaderNotFoundError, result.error?.actualResponse)
     }
     
@@ -309,7 +308,7 @@ class SocialRepositoryTest {
         val result = repository.getSimilarUsers(testUserDNE)
     
         assertEquals(Resource.Status.FAILED, result.status)
-        assertEquals(SocialError.USER_NOT_FOUND, result.error)
+        assertEquals(Error.DOES_NOT_EXIST, result.error)
         assertEquals(null, result.data?.payload)
         assertEquals(userNotFoundError, result.error?.actualResponse)
     }

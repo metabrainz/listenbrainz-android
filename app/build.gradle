@@ -135,7 +135,6 @@ dependencies {
     implementation "com.github.bumptech.glide:compose:1.0.0-alpha.1"
     implementation 'io.coil-kt:coil-compose:2.4.0'
     implementation 'com.caverock:androidsvg-aar:1.4'
-    implementation 'androidx.test.ext:junit-ktx:1.1.5'
     kapt 'com.github.bumptech.glide:compiler:4.15.1'
 
     //Permissions
@@ -185,6 +184,7 @@ dependencies {
     implementation "org.jsoup:jsoup:1.16.1"
 
     //Test Setup
+    implementation 'androidx.test.ext:junit-ktx:1.1.5'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'com.squareup.okhttp3:mockwebserver:5.0.0-alpha.11'
     testImplementation 'androidx.arch.core:core-testing:2.2.0'
