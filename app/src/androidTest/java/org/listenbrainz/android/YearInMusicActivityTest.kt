@@ -39,12 +39,11 @@ class YearInMusicActivityTest {
     @Before
     fun setup(){
         activity = rule.activity
-
         val yimViewModel = YimViewModel(
             MockYimRepository(),
-            MockAppPreferences(username = testYimUsername, loginStatus = STATUS_LOGGED_IN)
+            MockAppPreferences(username = testUsername, loginStatus = STATUS_LOGGED_IN)
         )
-        val networkViewModel = MockNetworkConnectivityViewModel(ConnectivityObserver.NetworkStatus.Available)
+        val networkViewModel = MockNetworkConnectivityViewModel(ConnectivityObserver.NetworkStatus.AVAILABLE)
 
         rule.setContent {
             YimNavigation(yimViewModel = yimViewModel, activity = activity, networkConnectivityViewModel = networkViewModel)

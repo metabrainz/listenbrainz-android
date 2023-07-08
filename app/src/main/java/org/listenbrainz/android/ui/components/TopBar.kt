@@ -1,6 +1,5 @@
 package org.listenbrainz.android.ui.components
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -12,6 +11,8 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,14 +31,17 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
 import org.listenbrainz.android.ui.screens.dashboard.DonateActivity
+import org.listenbrainz.android.ui.screens.search.SearchBarState
+import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.isUiModeIsDark
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.util.Constants
 
 @Composable
 fun TopBar(
-    activity: Activity,
     navController: NavController = rememberNavController(),
+    searchBarState: SearchBarState,
     context: Context = LocalContext.current
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -65,12 +69,12 @@ fun TopBar(
             }
         )
     }
-
+    
     TopAppBar(
         title = { Text(text = title) },
         navigationIcon =  {
             IconButton(onClick = {
-                activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://listenbrainz.org")))
+                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://listenbrainz.org")))
             }) {
                 Icon(painterResource(id = R.drawable.ic_listenbrainz_logo_icon),
                     "MusicBrainz",
@@ -89,26 +93,17 @@ fun TopBar(
                     "About",
                     tint = Color.Unspecified)
             }*/
-            IconButton(onClick = {
-                navController.navigate(route = AppNavigationItem.Search.route){
-                    // Avoid building large backstack
-                    popUpTo(AppNavigationItem.Home.route)
-                    // Avoid copies
-                    launchSingleTop = true
-            
-                }
-            }) {
-                Icon(painterResource(id = AppNavigationItem.Search.iconSelected),
-                    AppNavigationItem.Search.title,
-                    tint = Color.Unspecified)
+            IconButton(onClick = { searchBarState.activate() }) {
+                Icon(imageVector = Icons.Rounded.Search, contentDescription = "Search users")
             }
+            
             IconButton(onClick = {
-                activity.startActivity(Intent(activity, DonateActivity::class.java))
+                context.startActivity(Intent(context, DonateActivity::class.java))
             }) {
                 Icon(painterResource(id = R.drawable.ic_donate), "Donate", tint = Color.Unspecified)
             }
             IconButton(onClick = {
-                val intent = Intent(activity, DashboardActivity::class.java)
+                val intent = Intent(context, DashboardActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 val preferences = PreferenceManager.getDefaultSharedPreferences(context).edit()
                 when (themeIcon.value) {
@@ -137,7 +132,7 @@ fun TopBar(
                         ).apply()
                     }
                 }
-                activity.startActivity(intent)
+                context.startActivity(intent)
             }) {
                 Icon(painterResource(id = themeIcon.value),
                     "Theme",
@@ -145,10 +140,16 @@ fun TopBar(
             }
         }
     )
+    
 }
 
 @Preview
 @Composable
 fun TopBarPreview() {
-    TopBar(activity = Activity(), navController = rememberNavController())
+    ListenBrainzTheme {
+        TopBar(
+            navController = rememberNavController(),
+            searchBarState = rememberSearchBarState()
+        )
+    }
 }

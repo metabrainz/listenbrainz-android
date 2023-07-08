@@ -174,7 +174,7 @@ dependencies {
     implementation 'androidx.activity:activity-compose'
 
     // Compose Navigation
-    implementation 'androidx.navigation:navigation-compose:2.5.3'     // Stable one
+    implementation 'androidx.navigation:navigation-compose:2.6.0'     // Stable one
     implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"     // Experimental but has animations
 
     //Spotify
@@ -184,10 +184,15 @@ dependencies {
     implementation "org.jsoup:jsoup:1.16.1"
 
     //Test Setup
+    implementation 'androidx.test.ext:junit-ktx:1.1.5'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'com.squareup.okhttp3:mockwebserver:5.0.0-alpha.11'
     testImplementation 'androidx.arch.core:core-testing:2.2.0'
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1'
+    // Optional -- Mockito framework
+    testImplementation "org.mockito:mockito-core:5.3.1"
+    // Optional -- mockito-kotlin
+    testImplementation "org.mockito.kotlin:mockito-kotlin:4.1.0"
 
     debugImplementation "androidx.test:monitor:1.6.1"       // Solves "class PlatformTestStorageRegistery not found" error for ui tests.
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"

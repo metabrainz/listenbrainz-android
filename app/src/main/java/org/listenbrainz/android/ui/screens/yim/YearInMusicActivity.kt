@@ -5,10 +5,12 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.lifecycle.ViewModelProvider
 import dagger.hilt.android.AndroidEntryPoint
+import org.listenbrainz.android.ui.screens.yim.navigation.YimNavigation
+import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModelImpl
 import org.listenbrainz.android.viewmodel.YimViewModel
-import org.listenbrainz.android.ui.screens.yim.navigation.YimNavigation
 
 @AndroidEntryPoint
 class YearInMusicActivity : ComponentActivity() {
@@ -17,7 +19,8 @@ class YearInMusicActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         
         val yimViewModel : YimViewModel by viewModels()
-        val networkConnectivityViewModel = NetworkConnectivityViewModelImpl(this)
+        val networkConnectivityViewModel: NetworkConnectivityViewModel =
+            ViewModelProvider(this)[NetworkConnectivityViewModelImpl::class.java]
         
         // Login Check
         if (!yimViewModel.isLoggedIn()){

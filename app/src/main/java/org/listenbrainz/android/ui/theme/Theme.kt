@@ -3,11 +3,19 @@ package org.listenbrainz.android.ui.theme
 import android.app.Activity
 import android.content.Context
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -19,6 +27,55 @@ import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 /** Theme for the whole app. */
+data class Theme(
+    val background: Color,
+    val onBackground: Color,
+    val level1: Color,
+    val level2: Color,
+    //val level3: Color,
+    val tabsUnfocused: Color,
+    val tabsFocused: Color,
+    val lbSignature: Color,
+    val lbSignatureSecondary: Color,
+    val lbSignatureInverse: Color,
+    val onLbSignature: Color,
+    val text: Color,
+    val hint: Color
+)
+
+private val colorSchemeDark = Theme(
+    background = app_bg_dark,
+    onBackground = Color.White,
+    level1 = app_bottom_nav_dark,
+    level2 = Color(0xFF4E4E4E),
+    //level3 = ,
+    tabsUnfocused = Color(0xFF1E1E1E),
+    tabsFocused = Color(0xFF000000),
+    lbSignature = lb_orange,
+    lbSignatureSecondary = lb_yellow,
+    lbSignatureInverse = lb_purple,
+    onLbSignature = Color.Black,
+    text = Color.White,
+    hint = Color(0xFF8C8C8C)
+)
+
+private val colorSchemeLight = Theme(
+    background = app_bg_day,
+    onBackground = Color.Black,
+    level1 = app_bottom_nav_day,
+    level2 = Color(0xFF1E1E1E),
+    //level3 = ,
+    tabsUnfocused = Color(0xFFFEFEFE),
+    tabsFocused = Color(0xFFD8D8D8),
+    lbSignature = lb_purple,
+    lbSignatureSecondary = lb_yellow,
+    lbSignatureInverse = lb_orange,
+    onLbSignature = Color.White,
+    text = Color.Black,
+    hint = Color(0xFF707070)
+)
+
+private lateinit var LocalColorScheme: ProvidableCompositionLocal<Theme>
 
 private val DarkColorScheme = darkColorScheme(
     background = app_bg_dark,
@@ -31,8 +88,6 @@ private val DarkColorScheme = darkColorScheme(
 
     surfaceTint = bp_lavender_dark,
     onSurface = Color.White,     // Text color (Which is ON surface/canvas)
-
-
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -109,15 +164,22 @@ fun YearInMusicTheme(
     )
 }
 
-// Padding suggestions for out compose part
+
 @Immutable
 data class Paddings(
     val defaultPadding: Dp = 16.dp,
     val tinyPadding: Dp = 4.dp,
     val smallPadding: Dp = 8.dp,
-    val largePadding: Dp = 24.dp
+    val largePadding: Dp = 24.dp,
+    
+    // New set
+    val horizontal: Dp = 8.dp,
+    val vertical: Dp = 8.dp,
+    val lazyListAdjacent: Dp = 8.dp,
+    val coverArtAndTextGap: Dp = 8.dp
 )
-internal val LocalPaddings = staticCompositionLocalOf { Paddings() }
+private val LocalPaddings = staticCompositionLocalOf { Paddings() }
+
 
 /**
  * This variable defines the ui mode of the system.
@@ -135,6 +197,9 @@ internal val LocalPaddings = staticCompositionLocalOf { Paddings() }
  * before executing instrumented tests.*/
 lateinit var isUiModeIsDark : MutableState<Boolean?>
 
+
+/** This function determines if the absolute UI mode of the app is dark (True) or not, irrespective of
+ * what theme the device is using. Different from [isSystemInDarkTheme].*/
 @Composable
 fun onScreenUiModeIsDark() : Boolean {
     return when (isUiModeIsDark.value){
@@ -175,6 +240,17 @@ fun ListenBrainzTheme(
         false -> LightColorScheme
         else -> if (systemTheme) DarkColorScheme else LightColorScheme
     }
+    
+    // Custom ColorScheme
+    val localColorScheme =
+        when (isUiModeIsDark.value) {
+            true -> colorSchemeDark
+            false -> colorSchemeLight
+            else -> if (systemTheme) colorSchemeDark else colorSchemeLight
+        }
+    
+    LocalColorScheme = staticCompositionLocalOf { localColorScheme }
+    
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
@@ -191,6 +267,7 @@ fun ListenBrainzTheme(
     }
     CompositionLocalProvider {
         LocalPaddings provides Paddings()
+        LocalColorScheme provides localColorScheme
     }
     MaterialTheme(
         colorScheme = colorScheme,
@@ -198,21 +275,16 @@ fun ListenBrainzTheme(
     )
 }
 
-// We can access Custom defined values for our theme from this object.
-object ListenBrainzThemeValues {
-    val colorScheme: ColorScheme
+
+object ListenBrainzTheme {
+    val colorScheme: Theme
         @Composable
-        get() = when (userSelectedThemeIsNight(context = LocalContext.current)) {
-            true -> DarkColorScheme
-            false -> LightColorScheme
-            else -> if (isSystemInDarkTheme()) DarkColorScheme else LightColorScheme
-        }
-    
-    // TODO: Can Introduce saved shapes and typography.
-    // TODO: Can Integrate Padding Values from here.
+        @ReadOnlyComposable
+        get() = LocalColorScheme.current
     
     val paddings: Paddings
         @Composable
+        @ReadOnlyComposable
         get() = LocalPaddings.current
 }
 

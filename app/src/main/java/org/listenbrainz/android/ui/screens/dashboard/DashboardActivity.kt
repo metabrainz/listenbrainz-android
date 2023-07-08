@@ -6,11 +6,16 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.captionBar
 import androidx.compose.material.BackdropValue
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
@@ -23,6 +28,8 @@ import org.listenbrainz.android.ui.components.TopBar
 import org.listenbrainz.android.ui.navigation.AppNavigation
 import org.listenbrainz.android.ui.navigation.BottomNavigationBar
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
+import org.listenbrainz.android.ui.screens.search.SearchScreen
+import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import javax.inject.Inject
@@ -53,8 +60,7 @@ class DashboardActivity : ComponentActivity() {
                 }
 
                 val launcher = rememberLauncherForActivityResult(
-                    contract =
-                    ActivityResultContracts.RequestMultiplePermissions()
+                    contract = ActivityResultContracts.RequestMultiplePermissions()
                 ) { permission ->
                     val isGranted = permission.values.any { it }
                     when {
@@ -112,9 +118,11 @@ class DashboardActivity : ComponentActivity() {
                 val backdropScaffoldState =
                     rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
                 val shouldScrollToTop = remember { mutableStateOf(false) }
-
+                val snackbarState = SnackbarHostState()
+                val searchBarState = rememberSearchBarState()
+                
                 Scaffold(
-                    topBar = { TopBar(activity = this, navController = navController) },
+                    topBar = { TopBar(navController = navController, searchBarState = searchBarState) },
                     bottomBar = {
                         BottomNavigationBar(
                             navController = navController,
@@ -122,21 +130,38 @@ class DashboardActivity : ComponentActivity() {
                             shouldScrollToTop = shouldScrollToTop
                         )
                     },
-                    backgroundColor = MaterialTheme.colorScheme.background
+                    snackbarHost = {
+                        SnackbarHost(hostState = snackbarState) { snackbarData ->
+                            Snackbar(
+                                snackbarData = snackbarData,
+                                containerColor = MaterialTheme.colorScheme.background,
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                                actionColor = MaterialTheme.colorScheme.inverseOnSurface,
+                                dismissActionContentColor = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    },
+                    containerColor = MaterialTheme.colorScheme.background,
+                    contentWindowInsets = WindowInsets.captionBar
+                
                 ) {
+                    
                     if (isGrantedPerms == PermissionStatus.GRANTED.name) {
+                        
                         BrainzPlayerBackDropScreen(
                             backdropScaffoldState = backdropScaffoldState,
-                            paddingValues = it
+                            paddingValues = it,
                         ) {
                             AppNavigation(
                                 navController = navController,
-                                activity = this,
                                 shouldScrollToTop = shouldScrollToTop
                             )
                         }
                     }
                 }
+                
+                SearchScreen(searchBarState = searchBarState)
+                
             }
         }
     }

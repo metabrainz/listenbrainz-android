@@ -6,7 +6,6 @@ import dagger.Provides
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
-import org.listenbrainz.android.di.AppModule
 import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
 import org.listenbrainz.sharedtest.mocks.MockAppPreferences

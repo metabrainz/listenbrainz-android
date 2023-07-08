@@ -9,21 +9,27 @@ import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.repository.SocialRepository
 import org.listenbrainz.android.repository.SocialRepositoryImpl
 import org.listenbrainz.android.service.SocialService
-import org.listenbrainz.android.util.LBResponseError
 import org.listenbrainz.android.util.Resource
+import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.alreadyFollowingError
+import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.authHeaderNotFoundError
+import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.cannotFollowSelfError
+import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.userNotFoundError
+import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.testFollowersSuccessData
+import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.testFollowingSuccessData
+import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.testSearchResult
+import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.testSimilarUserSuccessData
 import org.listenbrainz.sharedtest.utils.AssertionUtils
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testAccessToken
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testAuthHeader
-import org.listenbrainz.sharedtest.utils.EntityTestUtils.testFollowersSuccessData
-import org.listenbrainz.sharedtest.utils.EntityTestUtils.testFollowingSuccessData
-import org.listenbrainz.sharedtest.utils.EntityTestUtils.testSearchResult
-import org.listenbrainz.sharedtest.utils.EntityTestUtils.testSimilarUserSuccessData
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testFamiliarUser
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testSomeOtherUser
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUserDNE
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername
+import org.listenbrainz.sharedtest.utils.ResourceString.already_following_error
 import org.listenbrainz.sharedtest.utils.ResourceString.auth_header_not_found_error
 import org.listenbrainz.sharedtest.utils.ResourceString.cannot_follow_self_error
 import org.listenbrainz.sharedtest.utils.ResourceString.followers_response
@@ -68,6 +74,18 @@ class SocialRepositoryTest {
                     
                     // Follow
                     
+                    "/user/${testFamiliarUser}/follow" -> return MockResponse().apply {
+                        if (request.getHeader("Authorization") == testAuthHeader){
+                            setResponseCode(400).setBody(
+                                already_following_error
+                            )
+                        }else {
+                            setResponseCode(401).setBody(
+                                auth_header_not_found_error
+                            )
+                        }
+                    }
+                    
                     "/user/${testSomeOtherUser}/follow" -> return MockResponse().apply {
                         if (request.getHeader("Authorization") == testAuthHeader){
                             setResponseCode(201).setBody(
@@ -106,7 +124,7 @@ class SocialRepositoryTest {
                     
                     // Unfollow
                     
-                    "/user/${testSomeOtherUser}/unfollow" -> return MockResponse().apply {
+                    "/user/${testFamiliarUser}/unfollow" -> return MockResponse().apply {
                         if (request.getHeader("Authorization") == testAuthHeader) {
                             setResponseCode(201).setBody(
                                 status_ok
@@ -134,6 +152,8 @@ class SocialRepositoryTest {
                             search_response
                         )
                     }
+                    
+                    "/search/users?search_term=$testFamiliarUser" -> { MockResponse().setResponseCode(429) }
     
                     else -> MockResponse().setResponseCode(400)
                     
@@ -159,7 +179,7 @@ class SocialRepositoryTest {
         val result = repository.getFollowing(testUsername)
         
         assertEquals(Resource.Status.SUCCESS, result.status)
-        AssertionUtils.checkFollowingAssertions(result.data, expected)
+        AssertionUtils.checkFollowingAssertions(result, expected)
     }
     
     @Test
@@ -170,7 +190,7 @@ class SocialRepositoryTest {
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null, data?.following)
         assertEquals(null, data?.user)
-        assertEquals(LBResponseError.UserNotFound, data?.error)
+        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
     }
     
     /* getFollowers() tests */
@@ -181,18 +201,20 @@ class SocialRepositoryTest {
         val result = repository.getFollowers(testUsername)
     
         assertEquals(Resource.Status.SUCCESS, result.status)
-        AssertionUtils.checkFollowersAssertions(result.data, expected)
+        AssertionUtils.checkFollowersAssertions(result, expected)
     }
     
     @Test
-    fun `test getFollowers() DNE error response`() = runTest {
+    fun `test getFollowers() error response`() = runTest {
+        // User DNE
         val result = repository.getFollowers(testUserDNE)
         val data = result.data
         
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null, data?.followers)
         assertEquals(null, data?.user)
-        assertEquals(LBResponseError.UserNotFound, data?.error)
+        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
+        assertEquals(userNotFoundError, result.error?.actualResponse)
     }
     
     /* follow() tests */
@@ -212,28 +234,38 @@ class SocialRepositoryTest {
         
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(LBResponseError.UserNotFound, result.data?.error)
+        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
+        assertEquals(userNotFoundError, result.error?.actualResponse)
         
         // Cannot follow self
         result = repository.followUser(testUsername, accessToken = testAccessToken)
         
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(LBResponseError.CannotFollowSelf, result.data?.error)
+        assertEquals(ResponseError.BAD_REQUEST, result.error)
+        assertEquals(cannotFollowSelfError, result.error?.actualResponse)
+        
+        // Already following
+        result = repository.followUser(testFamiliarUser, accessToken = testAccessToken)
+        assertEquals(Resource.Status.FAILED, result.status)
+        assertEquals(null ,result.data?.status)
+        assertEquals(ResponseError.BAD_REQUEST, result.error)
+        assertEquals(alreadyFollowingError, result.error?.actualResponse)
         
         // No Auth Header
-        result = repository.followUser(testSomeOtherUser, accessToken = "")     // Token is empty.
+        result = repository.followUser(testFamiliarUser, accessToken = "")     // Token is empty.
     
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(LBResponseError.AuthHeaderNotFound, result.data?.error)
+        assertEquals(ResponseError.AUTH_HEADER_NOT_FOUND, result.error)
+        assertEquals(authHeaderNotFoundError, result.error?.actualResponse)
     }
     
     /* unfollow() tests */
     
     @Test
     fun `test unfollow() success response`() = runTest {
-        val result = repository.unfollowUser(testSomeOtherUser, accessToken = testAccessToken)
+        val result = repository.unfollowUser(testFamiliarUser, accessToken = testAccessToken)
     
         assertEquals(Resource.Status.SUCCESS, result.status)
         assertEquals(result.data?.status, "ok")
@@ -246,16 +278,18 @@ class SocialRepositoryTest {
         
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(LBResponseError.UserNotFound, result.data?.error)
+        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
+        assertEquals(userNotFoundError, result.error?.actualResponse)
         
         // NOTE: Server does not send error response for when a user tries to unfollow themselves.
         
         // No Auth Header
-        result = repository.followUser(testSomeOtherUser, accessToken = "")     // Token is empty.
+        result = repository.followUser(testFamiliarUser, accessToken = "")     // Token is empty.
     
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(LBResponseError.AuthHeaderNotFound, result.data?.error)
+        assertEquals(ResponseError.AUTH_HEADER_NOT_FOUND, result.error)
+        assertEquals(authHeaderNotFoundError, result.error?.actualResponse)
     }
     
     @Test
@@ -264,17 +298,19 @@ class SocialRepositoryTest {
         val expected = testSimilarUserSuccessData
         
         assertEquals(Resource.Status.SUCCESS, result.status)
-        assertEquals(null, result.data?.error)
+        assertEquals(null, result.error)
         assertEquals(expected.payload, result.data?.payload)
     }
     
     @Test
-    fun `test getSimilarUsers() DNE error response`() = runTest {
+    fun `test getSimilarUsers() error response`() = runTest {
+        // User DNE
         val result = repository.getSimilarUsers(testUserDNE)
     
         assertEquals(Resource.Status.FAILED, result.status)
-        assertEquals(LBResponseError.UserNotFound, result.data?.error)
+        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
         assertEquals(null, result.data?.payload)
+        assertEquals(userNotFoundError, result.error?.actualResponse)
     }
     
     @Test
@@ -284,4 +320,5 @@ class SocialRepositoryTest {
         assertEquals(Resource.Status.SUCCESS, result.status)
         assertEquals(testSearchResult, result.data)
     }
+    
 }

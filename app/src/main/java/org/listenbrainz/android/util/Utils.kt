@@ -17,6 +17,7 @@ import androidx.annotation.WorkerThread
 import kotlinx.coroutines.Dispatchers
 import okhttp3.*
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.util.Log.e
 import java.io.*
 import java.security.MessageDigest
@@ -36,7 +37,12 @@ object Utils {
     
     fun <T> logAndReturn(it: Throwable) : Resource<T> {
         it.printStackTrace()
-        return Resource.failure()
+        return when (it){
+            is FileNotFoundException -> Resource.failure(error = ResponseError.FILE_NOT_FOUND)
+            is IOException -> Resource.failure(error = ResponseError.NETWORK_ERROR)
+            else -> Resource.failure(error = ResponseError.UNKNOWN)
+        }
+        
     }
     
     fun authHeader(accessToken: String) : String{
@@ -191,6 +197,8 @@ object Utils {
                 
                 if (!appImagesFolder.exists()) {
                     if (appImagesFolder.mkdirs())        // Making sure folder exists.
+                        Log.e("saveBitmap", "Successfully created app directory.")
+                    else
                         Log.e("saveBitmap", "Failed to create a directory.", )
                 }
                 

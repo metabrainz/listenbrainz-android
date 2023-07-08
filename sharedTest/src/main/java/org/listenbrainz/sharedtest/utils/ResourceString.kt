@@ -10,8 +10,8 @@ object ResourceString {
         EntityTestUtils.loadResourceAsString("cannot_follow_self_error.json")
     }
     
-    val follow_error_response by lazy {
-        EntityTestUtils.loadResourceAsString("follow_error_response.json")
+    val already_following_error by lazy {
+        EntityTestUtils.loadResourceAsString("already_following_error.json")
     }
     
     val followers_response by lazy {
@@ -36,6 +36,14 @@ object ResourceString {
     
     val user_does_not_exist_error by lazy {
         EntityTestUtils.loadResourceAsString("user_does_not_exist_error.json")
+    }
+    
+    val rate_limiting_error by lazy {
+        "{\"code\":429,\"error\":\"\"}"
+    }
+    
+    val unknown_error by lazy {
+        "{\"code\":400,\"error\":\"Wow new error!\"}"
     }
     
     val yim_data by lazy {

@@ -7,6 +7,7 @@ import org.listenbrainz.android.model.UserInfo
 import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
 import org.listenbrainz.android.util.LinkedService
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername
 
 /*
     For every new preference, add default value of the concerned shared
@@ -20,7 +21,7 @@ class MockAppPreferences(
     override val loginStatus: Int = STATUS_LOGGED_OUT,
     override val mbAccessToken: String? = "",
     override var lbAccessToken: String? = "",
-    override var username: String? = "",
+    override var username: String? = testUsername,
     override val refreshToken: String? = "",
     override var albumsOnDevice: Boolean = true,
     override var songsOnDevice: Boolean = true,
