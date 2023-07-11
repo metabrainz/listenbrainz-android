@@ -9,6 +9,7 @@ import dagger.hilt.components.SingletonComponent
 import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.repository.AppPreferencesImpl
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
@@ -18,12 +19,18 @@ object AppModule {
     @Singleton
     @Provides
     fun providesServiceConnection(@ApplicationContext context: Context) = BrainzPlayerServiceConnection(context)
-
-    @Singleton
-    @Provides
-    fun providesContext(@ApplicationContext context: Context): Context = context
     
-    @Singleton
     @Provides
     fun providesAppPreferences(@ApplicationContext context: Context) : AppPreferences = AppPreferencesImpl(context)
+    
+    @AuthHeader
+    @Provides
+    fun providesAuthHeader(appPreferences: AppPreferences) : String {
+        return "Bearer ${appPreferences.lbAccessToken}"
+    }
 }
+
+
+@Retention(AnnotationRetention.BINARY)
+@Qualifier
+annotation class AuthHeader

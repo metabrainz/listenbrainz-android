@@ -12,9 +12,9 @@ interface SocialRepository {
     
     suspend fun getFollowing(username: String) : Resource<SocialData>
     
-    suspend fun followUser(username: String, accessToken: String) : Resource<SocialResponse>
+    suspend fun followUser(username: String) : Resource<SocialResponse>
     
-    suspend fun unfollowUser(username: String, accessToken: String) : Resource<SocialResponse>
+    suspend fun unfollowUser(username: String) : Resource<SocialResponse>
     
     suspend fun getSimilarUsers(username: String) : Resource<SimilarUserData>
     

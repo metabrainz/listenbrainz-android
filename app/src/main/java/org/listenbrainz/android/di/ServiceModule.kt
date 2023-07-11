@@ -35,7 +35,6 @@ class ServiceModule {
     
     
     @get:Provides
-    @get:Singleton
     val blogService: BlogService = Retrofit.Builder()
         .baseUrl("https://public-api.wordpress.com/rest/v1.1/sites/")
         .addConverterFactory(GsonConverterFactory.create())
@@ -47,7 +46,6 @@ class ServiceModule {
     val listensService: ListensService = retrofitBuilderLB.create(ListensService::class.java)
     
     @get:Provides
-    @get:Singleton
     val socialService: SocialService = retrofitBuilderLB.create(SocialService::class.java)
     
     
@@ -86,7 +84,6 @@ class ServiceModule {
         .create()
 
     @get:Provides
-    @get:Singleton
     val yimService: YimService = Retrofit.Builder()
             .baseUrl(LISTENBRAINZ_API_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create(yimGson))

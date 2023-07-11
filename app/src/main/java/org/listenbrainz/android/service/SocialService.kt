@@ -1,5 +1,6 @@
 package org.listenbrainz.android.service
 
+import org.listenbrainz.android.di.AuthHeader
 import org.listenbrainz.android.model.SearchResult
 import org.listenbrainz.android.model.SimilarUserData
 import org.listenbrainz.android.model.SocialData
@@ -25,13 +26,13 @@ interface SocialService {
     @POST("user/{user_name}/unfollow")
     suspend fun unfollowUser(
         @Path("user_name") username: String,
-        @Header(AUTHORIZATION) authHeader: String
+        @AuthHeader @Header(AUTHORIZATION) authHeader: String
     ): Response<SocialResponse>
     
     @POST("user/{user_name}/follow")
     suspend fun followUser(
         @Path("user_name") username: String,
-        @Header(AUTHORIZATION) authHeader: String
+        @AuthHeader @Header(AUTHORIZATION) authHeader: String
     ): Response<SocialResponse>
     
     @GET("user/{user_name}/similar-users")

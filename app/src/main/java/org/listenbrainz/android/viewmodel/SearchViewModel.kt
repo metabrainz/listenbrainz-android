@@ -23,7 +23,6 @@ import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.SearchUiState
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.model.UserListUiState
-import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.repository.SocialRepository
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
@@ -31,7 +30,6 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val repository: SocialRepository,
-    private val appPreferences: AppPreferences,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
@@ -129,7 +127,7 @@ class SearchViewModel @Inject constructor(
         
         invertFollowUiState(index)
         
-        val result = repository.followUser(user.username, appPreferences.lbAccessToken ?: "")
+        val result = repository.followUser(user.username)
         return when (result.status) {
             Resource.Status.FAILED -> {
                 emitError(result.error)
@@ -144,7 +142,7 @@ class SearchViewModel @Inject constructor(
         
         invertFollowUiState(index)
         
-        val result = repository.unfollowUser(user.username, appPreferences.lbAccessToken ?: "")
+        val result = repository.unfollowUser(user.username)
         return when (result.status) {
             Resource.Status.FAILED -> {
                 invertFollowUiState(index)
