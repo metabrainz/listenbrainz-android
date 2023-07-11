@@ -23,7 +23,6 @@ import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.testFollowi
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.testSearchResult
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.testSimilarUserSuccessData
 import org.listenbrainz.sharedtest.utils.AssertionUtils
-import org.listenbrainz.sharedtest.utils.EntityTestUtils.testAccessToken
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testAuthHeader
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testFamiliarUser
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testSomeOtherUser
@@ -163,7 +162,7 @@ class SocialRepositoryTest {
         }
         webServer.start()
         val service = RetrofitUtils.createTestService(SocialService::class.java, webServer.url("/"))
-        repository = SocialRepositoryImpl(service)
+        repository = SocialRepositoryImpl(service, testAuthHeader)
     }
     
     @After
@@ -221,7 +220,7 @@ class SocialRepositoryTest {
     
     @Test
     fun `test follow() success response`() = runTest {
-        val result = repository.followUser(testSomeOtherUser, accessToken = testAccessToken)
+        val result = repository.followUser(testSomeOtherUser)
     
         assertEquals(Resource.Status.SUCCESS, result.status)
         assertEquals(result.data?.status, "ok")
@@ -230,7 +229,7 @@ class SocialRepositoryTest {
     @Test
     fun `test follow() error responses`() = runTest {
         // User DNE
-        var result = repository.followUser(testUserDNE, accessToken = testAccessToken)
+        var result = repository.followUser(testUserDNE)
         
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
@@ -238,7 +237,7 @@ class SocialRepositoryTest {
         assertEquals(userNotFoundError, result.error?.actualResponse)
         
         // Cannot follow self
-        result = repository.followUser(testUsername, accessToken = testAccessToken)
+        result = repository.followUser(testUsername)
         
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
@@ -246,14 +245,14 @@ class SocialRepositoryTest {
         assertEquals(cannotFollowSelfError, result.error?.actualResponse)
         
         // Already following
-        result = repository.followUser(testFamiliarUser, accessToken = testAccessToken)
+        result = repository.followUser(testFamiliarUser)
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
         assertEquals(ResponseError.BAD_REQUEST, result.error)
         assertEquals(alreadyFollowingError, result.error?.actualResponse)
         
         // No Auth Header
-        result = repository.followUser(testFamiliarUser, accessToken = "")     // Token is empty.
+        result = repository.followUser(testFamiliarUser)     // Token is empty.
     
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
@@ -265,7 +264,7 @@ class SocialRepositoryTest {
     
     @Test
     fun `test unfollow() success response`() = runTest {
-        val result = repository.unfollowUser(testFamiliarUser, accessToken = testAccessToken)
+        val result = repository.unfollowUser(testFamiliarUser)
     
         assertEquals(Resource.Status.SUCCESS, result.status)
         assertEquals(result.data?.status, "ok")
@@ -274,7 +273,7 @@ class SocialRepositoryTest {
     @Test
     fun `test unfollow() error responses`() = runTest {
         // User DNE
-        var result = repository.followUser(testUserDNE, accessToken = testAccessToken)
+        var result = repository.followUser(testUserDNE)
         
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
@@ -284,7 +283,7 @@ class SocialRepositoryTest {
         // NOTE: Server does not send error response for when a user tries to unfollow themselves.
         
         // No Auth Header
-        result = repository.followUser(testFamiliarUser, accessToken = "")     // Token is empty.
+        result = repository.followUser(testFamiliarUser)     // Token is empty.
     
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)

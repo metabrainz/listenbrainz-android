@@ -26,11 +26,19 @@ object EntityTestUtils {
         return builder.toString()
     }
     
+    /** Access token of [testUsername]*/
     const val testAccessToken = "8OC8as-1VpATqk-M79Kf-cdTw123a"
     const val testAuthHeader = "Bearer $testAccessToken"
     
+    /** Main user that is supposed to be logged in.*/
     const val testUsername = "Jasjeet"
+    
+    /** User that is followed or is following [testUsername].*/
     const val testFamiliarUser = "Jasjeettest"
+    
+    /** User that has no relation whatsoever with [testUsername].*/
     const val testSomeOtherUser = "AnotherUser"
+    
+    /** This user doesn't exist.*/
     const val testUserDNE = "Some_User_That_Does_Not_Exist"
 }

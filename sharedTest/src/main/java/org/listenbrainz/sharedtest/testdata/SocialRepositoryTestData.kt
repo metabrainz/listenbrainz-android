@@ -6,7 +6,9 @@ import org.listenbrainz.android.model.SimilarUserData
 import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.SocialResponse
 import org.listenbrainz.android.model.User
-import org.listenbrainz.sharedtest.utils.EntityTestUtils
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testFamiliarUser
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testSomeOtherUser
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername
 
 object SocialRepositoryTestData {
     
@@ -20,9 +22,9 @@ object SocialRepositoryTestData {
     val testSearchResult: SearchResult
             = SearchResult(
         users = listOf(
-            User("Jasjeet"),
-            User("JasjeetTest"),
-            User("Jaw")
+            User(testUsername),
+            User(testFamiliarUser, true),
+            User(testSomeOtherUser, false)
         )
     )
     
@@ -40,7 +42,7 @@ object SocialRepositoryTestData {
             return SocialData(
                 followers = listOf("jivteshs20","arsh331","Vac31.","JasjeetTest"),
                 following = null,
-                user = EntityTestUtils.testUsername
+                user = testUsername
             )
         }
     
@@ -54,7 +56,7 @@ object SocialRepositoryTestData {
             return SocialData(
                 followers = null,
                 following = listOf("jivteshs20","akshaaatt","riksucks","lucifer"),
-                user = EntityTestUtils.testUsername
+                user = testUsername
             )
         }
 }
