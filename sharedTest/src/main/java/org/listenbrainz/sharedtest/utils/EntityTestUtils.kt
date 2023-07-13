@@ -34,7 +34,7 @@ object EntityTestUtils {
     const val testUsername = "Jasjeet"
     
     /** User that is followed or is following [testUsername].*/
-    const val testFamiliarUser = "Jasjeettest"
+    const val testFamiliarUser = "JasjeetTest"
     
     /** User that has no relation whatsoever with [testUsername].*/
     const val testSomeOtherUser = "AnotherUser"

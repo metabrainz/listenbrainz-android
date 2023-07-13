@@ -12,12 +12,16 @@ import org.listenbrainz.android.model.User
 import org.listenbrainz.android.repository.SocialRepository
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.viewmodel.SearchViewModel
+import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.alreadyFollowingError
+import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.cannotFollowSelfError
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.testFollowUnfollowSuccessResponse
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.testSearchResult
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testFamiliarUser
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testSomeOtherUser
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.wheneverBlocking
 
 
@@ -29,7 +33,7 @@ class SearchViewModelTest : BaseUnitTest() {
     
     @Mock
     private lateinit var mockSocialRepository: SocialRepository
-    
+
     @Before
     fun setup(){
         
@@ -38,20 +42,20 @@ class SearchViewModelTest : BaseUnitTest() {
             mockSocialRepository.searchUser(testUsername)
         }.thenReturn(Resource.success(testSearchResult))
         
-        // Follow user mock
+        // Unfollow some other user mock
+        wheneverBlocking {
+            mockSocialRepository.unfollowUser(testSomeOtherUser)
+        }.thenReturn(Resource.success(testFollowUnfollowSuccessResponse))
+    
+        // User tries to follow some unknown user.
         wheneverBlocking {
             mockSocialRepository.followUser(testSomeOtherUser)
         }.thenReturn(Resource.success(testFollowUnfollowSuccessResponse))
     
-        // Unfollow user mock
+        // User tries to follow an already followed user.
         wheneverBlocking {
-            mockSocialRepository.unfollowUser(testSomeOtherUser)
-        }.thenReturn(Resource.success(testFollowUnfollowSuccessResponse))
-        
-        // Follow familiar user mock
-        wheneverBlocking {
-            mockSocialRepository.followUser(testUsername)
-        }.thenReturn(Resource.failure(error = ResponseError.NETWORK_ERROR))
+            mockSocialRepository.followUser(testFamiliarUser)
+        }.doReturn(Resource.failure(error = ResponseError.BAD_REQUEST.apply { actualResponse = alreadyFollowingError }))
         
         viewModel = SearchViewModel(mockSocialRepository, testDispatcher(), testDispatcher())
     }
@@ -79,10 +83,26 @@ class SearchViewModelTest : BaseUnitTest() {
     
     @Test
     fun `test error flow is updated`() = test {
+    
+        // User tries to follow self.
+        wheneverBlocking {
+            mockSocialRepository.followUser(testUsername)
+        }.doReturn(Resource.failure(error = ResponseError.BAD_REQUEST.apply { actualResponse = cannotFollowSelfError }))
+        
         makeQueryAndAssert()
             .toggleFollowStatus(testUsername, this)
-            // Expected is false here because testFamiliarUser is already being followed.
+            // Expected is false here because testUsername is user itself.
             .assertFollowStatusChanged(testUsername, expected = false)
+            .assertErrorFlowChanged()
+    }
+    
+    @Test
+    fun `test if state remains unchanged on already following error and error flow is updated`() = test {
+        makeQueryAndAssert()
+            .toggleFollowStatus(testFamiliarUser, this)
+            // Expected is true here even though initial state is false because testFamiliarUser is already being followed
+            // and our UI states should remain true to actual data.
+            .assertFollowStatusChanged(testFamiliarUser, expected = true)
             .assertErrorFlowChanged()
     }
     
@@ -100,21 +120,28 @@ class SearchViewModelTest : BaseUnitTest() {
     
     private suspend fun toggleFollowStatus(user: String, testScope: TestScope) : SearchViewModelTest {
         testScope.advanceUntilIdle()
-        // Assigned values: 2 -> "AnotherUser", 0 -> "Jasjeet"
-        viewModel.toggleFollowStatus(User(user), if (user == testSomeOtherUser) 2 else 0)
+        viewModel.toggleFollowStatus(User(user), getIndex(user))
         return this
     }
     
     private fun assertFollowStatusChanged(user: String, expected: Boolean) : SearchViewModelTest {
-        val index = if (user == testSomeOtherUser) 2 else 0
+        val index = getIndex(user)
         assertEquals(user, viewModel.uiState.value.result.userList[index].username)
         assertEquals(expected, viewModel.uiState.value.result.isFollowedList[index])
         return this
     }
     
     private fun assertErrorFlowChanged() : SearchViewModelTest {
-        assertEquals(viewModel.uiState.value.error, ResponseError.NETWORK_ERROR)
+        assertEquals(viewModel.uiState.value.error, ResponseError.BAD_REQUEST)
         return this
     }
     
+    private fun getIndex(user: String): Int {
+        return when(user){
+            testUsername -> 0
+            testFamiliarUser -> 1
+            testSomeOtherUser -> 2
+            else -> throw IndexOutOfBoundsException()
+        }
+    }
 }

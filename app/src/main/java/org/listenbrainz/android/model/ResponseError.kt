@@ -11,7 +11,7 @@ enum class ResponseError(val genericToast: String, var actualResponse: String? =
     
     DOES_NOT_EXIST(genericToast = "Error! Object not found."),     // "User Some_User_That_Does_Not_Exist not found"
     
-    BAD_REQUEST(genericToast = "Already following user."),     // "Jasjeet is already following user someotheruser"
+    BAD_REQUEST(genericToast = "Illegal action."),     // "Jasjeet is already following user someotheruser", "Whoops, cannot follow yourself."
     
     AUTH_HEADER_NOT_FOUND(genericToast = "Please login in order to perform this operation."),    // "You need to provide an Authorization header.
     
@@ -34,7 +34,6 @@ enum class ResponseError(val genericToast: String, var actualResponse: String? =
     
     /** Simple function that returns the most suitable message to show the user.*/
     fun toast(): String = actualResponse ?: genericToast
-    
     
     companion object {
         

@@ -128,9 +128,15 @@ class SearchViewModel @Inject constructor(
         invertFollowUiState(index)
         
         val result = repository.followUser(user.username)
-        return when (result.status) {
+        when (result.status) {
             Resource.Status.FAILED -> {
                 emitError(result.error)
+                
+                if (userIsAlreadyFollowed(result.error)){
+                    // We won't toggle back follow state if user is already followed.
+                    return
+                }
+                
                 invertFollowUiState(index)
             }
             else -> Unit
@@ -145,6 +151,8 @@ class SearchViewModel @Inject constructor(
         val result = repository.unfollowUser(user.username)
         return when (result.status) {
             Resource.Status.FAILED -> {
+                // Since same response is given by server even if user is unfollowed or not, we
+                // won't do anything here.
                 invertFollowUiState(index)
                 emitError(result.error)
             }
@@ -182,4 +190,9 @@ class SearchViewModel @Inject constructor(
             inputQueryFlow.emit("")
         }
     }
+    
+    /** True if the error states the the user is already being followed.*/
+    private fun userIsAlreadyFollowed(error: ResponseError?): Boolean =
+        error == ResponseError.BAD_REQUEST &&
+                error.actualResponse?.contains("already following") == true
 }
