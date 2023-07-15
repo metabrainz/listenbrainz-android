@@ -4,8 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
-import org.listenbrainz.android.repository.YimRepository
-import org.listenbrainz.android.repository.YimRepositoryImpl
+import org.listenbrainz.android.repository.yim.YimRepository
+import org.listenbrainz.android.repository.yim.YimRepositoryImpl
 
 @Module
 @InstallIn(ActivityRetainedComponent::class)

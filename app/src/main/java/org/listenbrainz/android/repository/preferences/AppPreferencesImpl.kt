@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository
+package org.listenbrainz.android.repository.preferences
 
 import android.content.Context
 import android.content.pm.PackageManager
@@ -14,7 +14,6 @@ import org.listenbrainz.android.util.Constants.ONBOARDING
 import org.listenbrainz.android.util.Constants.Strings.CURRENT_PLAYABLE
 import org.listenbrainz.android.util.Constants.Strings.LB_ACCESS_TOKEN
 import org.listenbrainz.android.util.Constants.Strings.LINKED_SERVICES
-import org.listenbrainz.android.util.Constants.Strings.MB_ACCESS_TOKEN
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_ALBUMS_ON_DEVICE
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_APPS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_BLACKLIST
@@ -107,7 +106,6 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
     
     override fun saveOAuthToken(token: AccessToken) {
         val editor = preferences.edit()
-        editor.putString(MB_ACCESS_TOKEN, token.accessToken)
         editor.putString(REFRESH_TOKEN, token.refreshToken)
         editor.apply()
     }
@@ -120,7 +118,6 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
 
     override fun logoutUser() {
         val editor = preferences.edit()
-        editor.remove(MB_ACCESS_TOKEN)
         editor.remove(REFRESH_TOKEN)
         editor.remove(USERNAME)
         editor.apply()
@@ -148,9 +145,7 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
                 else -> STATUS_LOGGED_OUT
             }
         }
-    
-    override val mbAccessToken: String?
-        get() = preferences.getString(MB_ACCESS_TOKEN, "")
+
     override var lbAccessToken: String?
         get() = preferences.getString(LB_ACCESS_TOKEN, "")
         set(value) = setString(LB_ACCESS_TOKEN, value)

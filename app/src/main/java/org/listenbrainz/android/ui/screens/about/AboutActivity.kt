@@ -4,7 +4,8 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
-import org.listenbrainz.android.repository.AppPreferences
+import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -16,11 +17,11 @@ class AboutActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            AboutScreen(version = appPreferences.version) {
-                finish()
+            ListenBrainzTheme {
+                AboutScreen(version = appPreferences.version) {
+                    finish()
+                }
             }
         }
-
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 }

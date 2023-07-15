@@ -4,8 +4,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
 import dagger.Binds
 import dagger.Module
-import org.listenbrainz.android.repository.BlogRepository
-import org.listenbrainz.android.repository.BlogRepositoryImpl
+import org.listenbrainz.android.repository.blog.BlogRepository
+import org.listenbrainz.android.repository.blog.BlogRepositoryImpl
 
 @Module
 @InstallIn(ActivityRetainedComponent::class)

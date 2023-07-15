@@ -28,8 +28,10 @@ import okhttp3.OkHttpClient
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.ListenBitmap
-import org.listenbrainz.android.repository.AppPreferences
-import org.listenbrainz.android.repository.ListensRepository
+import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.repository.listens.ListensRepository
+import org.listenbrainz.android.repository.socket.SocketRepository
+import org.listenbrainz.android.service.NOTHING_PLAYING
 import org.listenbrainz.android.service.YouTubeApiService
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.LinkedService
@@ -51,7 +53,8 @@ import kotlin.coroutines.suspendCoroutine
 class ListensViewModel @Inject constructor(
     val repository: ListensRepository,
     val appPreferences: AppPreferences,
-    private val application: Application
+    private val application: Application,
+    private val socketRepository: SocketRepository
 ) : AndroidViewModel(application) {
     // TODO: remove dependency of this view-model on application
     //  by moving spotify app remote to a repository.
@@ -79,9 +82,19 @@ class ListensViewModel @Inject constructor(
     private val errorCallback = { throwable: Throwable -> logError(throwable) }
     private var isResumed = false
 
+    private val _listeningNow: MutableStateFlow<Listen?> = MutableStateFlow(null)
+    val listeningNow = _listeningNow.asStateFlow()
+
     init {
         SpotifyAppRemote.setDebugMode(BuildConfig.DEBUG)
         trackProgress()
+        viewModelScope.launch(Dispatchers.IO) {
+            socketRepository
+                .listen(appPreferences.username!!)
+                .collect {
+                    _listeningNow.value = it
+                }
+        }
     }
 
     suspend fun validateUserToken(token: String): Boolean? {

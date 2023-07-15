@@ -4,7 +4,7 @@ import org.listenbrainz.android.model.AccessToken
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UserInfo
-import org.listenbrainz.android.repository.AppPreferences
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
 import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername
@@ -19,7 +19,6 @@ class MockAppPreferences(
     override var onboardingCompleted: Boolean = false,
     override var currentPlayable: Playable? = null,
     override val loginStatus: Int = STATUS_LOGGED_OUT,
-    override val mbAccessToken: String? = "",
     override var lbAccessToken: String? = "",
     override var username: String? = testUsername,
     override val refreshToken: String? = "",
