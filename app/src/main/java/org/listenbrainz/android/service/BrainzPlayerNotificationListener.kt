@@ -11,6 +11,7 @@ class BrainzPlayerNotificationListener(private val brainzPlayerService: BrainzPl
     override fun onNotificationCancelled(notificationId: Int, dismissedByUser: Boolean) {
         super.onNotificationCancelled(notificationId, dismissedByUser)
         brainzPlayerService.apply {
+            
             stopForeground(true)
             isForegroundService = false
             stopSelf()

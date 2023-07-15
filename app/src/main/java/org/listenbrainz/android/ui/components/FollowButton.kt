@@ -34,7 +34,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 /** State of this button changes optimistically and will revert back if something goes wrong. This inversion of state is determined by
  * the resulting flow returned by [onClick].
  * @param cornerRadius Corner radius of the button.
- * @param isFollowedState Initial follow state. Needs to be a subtype of [State]. Consider using [UserListUiState] for this
+ * @param isFollowedState Follow state of the user. Needs to be a subtype of [State]. Consider using [UserListUiState] for this
  * purpose.
  * @param scope Usually, there will be a lot of follow buttons in a view, it is advised to pass one scope
  * and avoid creating unnecessary scopes for each button that exists.

@@ -6,23 +6,25 @@ import org.listenbrainz.android.model.SimilarUserData
 import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.SocialResponse
 import org.listenbrainz.android.model.User
-import org.listenbrainz.sharedtest.utils.EntityTestUtils
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testFamiliarUser
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testSomeOtherUser
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername
 
 object SocialRepositoryTestData {
     
     object ErrorUtil {
         const val userNotFoundError = "User Some_User_That_Does_Not_Exist not found"
         const val authHeaderNotFoundError = "You need to provide an Authorization header."
-        const val alreadyFollowingError = "Jasjeet is already following user JasjeetTest"
+        const val alreadyFollowingError = "Jasjeet is already following user JasjeetTest."
         const val cannotFollowSelfError = "Whoops, cannot follow yourself."
     }
     
     val testSearchResult: SearchResult
             = SearchResult(
         users = listOf(
-            User("Jasjeet"),
-            User("JasjeetTest"),
-            User("Jaw")
+            User(testUsername),
+            User(testFamiliarUser),
+            User(testSomeOtherUser)
         )
     )
     
@@ -40,7 +42,7 @@ object SocialRepositoryTestData {
             return SocialData(
                 followers = listOf("jivteshs20","arsh331","Vac31.","JasjeetTest"),
                 following = null,
-                user = EntityTestUtils.testUsername
+                user = testUsername
             )
         }
     
@@ -54,7 +56,7 @@ object SocialRepositoryTestData {
             return SocialData(
                 followers = null,
                 following = listOf("jivteshs20","akshaaatt","riksucks","lucifer"),
-                user = EntityTestUtils.testUsername
+                user = testUsername
             )
         }
 }

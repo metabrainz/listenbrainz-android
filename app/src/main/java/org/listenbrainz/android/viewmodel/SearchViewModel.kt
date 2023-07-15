@@ -23,7 +23,6 @@ import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.SearchUiState
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.model.UserListUiState
-import org.listenbrainz.android.repository.AppPreferences
 import org.listenbrainz.android.repository.SocialRepository
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
@@ -31,7 +30,6 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val repository: SocialRepository,
-    private val appPreferences: AppPreferences,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
@@ -129,10 +127,16 @@ class SearchViewModel @Inject constructor(
         
         invertFollowUiState(index)
         
-        val result = repository.followUser(user.username, appPreferences.lbAccessToken ?: "")
-        return when (result.status) {
+        val result = repository.followUser(user.username)
+        when (result.status) {
             Resource.Status.FAILED -> {
                 emitError(result.error)
+                
+                if (userIsAlreadyFollowed(result.error)){
+                    // We won't toggle back follow state if user is already followed.
+                    return
+                }
+                
                 invertFollowUiState(index)
             }
             else -> Unit
@@ -144,9 +148,11 @@ class SearchViewModel @Inject constructor(
         
         invertFollowUiState(index)
         
-        val result = repository.unfollowUser(user.username, appPreferences.lbAccessToken ?: "")
+        val result = repository.unfollowUser(user.username)
         return when (result.status) {
             Resource.Status.FAILED -> {
+                // Since same response is given by server even if user is unfollowed or not, we
+                // won't do anything here.
                 invertFollowUiState(index)
                 emitError(result.error)
             }
@@ -184,4 +190,9 @@ class SearchViewModel @Inject constructor(
             inputQueryFlow.emit("")
         }
     }
+    
+    /** True if the error states the the user is already being followed.*/
+    private fun userIsAlreadyFollowed(error: ResponseError?): Boolean =
+        error == ResponseError.BAD_REQUEST &&
+                error.actualResponse?.contains("already following") == true
 }
