@@ -28,12 +28,14 @@ import javax.inject.Singleton
 class ServiceModule {
     
     /** Retrofit instance with LB api url.*/
-    private val retrofitBuilderLB: Retrofit = Retrofit.Builder()
-        .baseUrl(LISTENBRAINZ_API_BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
+    private val retrofitBuilderLB: Retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl(LISTENBRAINZ_API_BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
     
-    
+    @get:Singleton
     @get:Provides
     val blogService: BlogService = Retrofit.Builder()
         .baseUrl("https://public-api.wordpress.com/rest/v1.1/sites/")
@@ -41,19 +43,23 @@ class ServiceModule {
         .build().create(BlogService::class.java)
 
     
-    @get:Provides
     @get:Singleton
+    @get:Provides
     val listensService: ListensService = retrofitBuilderLB.create(ListensService::class.java)
     
+    
+    @get:Singleton
     @get:Provides
     val socialService: SocialService = retrofitBuilderLB.create(SocialService::class.java)
     
     
     /* YIM */
     
-    private val yimGson: Gson = GsonBuilder()
-        /** Since a TopRelease may or may not contain "caaId", "caaReleaseMbid" or "releaseMbid", so we perform a check. */
-        /*.registerTypeAdapter(
+    private val yimGson: Gson by lazy {
+        
+        GsonBuilder()
+            /** Since a TopRelease may or may not contain "caaId", "caaReleaseMbid" or "releaseMbid", so we perform a check. */
+            /*.registerTypeAdapter(
             TopRelease::class.java, JsonDeserializer<TopRelease>
             { jsonElement: JsonElement, _: Type, _: JsonDeserializationContext ->
 
@@ -71,18 +77,21 @@ class ServiceModule {
                 )
             }
         )*/
-        /** Check if a user is new with 0 listens*/
-        .registerTypeAdapter(
-            YimData::class.java, JsonDeserializer<YimData>
-            { jsonElement: JsonElement, _: Type, _: JsonDeserializationContext ->
+            /** Check if a user is new with 0 listens*/
+            .registerTypeAdapter(
+                YimData::class.java, JsonDeserializer<YimData>
+                { jsonElement: JsonElement, _: Type, _: JsonDeserializationContext ->
+                
+                    val element = Gson().fromJson(jsonElement, YimData::class.java)
+                    return@JsonDeserializer if (element.totalListenCount == 0) null else element
+                    // "totalListenCount" field is our null checker.
+                }
+            )
+            .create()
+    }
 
-                val element = Gson().fromJson(jsonElement, YimData::class.java)
-                return@JsonDeserializer if (element.totalListenCount == 0) null else element
-                // "totalListenCount" field is our null checker.
-            }
-        )
-        .create()
-
+    
+    @get:Singleton
     @get:Provides
     val yimService: YimService = Retrofit.Builder()
             .baseUrl(LISTENBRAINZ_API_BASE_URL)
