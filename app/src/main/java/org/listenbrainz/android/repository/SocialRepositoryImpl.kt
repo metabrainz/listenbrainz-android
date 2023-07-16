@@ -10,10 +10,8 @@ import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.logAndReturn
 import javax.inject.Inject
-import javax.inject.Singleton
 
 
-@Singleton
 class SocialRepositoryImpl @Inject constructor(
     private val service: SocialService,
     @AuthHeader private val authHeader: String
