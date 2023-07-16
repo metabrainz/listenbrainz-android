@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
@@ -48,9 +47,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
-import org.listenbrainz.android.ui.components.ListenCard
+import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.UserData
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.ListensViewModel
@@ -203,15 +203,16 @@ fun ListensScreen(
             }
 
             items(listens) { listen ->
-                ListenCard(
-                    listen,
-                    getCoverArtUrl(
+                ListenCardSmall(
+                    modifier = Modifier.padding(horizontal = ListenBrainzTheme.paddings.horizontal),
+                    releaseName = listen.track_metadata.track_name,
+                    artistName = listen.track_metadata.artist_name,
+                    coverArtUrl = getCoverArtUrl(
                         caaReleaseMbid = listen.track_metadata.mbid_mapping?.caa_release_mbid,
                         caaId = listen.track_metadata.mbid_mapping?.caa_id
                     )
-                )
-                {
-                  onListenTap(listen)
+                ) {
+                    onListenTap(listen)
                 }
             }
         }

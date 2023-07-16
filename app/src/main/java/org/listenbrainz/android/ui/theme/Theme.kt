@@ -176,7 +176,8 @@ data class Paddings(
     val horizontal: Dp = 8.dp,
     val vertical: Dp = 8.dp,
     val lazyListAdjacent: Dp = 8.dp,
-    val coverArtAndTextGap: Dp = 8.dp
+    val coverArtAndTextGap: Dp = 8.dp,
+    val insideCardHorizontal: Dp = 8.dp
 )
 private val LocalPaddings = staticCompositionLocalOf { Paddings() }
 

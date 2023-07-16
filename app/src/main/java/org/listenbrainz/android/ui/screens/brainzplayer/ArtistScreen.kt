@@ -14,7 +14,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -362,101 +361,92 @@ fun OnArtistClickScreen(artistID: String, navHostController: NavHostController) 
             )
         }
         items(artistSongs) {
-            BoxWithConstraints {
-                val maxWidth =
-                    (maxWidth - 60.dp).coerceAtMost(600.dp)
-                Row(
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                )
-                {
-                    val modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp).width(maxWidth)
-                    ListenCardSmall(
-                        modifier = modifier,
-                        releaseName = it.title,
-                        artistName = it.artist,
-                        coverArtUrl = it.albumArt,
-                        imageLoadSize = 200,
-                        useSystemTheme = true,
-                        errorAlbumArt = R.drawable.ic_erroralbumart
-                    ) {
-                        brainzPlayerViewModel.changePlayable(
-                            artistSongs,
-                            PlayableType.ARTIST,
-                            it.artistId,
-                            artistSongs.indexOf(it),
-                            0L
-                        )
-                        brainzPlayerViewModel.playOrToggleSong(it, true)
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+    
+                ListenCardSmall(
+                    releaseName = it.title,
+                    artistName = it.artist,
+                    coverArtUrl = it.albumArt,
+                    imageLoadSize = 100,
+                    errorAlbumArt = R.drawable.ic_erroralbumart,
+                    showDropdownIcon = true,
+                    onDropdownIconClick = {
+                        artistCardMoreOptionsDropMenuExpanded = artistSongs.indexOf(it)
                     }
-                    androidx.compose.material3.Surface(
-                        shape = RoundedCornerShape(5.dp),
-                        shadowElevation = 5.dp
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Menu,
-                            contentDescription = "",
-                            modifier = Modifier
-                                .padding(10.dp)
-                                .clickable {
-                                    artistCardMoreOptionsDropMenuExpanded = artistSongs.indexOf(it)
+                ) {
+                    brainzPlayerViewModel.changePlayable(
+                        artistSongs,
+                        PlayableType.ARTIST,
+                        it.artistId,
+                        artistSongs.indexOf(it),
+                        0L
+                    )
+                    brainzPlayerViewModel.playOrToggleSong(it, true)
+                }
+                androidx.compose.material3.Surface(
+                    shape = RoundedCornerShape(5.dp),
+                    shadowElevation = 5.dp
+                ) {
+                    DropdownMenu(
+                        expanded = artistCardMoreOptionsDropMenuExpanded == artistSongs.indexOf(it),
+                        onDismissRequest = {
+                            artistCardMoreOptionsDropMenuExpanded = -1
+                        }) {
+                        DropdownMenuItem(
+                            text = { Text(text = "Play Next") },
+                            onClick = {
+                                if (currentSongIndex != null) {
+                                    brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()
+                                        ?.add(currentSongIndex, it)
                                 }
-                        )
-                        DropdownMenu(
-                            expanded = artistCardMoreOptionsDropMenuExpanded == artistSongs.indexOf(it),
-                            onDismissRequest = {
-                                artistCardMoreOptionsDropMenuExpanded = -1
-                            }) {
-                            DropdownMenuItem(
-                                text = { Text(text = "Play Next") },
-                                onClick = {
-                                    if (currentSongIndex != null) {
-                                        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()?.add(currentSongIndex, it)
-                                    }
-                                    brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let { it1 ->
-                                        brainzPlayerViewModel.changePlayable(
-                                            it1,
-                                            PlayableType.ALL_SONGS,
-                                            brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0,
-                                            brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
-                                                ?: 0, brainzPlayerViewModel.songCurrentPosition.value
-                                        )
-                                    }
-                                    brainzPlayerViewModel.queueChanged(
-                                        currentlyPlayingSong,
-                                        brainzPlayerViewModel.isPlaying.value
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let { it1 ->
+                                    brainzPlayerViewModel.changePlayable(
+                                        it1,
+                                        PlayableType.ALL_SONGS,
+                                        brainzPlayerViewModel.appPreferences.currentPlayable?.id
+                                            ?: 0,
+                                        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+                                            ?: 0, brainzPlayerViewModel.songCurrentPosition.value
                                     )
-                                    artistCardMoreOptionsDropMenuExpanded = -1
-                                })
-                            DropdownMenuItem(
-                                text = { Text(text = "Add to queue") },
-                                onClick = {
-                                    brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.size?.let { it1 ->
-                                        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()?.add(
+                                }
+                                brainzPlayerViewModel.queueChanged(
+                                    currentlyPlayingSong,
+                                    brainzPlayerViewModel.isPlaying.value
+                                )
+                                artistCardMoreOptionsDropMenuExpanded = -1
+                            })
+                        DropdownMenuItem(
+                            text = { Text(text = "Add to queue") },
+                            onClick = {
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.size?.let { it1 ->
+                                    brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()
+                                        ?.add(
                                             it1,
                                             it
                                         )
-                                    }
-                                    brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let { it1 ->
-                                        brainzPlayerViewModel.changePlayable(
-                                            it1,
-                                            PlayableType.ALL_SONGS,
-                                            brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0,
-                                            brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
-                                                ?: 0, brainzPlayerViewModel.songCurrentPosition.value
-                                        )
-                                    }
-                                    brainzPlayerViewModel.queueChanged(
-                                        currentlyPlayingSong,
-                                        brainzPlayerViewModel.isPlaying.value
-                                    )
-                                    artistCardMoreOptionsDropMenuExpanded = -1
                                 }
-                            )
-                        }
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let { it1 ->
+                                    brainzPlayerViewModel.changePlayable(
+                                        it1,
+                                        PlayableType.ALL_SONGS,
+                                        brainzPlayerViewModel.appPreferences.currentPlayable?.id
+                                            ?: 0,
+                                        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+                                            ?: 0, brainzPlayerViewModel.songCurrentPosition.value
+                                    )
+                                }
+                                brainzPlayerViewModel.queueChanged(
+                                    currentlyPlayingSong,
+                                    brainzPlayerViewModel.isPlaying.value
+                                )
+                                artistCardMoreOptionsDropMenuExpanded = -1
+                            }
+                        )
                     }
                 }
-
             }
 
         }

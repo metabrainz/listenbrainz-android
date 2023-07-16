@@ -24,8 +24,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -34,12 +37,13 @@ import okhttp3.*
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.YimScreens
 import org.listenbrainz.android.model.yimdata.Track
-import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.YimLabelText
 import org.listenbrainz.android.ui.components.YimNavigationStation
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.ui.theme.YimPaddings
+import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.viewmodel.YimViewModel
 
 @Composable
@@ -252,17 +256,66 @@ private fun YimTopDiscoveriesOrMissedList(
         )
     ) {
         items(listOfTracks) { item ->
-            ListenCardSmall(
-                releaseName = item.key.title,
-                artistName = item.key.creator,
-                coverArtUrl = item.value,
-                onClick = {
-                    context.startActivity(
-                        Intent(Intent.ACTION_VIEW, Uri.parse(item.key.identifier))
-                    )
-                },
-                errorAlbumArt = R.drawable.ic_erroralbumart
-            )
+            
+            // Listen Card
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .clickable(enabled = true) {
+                        context.startActivity(
+                            Intent(Intent.ACTION_VIEW, Uri.parse(item.key.identifier))
+                        )
+                    },
+                shape = RoundedCornerShape(5.dp),
+                shadowElevation = 5.dp,
+                color = ListenBrainzTheme.colorScheme.level1
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+            
+                    // Album cover art
+                    GlideImage(
+                        model = item.value,
+                        modifier = Modifier.size(60.dp),
+                        contentScale = ContentScale.Fit,
+                        contentDescription = "Album Cover Art"
+                    ) {
+                        it.placeholder(R.drawable.ic_erroralbumart)
+                            .override(75)
+                    }
+            
+                    Spacer(modifier = Modifier.width(16.dp))
+            
+                    Column(modifier = Modifier) {
+                        Text(
+                            text = item.key.title,
+                            style = MaterialTheme.typography.bodyMedium
+                                .copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = lb_purple,
+                                    fontSize = 14.sp
+                                ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = item.key.creator,
+                            style = MaterialTheme.typography.bodyMedium
+                                .copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = lb_purple.copy(alpha = 0.7f)
+                                ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
+            // End of listenCard
         }
     }
 }
