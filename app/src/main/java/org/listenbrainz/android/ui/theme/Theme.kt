@@ -3,6 +3,7 @@ package org.listenbrainz.android.ui.theme
 import android.app.Activity
 import android.content.Context
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -17,6 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -181,6 +183,13 @@ data class Paddings(
 )
 private val LocalPaddings = staticCompositionLocalOf { Paddings() }
 
+@Immutable
+data class Shapes(
+    val listenCardSmall: Shape = RoundedCornerShape(8.dp),
+    val listenCard: Shape = RoundedCornerShape(16.dp)
+)
+
+private val LocalShapes = staticCompositionLocalOf { Shapes() }
 
 /**
  * This variable defines the ui mode of the system.
@@ -268,6 +277,7 @@ fun ListenBrainzTheme(
     }
     CompositionLocalProvider {
         LocalPaddings provides Paddings()
+        LocalShapes provides Shapes()
         LocalColorScheme provides localColorScheme
     }
     MaterialTheme(
@@ -287,6 +297,11 @@ object ListenBrainzTheme {
         @Composable
         @ReadOnlyComposable
         get() = LocalPaddings.current
+    
+    val shapes: Shapes
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalShapes.current
 }
 
 

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Icon
@@ -44,8 +43,7 @@ fun ListenCardSmall(
      *
      *  Best is 200*/
     imageLoadSize: Int = 75,
-    @DrawableRes
-    errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
+    @DrawableRes errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
     showDropdownIcon: Boolean = false,
     onDropdownIconClick: () -> Unit = {},
     onClick: () -> Unit,
@@ -55,7 +53,7 @@ fun ListenCardSmall(
             .fillMaxWidth()
             .padding(ListenBrainzTheme.paddings.horizontal)
             .clickable(enabled = true) { onClick() },
-        shape = RoundedCornerShape(5.dp),
+        shape = ListenBrainzTheme.shapes.listenCardSmall,
         shadowElevation = 5.dp,
         color = ListenBrainzTheme.colorScheme.level1
     ) {
@@ -82,7 +80,7 @@ fun ListenCardSmall(
         
                 Spacer(modifier = Modifier.width(16.dp))
         
-                Column(modifier = Modifier) {
+                Column {
                     Text(
                         text = releaseName,
                         style = MaterialTheme.typography.bodyMedium

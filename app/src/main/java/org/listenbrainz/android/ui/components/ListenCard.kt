@@ -17,6 +17,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
@@ -28,9 +29,9 @@ fun ListenCard(listen: Listen, coverArtUrl: String, onItemClicked: (listen: List
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clip(RoundedCornerShape(16.dp))
             .clickable { onItemClicked(listen) },
         elevation = 0.dp,
+        shape = ListenBrainzTheme.shapes.listenCard,
         backgroundColor = if (onScreenUiModeIsDark()) Color.Black else offWhite,
     ) {
         Row(
