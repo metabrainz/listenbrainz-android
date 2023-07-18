@@ -48,7 +48,6 @@ fun TopBar(
     val currentDestination = navBackStackEntry?.destination
     val title: String = currentDestination?.route?.let {
         when (it) {
-            AppNavigationItem.Home.route -> AppNavigationItem.Home.title
             AppNavigationItem.Feed.route -> AppNavigationItem.Feed.title
             AppNavigationItem.BrainzPlayer.route -> AppNavigationItem.BrainzPlayer.title
             AppNavigationItem.Explore.route -> AppNavigationItem.Explore.title

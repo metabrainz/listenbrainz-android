@@ -31,12 +31,10 @@ fun BottomNavigationBar(
     backdropScaffoldState: BackdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
 ) {
     val items = listOf(
-        AppNavigationItem.Home,
         AppNavigationItem.Feed,
-        // AppNavigationItem.Explore,
+        AppNavigationItem.Explore,
         AppNavigationItem.BrainzPlayer,
         AppNavigationItem.Profile
-        
     )
     BottomNavigation(
         backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -73,7 +71,7 @@ fun BottomNavigationBar(
                         
                         navController.navigate(item.route){
                             // Avoid building large backstack
-                            popUpTo(AppNavigationItem.Home.route){
+                            popUpTo(AppNavigationItem.Feed.route){
                                 saveState = true
                             }
                             // Avoid copies

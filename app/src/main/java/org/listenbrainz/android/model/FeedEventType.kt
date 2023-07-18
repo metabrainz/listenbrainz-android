@@ -7,13 +7,13 @@ enum class FeedEventType (
     val type: String,
     @DrawableRes val icon: Int = 0,
     val isPlayable: Boolean,
-    val content: @Composable () -> Unit
+    val content: @Composable (FeedEvent, () -> Unit) -> Unit
 ) {
     
     RECORDING_RECOMMENDATION(
         type = "recording_recommendation",
         isPlayable = true,
-        content = {
+        content = { event, onClick ->
         
         }
     ),
@@ -21,7 +21,7 @@ enum class FeedEventType (
     PERSONAL_RECORDING_RECOMMENDATION(
         type = "personal_recording_recommendation",
         isPlayable = true,
-        content = {
+        content = { event, onClick ->
         
         }
     ),
@@ -29,7 +29,7 @@ enum class FeedEventType (
     RECORDING_PIN(
         type = "recording_pin",
         isPlayable = true,
-        content = {
+        content = { event, onClick ->
         
         }
     ),
@@ -37,7 +37,7 @@ enum class FeedEventType (
     LIKE(
         type = "like",
         isPlayable = true,
-        content = {
+        content = { event, onClick ->
         
         }
     ),
@@ -45,7 +45,7 @@ enum class FeedEventType (
     LISTEN(
         type = "listen",
         isPlayable = true,
-        content = {
+        content = { event, onClick ->
         
         }
     ),
@@ -53,7 +53,7 @@ enum class FeedEventType (
     FOLLOW(
         type = "follow",
         isPlayable = false,
-        content = {
+        content = { event, onClick ->
         
         }
     ),
@@ -61,7 +61,7 @@ enum class FeedEventType (
     NOTIFICATION(
         type = "notification",
         isPlayable = false,
-        content = {
+        content = { event, onClick ->
         
         }
     ),
@@ -69,7 +69,7 @@ enum class FeedEventType (
     REVIEW (
         type = "critiquebrainz_review",
         isPlayable = true,
-        content = {
+        content = { event, onClick ->
         
         }
     ),
@@ -78,7 +78,7 @@ enum class FeedEventType (
     UNKNOWN(
         type = "update_app",
         isPlayable = false,
-        content = {
+        content = { event, onClick ->
         
         }
     );

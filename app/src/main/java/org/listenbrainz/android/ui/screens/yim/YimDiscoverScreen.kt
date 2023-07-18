@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -17,29 +18,23 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.GlideLazyListPreloader
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.YimScreens
 import org.listenbrainz.android.ui.components.SimilarUserCard
 import org.listenbrainz.android.ui.components.YimLabelText
+import org.listenbrainz.android.ui.components.YimListenCard
 import org.listenbrainz.android.ui.components.YimNavigationStation
 import org.listenbrainz.android.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.ui.theme.YimPaddings
-import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.YimViewModel
 
@@ -252,65 +247,17 @@ private fun YimTopAlbumsFromArtistsList(
             vertical = paddings.smallPadding
         )
     ) {
-        items(newReleasesOfTopArtist.size) { index ->
+        items(newReleasesOfTopArtist) { release ->
             
             // Listen Card
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                shape = RoundedCornerShape(5.dp),
-                shadowElevation = 5.dp,
-                color = Color.White
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-            
-                    // Album cover art
-                    GlideImage(
-                        model = getCoverArtUrl(
-                            caaReleaseMbid = newReleasesOfTopArtist[index].caaReleaseMbid,
-                            caaId = newReleasesOfTopArtist[index].caaId
-                        ),
-                        modifier = Modifier.size(60.dp),
-                        contentScale = ContentScale.Fit,
-                        contentDescription = "Album Cover Art"
-                    ) {
-                        it.placeholder(R.drawable.ic_erroralbumart)
-                            .override(75)
-                    }
-            
-                    Spacer(modifier = Modifier.width(16.dp))
-            
-                    Column(modifier = Modifier) {
-                        Text(
-                            text = newReleasesOfTopArtist[index].title,
-                            style = MaterialTheme.typography.bodyMedium
-                                .copy(
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = lb_purple,
-                                ),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = newReleasesOfTopArtist[index].artistCreditName,
-                            style = MaterialTheme.typography.bodyMedium
-                                .copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = lb_purple.copy(alpha = 0.7f)
-                                ),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-            }
-            // End of listenCard
+            YimListenCard(
+                releaseName = release.title,
+                artistName = release.artistCreditName,
+                coverArtUrl = getCoverArtUrl(
+                    caaReleaseMbid = release.caaReleaseMbid,
+                    caaId = release.caaId
+                )
+            ) {}
         }
     }
 }
