@@ -112,7 +112,7 @@ fun ListeningAppsList(
                                         drawable = viewModel.repository.getPackageIcon(packageName)
                                             ?: AppCompatResources.getDrawable(
                                                 context,
-                                                R.drawable.music_solid
+                                                R.drawable.music_regular
                                             )
                                     ),
                                     contentDescription = null

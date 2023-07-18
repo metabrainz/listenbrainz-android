@@ -32,10 +32,11 @@ fun BottomNavigationBar(
 ) {
     val items = listOf(
         AppNavigationItem.Home,
-        AppNavigationItem.BrainzPlayer,
+        AppNavigationItem.Feed,
         // AppNavigationItem.Explore,
-        AppNavigationItem.Profile,
-
+        AppNavigationItem.BrainzPlayer,
+        AppNavigationItem.Profile
+        
     )
     BottomNavigation(
         backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,

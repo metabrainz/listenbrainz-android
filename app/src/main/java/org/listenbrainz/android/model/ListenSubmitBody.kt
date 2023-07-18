@@ -26,8 +26,8 @@ class ListenSubmitBody {
     }
 
     private fun Payload.setClientDetails(): Payload{
-        this.metadata.additionalInfo.submission_client = "ListenBrainz Android"
-        this.metadata.additionalInfo.submission_client_version = BuildConfig.VERSION_NAME
+        this.metadata.additionalInfo.submissionClient = "ListenBrainz Android"
+        this.metadata.additionalInfo.submissionClientVersion = BuildConfig.VERSION_NAME
         return this
     }
     

@@ -1,11 +1,13 @@
 package org.listenbrainz.android.model
 
+import androidx.annotation.DrawableRes
 import org.listenbrainz.android.R
 
-sealed class AppNavigationItem(var route: String, var iconUnselected: Int, var iconSelected: Int, var title: String) {
-    object Home : AppNavigationItem("home", R.drawable.house_regular, R.drawable.house_solid, "Home")
-    object BrainzPlayer : AppNavigationItem("brainzplayer", R.drawable.headphone_regular, R.drawable.headphones_solid, "Player")
-    object Explore : AppNavigationItem("explore", R.drawable.music_regular, R.drawable.music_solid, "Explore")
-    object Profile : AppNavigationItem("profile", R.drawable.user_regular, R.drawable.user_solid, "Profile")
+sealed class AppNavigationItem(val route: String, @DrawableRes val iconUnselected: Int, @DrawableRes val iconSelected: Int, val title: String) {
+    object Home : AppNavigationItem("home", R.drawable.home_unselected, R.drawable.home_selected, "Home")
+    object BrainzPlayer : AppNavigationItem("brainzplayer", R.drawable.player_unselected, R.drawable.player_selected, "Player")
+    object Explore : AppNavigationItem("explore", R.drawable.explore_unselected, R.drawable.explore_selected, "Explore")
+    object Profile : AppNavigationItem("profile", R.drawable.profile_unselected, R.drawable.profile_selected, "Profile")
+    object Feed : AppNavigationItem("feed", R.drawable.feed_unselected, R.drawable.feed_selected, "Feed")
 }
 

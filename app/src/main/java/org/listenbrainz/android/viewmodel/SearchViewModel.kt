@@ -23,7 +23,7 @@ import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.SearchUiState
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.model.UserListUiState
-import org.listenbrainz.android.repository.SocialRepository
+import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
 

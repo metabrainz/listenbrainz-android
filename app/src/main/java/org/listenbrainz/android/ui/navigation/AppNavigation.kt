@@ -13,6 +13,7 @@ import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.components.HomeScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen
 import org.listenbrainz.android.ui.screens.explore.ExploreScreen
+import org.listenbrainz.android.ui.screens.feed.FeedScreen
 import org.listenbrainz.android.ui.screens.profile.ProfileScreen
 
 @Composable
@@ -36,6 +37,9 @@ fun AppNavigation(
         }
         composable(route = AppNavigationItem.Profile.route){
             ProfileScreen(shouldScrollToTop = shouldScrollToTop)
+        }
+        composable(route = AppNavigationItem.Feed.route){
+            FeedScreen()
         }
     }
 }

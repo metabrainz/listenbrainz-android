@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.components
+package org.listenbrainz.android.ui.navigation
 
 import android.content.Context
 import android.content.Intent
@@ -49,6 +49,7 @@ fun TopBar(
     val title: String = currentDestination?.route?.let {
         when (it) {
             AppNavigationItem.Home.route -> AppNavigationItem.Home.title
+            AppNavigationItem.Feed.route -> AppNavigationItem.Feed.title
             AppNavigationItem.BrainzPlayer.route -> AppNavigationItem.BrainzPlayer.title
             AppNavigationItem.Explore.route -> AppNavigationItem.Explore.title
             AppNavigationItem.Profile.route -> AppNavigationItem.Profile.title

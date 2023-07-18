@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository
+package org.listenbrainz.android.repository.social
 
 import org.listenbrainz.android.di.AuthHeader
 import org.listenbrainz.android.model.ResponseError.Companion.getError

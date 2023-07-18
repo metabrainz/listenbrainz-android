@@ -260,14 +260,14 @@ fun OnAlbumClickScreen(albumID: Long) {
             ) {
                 Text(
                     text = selectedAlbum.title,
-                    color = colorResource(id = R.color.white),
+                    color = colorResource(id = R.color.text),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )
                 Text(
                     text = selectedAlbum.artist,
-                    color = colorResource(id = R.color.white),
+                    color = colorResource(id = R.color.text),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center

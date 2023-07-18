@@ -10,8 +10,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.listenbrainz.android.model.ResponseError
-import org.listenbrainz.android.repository.SocialRepository
-import org.listenbrainz.android.repository.SocialRepositoryImpl
+import org.listenbrainz.android.repository.social.SocialRepository
+import org.listenbrainz.android.repository.social.SocialRepositoryImpl
 import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.alreadyFollowingError

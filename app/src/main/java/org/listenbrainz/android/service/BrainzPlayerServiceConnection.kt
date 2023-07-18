@@ -274,10 +274,10 @@ class BrainzPlayerServiceConnection(
                 metadata.release = releaseName
 
                 // Duration
-                metadata.additionalInfo.duration_ms = duration.toInt()
+                metadata.additionalInfo.durationMs = duration.toInt()
 
                 // Setting player
-                metadata.additionalInfo.media_player = "BrainzPlayer"
+                metadata.additionalInfo.mediaPlayer = "BrainzPlayer"
 
                 val body = ListenSubmitBody()
                 body.addListen(
