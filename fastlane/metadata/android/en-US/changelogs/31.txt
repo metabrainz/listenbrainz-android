@@ -1,0 +1,1 @@
+Scrobbler service crash issue fixed
