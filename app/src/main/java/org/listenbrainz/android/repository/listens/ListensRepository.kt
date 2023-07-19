@@ -4,6 +4,7 @@ import android.graphics.drawable.Drawable
 import org.listenbrainz.android.model.CoverArt
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.ListenSubmitBody
+import org.listenbrainz.android.model.PostResponse
 import org.listenbrainz.android.model.TokenValidation
 import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.android.util.Resource
@@ -20,7 +21,7 @@ interface ListensRepository {
     
     fun getPackageLabel(packageName: String): String
     
-    fun submitListen(token: String, body: ListenSubmitBody)
+    fun submitListen(token: String, body: ListenSubmitBody): Resource<PostResponse>
     
     suspend fun getLinkedServices(token: String, username: String) : List<LinkedService>
 }

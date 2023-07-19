@@ -8,6 +8,7 @@ import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.CoverArt
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.ListenSubmitBody
+import org.listenbrainz.android.model.PostResponse
 import org.listenbrainz.android.model.TokenValidation
 import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.util.LinkedService
@@ -86,8 +87,15 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
     }
     
     
-    override fun submitListen(token: String, body: ListenSubmitBody) {
-        service.submitListen("Token $token", body)?.enqueue(object : retrofit2.Callback<ResponseBody?> {
+    override fun submitListen(token: String, body: ListenSubmitBody): Resource<PostResponse> {
+        val response = service.submitListen("Token $token", body)
+        
+        if (response.isSuccessful){
+            Resource(SUCCESS, response.body())
+        }else{
+            Resource.failure()
+        }
+    /*?.enqueue(object : retrofit2.Callback<ResponseBody?> {
             override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
                 d("Listen submitted successfully.")
                 d(response.message())
@@ -97,7 +105,7 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
             override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
                 d("Something went wrong: ${t.message}")
             }
-        })
+        })*/
     }
     
     override suspend fun getLinkedServices(token: String, username: String): List<LinkedService> {

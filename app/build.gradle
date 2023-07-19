@@ -121,6 +121,7 @@ dependencies {
     implementation 'androidx.browser:browser:1.5.0'
     implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation 'androidx.core:core-splashscreen:1.0.1'
+    implementation "androidx.work:work-runtime-ktx:$work_version"
 
     //Web Service Setup
     implementation 'com.google.code.gson:gson:2.10.1'
@@ -204,6 +205,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
     androidTestImplementation 'tools.fastlane:screengrab:2.1.1'     // Fastlane ScreenGrab
+    androidTestImplementation("androidx.work:work-testing:$work_version")
 
     testImplementation project(path: ':sharedTest')
     androidTestImplementation project(path: ':sharedTest')
