@@ -34,12 +34,12 @@ class ListenHandler(val appPreferences: AppPreferences, val repository: ListensR
         metadata.release = msg.data.getString(MediaMetadata.METADATA_KEY_ALBUM)
         
         // Duration
-        metadata.additionalInfo.duration_ms = msg.data.getInt(MediaMetadata.METADATA_KEY_DURATION)
+        metadata.additionalInfo.durationMs = msg.data.getInt(MediaMetadata.METADATA_KEY_DURATION)
         
         // Setting player
         val player = msg.data.getString(MediaMetadata.METADATA_KEY_WRITER)
         if (player != null)
-            metadata.additionalInfo.media_player = repository.getPackageLabel(player)
+            metadata.additionalInfo.mediaPlayer = repository.getPackageLabel(player)
         
         val body = ListenSubmitBody()
         body.addListen(

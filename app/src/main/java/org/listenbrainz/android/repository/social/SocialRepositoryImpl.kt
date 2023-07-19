@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository
+package org.listenbrainz.android.repository.social
 
 import org.listenbrainz.android.di.AuthHeader
 import org.listenbrainz.android.model.ResponseError.Companion.getError
@@ -10,10 +10,8 @@ import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.logAndReturn
 import javax.inject.Inject
-import javax.inject.Singleton
 
 
-@Singleton
 class SocialRepositoryImpl @Inject constructor(
     private val service: SocialService,
     @AuthHeader private val authHeader: String

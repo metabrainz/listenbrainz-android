@@ -446,8 +446,7 @@ fun PlayerScreen(
                         releaseName = song.title,
                         artistName = song.artist,
                         coverArtUrl = song.albumArt,
-                        imageLoadSize = 200,
-                        useSystemTheme = true,
+                        imageLoadSize = 100,
                         errorAlbumArt = R.drawable.ic_erroralbumart
                     ) {
                         brainzPlayerViewModel.skipToPlayable(index)

@@ -1,7 +1,5 @@
 package org.listenbrainz.android.viewmodel
 
-import android.content.Context
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -22,11 +20,5 @@ class ProfileViewModel @Inject constructor(val appPreferences: AppPreferences) :
             }
         }.distinctUntilChanged()
     }
-
     
-    
-    fun logoutUser(context: Context) {
-        appPreferences.logoutUser()
-        Toast.makeText(context, "User has successfully logged out.", Toast.LENGTH_SHORT).show()
-    }
 }

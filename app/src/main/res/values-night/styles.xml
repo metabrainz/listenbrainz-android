@@ -5,8 +5,8 @@
         <item name="colorPrimary">@color/app_bg</item>
         <item name="colorPrimaryDark">@color/app_bg</item>
         <item name="colorAccent">@color/light_blue</item>
-        <item name="colorControlNormal">@color/white</item>
-        <item name="titleTextColor">@color/white</item>
+        <item name="colorControlNormal">@color/text</item>
+        <item name="titleTextColor">@color/text</item>
 
         <item name="windowSplashScreenBackground">@color/app_bg</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>

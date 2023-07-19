@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
@@ -48,7 +47,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
-import org.listenbrainz.android.ui.components.ListenCard
+import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.UserData
 import org.listenbrainz.android.util.Constants
@@ -91,8 +90,8 @@ fun ListensScreen(
     val youtubeApiKey = stringResource(id = R.string.youtubeApiKey)
 
     fun onListenTap(listen: Listen) {
-        if (listen.track_metadata.additional_info?.spotify_id != null) {
-            Uri.parse(listen.track_metadata.additional_info.spotify_id).lastPathSegment?.let { trackId ->
+        if (listen.trackMetadata.additionalInfo?.spotifyId != null) {
+            Uri.parse(listen.trackMetadata.additionalInfo.spotifyId).lastPathSegment?.let { trackId ->
                 viewModel.playUri("spotify:track:${trackId}")
             }
         } else {
@@ -102,8 +101,8 @@ fun ListensScreen(
                 val videoId = viewModel
                     .searchYoutubeMusicVideoId(
                         context = context,
-                        trackName = listen.track_metadata.track_name,
-                        artist = listen.track_metadata.artist_name,
+                        trackName = listen.trackMetadata.trackName,
+                        artist = listen.trackMetadata.artistName,
                         apiKey = youtubeApiKey
                     )
                 when {
@@ -137,7 +136,7 @@ fun ListensScreen(
                         /*
                         // Play track via Amazon Music
                         val intent = Intent()
-                        val query = listen.track_metadata.track_name + " " + listen.track_metadata.artist_name
+                        val query = listen.trackMetadata.trackName + " " + listen.trackMetadata.artistName
                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                         intent.setClassName(
                             "com.amazon.mp3",
@@ -181,8 +180,8 @@ fun ListensScreen(
                                 ListeningNowCard(
                                     listeningNow!!,
                                     getCoverArtUrl(
-                                        caaReleaseMbid = listeningNow.track_metadata.mbid_mapping?.caa_release_mbid,
-                                        caaId = listeningNow.track_metadata.mbid_mapping?.caa_id
+                                        caaReleaseMbid = listeningNow.trackMetadata.mbidMapping?.caa_release_mbid,
+                                        caaId = listeningNow.trackMetadata.mbidMapping?.caa_id
                                     )
                                 ) {
                                     onListenTap(listeningNow)
@@ -203,15 +202,15 @@ fun ListensScreen(
             }
 
             items(listens) { listen ->
-                ListenCard(
-                    listen,
-                    getCoverArtUrl(
-                        caaReleaseMbid = listen.track_metadata.mbid_mapping?.caa_release_mbid,
-                        caaId = listen.track_metadata.mbid_mapping?.caa_id
+                ListenCardSmall(
+                    releaseName = listen.trackMetadata.trackName,
+                    artistName = listen.trackMetadata.artistName,
+                    coverArtUrl = getCoverArtUrl(
+                        caaReleaseMbid = listen.trackMetadata.mbidMapping?.caa_release_mbid,
+                        caaId = listen.trackMetadata.mbidMapping?.caa_id
                     )
-                )
-                {
-                  onListenTap(listen)
+                ) {
+                    onListenTap(listen)
                 }
             }
         }

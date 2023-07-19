@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository
+package org.listenbrainz.android.repository.social
 
 import org.listenbrainz.android.model.SearchResult
 import org.listenbrainz.android.model.SimilarUserData

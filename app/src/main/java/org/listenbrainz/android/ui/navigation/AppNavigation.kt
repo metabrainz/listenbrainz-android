@@ -10,9 +10,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.listenbrainz.android.model.AppNavigationItem
-import org.listenbrainz.android.ui.components.HomeScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen
 import org.listenbrainz.android.ui.screens.explore.ExploreScreen
+import org.listenbrainz.android.ui.screens.feed.FeedScreen
 import org.listenbrainz.android.ui.screens.profile.ProfileScreen
 
 @Composable
@@ -23,10 +23,10 @@ fun AppNavigation(
     NavHost(
         navController = navController as NavHostController,
         modifier = Modifier.fillMaxSize(),
-        startDestination = AppNavigationItem.Home.route
+        startDestination = AppNavigationItem.Feed.route
     ){
-        composable(route = AppNavigationItem.Home.route){
-            HomeScreen()
+        composable(route = AppNavigationItem.Feed.route){
+            FeedScreen()
         }
         composable(route = AppNavigationItem.BrainzPlayer.route){
             BrainzPlayerScreen(appNavController = navController)

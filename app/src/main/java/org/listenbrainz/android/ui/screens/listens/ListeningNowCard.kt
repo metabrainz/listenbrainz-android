@@ -75,7 +75,7 @@ fun ListeningNowCard(listen: Listen, coverArtUrl: String, onItemClicked: (listen
 
                 Column(modifier = Modifier.align(Alignment.CenterVertically)) {
                     Text(
-                        text = listen.track_metadata.track_name,
+                        text = listen.trackMetadata.trackName,
                         modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
                         color = if (onScreenUiModeIsDark()) Color.White else lb_purple,
                         fontWeight = FontWeight.Bold,
@@ -85,7 +85,7 @@ fun ListeningNowCard(listen: Listen, coverArtUrl: String, onItemClicked: (listen
 
                     Text(
                         text = buildString {
-                            append(listen.track_metadata.artist_name)
+                            append(listen.trackMetadata.artistName)
                         },
                         modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
                         color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(alpha = 0.7f),
@@ -94,7 +94,7 @@ fun ListeningNowCard(listen: Listen, coverArtUrl: String, onItemClicked: (listen
 
                     Row(verticalAlignment = Alignment.Bottom) {
                         Text(
-                            text = listen.track_metadata.release_name ?: "",
+                            text = listen.trackMetadata.releaseName ?: "",
                             modifier = Modifier.padding(0.dp, 12.dp, 12.dp, 0.dp),
                             color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(
                                 alpha = 0.7f

@@ -21,8 +21,7 @@ interface ListensService {
 
     @GET("http://coverartarchive.org/release/{MBID}")
     suspend fun getCoverArt(@Path("MBID") MBID: String): CoverArt
-
-    @POST("submit-listens")
+    
     @GET("validate-token")
     suspend fun checkIfTokenIsValid(@Header(AUTHORIZATION) token: String?): TokenValidation
 

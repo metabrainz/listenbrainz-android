@@ -34,8 +34,8 @@ import okhttp3.*
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.YimScreens
 import org.listenbrainz.android.model.yimdata.Track
-import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.YimLabelText
+import org.listenbrainz.android.ui.components.YimListenCard
 import org.listenbrainz.android.ui.components.YimNavigationStation
 import org.listenbrainz.android.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.ui.theme.YearInMusicTheme
@@ -252,17 +252,19 @@ private fun YimTopDiscoveriesOrMissedList(
         )
     ) {
         items(listOfTracks) { item ->
-            ListenCardSmall(
+            
+            // Listen Card
+            YimListenCard(
                 releaseName = item.key.title,
                 artistName = item.key.creator,
                 coverArtUrl = item.value,
-                onClick = {
-                    context.startActivity(
-                        Intent(Intent.ACTION_VIEW, Uri.parse(item.key.identifier))
-                    )
-                },
-                errorAlbumArt = R.drawable.ic_erroralbumart
-            )
+            ){
+                context.startActivity(
+                    Intent(Intent.ACTION_VIEW, Uri.parse(item.key.identifier))
+                )
+            }
+            
         }
     }
 }
+

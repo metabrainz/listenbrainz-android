@@ -4,8 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ActivityRetainedComponent
-import org.listenbrainz.android.repository.SocialRepository
-import org.listenbrainz.android.repository.SocialRepositoryImpl
+import org.listenbrainz.android.repository.social.SocialRepository
+import org.listenbrainz.android.repository.social.SocialRepositoryImpl
 
 @Module
 @InstallIn(ActivityRetainedComponent::class)

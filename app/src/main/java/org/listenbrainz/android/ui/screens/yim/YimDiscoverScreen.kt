@@ -7,6 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -27,9 +28,9 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideLazyListPreloader
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.YimScreens
-import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.SimilarUserCard
 import org.listenbrainz.android.ui.components.YimLabelText
+import org.listenbrainz.android.ui.components.YimListenCard
 import org.listenbrainz.android.ui.components.YimNavigationStation
 import org.listenbrainz.android.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.ui.theme.YearInMusicTheme
@@ -246,17 +247,17 @@ private fun YimTopAlbumsFromArtistsList(
             vertical = paddings.smallPadding
         )
     ) {
-        items(newReleasesOfTopArtist.size) { index ->
-            ListenCardSmall(
-                releaseName = newReleasesOfTopArtist[index].title,
-                artistName = newReleasesOfTopArtist[index].artistCreditName,
+        items(newReleasesOfTopArtist) { release ->
+            
+            // Listen Card
+            YimListenCard(
+                releaseName = release.title,
+                artistName = release.artistCreditName,
                 coverArtUrl = getCoverArtUrl(
-                    caaReleaseMbid = newReleasesOfTopArtist[index].caaReleaseMbid,
-                    caaId = newReleasesOfTopArtist[index].caaId
-                ),
-                onClick = {},
-                errorAlbumArt = R.drawable.ic_erroralbumart
-            )
+                    caaReleaseMbid = release.caaReleaseMbid,
+                    caaId = release.caaId
+                )
+            ) {}
         }
     }
 }

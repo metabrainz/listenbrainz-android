@@ -324,7 +324,7 @@ fun SongScreen() {
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 color = colorResource(
-                                    id = R.color.white
+                                    id = R.color.text
                                 )
                             )
                             Text(
@@ -335,7 +335,7 @@ fun SongScreen() {
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 color = colorResource(
-                                    id = R.color.white
+                                    id = R.color.text
                                 )
                             )
                         }

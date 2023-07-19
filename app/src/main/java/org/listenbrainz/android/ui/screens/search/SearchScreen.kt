@@ -63,14 +63,16 @@ import org.listenbrainz.android.viewmodel.SearchViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun SearchScreen(searchBarState: SearchBarState) {
+fun SearchScreen(
+    searchBarState: SearchBarState,
+    viewModel: SearchViewModel = hiltViewModel()
+) {
     AnimatedVisibility(
         visible = searchBarState.isActive,
         enter = fadeIn(),
         exit = fadeOut()
     ) {
         
-        val viewModel: SearchViewModel = hiltViewModel()
         val uiState: SearchUiState by viewModel.uiState.collectAsState()
         
         SearchScreen(
