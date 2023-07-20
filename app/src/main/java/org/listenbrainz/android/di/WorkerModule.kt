@@ -1,5 +1,6 @@
 package org.listenbrainz.android.di
 
+/*
 import androidx.work.Worker
 import dagger.Binds
 import dagger.MapKey
@@ -23,3 +24,4 @@ abstract class MyWorkerModule {
     @WorkerKey(ListenSubmissionWorker::class)
     internal abstract fun bindsListenSubmissionWorker(worker: ListenSubmissionWorker): Worker
 }
+*/

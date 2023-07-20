@@ -2,24 +2,30 @@ package org.listenbrainz.android.service
 
 import android.content.Context
 import android.media.MediaMetadata
-import androidx.work.Worker
+import androidx.hilt.work.HiltWorker
+import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.ListenTrackMetadata
-import org.listenbrainz.android.repository.AppPreferences
-import org.listenbrainz.android.repository.ListensRepository
+import org.listenbrainz.android.repository.listens.ListensRepository
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log.d
-import javax.inject.Inject
+import org.listenbrainz.android.util.Resource
 
-class ListenSubmissionWorker @Inject constructor(
+@HiltWorker
+class ListenSubmissionWorker @AssistedInject constructor(
+    @Assisted context: Context,
+    @Assisted workerParams: WorkerParameters,
     val appPreferences: AppPreferences,
-    val repository: ListensRepository,
-    context: Context,
-    workerParams: WorkerParameters
-) : Worker(context, workerParams) {
+    val repository: ListensRepository
+) : CoroutineWorker(context, workerParams) {
     
-    override fun doWork(): Result {
+    override suspend fun doWork(): Result {
         val token = appPreferences.lbAccessToken
         if (token.isNullOrEmpty()) {
             d("ListenBrainz User token has not been set!")
@@ -52,14 +58,15 @@ class ListenSubmissionWorker @Inject constructor(
         )
         body.listenType = inputData.getString("TYPE")
         
-        val response = repository.submitListen("Token $token", body)
-    
-        /*return if (response?.isSuccessful == true){
+        val response = withContext(Dispatchers.IO){
+            repository.submitListen(token, body)
+        }
+        
+        return if (response.status == Resource.Status.SUCCESS){
             d("Local listen submitted.")
             Result.success()
         }else{
             Result.failure()
-        }*/
-        return Result.success()
+        }
     }
 }

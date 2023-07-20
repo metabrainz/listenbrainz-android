@@ -21,7 +21,7 @@ interface ListensRepository {
     
     fun getPackageLabel(packageName: String): String
     
-    fun submitListen(token: String, body: ListenSubmitBody): Resource<PostResponse>
+    suspend fun submitListen(token: String, body: ListenSubmitBody): Resource<PostResponse>
     
     suspend fun getLinkedServices(token: String, username: String) : List<LinkedService>
 }
