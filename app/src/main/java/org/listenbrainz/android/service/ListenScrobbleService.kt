@@ -6,10 +6,10 @@ import android.content.Intent
 import android.media.session.MediaSessionManager
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
-import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.listens.ListensRepository
-import org.listenbrainz.android.util.ListenHandler
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.ListenSessionListener
 import org.listenbrainz.android.util.Log.d
 import javax.inject.Inject
@@ -23,8 +23,10 @@ class ListenScrobbleService : NotificationListenerService() {
     @Inject
     lateinit var listensRepository: ListensRepository
 
+    @Inject
+    lateinit var workManager: WorkManager
+    
     private var sessionManager: MediaSessionManager? = null
-    private var handler: ListenHandler? = null
     private var sessionListener: ListenSessionListener? = null
     private var listenServiceComponent: ComponentName? = null
 
@@ -37,9 +39,8 @@ class ListenScrobbleService : NotificationListenerService() {
 
     private fun initialize() {
         d("Initializing Listener Service")
-        handler = ListenHandler(appPreferences, listensRepository)
         sessionManager = applicationContext.getSystemService(MEDIA_SESSION_SERVICE) as MediaSessionManager
-        sessionListener = ListenSessionListener(handler!!, appPreferences)
+        sessionListener = ListenSessionListener(appPreferences, workManager)
         listenServiceComponent = ComponentName(this, this.javaClass)
         sessionManager?.addOnActiveSessionsChangedListener(sessionListener!!, listenServiceComponent)
     }
