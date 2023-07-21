@@ -16,6 +16,7 @@ import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log.d
+import org.listenbrainz.android.util.Log.w
 import org.listenbrainz.android.util.Resource
 
 @HiltWorker
@@ -62,7 +63,7 @@ class ListenSubmissionWorker @AssistedInject constructor(
         
         body.listenType = inputData.getString("TYPE")
         
-        // TODO: Inject dispatcher here.
+        // TODO: Inject dispatcher here and below as well.
         val response = withContext(Dispatchers.IO){
             repository.submitListen(token, body)
         }
@@ -70,27 +71,37 @@ class ListenSubmissionWorker @AssistedInject constructor(
         return if (response.status == Resource.Status.SUCCESS){
             d("Listen submitted.")
             
-            // Means internet is available.
-    
-            val submission = withContext(Dispatchers.IO){
-                repository.submitListen(
-                    token,
-                    ListenSubmitBody()
-                        .addListens(listensList = pendingListensDao.getPendingListens())
-                )
-            }
+            // Means conditions are met. Work manager automatically manages internet state.
+            val pendingListens = pendingListensDao.getPendingListens()
             
-            if (submission.status == Resource.Status.SUCCESS){
-                // Empty all pending listens.
-                d("Pending listens submitted.")
-                pendingListensDao.deleteAllPendingListens()
+            if (pendingListens.isNotEmpty()) {
+                
+                val submission = withContext(Dispatchers.IO){
+                    repository.submitListen(
+                        token,
+                        ListenSubmitBody()
+                            .addListens(listensList = pendingListens)
+                    )
+                }
+    
+                if (submission.status == Resource.Status.SUCCESS){
+                    // Empty all pending listens.
+                    d("Pending listens submitted.")
+                    pendingListensDao.deleteAllPendingListens()
+                } else {
+                    w("Could not submit pending listens.")
+                }
             }
             
             Result.success()
             
         } else {
             // In case of failure, we add this listen to pending list.
-            pendingListensDao.addListen(listen)
+            if (inputData.getString("TYPE") == "single")
+                // We don't want to submit playing nows later.
+                d("Submission failed, listen saved.")
+                pendingListensDao.addListen(listen)
+            
             Result.failure()
         }
     }

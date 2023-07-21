@@ -88,11 +88,11 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
             val response = service.submitListen("Token $token", body)
             if (response.isSuccessful){
                 Resource(SUCCESS, response.body())
-            }else{
-                println(response.raw().toString())
+            } else {
+                println("submitListen: ${response.raw()}")
                 Resource.failure()
             }
-        }catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
             Resource.failure()
         }
