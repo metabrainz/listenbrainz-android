@@ -43,4 +43,16 @@ object TypeConverter {
             type
         ) ?: emptyList()
     }
+    
+    @TypeConverter
+    fun listToJSON(list: List<String>?): String = Gson().toJson(list)
+    
+    @TypeConverter
+    fun listFromJSON(listJSON: String): List<String>? {
+        return Gson().fromJson(
+            listJSON,
+            object: TypeToken<List<String>?>() {}.type
+        )
+    }
+    
 }
