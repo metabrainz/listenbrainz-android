@@ -9,20 +9,9 @@ class ListenSubmitBody {
     var listenType: String? = "single"
     @JvmField
     var payload: MutableList<Payload> = ArrayList()
-    fun getPayload(): List<Payload> {
-        return payload
-    }
-
-    fun setPayload(payload: MutableList<Payload>) {
-        this.payload = payload
-    }
-
-    fun addListen(payload: Payload) {
-        this.payload.add(payload)
-    }
-
-    fun addListen(timestamp: Long?, metadata: ListenTrackMetadata, insertedAt: Int) {
-        payload.add(Payload(timestamp = timestamp, /*insertedAt = insertedAt,*/ metadata = metadata).setClientDetails())
+    
+    fun addListen(timestamp: Long?, metadata: ListenTrackMetadata) {
+        payload.add(Payload(timestamp = timestamp, metadata = metadata).setClientDetails())
     }
 
     private fun Payload.setClientDetails(): Payload{
@@ -40,7 +29,6 @@ class ListenSubmitBody {
 
     class Payload(
             @SerializedName("listened_at") var timestamp: Long?,
-            /*@SerializedName("inserted_at") var insertedAt: Int,*/
             @SerializedName("track_metadata") var metadata: ListenTrackMetadata
         ) {
 

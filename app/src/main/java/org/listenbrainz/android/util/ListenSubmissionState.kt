@@ -81,7 +81,6 @@ class ListenSubmissionState(
     
     // Metadata setter functions
     
-    
     private fun setTitle(metadata: MediaMetadata) {
         title = when {
             !metadata.getString(MediaMetadata.METADATA_KEY_TITLE)
@@ -185,7 +184,7 @@ class ListenSubmissionState(
         val data = Data.Builder()
             .putString(MediaMetadata.METADATA_KEY_ARTIST, artist)
             .putString(MediaMetadata.METADATA_KEY_TITLE, title)
-            .putInt(MediaMetadata.METADATA_KEY_DURATION, duration.toInt())
+            .putInt(MediaMetadata.METADATA_KEY_DURATION, (duration*2).toInt())
             .putString(MediaMetadata.METADATA_KEY_WRITER, player)
             .putString(MediaMetadata.METADATA_KEY_ALBUM, releaseName)
             .putString("TYPE", listenType.code)

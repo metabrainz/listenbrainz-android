@@ -12,6 +12,7 @@ class ListenSessionListener(val appPreferences: AppPreferences, val workManager:
     
     private val activeSessions: MutableMap<MediaController, ListenCallback?> = HashMap()
 
+    @Synchronized
     override fun onActiveSessionsChanged(controllers: List<MediaController>?) {
         d("onActiveSessionsChanged: EXECUTED")
         if (controllers == null) return

@@ -53,8 +53,7 @@ class ListenSubmissionWorker @AssistedInject constructor(
         val body = ListenSubmitBody()
         body.addListen(
             timestamp = if(inputData.getString("TYPE") == "single") inputData.getLong(Constants.Strings.TIMESTAMP, 0) else null,
-            metadata = metadata,
-            insertedAt = System.currentTimeMillis().toInt()
+            metadata = metadata
         )
         body.listenType = inputData.getString("TYPE")
         
