@@ -23,9 +23,9 @@ import org.listenbrainz.android.util.Resource
 class ListenSubmissionWorker @AssistedInject constructor(
     @Assisted context: Context,
     @Assisted workerParams: WorkerParameters,
-    val appPreferences: AppPreferences,
-    val repository: ListensRepository,
-    val pendingListensDao: PendingListensDao
+    private val appPreferences: AppPreferences,
+    private val repository: ListensRepository,
+    private val pendingListensDao: PendingListensDao
 ) : CoroutineWorker(context, workerParams) {
     
     override suspend fun doWork(): Result {
@@ -79,8 +79,11 @@ class ListenSubmissionWorker @AssistedInject constructor(
                 val submission = withContext(Dispatchers.IO){
                     repository.submitListen(
                         token,
-                        ListenSubmitBody()
-                            .addListens(listensList = pendingListens)
+                        ListenSubmitBody().apply {
+                            listenType = "import"
+                            addListens(listensList = pendingListens)
+                        }
+                        
                     )
                 }
     
@@ -97,10 +100,11 @@ class ListenSubmissionWorker @AssistedInject constructor(
             
         } else {
             // In case of failure, we add this listen to pending list.
-            if (inputData.getString("TYPE") == "single")
+            if (inputData.getString("TYPE") == "single"){
                 // We don't want to submit playing nows later.
                 d("Submission failed, listen saved.")
                 pendingListensDao.addListen(listen)
+            }
             
             Result.failure()
         }

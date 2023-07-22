@@ -2,9 +2,7 @@ package org.listenbrainz.android.util
 
 import android.media.MediaMetadata
 import android.media.session.PlaybackState
-import androidx.work.Constraints
 import androidx.work.Data
-import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -191,13 +189,15 @@ class ListenSubmissionState(
             .putLong(Constants.Strings.TIMESTAMP, timestamp)
             .build()
         
-        val constraints = Constraints.Builder()
+        /** We are not going to set network constraints as we want to minimize API calls
+         * by bulk submitting listens.*/
+        /*val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
+            .build()*/
         
         return OneTimeWorkRequestBuilder<ListenSubmissionWorker>()
             .setInputData(data)
-            .setConstraints(constraints)
+            //.setConstraints(constraints)
             .build()
         
     }

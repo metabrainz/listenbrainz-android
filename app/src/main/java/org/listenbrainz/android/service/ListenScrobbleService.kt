@@ -42,13 +42,28 @@ class ListenScrobbleService : NotificationListenerService() {
         sessionManager = applicationContext.getSystemService(MEDIA_SESSION_SERVICE) as MediaSessionManager
         sessionListener = ListenSessionListener(appPreferences, workManager)
         listenServiceComponent = ComponentName(this, this.javaClass)
-        sessionManager?.addOnActiveSessionsChangedListener(sessionListener!!, listenServiceComponent)
+        
+        try {
+            sessionManager?.addOnActiveSessionsChangedListener(
+                sessionListener!!,
+                listenServiceComponent
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // Remove orphan entries.
+            try {
+                sessionManager?.removeOnActiveSessionsChangedListener(sessionListener!!)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        sessionListener?.let { sessionManager?.removeOnActiveSessionsChangedListener(it) }
         sessionListener?.clearSessions()
+        sessionListener?.let { sessionManager?.removeOnActiveSessionsChangedListener(it) }
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {

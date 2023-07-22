@@ -3,7 +3,6 @@ package org.listenbrainz.android.util
 import android.content.ActivityNotFoundException
 import android.content.ContentValues
 import android.content.Context
-import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -12,7 +11,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.WorkerThread
@@ -20,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import okhttp3.*
 import org.listenbrainz.android.R
 import org.listenbrainz.android.util.Log.e
+import retrofit2.Response
 import java.io.*
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
@@ -36,6 +35,12 @@ object Utils {
         return  "https://archive.org/download/mbid-${caaReleaseMbid}/mbid-${caaReleaseMbid}-${caaId}_thumb${size}.jpg"
     }
 
+    /** Get human readable error.
+     *
+     * **CAUTION:** If this function is called once, calling it further with the same [Response] instance will result in an empty
+     * string. Store this function's result for multiple use cases.*/
+    fun <T> Response<T>.error(): String? = this.errorBody()?.string()
+    
     fun sendFeedback(context: Context) {
         try {
             context.startActivity(emailIntent(Constants.FEEDBACK_EMAIL, Constants.FEEDBACK_SUBJECT))

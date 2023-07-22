@@ -14,6 +14,7 @@ import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Resource.Status.FAILED
 import org.listenbrainz.android.util.Resource.Status.SUCCESS
+import org.listenbrainz.android.util.Utils.error
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -89,7 +90,7 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
             if (response.isSuccessful){
                 Resource(SUCCESS, response.body())
             } else {
-                println("submitListen: ${response.raw()}")
+                println("submitListen: ${response.error()}")
                 Resource.failure()
             }
         } catch (e: Exception) {
