@@ -48,7 +48,7 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
     @WorkerThread
     override suspend fun validateUserToken(token: String): Resource<TokenValidation> {
         return try {
-            val tokenIsValid = service.checkIfTokenIsValid("Token $token")
+            val tokenIsValid = service.checkIfTokenIsValid()
             Resource(SUCCESS, tokenIsValid)
         }
         catch (e: Exception) {
@@ -87,7 +87,7 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
     
     
     override fun submitListen(token: String, body: ListenSubmitBody) {
-        service.submitListen("Token $token", body)?.enqueue(object : retrofit2.Callback<ResponseBody?> {
+        service.submitListen(body = body)?.enqueue(object : retrofit2.Callback<ResponseBody?> {
             override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
                 d("Listen submitted successfully.")
                 d(response.message())
@@ -101,10 +101,7 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
     }
     
     override suspend fun getLinkedServices(token: String, username: String): List<LinkedService> {
-        val services = service.getServicesLinkedToAccount(
-            authHeader = "Bearer $token",       // TODO: Refactor this after feed section phase 1 is completed.
-            user_name = username
-        )
+        val services = service.getServicesLinkedToAccount(user_name = username)
         val result = mutableListOf<LinkedService>()
         services.services.forEach {
             result.add(LinkedService.parseService(it))

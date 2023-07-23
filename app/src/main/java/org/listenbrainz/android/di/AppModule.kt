@@ -10,7 +10,7 @@ import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
-import javax.inject.Qualifier
+import org.listenbrainz.android.util.HeaderInterceptor
 import javax.inject.Singleton
 
 @Module
@@ -19,19 +19,15 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun providesServiceConnection(@ApplicationContext context: Context, appPreferences: AppPreferences, listensRepository: ListensRepository) = BrainzPlayerServiceConnection(context, appPreferences, listensRepository)
+    fun providesServiceConnection(@ApplicationContext context: Context, appPreferences: AppPreferences, listensRepository: ListensRepository) =
+        BrainzPlayerServiceConnection(context, appPreferences, listensRepository)
 
     @Provides
-    fun providesAppPreferences(@ApplicationContext context: Context) : AppPreferences = AppPreferencesImpl(context)
-
-    @AuthHeader
+    fun providesAppPreferences(@ApplicationContext context: Context) : AppPreferences =
+        AppPreferencesImpl(context)
+    
     @Provides
-    fun providesAuthHeader(appPreferences: AppPreferences) : String {
-        return "Bearer ${appPreferences.lbAccessToken}"
-    }
+    fun providesHeaderInterceptor(appPreferences: AppPreferences): HeaderInterceptor =
+        HeaderInterceptor(appPreferences)
+    
 }
-
-
-@Retention(AnnotationRetention.BINARY)
-@Qualifier
-annotation class AuthHeader
