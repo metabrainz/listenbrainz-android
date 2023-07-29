@@ -8,6 +8,10 @@ data class FeedEvent(
     @SerializedName("event_type") val eventType: String,
     @SerializedName("hidden"    ) val hidden: Boolean? = null,
     @SerializedName("metadata"  ) val metadata: Metadata,
-    @SerializedName("user_name" ) val userName: String? = null,
+    @SerializedName("user_name" ) val username: String? = null,
     @SerializedName("user_id"   ) val userId: Int? = null
-)
+) {
+    /** Quick getter for blurbContent.*/
+    val blurbContent: String
+        get() = this.metadata.blurbContent ?: "Oops! Error loading content."
+}

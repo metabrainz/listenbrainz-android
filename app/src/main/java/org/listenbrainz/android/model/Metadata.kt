@@ -19,4 +19,11 @@ data class Metadata(
     @SerializedName("text"             ) val text: String? = null,
     @SerializedName("track_metadata"   ) val trackMetadata: TrackMetadata? = null,
     @SerializedName("user_name"        ) val username: String? = null,
+    /** Used in personal recommendation to the user ahs recommended a song to. Only applicable
+     * to self, i.e., parentUser or the logged in user.*/
+    @SerializedName("users"            ) val usersList: List<String>? = null,
+    /** Used for follow following taglines. This is the one who followed. */
+    @SerializedName("user_name_0"      ) val user0: String? = null,
+    /** Used for follow following taglines. This is the one who was followed. */
+    @SerializedName("user_name_1"      ) val user1: String? = null
 )
