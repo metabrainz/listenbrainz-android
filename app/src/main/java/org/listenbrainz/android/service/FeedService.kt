@@ -1,8 +1,11 @@
 package org.listenbrainz.android.service
 
 import org.listenbrainz.android.model.FeedData
+import org.listenbrainz.android.model.FeedEventDeletionData
+import org.listenbrainz.android.model.FeedEventVisibilityData
 import org.listenbrainz.android.model.SocialResponse
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -35,12 +38,18 @@ interface FeedService {
     ) : Response<FeedData>
     
     @POST("/user/{user_name}/feed/events/delete")
-    suspend fun deleteEvent() : Response<SocialResponse>
+    suspend fun deleteEvent( 
+        @Body body: FeedEventDeletionData
+    ) : Response<SocialResponse>
     
     @POST("/user/{user_name}/feed/events/hide")
-    suspend fun hideEvent() : Response<SocialResponse>
+    suspend fun hideEvent(
+        @Body body: FeedEventVisibilityData
+    ) : Response<SocialResponse>
     
     @POST("/user/{user_name}/feed/events/unhide")
-    suspend fun unhideEvent() : Response<SocialResponse>
+    suspend fun unhideEvent(
+        @Body body: FeedEventVisibilityData
+    ) : Response<SocialResponse>
     
 }
