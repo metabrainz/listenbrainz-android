@@ -15,7 +15,7 @@ interface FeedService {
 
     @GET("/user/{user_name}/feed/events")
     suspend fun getFeedEvents(
-        @Path("user_name") userName: String,
+        @Path("user_name") username: String,
         @Query("count") count: Int = 25,
         @Query("max_ts") maxTs: Int? = null,
         @Query("min_ts") minTs: Int? = null
@@ -23,7 +23,7 @@ interface FeedService {
     
     @GET("/user/{user_name}/feed/events/listens/following")
     suspend fun getFeedFollowListens(
-        @Path("user_name") userName: String,
+        @Path("user_name") username: String,
         @Query("count") count: Int = 40,
         @Query("max_ts") maxTs: Int? = null,
         @Query("min_ts") minTs: Int? = null
@@ -31,24 +31,27 @@ interface FeedService {
     
     @GET("/user/{user_name}/feed/events/listens/similar")
     suspend fun getFeedSimilarListens(
-        @Path("user_name") userName: String,
+        @Path("user_name") username: String,
         @Query("count") count: Int = 40,
         @Query("max_ts") maxTs: Int? = null,
         @Query("min_ts") minTs: Int? = null
     ) : Response<FeedData>
     
     @POST("/user/{user_name}/feed/events/delete")
-    suspend fun deleteEvent( 
+    suspend fun deleteEvent(
+        @Path("user_name") username: String,
         @Body body: FeedEventDeletionData
     ) : Response<SocialResponse>
     
     @POST("/user/{user_name}/feed/events/hide")
     suspend fun hideEvent(
+        @Path("user_name") username: String,
         @Body body: FeedEventVisibilityData
     ) : Response<SocialResponse>
     
     @POST("/user/{user_name}/feed/events/unhide")
     suspend fun unhideEvent(
+        @Path("user_name") username: String,
         @Body body: FeedEventVisibilityData
     ) : Response<SocialResponse>
     
