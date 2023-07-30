@@ -1,6 +1,9 @@
 package org.listenbrainz.android.repository.social
 
+import org.listenbrainz.android.model.FeedEvent
+import org.listenbrainz.android.model.RecommendationData
 import org.listenbrainz.android.model.ResponseError.Companion.getError
+import org.listenbrainz.android.model.Review
 import org.listenbrainz.android.model.SearchResult
 import org.listenbrainz.android.model.SimilarUserData
 import org.listenbrainz.android.model.SocialData
@@ -96,5 +99,52 @@ class SocialRepositoryImpl @Inject constructor(
             }
     
         }.getOrElse { logAndReturn(it) }
+    
+    override suspend fun postPersonalRecommendation(username: String, data: RecommendationData): Resource<FeedEvent> =
+        runCatching {
+            val response = service.postPersonalRecommendation(
+                username = username,
+                data = data
+            )
+            return@runCatching if (response.isSuccessful) {
+                Resource.success(response.body()!!)
+            } else {
+                Resource.failure(error = getError(response = response))
+            }
+    
+        }.getOrElse { logAndReturn(it) }
+    
+    override suspend fun postRecommendationToAll(username: String, data: RecommendationData): Resource<FeedEvent> =
+        runCatching {
+            
+            val response = service.postRecommendationToAll(
+                username = username,
+                data = data
+            )
+            
+            return@runCatching if (response.isSuccessful) {
+                Resource.success(response.body()!!)
+            } else {
+                Resource.failure(error = getError(response = response))
+            }
+    
+        }.getOrElse { logAndReturn(it) }
+    
+    override suspend fun postReview(username: String, data: Review): Resource<FeedEvent> =
+        runCatching {
+            
+            val response = service.postReview(
+                username = username,
+                data = data
+            )
+            
+            return@runCatching if (response.isSuccessful) {
+                Resource.success(response.body()!!)
+            } else {
+                Resource.failure(error = getError(response = response))
+            }
+    
+        }.getOrElse { logAndReturn(it) }
+    
     
 }

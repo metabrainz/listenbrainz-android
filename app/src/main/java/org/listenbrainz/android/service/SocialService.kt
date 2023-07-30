@@ -36,21 +36,21 @@ interface SocialService {
     @GET("search/users")
     suspend fun searchUser(@Query("search_term") username: String): Response<SearchResult>
     
-    @POST("/user/{user_name}/timeline-event/create/recommend-personal")
+    @POST("user/{user_name}/timeline-event/create/recommend-personal")
     suspend fun postPersonalRecommendation(
         @Path("user_name") username: String,
-        @Body personalRecommendationData: RecommendationData
+        @Body data: RecommendationData
         ) : Response<FeedEvent>
     
-    @POST("/user/{user_name}/timeline-event/create/recording")
+    @POST("user/{user_name}/timeline-event/create/recording")
     suspend fun postRecommendationToAll(
         @Path("user_name") username: String,
-        @Body recommendationData: RecommendationData
+        @Body data: RecommendationData
     ) : Response<FeedEvent>
     
-    @POST("/user/{user_name}/timeline-event/create/review")
+    @POST("user/{user_name}/timeline-event/create/review")
     suspend fun postReview(
         @Path("user_name") username: String,
-        @Body review: Review
+        @Body data: Review
     ) : Response<FeedEvent>
 }

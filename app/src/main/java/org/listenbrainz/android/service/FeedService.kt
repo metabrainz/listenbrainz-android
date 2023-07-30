@@ -13,7 +13,7 @@ import retrofit2.http.Query
 
 interface FeedService {
 
-    @GET("/user/{user_name}/feed/events")
+    @GET("user/{user_name}/feed/events")
     suspend fun getFeedEvents(
         @Path("user_name") username: String,
         @Query("count") count: Int = 25,
@@ -21,7 +21,7 @@ interface FeedService {
         @Query("min_ts") minTs: Int? = null
     ) : Response<FeedData>
     
-    @GET("/user/{user_name}/feed/events/listens/following")
+    @GET("user/{user_name}/feed/events/listens/following")
     suspend fun getFeedFollowListens(
         @Path("user_name") username: String,
         @Query("count") count: Int = 40,
@@ -29,7 +29,7 @@ interface FeedService {
         @Query("min_ts") minTs: Int? = null
     ) : Response<FeedData>
     
-    @GET("/user/{user_name}/feed/events/listens/similar")
+    @GET("user/{user_name}/feed/events/listens/similar")
     suspend fun getFeedSimilarListens(
         @Path("user_name") username: String,
         @Query("count") count: Int = 40,
@@ -37,19 +37,19 @@ interface FeedService {
         @Query("min_ts") minTs: Int? = null
     ) : Response<FeedData>
     
-    @POST("/user/{user_name}/feed/events/delete")
+    @POST("user/{user_name}/feed/events/delete")
     suspend fun deleteEvent(
         @Path("user_name") username: String,
         @Body body: FeedEventDeletionData
     ) : Response<SocialResponse>
     
-    @POST("/user/{user_name}/feed/events/hide")
+    @POST("user/{user_name}/feed/events/hide")
     suspend fun hideEvent(
         @Path("user_name") username: String,
         @Body body: FeedEventVisibilityData
     ) : Response<SocialResponse>
     
-    @POST("/user/{user_name}/feed/events/unhide")
+    @POST("user/{user_name}/feed/events/unhide")
     suspend fun unhideEvent(
         @Path("user_name") username: String,
         @Body body: FeedEventVisibilityData
