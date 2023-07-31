@@ -14,7 +14,7 @@ class FeedRepositoryImpl @Inject constructor(
     private val service: FeedService
 ) : FeedRepository {
     
-    override suspend fun getFeedEvents(username: String, maxTs: Int, minTs: Int) : Resource<FeedData> =
+    override suspend fun getFeedEvents(username: String, maxTs: Int?, minTs: Int?) : Resource<FeedData> =
         runCatching {
             val response = service.getFeedEvents(
                 username = username,
@@ -31,7 +31,7 @@ class FeedRepositoryImpl @Inject constructor(
         }.getOrElse { Utils.logAndReturn(it) }
     
     
-    override suspend fun getFeedFollowListens(username: String, maxTs: Int, minTs: Int) : Resource<FeedData> =
+    override suspend fun getFeedFollowListens(username: String, maxTs: Int?, minTs: Int?) : Resource<FeedData> =
         runCatching {
             val response = service.getFeedFollowListens(
                 username = username,
@@ -48,7 +48,7 @@ class FeedRepositoryImpl @Inject constructor(
         }.getOrElse { Utils.logAndReturn(it) }
     
     
-    override suspend fun getFeedSimilarListens(username: String, maxTs: Int, minTs: Int) : Resource<FeedData> =
+    override suspend fun getFeedSimilarListens(username: String, maxTs: Int?, minTs: Int?) : Resource<FeedData> =
         runCatching {
             val response = service.getFeedSimilarListens(
                 username = username,
