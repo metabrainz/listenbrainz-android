@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -195,7 +194,7 @@ private fun UserList(
 ) {
     
     LazyColumn(contentPadding = PaddingValues(ListenBrainzTheme.paddings.lazyListAdjacent)) {
-        itemsIndexed(uiState.result.userList) { index, user ->
+        items(uiState.result.userList.size) { index ->
             
             Column {
                 Box(
@@ -216,7 +215,7 @@ private fun UserList(
                         Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.coverArtAndTextGap))
                         
                         Text(
-                            text = user.username,
+                            text = uiState.result.userList[index].username,
                             color = ListenBrainzTheme.colorScheme.text,
                             fontWeight = FontWeight.Bold
                         )
@@ -227,7 +226,7 @@ private fun UserList(
                         isFollowedState = uiState.result.isFollowedList[index],
                         scope = scope,
                     ) {
-                        onFollowClick(user, index)
+                        onFollowClick(uiState.result.userList[index], index)
                     }
                 }
             }
