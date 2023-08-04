@@ -93,7 +93,7 @@ android {
         }
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.4.6'
+        kotlinCompilerExtensionVersion '1.4.8'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -132,7 +132,7 @@ dependencies {
 
     //Image downloading and Caching library
     implementation 'com.github.bumptech.glide:glide:4.15.1'
-    implementation "com.github.bumptech.glide:compose:1.0.0-alpha.1"
+    implementation "com.github.bumptech.glide:compose:1.0.0-alpha.3"
     implementation 'io.coil-kt:coil-compose:2.4.0'
     implementation 'com.caverock:androidsvg-aar:1.4'
     kapt 'com.github.bumptech.glide:compiler:4.15.1'
