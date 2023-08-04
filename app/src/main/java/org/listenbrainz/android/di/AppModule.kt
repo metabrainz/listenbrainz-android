@@ -6,14 +6,11 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import okhttp3.Cache
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
-import org.listenbrainz.android.util.CachingInterceptor
 import org.listenbrainz.android.util.HeaderInterceptor
-import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
@@ -33,17 +30,4 @@ object AppModule {
     fun providesHeaderInterceptor(appPreferences: AppPreferences): HeaderInterceptor =
         HeaderInterceptor(appPreferences)
     
-    @Provides
-    fun providesCacheInterceptor(@ApplicationContext context: Context): CachingInterceptor =
-        CachingInterceptor(context)
-    
-    @OkHttpCache
-    @Singleton
-    @Provides
-    fun providesOkHttpCache(@ApplicationContext context: Context) : Cache =
-        Cache(context.cacheDir, 5 * 1024 * 1024)    // 5 MB
 }
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class OkHttpCache
