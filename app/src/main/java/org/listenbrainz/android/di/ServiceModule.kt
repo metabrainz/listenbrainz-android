@@ -9,6 +9,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Cache
 import okhttp3.OkHttpClient
 import org.listenbrainz.android.model.yimdata.YimData
 import org.listenbrainz.android.service.BlogService
@@ -16,6 +17,7 @@ import org.listenbrainz.android.service.FeedService
 import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.service.YimService
+import org.listenbrainz.android.util.CachingInterceptor
 import org.listenbrainz.android.util.Constants.LISTENBRAINZ_API_BASE_URL
 import org.listenbrainz.android.util.HeaderInterceptor
 import retrofit2.Retrofit
@@ -30,12 +32,14 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class ServiceModule {
     
-    private fun constructRetrofit(headerInterceptor: HeaderInterceptor): Retrofit =
+    private fun constructRetrofit(headerInterceptor: HeaderInterceptor, cachingInterceptor: CachingInterceptor,cache: Cache): Retrofit =
         Retrofit.Builder()
             .client(
                 OkHttpClient()
                     .newBuilder()
+                    .cache(cache)
                     .addInterceptor(headerInterceptor)
+                    .addInterceptor(cachingInterceptor)
                     // .addInterceptor (HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
                     .build()
             )
@@ -54,22 +58,22 @@ class ServiceModule {
     
     @Singleton
     @Provides
-    fun providesListensService(headerInterceptor: HeaderInterceptor): ListensService =
-        constructRetrofit(headerInterceptor)
+    fun providesListensService(headerInterceptor: HeaderInterceptor, cachingInterceptor: CachingInterceptor, @OkHttpCache cache: Cache): ListensService =
+        constructRetrofit(headerInterceptor, cachingInterceptor, cache)
             .create(ListensService::class.java)
     
     
     @Singleton
     @Provides
-    fun providesSocialService(headerInterceptor: HeaderInterceptor): SocialService =
-        constructRetrofit(headerInterceptor)
+    fun providesSocialService(headerInterceptor: HeaderInterceptor, cachingInterceptor: CachingInterceptor, @OkHttpCache cache: Cache): SocialService =
+        constructRetrofit(headerInterceptor, cachingInterceptor, cache)
             .create(SocialService::class.java)
     
     
     @Singleton
     @Provides
-    fun providesFeedService(headerInterceptor: HeaderInterceptor): FeedService =
-        constructRetrofit(headerInterceptor)
+    fun providesFeedService(headerInterceptor: HeaderInterceptor, cachingInterceptor: CachingInterceptor, @OkHttpCache cache: Cache): FeedService =
+        constructRetrofit(headerInterceptor, cachingInterceptor, cache)
             .create(FeedService::class.java)
     
     /* YIM */

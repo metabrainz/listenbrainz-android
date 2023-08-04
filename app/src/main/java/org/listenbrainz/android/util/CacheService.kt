@@ -7,7 +7,11 @@ import java.io.File
 import java.io.FileWriter
 import java.io.IOException
 
-class CacheService <T> (private val context: Context, private val key: String, private val maxSize:Int = 10000) {
+class CacheService <T> (
+    private val context: Context,
+    private val key: String,
+    private val maxSize: Int = 10000
+) {
     fun saveData(value: T, dataType: Class<T>) {
         val cacheDir: File = context.cacheDir
         val gson = Gson()
@@ -52,6 +56,7 @@ class CacheService <T> (private val context: Context, private val key: String, p
                 return emptyList()
             }
             val data = json.split("},")
+                .asSequence()
                 .filter { it.isNotEmpty() }
                 .map { "$it}" }
                 .map {
