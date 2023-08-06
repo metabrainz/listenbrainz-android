@@ -178,7 +178,7 @@ data class Paddings(
     val largePadding: Dp = 24.dp,
     
     // New set
-    val horizontal: Dp = 8.dp,
+    val horizontal: Dp = 9.dp,
     val vertical: Dp = 8.dp,
     val listenListVertical: Dp = 4.dp,
     val lazyListAdjacent: Dp = 8.dp,
