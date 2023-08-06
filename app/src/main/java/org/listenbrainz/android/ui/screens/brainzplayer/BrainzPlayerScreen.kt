@@ -35,25 +35,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.*
 import org.listenbrainz.android.ui.components.forwardingPainter
-import org.listenbrainz.android.ui.screens.brainzplayer.navigation.BrainzPlayerNavigationItem
 import org.listenbrainz.android.ui.screens.brainzplayer.navigation.Navigation
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BrainzPlayerScreen(appNavController: NavController) {
+fun BrainzPlayerScreen() {
     ListenBrainzTheme {
-        // Local nav controller
-        val localNavController = rememberNavController()
-        
         // View models
         val albumViewModel = hiltViewModel<AlbumViewModel>()
         val songsViewModel = hiltViewModel<SongViewModel>()
@@ -71,7 +64,7 @@ fun BrainzPlayerScreen(appNavController: NavController) {
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            Navigation(localNavController, appNavController ,albums, artists, playlists, recentlyPlayed, songs)
+            Navigation(albums, artists, playlists, recentlyPlayed, songs)
         }
     }
 }
@@ -85,8 +78,13 @@ fun BrainzPlayerHomeScreen(
     playlists: List<Playlist>,
     recentlyPlayedSongs: Playlist,
     brainzPlayerViewModel: BrainzPlayerViewModel = hiltViewModel(),
-    navHostController: NavHostController,
-    appNavController: NavController
+    navigateToSongsScreen: () -> Unit,
+    navigateToArtistsScreen: () -> Unit,
+    navigateToAlbumsScreen: () -> Unit,
+    navigateToPlaylistsScreen: () -> Unit,
+    navigateToArtist: (id: Long) -> Unit,
+    navigateToAlbum: (id: Long) -> Unit,
+    navigateToPlaylist: (id: Long) -> Unit
 ) {
     val searchTextState = remember {
         mutableStateOf(TextFieldValue(""))
@@ -135,7 +133,7 @@ fun BrainzPlayerHomeScreen(
         // Songs button
         Card(
             modifier = Modifier.padding(16.dp).clickable {
-                navHostController.navigate(BrainzPlayerNavigationItem.Songs.route)
+                navigateToSongsScreen()
             },
             shape = RoundedCornerShape(16.dp),
             backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -183,7 +181,7 @@ fun BrainzPlayerHomeScreen(
         // Artists
         Card(
             modifier = Modifier.padding(16.dp).clickable {
-                navHostController.navigate(BrainzPlayerNavigationItem.Artists.route)
+                navigateToArtistsScreen()
             },
             shape = RoundedCornerShape(16.dp),
             backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -214,7 +212,7 @@ fun BrainzPlayerHomeScreen(
                     title = it.name,
                     modifier = Modifier
                         .clickable {
-                            navHostController.navigate("onArtistClick/${it.id}")
+                            navigateToArtist(it.id)
                         }
                 )
             }
@@ -224,7 +222,7 @@ fun BrainzPlayerHomeScreen(
         // Albums
         Card(
             modifier = Modifier.padding(16.dp).clickable {
-                navHostController.navigate(BrainzPlayerNavigationItem.Albums.route)
+                navigateToAlbumsScreen()
             },
             shape = RoundedCornerShape(16.dp),
             backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -256,7 +254,7 @@ fun BrainzPlayerHomeScreen(
                     title = it.title,
                     modifier = Modifier
                         .clickable {
-                            navHostController.navigate("onAlbumClick/${it.albumId}")
+                            navigateToAlbum(it.albumId)
                         }
                 )
             }
@@ -266,7 +264,7 @@ fun BrainzPlayerHomeScreen(
         // Playlists
         Card(
             modifier = Modifier.padding(16.dp).clickable {
-                navHostController.navigate(BrainzPlayerNavigationItem.Playlists.route)
+                navigateToPlaylistsScreen()
             },
             shape = RoundedCornerShape(16.dp),
             backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -299,7 +297,8 @@ fun BrainzPlayerHomeScreen(
                     icon = "",
                     errorIcon = it.art,
                     title = it.title,
-                    modifier = Modifier.clickable { navHostController.navigate("onPlaylistClick/${it.id}") })
+                    modifier = Modifier.clickable { navigateToPlaylist(it.id) }
+                )
             }
         }
         
