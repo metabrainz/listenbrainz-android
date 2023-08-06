@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,12 +44,11 @@ import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
  * This composable has fixed height used from [ListenBrainzTheme.sizes].
  * @param trailingContent **MUST** use the given modifier in its top level layout. */
 @Composable
-@OptIn(ExperimentalGlideComposeApi::class)
 fun ListenCardSmall(
     modifier: Modifier = Modifier,
     releaseName: String,
     artistName: String,
-    coverArtUrl: String,
+    coverArtUrl: String?,
     /** Default is 75 as it consume less internet if images are being fetched from a URL.
      *
      *  Best is 200*/
@@ -81,11 +81,13 @@ fun ListenCardSmall(
                 contentAlignment = Alignment.CenterStart
             ) {
         
-                val mainContentFraction = when {
-                    enableDropdownIcon && enableTrailingContent -> 0.65f    // 0.15f for dropdown and 0.30f for trailing content
-                    enableDropdownIcon && !enableTrailingContent -> 0.90f   // 0.15f for dropdown
-                    !enableDropdownIcon && enableTrailingContent -> 0.70f   // 0.25f for trailing content
-                    else -> 1f
+                val (mainContentFraction, trailingContentFraction, dropDownButtonFraction) = remember(enableDropdownIcon, enableTrailingContent) {
+                    when {
+                        enableDropdownIcon && enableTrailingContent -> Triple(0.65f, 0.75f, 0.25f)    // 0.25f for dropdown and 0.75f for trailing content
+                        enableDropdownIcon && !enableTrailingContent -> Triple(0.90f, 0f, 1f) // 0.10f for dropdown
+                        !enableDropdownIcon && enableTrailingContent -> Triple(0.70f, 1f, 0f)   // 0.30f for trailing content
+                        else -> Triple(1f, 0f, 0f)
+                    }
                 }
         
                 Row(
@@ -113,7 +115,7 @@ fun ListenCardSmall(
                     if (enableTrailingContent) {
                         trailingContent(
                             modifier = Modifier
-                                .fillMaxWidth(if (enableDropdownIcon) 0.75f else 1f)
+                                .fillMaxWidth(trailingContentFraction)
                                 .align(Alignment.CenterStart)
                                 .padding(horizontal = 6.dp)
                         )
@@ -123,7 +125,7 @@ fun ListenCardSmall(
                     if (enableDropdownIcon) {
                         DropdownButton(
                             modifier = Modifier
-                                .fillMaxWidth(if (enableTrailingContent) 0.25f else 1f)
+                                .fillMaxWidth(dropDownButtonFraction)
                                 .align(Alignment.CenterEnd),
                             onDropdownIconClick = onDropdownIconClick
                         )
@@ -162,10 +164,11 @@ private fun DropdownButton(modifier: Modifier = Modifier, onDropdownIconClick: (
 @Composable
 @OptIn(ExperimentalGlideComposeApi::class)
 private fun AlbumArt(
-    coverArtUrl: String,
-    errorAlbumArt: Int,
-    imageLoadSize: Int
+    coverArtUrl: String?,
+    errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
+    imageLoadSize: Int = 75
 ) {
+    // FIXME: GlideImage doesn't support previews.
     /*GlideImage(
         model = coverArtUrl,
         modifier = Modifier.size(ListenBrainzTheme.sizes.listenCardHeight),
@@ -176,6 +179,7 @@ private fun AlbumArt(
             .override(imageLoadSize)
     }*/
     
+    // Use this for previews
     AsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
             .data(coverArtUrl)
@@ -240,8 +244,6 @@ private fun ListenCardSmallPreview() {
                 }
                 
             },
-        ) {
-            
-        }
+        ) {}
     }
 }

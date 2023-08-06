@@ -3,9 +3,9 @@ package org.listenbrainz.android.model
 import com.google.gson.annotations.SerializedName
 
 data class FeedEvent(
-    @SerializedName("id"        ) val id: Int,
+    @SerializedName("id"        ) val id: Int? = null,
     @SerializedName("created"   ) val created: Int,
-    @SerializedName("event_type") val eventType: String,
+    @SerializedName("event_type") val type: String,
     @SerializedName("hidden"    ) val hidden: Boolean? = null,
     @SerializedName("metadata"  ) val metadata: Metadata,
     @SerializedName("user_name" ) val username: String? = null,

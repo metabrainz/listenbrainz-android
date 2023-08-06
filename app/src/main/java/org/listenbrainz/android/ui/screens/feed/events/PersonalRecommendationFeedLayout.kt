@@ -15,6 +15,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,10 +45,12 @@ fun PersonalRecommendationFeedLayout(
         ListenCardSmall(
             releaseName = event.metadata.trackMetadata?.releaseName ?: "Unknown",
             artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
-            coverArtUrl = Utils.getCoverArtUrl(
-                caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caa_release_mbid,
-                caaId = event.metadata.trackMetadata?.mbidMapping?.caa_id
-            ),
+            coverArtUrl = remember {
+                Utils.getCoverArtUrl(
+                    caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caa_release_mbid,
+                    caaId = event.metadata.trackMetadata?.mbidMapping?.caa_id
+                )
+            },
             enableDropdownIcon = true,
             onDropdownIconClick = onDropdownClick,
             enableBlurbContent = true,
@@ -113,7 +116,7 @@ private fun PersonalRecommendationFeedLayoutPreview() {
                 event = FeedEvent(
                     id = 0,
                     created = 0,
-                    eventType = "like",
+                    type = "like",
                     hidden = false,
                     metadata = Metadata(
                         blurbContent = "Good song.",

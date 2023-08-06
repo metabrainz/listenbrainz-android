@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import org.listenbrainz.android.model.FeedEvent
 import org.listenbrainz.android.model.FeedEventType
@@ -32,10 +33,12 @@ fun ReviewFeedLayout(
         ListenCardSmall(
             releaseName = event.metadata.trackMetadata?.releaseName ?: "Unknown",
             artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
-            coverArtUrl = Utils.getCoverArtUrl(
-                caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caa_release_mbid,
-                caaId = event.metadata.trackMetadata?.mbidMapping?.caa_id
-            ),
+            coverArtUrl = remember {
+                Utils.getCoverArtUrl(
+                    caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caa_release_mbid,
+                    caaId = event.metadata.trackMetadata?.mbidMapping?.caa_id
+                )
+            },
             enableDropdownIcon = true,
             onDropdownIconClick = onDropdownClick,
             enableBlurbContent = true,
@@ -64,7 +67,7 @@ private fun ReviewFeedLayoutPreview() {
                 event = FeedEvent(
                     id = 0,
                     created = 0,
-                    eventType = "like",
+                    type = "like",
                     hidden = false,
                     metadata = Metadata(
                         blurbContent = "Good song.",

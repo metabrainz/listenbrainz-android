@@ -31,7 +31,7 @@ import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun ListeningNowCard(listen: Listen, coverArtUrl: String, onItemClicked: (listen: Listen) -> Unit) {
+fun ListeningNowCard(listen: Listen, coverArtUrl: String?, onItemClicked: (listen: Listen) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()

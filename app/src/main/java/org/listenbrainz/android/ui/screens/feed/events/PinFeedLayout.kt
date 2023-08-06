@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import org.listenbrainz.android.model.FeedEvent
 import org.listenbrainz.android.model.FeedEventType
@@ -17,14 +18,16 @@ import org.listenbrainz.android.util.Utils
 @Composable
 fun PinFeedLayout(
     event: FeedEvent,
+    isHidden: Boolean,
     parentUser: String,
     onDeleteOrHide: () -> Unit,
     onDropdownClick: () -> Unit,
     onClick: () -> Unit
 ) {
     BaseFeedLayout(
-        eventType = FeedEventType.RECORDING_RECOMMENDATION,
+        eventType = FeedEventType.RECORDING_PIN,
         event = event,
+        isHidden = isHidden,
         parentUser = parentUser,
         onDeleteOrHide = onDeleteOrHide
     ) {
@@ -32,10 +35,12 @@ fun PinFeedLayout(
         ListenCardSmall(
             releaseName = event.metadata.trackMetadata?.releaseName ?: "Unknown",
             artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
-            coverArtUrl = Utils.getCoverArtUrl(
-                caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caa_release_mbid,
-                caaId = event.metadata.trackMetadata?.mbidMapping?.caa_id
-            ),
+            coverArtUrl = remember {
+                Utils.getCoverArtUrl(
+                    caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caa_release_mbid,
+                    caaId = event.metadata.trackMetadata?.mbidMapping?.caa_id
+                )
+            },
             enableDropdownIcon = true,
             onDropdownIconClick = onDropdownClick,
             enableBlurbContent = true,
@@ -64,13 +69,14 @@ fun PinFeedLayoutPreview() {
                 event = FeedEvent(
                     id = 0,
                     created = 0,
-                    eventType = "like",
+                    type = "like",
                     hidden = false, metadata = Metadata(blurbContent = "Good song."),
                     username = "JasjeetTest"
                 ),
                 onDeleteOrHide = {},
                 onDropdownClick = {},
-                parentUser = "Jasjeet"
+                parentUser = "Jasjeet",
+                isHidden = false
             ) {}
         }
     }
