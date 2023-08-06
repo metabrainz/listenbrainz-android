@@ -10,7 +10,6 @@ import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
-import org.listenbrainz.android.util.HeaderInterceptor
 import javax.inject.Singleton
 
 @Module
@@ -22,12 +21,9 @@ object AppModule {
     fun providesServiceConnection(@ApplicationContext context: Context, appPreferences: AppPreferences, listensRepository: ListensRepository) =
         BrainzPlayerServiceConnection(context, appPreferences, listensRepository)
 
+    @Singleton
     @Provides
     fun providesAppPreferences(@ApplicationContext context: Context) : AppPreferences =
         AppPreferencesImpl(context)
-    
-    @Provides
-    fun providesHeaderInterceptor(appPreferences: AppPreferences): HeaderInterceptor =
-        HeaderInterceptor(appPreferences)
     
 }

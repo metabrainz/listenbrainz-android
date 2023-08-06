@@ -6,10 +6,9 @@ import okhttp3.Response
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.Constants.Headers.AUTHORIZATION
 import java.io.IOException
-import javax.inject.Inject
 
 
-class HeaderInterceptor @Inject constructor(
+class HeaderInterceptor (
     private val appPreferences: AppPreferences
 ): Interceptor {
     
