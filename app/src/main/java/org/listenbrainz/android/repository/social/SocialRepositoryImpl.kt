@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 
 class SocialRepositoryImpl @Inject constructor(
-    private val service: SocialService,
+    private val service: SocialService
 ) : SocialRepository {
 
     /** @return Network Failure, User DNE, Success.*/
@@ -146,5 +146,16 @@ class SocialRepositoryImpl @Inject constructor(
     
         }.getOrElse { logAndReturn(it) }
     
-    
+    override suspend fun deletePin(id: Int): Resource<SocialResponse> =
+        runCatching {
+        
+            val response = service.deletePin(id)
+        
+            return@runCatching if (response.isSuccessful) {
+                Resource.success(response.body()!!)
+            } else {
+                Resource.failure(error = getError(response = response))
+            }
+        
+        }.getOrElse { logAndReturn(it) }
 }

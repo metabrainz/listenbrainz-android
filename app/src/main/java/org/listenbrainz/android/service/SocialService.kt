@@ -53,4 +53,9 @@ interface SocialService {
         @Path("user_name") username: String,
         @Body data: Review
     ) : Response<FeedEvent>
+    
+    @POST("pin/delete/{id}")
+    suspend fun deletePin(
+        @Path("id") id: Int
+    ) : Response<SocialResponse>
 }
