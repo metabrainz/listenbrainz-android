@@ -18,7 +18,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -45,15 +44,15 @@ import org.listenbrainz.android.viewmodel.ProfileViewModel
 fun ProfileScreen(
     context: Context = LocalContext.current,
     viewModel: ProfileViewModel = hiltViewModel(),
-    shouldScrollToTop: MutableState<Boolean>
+    scrollRequestState: Boolean,
+    onScrollToTop: (suspend () -> Unit) -> Unit
 ) {
     val scrollState = rememberScrollState()
 
     // Scroll to the top when shouldScrollToTop becomes true
-    LaunchedEffect(shouldScrollToTop.value) {
-        if (shouldScrollToTop.value) {
+    LaunchedEffect(scrollRequestState) {
+        onScrollToTop {
             scrollState.animateScrollTo(0)
-            shouldScrollToTop.value = false
         }
     }
 
@@ -63,7 +62,10 @@ fun ProfileScreen(
 
     when(loginStatus) {
         STATUS_LOGGED_IN -> {
-            ListensScreen(shouldScrollToTop = shouldScrollToTop)
+            ListensScreen(
+                onScrollToTop = onScrollToTop,
+                scrollRequestState = scrollRequestState
+            )
         }
         else -> {
             Column(

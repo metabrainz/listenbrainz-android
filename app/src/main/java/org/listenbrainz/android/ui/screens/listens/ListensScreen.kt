@@ -27,7 +27,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,7 +59,8 @@ import org.listenbrainz.android.viewmodel.ListensViewModel
 fun ListensScreen(
     viewModel: ListensViewModel = hiltViewModel(),
     spotifyClientId: String = stringResource(id = R.string.spotifyClientId),
-    shouldScrollToTop: MutableState<Boolean>,
+    scrollRequestState: Boolean,
+    onScrollToTop: (suspend () -> Unit) -> Unit,
     context: Context = LocalContext.current
 ) {
     DisposableEffect(Unit) {
@@ -81,10 +81,9 @@ fun ListensScreen(
     val listState = rememberLazyListState()
 
     // Scroll to the top when shouldScrollToTop becomes true
-    LaunchedEffect(shouldScrollToTop.value) {
-        if (shouldScrollToTop.value) {
+    LaunchedEffect(scrollRequestState) {
+        onScrollToTop {
             listState.scrollToItem(0)
-            shouldScrollToTop.value = false
         }
     }
 
@@ -261,7 +260,5 @@ fun ListensScreen(
 @Preview
 @Composable
 fun ListensScreenPreview() {
-    ListensScreen(
-        shouldScrollToTop = remember { mutableStateOf(false) }
-    )
+    ListensScreen(onScrollToTop = {}, scrollRequestState = false)
 }
