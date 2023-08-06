@@ -33,7 +33,7 @@ import org.listenbrainz.android.ui.theme.lb_purple
 fun YimListenCard(
     releaseName: String,
     artistName: String,
-    coverArtUrl: String,
+    coverArtUrl: String?,
     onClick: () -> Unit = {}
 ) {
     Surface(

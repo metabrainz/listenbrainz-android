@@ -29,7 +29,7 @@ fun AppNavigation(
             FeedScreen()
         }
         composable(route = AppNavigationItem.BrainzPlayer.route){
-            BrainzPlayerScreen(appNavController = navController)
+            BrainzPlayerScreen()
         }
         composable(route = AppNavigationItem.Explore.route){
             ExploreScreen()
