@@ -14,7 +14,7 @@ import org.listenbrainz.android.util.TypeConverter
     version = 1
 )
 @TypeConverters(TypeConverter::class)
-abstract class ListensDatabase: RoomDatabase() {
+abstract class ListensScrobbleDatabase: RoomDatabase() {
     
     abstract fun pendingListensDao() : PendingListensDao
     
