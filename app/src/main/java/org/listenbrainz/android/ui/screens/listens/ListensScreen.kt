@@ -50,6 +50,7 @@ import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.UserData
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.ListensViewModel
@@ -201,8 +202,12 @@ fun ListensScreen(
                 }
             }
 
-            items(listens) { listen ->
+            items(items = listens) { listen ->
                 ListenCardSmall(
+                    modifier = Modifier.padding(
+                        horizontal = ListenBrainzTheme.paddings.horizontal,
+                        vertical = ListenBrainzTheme.paddings.listenListVertical
+                    ),
                     releaseName = listen.trackMetadata.trackName,
                     artistName = listen.trackMetadata.artistName,
                     coverArtUrl = getCoverArtUrl(

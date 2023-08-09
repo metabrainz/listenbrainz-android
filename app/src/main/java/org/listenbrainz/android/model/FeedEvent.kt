@@ -1,10 +1,17 @@
 package org.listenbrainz.android.model
 
+import com.google.gson.annotations.SerializedName
+
 data class FeedEvent(
-    val created: Int,
-    val event_type: String,
-    val hidden: Boolean,
-    val id: Int,
-    val metadata: Metadata,
-    val user_name: String
-)
+    @SerializedName("id"        ) val id: Int,
+    @SerializedName("created"   ) val created: Int,
+    @SerializedName("event_type") val eventType: String,
+    @SerializedName("hidden"    ) val hidden: Boolean? = null,
+    @SerializedName("metadata"  ) val metadata: Metadata,
+    @SerializedName("user_name" ) val username: String? = null,
+    @SerializedName("user_id"   ) val userId: Int? = null
+) {
+    /** Quick getter for blurbContent.*/
+    val blurbContent: String
+        get() = this.metadata.blurbContent ?: "Oops! Error loading content."
+}

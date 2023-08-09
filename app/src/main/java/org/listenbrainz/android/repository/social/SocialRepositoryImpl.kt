@@ -1,7 +1,9 @@
 package org.listenbrainz.android.repository.social
 
-import org.listenbrainz.android.di.AuthHeader
+import org.listenbrainz.android.model.FeedEvent
+import org.listenbrainz.android.model.RecommendationData
 import org.listenbrainz.android.model.ResponseError.Companion.getError
+import org.listenbrainz.android.model.Review
 import org.listenbrainz.android.model.SearchResult
 import org.listenbrainz.android.model.SimilarUserData
 import org.listenbrainz.android.model.SocialData
@@ -14,7 +16,6 @@ import javax.inject.Inject
 
 class SocialRepositoryImpl @Inject constructor(
     private val service: SocialService,
-    @AuthHeader private val authHeader: String
 ) : SocialRepository {
 
     /** @return Network Failure, User DNE, Success.*/
@@ -48,7 +49,7 @@ class SocialRepositoryImpl @Inject constructor(
     /** @return Network Failure, User DNE, User already followed, Success.*/
     override suspend fun followUser(username: String): Resource<SocialResponse> =
         runCatching {
-            val response = service.followUser(username = username, authHeader = authHeader)
+            val response = service.followUser(username = username)
     
             return@runCatching if (response.isSuccessful) {
                 Resource.success(response.body()!!)
@@ -64,7 +65,7 @@ class SocialRepositoryImpl @Inject constructor(
      */
     override suspend fun unfollowUser(username: String): Resource<SocialResponse> =
         runCatching {
-            val response = service.unfollowUser(username = username, authHeader = authHeader)
+            val response = service.unfollowUser(username = username)
             return@runCatching if (response.isSuccessful) {
                 Resource.success(response.body()!!)
             } else {
@@ -87,7 +88,7 @@ class SocialRepositoryImpl @Inject constructor(
         }.getOrElse { logAndReturn(it) }
     
     
-    /** @return Network Failure, [GeneralError.RATE_LIMIT_EXCEEDED], Success. */
+    /** @return Network Failure, [RATE_LIMIT_EXCEEDED], Success. */
     override suspend fun searchUser(username: String): Resource<SearchResult> =
         runCatching {
             val response = service.searchUser(username = username)
@@ -98,5 +99,52 @@ class SocialRepositoryImpl @Inject constructor(
             }
     
         }.getOrElse { logAndReturn(it) }
+    
+    override suspend fun postPersonalRecommendation(username: String, data: RecommendationData): Resource<FeedEvent> =
+        runCatching {
+            val response = service.postPersonalRecommendation(
+                username = username,
+                data = data
+            )
+            return@runCatching if (response.isSuccessful) {
+                Resource.success(response.body()!!)
+            } else {
+                Resource.failure(error = getError(response = response))
+            }
+    
+        }.getOrElse { logAndReturn(it) }
+    
+    override suspend fun postRecommendationToAll(username: String, data: RecommendationData): Resource<FeedEvent> =
+        runCatching {
+            
+            val response = service.postRecommendationToAll(
+                username = username,
+                data = data
+            )
+            
+            return@runCatching if (response.isSuccessful) {
+                Resource.success(response.body()!!)
+            } else {
+                Resource.failure(error = getError(response = response))
+            }
+    
+        }.getOrElse { logAndReturn(it) }
+    
+    override suspend fun postReview(username: String, data: Review): Resource<FeedEvent> =
+        runCatching {
+            
+            val response = service.postReview(
+                username = username,
+                data = data
+            )
+            
+            return@runCatching if (response.isSuccessful) {
+                Resource.success(response.body()!!)
+            } else {
+                Resource.failure(error = getError(response = response))
+            }
+    
+        }.getOrElse { logAndReturn(it) }
+    
     
 }

@@ -10,9 +10,7 @@ import org.listenbrainz.android.viewmodel.FeedViewModel
 fun FeedScreen(
     viewModel: FeedViewModel = hiltViewModel()
 ) {
-    
     FeedScreen()
-    
 }
 
 

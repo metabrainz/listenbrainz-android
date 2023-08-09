@@ -22,8 +22,11 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.preference.PreferenceManager
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -177,19 +180,36 @@ data class Paddings(
     // New set
     val horizontal: Dp = 8.dp,
     val vertical: Dp = 8.dp,
+    val listenListVertical: Dp = 4.dp,
     val lazyListAdjacent: Dp = 8.dp,
     val coverArtAndTextGap: Dp = 8.dp,
-    val insideCardHorizontal: Dp = 8.dp
+    val insideCard: Dp = 8.dp
 )
 private val LocalPaddings = staticCompositionLocalOf { Paddings() }
 
 @Immutable
+data class Sizes(
+    val listenCardHeight: Dp = 60.dp,
+    val listenCardCorner: Dp = 8.dp
+)
+
+private val LocalSizes = staticCompositionLocalOf { Sizes() }
+
+@Immutable
 data class Shapes(
+    // Change size field when changing this.
     val listenCardSmall: Shape = RoundedCornerShape(8.dp),
     val listenCard: Shape = RoundedCornerShape(16.dp)
 )
 
 private val LocalShapes = staticCompositionLocalOf { Shapes() }
+
+@Immutable
+data class TextStyles(
+    val feedBlurbContent: TextStyle = TextStyle(fontStyle = FontStyle.Italic, fontSize = 14.sp)
+)
+
+private val LocalTextStyles = staticCompositionLocalOf { TextStyles() }
 
 /**
  * This variable defines the ui mode of the system.
@@ -278,8 +298,11 @@ fun ListenBrainzTheme(
     CompositionLocalProvider {
         LocalPaddings provides Paddings()
         LocalShapes provides Shapes()
+        LocalSizes provides Sizes()
+        LocalTextStyles provides TextStyles()
         LocalColorScheme provides localColorScheme
     }
+    
     MaterialTheme(
         colorScheme = colorScheme,
         content = content
@@ -302,6 +325,16 @@ object ListenBrainzTheme {
         @Composable
         @ReadOnlyComposable
         get() = LocalShapes.current
+    
+    val sizes: Sizes
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalSizes.current
+    
+    val textStyles: TextStyles
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalTextStyles.current
 }
 
 

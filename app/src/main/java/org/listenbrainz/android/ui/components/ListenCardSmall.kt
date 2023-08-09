@@ -7,12 +7,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -20,18 +21,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 
+/**Small configuration of listen card.
+ * This composable has fixed height used from [ListenBrainzTheme.sizes].
+ * @param trailingContent **MUST** use the given modifier in its top level layout. */
 @Composable
 @OptIn(ExperimentalGlideComposeApi::class)
 fun ListenCardSmall(
@@ -43,85 +53,194 @@ fun ListenCardSmall(
      *
      *  Best is 200*/
     imageLoadSize: Int = 75,
+    shape: Shape = ListenBrainzTheme.shapes.listenCardSmall,
     @DrawableRes errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
-    showDropdownIcon: Boolean = false,
+    enableDropdownIcon: Boolean = false,
     onDropdownIconClick: () -> Unit = {},
+    enableTrailingContent: Boolean = false,
+    trailingContent: @Composable (modifier: Modifier) -> Unit = {},
+    enableBlurbContent: Boolean = false,
+    blurbContent: @Composable (modifier: Modifier) -> Unit = {},
     onClick: () -> Unit,
 ) {
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(ListenBrainzTheme.paddings.horizontal)
             .clickable(enabled = true) { onClick() },
-        shape = ListenBrainzTheme.shapes.listenCardSmall,
-        shadowElevation = 5.dp,
+        shape = shape,
+        shadowElevation = 6.dp,
         color = ListenBrainzTheme.colorScheme.level1
     ) {
-        Box(
-            modifier = Modifier.fillMaxWidth().padding(end = ListenBrainzTheme.paddings.insideCardHorizontal),
-            contentAlignment = Alignment.CenterStart
-        ) {
-    
-            Row(
-                modifier = Modifier.fillMaxWidth(if (showDropdownIcon) 0.85f else 1f),
-                verticalAlignment = Alignment.CenterVertically,
+        Column {
+            
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(ListenBrainzTheme.sizes.listenCardHeight)
+                    .padding(end = ListenBrainzTheme.paddings.insideCard),
+                contentAlignment = Alignment.CenterStart
             ) {
         
-                // Album cover art
-                GlideImage(
-                    model = coverArtUrl,
-                    modifier = Modifier.size(60.dp),
-                    contentScale = ContentScale.Fit,
-                    contentDescription = "Album Cover Art"
-                ) {
-                    it.placeholder(errorAlbumArt)
-                        .override(imageLoadSize)
+                val mainContentFraction = when {
+                    enableDropdownIcon && enableTrailingContent -> 0.65f    // 0.15f for dropdown and 0.30f for trailing content
+                    enableDropdownIcon && !enableTrailingContent -> 0.90f   // 0.15f for dropdown
+                    !enableDropdownIcon && enableTrailingContent -> 0.70f   // 0.25f for trailing content
+                    else -> 1f
                 }
         
-                Spacer(modifier = Modifier.width(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(mainContentFraction),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+            
+                    AlbumArt(coverArtUrl, errorAlbumArt, imageLoadSize)
+            
+                    Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.coverArtAndTextGap))
+            
+                    TitleAndArtist(releaseName, artistName)
+            
+                }
         
-                Column {
-                    Text(
-                        text = releaseName,
-                        style = MaterialTheme.typography.bodyMedium
-                            .copy(
-                                fontWeight = FontWeight.Bold,
-                                color = if (onScreenUiModeIsDark()) Color.White else lb_purple,
-                                lineHeight = 14.sp
-                            ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(
-                        text = artistName,
-                        style = MaterialTheme.typography.bodySmall
-                            .copy(
-                                fontWeight = FontWeight.Bold,
-                                color = (if (onScreenUiModeIsDark()) Color.White else lb_purple).copy(
-                                    alpha = 0.7f
-                                )
-                            ),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+        
+                Box(
+                    modifier = modifier
+                        .fillMaxWidth(1f - mainContentFraction)
+                        .align(Alignment.CenterEnd),
+                    contentAlignment = Alignment.Center
+                ) {
+            
+                    // Trailing content
+                    if (enableTrailingContent) {
+                        trailingContent(
+                            modifier = Modifier
+                                .fillMaxWidth(if (enableDropdownIcon) 0.75f else 1f)
+                                .align(Alignment.CenterStart)
+                                .padding(horizontal = 6.dp)
+                        )
+                    }
+            
+                    // Dropdown Icon
+                    if (enableDropdownIcon) {
+                        DropdownButton(
+                            modifier = Modifier
+                                .fillMaxWidth(if (enableTrailingContent) 0.25f else 1f)
+                                .align(Alignment.CenterEnd),
+                            onDropdownIconClick = onDropdownIconClick
+                        )
+                    }
+            
                 }
         
             }
-    
-            if (showDropdownIcon) {
-                Icon(
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = "",
-                    tint = ListenBrainzTheme.colorScheme.text,
-                    modifier = Modifier
-                        .fillMaxWidth(0.15f)
-                        .padding(start = ListenBrainzTheme.paddings.horizontal)
-                        .clickable {
-                            onDropdownIconClick()
-                        }
-                        .align(Alignment.CenterEnd)
+            
+            if (enableBlurbContent) {
+                Divider()
+                blurbContent(modifier = Modifier
+                    .padding(ListenBrainzTheme.paddings.insideCard)
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun DropdownButton(modifier: Modifier = Modifier, onDropdownIconClick: () -> Unit) {
+    
+    IconButton(
+        modifier = modifier,
+        onClick = onDropdownIconClick
+    ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_options),
+            contentDescription = "",
+            tint = ListenBrainzTheme.colorScheme.hint,
+            modifier = Modifier.padding(horizontal = ListenBrainzTheme.paddings.insideCard)
+        )
+    }
+}
+
+@Composable
+@OptIn(ExperimentalGlideComposeApi::class)
+private fun AlbumArt(
+    coverArtUrl: String,
+    errorAlbumArt: Int,
+    imageLoadSize: Int
+) {
+    /*GlideImage(
+        model = coverArtUrl,
+        modifier = Modifier.size(ListenBrainzTheme.sizes.listenCardHeight),
+        contentScale = ContentScale.Fit,
+        contentDescription = "Album Cover Art"
+    ) {
+        it.placeholder(errorAlbumArt)
+            .override(imageLoadSize)
+    }*/
+    
+    AsyncImage(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(coverArtUrl)
+            .build(),
+        fallback = painterResource(id = errorAlbumArt),
+        modifier = Modifier.size(ListenBrainzTheme.sizes.listenCardHeight),
+        contentScale = ContentScale.Fit,
+        placeholder = painterResource(id = errorAlbumArt),
+        filterQuality = FilterQuality.Low,
+        contentDescription = "Album Cover Art"
+    )
+}
+
+@Composable
+private fun TitleAndArtist(releaseName: String, artistName: String) {
+    Column {
+        Text(
+            text = releaseName,
+            style = MaterialTheme.typography.bodyMedium
+                .copy(
+                    fontWeight = FontWeight.Bold,
+                    color = if (onScreenUiModeIsDark()) Color.White else lb_purple,
+                    lineHeight = 14.sp
+                ),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Text(
+            text = artistName,
+            style = MaterialTheme.typography.bodySmall
+                .copy(
+                    fontWeight = FontWeight.Bold,
+                    color = (if (onScreenUiModeIsDark()) Color.White else lb_purple).copy(
+                        alpha = 0.7f
+                    )
+                ),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun ListenCardSmallPreview() {
+    ListenBrainzTheme {
+        ListenCardSmall(
+            releaseName = "Title",
+            artistName = "Artist",
+            coverArtUrl = "",
+            enableTrailingContent = true,
+            enableBlurbContent = true,
+            enableDropdownIcon = true,
+            trailingContent = { modifier ->
+                Column(modifier = modifier) {
+                    TitleAndArtist(releaseName = "Userrrrrrrrrrrrrr", artistName = "60%")
+                }
+            },
+            blurbContent = {
+                Column(modifier = it) {
+                    Text(text = "Hello", color = ListenBrainzTheme.colorScheme.text)
+                }
+                
+            },
+        ) {
             
         }
     }

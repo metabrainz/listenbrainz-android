@@ -7,6 +7,10 @@ import org.listenbrainz.android.model.AlbumEntity
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.SongEntity
 import java.lang.reflect.Type
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 object TypeConverter {
 
@@ -43,4 +47,26 @@ object TypeConverter {
             type
         ) ?: emptyList()
     }
+    
+    @TypeConverter
+    fun stringFromDate(date : Date): String {
+        val format = SimpleDateFormat("EEE, d MMM hh:mm aaa", Locale.getDefault())
+        return format.format(date)
+    }
+    
+    @TypeConverter
+    fun dateFromString(string: String): Date? {
+        val format = SimpleDateFormat("EEE, d MMM hh:mm aaa", Locale.getDefault())
+        return format.parse(string)
+    }
+    
+    fun stringFromEpochTime(milliSeconds: Long, dateFormat: String = "MMM dd, hh:mm aaa"): String {
+        val formatter = SimpleDateFormat(dateFormat, Locale.getDefault())
+        
+        val calendar: Calendar = Calendar.getInstance()
+            .apply { timeInMillis = milliSeconds }
+        
+        return formatter.format(calendar.time)
+    }
+    
 }

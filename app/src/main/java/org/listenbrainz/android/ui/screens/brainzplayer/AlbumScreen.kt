@@ -44,6 +44,7 @@ import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.ui.components.BPLibraryEmptyMessage
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.forwardingPainter
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.viewmodel.AlbumViewModel
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
@@ -281,12 +282,16 @@ fun OnAlbumClickScreen(albumID: Long) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ListenCardSmall(
+                    modifier = Modifier.padding(
+                        horizontal = ListenBrainzTheme.paddings.horizontal,
+                        vertical = ListenBrainzTheme.paddings.listenListVertical
+                    ),
                     releaseName = it.title,
                     artistName = it.artist,
                     coverArtUrl = it.albumArt,
                     imageLoadSize = 100,
                     errorAlbumArt = R.drawable.ic_erroralbumart,
-                    showDropdownIcon = true,
+                    enableDropdownIcon = true,
                     onDropdownIconClick = {
                         albumCardMoreOptionsDropMenuExpanded = albumSongs.indexOf(it)
                     }

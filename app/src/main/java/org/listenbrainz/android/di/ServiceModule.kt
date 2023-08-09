@@ -9,12 +9,15 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
 import org.listenbrainz.android.model.yimdata.YimData
 import org.listenbrainz.android.service.BlogService
+import org.listenbrainz.android.service.FeedService
 import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.util.Constants.LISTENBRAINZ_API_BASE_URL
+import org.listenbrainz.android.util.HeaderInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.reflect.Type
@@ -27,13 +30,19 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class ServiceModule {
     
-    /** Retrofit instance with LB api url.*/
-    private val retrofitBuilderLB: Retrofit by lazy {
+    private fun constructRetrofit(headerInterceptor: HeaderInterceptor): Retrofit =
         Retrofit.Builder()
+            .client(
+                OkHttpClient()
+                    .newBuilder()
+                    .addInterceptor(headerInterceptor)
+                    // .addInterceptor (HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+                    .build()
+            )
             .baseUrl(LISTENBRAINZ_API_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-    }
+    
     
     @get:Singleton
     @get:Provides
@@ -43,15 +52,25 @@ class ServiceModule {
         .build().create(BlogService::class.java)
 
     
-    @get:Singleton
-    @get:Provides
-    val listensService: ListensService = retrofitBuilderLB.create(ListensService::class.java)
+    @Singleton
+    @Provides
+    fun providesListensService(headerInterceptor: HeaderInterceptor): ListensService =
+        constructRetrofit(headerInterceptor)
+            .create(ListensService::class.java)
     
     
-    @get:Singleton
-    @get:Provides
-    val socialService: SocialService = retrofitBuilderLB.create(SocialService::class.java)
+    @Singleton
+    @Provides
+    fun providesSocialService(headerInterceptor: HeaderInterceptor): SocialService =
+        constructRetrofit(headerInterceptor)
+            .create(SocialService::class.java)
     
+    
+    @Singleton
+    @Provides
+    fun providesFeedService(headerInterceptor: HeaderInterceptor): FeedService =
+        constructRetrofit(headerInterceptor)
+            .create(FeedService::class.java)
     
     /* YIM */
     
