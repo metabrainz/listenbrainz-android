@@ -3,7 +3,7 @@ buildscript {
     ext {
         kotlin_version = '1.8.20'
         navigationVersion = '2.6.0'
-        hilt_version = '2.46.1'
+        hilt_version = '2.47'
         compose_version = '1.4.3'
         room_version = '2.5.2'
         accompanist_version = '0.30.1'
