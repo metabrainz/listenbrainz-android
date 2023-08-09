@@ -2,9 +2,7 @@ package org.listenbrainz.android.util
 
 import android.media.MediaMetadata
 import android.media.session.PlaybackState
-import androidx.work.Constraints
 import androidx.work.Data
-import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -80,7 +78,6 @@ class ListenSubmissionState(
     }
     
     // Metadata setter functions
-    
     
     private fun setTitle(metadata: MediaMetadata) {
         title = when {
@@ -185,20 +182,22 @@ class ListenSubmissionState(
         val data = Data.Builder()
             .putString(MediaMetadata.METADATA_KEY_ARTIST, artist)
             .putString(MediaMetadata.METADATA_KEY_TITLE, title)
-            .putInt(MediaMetadata.METADATA_KEY_DURATION, duration.toInt())
+            .putInt(MediaMetadata.METADATA_KEY_DURATION, (duration*2).toInt())
             .putString(MediaMetadata.METADATA_KEY_WRITER, player)
             .putString(MediaMetadata.METADATA_KEY_ALBUM, releaseName)
             .putString("TYPE", listenType.code)
             .putLong(Constants.Strings.TIMESTAMP, timestamp)
             .build()
         
-        val constraints = Constraints.Builder()
+        /** We are not going to set network constraints as we want to minimize API calls
+         * by bulk submitting listens.*/
+        /*val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
+            .build()*/
         
         return OneTimeWorkRequestBuilder<ListenSubmissionWorker>()
             .setInputData(data)
-            .setConstraints(constraints)
+            //.setConstraints(constraints)
             .build()
         
     }
