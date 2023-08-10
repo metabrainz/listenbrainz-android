@@ -77,7 +77,7 @@ class FeedViewModel @Inject constructor(
     
     private fun createNewMyFeedPagingSource(): MyFeedPagingSource =
         MyFeedPagingSource(
-            username = appPreferences.username ?: "",
+            username = { appPreferences.username },
             addEntryToMap = { id, value ->
                 isHiddenMap[id] = value
             },

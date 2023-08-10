@@ -45,7 +45,7 @@ class ListenBrainzWebClient(private val setLBAuthToken: (String) -> Unit): WebVi
                         val document = Jsoup.parse(response.body.string())
                         val element = document.getElementById("auth-token")
                         val token = element?.attr("value")
-                        if (token != null) {
+                        if (!token.isNullOrEmpty()) {
                             setLBAuthToken(token)
                         }
                     }

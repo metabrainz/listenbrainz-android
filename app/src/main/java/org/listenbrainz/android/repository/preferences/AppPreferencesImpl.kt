@@ -3,13 +3,26 @@ package org.listenbrainz.android.repository.preferences
 import android.content.Context
 import android.content.pm.PackageManager
 import android.provider.Settings
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.SharedPreferencesMigration
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import org.listenbrainz.android.model.AccessToken
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UserInfo
+import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Constants.ONBOARDING
 import org.listenbrainz.android.util.Constants.Strings.CURRENT_PLAYABLE
 import org.listenbrainz.android.util.Constants.Strings.LB_ACCESS_TOKEN
@@ -30,6 +43,26 @@ import javax.inject.Singleton
 
 @Singleton
 class AppPreferencesImpl(private val context : Context): AppPreferences {
+    
+    companion object {
+        private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
+            name = "settings",
+            produceMigrations = { context ->
+                // Since we're migrating from SharedPreferences, add a migration based on the
+                // SharedPreferences name
+                listOf(SharedPreferencesMigration(
+                    context,
+                    context.packageName + "_preferences",
+                    setOf(LB_ACCESS_TOKEN, /*USERNAME*/)
+                ))
+            }
+        )
+    
+        private object PreferenceKeys {
+            val LB_ACCESS_TOKEN = stringPreferencesKey(Constants.Strings.LB_ACCESS_TOKEN)
+            //val USERNAME = stringPreferencesKey(Constants.Strings.USERNAME)
+        }
+    }
     
     private val preferences = PreferenceManager.getDefaultSharedPreferences(context)
     private val gson = Gson()
@@ -116,11 +149,12 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
         editor.apply()
     }
 
-    override fun logoutUser() {
+    override suspend fun logoutUser() = withContext(Dispatchers.IO) {
         val editor = preferences.edit()
         editor.remove(REFRESH_TOKEN)
         editor.remove(USERNAME)
         editor.apply()
+        setLbAccessToken("")
     }
     
     override var currentPlayable : Playable?
@@ -136,20 +170,45 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
 
     /* Login Preferences */
     
-    override val loginStatus: Int
-        get() {
-            val accessToken = lbAccessToken
-            val username = username
-            return when {
-                accessToken!!.isNotEmpty() && username!!.isNotEmpty() -> STATUS_LOGGED_IN
-                else -> STATUS_LOGGED_OUT
-            }
+    override fun getLoginStatus(): Flow<Int> =
+         getLbAccessTokenFlow().map { token ->
+             if (token.isNotEmpty())
+                 STATUS_LOGGED_IN
+             else
+                 STATUS_LOGGED_OUT
+         }.distinctUntilChanged()
+    
+    
+    override suspend fun getLbAccessToken(): String =
+        context.dataStore.data.first()[PreferenceKeys.LB_ACCESS_TOKEN] ?: ""
+    
+    override fun getLbAccessTokenFlow(): Flow<String> =
+        context.dataStore.data.map { prefs ->
+            prefs[PreferenceKeys.LB_ACCESS_TOKEN] ?: ""
         }
+    
+    
+    override suspend fun setLbAccessToken(value: String): Unit = withContext(Dispatchers.IO) {
+        context.dataStore.edit { prefs ->
+            prefs[PreferenceKeys.LB_ACCESS_TOKEN] = value
+        }
+    }
 
-    override var lbAccessToken: String?
-        get() = preferences.getString(LB_ACCESS_TOKEN, "")
-        set(value) = setString(LB_ACCESS_TOKEN, value)
-
+    /*override fun getUsernameFlow(): Flow<String> =
+        context.dataStore.data.map { prefs ->
+            prefs[PreferenceKeys.LB_ACCESS_TOKEN] ?: ""
+        }
+    
+    
+    override suspend fun getUsername(): String =
+        context.dataStore.data.first()[PreferenceKeys.USERNAME] ?: ""
+    
+    override suspend fun setUsername(value: String): Unit = withContext(Dispatchers.IO) {
+        context.dataStore.edit { prefs ->
+            prefs[PreferenceKeys.USERNAME] = value
+        }
+    }*/
+    
     override var username: String?
         get() = preferences.getString(USERNAME, "")
         set(value) = setString(USERNAME, value)

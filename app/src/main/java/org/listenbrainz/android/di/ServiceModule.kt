@@ -10,6 +10,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import org.listenbrainz.android.model.yimdata.YimData
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.BlogService
@@ -24,10 +25,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.reflect.Type
 import javax.inject.Singleton
 
-@Module(includes = [
-    AppModule::class,
-    DispatcherModule::class
-])
+@Module
 @InstallIn(SingletonComponent::class)
 class ServiceModule {
     
@@ -37,7 +35,7 @@ class ServiceModule {
                 OkHttpClient()
                     .newBuilder()
                     .addInterceptor(HeaderInterceptor(appPreferences))
-                    // .addInterceptor (HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+                    .addInterceptor (HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS))
                     .build()
             )
             .baseUrl(LISTENBRAINZ_API_BASE_URL)

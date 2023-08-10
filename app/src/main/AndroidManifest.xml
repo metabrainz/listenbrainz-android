@@ -63,7 +63,9 @@
             </intent-filter>
         </receiver>
         -->
-        <activity android:name=".ui.screens.onboarding.FeaturesActivity"/>
+        <activity android:name=".ui.screens.onboarding.FeaturesActivity"
+            android:theme="@style/Theme.Material3.DayNight.NoActionBar"/>
+
         <activity
             android:name=".ui.screens.dashboard.DashboardActivity"
             android:exported="true">
@@ -81,7 +83,8 @@
             android:name=".ui.screens.dashboard.DonateActivity"
             android:label="@string/donate_title" />
 
-        <activity android:name="org.listenbrainz.android.ui.screens.profile.LoginActivity" />
+        <activity android:name="org.listenbrainz.android.ui.screens.profile.LoginActivity"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"/>
 
         <!-- Sentry Setup -->
         <meta-data

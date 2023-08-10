@@ -1,15 +1,15 @@
 package org.listenbrainz.android.ui.screens.about
 
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AboutActivity : AppCompatActivity() {
+class AboutActivity : ComponentActivity() {
     @Inject
     lateinit var appPreferences: AppPreferences
 

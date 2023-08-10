@@ -15,7 +15,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.listenbrainz.android.ui.screens.yim.navigation.YimNavigation
 import org.listenbrainz.android.ui.theme.isUiModeIsDark
-import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 import org.listenbrainz.android.viewmodel.YimViewModel
 import org.listenbrainz.sharedtest.mocks.MockAppPreferences
@@ -41,7 +40,7 @@ class YearInMusicActivityTest {
         activity = rule.activity
         val yimViewModel = YimViewModel(
             MockYimRepository(),
-            MockAppPreferences(username = testUsername, loginStatus = STATUS_LOGGED_IN)
+            MockAppPreferences(username = testUsername)
         )
         val networkViewModel = MockNetworkConnectivityViewModel(ConnectivityObserver.NetworkStatus.AVAILABLE)
 

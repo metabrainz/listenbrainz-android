@@ -5,6 +5,11 @@ import android.content.Intent
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ProcessLifecycleOwner
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.ListenScrobbleService
 import org.listenbrainz.android.service.ListensService
@@ -19,21 +24,24 @@ class App : Application() {
     @Inject
     lateinit var listensService: ListensService
 
-    //private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     override fun onCreate() {
         super.onCreate()
         context = this
-
-        if(appPreferences.isNotificationServiceAllowed && !appPreferences.lbAccessToken.isNullOrEmpty()) {
-            startListenService()
+        
+        applicationScope.launch {
+            if(appPreferences.isNotificationServiceAllowed && appPreferences.getLbAccessToken().isNotEmpty()) {
+                startListenService()
+            }
         }
+        
     }
 
-    /*override fun onTerminate() {
+    override fun onTerminate() {
         super.onTerminate()
         applicationScope.cancel()
-    }*/
+    }
 
     companion object {
         lateinit var context: App

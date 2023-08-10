@@ -34,7 +34,6 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
-import kotlinx.coroutines.Dispatchers
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.screens.listens.ListensScreen
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
@@ -55,10 +54,8 @@ fun ProfileScreen(
             scrollState.animateScrollTo(0)
         }
     }
-
-    val loginStatus = viewModel.getLoginStatusFlow()
-        .collectAsState(initial = viewModel.appPreferences.loginStatus, context = Dispatchers.Default)
-        .value
+    
+    val loginStatus by viewModel.loginStatusFlow.collectAsState()
 
     when(loginStatus) {
         STATUS_LOGGED_IN -> {

@@ -68,7 +68,7 @@ fun ListenCardSmall(
             .fillMaxWidth()
             .clickable(enabled = true) { onClick() },
         shape = shape,
-        shadowElevation = 6.dp,
+        shadowElevation = 4.dp,
         color = ListenBrainzTheme.colorScheme.level1
     ) {
         Column {

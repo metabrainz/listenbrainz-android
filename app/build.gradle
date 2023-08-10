@@ -12,6 +12,7 @@ def localPropertiesFile = rootProject.file('local.properties')
 android {
     namespace 'org.listenbrainz.android'
     compileSdk 33
+
     signingConfigs {
         release {
             if (keystorePropertiesFile.exists()) {
@@ -24,13 +25,13 @@ android {
             }
         }
     }
+
     defaultConfig {
         applicationId 'org.listenbrainz.android'
         minSdk 21
         targetSdk 33
         versionCode 30
         versionName "2.0.0"
-
         multiDexEnabled true
         testInstrumentationRunner "org.listenbrainz.android.di.CustomTestRunner" // "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -121,6 +122,7 @@ dependencies {
     implementation 'androidx.browser:browser:1.5.0'
     implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation 'androidx.core:core-splashscreen:1.0.1'
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
 
     //Web Service Setup
     implementation 'com.google.code.gson:gson:2.10.1'

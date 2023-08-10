@@ -11,7 +11,7 @@ import org.listenbrainz.android.repository.feed.FeedRepository
 import org.listenbrainz.android.util.Resource
 
 class MyFeedPagingSource (
-    private val username: String,
+    private val username: () -> String?,
     private val addEntryToMap: (Int, Boolean) -> Unit,
     private val onError: (error: ResponseError?) -> Unit,
     private val feedRepository: FeedRepository,
@@ -26,6 +26,13 @@ class MyFeedPagingSource (
     }
     
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, FeedUiEventItem> {
+        
+        val username = username()
+        if (username.isNullOrEmpty()) {
+            val error = ResponseError.UNAUTHORISED.apply { actualResponse = "Login to access feed." }
+            onError(ResponseError.UNAUTHORISED.apply { actualResponse = "Login to access feed." })
+            return LoadResult.Error(Exception(error.toast()))
+        }
         
         val result = withContext(ioDispatcher) {
             feedRepository.getFeedEvents(username = username, maxTs = params.key, count = params.loadSize)
