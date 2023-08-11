@@ -30,8 +30,8 @@ data class AdditionalInfo(
     @SerializedName("origin_url"               ) val originUrl: String? = null,
     @SerializedName("recording_mbid"           ) val recordingMbid: String? = null,
     @SerializedName("release_group_mbid"       ) val releaseGroupMbid: String? = null,
-    @SerializedName("tags"                     ) val tags: Any? = null,
-    @SerializedName("track_mbid"               ) val trackMbid: Any? = null,
-    @SerializedName("work_mbids"               ) val workMbids: Any? = null,
-    @SerializedName("youtube_id"               ) val youtubeId: Any? = null
+    //@SerializedName("tags"                     ) val tags: Any? = null,
+    //@SerializedName("track_mbid"               ) val trackMbid: Any? = null,
+    //@SerializedName("work_mbids"               ) val workMbids: Any? = null,
+    //@SerializedName("youtube_id"               ) val youtubeId: Any? = null
 )

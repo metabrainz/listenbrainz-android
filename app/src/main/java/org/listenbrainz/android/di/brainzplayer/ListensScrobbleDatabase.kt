@@ -11,7 +11,8 @@ import org.listenbrainz.android.util.TypeConverter
     entities = [
         ListenSubmitBody.Payload::class
     ],
-    version = 1
+    version = 1,
+    exportSchema = false
 )
 @TypeConverters(TypeConverter::class)
 abstract class ListensScrobbleDatabase: RoomDatabase() {

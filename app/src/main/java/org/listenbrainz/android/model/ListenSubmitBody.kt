@@ -45,14 +45,6 @@ class ListenSubmitBody {
                     ", metadata=" + metadata +
                     '}'
         }
-    
-        fun setClientDetails(): Payload{
-            this.metadata.additionalInfo.submission_client = "ListenBrainz Android"
-            this.metadata.additionalInfo.submission_client_version = BuildConfig.VERSION_NAME
-            return this
-        }
         
     }
-    
-    
 }

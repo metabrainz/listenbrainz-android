@@ -9,6 +9,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.listenbrainz.android.model.AdditionalInfo
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.ListenTrackMetadata
 import org.listenbrainz.android.model.dao.PendingListensDao
@@ -29,8 +30,8 @@ class ListenSubmissionWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, workerParams) {
     
     override suspend fun doWork(): Result {
-        val token = appPreferences.lbAccessToken
-        if (token.isNullOrEmpty()) {
+        val token = appPreferences.getLbAccessToken()
+        if (token.isEmpty()) {
             d("ListenBrainz User token has not been set!")
             return Result.failure()
         }
@@ -38,26 +39,22 @@ class ListenSubmissionWorker @AssistedInject constructor(
             d("Track is too short to submit")
             return Result.failure()
         }
-        val metadata = ListenTrackMetadata()
-    
-        // Main metadata
-        metadata.artist = inputData.getString(MediaMetadata.METADATA_KEY_ARTIST)
-        metadata.track = inputData.getString(MediaMetadata.METADATA_KEY_TITLE)
-        metadata.release = inputData.getString(MediaMetadata.METADATA_KEY_ALBUM)
-    
-        // Duration
-        metadata.additionalInfo.duration_ms = inputData.getInt(MediaMetadata.METADATA_KEY_DURATION, 0)
-    
-        // Setting player
-        val player = inputData.getString(MediaMetadata.METADATA_KEY_WRITER)
-        if (player != null)
-            metadata.additionalInfo.media_player = repository.getPackageLabel(player)
+        val metadata = ListenTrackMetadata(
+            artist = inputData.getString(MediaMetadata.METADATA_KEY_ARTIST),
+            track = inputData.getString(MediaMetadata.METADATA_KEY_TITLE),
+            release = inputData.getString(MediaMetadata.METADATA_KEY_ALBUM),
+            additionalInfo = AdditionalInfo(
+                durationMs = inputData.getInt(MediaMetadata.METADATA_KEY_DURATION, 0),
+                mediaPlayer = inputData.getString(MediaMetadata.METADATA_KEY_WRITER)
+                    ?.let { repository.getPackageLabel(it) }
+            )
+        )
         
         // Our listen to submit
         val listen = ListenSubmitBody.Payload(
             timestamp = if(inputData.getString("TYPE") == "single") inputData.getLong(Constants.Strings.TIMESTAMP, 0) else null,
             metadata = metadata
-        ).setClientDetails()
+        )
     
         val body = ListenSubmitBody().addListens(listen)
         

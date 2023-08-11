@@ -9,8 +9,6 @@ import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.ListenScrobbleService
@@ -33,7 +31,7 @@ class App : Application(), Configuration.Provider {
         super.onCreate()
         context = this
         
-        applicationScope.launch {
+        CoroutineScope(Dispatchers.Main).launch {
             if(appPreferences.isNotificationServiceAllowed && appPreferences.getLbAccessToken().isNotEmpty()) {
                 startListenService()
             }

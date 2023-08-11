@@ -92,12 +92,9 @@ class ListensViewModel @Inject constructor(
             socketRepository
                 .listen(appPreferences.username!!)
                 .collect { listen ->
-                    if (listen.listened_at == null)
-                        _listeningNowFlow.value = listen
-                    else
-                        _listensFlow.getAndUpdate {
-                            listOf(listen) + it
-                        }
+                    _listensFlow.getAndUpdate {
+                        listOf(listen) + it
+                    }
                 }
         }
     }
