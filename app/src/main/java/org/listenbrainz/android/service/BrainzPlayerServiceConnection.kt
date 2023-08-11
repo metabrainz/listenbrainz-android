@@ -18,6 +18,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import org.listenbrainz.android.BuildConfig
+import org.listenbrainz.android.model.AdditionalInfo
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.ListenTrackMetadata
 import org.listenbrainz.android.model.ListenType
@@ -267,30 +269,30 @@ class BrainzPlayerServiceConnection(
             scope.launch {
                 val token = appPreferences.getLbAccessToken()
                 if(token.isNotEmpty() && !appPreferences.isNotificationServiceAllowed) {
-                    d("jajdbjfnjw")
+                    
                     if(duration <= 30000) {
                         d("Track is too short to submit")
                         return@launch
                     }
-                    val metadata = ListenTrackMetadata()
-        
-                    // Main metadata
-                    metadata.artist = artist
-                    metadata.track = title
-                    metadata.release = releaseName
-        
-                    // Duration
-                    metadata.additionalInfo.durationMs = duration.toInt()
-        
-                    // Setting player
-                    metadata.additionalInfo.mediaPlayer = "BrainzPlayer"
+                    
+                    val metadata = ListenTrackMetadata(
+                        artist = artist,
+                        track = title,
+                        release = releaseName,
+                        additionalInfo = AdditionalInfo(
+                            durationMs = duration.toInt(),
+                            mediaPlayer = "BrainzPlayer",
+                            submissionClient = "ListenBrainz Android",
+                            submissionClientVersion = BuildConfig.VERSION_NAME
+                        )
+                    )
         
                     val body = ListenSubmitBody()
                     body.addListen(
                         timestamp = if(listenType == ListenType.SINGLE) timestamp else null,
-                        metadata = metadata,
-                        insertedAt = System.currentTimeMillis().toInt()
+                        metadata = metadata
                     )
+                    
                     body.listenType = listenType.code
         
                     d("Submitting Listen: $body")

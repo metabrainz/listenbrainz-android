@@ -1,7 +1,9 @@
 package org.listenbrainz.android.model
 
+import androidx.compose.runtime.Stable
 import com.google.gson.annotations.SerializedName
 
+@Stable
 data class FeedEvent(
     @SerializedName("id"        ) val id: Int? = null,
     @SerializedName("created"   ) val created: Int,

@@ -21,9 +21,9 @@ data class AdditionalInfo(
     @SerializedName("tracknumber"              ) val trackNumber: Int? = null,
     
     // Used for listen submission body
-    @SerializedName("media_player"             ) var mediaPlayer: String? = null,
-    @SerializedName("submission_client"        ) var submissionClient: String? = null,
-    @SerializedName("submission_client_version") var submissionClientVersion: String? = null,
+    @SerializedName("media_player"             ) val mediaPlayer: String? = null,
+    @SerializedName("submission_client"        ) val submissionClient: String? = null,
+    @SerializedName("submission_client_version") val submissionClientVersion: String? = null,
 
     // Feed Specific
     @SerializedName("artist_mbids"             ) val artistMbids: List<String>? = null,
