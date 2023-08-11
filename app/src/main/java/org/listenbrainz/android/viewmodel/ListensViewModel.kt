@@ -22,6 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
@@ -81,8 +82,8 @@ class ListensViewModel @Inject constructor(
     private val errorCallback = { throwable: Throwable -> logError(throwable) }
     private var isResumed = false
 
-    private val _listeningNow: MutableStateFlow<Listen?> = MutableStateFlow(null)
-    val listeningNow = _listeningNow.asStateFlow()
+    private val _listeningNowFlow: MutableStateFlow<Listen?> = MutableStateFlow(null)
+    val listeningNow = _listeningNowFlow.asStateFlow()
 
     init {
         SpotifyAppRemote.setDebugMode(BuildConfig.DEBUG)
@@ -90,8 +91,13 @@ class ListensViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             socketRepository
                 .listen(appPreferences.username!!)
-                .collect {
-                    _listeningNow.value = it
+                .collect { listen ->
+                    if (listen.listened_at == null)
+                        _listeningNowFlow.value = listen
+                    else
+                        _listensFlow.getAndUpdate {
+                            listOf(listen) + it
+                        }
                 }
         }
     }

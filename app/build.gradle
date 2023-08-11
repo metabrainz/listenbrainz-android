@@ -4,7 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id 'com.google.devtools.ksp'
     id 'dagger.hilt.android.plugin'
-    id "io.sentry.android.gradle" version "3.11.1"
+    id "io.sentry.android.gradle" version "3.12.0"
 }
 
 def keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -31,8 +31,9 @@ android {
         applicationId 'org.listenbrainz.android'
         minSdk 21
         targetSdk 33
-        versionCode 30
-        versionName "2.0.0"
+        versionCode 32
+        versionName "2.0.2"
+
         multiDexEnabled true
         testInstrumentationRunner "org.listenbrainz.android.di.CustomTestRunner" // "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -124,6 +125,7 @@ dependencies {
     implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation 'androidx.core:core-splashscreen:1.0.1'
     implementation "androidx.datastore:datastore-preferences:1.0.0"
+    implementation "androidx.work:work-runtime-ktx:$work_version"
 
     //Web Service Setup
     implementation 'com.google.code.gson:gson:2.10.1'
@@ -156,6 +158,8 @@ dependencies {
     implementation("com.google.dagger:hilt-android:$hilt_version")
     kapt("com.google.dagger:hilt-android-compiler:$hilt_version")
     kapt("androidx.hilt:hilt-compiler:1.0.0")
+    implementation 'androidx.hilt:hilt-work:1.0.0'
+    implementation "androidx.startup:startup-runtime:1.1.1"
 
     //Jetpack Compose
     implementation platform('androidx.compose:compose-bom:2023.06.01')
@@ -209,8 +213,11 @@ dependencies {
     androidTestImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
     androidTestImplementation 'androidx.test:runner:1.5.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'app.cash.turbine:turbine:0.13.0'
+    androidTestImplementation 'androidx.arch.core:core-testing:2.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
     androidTestImplementation 'tools.fastlane:screengrab:2.1.1'     // Fastlane ScreenGrab
+    androidTestImplementation("androidx.work:work-testing:$work_version")
 
     testImplementation project(path: ':sharedTest')
     androidTestImplementation project(path: ':sharedTest')

@@ -11,31 +11,19 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
-import com.dariobrux.kotimer.Timer
-import com.dariobrux.kotimer.interfaces.OnTimerListener
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import androidx.work.WorkManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import org.listenbrainz.android.BuildConfig
-import org.listenbrainz.android.model.AdditionalInfo
-import org.listenbrainz.android.model.ListenSubmitBody
-import org.listenbrainz.android.model.ListenTrackMetadata
-import org.listenbrainz.android.model.ListenType
 import org.listenbrainz.android.model.RepeatMode
-import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlaying
-import org.listenbrainz.android.util.Log
-import org.listenbrainz.android.util.Log.d
+import org.listenbrainz.android.util.ListenSubmissionState
 import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.Utils
 
 class BrainzPlayerServiceConnection(
     context: Context,
     val appPreferences: AppPreferences,
-    val listensRepository: ListensRepository
+    val workManager: WorkManager
 ) {
     val scope = CoroutineScope(Dispatchers.Main)
 
@@ -109,79 +97,66 @@ class BrainzPlayerServiceConnection(
         }
     }
     private inner class MediaControllerCallback : MediaControllerCompat.Callback() {
-        var artist: String? = null
-        var title: String? = null
-        var releaseName: String? = null
-        var timestamp: Long = 0
-        var duration: Long = 0
-        val timer: Timer = Timer()
-        var state: PlaybackState? = null
-        var submitted = false
-
+        val listen: ListenSubmissionState = ListenSubmissionState()
+        
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             _playbackState.value = state ?: EMPTY_PLAYBACK_STATE
-            _playButtonState.value = if (state?.isPlaying==true) Icons.Rounded.Pause
-            else Icons.Rounded.PlayArrow
-            if (state?.isPlaying != previousPlaybackState) _isPlaying.value = state?.isPlaying == true
+            _playButtonState.value =
+                if (state?.isPlaying == true)
+                    Icons.Rounded.Pause
+                else
+                    Icons.Rounded.PlayArrow
+            
+            if (state?.isPlaying != previousPlaybackState) _isPlaying.value =
+                state?.isPlaying == true
             previousPlaybackState = state?.isPlaying == true
-            if (state?.state == PlaybackState.STATE_PLAYING){
-                timer.start()
-                // d("Timer started")
-            }
-
-            if (state?.state == PlaybackState.STATE_PAUSED){
-                timer.pause()
-                // d("Timer paused")
-            }
+    
+            // Cutout point for normal bp and bp submitter
+            if (appPreferences.isNotificationServiceAllowed) return
+    
+            listen.toggleTimer(state?.playbackState as PlaybackState)
+            
         }
-
+    
         override fun onRepeatModeChanged(repeatMode: Int) {
             super.onRepeatModeChanged(repeatMode)
-            when(repeatMode){
+            when (repeatMode) {
                 PlaybackStateCompat.REPEAT_MODE_NONE -> _repeatModeState.value =
                     RepeatMode.REPEAT_MODE_OFF
+            
                 PlaybackStateCompat.REPEAT_MODE_ONE -> _repeatModeState.value =
                     RepeatMode.REPEAT_MODE_ONE
+            
                 PlaybackStateCompat.REPEAT_MODE_ALL -> _repeatModeState.value =
                     RepeatMode.REPEAT_MODE_ALL
+            
                 else -> _repeatModeState.value = RepeatMode.REPEAT_MODE_OFF
             }
         }
-
+    
         override fun onShuffleModeChanged(shuffleMode: Int) {
             super.onShuffleModeChanged(shuffleMode)
-            _shuffleState.value = shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL || shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL
+            _shuffleState.value = shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL
         }
-
-        override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
+        
+        override fun onMetadataChanged(metadataCompat: MediaMetadataCompat?) {
             _currentlyPlayingSong.value =
-                when {
-                    metadata?.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID) == null -> NOTHING_PLAYING
-                    else -> metadata
-                }
-
-            d(metadata.toString())
-            if (metadata == null) return
-
-            // Stop timer and reset metadata.
-            resetMetadata()     // Do not perform this action in timer's onTimerStop due to concurrency issues.
-            timer.stop()
-
-            when {
-                state != null -> d("onMetadataChanged: Listen Metadata " + state!!.state)
-                else -> d("onMetadataChanged: Listen Metadata")
+                if (metadataCompat?.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID) == null)
+                    NOTHING_PLAYING
+                else metadataCompat
+        
+            // Cutoff point for bp and bp submitter.
+            if (appPreferences.isNotificationServiceAllowed) return
+            
+            val metadata = metadataCompat?.mediaMetadata as MediaMetadata
+    
+            listen.initSubmissionFlow(metadata){
+                // Submit a listen.
+                workManager.enqueue(
+                    listen.buildWorkRequest(listenType = it, player = "ListenBrainz Android")
+                )
             }
-
-            setArtist(metadata)
-            setTitle(metadata)
-
-            if (isMetadataFaulty()){
-                Log.w("${if (artist == null) "Artist" else "Title"} is null, listen cancelled.")
-                return
-            }
-
-            setMiscellaneousDetails(metadata)
-            setDurationAndCallbacks(metadata)
+            
         }
 
         override fun onSessionDestroyed() {

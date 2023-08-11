@@ -2,8 +2,10 @@ package org.listenbrainz.android.application
 
 import android.app.Application
 import android.content.Intent
+import androidx.hilt.work.HiltWorkerFactory
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,15 +18,16 @@ import org.listenbrainz.android.service.ListensService
 import javax.inject.Inject
 
 @HiltAndroidApp
-class App : Application() {
-    
+class App : Application(), Configuration.Provider {
+
     @Inject
     lateinit var appPreferences: AppPreferences
 
     @Inject
     lateinit var listensService: ListensService
-
-    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
 
     override fun onCreate() {
         super.onCreate()
@@ -37,12 +40,12 @@ class App : Application() {
         }
         
     }
-
-    override fun onTerminate() {
-        super.onTerminate()
-        applicationScope.cancel()
-    }
-
+    
+    override fun getWorkManagerConfiguration(): Configuration =
+        Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
+    
     companion object {
         lateinit var context: App
             private set

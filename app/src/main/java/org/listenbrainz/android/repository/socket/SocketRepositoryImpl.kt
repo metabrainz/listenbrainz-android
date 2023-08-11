@@ -14,6 +14,7 @@ import org.listenbrainz.android.util.Log
 import javax.inject.Inject
 
 class SocketRepositoryImpl @Inject constructor(): SocketRepository {
+    
     private val socket: Socket = IO.socket(
         "https://listenbrainz.org/",
         IO.Options.builder().setPath("/socket.io/").build()
@@ -22,17 +23,24 @@ class SocketRepositoryImpl @Inject constructor(): SocketRepository {
     override fun listen(username: String) = callbackFlow {
         socket
             .on(EVENT_CONNECT) {
-                Log.d("Listen Connected")
+                Log.d("Listen socket connected.")
                 socket.emit("json", JSONObject().put("user", username))
             }
             .on("playing_now") {
                 val listen = Gson().fromJson(it[0] as String, Listen::class.java)
                 trySendBlocking(listen)
-                    .onFailure {throwable->
+                    .onFailure { throwable ->
                         throwable?.printStackTrace()
                     }
             }
-
+            .on("listen") {
+                val listen = Gson().fromJson(it[0] as String, Listen::class.java)
+                trySendBlocking(listen)
+                    .onFailure { throwable ->
+                        throwable?.printStackTrace()
+                    }
+            }
+        
         socket.connect()
 
         awaitClose {

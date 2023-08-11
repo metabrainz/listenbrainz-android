@@ -19,6 +19,7 @@ import okhttp3.*
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.util.Log.e
+import retrofit2.Response
 import java.io.*
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
@@ -46,6 +47,12 @@ object Utils {
         
     }
 
+    /** Get human readable error.
+     *
+     * **CAUTION:** If this function is called once, calling it further with the same [Response] instance will result in an empty
+     * string. Store this function's result for multiple use cases.*/
+    fun <T> Response<T>.error(): String? = this.errorBody()?.string()
+    
     fun sendFeedback(context: Context) {
         try {
             context.startActivity(emailIntent(Constants.FEEDBACK_EMAIL, Constants.FEEDBACK_SUBJECT))

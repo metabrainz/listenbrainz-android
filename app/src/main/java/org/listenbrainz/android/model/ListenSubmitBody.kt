@@ -1,5 +1,9 @@
 package org.listenbrainz.android.model
 
+import androidx.room.ColumnInfo
+import androidx.room.Embedded
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import java.util.*
 
@@ -8,26 +12,13 @@ class ListenSubmitBody {
     var listenType: String? = "single"
     @JvmField
     var payload: MutableList<Payload> = ArrayList()
-    fun getPayload(): List<Payload> {
-        return payload
+    
+    fun addListens(vararg listens: Payload, listensList: List<Payload> = emptyList()): ListenSubmitBody {
+        listensList.forEach { payload.add(it) }
+        listens.forEach { payload.add(it) }
+        return this
     }
-
-    fun setPayload(payload: MutableList<Payload>) {
-        this.payload = payload
-    }
-
-    fun addListen(payload: Payload) {
-        this.payload.add(payload)
-    }
-
-    fun addListen(timestamp: Long?, metadata: ListenTrackMetadata) {
-        payload.add(
-            Payload(
-                timestamp = timestamp,
-                metadata = metadata
-            )
-        )
-    }
+    
     
     override fun toString(): String {
         return "ListenSubmitBody{" +
@@ -36,17 +27,32 @@ class ListenSubmitBody {
                 '}'
     }
 
+    @Entity(tableName = "PENDING_LISTENS")
     class Payload(
-            @SerializedName("listened_at") var timestamp: Long?,
-            /*@SerializedName("inserted_at") var insertedAt: Int,*/
-            @SerializedName("track_metadata") var metadata: ListenTrackMetadata
-        ) {
-
+        
+        @SerializedName("listened_at")
+        @ColumnInfo(name = "listened_at")
+        @PrimaryKey
+        var timestamp: Long?,
+        
+        @SerializedName("track_metadata")
+        @Embedded
+        var metadata: ListenTrackMetadata
+    ) {
         override fun toString(): String {
             return "Payload{" +
                     "timestamp=" + timestamp +
                     ", metadata=" + metadata +
                     '}'
         }
+    
+        fun setClientDetails(): Payload{
+            this.metadata.additionalInfo.submission_client = "ListenBrainz Android"
+            this.metadata.additionalInfo.submission_client_version = BuildConfig.VERSION_NAME
+            return this
+        }
+        
     }
+    
+    
 }

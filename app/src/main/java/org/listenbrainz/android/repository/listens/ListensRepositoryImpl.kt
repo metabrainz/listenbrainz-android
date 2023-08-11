@@ -3,20 +3,18 @@ package org.listenbrainz.android.repository.listens
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import androidx.annotation.WorkerThread
-import okhttp3.ResponseBody
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.CoverArt
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.ListenSubmitBody
+import org.listenbrainz.android.model.PostResponse
 import org.listenbrainz.android.model.TokenValidation
 import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.util.LinkedService
-import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Resource.Status.FAILED
 import org.listenbrainz.android.util.Resource.Status.SUCCESS
-import retrofit2.Call
-import retrofit2.Response
+import org.listenbrainz.android.util.Utils.error
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -86,18 +84,19 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
     }
     
     
-    override fun submitListen(token: String, body: ListenSubmitBody) {
-        service.submitListen(body = body)?.enqueue(object : retrofit2.Callback<ResponseBody?> {
-            override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
-                d("Listen submitted successfully.")
-                d(response.message())
-                d(response.code().toString())
-                d(response.errorBody().toString())
+    override suspend fun submitListen(token: String, body: ListenSubmitBody): Resource<PostResponse> {
+        return try {
+            val response = service.submitListen("Token $token", body)
+            if (response.isSuccessful){
+                Resource(SUCCESS, response.body())
+            } else {
+                println("submitListen: ${response.error()}")
+                Resource.failure()
             }
-            override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
-                d("Something went wrong: ${t.message}")
-            }
-        })
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Resource.failure()
+        }
     }
     
     override suspend fun getLinkedServices(token: String, username: String): List<LinkedService> {

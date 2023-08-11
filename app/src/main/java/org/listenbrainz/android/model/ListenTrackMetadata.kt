@@ -1,5 +1,6 @@
 package org.listenbrainz.android.model
 
+import androidx.room.Embedded
 import com.google.gson.annotations.SerializedName
 
 class ListenTrackMetadata(
@@ -13,6 +14,7 @@ class ListenTrackMetadata(
     var release: String? = null,
     
     @SerializedName("additional_info")
+    @Embedded
     var additionalInfo: AdditionalInfo = AdditionalInfo()
 ) {
     
