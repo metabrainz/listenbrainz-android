@@ -137,12 +137,12 @@ fun BaseFeedLayout(
 }
 
 @Composable
-private fun Date(
+fun Date(
     event: FeedEvent,
     parentUser: String,
     eventType: FeedEventType,
     height: Dp = 24.dp,
-    onActionClick: () -> Unit
+    onActionClick: () -> Unit = {}
 ) {
     
     val timeString = remember(event.created) {

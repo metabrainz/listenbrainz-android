@@ -7,18 +7,29 @@ import org.listenbrainz.android.model.FeedEvent
 import org.listenbrainz.android.model.FeedEventType
 import org.listenbrainz.android.model.ResponseError
 
+
+/** Top most state wrapper for Feed Screen.*/
 data class FeedUiState(
-    val myFeedData: FeedUiEventData = FeedUiEventData(),
-    val isLoading: Boolean = true,
+    val myFeedState: FeedScreenUiState = FeedScreenUiState(),
+    val followListensFeedState: FeedScreenUiState = FeedScreenUiState(),
+    val similarListensFeedState: FeedScreenUiState = FeedScreenUiState(),
     val error: ResponseError? = null
 )
 
+/** Represents states of various screens in feed.*/
+data class FeedScreenUiState(
+    val data: FeedUiEventData = FeedUiEventData(),
+    val isLoading: Boolean = true,
+)
+
+/** Data held by each screen.*/
 data class FeedUiEventData(
     val isHiddenMap: Map<Int, Boolean> = emptyMap(),
     val isDeletedMap: Map<Int, Boolean> = emptyMap(),
     var eventList: Flow<PagingData<FeedUiEventItem>> = emptyFlow()
 )
 
+/** UI representation for one feed event.*/
 data class FeedUiEventItem(
     val eventType: FeedEventType,
     val event: FeedEvent,

@@ -58,6 +58,7 @@ fun ListenCardSmall(
     enableDropdownIcon: Boolean = false,
     onDropdownIconClick: () -> Unit = {},
     enableTrailingContent: Boolean = false,
+    /****MUST** use the given modifier in its top level layout.*/
     trailingContent: @Composable (modifier: Modifier) -> Unit = {},
     enableBlurbContent: Boolean = false,
     blurbContent: @Composable (modifier: Modifier) -> Unit = {},
@@ -99,7 +100,7 @@ fun ListenCardSmall(
             
                     Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.coverArtAndTextGap))
             
-                    TitleAndArtist(releaseName, artistName)
+                    TitleAndSubtitle(title = releaseName, subtitle = artistName)
             
                 }
         
@@ -193,11 +194,12 @@ private fun AlbumArt(
     )
 }
 
+/** [title] corresponds to release name and [subtitle] corresponds to artist name.*/
 @Composable
-private fun TitleAndArtist(releaseName: String, artistName: String) {
-    Column {
+fun TitleAndSubtitle(modifier: Modifier = Modifier, title: String, subtitle: String = "") {
+    Column(modifier) {
         Text(
-            text = releaseName,
+            text = title,
             style = MaterialTheme.typography.bodyMedium
                 .copy(
                     fontWeight = FontWeight.Bold,
@@ -207,18 +209,20 @@ private fun TitleAndArtist(releaseName: String, artistName: String) {
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        Text(
-            text = artistName,
-            style = MaterialTheme.typography.bodySmall
-                .copy(
-                    fontWeight = FontWeight.Bold,
-                    color = (if (onScreenUiModeIsDark()) Color.White else lb_purple).copy(
-                        alpha = 0.7f
-                    )
-                ),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        if (subtitle.isNotEmpty()){
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall
+                    .copy(
+                        fontWeight = FontWeight.Bold,
+                        color = (if (onScreenUiModeIsDark()) Color.White else lb_purple).copy(
+                            alpha = 0.7f
+                        )
+                    ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
 
@@ -235,7 +239,7 @@ private fun ListenCardSmallPreview() {
             enableDropdownIcon = true,
             trailingContent = { modifier ->
                 Column(modifier = modifier) {
-                    TitleAndArtist(releaseName = "Userrrrrrrrrrrrrr", artistName = "60%")
+                    TitleAndSubtitle(title = "Userrrrrrrrrrrrrr", subtitle = "60%")
                 }
             },
             blurbContent = {

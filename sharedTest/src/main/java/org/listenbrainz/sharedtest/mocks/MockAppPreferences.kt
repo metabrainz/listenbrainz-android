@@ -9,6 +9,7 @@ import org.listenbrainz.android.model.UserInfo
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.LinkedService
+import org.listenbrainz.sharedtest.utils.EntityTestUtils.testAccessToken
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername
 
 /*
@@ -39,12 +40,14 @@ class MockAppPreferences(
         TODO("Not yet implemented")
     }
     
-    override fun logoutUser() {
+    override suspend fun logoutUser() {
         TODO("Not yet implemented")
     }
     
-    override suspend fun getLbAccessToken(): Flow<String> = flow {
-        emit("")
+    override suspend fun getLbAccessToken(): String = testAccessToken
+    
+    override fun getLbAccessTokenFlow(): Flow<String> = flow {
+        TODO("Not yet implemented")
     }
     
     override suspend fun setLbAccessToken(value: String) {

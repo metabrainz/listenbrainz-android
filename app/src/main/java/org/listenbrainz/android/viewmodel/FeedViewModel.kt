@@ -29,10 +29,13 @@ import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.repository.feed.FeedRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.social.SocialRepository
+import org.listenbrainz.android.ui.screens.feed.FeedScreenUiState
 import org.listenbrainz.android.ui.screens.feed.FeedUiEventData
 import org.listenbrainz.android.ui.screens.feed.FeedUiEventItem
 import org.listenbrainz.android.ui.screens.feed.FeedUiState
+import org.listenbrainz.android.ui.screens.feed.FollowListensPagingSource
 import org.listenbrainz.android.ui.screens.feed.MyFeedPagingSource
+import org.listenbrainz.android.ui.screens.feed.SimilarListensPagingSource
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
 
@@ -45,11 +48,10 @@ class FeedViewModel @Inject constructor(
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ): ViewModel() {
     
-    private val loadingStateFlow = MutableStateFlow(false)
+    // Single error flow for feed screen.
     private val errorFlow = MutableStateFlow<ResponseError?>(null)
-    private val isHiddenMap: SnapshotStateMap<Int, Boolean> = mutableStateMapOf()
-    private val isDeletedMap: SnapshotStateMap<Int, Boolean> = mutableStateMapOf()
     
+    // My Feed
     private val myFeedPager: Flow<PagingData<FeedUiEventItem>> = Pager(
         PagingConfig(pageSize = 30),
         initialKey = null
@@ -57,21 +59,84 @@ class FeedViewModel @Inject constructor(
         .flow
         .cachedIn(viewModelScope)
     
+    private val isDeletedMap: SnapshotStateMap<Int, Boolean> = mutableStateMapOf()
+    private val isHiddenMap: SnapshotStateMap<Int, Boolean> = mutableStateMapOf()
     private val myFeedFlow = MutableStateFlow(FeedUiEventData(isHiddenMap, isDeletedMap, myFeedPager))
+    private val myFeedLoadingFlow = MutableStateFlow(false)
+    
+    // Follow Listens
+    private val followListensPager: Flow<PagingData<FeedUiEventItem>> = Pager(
+        PagingConfig(pageSize = 30),
+        initialKey = null
+    ) { createNewFollowListensPagingSource() }
+        .flow
+        .cachedIn(viewModelScope)
+    private val followListensFlow = MutableStateFlow(FeedUiEventData(eventList = followListensPager))
+    private val followListensLoadingFlow = MutableStateFlow(false)
+    
+    // Similar Listens
+    private val similarListensPager: Flow<PagingData<FeedUiEventItem>> = Pager(
+        PagingConfig(pageSize = 30),
+        initialKey = null
+    ) { createNewSimilarListensPagingSource() }
+        .flow
+        .cachedIn(viewModelScope)
+    private val similarListensFlow = MutableStateFlow(FeedUiEventData(eventList = similarListensPager))
+    private val similarListensLoadingFlow = MutableStateFlow(false)
     
     val uiState = createUiStateFlow()
     
     private fun createUiStateFlow(): StateFlow<FeedUiState> {
         return combine(
-            myFeedFlow,
-            loadingStateFlow,
+            createMyFeedFlow(),
+            createFollowListensFlow(),
+            createSimilarListensFlow(),
             errorFlow
-        ){ feedData, isLoading, error ->
-            FeedUiState(feedData, isLoading, error)
+        ){ feedScreenState, followListensState, similarListensState, error ->
+            FeedUiState(feedScreenState, followListensState, similarListensState, error)
         }.stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
             FeedUiState()
+        )
+    }
+    
+    private fun createFollowListensFlow(): StateFlow<FeedScreenUiState> {
+        return combine(
+            followListensFlow,
+            followListensLoadingFlow
+        ){ followListensData, isLoading ->
+            FeedScreenUiState(data = followListensData, isLoading = isLoading)
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            FeedScreenUiState()
+        )
+    }
+    
+    private fun createSimilarListensFlow(): StateFlow<FeedScreenUiState> {
+        return combine(
+            similarListensFlow,
+            similarListensLoadingFlow
+        ){ similarListensData, isLoading ->
+            FeedScreenUiState(data = similarListensData, isLoading = isLoading)
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            FeedScreenUiState()
+        )
+    }
+    
+    private fun createMyFeedFlow(): StateFlow<FeedScreenUiState> {
+        return combine(
+            myFeedFlow,
+            myFeedLoadingFlow
+        ){ myFeedData, isLoading ->
+            FeedScreenUiState(data = myFeedData, isLoading = isLoading)
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            FeedScreenUiState()
         )
     }
     
@@ -81,6 +146,30 @@ class FeedViewModel @Inject constructor(
             addEntryToMap = { id, value ->
                 isHiddenMap[id] = value
             },
+            onError =  { error ->
+                viewModelScope.launch(defaultDispatcher) {
+                    errorFlow.emit(error)
+                }
+            },
+            feedRepository = feedRepository,
+            ioDispatcher = ioDispatcher
+        )
+    
+    private fun createNewFollowListensPagingSource(): FollowListensPagingSource =
+        FollowListensPagingSource(
+            username = { appPreferences.username },
+            onError =  { error ->
+                viewModelScope.launch(defaultDispatcher) {
+                    errorFlow.emit(error)
+                }
+            },
+            feedRepository = feedRepository,
+            ioDispatcher = ioDispatcher
+        )
+    
+    private fun createNewSimilarListensPagingSource(): SimilarListensPagingSource =
+        SimilarListensPagingSource(
+            username = { appPreferences.username },
             onError =  { error ->
                 viewModelScope.launch(defaultDispatcher) {
                     errorFlow.emit(error)

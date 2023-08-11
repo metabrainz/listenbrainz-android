@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,6 +45,8 @@ data class Theme(
     val lbSignatureSecondary: Color,
     val lbSignatureInverse: Color,
     val onLbSignature: Color,
+    val chipUnselected: Color,
+    val chipSelected: Color,
     val text: Color,
     val hint: Color
 )
@@ -60,6 +63,8 @@ private val colorSchemeDark = Theme(
     lbSignatureSecondary = lb_yellow,
     lbSignatureInverse = lb_purple,
     onLbSignature = Color.Black,
+    chipUnselected = Color.Black,
+    chipSelected = Color(0xFF1E1E1E),
     text = Color.White,
     hint = Color(0xFF8C8C8C)
 )
@@ -76,6 +81,8 @@ private val colorSchemeLight = Theme(
     lbSignatureSecondary = lb_yellow,
     lbSignatureInverse = lb_orange,
     onLbSignature = Color.White,
+    chipUnselected = Color.White,
+    chipSelected = Color(0xFFB6B6B6),
     text = Color.Black,
     hint = Color(0xFF707070)
 )
@@ -183,7 +190,8 @@ data class Paddings(
     val listenListVertical: Dp = 4.dp,
     val lazyListAdjacent: Dp = 8.dp,
     val coverArtAndTextGap: Dp = 8.dp,
-    val insideCard: Dp = 8.dp
+    val insideCard: Dp = 8.dp,
+    val chipsHorizontal: Dp = 6.dp
 )
 private val LocalPaddings = staticCompositionLocalOf { Paddings() }
 
@@ -199,14 +207,16 @@ private val LocalSizes = staticCompositionLocalOf { Sizes() }
 data class Shapes(
     // Change size field when changing this.
     val listenCardSmall: Shape = RoundedCornerShape(8.dp),
-    val listenCard: Shape = RoundedCornerShape(16.dp)
+    val listenCard: Shape = RoundedCornerShape(16.dp),
+    val chips: Shape = RoundedCornerShape(4.dp)
 )
 
 private val LocalShapes = staticCompositionLocalOf { Shapes() }
 
 @Immutable
 data class TextStyles(
-    val feedBlurbContent: TextStyle = TextStyle(fontStyle = FontStyle.Italic, fontSize = 14.sp)
+    val feedBlurbContent: TextStyle = TextStyle(fontStyle = FontStyle.Italic, fontSize = 14.sp),
+    val chips: TextStyle = TextStyle(fontWeight = FontWeight.Medium)
 )
 
 private val LocalTextStyles = staticCompositionLocalOf { TextStyles() }
