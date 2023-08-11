@@ -5,11 +5,17 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.listenbrainz.android.BuildConfig
+import org.listenbrainz.android.model.AdditionalInfo
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.ListenTrackMetadata
 import org.listenbrainz.android.model.ListenType
-import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.listens.ListensRepository
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.Constants.Strings.TIMESTAMP
 import org.listenbrainz.android.util.Log.d
 
@@ -17,39 +23,43 @@ class ListenHandler(val appPreferences: AppPreferences, val repository: ListensR
 
     override fun handleMessage(msg: Message) {
         super.handleMessage(msg)
-        val token = appPreferences.lbAccessToken
-        if (token.isNullOrEmpty()) {
-            d("ListenBrainz User token has not been set!")
-            return
+        CoroutineScope(Dispatchers.Default).launch {
+            val token = appPreferences.getLbAccessToken()
+            if (token.isEmpty()) {
+                d("ListenBrainz User token has not been set!")
+                return@launch
+            }
+            if(msg.data.getInt(MediaMetadata.METADATA_KEY_DURATION) <= 30000) {
+                d("Track is too short to submit")
+                return@launch
+            }
+            val metadata = ListenTrackMetadata(
+                artist = msg.data.getString(MediaMetadata.METADATA_KEY_ARTIST),
+                track = msg.data.getString(MediaMetadata.METADATA_KEY_TITLE),
+                release = msg.data.getString(MediaMetadata.METADATA_KEY_ALBUM),
+                additionalInfo = AdditionalInfo(
+                    durationMs = msg.data.getInt(MediaMetadata.METADATA_KEY_DURATION),
+                    mediaPlayer = msg.data.getString(MediaMetadata.METADATA_KEY_WRITER)
+                        ?.let { repository.getPackageLabel(it) },
+                    submissionClient = "ListenBrainz Android",
+                    submissionClientVersion = BuildConfig.VERSION_NAME
+                )
+            )
+    
+            val body = ListenSubmitBody()
+            body.addListen(
+                timestamp = if(msg.data.getString("TYPE") == "single") msg.data.getLong(TIMESTAMP) else null,
+                metadata = metadata
+            )
+            
+            body.listenType = msg.data.getString("TYPE")
+            
+            withContext(Dispatchers.IO){
+                repository.submitListen(token, body)
+            }
+            
         }
-        if(msg.data.getInt(MediaMetadata.METADATA_KEY_DURATION) <= 30000) {
-            d("Track is too short to submit")
-            return
-        }
-        val metadata = ListenTrackMetadata()
         
-        // Main metadata
-        metadata.artist = msg.data.getString(MediaMetadata.METADATA_KEY_ARTIST)
-        metadata.track = msg.data.getString(MediaMetadata.METADATA_KEY_TITLE)
-        metadata.release = msg.data.getString(MediaMetadata.METADATA_KEY_ALBUM)
-        
-        // Duration
-        metadata.additionalInfo.durationMs = msg.data.getInt(MediaMetadata.METADATA_KEY_DURATION)
-        
-        // Setting player
-        val player = msg.data.getString(MediaMetadata.METADATA_KEY_WRITER)
-        if (player != null)
-            metadata.additionalInfo.mediaPlayer = repository.getPackageLabel(player)
-        
-        val body = ListenSubmitBody()
-        body.addListen(
-            timestamp = if(msg.data.getString("TYPE") == "single") msg.data.getLong(TIMESTAMP) else null,
-            metadata = metadata,
-            insertedAt = System.currentTimeMillis().toInt()
-        )
-        body.listenType = msg.data.getString("TYPE")
-
-        repository.submitListen(token, body)
     }
 
     fun submitListen(

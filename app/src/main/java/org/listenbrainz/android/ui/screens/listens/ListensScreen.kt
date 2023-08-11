@@ -27,11 +27,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.spotify.android.appremote.api.SpotifyAppRemote
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
@@ -60,8 +59,10 @@ import org.listenbrainz.android.viewmodel.ListensViewModel
 fun ListensScreen(
     viewModel: ListensViewModel = hiltViewModel(),
     spotifyClientId: String = stringResource(id = R.string.spotifyClientId),
-    shouldScrollToTop: MutableState<Boolean>,
-    context: Context = LocalContext.current
+    scrollRequestState: Boolean,
+    onScrollToTop: (suspend () -> Unit) -> Unit,
+    context: Context = LocalContext.current,
+    scope: CoroutineScope = rememberCoroutineScope()
 ) {
     DisposableEffect(Unit) {
         viewModel.connect(spotifyClientId = spotifyClientId)
@@ -81,10 +82,9 @@ fun ListensScreen(
     val listState = rememberLazyListState()
 
     // Scroll to the top when shouldScrollToTop becomes true
-    LaunchedEffect(shouldScrollToTop.value) {
-        if (shouldScrollToTop.value) {
+    LaunchedEffect(scrollRequestState) {
+        onScrollToTop {
             listState.scrollToItem(0)
-            shouldScrollToTop.value = false
         }
     }
 
@@ -97,7 +97,6 @@ fun ListensScreen(
             }
         } else {
             // Execute the API request asynchronously
-            val scope = CoroutineScope(Dispatchers.Main)
             scope.launch {
                 val videoId = viewModel
                     .searchYoutubeMusicVideoId(
@@ -233,9 +232,10 @@ fun ListensScreen(
         if (showBlacklist) {
             ListeningAppsList(viewModel = viewModel) { showBlacklist = false }
         }
-
+        
         // FAB
-        if(!viewModel.appPreferences.lbAccessToken.isNullOrEmpty() && viewModel.appPreferences.isNotificationServiceAllowed) {
+        // FIXME: MOVE ACCESS TO SHARED PREFERENCES TO COROUTINES.
+        if(viewModel.appPreferences.isNotificationServiceAllowed) {
             AnimatedVisibility(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -261,7 +261,5 @@ fun ListensScreen(
 @Preview
 @Composable
 fun ListensScreenPreview() {
-    ListensScreen(
-        shouldScrollToTop = remember { mutableStateOf(false) }
-    )
+    ListensScreen(onScrollToTop = {}, scrollRequestState = false)
 }

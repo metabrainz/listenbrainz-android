@@ -3,6 +3,7 @@ package org.listenbrainz.android.ui.screens.feed.events
 import android.content.res.Configuration
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import org.listenbrainz.android.model.FeedEvent
 import org.listenbrainz.android.model.FeedEventType
@@ -16,6 +17,7 @@ import org.listenbrainz.android.util.Utils
 fun RecordingRecommendationFeedLayout(
     event: FeedEvent,
     parentUser: String,
+    isHidden: Boolean,
     onDeleteOrHide: () -> Unit,
     onDropdownClick: () -> Unit,
     onClick: () -> Unit
@@ -23,15 +25,18 @@ fun RecordingRecommendationFeedLayout(
     BaseFeedLayout(
         eventType = FeedEventType.RECORDING_RECOMMENDATION,
         event = event,
+        isHidden = isHidden,
         parentUser = parentUser,
         onDeleteOrHide = onDeleteOrHide,) {
         ListenCardSmall(
             releaseName = event.metadata.trackMetadata?.releaseName ?: "Unknown",
             artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
-            coverArtUrl = Utils.getCoverArtUrl(
-                caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caa_release_mbid,
-                caaId = event.metadata.trackMetadata?.mbidMapping?.caa_id
-            ),
+            coverArtUrl = remember {
+                Utils.getCoverArtUrl(
+                    caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caa_release_mbid,
+                    caaId = event.metadata.trackMetadata?.mbidMapping?.caa_id
+                )
+            },
             enableDropdownIcon = true,
             onDropdownIconClick = onDropdownClick,
             onClick = onClick
@@ -49,13 +54,14 @@ private fun RecordingRecommendationFeedCardPreview() {
                 event = FeedEvent(
                     id = 0,
                     created = 0,
-                    eventType = "like",
+                    type = "like",
                     hidden = false, metadata = Metadata(),
                     username = "Jasjeet"
                 ),
                 onDeleteOrHide = {},
                 onDropdownClick = {},
-                parentUser = "Jasjeet"
+                parentUser = "Jasjeet",
+                isHidden = false
             ) {}
         }
     }

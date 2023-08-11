@@ -28,7 +28,7 @@ class YimViewModelTest{
     @Before
     fun setup(){
         Dispatchers.setMain(StandardTestDispatcher())
-        viewModel = YimViewModel(MockYimRepository(), MockAppPreferences(username = testUsername, loginStatus = STATUS_LOGGED_IN))
+        viewModel = YimViewModel(MockYimRepository(), MockAppPreferences(username = testUsername))
     }
     
     @Test

@@ -20,13 +20,16 @@ import androidx.compose.runtime.*
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.ui.components.DialogLB
-import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.AppNavigation
 import org.listenbrainz.android.ui.navigation.BottomNavigationBar
+import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
 import org.listenbrainz.android.ui.screens.search.SearchScreen
 import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
@@ -117,9 +120,10 @@ class DashboardActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val backdropScaffoldState =
                     rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
-                val shouldScrollToTop = remember { mutableStateOf(false) }
+                var scrollToTopState by remember { mutableStateOf(false) }
                 val snackbarState = SnackbarHostState()
                 val searchBarState = rememberSearchBarState()
+                val scope = rememberCoroutineScope()
                 
                 Scaffold(
                     topBar = { TopBar(navController = navController, searchBarState = searchBarState) },
@@ -127,7 +131,7 @@ class DashboardActivity : ComponentActivity() {
                         BottomNavigationBar(
                             navController = navController,
                             backdropScaffoldState = backdropScaffoldState,
-                            shouldScrollToTop = shouldScrollToTop
+                            scrollToTop = { scrollToTopState = true }
                         )
                     },
                     snackbarHost = {
@@ -154,7 +158,15 @@ class DashboardActivity : ComponentActivity() {
                         ) {
                             AppNavigation(
                                 navController = navController,
-                                shouldScrollToTop = shouldScrollToTop
+                                scrollRequestState = scrollToTopState,
+                                onScrollToTop = { scrollToTop ->
+                                    scope.launch {
+                                        if (scrollToTopState){
+                                            scrollToTop()
+                                            scrollToTopState = false
+                                        }
+                                    }
+                                }
                             )
                         }
                     }
@@ -168,8 +180,11 @@ class DashboardActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        if(appPreferences.isNotificationServiceAllowed && !appPreferences.lbAccessToken.isNullOrEmpty()) {
-            App.startListenService()
+        CoroutineScope(Dispatchers.Main).launch {
+            if(appPreferences.isNotificationServiceAllowed && appPreferences.getLbAccessToken().isNotEmpty()) {
+                App.startListenService()
+            }
         }
+        
     }
 }

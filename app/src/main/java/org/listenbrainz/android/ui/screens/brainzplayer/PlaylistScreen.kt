@@ -32,7 +32,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
@@ -49,8 +48,8 @@ import org.listenbrainz.android.viewmodel.PlaylistViewModel
 @ExperimentalMaterial3Api
 @Composable
 fun PlaylistScreen(
-    navHostController: NavHostController,
-    context: Context = LocalContext.current
+    context: Context = LocalContext.current,
+    navigateToPlaylist: (id: Long) -> Unit
 ) {
     val brainzPlayerViewModel = hiltViewModel<BrainzPlayerViewModel>()
     val currentlyPlayingSong =
@@ -256,7 +255,7 @@ fun PlaylistScreen(
                     .width(200.dp)
                     .clip(RoundedCornerShape(10.dp))
                     .clickable {
-                        navHostController.navigate("onPlaylistClick/${it.id}")
+                        navigateToPlaylist(it.id)
                     }
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {

@@ -2,18 +2,19 @@ package org.listenbrainz.android.model
 
 import com.google.gson.annotations.SerializedName
 
-class ListenTrackMetadata {
+class ListenTrackMetadata(
     @SerializedName("artist_name")
-    var artist: String? = null
-
+    var artist: String? = null,
+    
     @SerializedName("track_name")
-    var track: String? = null
+    var track: String? = null,
 
     @SerializedName("release_name")
-    var release: String? = null
+    var release: String? = null,
     
     @SerializedName("additional_info")
     var additionalInfo: AdditionalInfo = AdditionalInfo()
+) {
     
     override fun toString(): String {
         return "ListenTrackMetadata{" +

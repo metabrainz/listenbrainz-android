@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
@@ -31,7 +32,7 @@ fun ErrorBar(
     
     LaunchedEffect(error) {
         if (error != null) {
-            delay(2500)
+            delay(4000)
             onErrorShown()
         }
     }
@@ -49,8 +50,9 @@ fun ErrorBar(
         ) {
             Text(
                 text = error?.toast() ?: "",
-                modifier = Modifier.padding(vertical = 2.dp),
-                color = ListenBrainzTheme.colorScheme.onLbSignature
+                modifier = Modifier.padding(vertical = 4.dp),
+                color = ListenBrainzTheme.colorScheme.onLbSignature,
+                textAlign = TextAlign.Center
             )
         }
     }

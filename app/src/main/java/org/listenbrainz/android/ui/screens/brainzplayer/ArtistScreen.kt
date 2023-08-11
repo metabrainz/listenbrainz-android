@@ -40,7 +40,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Artist
@@ -57,7 +56,7 @@ import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ArtistScreen(navHostController: NavHostController) {
+fun ArtistScreen(navigateToArtistScreen: (id: Long) -> Unit) {
     val artistViewModel = hiltViewModel<ArtistViewModel>()
     val artists = artistViewModel.artists.collectAsState(initial = listOf())
 
@@ -78,7 +77,7 @@ fun ArtistScreen(navHostController: NavHostController) {
         } else if (artists.value.isEmpty()){
             BPLibraryEmptyMessage()
         } else {
-            ArtistsScreen(artists = artists, navHostController = navHostController)
+            ArtistsScreen(artists = artists, navigateToArtistScreen = navigateToArtistScreen)
         }
         PullRefreshIndicator(
             modifier = Modifier.align(Alignment.TopCenter),
@@ -92,7 +91,7 @@ fun ArtistScreen(navHostController: NavHostController) {
 @Composable
 private fun ArtistsScreen(
     artists: State<List<Artist>>,
-    navHostController: NavHostController
+    navigateToArtistScreen: (id: Long) -> Unit
 ) {
     val brainzPlayerViewModel = hiltViewModel<BrainzPlayerViewModel>()
     val currentlyPlayingSong =
@@ -109,7 +108,7 @@ private fun ArtistsScreen(
                 .width(200.dp)
                 .clip(RoundedCornerShape(10.dp))
                 .clickable {
-                    navHostController.navigate("onArtistClick/${artist.id}")
+                    navigateToArtistScreen(artist.id)
                 }
             ) {
                 DropdownMenu(
@@ -206,7 +205,7 @@ private fun ArtistsScreen(
 }
 
 @Composable
-fun OnArtistClickScreen(artistID: String, navHostController: NavHostController) {
+fun OnArtistClickScreen(artistID: String, navigateToAlbum: (id: Long) -> Unit) {
     val brainzPlayerViewModel = hiltViewModel<BrainzPlayerViewModel>()
     val artistViewModel = hiltViewModel<ArtistViewModel>()
     val albumViewModel = hiltViewModel<AlbumViewModel>()
@@ -243,7 +242,7 @@ fun OnArtistClickScreen(artistID: String, navHostController: NavHostController) 
                             .padding(2.dp)
                             .clip(RoundedCornerShape(10.dp))
                             .clickable {
-                                navHostController.navigate("onAlbumClick/${it.albumId}")
+                                navigateToAlbum(it.albumId)
                             },
                         contentAlignment = Alignment.TopCenter
                     ) {

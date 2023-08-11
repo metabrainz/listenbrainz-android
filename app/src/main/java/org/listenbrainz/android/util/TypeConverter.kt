@@ -60,11 +60,11 @@ object TypeConverter {
         return format.parse(string)
     }
     
-    fun stringFromEpochTime(milliSeconds: Long, dateFormat: String = "MMM dd, hh:mm aaa"): String {
+    fun stringFromEpochTime(microSeconds: Long, dateFormat: String = "MMM dd, hh:mm aaa"): String {
         val formatter = SimpleDateFormat(dateFormat, Locale.getDefault())
         
-        val calendar: Calendar = Calendar.getInstance()
-            .apply { timeInMillis = milliSeconds }
+        val calendar: Calendar = Calendar.getInstance(Locale.ENGLISH)
+            .apply { timeInMillis = microSeconds*1000 }
         
         return formatter.format(calendar.time)
     }

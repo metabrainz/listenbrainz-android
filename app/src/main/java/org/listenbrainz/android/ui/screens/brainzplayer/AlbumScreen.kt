@@ -36,7 +36,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Album
@@ -52,7 +51,7 @@ import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun AlbumScreen(navHostController: NavHostController) {
+fun AlbumScreen(navigateToAlbum: (id: Long) -> Unit) {
     val albumViewModel = hiltViewModel<AlbumViewModel>()
     val albums = albumViewModel.albums.collectAsState(listOf())
     val refreshing by albumViewModel.isRefreshing.collectAsState()
@@ -69,7 +68,7 @@ fun AlbumScreen(navHostController: NavHostController) {
         if (albums.value.isEmpty()){
             BPLibraryEmptyMessage(modifier = Modifier.align(Alignment.Center))
         } else {
-            AlbumsList(albums, navHostController)
+            AlbumsList(albums, navigateToAlbum)
         }
         PullRefreshIndicator(
             modifier = Modifier.align(Alignment.TopCenter),
@@ -83,7 +82,7 @@ fun AlbumScreen(navHostController: NavHostController) {
 @Composable
 private fun AlbumsList(
     albums: State<List<Album>>,
-    navHostController: NavHostController
+    navigateToAlbum: (id: Long) -> Unit
 ) {
     val brainzPlayerViewModel = hiltViewModel<BrainzPlayerViewModel>()
     var albumCardMoreOptionsDropMenuExpanded by rememberSaveable { mutableStateOf(-1) }
@@ -103,7 +102,7 @@ private fun AlbumsList(
                 .width(200.dp)
                 .clip(RoundedCornerShape(10.dp))
                 .clickable {
-                    navHostController.navigate("onAlbumClick/${it.albumId}")
+                    navigateToAlbum(it.albumId)
                 }
             ) {
                 DropdownMenu(

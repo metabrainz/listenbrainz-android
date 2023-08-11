@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     ext {
@@ -20,6 +22,10 @@ buildscript {
     }
 }
 
+plugins {
+    id 'com.google.devtools.ksp' version '1.8.22-1.0.11' apply false
+}
+
 allprojects {
     repositories {
         google()
@@ -30,4 +36,25 @@ allprojects {
 
 tasks.register('clean', Delete) {
     delete rootProject.buildDir
+}
+
+subprojects {
+    tasks.withType(KotlinCompile).configureEach {
+        kotlinOptions {
+            if (project.findProperty("composeCompilerReports") == "true") {
+                freeCompilerArgs += [
+                        "-P",
+                        "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination=" +
+                                project.buildDir.absolutePath + "/compose_compiler"
+                ]
+            }
+            if (project.findProperty("composeCompilerMetrics") == "true") {
+                freeCompilerArgs += [
+                        "-P",
+                        "plugin:androidx.compose.compiler.plugins.kotlin:metricsDestination=" +
+                                project.buildDir.absolutePath + "/compose_compiler"
+                ]
+            }
+        }
+    }
 }

@@ -2,7 +2,6 @@ package org.listenbrainz.android.ui.navigation
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -18,7 +17,8 @@ import org.listenbrainz.android.ui.screens.profile.ProfileScreen
 @Composable
 fun AppNavigation(
     navController: NavController = rememberNavController(),
-    shouldScrollToTop: MutableState<Boolean>,
+    scrollRequestState: Boolean,
+    onScrollToTop: (suspend () -> Unit) -> Unit,
 ) {
     NavHost(
         navController = navController as NavHostController,
@@ -26,16 +26,19 @@ fun AppNavigation(
         startDestination = AppNavigationItem.Feed.route
     ){
         composable(route = AppNavigationItem.Feed.route){
-            FeedScreen()
+            FeedScreen(scrollToTopState = scrollRequestState, onScrollToTop = onScrollToTop)
         }
         composable(route = AppNavigationItem.BrainzPlayer.route){
-            BrainzPlayerScreen(appNavController = navController)
+            BrainzPlayerScreen()
         }
         composable(route = AppNavigationItem.Explore.route){
             ExploreScreen()
         }
         composable(route = AppNavigationItem.Profile.route){
-            ProfileScreen(shouldScrollToTop = shouldScrollToTop)
+            ProfileScreen(
+                onScrollToTop = onScrollToTop,
+                scrollRequestState = scrollRequestState
+            )
         }
     }
 }

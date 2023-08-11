@@ -19,7 +19,7 @@ fun UnknownFeedLayout(
         event = event,
         parentUser = "",
         onDeleteOrHide = {},
-        Content = {}
+        content = {}
     )
 }
 
@@ -33,7 +33,7 @@ private fun FollowFeedLayoutPreview() {
                 event = FeedEvent(
                     id = 0,
                     created = 0,
-                    eventType = "unknown",
+                    type = "unknown",
                     hidden = false,
                     metadata = Metadata(),
                     username = "Jasjeet"

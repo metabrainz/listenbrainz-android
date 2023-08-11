@@ -1,22 +1,40 @@
 package org.listenbrainz.android.ui.screens.yim
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -26,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.GlideLazyListPreloader
 import kotlinx.coroutines.delay
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.YimScreens
@@ -39,7 +56,7 @@ import org.listenbrainz.android.ui.theme.YimPaddings
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.YimViewModel
 
-@OptIn(ExperimentalGlideComposeApi::class)
+
 @Composable
 fun YimTopAlbumsScreen(
     yimViewModel: YimViewModel,
@@ -54,7 +71,8 @@ fun YimTopAlbumsScreen(
         
         val cardHeight by animateDpAsState(
             targetValue = if (startAnim) 460.dp else 50.dp,
-            animationSpec = tween(durationMillis = 1000, delayMillis = 1000)
+            animationSpec = tween(durationMillis = 1000, delayMillis = 1000),
+            label = "cardHeight"
         )
     
         LaunchedEffect(Unit) {
@@ -93,33 +111,10 @@ fun YimTopAlbumsScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         
-                        /** Variables for glide preloader*/
-                        val uriList : ArrayList<String> = arrayListOf()
+
                         val topReleases : List<TopRelease>? = yimViewModel.getTopReleases()?.toList()
-                        topReleases?.forEach { item ->
-                            // https://archive.org/download/mbid-{caa_release_mbid}/mbid-{caa_release_mbid}-{caa_id}_thumb500.jpg
-                            uriList.add(
-                                Utils.getCoverArtUrl(
-                                    caaReleaseMbid = item.caaReleaseMbid,
-                                    caaId = item.caaId,
-                                    size = 500
-                                )
-                            )
-                        }
                         
-                        // Pre-loading images
-                        val listState = rememberLazyListState()
-                        GlideLazyListPreloader(
-                            state = listState,
-                            data = uriList,
-                            size = Size(300f,300f),
-                            numberOfItemsToPreload = 15,
-                            fixedVisibleItemCount = 3
-                        ){ item, requestBuilder ->
-                            requestBuilder.load(item).placeholder(R.drawable.yim_album_placeholder)
-                        }
-                        
-                        YimAlbumViewer(list = topReleases, listState = listState)
+                        YimAlbumViewer(list = topReleases)
                         
                     }
                 }
@@ -149,7 +144,7 @@ fun YimTopAlbumsScreen(
 
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class)
 @Composable
-private fun YimAlbumViewer(list: List<TopRelease>?, listState: LazyListState) {
+private fun YimAlbumViewer(list: List<TopRelease>?, listState: LazyListState = rememberLazyListState()) {
     
     // This prevents image from being blur or crashing the app.
     var renderImage by remember { mutableStateOf(false) }
@@ -161,7 +156,8 @@ private fun YimAlbumViewer(list: List<TopRelease>?, listState: LazyListState) {
     // Avoids pop in
     val alphaAnimation by animateFloatAsState(
         targetValue = if (renderImage) 1f else 0f,
-        animationSpec = tween(1000)
+        animationSpec = tween(1000),
+        label = "alphaAnimation"
     )
     
     // This if condition avoids stuttering as it blocks composition until rest of the animations are finished.

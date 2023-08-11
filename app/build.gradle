@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
+    id 'com.google.devtools.ksp'
     id 'dagger.hilt.android.plugin'
     id "io.sentry.android.gradle" version "3.11.1"
 }
@@ -12,6 +13,7 @@ def localPropertiesFile = rootProject.file('local.properties')
 android {
     namespace 'org.listenbrainz.android'
     compileSdk 33
+
     signingConfigs {
         release {
             if (keystorePropertiesFile.exists()) {
@@ -24,13 +26,13 @@ android {
             }
         }
     }
+
     defaultConfig {
         applicationId 'org.listenbrainz.android'
         minSdk 21
         targetSdk 33
         versionCode 30
         versionName "2.0.0"
-
         multiDexEnabled true
         testInstrumentationRunner "org.listenbrainz.android.di.CustomTestRunner" // "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -121,6 +123,7 @@ dependencies {
     implementation 'androidx.browser:browser:1.5.0'
     implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation 'androidx.core:core-splashscreen:1.0.1'
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
 
     //Web Service Setup
     implementation 'com.google.code.gson:gson:2.10.1'
@@ -129,23 +132,24 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.11'
     implementation 'androidx.paging:paging-runtime-ktx:3.2.0'
+    implementation "androidx.paging:paging-compose:3.2.0"
 
     //Image downloading and Caching library
     implementation 'com.github.bumptech.glide:glide:4.15.1'
     implementation "com.github.bumptech.glide:compose:1.0.0-alpha.3"
     implementation 'io.coil-kt:coil-compose:2.4.0'
     implementation 'com.caverock:androidsvg-aar:1.4'
-    kapt 'com.github.bumptech.glide:compiler:4.15.1'
+    ksp 'com.github.bumptech.glide:compiler:4.15.1'
 
     //Permissions
     implementation "com.google.accompanist:accompanist-permissions:$accompanist_version"
 
     //Design Setup
     implementation 'com.google.android.material:material:1.9.0'
-    implementation 'com.airbnb.android:lottie:6.0.1'
     implementation 'com.github.akshaaatt:Onboarding:1.0.5'
     implementation 'com.github.akshaaatt:Share-Android:1.0.0'
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
+    implementation 'com.airbnb.android:lottie:6.0.1'
     implementation 'com.airbnb.android:lottie-compose:6.0.1'
 
     //Dagger-Hilt
@@ -190,7 +194,6 @@ dependencies {
     implementation 'androidx.test.ext:junit-ktx:1.1.5'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'com.squareup.okhttp3:mockwebserver:5.0.0-alpha.11'
-    testImplementation 'androidx.arch.core:core-testing:2.2.0'
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1'
 
     // Mockito framework
@@ -206,9 +209,6 @@ dependencies {
     androidTestImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
     androidTestImplementation 'androidx.test:runner:1.5.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.arch.core:core-testing:2.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-intents:3.5.1'
     androidTestImplementation 'app.cash.turbine:turbine:0.13.0'
     androidTestImplementation 'tools.fastlane:screengrab:2.1.1'     // Fastlane ScreenGrab
 
@@ -225,7 +225,7 @@ dependencies {
 
     //Room db
     implementation "androidx.room:room-runtime:$room_version"
-    kapt "androidx.room:room-compiler:$room_version"
+    ksp "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
     testImplementation "androidx.room:room-testing:$room_version"
 

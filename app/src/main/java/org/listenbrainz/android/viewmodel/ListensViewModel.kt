@@ -28,10 +28,9 @@ import okhttp3.OkHttpClient
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.ListenBitmap
-import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.listens.ListensRepository
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.socket.SocketRepository
-import org.listenbrainz.android.service.NOTHING_PLAYING
 import org.listenbrainz.android.service.YouTubeApiService
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.LinkedService
@@ -105,11 +104,17 @@ class ListensViewModel @Inject constructor(
         return repository.validateUserToken(token).data?.user_name
     }
     
+    fun logout() {
+        viewModelScope.launch {
+            appPreferences.logoutUser()
+        }
+    }
+    
     fun fetchLinkedServices() {
         viewModelScope.launch {
-            val token = appPreferences.lbAccessToken
+            val token = appPreferences.getLbAccessToken()
             val userName = appPreferences.username
-            if (!token.isNullOrEmpty() && !userName.isNullOrEmpty()){
+            if (token.isNotEmpty() && !userName.isNullOrEmpty()){
                 val result = repository.getLinkedServices(token = token, username = userName)
                 _isSpotifyLinked.emit(result.contains(LinkedService.SPOTIFY))
                 appPreferences.linkedServices = result

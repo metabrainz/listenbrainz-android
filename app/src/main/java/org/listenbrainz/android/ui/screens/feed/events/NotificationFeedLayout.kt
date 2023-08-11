@@ -10,16 +10,19 @@ import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
+/**
+ * @param isHidden should be a state.*/
 @Composable
 fun NotificationFeedLayout(
-    event: FeedEvent
+    event: FeedEvent,
+    onDeleteOrHide: () -> Unit,
 ) {
     BaseFeedLayout(
         eventType = FeedEventType.NOTIFICATION,
         event = event,
         parentUser = "",
-        onDeleteOrHide = {},
-        Content = {}
+        onDeleteOrHide = onDeleteOrHide,
+        content = {}
     )
 }
 
@@ -33,11 +36,12 @@ private fun NotificationFeedLayoutPreview() {
                 event = FeedEvent(
                     id = 0,
                     created = 0,
-                    eventType = "notification",
+                    type = "notification",
                     hidden = false,
                     metadata = Metadata(),
                     username = "Jasjeet"
-                )
+                ),
+                onDeleteOrHide = {}
             )
         }
     }

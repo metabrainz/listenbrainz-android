@@ -13,8 +13,13 @@ import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
 import com.dariobrux.kotimer.Timer
 import com.dariobrux.kotimer.interfaces.OnTimerListener
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import org.listenbrainz.android.BuildConfig
+import org.listenbrainz.android.model.AdditionalInfo
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.ListenTrackMetadata
 import org.listenbrainz.android.model.ListenType
@@ -32,6 +37,7 @@ class BrainzPlayerServiceConnection(
     val appPreferences: AppPreferences,
     val listensRepository: ListensRepository
 ) {
+    val scope = CoroutineScope(Dispatchers.Main)
 
     private val _isConnected = MutableStateFlow(Resource(Resource.Status.LOADING, false))
     val isConnected = _isConnected.asStateFlow()
@@ -260,37 +266,41 @@ class BrainzPlayerServiceConnection(
         }
 
         private fun submitListenFromBP(artist: String?, title: String?, timestamp: Long?, duration: Long, releaseName: String?, listenType: ListenType) {
-            if(!appPreferences.lbAccessToken.isNullOrEmpty() && !appPreferences.isNotificationServiceAllowed) {
-               d("jajdbjfnjw")
-                if(duration <= 30000) {
-                    d("Track is too short to submit")
-                    return
+            scope.launch {
+                val token = appPreferences.getLbAccessToken()
+                if(token.isNotEmpty() && !appPreferences.isNotificationServiceAllowed) {
+                    
+                    if(duration <= 30000) {
+                        d("Track is too short to submit")
+                        return@launch
+                    }
+                    
+                    val metadata = ListenTrackMetadata(
+                        artist = artist,
+                        track = title,
+                        release = releaseName,
+                        additionalInfo = AdditionalInfo(
+                            durationMs = duration.toInt(),
+                            mediaPlayer = "BrainzPlayer",
+                            submissionClient = "ListenBrainz Android",
+                            submissionClientVersion = BuildConfig.VERSION_NAME
+                        )
+                    )
+        
+                    val body = ListenSubmitBody()
+                    body.addListen(
+                        timestamp = if(listenType == ListenType.SINGLE) timestamp else null,
+                        metadata = metadata
+                    )
+                    
+                    body.listenType = listenType.code
+        
+                    d("Submitting Listen: $body")
+        
+                    listensRepository.submitListen(token = token, body)
                 }
-                val metadata = ListenTrackMetadata()
-
-                // Main metadata
-                metadata.artist = artist
-                metadata.track = title
-                metadata.release = releaseName
-
-                // Duration
-                metadata.additionalInfo.durationMs = duration.toInt()
-
-                // Setting player
-                metadata.additionalInfo.mediaPlayer = "BrainzPlayer"
-
-                val body = ListenSubmitBody()
-                body.addListen(
-                    timestamp = if(listenType == ListenType.SINGLE) timestamp else null,
-                    metadata = metadata,
-                    insertedAt = System.currentTimeMillis().toInt()
-                )
-                body.listenType = listenType.code
-
-                d("Submitting Listen: $body")
-
-                listensRepository.submitListen(appPreferences.lbAccessToken!!, body)
             }
+            
         }
 
         private fun resetMetadata() {

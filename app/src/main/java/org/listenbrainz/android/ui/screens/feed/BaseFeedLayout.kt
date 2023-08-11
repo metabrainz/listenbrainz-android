@@ -1,5 +1,10 @@
 package org.listenbrainz.android.ui.screens.feed
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -11,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -29,6 +35,7 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -37,10 +44,11 @@ import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.model.FeedEvent
 import org.listenbrainz.android.model.FeedEventType
 import org.listenbrainz.android.model.FeedEventType.Companion.getTimeStringForFeed
-import org.listenbrainz.android.model.FeedEventType.Companion.isUserSelf
+import org.listenbrainz.android.model.FeedEventType.Companion.isActionDelete
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun BaseFeedLayout(
     modifier: Modifier = Modifier,
@@ -48,24 +56,34 @@ fun BaseFeedLayout(
     event: FeedEvent,
     parentUser: String,
     onDeleteOrHide: () -> Unit,
-    Content: @Composable () -> Unit
+    isHidden: Boolean = event.hidden == true,
+    content: @Composable () -> Unit
 ) {
     
     // Content that is to be measured for horizontal line.
     @Composable
     fun MainContent() {
-        Content()
-        Spacer(modifier = Modifier.height(ListenBrainzTheme.paddings.vertical))
-        Date(
-            event = event,
-            eventType = eventType,
-            parentUser = parentUser,
-            onActionClick = onDeleteOrHide
-        )
+        // Since width of the event icon is 19 dp, 19/2 = 9.5 dp
+        Column(Modifier.padding(start = ListenBrainzTheme.paddings.insideCard + 9.5.dp)) {
+            AnimatedVisibility(
+                visible = !isHidden,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                content()
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            Date(
+                event = event,
+                eventType = eventType,
+                parentUser = parentUser,
+                onActionClick = onDeleteOrHide
+            )
+        }
     }
     
     // Actual content
-    Row(
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(
@@ -75,44 +93,56 @@ fun BaseFeedLayout(
             ),
     ) {
     
-        // Icon and line
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(end = ListenBrainzTheme.paddings.insideCard)
-        ) {
+        // Icon and Tagline
+        Row {
         
             EventIcon(eventType)
+    
+            Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.insideCard))
+            
+            AnimatedContent(
+                targetState = isHidden,
+                label = "tagline"
+            ) {
+                if (!it){
+                    eventType.Tagline(
+                        event = event,
+                        parentUser = parentUser
+                    )
+                } else {
+                    Text(
+                        text = "This event is hidden.",
+                        color = ListenBrainzTheme.colorScheme.text,
+                        fontWeight = FontWeight.Light
+                    )
+                }
+                
+            }
+            
+        }
+        
+        Spacer(modifier = Modifier.height(ListenBrainzTheme.paddings.insideCard))
+        
+        // Horizontal line and Main Content
+        Row {
             
             DynamicHorizontalLine {
                 MainContent()
             }
-        
-        }
-    
-        // Tagline and content
-        Column {
-            
-            eventType.Tagline(event = event, parentUser = parentUser)
-        
-            Spacer(modifier = Modifier.height(ListenBrainzTheme.paddings.insideCard))
-            
-            MainContent()
             
         }
-    
     
     }
-    
     
 }
 
 @Composable
-private fun Date(
+fun Date(
     event: FeedEvent,
     parentUser: String,
     eventType: FeedEventType,
     height: Dp = 24.dp,
-    onActionClick: () -> Unit
+    onActionClick: () -> Unit = {}
 ) {
     
     val timeString = remember(event.created) {
@@ -145,16 +175,16 @@ private fun Date(
                             onActionClick()
                         },
                     // TODO: USE CUSTOM ICONS HERE.
-                    imageVector = if (isUserSelf(event, parentUser)) Icons.Rounded.Delete else Icons.Rounded.HideSource,
+                    imageVector = if (isActionDelete(event, eventType, parentUser))
+                        Icons.Rounded.Delete
+                    else
+                        Icons.Rounded.HideSource,
                     tint = ListenBrainzTheme.colorScheme.lbSignature,
-                    contentDescription = null
+                    contentDescription = if (isActionDelete(event, eventType, parentUser)) "Delete this event." else "Hide this event."
                 )
             }
-            
         }
-    
     }
-    
     
 }
 
@@ -164,7 +194,7 @@ private fun Date(
 @Composable
 private fun DynamicHorizontalLine(Content: @Composable () -> Unit) {
     
-    SubcomposeLayout { constraints: Constraints ->
+    SubcomposeLayout(modifier = Modifier.padding(start = (9.5).dp)) { constraints: Constraints ->
         
         val mainPlaceables: List<Placeable> = subcompose("content", Content)
             .map {
@@ -172,10 +202,12 @@ private fun DynamicHorizontalLine(Content: @Composable () -> Unit) {
             }
         
         var height = 0
+        var width = 0
         
         // Get height of card and any other composables.
         mainPlaceables.forEach {
             height += it.height
+            width += it.width
         }
         
         val dependentPlaceables: List<Placeable> = subcompose("line") {
@@ -185,9 +217,18 @@ private fun DynamicHorizontalLine(Content: @Composable () -> Unit) {
                 measurable.measure(constraints)
             }
         
-        layout(height = height, width = 2 /* width of line */) {
+        dependentPlaceables.forEach {
+            width += it.width
+        }
+        
+        layout(height = height, width = width /* width of line */) {
             
             dependentPlaceables.forEach { placeable: Placeable ->
+                /** Our icon is 19 dp and line width is 2 dp.*/
+                placeable.placeRelative(0, 0)
+            }
+            
+            mainPlaceables.forEach { placeable: Placeable ->
                 placeable.placeRelative(0, 0)
             }
             
@@ -199,9 +240,7 @@ private fun DynamicHorizontalLine(Content: @Composable () -> Unit) {
 @Composable
 private fun EventIcon(eventType: FeedEventType) {
     Image(
-        modifier = Modifier.padding(
-            bottom = ListenBrainzTheme.paddings.insideCard
-        ),
+        modifier = Modifier.size(19.dp),
         painter = painterResource(id = eventType.icon),
         contentDescription = eventType.name
     )
@@ -239,7 +278,7 @@ private fun BaseFeedCardPreview() {
                 event = FeedEvent(
                     id = 0,
                     created = System.currentTimeMillis().toInt(),
-                    eventType = "like",
+                    type = "like",
                     hidden = false, metadata = Metadata(user1 = "JasjeetTest"),
                     username = "Jasjeet"
                 ),
@@ -250,7 +289,9 @@ private fun BaseFeedCardPreview() {
                     .height(60.dp),
                 ) {
                     Text(
-                        modifier = Modifier.align(Alignment.CenterHorizontally).padding(20.dp),
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(20.dp),
                         text = "Content"
                     )
                 }

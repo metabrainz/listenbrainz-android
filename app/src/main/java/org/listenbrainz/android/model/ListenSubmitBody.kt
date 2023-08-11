@@ -1,7 +1,6 @@
 package org.listenbrainz.android.model
 
 import com.google.gson.annotations.SerializedName
-import org.listenbrainz.android.BuildConfig
 import java.util.*
 
 class ListenSubmitBody {
@@ -21,14 +20,13 @@ class ListenSubmitBody {
         this.payload.add(payload)
     }
 
-    fun addListen(timestamp: Long?, metadata: ListenTrackMetadata, insertedAt: Int) {
-        payload.add(Payload(timestamp = timestamp, /*insertedAt = insertedAt,*/ metadata = metadata).setClientDetails())
-    }
-
-    private fun Payload.setClientDetails(): Payload{
-        this.metadata.additionalInfo.submissionClient = "ListenBrainz Android"
-        this.metadata.additionalInfo.submissionClientVersion = BuildConfig.VERSION_NAME
-        return this
+    fun addListen(timestamp: Long?, metadata: ListenTrackMetadata) {
+        payload.add(
+            Payload(
+                timestamp = timestamp,
+                metadata = metadata
+            )
+        )
     }
     
     override fun toString(): String {

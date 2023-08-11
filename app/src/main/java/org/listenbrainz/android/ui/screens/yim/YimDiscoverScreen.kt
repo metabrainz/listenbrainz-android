@@ -5,27 +5,37 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideLazyListPreloader
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.YimScreens
 import org.listenbrainz.android.ui.components.SimilarUserCard
@@ -207,34 +217,14 @@ private fun YimSimilarUsersList(
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class)
+
 @Composable
 private fun YimTopAlbumsFromArtistsList(
     viewModel: YimViewModel,
     paddings: YimPaddings = LocalYimPaddings.current,
 ) {
-    val uriList = arrayListOf<String>()
     val newReleasesOfTopArtist = remember {
         viewModel.getNewReleasesOfTopArtists()
-    }
-    
-    newReleasesOfTopArtist!!.forEach { item ->
-        uriList.add(getCoverArtUrl(
-            caaReleaseMbid = item.caaReleaseMbid,
-            caaId = item.caaId
-        ))
-    }
-    
-    // Pre-loading images
-    val listState = rememberLazyListState()
-    GlideLazyListPreloader(
-        state = listState,
-        data = uriList,
-        size = Size(75f,75f),
-        numberOfItemsToPreload = 15,
-        fixedVisibleItemCount = 5
-    ){ item, requestBuilder ->
-        requestBuilder.load(item).placeholder(R.drawable.ic_coverartarchive_logo_no_text).override(75)
     }
     
     LazyColumn(
@@ -247,7 +237,7 @@ private fun YimTopAlbumsFromArtistsList(
             vertical = paddings.smallPadding
         )
     ) {
-        items(newReleasesOfTopArtist) { release ->
+        items(newReleasesOfTopArtist ?: emptyList()) { release ->
             
             // Listen Card
             YimListenCard(

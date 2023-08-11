@@ -23,11 +23,13 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,6 +44,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -92,32 +95,42 @@ fun UserData(
     ) {
         Column {
             Row(
-                modifier = Modifier
-                    .padding(16.dp)
+                modifier = Modifier.padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = viewModel.appPreferences.username!!,
                     modifier = Modifier.padding(4.dp),
                     color = if (onScreenUiModeIsDark()) Color.White else Color.Black,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Light,
+                    fontSize = 20.sp,
                     style = MaterialTheme.typography.subtitle1,
                     textAlign = TextAlign.Center,
                 )
+                
+                Button(modifier = Modifier.padding(start = 16.dp), onClick = { viewModel.logout() }) {
+                    Text(
+                        text = "Logout",
+                        color = if (onScreenUiModeIsDark()) Color.White else Color.Black,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.subtitle1,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
-            if(viewModel.appPreferences.lbAccessToken.isNullOrEmpty()) {
+            val accessToken by viewModel.appPreferences.getLbAccessTokenFlow().collectAsState(initial = "")
+            var tempAccessToken by remember {
+                mutableStateOf(accessToken)
+            }
+            if(accessToken.isEmpty()) {
                 Row(
                     modifier = Modifier
                         .padding(16.dp)
                 ) {
-                    var accessToken by remember {
-                        mutableStateOf(
-                            viewModel.appPreferences.lbAccessToken ?: ""
-                        )
-                    }
                     OutlinedTextField(
                         value = accessToken,
                         onValueChange = { newText ->
-                            accessToken = newText
+                            tempAccessToken = newText
                         },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -126,11 +139,15 @@ fun UserData(
                                 coroutineScope.launch {
                                     val tokenValid = viewModel.validateUserToken(accessToken)
                                     if (tokenValid != null && tokenValid) {
-                                        viewModel.appPreferences.lbAccessToken = accessToken
+                                        coroutineScope.launch {
+                                            viewModel.appPreferences.setLbAccessToken(tempAccessToken)
+                                        }
                                         keyboardController?.hide()
                                         focusManager.clearFocus()
                                     } else {
-                                        viewModel.appPreferences.lbAccessToken = ""
+                                        coroutineScope.launch {
+                                            viewModel.appPreferences.setLbAccessToken("")
+                                        }
                                         Toast.makeText(
                                             context,
                                             "Invalid token",

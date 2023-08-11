@@ -20,7 +20,7 @@ fun FollowFeedLayout(
         event = event,
         parentUser = parentUser,
         onDeleteOrHide = {},
-        Content = {}
+        content = {}
     )
 }
 
@@ -34,7 +34,7 @@ private fun FollowFeedLayoutPreview() {
                 event = FeedEvent(
                     id = 0,
                     created = 0,
-                    eventType = "like",
+                    type = "like",
                     hidden = false,
                     metadata = Metadata(
                         user0 = "Jasjeet",

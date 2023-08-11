@@ -14,12 +14,18 @@ class FeedRepositoryImpl @Inject constructor(
     private val service: FeedService
 ) : FeedRepository {
     
-    override suspend fun getFeedEvents(username: String, maxTs: Int?, minTs: Int?) : Resource<FeedData> =
+    override suspend fun getFeedEvents(
+        username: String,
+        maxTs: Int?,
+        minTs: Int?,
+        count: Int
+    ) : Resource<FeedData> =
         runCatching {
             val response = service.getFeedEvents(
                 username = username,
                 maxTs = maxTs,
-                minTs = minTs
+                minTs = minTs,
+                count = count
             )
         
             return@runCatching if (response.isSuccessful) {
@@ -31,12 +37,18 @@ class FeedRepositoryImpl @Inject constructor(
         }.getOrElse { Utils.logAndReturn(it) }
     
     
-    override suspend fun getFeedFollowListens(username: String, maxTs: Int?, minTs: Int?) : Resource<FeedData> =
+    override suspend fun getFeedFollowListens(
+        username: String,
+        maxTs: Int?,
+        minTs: Int?,
+        count: Int
+    ): Resource<FeedData> =
         runCatching {
             val response = service.getFeedFollowListens(
                 username = username,
                 maxTs = maxTs,
-                minTs = minTs
+                minTs = minTs,
+                count = count
             )
         
             return@runCatching if (response.isSuccessful) {
@@ -48,12 +60,18 @@ class FeedRepositoryImpl @Inject constructor(
         }.getOrElse { Utils.logAndReturn(it) }
     
     
-    override suspend fun getFeedSimilarListens(username: String, maxTs: Int?, minTs: Int?) : Resource<FeedData> =
+    override suspend fun getFeedSimilarListens(
+        username: String,
+        maxTs: Int?,
+        minTs: Int?,
+        count: Int
+    ): Resource<FeedData> =
         runCatching {
             val response = service.getFeedSimilarListens(
                 username = username,
                 maxTs = maxTs,
-                minTs = minTs
+                minTs = minTs,
+                count = count
             )
         
             return@runCatching if (response.isSuccessful) {

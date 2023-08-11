@@ -31,8 +31,9 @@ object Utils {
     
     /** Get *CoverArtArchive* url for cover art of a release.
      * @param size Allowed sizes are 250, 500, 750 and 1000. Default is 250.*/
-    fun getCoverArtUrl(caaReleaseMbid: String?, caaId: Long?, size: Int = 250): String {
-        return  "https://archive.org/download/mbid-${caaReleaseMbid}/mbid-${caaReleaseMbid}-${caaId}_thumb${size}.jpg"
+    fun getCoverArtUrl(caaReleaseMbid: String?, caaId: Long?, size: Int = 250): String? {
+        if (caaReleaseMbid == null || caaId == null) return null
+        return "https://archive.org/download/mbid-${caaReleaseMbid}/mbid-${caaReleaseMbid}-${caaId}_thumb${size}.jpg"
     }
     
     fun <T> logAndReturn(it: Throwable) : Resource<T> {
@@ -44,10 +45,6 @@ object Utils {
         }
         
     }
-    
-    fun authHeader(accessToken: String) : String{
-        return "Bearer $accessToken"
-    }
 
     fun sendFeedback(context: Context) {
         try {
@@ -56,10 +53,16 @@ object Utils {
             Toast.makeText(context, R.string.toast_feedback_fail, Toast.LENGTH_LONG).show()
         }
     }
-
-    fun shareIntent(text: String?): Intent {
-        val intent = Intent(Intent.ACTION_SEND).setType("text/plain")
-        return intent.putExtra(Intent.EXTRA_TEXT, text)
+    
+    fun getArticle(str: String): String {
+        return when (str.first()){
+            'a' -> "an"
+            'e' -> "an"
+            'i' -> "an"
+            'o' -> "an"
+            'u' -> "an"
+            else -> "a"
+        }
     }
 
     fun emailIntent(recipient: String, subject: String?): Intent {

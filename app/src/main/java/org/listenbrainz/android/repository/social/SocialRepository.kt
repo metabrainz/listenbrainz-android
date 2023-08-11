@@ -29,4 +29,6 @@ interface SocialRepository {
     
     suspend fun postReview(username: String, data: Review): Resource<FeedEvent>
     
+    suspend fun deletePin(id: Int): Resource<SocialResponse>
+    
 }

@@ -10,7 +10,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import org.listenbrainz.android.model.yimdata.YimData
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.BlogService
 import org.listenbrainz.android.service.FeedService
 import org.listenbrainz.android.service.ListensService
@@ -23,20 +25,17 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.reflect.Type
 import javax.inject.Singleton
 
-@Module(includes = [
-    AppModule::class,
-    DispatcherModule::class
-])
+@Module
 @InstallIn(SingletonComponent::class)
 class ServiceModule {
     
-    private fun constructRetrofit(headerInterceptor: HeaderInterceptor): Retrofit =
+    private fun constructRetrofit(appPreferences: AppPreferences): Retrofit =
         Retrofit.Builder()
             .client(
                 OkHttpClient()
                     .newBuilder()
-                    .addInterceptor(headerInterceptor)
-                    // .addInterceptor (HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+                    .addInterceptor(HeaderInterceptor(appPreferences))
+                    .addInterceptor (HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS))
                     .build()
             )
             .baseUrl(LISTENBRAINZ_API_BASE_URL)
@@ -54,22 +53,22 @@ class ServiceModule {
     
     @Singleton
     @Provides
-    fun providesListensService(headerInterceptor: HeaderInterceptor): ListensService =
-        constructRetrofit(headerInterceptor)
+    fun providesListensService(appPreferences: AppPreferences): ListensService =
+        constructRetrofit(appPreferences)
             .create(ListensService::class.java)
     
     
     @Singleton
     @Provides
-    fun providesSocialService(headerInterceptor: HeaderInterceptor): SocialService =
-        constructRetrofit(headerInterceptor)
+    fun providesSocialService(appPreferences: AppPreferences): SocialService =
+        constructRetrofit(appPreferences)
             .create(SocialService::class.java)
     
     
     @Singleton
     @Provides
-    fun providesFeedService(headerInterceptor: HeaderInterceptor): FeedService =
-        constructRetrofit(headerInterceptor)
+    fun providesFeedService(appPreferences: AppPreferences): FeedService =
+        constructRetrofit(appPreferences)
             .create(FeedService::class.java)
     
     /* YIM */
