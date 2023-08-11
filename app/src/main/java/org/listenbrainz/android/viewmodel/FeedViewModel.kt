@@ -64,6 +64,7 @@ class FeedViewModel @Inject constructor(
     private val myFeedFlow = MutableStateFlow(FeedUiEventData(isHiddenMap, isDeletedMap, myFeedPager))
     private val myFeedLoadingFlow = MutableStateFlow(false)
     
+    
     // Follow Listens
     private val followListensPager: Flow<PagingData<FeedUiEventItem>> = Pager(
         PagingConfig(pageSize = 30),
@@ -73,6 +74,7 @@ class FeedViewModel @Inject constructor(
         .cachedIn(viewModelScope)
     private val followListensFlow = MutableStateFlow(FeedUiEventData(eventList = followListensPager))
     private val followListensLoadingFlow = MutableStateFlow(false)
+    
     
     // Similar Listens
     private val similarListensPager: Flow<PagingData<FeedUiEventItem>> = Pager(
@@ -84,7 +86,9 @@ class FeedViewModel @Inject constructor(
     private val similarListensFlow = MutableStateFlow(FeedUiEventData(eventList = similarListensPager))
     private val similarListensLoadingFlow = MutableStateFlow(false)
     
+    // Exposed UI state
     val uiState = createUiStateFlow()
+    
     
     private fun createUiStateFlow(): StateFlow<FeedUiState> {
         return combine(
@@ -185,10 +189,8 @@ class FeedViewModel @Inject constructor(
             if (isActionDelete(event, eventType, parentUser)){
                 deleteEvent(event.id!!, event.type)
             } else if (isHiddenMap[event.id] == true){
-                println("UNHIDE")
                 unhideEvent(data = FeedEventVisibilityData(event.type, event.id.toString()))
             } else {
-                println("HIDE")
                 // null means false
                 hideEvent(data = FeedEventVisibilityData(event.type, event.id.toString()))
             }
@@ -272,7 +274,7 @@ class FeedViewModel @Inject constructor(
             val currentState = isHiddenMap[data.eventId!!.toInt()]
             isHiddenMap[data.eventId!!.toInt()] = currentState == null || currentState == false
         } catch (e: Exception) {
-            errorFlow.emit(ResponseError.BAD_REQUEST.apply { actualResponse = "Internal Error occurred." })
+            errorFlow.emit(ResponseError.UNKNOWN)
             e.printStackTrace()
         }
     }

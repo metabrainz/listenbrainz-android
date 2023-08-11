@@ -1,6 +1,13 @@
 package org.listenbrainz.android.util
 
-import org.listenbrainz.android.model.*
+import org.listenbrainz.android.model.Album
+import org.listenbrainz.android.model.AlbumEntity
+import org.listenbrainz.android.model.Artist
+import org.listenbrainz.android.model.ArtistEntity
+import org.listenbrainz.android.model.Playlist
+import org.listenbrainz.android.model.PlaylistEntity
+import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.model.SongEntity
 
 object Transformer {
     fun SongEntity.toSong() = Song(
@@ -51,8 +58,8 @@ object Transformer {
 
     fun Album.toArtistEntity() = ArtistEntity(
         name = artist,
-        songs = mutableListOf(),
-        albums = mutableListOf()
+        songs = emptyList(),
+        albums = emptyList()
     )
 
     fun Artist.toArtistEntity() = ArtistEntity(
@@ -60,10 +67,10 @@ object Transformer {
         name = name,
         songs = songs.map {
             it.toSongEntity()
-        }.toMutableList(),
+        },
         albums = albums.map {
             it.toAlbumEntity()
-        }.toMutableList()
+        }
     )
 
     fun ArtistEntity.toArtist() = Artist(
