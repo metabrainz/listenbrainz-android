@@ -62,11 +62,12 @@ object TypeConverter {
     
     fun stringFromEpochTime(microSeconds: Long, dateFormat: String = "MMM dd, hh:mm aaa"): String {
         val formatter = SimpleDateFormat(dateFormat, Locale.getDefault())
-        
+
         val calendar: Calendar = Calendar.getInstance(Locale.ENGLISH)
-            .apply { timeInMillis = microSeconds*1000 }
-        
+            .apply { timeInMillis = microSeconds * 1000 }
+
         return formatter.format(calendar.time)
+    }
 
     fun listToJSON(list: List<String>?): String = Gson().toJson(list)
     
