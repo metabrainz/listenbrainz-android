@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
  * ```
  *      val connectivityObserver = NetworkConnectivityObserver(applicationContext)
  *      val status by connectivityObserver.observe().collectAsState(
- *           initial = NetworkStatus.Unavailable
+ *           initial = NetworkStatus.UNAVAILABLE
  *      )
  *      // Do something with status
  * ```
@@ -45,22 +45,22 @@ class NetworkConnectivityObserver(
                 
                 override fun onAvailable(network: Network) {
                     super.onAvailable(network)
-                    launch { send(ConnectivityObserver.NetworkStatus.Available) }
+                    launch { send(ConnectivityObserver.NetworkStatus.AVAILABLE) }
                 }
     
                 override fun onUnavailable() {
                     super.onUnavailable()
-                    launch { send(ConnectivityObserver.NetworkStatus.Unavailable) }
+                    launch { send(ConnectivityObserver.NetworkStatus.UNAVAILABLE) }
                 }
                 
                 override fun onLosing(network: Network, maxMsToLive: Int) {
                     super.onLosing(network, maxMsToLive)
-                    launch { send(ConnectivityObserver.NetworkStatus.Losing) }
+                    launch { send(ConnectivityObserver.NetworkStatus.LOSING) }
                 }
     
                 override fun onLost(network: Network) {
                     super.onLost(network)
-                    launch { send(ConnectivityObserver.NetworkStatus.Lost) }
+                    launch { send(ConnectivityObserver.NetworkStatus.LOST) }
                 }
             }
             

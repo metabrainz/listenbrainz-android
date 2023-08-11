@@ -5,7 +5,6 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
-import org.listenbrainz.android.BuildConfig
 import java.util.*
 
 class ListenSubmitBody {

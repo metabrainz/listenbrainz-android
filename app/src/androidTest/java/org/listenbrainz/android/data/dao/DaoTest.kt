@@ -6,15 +6,12 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import app.cash.turbine.test
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestWatcher
-import org.junit.runner.Description
 import org.junit.runner.RunWith
 import org.listenbrainz.android.di.brainzplayer.BrainzPlayerDatabase
 import org.listenbrainz.android.model.AlbumEntity
@@ -25,6 +22,7 @@ import org.listenbrainz.android.model.dao.AlbumDao
 import org.listenbrainz.android.model.dao.ArtistDao
 import org.listenbrainz.android.model.dao.PlaylistDao
 import org.listenbrainz.android.model.dao.SongDao
+import org.listenbrainz.sharedtest.utils.CoroutineTestRule
 
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
@@ -32,7 +30,7 @@ import org.listenbrainz.android.model.dao.SongDao
 class DaoTest {
 
     @get:Rule
-    val dispatcherRule = TestDispatcherRule()
+    val dispatcherRule = CoroutineTestRule()
 
     private lateinit var albumDao: AlbumDao
     private lateinit var artistDao: ArtistDao
@@ -211,18 +209,5 @@ class DaoTest {
     @After
     fun cleanup() {
         brainzPlayerDatabase.close()
-    }
-}
-
-@ExperimentalCoroutinesApi
-class TestDispatcherRule(
-    private val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
-) : TestWatcher() {
-    override fun starting(description: Description) {
-        Dispatchers.setMain(testDispatcher)
-    }
-
-    override fun finished(description: Description) {
-        Dispatchers.resetMain()
     }
 }

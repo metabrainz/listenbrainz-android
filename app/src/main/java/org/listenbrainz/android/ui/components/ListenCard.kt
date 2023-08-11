@@ -17,6 +17,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
@@ -28,9 +29,9 @@ fun ListenCard(listen: Listen, coverArtUrl: String, onItemClicked: (listen: List
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clip(RoundedCornerShape(16.dp))
             .clickable { onItemClicked(listen) },
         elevation = 0.dp,
+        shape = ListenBrainzTheme.shapes.listenCard,
         backgroundColor = if (onScreenUiModeIsDark()) Color.Black else offWhite,
     ) {
         Row(
@@ -52,7 +53,7 @@ fun ListenCard(listen: Listen, coverArtUrl: String, onItemClicked: (listen: List
 
             Column(modifier = Modifier.align(Alignment.CenterVertically)) {
                 Text(
-                    text = listen.track_metadata.track_name,
+                    text = listen.trackMetadata.trackName,
                     modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
                     color = if (onScreenUiModeIsDark()) Color.White else lb_purple,
                     fontWeight = FontWeight.Bold,
@@ -62,7 +63,7 @@ fun ListenCard(listen: Listen, coverArtUrl: String, onItemClicked: (listen: List
 
                 Text(
                     text = buildString {
-                        append(listen.track_metadata.artist_name)
+                        append(listen.trackMetadata.artistName)
                     },
                     modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
                     color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(alpha = 0.7f),
@@ -71,7 +72,7 @@ fun ListenCard(listen: Listen, coverArtUrl: String, onItemClicked: (listen: List
 
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text(
-                        text = listen.track_metadata.release_name ?: "",
+                        text = listen.trackMetadata.releaseName ?: "",
                         modifier = Modifier.padding(0.dp, 12.dp, 12.dp, 0.dp),
                         color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(alpha = 0.7f),
                         style = typography.caption

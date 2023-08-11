@@ -3,6 +3,7 @@ package org.listenbrainz.android.util
 import org.listenbrainz.android.util.Constants.SPOTIFY_PACKAGE_NAME
 
 object Constants {
+    
     const val RECENTLY_PLAYED_KEY = "recently_played"
     const val SPOTIFY_PACKAGE_NAME = "com.spotify.music"
     const val YOUTUBE_MUSIC_PACKAGE_NAME = "com.google.android.apps.youtube.music"
@@ -10,8 +11,12 @@ object Constants {
     const val FEEDBACK_EMAIL = "support@metabrainz.org"
     const val FEEDBACK_SUBJECT = "[LBAndroid] Feedback"
     const val SPOTIFY_REDIRECT_URI = "org.listenbrainz.android://callback"
-    const val LISTENBRAINZ_API_BASE_URL = "https://api.listenbrainz.org/"
+    const val LISTENBRAINZ_API_BASE_URL = "https://api.listenbrainz.org/1/"
     const val ONBOARDING = "onboarding_lb"
+    
+    object Headers {
+        const val AUTHORIZATION = "Authorization"
+    }
 
     object Strings {
         const val TIMESTAMP = "timestamp"

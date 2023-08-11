@@ -1,11 +1,15 @@
 package org.listenbrainz.android.ui.screens.profile
 
 import android.app.Activity
+import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
+import android.webkit.CookieManager
+import android.webkit.CookieSyncManager
 import android.webkit.WebView
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -19,12 +23,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.ViewModelProvider
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.ListensViewModel
 
+
 @AndroidEntryPoint
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : ComponentActivity() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,14 +40,12 @@ class LoginActivity : AppCompatActivity() {
         setContent {
             ListenBrainzTheme {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    // FIXME: Security certificate warning in API 24 and below.
                     ListenBrainzLogin(viewModel)
                 }
             }
         }
-
     }
-    
-
 }
 
 @Composable
@@ -54,18 +59,40 @@ fun ListenBrainzLogin(viewModel: ListensViewModel) {
     ) {
         AndroidView(factory = {
             WebView(it).apply {
+    
+                fun clearCookies() {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                        CookieManager.getInstance().removeAllCookies(null)
+                        CookieManager.getInstance().flush()
+                    } else {
+                        val cookieSyncManager = CookieSyncManager.createInstance(context)
+                        cookieSyncManager.startSync()
+                        val cookieManager: CookieManager = CookieManager.getInstance()
+                        cookieManager.removeAllCookie()
+                        cookieManager.removeSessionCookie()
+                        cookieSyncManager.stopSync()
+                        cookieSyncManager.sync()
+                    }
+                }
+                
                 layoutParams = ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT
                 )
                 webViewClient = ListenBrainzWebClient { token ->
-                    viewModel.appPreferences.lbAccessToken = token
+                    // Token is not null or empty.
                     coroutineScope.launch {
-                        viewModel.appPreferences.username = viewModel.retrieveUsername(token)
+                        viewModel.appPreferences.setLbAccessToken(token)
+                        withContext(Dispatchers.IO){
+                            viewModel.appPreferences.username = viewModel.retrieveUsername(token)
+                        }
                         activity?.finish()
                     }
                 }
+                
+                clearCookies()
                 settings.javaScriptEnabled = true
+                setLayerType(View.LAYER_TYPE_HARDWARE, null)
                 loadUrl(url)
             }
         }, update = {

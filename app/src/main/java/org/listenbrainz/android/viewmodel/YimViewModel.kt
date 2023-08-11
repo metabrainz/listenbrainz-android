@@ -15,7 +15,6 @@ import kotlinx.coroutines.*
 import org.listenbrainz.android.model.yimdata.*
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.yim.YimRepository
-import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.saveBitmap
 import java.net.URL
@@ -32,6 +31,7 @@ class YimViewModel @Inject constructor(
                     Resource<YimPayload>
                     >
     = mutableStateOf(Resource.loading())
+    val loginFlow = appPreferences.getLoginStatus()
     
     init {
         getData()
@@ -51,9 +51,6 @@ class YimViewModel @Inject constructor(
     // Username related functions
     fun getUserName() : String?{
         return appPreferences.username
-    }
-    fun isLoggedIn() : Boolean{
-        return (appPreferences.loginStatus == STATUS_LOGGED_IN)
     }
     
     /** Get Data functions

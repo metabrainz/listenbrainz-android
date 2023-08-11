@@ -59,6 +59,8 @@ fun YimHomeScreen(
         var startAnimations by remember { mutableStateOf(false) }
         val swipeableState = rememberSwipeableState(initialValue = false)
         var isYimAvailable by remember { mutableStateOf(false) }
+        val networkStatus = networkConnectivityViewModel.getNetworkStatusFlow()
+            .collectAsState(initial = ConnectivityObserver.NetworkStatus.UNAVAILABLE)
         
         LaunchedEffect(key1 = true){
             startAnimations = true
@@ -67,8 +69,8 @@ fun YimHomeScreen(
         // What happens when user swipes up
         LaunchedEffect(key1 = swipeableState.currentValue){
             if (swipeableState.currentValue) {
-                when (networkConnectivityViewModel.getNetworkStatus()) {
-                    ConnectivityObserver.NetworkStatus.Available -> {
+                when (networkStatus.value) {
+                    ConnectivityObserver.NetworkStatus.AVAILABLE -> {
                         // Data status checking
                         when (viewModel.yimData.value.status){
                             Resource.Status.LOADING -> {

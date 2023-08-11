@@ -1,5 +1,6 @@
 package org.listenbrainz.android.repository.preferences
 
+import kotlinx.coroutines.flow.Flow
 import org.listenbrainz.android.model.AccessToken
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UserInfo
@@ -29,19 +30,31 @@ interface AppPreferences {
 
     fun saveOAuthToken(token: AccessToken)
     fun saveUserInfo(userInfo: UserInfo)
-    fun logoutUser()
+    suspend fun logoutUser()
 
     val version: String
     
     var currentPlayable : Playable?
     
     /* Login related preferences */
+    fun getLoginStatus(): Flow<Int>
     
-    val loginStatus: Int
     /****ListenBrainz User Token:** User has to manually fill this token.*/
-    var lbAccessToken: String?
+    suspend fun getLbAccessToken(): String
+    
+    fun getLbAccessTokenFlow(): Flow<String>
+    suspend fun setLbAccessToken(value: String)
+    
+    /*suspend fun getUsername(): String
+    
+    fun getUsernameFlow(): Flow<String>
+    
+    suspend fun setUsername(value: String)*/
+    
     var username: String?
+    
     val refreshToken: String?
+    
     var linkedServices: List<LinkedService>
 
     val isNotificationServiceAllowed: Boolean

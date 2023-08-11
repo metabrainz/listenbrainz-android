@@ -110,11 +110,17 @@ class ListensViewModel @Inject constructor(
         return repository.validateUserToken(token).data?.user_name
     }
     
+    fun logout() {
+        viewModelScope.launch {
+            appPreferences.logoutUser()
+        }
+    }
+    
     fun fetchLinkedServices() {
         viewModelScope.launch {
-            val token = appPreferences.lbAccessToken
+            val token = appPreferences.getLbAccessToken()
             val userName = appPreferences.username
-            if (!token.isNullOrEmpty() && !userName.isNullOrEmpty()){
+            if (token.isNotEmpty() && !userName.isNullOrEmpty()){
                 val result = repository.getLinkedServices(token = token, username = userName)
                 _isSpotifyLinked.emit(result.contains(LinkedService.SPOTIFY))
                 appPreferences.linkedServices = result
@@ -176,11 +182,11 @@ class ListensViewModel @Inject constructor(
                     null
                 }
             } else {
-                Log.e("YouTube API Error", response.errorBody()?.string() ?: "")
+                Log.e("YouTube API error", response.errorBody()?.string() ?: "")
                 null
             }
         } catch (e: Exception) {
-            Log.e("YouTube API Error", "Error occurred while searching for video ID", e)
+            Log.e("YouTube API error", "Error occurred while searching for video ID", e)
             null
         }
     }
@@ -282,7 +288,7 @@ class ListensViewModel @Inject constructor(
         trackProgress()
     }
     fun trackProgress() {
-        var state: PlayerState? = null
+        var state: PlayerState?
         assertAppRemoteConnected()?.playerApi?.subscribeToPlayerState()?.setEventCallback { playerState ->
             if(bitmap.id!=playerState.track.uri) {
                 updateTrackCoverArt(playerState)
@@ -291,12 +297,13 @@ class ListensViewModel @Inject constructor(
         }?.setErrorCallback(errorCallback)
         viewModelScope.launch(Dispatchers.Default) {
             do {
+                // FIXME: Called even if spotify isn't there which leads to infinite logging.
                 state = assertAppRemoteConnected()?.playerApi?.playerState?.await()?.data
                 val pos = state?.playbackPosition?.toFloat() ?: 0f
                 val duration=state?.track?.duration ?: 1
                 if (progress.value != pos) {
                     _progress.emit(pos / duration.toFloat())
-                    _songDuration.emit(duration ?: 0)
+                    _songDuration.emit(duration)
                     _songCurrentPosition.emit(((pos / duration) * duration).toLong())
                 }
                 delay(900L)
@@ -357,7 +364,7 @@ class ListensViewModel @Inject constructor(
                 return it
             }
         }
-        logMessage("Spotify is not Connected. Use one of the 'connect' buttons")        //getString(R.string.err_spotify_disconnected))
+        // TODO: logMessage("Spotify is not Connected. Use one of the 'connect' buttons")        //getString(R.string.err_spotify_disconnected))
         return null
     }
 

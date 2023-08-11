@@ -9,7 +9,6 @@ import org.listenbrainz.android.model.TokenValidation
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
-import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -21,9 +20,12 @@ interface ListensService {
 
     @GET("http://coverartarchive.org/release/{MBID}")
     suspend fun getCoverArt(@Path("MBID") MBID: String): CoverArt
+    
+    @GET("validate-token")
+    suspend fun checkIfTokenIsValid(): TokenValidation
 
-    @GET("1/validate-token")
-    suspend fun checkIfTokenIsValid(@Header("Authorization") token: String?): TokenValidation
+    @POST("submit-listens")
+    fun submitListen(@Body body: ListenSubmitBody?): Call<ResponseBody?>?
 
     @POST("1/submit-listens")
     suspend fun submitListen(@Header("Authorization") token: String?,

@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
@@ -28,11 +27,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,13 +43,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.spotify.android.appremote.api.SpotifyAppRemote
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
-import org.listenbrainz.android.ui.components.ListenCard
+import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.UserData
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.ListensViewModel
@@ -60,8 +59,10 @@ import org.listenbrainz.android.viewmodel.ListensViewModel
 fun ListensScreen(
     viewModel: ListensViewModel = hiltViewModel(),
     spotifyClientId: String = stringResource(id = R.string.spotifyClientId),
-    shouldScrollToTop: MutableState<Boolean>,
-    context: Context = LocalContext.current
+    scrollRequestState: Boolean,
+    onScrollToTop: (suspend () -> Unit) -> Unit,
+    context: Context = LocalContext.current,
+    scope: CoroutineScope = rememberCoroutineScope()
 ) {
     DisposableEffect(Unit) {
         viewModel.connect(spotifyClientId = spotifyClientId)
@@ -81,29 +82,27 @@ fun ListensScreen(
     val listState = rememberLazyListState()
 
     // Scroll to the top when shouldScrollToTop becomes true
-    LaunchedEffect(shouldScrollToTop.value) {
-        if (shouldScrollToTop.value) {
+    LaunchedEffect(scrollRequestState) {
+        onScrollToTop {
             listState.scrollToItem(0)
-            shouldScrollToTop.value = false
         }
     }
 
     val youtubeApiKey = stringResource(id = R.string.youtubeApiKey)
 
     fun onListenTap(listen: Listen) {
-        if (listen.track_metadata.additional_info?.spotify_id != null) {
-            Uri.parse(listen.track_metadata.additional_info.spotify_id).lastPathSegment?.let { trackId ->
+        if (listen.trackMetadata.additionalInfo?.spotifyId != null) {
+            Uri.parse(listen.trackMetadata.additionalInfo.spotifyId).lastPathSegment?.let { trackId ->
                 viewModel.playUri("spotify:track:${trackId}")
             }
         } else {
             // Execute the API request asynchronously
-            val scope = CoroutineScope(Dispatchers.Main)
             scope.launch {
                 val videoId = viewModel
                     .searchYoutubeMusicVideoId(
                         context = context,
-                        trackName = listen.track_metadata.track_name,
-                        artist = listen.track_metadata.artist_name,
+                        trackName = listen.trackMetadata.trackName,
+                        artist = listen.trackMetadata.artistName,
                         apiKey = youtubeApiKey
                     )
                 when {
@@ -137,7 +136,7 @@ fun ListensScreen(
                         /*
                         // Play track via Amazon Music
                         val intent = Intent()
-                        val query = listen.track_metadata.track_name + " " + listen.track_metadata.artist_name
+                        val query = listen.trackMetadata.trackName + " " + listen.trackMetadata.artistName
                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                         intent.setClassName(
                             "com.amazon.mp3",
@@ -181,8 +180,8 @@ fun ListensScreen(
                                 ListeningNowCard(
                                     listeningNow!!,
                                     getCoverArtUrl(
-                                        caaReleaseMbid = listeningNow.track_metadata.mbid_mapping?.caa_release_mbid,
-                                        caaId = listeningNow.track_metadata.mbid_mapping?.caa_id
+                                        caaReleaseMbid = listeningNow.trackMetadata.mbidMapping?.caa_release_mbid,
+                                        caaId = listeningNow.trackMetadata.mbidMapping?.caa_id
                                     )
                                 ) {
                                     onListenTap(listeningNow)
@@ -202,16 +201,20 @@ fun ListensScreen(
                 }
             }
 
-            items(listens) { listen ->
-                ListenCard(
-                    listen,
-                    getCoverArtUrl(
-                        caaReleaseMbid = listen.track_metadata.mbid_mapping?.caa_release_mbid,
-                        caaId = listen.track_metadata.mbid_mapping?.caa_id
+            items(items = listens) { listen ->
+                ListenCardSmall(
+                    modifier = Modifier.padding(
+                        horizontal = ListenBrainzTheme.paddings.horizontal,
+                        vertical = ListenBrainzTheme.paddings.listenListVertical
+                    ),
+                    releaseName = listen.trackMetadata.trackName,
+                    artistName = listen.trackMetadata.artistName,
+                    coverArtUrl = getCoverArtUrl(
+                        caaReleaseMbid = listen.trackMetadata.mbidMapping?.caa_release_mbid,
+                        caaId = listen.trackMetadata.mbidMapping?.caa_id
                     )
-                )
-                {
-                  onListenTap(listen)
+                ) {
+                    onListenTap(listen)
                 }
             }
         }
@@ -229,9 +232,10 @@ fun ListensScreen(
         if (showBlacklist) {
             ListeningAppsList(viewModel = viewModel) { showBlacklist = false }
         }
-
+        
         // FAB
-        if(!viewModel.appPreferences.lbAccessToken.isNullOrEmpty() && viewModel.appPreferences.isNotificationServiceAllowed) {
+        // FIXME: MOVE ACCESS TO SHARED PREFERENCES TO COROUTINES.
+        if(viewModel.appPreferences.isNotificationServiceAllowed) {
             AnimatedVisibility(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -257,7 +261,5 @@ fun ListensScreen(
 @Preview
 @Composable
 fun ListensScreenPreview() {
-    ListensScreen(
-        shouldScrollToTop = remember { mutableStateOf(false) }
-    )
+    ListensScreen(onScrollToTop = {}, scrollRequestState = false)
 }

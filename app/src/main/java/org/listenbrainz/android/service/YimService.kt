@@ -9,7 +9,7 @@ import javax.inject.Singleton
 interface YimService {
     
     // https://api.listenbrainz.org/1/stats/user/(user_name)/year-in-music/2022
-    @GET("1/stats/user/{user_name}/year-in-music/2022")
+    @GET("stats/user/{user_name}/year-in-music/2022")
     suspend fun getYimData(@Path("user_name") username: String): YimPayload
     
 }

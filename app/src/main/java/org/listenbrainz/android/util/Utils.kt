@@ -17,6 +17,7 @@ import androidx.annotation.WorkerThread
 import kotlinx.coroutines.Dispatchers
 import okhttp3.*
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.util.Log.e
 import retrofit2.Response
 import java.io.*
@@ -31,8 +32,19 @@ object Utils {
     
     /** Get *CoverArtArchive* url for cover art of a release.
      * @param size Allowed sizes are 250, 500, 750 and 1000. Default is 250.*/
-    fun getCoverArtUrl(caaReleaseMbid: String?, caaId: Long?, size: Int = 250): String {
-        return  "https://archive.org/download/mbid-${caaReleaseMbid}/mbid-${caaReleaseMbid}-${caaId}_thumb${size}.jpg"
+    fun getCoverArtUrl(caaReleaseMbid: String?, caaId: Long?, size: Int = 250): String? {
+        if (caaReleaseMbid == null || caaId == null) return null
+        return "https://archive.org/download/mbid-${caaReleaseMbid}/mbid-${caaReleaseMbid}-${caaId}_thumb${size}.jpg"
+    }
+    
+    fun <T> logAndReturn(it: Throwable) : Resource<T> {
+        it.printStackTrace()
+        return when (it){
+            is FileNotFoundException -> Resource.failure(error = ResponseError.FILE_NOT_FOUND)
+            is IOException -> Resource.failure(error = ResponseError.NETWORK_ERROR)
+            else -> Resource.failure(error = ResponseError.UNKNOWN)
+        }
+        
     }
 
     /** Get human readable error.
@@ -48,10 +60,16 @@ object Utils {
             Toast.makeText(context, R.string.toast_feedback_fail, Toast.LENGTH_LONG).show()
         }
     }
-
-    fun shareIntent(text: String?): Intent {
-        val intent = Intent(Intent.ACTION_SEND).setType("text/plain")
-        return intent.putExtra(Intent.EXTRA_TEXT, text)
+    
+    fun getArticle(str: String): String {
+        return when (str.first()){
+            'a' -> "an"
+            'e' -> "an"
+            'i' -> "an"
+            'o' -> "an"
+            'u' -> "an"
+            else -> "a"
+        }
     }
 
     fun emailIntent(recipient: String, subject: String?): Intent {
@@ -193,6 +211,8 @@ object Utils {
                 
                 if (!appImagesFolder.exists()) {
                     if (appImagesFolder.mkdirs())        // Making sure folder exists.
+                        Log.e("saveBitmap", "Successfully created app directory.")
+                    else
                         Log.e("saveBitmap", "Failed to create a directory.", )
                 }
                 

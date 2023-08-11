@@ -3,8 +3,8 @@ package org.listenbrainz.android.ui.screens.newsbrainz
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.aemerse.share.SharableItem
 import com.aemerse.share.Share
@@ -15,7 +15,7 @@ import org.listenbrainz.android.util.Log.e
 import org.listenbrainz.android.viewmodel.NewsListViewModel
 
 @AndroidEntryPoint
-class NewsBrainzActivity : AppCompatActivity() {
+class NewsBrainzActivity : ComponentActivity() {
 
     private lateinit var viewModel: NewsListViewModel
 

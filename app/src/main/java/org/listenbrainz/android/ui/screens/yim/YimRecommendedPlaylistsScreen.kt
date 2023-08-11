@@ -12,13 +12,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -29,13 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.GlideLazyListPreloader
 import okhttp3.*
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.YimScreens
 import org.listenbrainz.android.model.yimdata.Track
-import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.YimLabelText
+import org.listenbrainz.android.ui.components.YimListenCard
 import org.listenbrainz.android.ui.components.YimNavigationStation
 import org.listenbrainz.android.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.ui.theme.YearInMusicTheme
@@ -213,32 +210,21 @@ private fun YimTopDiscoveriesOrMissedList(
     isTopDiscoveriesPlaylist: Boolean,
     context: Context = LocalContext.current
 ) {
-    val uriList = arrayListOf<String>()
-    val listOfTracks = arrayListOf<Map.Entry<Track, String>>()
     
     val playlistMap : Map<Track, String>
-        = remember {
+            = remember {
         if (isTopDiscoveriesPlaylist)
             viewModel.getTopDiscoveriesPlaylistAndArtCover()
         else
             viewModel.getTopMissedPlaylistAndArtCover()
     }
     
-    playlistMap.forEach { item ->
-        uriList.add(item.value)
-        listOfTracks.add(item)
-    }
-    
-    // Pre-loading images
-    val listState = rememberLazyListState()
-    GlideLazyListPreloader(
-        state = listState,
-        data = uriList,
-        size = Size(75f,75f),
-        numberOfItemsToPreload = 15,
-        fixedVisibleItemCount = 5
-    ){ item, requestBuilder ->
-        requestBuilder.load(item).placeholder(R.drawable.ic_coverartarchive_logo_no_text).override(75)
+    val listOfTracks = remember {
+        arrayListOf<Map.Entry<Track, String>>().apply {
+            playlistMap.forEach { item ->
+                add(item)
+            }
+        }
     }
     
     LazyColumn(
@@ -252,17 +238,19 @@ private fun YimTopDiscoveriesOrMissedList(
         )
     ) {
         items(listOfTracks) { item ->
-            ListenCardSmall(
+            
+            // Listen Card
+            YimListenCard(
                 releaseName = item.key.title,
                 artistName = item.key.creator,
                 coverArtUrl = item.value,
-                onClick = {
-                    context.startActivity(
-                        Intent(Intent.ACTION_VIEW, Uri.parse(item.key.identifier))
-                    )
-                },
-                errorAlbumArt = R.drawable.ic_erroralbumart
-            )
+            ){
+                context.startActivity(
+                    Intent(Intent.ACTION_VIEW, Uri.parse(item.key.identifier))
+                )
+            }
+            
         }
     }
 }
+
