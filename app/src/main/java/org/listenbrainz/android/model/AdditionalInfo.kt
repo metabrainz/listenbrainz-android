@@ -1,7 +1,9 @@
 package org.listenbrainz.android.model
 
+import androidx.compose.runtime.Immutable
 import com.google.gson.annotations.SerializedName
 
+@Immutable
 data class AdditionalInfo(
     @SerializedName("artist_msid"              ) val artistMsid: String? = null,
     @SerializedName("artist_names"             ) val artistNames: List<String>? = null,
