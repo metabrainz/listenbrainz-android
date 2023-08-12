@@ -33,7 +33,7 @@ class ListenScrobbleService : NotificationListenerService() {
         initialize()
     }
 
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int) = Service.START_STICKY
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) = Service.START_STICKY
 
     private fun initialize() {
         d("Initializing Listener Service")
