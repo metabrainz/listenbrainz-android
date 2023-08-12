@@ -277,8 +277,8 @@ fun PlayerScreen(
                     .padding(start = 10.dp, top = 10.dp, end = 10.dp)) {
                 val song by brainzPlayerViewModel.currentlyPlayingSong.collectAsState()
                 val songCurrentPosition by brainzPlayerViewModel.songCurrentPosition.collectAsState()
-                var duration = "00:00"
-                var currentPosition = "00:00"
+                val duration: String
+                val currentPosition: String
                 if (song.duration / (1000 * 60 * 60) > 0 &&  songCurrentPosition / (1000 * 60 * 60) > 0){
                     duration =String.format("%02d:%02d:%02d", song.duration/(1000 * 60 * 60),song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
                     currentPosition = String.format("%02d:%02d:%02d", songCurrentPosition/(1000 * 60 * 60),songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
@@ -446,7 +446,6 @@ fun PlayerScreen(
                         releaseName = song.title,
                         artistName = song.artist,
                         coverArtUrl = song.albumArt,
-                        imageLoadSize = 100,
                         errorAlbumArt = R.drawable.ic_erroralbumart
                     ) {
                         brainzPlayerViewModel.skipToPlayable(index)

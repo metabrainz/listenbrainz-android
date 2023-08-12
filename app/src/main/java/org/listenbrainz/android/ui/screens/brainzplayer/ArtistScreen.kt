@@ -374,7 +374,6 @@ fun OnArtistClickScreen(artistID: String, navigateToAlbum: (id: Long) -> Unit) {
                     releaseName = it.title,
                     artistName = it.artist,
                     coverArtUrl = it.albumArt,
-                    imageLoadSize = 100,
                     errorAlbumArt = R.drawable.ic_erroralbumart,
                     enableDropdownIcon = true,
                     onDropdownIconClick = {

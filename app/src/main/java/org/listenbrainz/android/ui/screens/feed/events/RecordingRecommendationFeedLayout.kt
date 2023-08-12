@@ -33,8 +33,8 @@ fun RecordingRecommendationFeedLayout(
             artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
             coverArtUrl = remember {
                 Utils.getCoverArtUrl(
-                    caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caa_release_mbid,
-                    caaId = event.metadata.trackMetadata?.mbidMapping?.caa_id
+                    caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
+                    caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
                 )
             },
             enableDropdownIcon = true,
