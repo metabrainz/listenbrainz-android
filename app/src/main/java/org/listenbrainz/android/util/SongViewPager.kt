@@ -44,7 +44,7 @@ fun SongViewPager(modifier: Modifier = Modifier, backdropScaffoldState: Backdrop
     val songList = viewModel.mediaItem.collectAsState().value.data ?: listOf()
     val currentlyPlayingSong = viewModel.currentlyPlayingSong.collectAsState().value.toSong
     val pagerState = viewModel.pagerState.collectAsState().value
-    val pageState = rememberPagerState(initialPage = pagerState)
+    val pageState = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
     
     HorizontalPager(pageCount = songList.size, state = pageState, modifier = modifier

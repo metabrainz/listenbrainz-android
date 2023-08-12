@@ -40,12 +40,23 @@ object TypeConverter {
     fun artistAlbumsToJSON(albums: List<AlbumEntity>) = Gson().toJson(albums)!!
 
     @TypeConverter
-    fun artistAlbumsToJSON(albumsJSON: String): List<AlbumEntity>{
+    fun artistAlbumsFromJSON(albumsJSON: String): List<AlbumEntity>{
         val type: Type = object: TypeToken<ArrayList<AlbumEntity>>() {}.type
         return Gson().fromJson(
             albumsJSON,
             type
         ) ?: emptyList()
+    }
+    
+    @TypeConverter
+    fun nullableListToJSON(list: List<String>?) = Gson().toJson(list)!!
+    
+    @TypeConverter
+    fun nullableListFromJSON(listJSON: String): List<String>? {
+        return Gson().fromJson(
+            listJSON,
+            object: TypeToken<List<String>?>() {}.type
+        )
     }
     
     @TypeConverter
@@ -62,10 +73,10 @@ object TypeConverter {
     
     fun stringFromEpochTime(microSeconds: Long, dateFormat: String = "MMM dd, hh:mm aaa"): String {
         val formatter = SimpleDateFormat(dateFormat, Locale.getDefault())
-        
+
         val calendar: Calendar = Calendar.getInstance(Locale.ENGLISH)
-            .apply { timeInMillis = microSeconds*1000 }
-        
+            .apply { timeInMillis = microSeconds * 1000 }
+
         return formatter.format(calendar.time)
     }
     

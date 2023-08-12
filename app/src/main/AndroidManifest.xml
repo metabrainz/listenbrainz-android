@@ -30,6 +30,18 @@
         android:theme="@style/Theme.App.Starting"
         android:usesCleartextTraffic="true"
         tools:targetApi="32">
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
+
         <activity
             android:name=".ui.screens.yim.YearInMusicActivity"
             android:label="@string/title_activity_year_in_music"/>
@@ -56,7 +68,7 @@
             </intent-filter>
         </service> <!-- TODO: To receive events from wired devices -->
         <!--
-<receiver android:name="androidx.media.session.MediaButtonReceiver"
+        <receiver android:name="androidx.media.session.MediaButtonReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />

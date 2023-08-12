@@ -169,9 +169,7 @@ fun ListensScreen(
             }
 
             item {
-                val pagerState = rememberPagerState(
-                    initialPage = 0
-                )
+                val pagerState = rememberPagerState()
 
                 HorizontalPager(state = pagerState, pageCount = 2, modifier = Modifier.fillMaxSize()) { page ->
                     when (page) {

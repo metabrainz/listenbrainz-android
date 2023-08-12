@@ -22,4 +22,15 @@ object DatabaseModule {
         "brainzplayer_database"
     )
         .build()
+    
+    @Provides
+    @Singleton
+    fun providesListensScrobbleDatabase(
+        @ApplicationContext context: Context
+    ): ListensScrobbleDatabase = Room.databaseBuilder(
+        context,
+        ListensScrobbleDatabase::class.java,
+        "listens_scrobble_database"
+    )
+        .build()
 }

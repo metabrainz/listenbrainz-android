@@ -76,13 +76,14 @@ fun BrainzPlayerBackDropScreen(
 
     /** 56.dp is default bottom navigation height. 80.dp is our mini player's height. */
     val headerHeight by animateDpAsState(targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null") 56.dp else 136.dp)
+    val isPlaying = brainzPlayerViewModel.isPlaying.collectAsState().value
 
     BackdropScaffold(
         modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
         frontLayerShape = RectangleShape,
         backLayerBackgroundColor = MaterialTheme.colorScheme.background,
         frontLayerScrimColor = Color.Unspecified,
-        headerHeight = headerHeight, // 136.dp is optimal header height.
+        headerHeight = if (isPlaying) headerHeight else 56.dp, // 136.dp is optimal header height.
         peekHeight = 0.dp,
         scaffoldState = backdropScaffoldState,
         backLayerContent = {

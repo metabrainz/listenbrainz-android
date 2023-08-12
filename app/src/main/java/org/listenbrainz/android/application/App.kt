@@ -2,43 +2,44 @@ package org.listenbrainz.android.application
 
 import android.app.Application
 import android.content.Intent
+import androidx.hilt.work.HiltWorkerFactory
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.ListenScrobbleService
 import javax.inject.Inject
 
 @HiltAndroidApp
-class App : Application() {
-    
+class App : Application(), Configuration.Provider {
+
     @Inject
     lateinit var appPreferences: AppPreferences
 
-    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
 
     override fun onCreate() {
         super.onCreate()
         context = this
         
-        applicationScope.launch {
+        MainScope().launch {
             if(appPreferences.isNotificationServiceAllowed && appPreferences.getLbAccessToken().isNotEmpty()) {
                 startListenService()
             }
         }
         
     }
-
-    override fun onTerminate() {
-        super.onTerminate()
-        applicationScope.cancel()
-    }
-
+    
+    override fun getWorkManagerConfiguration(): Configuration =
+        Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
+    
     companion object {
         lateinit var context: App
             private set
