@@ -12,7 +12,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.ListenScrobbleService
-import org.listenbrainz.android.service.ListensService
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -20,9 +19,6 @@ class App : Application() {
     
     @Inject
     lateinit var appPreferences: AppPreferences
-
-    @Inject
-    lateinit var listensService: ListensService
 
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
