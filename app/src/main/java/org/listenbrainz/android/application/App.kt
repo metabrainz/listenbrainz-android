@@ -7,8 +7,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.ListenScrobbleService
@@ -32,7 +31,6 @@ class App : Application(), Configuration.Provider {
                 startListenService()
             }
         }
-        
     }
     
     override fun getWorkManagerConfiguration(): Configuration =
