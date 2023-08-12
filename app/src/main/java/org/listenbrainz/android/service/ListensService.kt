@@ -15,7 +15,7 @@ import retrofit2.http.Query
 
 interface ListensService {
     
-    @GET("1/user/{user_name}/listens")
+    @GET("user/{user_name}/listens")
     suspend fun getUserListens(@Path("user_name") user_name: String, @Query("count") count: Int): Listens
 
     @GET("http://coverartarchive.org/release/{MBID}")
@@ -27,7 +27,7 @@ interface ListensService {
     @POST("submit-listens")
     suspend fun submitListen(@Body body: ListenSubmitBody?): Response<PostResponse>
 
-    @GET("1/user/{user_name}/services")
+    @GET("user/{user_name}/services")
     suspend fun getServicesLinkedToAccount(
         @Path("user_name") user_name: String,
     ): ListenBrainzExternalServices

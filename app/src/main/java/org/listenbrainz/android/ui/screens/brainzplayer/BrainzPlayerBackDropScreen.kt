@@ -83,7 +83,7 @@ fun BrainzPlayerBackDropScreen(
         frontLayerShape = RectangleShape,
         backLayerBackgroundColor = MaterialTheme.colorScheme.background,
         frontLayerScrimColor = Color.Unspecified,
-        headerHeight = if (isPlaying) headerHeight else 0.dp, // 136.dp is optimal header height.
+        headerHeight = if (isPlaying) headerHeight else 56.dp, // 136.dp is optimal header height.
         peekHeight = 0.dp,
         scaffoldState = backdropScaffoldState,
         backLayerContent = {
