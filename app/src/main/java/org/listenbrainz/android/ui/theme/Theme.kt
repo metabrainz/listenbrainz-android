@@ -57,8 +57,8 @@ private val colorSchemeDark = Theme(
     lbSignatureSecondary = lb_yellow,
     lbSignatureInverse = lb_orange,
     onLbSignature = Color.Black,
-    chipUnselected = Color.Black,
-    chipSelected = Color(0xFF1E1E1E),
+    chipUnselected = Color(0xFF1E1E1E),
+    chipSelected = Color.Black,
     text = Color.White,
     hint = Color(0xFF8C8C8C)
 )
