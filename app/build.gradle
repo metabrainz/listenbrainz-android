@@ -105,6 +105,9 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
+    kapt {
+        correctErrorTypes true
+    }
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'

@@ -25,15 +25,10 @@ interface ListensService {
     suspend fun checkIfTokenIsValid(): TokenValidation
 
     @POST("submit-listens")
-    fun submitListen(@Body body: ListenSubmitBody?): Call<ResponseBody?>?
-
-    @POST("1/submit-listens")
-    suspend fun submitListen(@Header("Authorization") token: String?,
-                     @Body body: ListenSubmitBody?): Response<PostResponse?>
+    suspend fun submitListen(@Body body: ListenSubmitBody?): Response<PostResponse>
 
     @GET("1/user/{user_name}/services")
     suspend fun getServicesLinkedToAccount(
-        @Header("Authorization") authHeader: String?,
         @Path("user_name") user_name: String,
     ): ListenBrainzExternalServices
 }

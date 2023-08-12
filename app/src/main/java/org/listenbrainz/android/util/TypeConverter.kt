@@ -40,12 +40,23 @@ object TypeConverter {
     fun artistAlbumsToJSON(albums: List<AlbumEntity>) = Gson().toJson(albums)!!
 
     @TypeConverter
-    fun artistAlbumsToJSON(albumsJSON: String): List<AlbumEntity>{
+    fun artistAlbumsFromJSON(albumsJSON: String): List<AlbumEntity>{
         val type: Type = object: TypeToken<ArrayList<AlbumEntity>>() {}.type
         return Gson().fromJson(
             albumsJSON,
             type
         ) ?: emptyList()
+    }
+    
+    @TypeConverter
+    fun nullableListToJSON(list: List<String>?) = Gson().toJson(list)!!
+    
+    @TypeConverter
+    fun nullableListFromJSON(listJSON: String): List<String>? {
+        return Gson().fromJson(
+            listJSON,
+            object: TypeToken<List<String>?>() {}.type
+        )
     }
     
     @TypeConverter
@@ -67,16 +78,6 @@ object TypeConverter {
             .apply { timeInMillis = microSeconds * 1000 }
 
         return formatter.format(calendar.time)
-    }
-
-    fun listToJSON(list: List<String>?): String = Gson().toJson(list)
-    
-    @TypeConverter
-    fun listFromJSON(listJSON: String): List<String>? {
-        return Gson().fromJson(
-            listJSON,
-            object: TypeToken<List<String>?>() {}.type
-        )
     }
     
 }

@@ -86,7 +86,7 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
     
     override suspend fun submitListen(token: String, body: ListenSubmitBody): Resource<PostResponse> {
         return try {
-            val response = service.submitListen("Token $token", body)
+            val response = service.submitListen(body)
             if (response.isSuccessful){
                 Resource(SUCCESS, response.body())
             } else {

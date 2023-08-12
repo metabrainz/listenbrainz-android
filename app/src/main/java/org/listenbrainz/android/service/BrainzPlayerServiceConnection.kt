@@ -25,7 +25,6 @@ class BrainzPlayerServiceConnection(
     val appPreferences: AppPreferences,
     val workManager: WorkManager
 ) {
-    val scope = CoroutineScope(Dispatchers.Main)
 
     private val _isConnected = MutableStateFlow(Resource(Resource.Status.LOADING, false))
     val isConnected = _isConnected.asStateFlow()
@@ -98,7 +97,7 @@ class BrainzPlayerServiceConnection(
     }
     private inner class MediaControllerCallback : MediaControllerCompat.Callback() {
         val listen: ListenSubmissionState = ListenSubmissionState()
-        
+    
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             _playbackState.value = state ?: EMPTY_PLAYBACK_STATE
             _playButtonState.value =
@@ -106,16 +105,16 @@ class BrainzPlayerServiceConnection(
                     Icons.Rounded.Pause
                 else
                     Icons.Rounded.PlayArrow
-            
+        
             if (state?.isPlaying != previousPlaybackState) _isPlaying.value =
                 state?.isPlaying == true
             previousPlaybackState = state?.isPlaying == true
-    
+        
             // Cutout point for normal bp and bp submitter
             if (appPreferences.isNotificationServiceAllowed) return
-    
+        
             listen.toggleTimer(state?.playbackState as PlaybackState)
-            
+        
         }
     
         override fun onRepeatModeChanged(repeatMode: Int) {
@@ -138,7 +137,7 @@ class BrainzPlayerServiceConnection(
             super.onShuffleModeChanged(shuffleMode)
             _shuffleState.value = shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL
         }
-        
+    
         override fun onMetadataChanged(metadataCompat: MediaMetadataCompat?) {
             _currentlyPlayingSong.value =
                 if (metadataCompat?.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID) == null)
@@ -147,145 +146,20 @@ class BrainzPlayerServiceConnection(
         
             // Cutoff point for bp and bp submitter.
             if (appPreferences.isNotificationServiceAllowed) return
-            
+        
             val metadata = metadataCompat?.mediaMetadata as MediaMetadata
-    
-            listen.initSubmissionFlow(metadata){
+        
+            listen.initSubmissionFlow(metadata) {
                 // Submit a listen.
                 workManager.enqueue(
                     listen.buildWorkRequest(listenType = it, player = "ListenBrainz Android")
                 )
             }
-            
+        
         }
-
+    
         override fun onSessionDestroyed() {
             mediaBrowserConnectionCallback.onConnectionSuspended()
-        }
-
-        // UTILITY FUNCTIONS
-
-        private fun setTitle(metadata: MediaMetadataCompat) {
-            title = when {
-                !metadata.getString(MediaMetadata.METADATA_KEY_TITLE).isNullOrEmpty() -> metadata.getString(
-                    MediaMetadata.METADATA_KEY_TITLE)
-                !metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE).isNullOrEmpty() -> metadata.getString(
-                    MediaMetadata.METADATA_KEY_DISPLAY_TITLE)
-                else -> null
-            }
-        }
-
-        private fun setArtist(metadata: MediaMetadataCompat) {
-            artist = when {
-                !metadata.getString(MediaMetadata.METADATA_KEY_ARTIST).isNullOrEmpty() -> metadata.getString(
-                    MediaMetadata.METADATA_KEY_ARTIST)
-                !metadata.getString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST).isNullOrEmpty() -> metadata.getString(
-                    MediaMetadata.METADATA_KEY_ALBUM_ARTIST)
-                !metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE).isNullOrEmpty() -> metadata.getString(
-                    MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE)
-                !metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION).isNullOrEmpty() -> metadata.getString(
-                    MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION)
-                else -> null
-            }
-        }
-
-        /** Sets releaseName*/
-        private fun setMiscellaneousDetails(metadata: MediaMetadataCompat) {
-            releaseName = metadata.getString(MediaMetadata.METADATA_KEY_ALBUM)
-        }
-
-        private fun isMetadataFaulty() : Boolean
-                = artist.isNullOrEmpty() || title.isNullOrEmpty()
-
-        /** Run [artist] and [title] value-check before invoking this function.*/
-        private fun setDurationAndCallbacks(metadata: MediaMetadataCompat) {
-            duration = Utils.roundDuration(duration = metadata.getLong(MediaMetadata.METADATA_KEY_DURATION) / 2L)
-                .coerceAtMost(240000)   // Since maximum time required to validate a listen as submittable listen is 4 minutes.
-            timestamp = System.currentTimeMillis() / 1000
-
-            timer.setDuration(duration)
-
-            // Setting listener
-            timer.setOnTimerListener(listener = object : OnTimerListener {
-                override fun onTimerEnded() {
-                    submitListenFromBP(
-                        artist,
-                        title,
-                        timestamp,
-                        metadata.getLong(MediaMetadata.METADATA_KEY_DURATION),
-                        releaseName,
-                        ListenType.SINGLE
-                    )
-                    submitted = true
-                }
-
-                override fun onTimerPaused(remainingMillis: Long) {
-                    d("${remainingMillis / 1000} seconds left to submit listen.")
-                }
-                override fun onTimerRun(milliseconds: Long) {}
-                override fun onTimerStarted() {
-                    d("Timer started")
-                    submitListenFromBP(
-                        artist,
-                        title,
-                        null,
-                        metadata.getLong(MediaMetadata.METADATA_KEY_DURATION),
-                        releaseName,
-                        ListenType.PLAYING_NOW
-                    )
-                }
-                override fun onTimerStopped() {}
-
-            }, callbacksOnMainThread = true)
-            d("Listener Set")
-        }
-
-        private fun submitListenFromBP(artist: String?, title: String?, timestamp: Long?, duration: Long, releaseName: String?, listenType: ListenType) {
-            scope.launch {
-                val token = appPreferences.getLbAccessToken()
-                if(token.isNotEmpty() && !appPreferences.isNotificationServiceAllowed) {
-                    
-                    if(duration <= 30000) {
-                        d("Track is too short to submit")
-                        return@launch
-                    }
-                    
-                    val metadata = ListenTrackMetadata(
-                        artist = artist,
-                        track = title,
-                        release = releaseName,
-                        additionalInfo = AdditionalInfo(
-                            durationMs = duration.toInt(),
-                            mediaPlayer = "BrainzPlayer",
-                            submissionClient = "ListenBrainz Android",
-                            submissionClientVersion = BuildConfig.VERSION_NAME
-                        )
-                    )
-        
-                    val body = ListenSubmitBody()
-                    body.addListen(
-                        timestamp = if(listenType == ListenType.SINGLE) timestamp else null,
-                        metadata = metadata
-                    )
-                    
-                    body.listenType = listenType.code
-        
-                    d("Submitting Listen: $body")
-        
-                    listensRepository.submitListen(token = token, body)
-                }
-            }
-            
-        }
-
-        private fun resetMetadata() {
-            d("Metadata Reset")
-            artist = null
-            title = null
-            timestamp = 0
-            duration = 0
-            submitted = false
-            releaseName = null
         }
     }
 }
