@@ -58,6 +58,7 @@ import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.TitleAndSubtitle
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils
+import org.listenbrainz.android.util.Utils.similarityToPercent
 import org.listenbrainz.android.viewmodel.FeedViewModel
 
 @Composable
@@ -161,7 +162,7 @@ private fun FeedScreen(
             }
             HorizontalPager(
                 pageCount = 3,
-                state = pagerState,
+                state = pagerState
             ) { position ->
                 when (position){
                     0 -> MyFeed(myFeedListState, myFeedPagingData, uiState.myFeedState, onDeleteOrHide, onDropDownClick, onPlay)
@@ -246,38 +247,45 @@ fun FollowListens(
         modifier = Modifier
             .fillMaxWidth()
             .widthIn(max = LocalConfiguration.current.screenWidthDp.dp),
-        state = listState
+        state = listState,
     ) {
         
         items(count = pagingData.itemCount) { index: Int ->
             
             pagingData[index]?.apply {
                 
-                // Main Card
-                Column(
-                    modifier = Modifier.padding(horizontal = ListenBrainzTheme.paddings.horizontal)
-                ) {
-                    ListenCardSmall(
-                        releaseName = event.metadata.trackMetadata?.releaseName ?: "Unknown",
-                        artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
-                        coverArtUrl =
+                ListenCardSmall(
+                    modifier = Modifier.padding(
+                        horizontal = ListenBrainzTheme.paddings.horizontal,
+                        vertical = ListenBrainzTheme.paddings.lazyListAdjacent
+                    ),
+                    releaseName = event.metadata.trackMetadata?.releaseName ?: "Unknown",
+                    artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
+                    coverArtUrl =
                         Utils.getCoverArtUrl(
-                            caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caa_release_mbid,
-                            caaId = event.metadata.trackMetadata?.mbidMapping?.caa_id
+                            caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
+                            caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
                         ),
-                        enableDropdownIcon = true,
-                        enableTrailingContent = true,
-                        trailingContent = { modifier ->
-                            TitleAndSubtitle(modifier = modifier, title = event.username ?: "Unknown")
-                        },
-                        onDropdownIconClick = onDropDownClick,
-                    ) {
-                        onPlay()
-                    }
-                    
-                    // Date
-                    Date()
+                    enableDropdownIcon = true,
+                    enableTrailingContent = true,
+                    trailingContent = { modifier ->
+                        Column(modifier, horizontalAlignment = Alignment.End) {
+                            TitleAndSubtitle(
+                                title = event.username ?: "Unknown",
+                                titleColor = ListenBrainzTheme.colorScheme.lbSignature
+                            )
+                            Date(
+                                event = event,
+                                parentUser = parentUser,
+                                eventType = eventType
+                            )
+                        }
+                    },
+                    onDropdownIconClick = onDropDownClick,
+                ) {
+                    onPlay()
                 }
+                
             }
         }
         
@@ -306,32 +314,36 @@ fun SimilarListens(
         items(count = pagingData.itemCount) { index: Int ->
             
             pagingData[index]?.apply {
-                // Main Card
-                Column(
-                    modifier = Modifier.padding(horizontal = ListenBrainzTheme.paddings.horizontal)
+                
+                ListenCardSmall(
+                    modifier = Modifier.padding(
+                        horizontal = ListenBrainzTheme.paddings.horizontal,
+                        vertical = ListenBrainzTheme.paddings.lazyListAdjacent
+                    ),
+                    releaseName = event.metadata.trackMetadata?.releaseName ?: "Unknown",
+                    artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
+                    coverArtUrl =
+                        Utils.getCoverArtUrl(
+                            caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
+                            caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
+                        ),
+                    enableDropdownIcon = true,
+                    enableTrailingContent = true,
+                    trailingContent = { modifier ->
+                        TitleAndSubtitle(
+                            modifier = modifier,
+                            title = event.username ?: "Unknown",
+                            subtitle = similarityToPercent(event.similarity),
+                            alignment = Alignment.End,
+                            titleColor = ListenBrainzTheme.colorScheme.lbSignature,
+                            subtitleColor = ListenBrainzTheme.colorScheme.lbSignatureInverse
+                        )
+                    },
+                    onDropdownIconClick = onDropDownClick,
                 ) {
-                    ListenCardSmall(
-                        releaseName = event.metadata.trackMetadata?.releaseName ?: "Unknown",
-                        artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
-                        coverArtUrl =
-                            Utils.getCoverArtUrl(
-                                caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caa_release_mbid,
-                                caaId = event.metadata.trackMetadata?.mbidMapping?.caa_id
-                            )
-                        ,
-                        enableDropdownIcon = true,
-                        enableTrailingContent = true,
-                        trailingContent = { modifier ->
-                            TitleAndSubtitle(modifier = modifier, title = event.username ?: "Unknown")
-                        },
-                        onDropdownIconClick = onDropDownClick,
-                    ) {
-                        onPlay()
-                    }
-                    
-                    // Date
-                    Date()
+                    onPlay()
                 }
+                
             }
         }
         
@@ -381,18 +393,6 @@ fun NavigationChips(
         }
     }
     
-}
-
-@Composable
-private fun FeedUiEventItem.Date() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 4.dp),
-        contentAlignment = Alignment.CenterEnd
-    ) {
-        Date(event = event, parentUser = parentUser, eventType = eventType)
-    }
 }
 
 @Composable

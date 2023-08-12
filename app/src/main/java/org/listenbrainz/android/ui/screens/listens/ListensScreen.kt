@@ -180,8 +180,8 @@ fun ListensScreen(
                                 ListeningNowCard(
                                     listeningNow!!,
                                     getCoverArtUrl(
-                                        caaReleaseMbid = listeningNow.trackMetadata.mbidMapping?.caa_release_mbid,
-                                        caaId = listeningNow.trackMetadata.mbidMapping?.caa_id
+                                        caaReleaseMbid = listeningNow.trackMetadata.mbidMapping?.caaReleaseMbid,
+                                        caaId = listeningNow.trackMetadata.mbidMapping?.caaId
                                     )
                                 ) {
                                     onListenTap(listeningNow)
@@ -210,8 +210,8 @@ fun ListensScreen(
                     releaseName = listen.trackMetadata.trackName,
                     artistName = listen.trackMetadata.artistName,
                     coverArtUrl = getCoverArtUrl(
-                        caaReleaseMbid = listen.trackMetadata.mbidMapping?.caa_release_mbid,
-                        caaId = listen.trackMetadata.mbidMapping?.caa_id
+                        caaReleaseMbid = listen.trackMetadata.mbidMapping?.caaReleaseMbid,
+                        caaId = listen.trackMetadata.mbidMapping?.caaId
                     )
                 ) {
                     onListenTap(listen)
