@@ -62,40 +62,34 @@ class YearInMusicActivityTest {
         }
 
         rule.onNodeWithText("Top Albums of 2022").assertExists()
-        nextPage()
+        nextPage(scrollToEnd = false)
 
         verifyExistence(R.string.tt_yim_charts_heading)
-        scrollToEnd(R.string.tt_yim_charts_parent)
         nextPage()
 
         verifyExistence(R.string.tt_yim_statistics_heading)
         nextPage()
 
         verifyExistence(R.string.tt_yim_recommended_playlists_heading)
-        scrollToEnd(R.string.tt_yim_recommended_playlists_parent)
-        scrollToEnd(R.string.tt_yim_recommended_playlists_parent)
         nextPage()
 
         verifyExistence(R.string.tt_yim_discover_heading)
-        scrollToEnd(R.string.tt_yim_discover_parent)
         nextPage()
 
         verifyExistence(R.string.tt_yim_endgame_heading)
-    }
-
-    private fun scrollToEnd(@StringRes stringRes: Int){
-        rule.onNodeWithTag(activity.getString(stringRes)).performTouchInput {
-            down(bottomRight)
-            moveTo(topRight)
-            up()
-        }
     }
 
     private fun verifyExistence(@StringRes stringRes: Int){
         rule.onNodeWithTag(activity.getString(stringRes)).assertExists()
     }
 
-    private fun nextPage(){
-        rule.onNodeWithTag(activity.getString(R.string.tt_yim_next_button)).performClick()
+    private fun nextPage(scrollToEnd: Boolean = true){
+        rule.waitForIdle()
+        rule.onNodeWithTag(activity.getString(R.string.tt_yim_next_button)).apply {
+            if (scrollToEnd){
+                performScrollTo()
+            }
+            performClick()
+        }
     }
 }

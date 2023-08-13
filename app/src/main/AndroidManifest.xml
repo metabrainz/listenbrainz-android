@@ -44,12 +44,13 @@
 
         <activity
             android:name=".ui.screens.yim.YearInMusicActivity"
-            android:label="@string/title_activity_year_in_music"/>
+            android:label="@string/title_activity_year_in_music"
+            android:theme="@style/Theme.Material3.DayNight.NoActionBar"/>
 
         <activity
             android:name=".ui.screens.newsbrainz.NewsBrainzActivity"
-            android:label="@string/title_activity_news_brainz">
-        </activity>
+            android:label="@string/title_activity_news_brainz"
+            android:theme="@style/Theme.Material3.DayNight.NoActionBar"/>
 
         <service
             android:name=".service.ListenScrobbleService"
@@ -90,13 +91,15 @@
 
         <activity
             android:name=".ui.screens.about.AboutActivity"
-            android:label="@string/about_title" />
+            android:label="@string/about_title"
+            android:theme="@style/Theme.Material3.DayNight.NoActionBar"/>
         <activity
             android:name=".ui.screens.dashboard.DonateActivity"
-            android:label="@string/donate_title" />
+            android:label="@string/donate_title"
+            android:theme="@style/Theme.Material3.DayNight.NoActionBar"/>
 
         <activity android:name="org.listenbrainz.android.ui.screens.profile.LoginActivity"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"/>
+            android:theme="@style/Theme.Material3.DayNight.NoActionBar"/>
 
         <!-- Sentry Setup -->
         <meta-data

@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -45,7 +46,7 @@ fun YimListenCard(
             },
         shape = RoundedCornerShape(5.dp),
         shadowElevation = 5.dp,
-        color = ListenBrainzTheme.colorScheme.level1
+        color = Color.White
     ) {
         Row(
             modifier = Modifier
