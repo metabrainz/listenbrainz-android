@@ -3,6 +3,7 @@ package org.listenbrainz.android.util
 import android.content.ActivityNotFoundException
 import android.content.ContentValues
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -13,6 +14,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.annotation.WorkerThread
 import kotlinx.coroutines.Dispatchers
 import okhttp3.*
@@ -46,11 +48,17 @@ object Utils {
         }
     }
     
-    fun similarityToPercent(similarity: Float?, pattern: String = "#"): String {
+    fun similarityToPercent(similarity: Float?): String {
         return if (similarity != null)
             "${(similarity * 100).toInt()}%"
         else
             ""
+    }
+    
+    fun Context.getActivity(): ComponentActivity? = when (this) {
+        is ComponentActivity -> this
+        is ContextWrapper -> baseContext.getActivity()
+        else -> null
     }
     
 

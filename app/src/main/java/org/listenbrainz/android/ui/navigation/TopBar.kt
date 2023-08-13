@@ -37,6 +37,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.isUiModeIsDark
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.util.Constants
+import org.listenbrainz.android.util.Utils.getActivity
 
 @Composable
 fun TopBar(
@@ -132,7 +133,7 @@ fun TopBar(
                         ).apply()
                     }
                 }
-                context.startActivity(intent)
+                context.getActivity()?.recreate() ?: context.startActivity(intent)
             }) {
                 Icon(painterResource(id = themeIcon.value),
                     "Theme",
