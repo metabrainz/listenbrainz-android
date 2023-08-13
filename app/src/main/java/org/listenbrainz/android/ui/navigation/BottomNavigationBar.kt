@@ -55,6 +55,13 @@ fun BottomNavigationBar(
                             .padding(top = 5.dp), contentDescription = item.title, tint = MaterialTheme.colorScheme.onSurface
                     )
                 },
+                label = {
+                    Text(
+                        text = item.title,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(),
+                    )
+                },
                 selectedContentColor = MaterialTheme.colorScheme.onSurface,
                 unselectedContentColor = colorResource(id = R.color.gray),
                 alwaysShowLabel = true,

@@ -48,6 +48,7 @@
 
         <activity
             android:name=".ui.screens.newsbrainz.NewsBrainzActivity"
+            android:theme="@style/AppTheme"
             android:label="@string/title_activity_news_brainz">
         </activity>
 
