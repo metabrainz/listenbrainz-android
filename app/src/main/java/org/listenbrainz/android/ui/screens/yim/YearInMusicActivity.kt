@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModelProvider
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.ui.screens.yim.navigation.YimNavigation
@@ -25,12 +26,10 @@ class YearInMusicActivity : ComponentActivity() {
         val networkConnectivityViewModel: NetworkConnectivityViewModel =
             ViewModelProvider(this)[NetworkConnectivityViewModelImpl::class.java]
         
-        
-        
         setContent {
-            val loginStatus = yimViewModel.loginFlow.collectAsState(initial = STATUS_LOGGED_OUT).value
+            val loginStatus by yimViewModel.loginFlow.collectAsState(initial = STATUS_LOGGED_IN)
             // Login Check
-            if (loginStatus == STATUS_LOGGED_IN){
+            if (loginStatus == STATUS_LOGGED_OUT){
                 Toast.makeText(this, "Please Login to access your Year in Music!", Toast.LENGTH_LONG).show()
                 finish()
             }

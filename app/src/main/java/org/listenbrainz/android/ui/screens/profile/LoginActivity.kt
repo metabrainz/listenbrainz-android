@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.screens.profile
 
-import android.app.Activity
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -27,6 +27,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.Utils.getActivity
 import org.listenbrainz.android.viewmodel.ListensViewModel
 
 
@@ -48,11 +49,12 @@ class LoginActivity : ComponentActivity() {
     }
 }
 
+@SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun ListenBrainzLogin(viewModel: ListensViewModel) {
     val url = "https://listenbrainz.org/login"
     val coroutineScope = rememberCoroutineScope()
-    val activity = (LocalContext.current as? Activity)
+    val activity = LocalContext.current.getActivity()
     Row(modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
