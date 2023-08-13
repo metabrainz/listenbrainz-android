@@ -30,10 +30,12 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.screens.onboarding.FeaturesActivity
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils.sendFeedback
 
 @Composable
@@ -239,4 +241,12 @@ fun AboutScreen(version: String, onBack: () -> Unit) {
             }
         }
     )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AboutScreenPreview() {
+    ListenBrainzTheme {
+        AboutScreen(version = "1.0.0") {}
+    }
 }
