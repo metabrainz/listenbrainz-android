@@ -413,7 +413,6 @@ fun OnPlaylistClickScreen(playlistID: Long) {
                     releaseName = it.title,
                     artistName = it.artist,
                     coverArtUrl = it.albumArt,
-                    imageLoadSize = 200,
                     errorAlbumArt = R.drawable.ic_erroralbumart,
                     enableDropdownIcon = true,
                     onDropdownIconClick = {

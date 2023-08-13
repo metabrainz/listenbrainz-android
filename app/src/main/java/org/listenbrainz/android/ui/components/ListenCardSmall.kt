@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,14 +26,11 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
@@ -49,10 +45,6 @@ fun ListenCardSmall(
     releaseName: String,
     artistName: String,
     coverArtUrl: String?,
-    /** Default is 75 as it consume less internet if images are being fetched from a URL.
-     *
-     *  Best is 200*/
-    imageLoadSize: Int = 75,
     shape: Shape = ListenBrainzTheme.shapes.listenCardSmall,
     @DrawableRes errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
     enableDropdownIcon: Boolean = false,
@@ -77,14 +69,13 @@ fun ListenCardSmall(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(ListenBrainzTheme.sizes.listenCardHeight)
-                    .padding(end = ListenBrainzTheme.paddings.insideCard),
+                    .height(ListenBrainzTheme.sizes.listenCardHeight),
                 contentAlignment = Alignment.CenterStart
             ) {
         
                 val (mainContentFraction, trailingContentFraction, dropDownButtonFraction) = remember(enableDropdownIcon, enableTrailingContent) {
                     when {
-                        enableDropdownIcon && enableTrailingContent -> Triple(0.65f, 0.75f, 0.25f)    // 0.25f for dropdown and 0.75f for trailing content
+                        enableDropdownIcon && enableTrailingContent -> Triple(0.60f, 0.80f, 0.20f)    // 0.20f for dropdown and 0.80f for trailing content
                         enableDropdownIcon && !enableTrailingContent -> Triple(0.90f, 0f, 1f) // 0.10f for dropdown
                         !enableDropdownIcon && enableTrailingContent -> Triple(0.70f, 1f, 0f)   // 0.30f for trailing content
                         else -> Triple(1f, 0f, 0f)
@@ -96,15 +87,14 @@ fun ListenCardSmall(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
             
-                    AlbumArt(coverArtUrl, errorAlbumArt, imageLoadSize)
+                    AlbumArt(coverArtUrl, errorAlbumArt)
             
                     Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.coverArtAndTextGap))
             
                     TitleAndSubtitle(title = releaseName, subtitle = artistName)
             
                 }
-        
-        
+                
                 Box(
                     modifier = modifier
                         .fillMaxWidth(1f - mainContentFraction)
@@ -163,23 +153,10 @@ private fun DropdownButton(modifier: Modifier = Modifier, onDropdownIconClick: (
 }
 
 @Composable
-@OptIn(ExperimentalGlideComposeApi::class)
 private fun AlbumArt(
     coverArtUrl: String?,
-    errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
-    imageLoadSize: Int = 75
+    errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text
 ) {
-    // FIXME: GlideImage doesn't support previews.
-    /*GlideImage(
-        model = coverArtUrl,
-        modifier = Modifier.size(ListenBrainzTheme.sizes.listenCardHeight),
-        contentScale = ContentScale.Fit,
-        contentDescription = "Album Cover Art"
-    ) {
-        it.placeholder(errorAlbumArt)
-            .override(imageLoadSize)
-    }*/
-    
     // Use this for previews
     AsyncImage(
         model = ImageRequest.Builder(LocalContext.current)
@@ -196,29 +173,27 @@ private fun AlbumArt(
 
 /** [title] corresponds to release name and [subtitle] corresponds to artist name.*/
 @Composable
-fun TitleAndSubtitle(modifier: Modifier = Modifier, title: String, subtitle: String = "") {
-    Column(modifier) {
+fun TitleAndSubtitle(
+    modifier: Modifier = Modifier,
+    title: String,
+    subtitle: String = "",
+    alignment: Alignment.Horizontal = Alignment.Start,
+    titleColor: Color = if (onScreenUiModeIsDark()) Color.White else lb_purple,
+    subtitleColor: Color = (if (onScreenUiModeIsDark()) Color.White else lb_purple).copy(alpha = 0.7f)
+) {
+    Column(modifier = modifier, horizontalAlignment = alignment) {
         Text(
             text = title,
-            style = MaterialTheme.typography.bodyMedium
-                .copy(
-                    fontWeight = FontWeight.Bold,
-                    color = if (onScreenUiModeIsDark()) Color.White else lb_purple,
-                    lineHeight = 14.sp
-                ),
+            style = ListenBrainzTheme.textStyles.listenTitle,
+            color = titleColor,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
         if (subtitle.isNotEmpty()){
             Text(
                 text = subtitle,
-                style = MaterialTheme.typography.bodySmall
-                    .copy(
-                        fontWeight = FontWeight.Bold,
-                        color = (if (onScreenUiModeIsDark()) Color.White else lb_purple).copy(
-                            alpha = 0.7f
-                        )
-                    ),
+                style = ListenBrainzTheme.textStyles.listenSubtitle,
+                color = subtitleColor,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

@@ -38,9 +38,6 @@ data class Theme(
     val onBackground: Color,
     val level1: Color,
     val level2: Color,
-    //val level3: Color,
-    val tabsUnfocused: Color,
-    val tabsFocused: Color,
     val lbSignature: Color,
     val lbSignatureSecondary: Color,
     val lbSignatureInverse: Color,
@@ -56,15 +53,12 @@ private val colorSchemeDark = Theme(
     onBackground = Color.White,
     level1 = app_bottom_nav_dark,
     level2 = Color(0xFF4E4E4E),
-    //level3 = ,
-    tabsUnfocused = Color(0xFF1E1E1E),
-    tabsFocused = Color(0xFF000000),
-    lbSignature = lb_orange,
+    lbSignature = Color(0xFF9AABD1),
     lbSignatureSecondary = lb_yellow,
-    lbSignatureInverse = lb_purple,
+    lbSignatureInverse = lb_orange,
     onLbSignature = Color.Black,
-    chipUnselected = Color.Black,
-    chipSelected = Color(0xFF1E1E1E),
+    chipUnselected = Color(0xFF1E1E1E),
+    chipSelected = Color.Black,
     text = Color.White,
     hint = Color(0xFF8C8C8C)
 )
@@ -74,12 +68,9 @@ private val colorSchemeLight = Theme(
     onBackground = Color.Black,
     level1 = app_bottom_nav_day,
     level2 = Color(0xFF1E1E1E),
-    //level3 = ,
-    tabsUnfocused = Color(0xFFFEFEFE),
-    tabsFocused = Color(0xFFD8D8D8),
     lbSignature = lb_purple,
     lbSignatureSecondary = lb_yellow,
-    lbSignatureInverse = lb_orange,
+    lbSignatureInverse = Color(0xFFE5743E),
     onLbSignature = Color.White,
     chipUnselected = Color.White,
     chipSelected = Color(0xFFB6B6B6),
@@ -216,7 +207,9 @@ private val LocalShapes = staticCompositionLocalOf { Shapes() }
 @Immutable
 data class TextStyles(
     val feedBlurbContent: TextStyle = TextStyle(fontStyle = FontStyle.Italic, fontSize = 14.sp),
-    val chips: TextStyle = TextStyle(fontWeight = FontWeight.Medium)
+    val chips: TextStyle = TextStyle(fontWeight = FontWeight.Medium),
+    val listenTitle: TextStyle = TextStyle(fontWeight = FontWeight.Bold),
+    val listenSubtitle: TextStyle = TextStyle(fontWeight = FontWeight.Bold, fontSize = 12.sp)
 )
 
 private val LocalTextStyles = staticCompositionLocalOf { TextStyles() }

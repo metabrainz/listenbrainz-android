@@ -1,7 +1,10 @@
 package org.listenbrainz.android.model
 
+import androidx.compose.runtime.Immutable
 import com.google.gson.annotations.SerializedName
 
+
+@Immutable
 data class Metadata(
     @SerializedName("blurb_content"    ) val blurbContent: String? = null,
     @SerializedName("created"          ) val created: Int? = null,

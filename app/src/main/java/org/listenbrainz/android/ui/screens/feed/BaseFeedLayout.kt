@@ -72,13 +72,22 @@ fun BaseFeedLayout(
             ) {
                 content()
             }
+            
             Spacer(modifier = Modifier.height(4.dp))
-            Date(
-                event = event,
-                eventType = eventType,
-                parentUser = parentUser,
-                onActionClick = onDeleteOrHide
-            )
+            
+            Box(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .height(24.dp),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Date(
+                    event = event,
+                    eventType = eventType,
+                    parentUser = parentUser,
+                    onActionClick = onDeleteOrHide
+                )
+            }
         }
     }
     
@@ -103,8 +112,8 @@ fun BaseFeedLayout(
             AnimatedContent(
                 targetState = isHidden,
                 label = "tagline"
-            ) {
-                if (!it){
+            ) { isHidden ->
+                if (!isHidden){
                     eventType.Tagline(
                         event = event,
                         parentUser = parentUser
@@ -138,6 +147,7 @@ fun BaseFeedLayout(
 
 @Composable
 fun Date(
+    modifier: Modifier = Modifier,
     event: FeedEvent,
     parentUser: String,
     eventType: FeedEventType,
@@ -149,40 +159,40 @@ fun Date(
         getTimeStringForFeed(event.created.toLong())
     }
     
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(height),
-        contentAlignment = Alignment.TopEnd
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
     ) {
     
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            
-            // Date
-            Text(
-                text = timeString,
-                color = ListenBrainzTheme.colorScheme.hint,
-                fontSize = 12.sp
-            )
+        // Date
+        Text(
+            text = timeString,
+            color = ListenBrainzTheme.colorScheme.hint,
+            fontSize = 12.sp
+        )
     
-            // Delete or hide button
-            if (eventType.isDeletable || eventType.isHideable){
-                Icon(
-                    modifier = Modifier
-                        .size(height)
-                        .padding(start = 4.dp)
-                        .clickable {
-                            onActionClick()
-                        },
-                    // TODO: USE CUSTOM ICONS HERE.
-                    imageVector = if (isActionDelete(event, eventType, parentUser))
+        // Delete or hide button
+        if (eventType.isDeletable || eventType.isHideable) {
+            Icon(
+                modifier = Modifier
+                    .size(height)
+                    .padding(start = 4.dp)
+                    .clickable {
+                        onActionClick()
+                    },
+                // TODO: USE CUSTOM ICONS HERE.
+                imageVector = if (isActionDelete(event, eventType, parentUser))
                         Icons.Rounded.Delete
                     else
                         Icons.Rounded.HideSource,
-                    tint = ListenBrainzTheme.colorScheme.lbSignature,
-                    contentDescription = if (isActionDelete(event, eventType, parentUser)) "Delete this event." else "Hide this event."
-                )
-            }
+                tint = ListenBrainzTheme.colorScheme.lbSignature,
+                contentDescription = if (isActionDelete(
+                        event,
+                        eventType,
+                        parentUser
+                    )
+                ) "Delete this event." else "Hide this event."
+            )
         }
     }
     

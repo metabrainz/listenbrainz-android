@@ -44,8 +44,15 @@ object Utils {
             is IOException -> Resource.failure(error = ResponseError.NETWORK_ERROR)
             else -> Resource.failure(error = ResponseError.UNKNOWN)
         }
-        
     }
+    
+    fun similarityToPercent(similarity: Float?, pattern: String = "#"): String {
+        return if (similarity != null)
+            "${(similarity * 100).toInt()}%"
+        else
+            ""
+    }
+    
 
     /** Get human readable error.
      *
