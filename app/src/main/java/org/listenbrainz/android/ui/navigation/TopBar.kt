@@ -136,7 +136,7 @@ fun TopBar(
                 context.getActivity()?.recreate() ?: context.startActivity(intent)
             }) {
                 Icon(painterResource(id = themeIcon.value),
-                    "Theme",
+                    "Settings",
                     tint = MaterialTheme.colorScheme.onSurface)
             }
         }
