@@ -53,7 +53,11 @@ class MockAppPreferences(
     override suspend fun setLbAccessToken(value: String) {
         TODO("Not yet implemented")
     }
-    
+
+    override var submitListens: Boolean
+        get() = TODO("Not yet implemented")
+        set(value) {}
+
     override fun getLoginStatus(): Flow<Int> = flow {
         emit(STATUS_LOGGED_IN)
     }
