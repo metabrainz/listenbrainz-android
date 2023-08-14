@@ -58,6 +58,8 @@ interface AppPreferences {
     var linkedServices: List<LinkedService>
 
     val isNotificationServiceAllowed: Boolean
+
+    var submitListens: Boolean
     
     /* BrainzPlayer Preferences */
     

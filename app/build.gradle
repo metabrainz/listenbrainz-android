@@ -12,7 +12,7 @@ def localPropertiesFile = rootProject.file('local.properties')
 
 android {
     namespace 'org.listenbrainz.android'
-    compileSdk 33
+    compileSdk 34
 
     signingConfigs {
         release {
@@ -30,7 +30,7 @@ android {
     defaultConfig {
         applicationId 'org.listenbrainz.android'
         minSdk 21
-        targetSdk 33
+        targetSdk 34
         versionCode 32
         versionName "2.0.2"
         multiDexEnabled true
@@ -121,6 +121,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.7.0-alpha01'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.core:core-ktx:1.10.1'

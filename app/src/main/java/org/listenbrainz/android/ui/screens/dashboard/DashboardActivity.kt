@@ -181,7 +181,11 @@ class DashboardActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         CoroutineScope(Dispatchers.Main).launch {
-            if(appPreferences.isNotificationServiceAllowed && appPreferences.getLbAccessToken().isNotEmpty()) {
+            if(
+                appPreferences.isNotificationServiceAllowed &&
+                appPreferences.getLbAccessToken().isNotEmpty() &&
+                appPreferences.submitListens
+            ) {
                 App.startListenService()
             }
         }
