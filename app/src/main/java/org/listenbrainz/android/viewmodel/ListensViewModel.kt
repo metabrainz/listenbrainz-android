@@ -64,8 +64,8 @@ class ListensViewModel @Inject constructor(
     private val _isSpotifyLinked = MutableStateFlow(appPreferences.linkedServices.contains(LinkedService.SPOTIFY))
     val isSpotifyLinked = _isSpotifyLinked.asStateFlow()
     
-    var isLoading: Boolean  by mutableStateOf(true)
-    var isPaused=false
+    var isLoading: Boolean by mutableStateOf(true)
+    private var isPaused = false
     var playerState: PlayerState? by mutableStateOf(null)
     private val _songDuration = MutableStateFlow(0L)
     private val _songCurrentPosition = MutableStateFlow(0L)

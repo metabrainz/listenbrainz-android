@@ -178,8 +178,7 @@ data class Paddings(
     // New set
     val horizontal: Dp = 9.dp,
     val vertical: Dp = 8.dp,
-    val listenListVertical: Dp = 4.dp,
-    val lazyListAdjacent: Dp = 8.dp,
+    val lazyListAdjacent: Dp = 6.dp,
     val coverArtAndTextGap: Dp = 8.dp,
     val insideCard: Dp = 8.dp,
     val chipsHorizontal: Dp = 6.dp

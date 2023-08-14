@@ -283,7 +283,7 @@ fun OnAlbumClickScreen(albumID: Long) {
                 ListenCardSmall(
                     modifier = Modifier.padding(
                         horizontal = ListenBrainzTheme.paddings.horizontal,
-                        vertical = ListenBrainzTheme.paddings.listenListVertical
+                        vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
                     releaseName = it.title,
                     artistName = it.artist,

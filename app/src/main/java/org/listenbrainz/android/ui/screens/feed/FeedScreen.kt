@@ -108,22 +108,21 @@ private fun FeedScreen(
     val similarListensListState = rememberLazyListState()
     
     val pagerState = rememberPagerState()
-    val isRefreshing = {
+    val isRefreshing =
         when (pagerState.currentPage) {
-            0 -> myFeedPagingData.itemCount == 0 && myFeedPagingData.loadState.refresh is LoadState.Loading
-            1 -> followListensPagingData.itemCount == 0 && followListensPagingData.loadState.refresh is LoadState.Loading
-            2 -> similarListensPagingData.itemCount == 0 && similarListensPagingData.loadState.refresh is LoadState.Loading
+            0 -> myFeedPagingData.loadState.refresh is LoadState.Loading
+            1 -> followListensPagingData.loadState.refresh is LoadState.Loading
+            2 -> similarListensPagingData.loadState.refresh is LoadState.Loading
             else -> false
         }
-    }
+    
+    
     val pullRefreshState = rememberPullRefreshState(
-        refreshing = isRefreshing(),
+        refreshing = isRefreshing,
         onRefresh = {
-            when (pagerState.currentPage){
-                0 -> myFeedPagingData.refresh()
-                1 -> followListensPagingData.refresh()
-                2 -> similarListensPagingData.refresh()
-            }
+            myFeedPagingData.refresh()
+            followListensPagingData.refresh()
+            similarListensPagingData.refresh()
         }
     )
     
@@ -176,7 +175,9 @@ private fun FeedScreen(
     
         PullRefreshIndicator(
             modifier = Modifier.align(Alignment.TopCenter),
-            refreshing = isRefreshing(),
+            refreshing = isRefreshing,
+            contentColor = ListenBrainzTheme.colorScheme.lbSignatureInverse,
+            backgroundColor = ListenBrainzTheme.colorScheme.level1,
             state = pullRefreshState
         )
     }

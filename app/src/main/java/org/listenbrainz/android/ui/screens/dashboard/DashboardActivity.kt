@@ -172,7 +172,10 @@ class DashboardActivity : ComponentActivity() {
                     }
                 }
                 
-                SearchScreen(searchBarState = searchBarState)
+                SearchScreen(
+                    isActive = searchBarState.isActive,
+                    deactivate = {searchBarState.deactivate()}
+                )
                 
             }
         }

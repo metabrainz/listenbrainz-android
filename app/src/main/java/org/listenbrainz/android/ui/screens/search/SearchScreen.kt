@@ -63,11 +63,12 @@ import org.listenbrainz.android.viewmodel.SearchViewModel
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SearchScreen(
-    searchBarState: SearchBarState,
-    viewModel: SearchViewModel = hiltViewModel()
+    isActive: Boolean,
+    viewModel: SearchViewModel = hiltViewModel(),
+    deactivate: () -> Unit
 ) {
     AnimatedVisibility(
-        visible = searchBarState.isActive,
+        visible = isActive,
         enter = fadeIn(),
         exit = fadeOut()
     ) {
@@ -77,7 +78,7 @@ fun SearchScreen(
         SearchScreen(
             uiState = uiState,
             onDismiss = {
-                searchBarState.deactivate()
+                deactivate()
                 viewModel.clearUi()
             },
             onQueryChange = { query -> viewModel.updateQueryFlow(query) },
@@ -162,7 +163,7 @@ private fun SearchScreen(
             inputFieldColors = SearchBarDefaults.inputFieldColors(
                 focusedPlaceholderColor = Color.Unspecified,
                 focusedTextColor = ListenBrainzTheme.colorScheme.text,
-                cursorColor = ListenBrainzTheme.colorScheme.lbSignature,
+                cursorColor = ListenBrainzTheme.colorScheme.lbSignatureInverse,
             )
         ),
     ) {

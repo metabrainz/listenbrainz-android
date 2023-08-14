@@ -143,7 +143,7 @@ fun ListensScreen(
                 ListenCardSmall(
                     modifier = Modifier.padding(
                         horizontal = ListenBrainzTheme.paddings.horizontal,
-                        vertical = ListenBrainzTheme.paddings.listenListVertical
+                        vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
                     releaseName = listen.trackMetadata.trackName,
                     artistName = listen.trackMetadata.artistName,
@@ -172,7 +172,7 @@ fun ListensScreen(
         }
         
         // FAB
-        // FIXME: MOVE ACCESS TO SHARED PREFERENCES TO COROUTINES.
+        // FIXME: MOVE ACCESS OF SHARED PREFERENCES TO COROUTINES.
         if(viewModel.appPreferences.isNotificationServiceAllowed) {
             AnimatedVisibility(
                 modifier = Modifier
