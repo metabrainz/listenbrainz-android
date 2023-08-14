@@ -21,6 +21,7 @@ object Constants {
     object Strings {
         const val TIMESTAMP = "timestamp"
         const val PREFERENCE_LISTENING_BLACKLIST = "listening_blacklist"
+        const val PREFERENCE_SUBMIT_LISTENS = "submit_listens"
         const val PREFERENCE_LISTENING_APPS = "listening_apps"
         const val PREFERENCE_SYSTEM_THEME = "app_theme"
         const val PREFERENCE_PERMS = "perms_code"

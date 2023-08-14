@@ -7,7 +7,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,10 +17,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,14 +31,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.text.HtmlCompat
-import org.listenbrainz.android.R
 import org.listenbrainz.android.model.BlogPost
 import org.listenbrainz.android.ui.components.LoadingAnimation
+import org.listenbrainz.android.ui.theme.offWhite
+import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.viewmodel.NewsListViewModel
 
 @Composable
@@ -71,17 +69,6 @@ fun NewsBrainzScreen(
         },
         content = {
             LazyColumn(modifier = Modifier.padding(it)) {
-                item {
-                    Image(
-                        painter = painterResource(id = R.drawable.all_projects),
-                        contentDescription = "All Projects",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(160.dp),
-                        contentScale = ContentScale.Fit
-                    )
-                }
-
                 items(posts) { post ->
                     BlogCard(
                         post = post,
@@ -117,6 +104,7 @@ fun BlogCard(
             .padding(8.dp)
             .combinedClickable(onClick = onClick, onLongClick = onLongClick),
         shape = RoundedCornerShape(20.dp),
+        backgroundColor = if (onScreenUiModeIsDark()) Color.Black else offWhite,
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
@@ -131,7 +119,8 @@ fun BlogCard(
             }
             Text(
                 text = parsedTitle,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(Modifier.height(16.dp))
@@ -146,7 +135,8 @@ fun BlogCard(
             }
             Text(
                 text = parsedContent,
-                maxLines = 5
+                maxLines = 5,
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }

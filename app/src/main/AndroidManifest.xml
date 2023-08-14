@@ -45,12 +45,11 @@
         <activity
             android:name=".ui.screens.yim.YearInMusicActivity"
             android:label="@string/title_activity_year_in_music"
-            android:theme="@style/Theme.Material3.DayNight.NoActionBar"/>
-
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".ui.screens.newsbrainz.NewsBrainzActivity"
             android:label="@string/title_activity_news_brainz"
-            android:theme="@style/Theme.Material3.DayNight.NoActionBar"/>
+            android:theme="@style/AppTheme" />
 
         <service
             android:name=".service.ListenScrobbleService"
@@ -76,9 +75,9 @@
             </intent-filter>
         </receiver>
         -->
-        <activity android:name=".ui.screens.onboarding.FeaturesActivity"
-            android:theme="@style/Theme.Material3.DayNight.NoActionBar"/>
-
+        <activity
+            android:name=".ui.screens.onboarding.FeaturesActivity"
+            android:theme="@style/Theme.Material3.DayNight.NoActionBar" />
         <activity
             android:name=".ui.screens.dashboard.DashboardActivity"
             android:exported="true">
@@ -92,16 +91,18 @@
         <activity
             android:name=".ui.screens.about.AboutActivity"
             android:label="@string/about_title"
-            android:theme="@style/Theme.Material3.DayNight.NoActionBar"/>
+            android:theme="@style/AppTheme"/>
         <activity
             android:name=".ui.screens.dashboard.DonateActivity"
             android:label="@string/donate_title"
-            android:theme="@style/Theme.Material3.DayNight.NoActionBar"/>
+            android:theme="@style/AppTheme"/>
 
-        <activity android:name="org.listenbrainz.android.ui.screens.profile.LoginActivity"
-            android:theme="@style/Theme.Material3.DayNight.NoActionBar"/>
+        <activity 
+            android:name="org.listenbrainz.android.ui.screens.profile.LoginActivity"
+            android:theme="@style/AppTheme"/>
 
         <!-- Sentry Setup -->
+      
         <meta-data
             android:name="io.sentry.dsn"
             android:value="@string/sentryDsn" />

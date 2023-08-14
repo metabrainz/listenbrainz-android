@@ -61,7 +61,11 @@ class ListenSessionListener(val appPreferences: AppPreferences, val workManager:
     
             listenSubmissionState.initSubmissionFlow(metadata){
                 // Submit a listen.
-                workManager.enqueue(listenSubmissionState.buildWorkRequest(it, player))
+                when {
+                    appPreferences.submitListens -> {
+                        workManager.enqueue(listenSubmissionState.buildWorkRequest(it, player))
+                    }
+                }
             }
             
         }

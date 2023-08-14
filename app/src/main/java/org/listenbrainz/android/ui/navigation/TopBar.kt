@@ -3,21 +3,13 @@ package org.listenbrainz.android.ui.navigation
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
-import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -26,18 +18,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.preference.PreferenceManager
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AppNavigationItem
-import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
 import org.listenbrainz.android.ui.screens.dashboard.DonateActivity
 import org.listenbrainz.android.ui.screens.search.SearchBarState
 import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.ui.theme.isUiModeIsDark
-import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
-import org.listenbrainz.android.util.Constants
-import org.listenbrainz.android.util.Utils.getActivity
 
 @Composable
 fun TopBar(
@@ -53,23 +39,11 @@ fun TopBar(
             AppNavigationItem.BrainzPlayer.route -> AppNavigationItem.BrainzPlayer.title
             AppNavigationItem.Explore.route -> AppNavigationItem.Explore.title
             AppNavigationItem.Profile.route -> AppNavigationItem.Profile.title
-            else -> "ListenBrainz"
+            AppNavigationItem.Settings.route -> AppNavigationItem.Settings.title
+            AppNavigationItem.About.route -> AppNavigationItem.About.title
+            else -> ""
         }
     } ?: "ListenBrainz"
-
-    val darkTheme = onScreenUiModeIsDark()
-    val themeIcon = remember(darkTheme) {
-        mutableStateOf(
-            when (darkTheme) {
-                true -> {
-                    R.drawable.moon_regular
-                }
-                else -> {
-                    R.drawable.moon_solid
-                }
-            }
-        )
-    }
     
     TopAppBar(
         title = { Text(text = title) },
@@ -78,7 +52,7 @@ fun TopBar(
                 context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://listenbrainz.org")))
             }) {
                 Icon(painterResource(id = R.drawable.ic_listenbrainz_logo_icon),
-                    "MusicBrainz",
+                    "ListenBrainz",
                     tint = Color.Unspecified)
             }
         },
@@ -86,58 +60,26 @@ fun TopBar(
         contentColor = MaterialTheme.colorScheme.onSurface,
         elevation = 0.dp,
         actions = {
-            // TODO: Move about-section to settings.
-            /*IconButton(onClick = {
-                activity.startActivity(Intent(activity, org.listenbrainz.android.ui.screens.about.AboutActivity::class.java))
+            IconButton(onClick = {
+                navController.navigate(AppNavigationItem.About.route)
             }) {
-                Icon(painterResource(id = R.drawable.ic_information),
-                    "About",
-                    tint = Color.Unspecified)
-            }*/
+                Icon(painterResource(id = R.drawable.ic_info),"About")
+            }
+
             IconButton(onClick = { searchBarState.activate() }) {
-                Icon(imageVector = Icons.Rounded.Search, contentDescription = "Search users")
+                Icon(painterResource(id = R.drawable.ic_search), contentDescription = "Search users")
             }
             
             IconButton(onClick = {
                 context.startActivity(Intent(context, DonateActivity::class.java))
             }) {
-                Icon(painterResource(id = R.drawable.ic_donate), "Donate", tint = Color.Unspecified)
+                Icon(painterResource(id = R.drawable.ic_donate),"Donate")
             }
+
             IconButton(onClick = {
-                val intent = Intent(context, DashboardActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                val preferences = PreferenceManager.getDefaultSharedPreferences(context).edit()
-                when (themeIcon.value) {
-                    R.drawable.moon_solid -> {
-                        setDefaultNightMode(MODE_NIGHT_YES)
-                        isUiModeIsDark.value = true
-                        preferences.putString(
-                            Constants.Strings.PREFERENCE_SYSTEM_THEME,
-                            context.getString(R.string.settings_device_theme_dark)
-                        ).apply()
-                    }
-                    R.drawable.moon_regular -> {
-                        setDefaultNightMode(MODE_NIGHT_NO)
-                        isUiModeIsDark.value = false
-                        preferences.putString(
-                            Constants.Strings.PREFERENCE_SYSTEM_THEME,
-                            context.getString(R.string.settings_device_theme_light)
-                        ).apply()
-                    }
-                    else -> {
-                        setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
-                        isUiModeIsDark.value = null
-                        preferences.putString(
-                            Constants.Strings.PREFERENCE_SYSTEM_THEME,
-                            context.getString(R.string.settings_device_theme_use_device_theme)
-                        ).apply()
-                    }
-                }
-                context.getActivity()?.recreate() ?: context.startActivity(intent)
+                navController.navigate(AppNavigationItem.Settings.route)
             }) {
-                Icon(painterResource(id = themeIcon.value),
-                    "Theme",
-                    tint = MaterialTheme.colorScheme.onSurface)
+                Icon(painterResource(id = R.drawable.ic_settings),"Settings")
             }
         }
     )

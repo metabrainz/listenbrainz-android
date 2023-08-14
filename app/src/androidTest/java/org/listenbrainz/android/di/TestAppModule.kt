@@ -1,6 +1,7 @@
 package org.listenbrainz.android.di
 
 import android.content.Context
+
 import android.util.Log
 import androidx.work.Configuration
 import androidx.work.WorkManager
@@ -49,5 +50,5 @@ class TestAppModule {
     @Singleton
     @Provides
     fun providesAppPreferences() : AppPreferences = MockAppPreferences()
-
+    
 }

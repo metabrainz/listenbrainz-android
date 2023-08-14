@@ -55,51 +55,19 @@ fun ExploreScreen() {
                 .fillMaxWidth()
                 .background(androidx.compose.material3.MaterialTheme.colorScheme.background)
         ) {
-            Image(
-                modifier = Modifier
-                    .size(230.dp, 230.dp)
-                    .padding(20.dp),
-                painter = painterResource(id = R.drawable.ic_listenbrainz_logo_no_text),
-                contentDescription = "ListenBrainz",
-                contentScale = ContentScale.Fit
-            )
-        
-            Text(
-                buildAnnotatedString {
-                    withStyle(
-                        style = SpanStyle(
-                            fontWeight = FontWeight.Bold,
-                            color = lb_purple
-                            )
-                    ) {
-                        append("Listen")
-                    }
-                
-                    withStyle(
-                        style = SpanStyle(
-                            fontWeight = FontWeight.Bold,
-                            color = lb_orange
-                            )
-                    ) {
-                        append("Brainz")
-                    }
-                },
-                fontSize = 45.sp,
-            )
-            Spacer(modifier = Modifier.height(16.dp))
             
             // Yim Card
             ExploreScreenCard(
                 nextActivity = YearInMusicActivity::class.java,
-                iconId = R.drawable.yim_radio,
-                title = "Year in Music",
-                subTitle = "Your Whole Year Summarized"
+                iconId = R.drawable.yim2022,
+                title = "Your Year in Music 2022",
+                subTitle = "Review"
             )
             
             // NewsBrainz Card
             ExploreScreenCard(
                 nextActivity = NewsBrainzActivity::class.java,
-                iconId = R.drawable.ic_news,
+                iconId = R.drawable.all_projects,
                 title = "News",
                 subTitle = stringResource(id = R.string.news_card)
             )
@@ -129,39 +97,40 @@ private fun ExploreScreenCard(
             },
         backgroundColor = if (onScreenUiModeIsDark()) Color.Black else offWhite,
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp)
         ) {
             Image(
-                modifier = Modifier
-                    .size(80.dp)
-                    .padding(4.dp),
                 painter = painterResource(id = iconId),
-                alignment = Alignment.CenterStart,
+                alignment = Alignment.Center,
                 contentDescription = "",
-                contentScale = ContentScale.Fit
+                contentScale = ContentScale.FillWidth,
+                modifier = Modifier
+                    .fillMaxWidth()
             )
             
-            Spacer(modifier = Modifier.width(16.dp))
-            
-            Column(modifier = Modifier.align(Alignment.CenterVertically)) {
-                Text(
-                    text = title,
-                    modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
-                    color = if (onScreenUiModeIsDark()) Color.White else lb_purple,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.subtitle1
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = subTitle,
-                    modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
-                    color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(alpha = 0.7f),
-                    style = MaterialTheme.typography.caption
-                )
-            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = title,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                color = if (onScreenUiModeIsDark()) Color.White else lb_purple,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.subtitle1
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = subTitle,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(alpha = 0.7f),
+                style = MaterialTheme.typography.caption
+            )
         }
     }
 }
