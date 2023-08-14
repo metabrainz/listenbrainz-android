@@ -1,9 +1,15 @@
 package org.listenbrainz.android.model
 
+import androidx.compose.runtime.Immutable
+import com.google.gson.annotations.SerializedName
+
+@Immutable
 data class MbidMapping(
-    val artist_mbids: List<String>,
-    val caa_id: Long? = null,
-    val caa_release_mbid: String? = null,
-    val recording_mbid: String,
-    val release_mbid: String? = null
+    @SerializedName("artist_mbids"     ) val artistMbids: List<String>,
+    @SerializedName("artists"          ) val artists: List<FeedListenArtist>? = null,
+    @SerializedName("caa_id"           ) val caaId: Long? = null,
+    @SerializedName("caa_release_mbid" ) val caaReleaseMbid: String? = null,
+    @SerializedName("recording_mbid"   ) val recordingMbid: String? = null,
+    @SerializedName("recording_name"   ) val recordingName: String,
+    @SerializedName("release_mbid"     ) val releaseMbid: String? = null
 )

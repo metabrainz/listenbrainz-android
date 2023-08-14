@@ -11,7 +11,7 @@ data class TopRecording (
     @SerializedName("track_name"       ) var trackName      : String           = "",
     @SerializedName("recording_mbid"   ) var recordingMbid  : String?          = null,
     @SerializedName("release_mbid"     ) var releaseMbid    : String?          = null,
-    @SerializedName("caa_release_mbid" ) var caaReleaseMbid : String?          = null,
+    @SerializedName("caa_release_mbid"   ) var caaReleaseMbid : String?          = null,
     @SerializedName("caa_id"           ) var caaId          : Long?            = null,
 
 )

@@ -2,9 +2,9 @@ name: ListenBrainz CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dev, beta ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, dev, beta ]
 
 jobs:
   build:
@@ -24,5 +24,13 @@ jobs:
 
       - name: Run unit tests
         run: ./gradlew test
+
       - name: Build with Gradle
         run: ./gradlew build
+
+      - name: Run lint
+      - run: ./gradlew lint
+      - uses: yutailang0119/action-android-lint@v3
+        with:
+          report-path: build/reports/*.xml # Support glob patterns by https://www.npmjs.com/package/@actions/glob
+        continue-on-error: false # If annotations contain error of severity, action-android-lint exit 1.

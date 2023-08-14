@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -37,7 +36,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Album
@@ -45,6 +43,7 @@ import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.ui.components.BPLibraryEmptyMessage
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.forwardingPainter
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.viewmodel.AlbumViewModel
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
@@ -52,7 +51,7 @@ import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun AlbumScreen(navHostController: NavHostController) {
+fun AlbumScreen(navigateToAlbum: (id: Long) -> Unit) {
     val albumViewModel = hiltViewModel<AlbumViewModel>()
     val albums = albumViewModel.albums.collectAsState(listOf())
     val refreshing by albumViewModel.isRefreshing.collectAsState()
@@ -69,7 +68,7 @@ fun AlbumScreen(navHostController: NavHostController) {
         if (albums.value.isEmpty()){
             BPLibraryEmptyMessage(modifier = Modifier.align(Alignment.Center))
         } else {
-            AlbumsList(albums, navHostController)
+            AlbumsList(albums, navigateToAlbum)
         }
         PullRefreshIndicator(
             modifier = Modifier.align(Alignment.TopCenter),
@@ -83,7 +82,7 @@ fun AlbumScreen(navHostController: NavHostController) {
 @Composable
 private fun AlbumsList(
     albums: State<List<Album>>,
-    navHostController: NavHostController
+    navigateToAlbum: (id: Long) -> Unit
 ) {
     val brainzPlayerViewModel = hiltViewModel<BrainzPlayerViewModel>()
     var albumCardMoreOptionsDropMenuExpanded by rememberSaveable { mutableStateOf(-1) }
@@ -103,7 +102,7 @@ private fun AlbumsList(
                 .width(200.dp)
                 .clip(RoundedCornerShape(10.dp))
                 .clickable {
-                    navHostController.navigate("onAlbumClick/${it.albumId}")
+                    navigateToAlbum(it.albumId)
                 }
             ) {
                 DropdownMenu(
@@ -261,14 +260,14 @@ fun OnAlbumClickScreen(albumID: Long) {
             ) {
                 Text(
                     text = selectedAlbum.title,
-                    color = colorResource(id = R.color.white),
+                    color = colorResource(id = R.color.text),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )
                 Text(
                     text = selectedAlbum.artist,
-                    color = colorResource(id = R.color.white),
+                    color = colorResource(id = R.color.text),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center
@@ -276,101 +275,95 @@ fun OnAlbumClickScreen(albumID: Long) {
             }
         }
         items(items = albumSongs.sortedBy { it.trackNumber }) {
-            BoxWithConstraints {
-                val maxWidth =
-                    (maxWidth - 60.dp).coerceAtMost(600.dp)
-                Row(
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
-                )
-                {
-                    val modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp).width(maxWidth)
-                    ListenCardSmall(
-                        modifier = modifier,
-                        releaseName = it.title,
-                        artistName = it.artist,
-                        coverArtUrl = it.albumArt,
-                        imageLoadSize = 200,
-                        useSystemTheme = true,
-                        errorAlbumArt = R.drawable.ic_erroralbumart
-                    ) {
-                        brainzPlayerViewModel.changePlayable(
-                            albumSongs.sortedBy { it.trackNumber },
-                            PlayableType.ALBUM,
-                            it.albumID,
-                            albumSongs
-                                .sortedBy { it.trackNumber }
-                                .indexOf(it),
-                            0L
-                        )
-                        brainzPlayerViewModel.playOrToggleSong(it, true)
+            
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ListenCardSmall(
+                    modifier = Modifier.padding(
+                        horizontal = ListenBrainzTheme.paddings.horizontal,
+                        vertical = ListenBrainzTheme.paddings.listenListVertical
+                    ),
+                    releaseName = it.title,
+                    artistName = it.artist,
+                    coverArtUrl = it.albumArt,
+                    errorAlbumArt = R.drawable.ic_erroralbumart,
+                    enableDropdownIcon = true,
+                    onDropdownIconClick = {
+                        albumCardMoreOptionsDropMenuExpanded = albumSongs.indexOf(it)
                     }
-                    androidx.compose.material3.Surface(
-                        shape = RoundedCornerShape(5.dp),
-                        shadowElevation = 5.dp
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Menu,
-                            contentDescription = "",
-                            modifier = Modifier
-                                .padding(10.dp)
-                                .clickable {
-                                    albumCardMoreOptionsDropMenuExpanded = albumSongs.indexOf(it)
+                ) {
+                    brainzPlayerViewModel.changePlayable(
+                        albumSongs.sortedBy { it.trackNumber },
+                        PlayableType.ALBUM,
+                        it.albumID,
+                        albumSongs
+                            .sortedBy { it.trackNumber }
+                            .indexOf(it),
+                        0L
+                    )
+                    brainzPlayerViewModel.playOrToggleSong(it, true)
+                }
+                androidx.compose.material3.Surface(
+                    shape = RoundedCornerShape(5.dp),
+                    shadowElevation = 5.dp
+                ) {
+                    DropdownMenu(
+                        expanded = albumCardMoreOptionsDropMenuExpanded == albumSongs.indexOf(it),
+                        onDismissRequest = {
+                            albumCardMoreOptionsDropMenuExpanded = -1
+                        }) {
+                        DropdownMenuItem(
+                            text = { Text(text = "Play Next") },
+                            onClick = {
+                                if (currentSongIndex != null) {
+                                    albumViewModel.appPreferences.currentPlayable?.songs?.toMutableList()
+                                        ?.add(currentSongIndex, it)
                                 }
-                        )
-                        DropdownMenu(
-                            expanded = albumCardMoreOptionsDropMenuExpanded == albumSongs.indexOf(it),
-                            onDismissRequest = {
-                                albumCardMoreOptionsDropMenuExpanded = -1
-                            }) {
-                            DropdownMenuItem(
-                                text = { Text(text = "Play Next") },
-                                onClick = {
-                                    if (currentSongIndex != null) {
-                                        albumViewModel.appPreferences.currentPlayable?.songs?.toMutableList()?.add(currentSongIndex, it)
-                                    }
-                                    albumViewModel.appPreferences.currentPlayable?.songs?.let { it1 ->
-                                        brainzPlayerViewModel.changePlayable(
-                                           it1,
+                                albumViewModel.appPreferences.currentPlayable?.songs?.let { it1 ->
+                                    brainzPlayerViewModel.changePlayable(
+                                        it1,
                                         PlayableType.ALL_SONGS,
                                         albumViewModel.appPreferences.currentPlayable?.id ?: 0,
                                         albumViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
                                             ?: 0, brainzPlayerViewModel.songCurrentPosition.value
-                                        )
-                                    }
-                                    brainzPlayerViewModel.queueChanged(
-                                        currentlyPlayingSong,
-                                        brainzPlayerViewModel.isPlaying.value
                                     )
-                                    albumCardMoreOptionsDropMenuExpanded = -1
-                                })
-                            DropdownMenuItem(
-                                text = { Text(text = "Add to queue") },
-                                onClick = {
-                                    albumViewModel.appPreferences.currentPlayable?.songs?.size?.let { it1 ->
-                                        albumViewModel.appPreferences.currentPlayable?.songs?.toMutableList()?.add(
+                                }
+                                brainzPlayerViewModel.queueChanged(
+                                    currentlyPlayingSong,
+                                    brainzPlayerViewModel.isPlaying.value
+                                )
+                                albumCardMoreOptionsDropMenuExpanded = -1
+                            })
+                        DropdownMenuItem(
+                            text = { Text(text = "Add to queue") },
+                            onClick = {
+                                albumViewModel.appPreferences.currentPlayable?.songs?.size?.let { it1 ->
+                                    albumViewModel.appPreferences.currentPlayable?.songs?.toMutableList()
+                                        ?.add(
                                             it1,
                                             it
                                         )
-                                    }
-                                    albumViewModel.appPreferences.currentPlayable?.songs?.toMutableList()
-                                        ?.let { it1 ->
-                                            brainzPlayerViewModel.changePlayable(
-                                                it1,
-                                                PlayableType.ALL_SONGS,
-                                                albumViewModel.appPreferences.currentPlayable?.id ?: 0,
-                                                albumViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
-                                                    ?: 0, brainzPlayerViewModel.songCurrentPosition.value
-                                            )
-                                        }
-                                    brainzPlayerViewModel.queueChanged(
-                                        currentlyPlayingSong,
-                                        brainzPlayerViewModel.isPlaying.value
-                                    )
-                                    albumCardMoreOptionsDropMenuExpanded = -1
                                 }
-                            )
-                        }
+                                albumViewModel.appPreferences.currentPlayable?.songs?.toMutableList()
+                                    ?.let { it1 ->
+                                        brainzPlayerViewModel.changePlayable(
+                                            it1,
+                                            PlayableType.ALL_SONGS,
+                                            albumViewModel.appPreferences.currentPlayable?.id ?: 0,
+                                            albumViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+                                                ?: 0,
+                                            brainzPlayerViewModel.songCurrentPosition.value
+                                        )
+                                    }
+                                brainzPlayerViewModel.queueChanged(
+                                    currentlyPlayingSong,
+                                    brainzPlayerViewModel.isPlaying.value
+                                )
+                                albumCardMoreOptionsDropMenuExpanded = -1
+                            }
+                        )
                     }
                 }
             }

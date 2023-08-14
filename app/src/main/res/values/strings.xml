@@ -168,7 +168,7 @@
         at https://listenbrainz.org/profile/</string>
     <string name="settings_listenbrainz_enabled">Enable Listens Service</string>
 
-    <!-- Errors -->
+    <!-- ErrorUtil -->
     <string name="err_spotify_disconnected">"Spotify is not Connected. Use one of the 'connect' buttons"</string>
     <string name="err_generic_toast">An error has occurred. Check the logs to know more.</string>
 
@@ -228,4 +228,5 @@
     <string name="tt_yim_recommended_playlists_parent">tt_yim_recommended_playlists_parent</string>
     <string name="tt_yim_charts_parent">tt_yim_charts_parent</string>
     <string name="tt_yim_statistics_parent">tt_yim_statistics_parent</string>
+    <string name="title_activity_settings">SettingsActivity</string>
 </resources>

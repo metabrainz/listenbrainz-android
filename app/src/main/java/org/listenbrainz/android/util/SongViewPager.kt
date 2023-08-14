@@ -1,8 +1,11 @@
 package org.listenbrainz.android.util
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -27,8 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.PlayPauseIcon
@@ -37,16 +38,16 @@ import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarqu
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun SongViewPager(modifier: Modifier = Modifier, backdropScaffoldState: BackdropScaffoldState, viewModel: BrainzPlayerViewModel = hiltViewModel()) {
     val songList = viewModel.mediaItem.collectAsState().value.data ?: listOf()
     val currentlyPlayingSong = viewModel.currentlyPlayingSong.collectAsState().value.toSong
     val pagerState = viewModel.pagerState.collectAsState().value
-    val pageState = rememberPagerState(initialPage = pagerState)
+    val pageState = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
     
-    HorizontalPager(count = songList.size, state = pageState, modifier = modifier
+    HorizontalPager(pageCount = songList.size, state = pageState, modifier = modifier
         .fillMaxWidth()
         .background(MaterialTheme.colorScheme.tertiaryContainer)
     ) {

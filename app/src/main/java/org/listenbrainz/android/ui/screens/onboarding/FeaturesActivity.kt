@@ -62,8 +62,8 @@ class FeaturesActivity : OnboardAdvanced() {
                 "Track your music listening habits ",
                 resourceId = R.raw.teen,
                 backgroundColor =  ContextCompat.getColor(applicationContext, R.color.app_bg),
-                titleColor = ContextCompat.getColor(applicationContext, R.color.white),
-                descriptionColor = ContextCompat.getColor(applicationContext, R.color.white),
+                titleColor = ContextCompat.getColor(applicationContext, R.color.text),
+                descriptionColor = ContextCompat.getColor(applicationContext, R.color.text),
                 isLottie = true
             )
         )
@@ -74,8 +74,8 @@ class FeaturesActivity : OnboardAdvanced() {
                 "Read and write about an album or event",
                 resourceId = R.raw.review,
                 backgroundColor =  ContextCompat.getColor(applicationContext, R.color.app_bg),
-                titleColor = ContextCompat.getColor(applicationContext, R.color.white),
-                descriptionColor = ContextCompat.getColor(applicationContext, R.color.white),
+                titleColor = ContextCompat.getColor(applicationContext, R.color.text),
+                descriptionColor = ContextCompat.getColor(applicationContext, R.color.text),
                 isLottie = true
             )
         )
@@ -86,8 +86,8 @@ class FeaturesActivity : OnboardAdvanced() {
                 "Listen to locally saved music",
                 resourceId = R.raw.music_player,
                 backgroundColor =  ContextCompat.getColor(applicationContext, R.color.app_bg),
-                titleColor = ContextCompat.getColor(applicationContext, R.color.white),
-                descriptionColor = ContextCompat.getColor(applicationContext, R.color.white),
+                titleColor = ContextCompat.getColor(applicationContext, R.color.text),
+                descriptionColor = ContextCompat.getColor(applicationContext, R.color.text),
                 isLottie = true
             )
         )

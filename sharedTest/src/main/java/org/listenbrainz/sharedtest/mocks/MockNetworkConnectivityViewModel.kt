@@ -5,12 +5,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
+import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModelImpl
 
+/** Mock for [NetworkConnectivityViewModelImpl].*/
 class MockNetworkConnectivityViewModel (private val mockedNetworkStatus: ConnectivityObserver.NetworkStatus) : ViewModel(), NetworkConnectivityViewModel {
-    
-    override fun getNetworkStatus() : ConnectivityObserver.NetworkStatus {
-        return mockedNetworkStatus
-    }
     
     override fun getNetworkStatusFlow(): Flow<ConnectivityObserver.NetworkStatus> {
         return flow {

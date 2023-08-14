@@ -3,20 +3,18 @@ package org.listenbrainz.android.repository.listens
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import androidx.annotation.WorkerThread
-import okhttp3.ResponseBody
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.CoverArt
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.ListenSubmitBody
+import org.listenbrainz.android.model.PostResponse
 import org.listenbrainz.android.model.TokenValidation
 import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.util.LinkedService
-import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Resource.Status.FAILED
 import org.listenbrainz.android.util.Resource.Status.SUCCESS
-import retrofit2.Call
-import retrofit2.Response
+import org.listenbrainz.android.util.Utils.error
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -48,7 +46,7 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
     @WorkerThread
     override suspend fun validateUserToken(token: String): Resource<TokenValidation> {
         return try {
-            val tokenIsValid = service.checkIfTokenIsValid("Token $token")
+            val tokenIsValid = service.checkIfTokenIsValid()
             Resource(SUCCESS, tokenIsValid)
         }
         catch (e: Exception) {
@@ -69,7 +67,7 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
      * */
     override fun getPackageIcon(packageName: String): Drawable? {
         return try {
-            App.context!!.packageManager.getApplicationIcon(packageName)
+            App.context.packageManager.getApplicationIcon(packageName)
         }
         catch (e: Exception) {
             null
@@ -78,33 +76,31 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
 
     override fun getPackageLabel(packageName: String): String {
         return try {
-            val info = App.context!!.packageManager.getApplicationInfo(packageName, 0)
-            App.context!!.packageManager.getApplicationLabel(info).toString()
+            val info = App.context.packageManager.getApplicationInfo(packageName, 0)
+            App.context.packageManager.getApplicationLabel(info).toString()
         } catch (e: PackageManager.NameNotFoundException) {
             packageName
         }
     }
     
     
-    override fun submitListen(token: String, body: ListenSubmitBody) {
-        service.submitListen("Token $token", body)?.enqueue(object : retrofit2.Callback<ResponseBody?> {
-            override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
-                d("Listen submitted successfully.")
-                d(response.message())
-                d(response.code().toString())
-                d(response.errorBody().toString())
+    override suspend fun submitListen(token: String, body: ListenSubmitBody): Resource<PostResponse> {
+        return try {
+            val response = service.submitListen(body)
+            if (response.isSuccessful){
+                Resource(SUCCESS, response.body())
+            } else {
+                println("submitListen: ${response.error()}")
+                Resource.failure()
             }
-            override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
-                d("Something went wrong: ${t.message}")
-            }
-        })
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Resource.failure()
+        }
     }
     
     override suspend fun getLinkedServices(token: String, username: String): List<LinkedService> {
-        val services = service.getServicesLinkedToAccount(
-            authHeader = "Bearer $token",       // TODO: Refactor this after feed section phase 1 is completed.
-            user_name = username
-        )
+        val services = service.getServicesLinkedToAccount(user_name = username)
         val result = mutableListOf<LinkedService>()
         services.services.forEach {
             result.add(LinkedService.parseService(it))

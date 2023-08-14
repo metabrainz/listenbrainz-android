@@ -2,14 +2,12 @@ package org.listenbrainz.android.ui.screens.dashboard
 
 import android.net.Uri
 import android.os.Bundle
-import android.view.Window
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.ComponentActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import org.listenbrainz.android.R
 
-class DonateActivity : AppCompatActivity() {
+class DonateActivity : ComponentActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
-        supportRequestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS)
         super.onCreate(savedInstanceState)
         val customTabsIntent = CustomTabsIntent.Builder()
                 .setToolbarColor(resources.getColor(R.color.colorPrimaryDark))

@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.screens.brainzplayer
 
-import CacheService
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
@@ -50,6 +50,7 @@ import org.listenbrainz.android.ui.components.SeekBar
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
 import org.listenbrainz.android.util.BrainzPlayerExtensions.duration
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
+import org.listenbrainz.android.util.CacheService
 import org.listenbrainz.android.util.Constants.RECENTLY_PLAYED_KEY
 import org.listenbrainz.android.util.SongViewPager
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
@@ -75,12 +76,14 @@ fun BrainzPlayerBackDropScreen(
 
     /** 56.dp is default bottom navigation height. 80.dp is our mini player's height. */
     val headerHeight by animateDpAsState(targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null") 56.dp else 136.dp)
+    val isPlaying = brainzPlayerViewModel.isPlaying.collectAsState().value
 
     BackdropScaffold(
+        modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
         frontLayerShape = RectangleShape,
         backLayerBackgroundColor = MaterialTheme.colorScheme.background,
         frontLayerScrimColor = Color.Unspecified,
-        headerHeight = headerHeight, // 136.dp is optimal header height.
+        headerHeight = if (isPlaying) headerHeight else 56.dp, // 136.dp is optimal header height.
         peekHeight = 0.dp,
         scaffoldState = backdropScaffoldState,
         backLayerContent = {
@@ -140,7 +143,7 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
                             // scroll position. We use the absolute value which allows us to mirror
                             // any effects for both directions
                             val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
-
+        
                             // We animate the scaleX + scaleY, between 85% and 100%
                             lerp(
                                 start = 0.85f,
@@ -150,7 +153,7 @@ fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
                                 scaleX = scale
                                 scaleY = scale
                             }
-
+        
                             // We animate the alpha, between 50% and 100%
                             alpha = lerp(
                                 start = 0.5f,
@@ -275,8 +278,8 @@ fun PlayerScreen(
                     .padding(start = 10.dp, top = 10.dp, end = 10.dp)) {
                 val song by brainzPlayerViewModel.currentlyPlayingSong.collectAsState()
                 val songCurrentPosition by brainzPlayerViewModel.songCurrentPosition.collectAsState()
-                var duration = "00:00"
-                var currentPosition = "00:00"
+                val duration: String
+                val currentPosition: String
                 if (song.duration / (1000 * 60 * 60) > 0 &&  songCurrentPosition / (1000 * 60 * 60) > 0){
                     duration =String.format("%02d:%02d:%02d", song.duration/(1000 * 60 * 60),song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
                     currentPosition = String.format("%02d:%02d:%02d", songCurrentPosition/(1000 * 60 * 60),songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
@@ -444,8 +447,6 @@ fun PlayerScreen(
                         releaseName = song.title,
                         artistName = song.artist,
                         coverArtUrl = song.albumArt,
-                        imageLoadSize = 200,
-                        useSystemTheme = true,
                         errorAlbumArt = R.drawable.ic_erroralbumart
                     ) {
                         brainzPlayerViewModel.skipToPlayable(index)
