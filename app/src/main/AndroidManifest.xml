@@ -44,13 +44,12 @@
 
         <activity
             android:name=".ui.screens.yim.YearInMusicActivity"
-            android:label="@string/title_activity_year_in_music"/>
-
+            android:label="@string/title_activity_year_in_music"
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".ui.screens.newsbrainz.NewsBrainzActivity"
-            android:theme="@style/AppTheme"
-            android:label="@string/title_activity_news_brainz">
-        </activity>
+            android:label="@string/title_activity_news_brainz"
+            android:theme="@style/AppTheme" />
 
         <service
             android:name=".service.ListenScrobbleService"
@@ -76,9 +75,9 @@
             </intent-filter>
         </receiver>
         -->
-        <activity android:name=".ui.screens.onboarding.FeaturesActivity"
-            android:theme="@style/Theme.Material3.DayNight.NoActionBar"/>
-
+        <activity
+            android:name=".ui.screens.onboarding.FeaturesActivity"
+            android:theme="@style/Theme.Material3.DayNight.NoActionBar" />
         <activity
             android:name=".ui.screens.dashboard.DashboardActivity"
             android:exported="true">
@@ -90,16 +89,11 @@
         </activity>
 
         <activity
-            android:name=".ui.screens.about.AboutActivity"
-            android:label="@string/about_title" />
-        <activity
             android:name=".ui.screens.dashboard.DonateActivity"
             android:label="@string/donate_title" />
-
-        <activity android:name="org.listenbrainz.android.ui.screens.profile.LoginActivity"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"/>
-
-        <!-- Sentry Setup -->
+        <activity
+            android:name=".ui.screens.profile.LoginActivity"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" /> <!-- Sentry Setup -->
         <meta-data
             android:name="io.sentry.dsn"
             android:value="@string/sentryDsn" />

@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -88,6 +89,7 @@ fun UserData(
 
     Card(
         modifier = Modifier
+            .fillMaxWidth()
             .padding(8.dp)
             .clip(RoundedCornerShape(16.dp)),
         elevation = 0.dp,
@@ -107,16 +109,6 @@ fun UserData(
                     style = MaterialTheme.typography.subtitle1,
                     textAlign = TextAlign.Center,
                 )
-                
-                Button(modifier = Modifier.padding(start = 16.dp), onClick = { viewModel.logout() }) {
-                    Text(
-                        text = "Logout",
-                        color = if (onScreenUiModeIsDark()) Color.White else Color.Black,
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.subtitle1,
-                        textAlign = TextAlign.Center,
-                    )
-                }
             }
             val accessToken by viewModel.appPreferences.getLbAccessTokenFlow().collectAsState(initial = "")
             var tempAccessToken by remember {

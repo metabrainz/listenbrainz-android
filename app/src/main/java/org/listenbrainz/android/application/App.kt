@@ -27,7 +27,11 @@ class App : Application(), Configuration.Provider {
         context = this
         
         MainScope().launch {
-            if(appPreferences.isNotificationServiceAllowed && appPreferences.getLbAccessToken().isNotEmpty()) {
+            if(
+                appPreferences.isNotificationServiceAllowed &&
+                appPreferences.getLbAccessToken().isNotEmpty() &&
+                appPreferences.submitListens
+            ) {
                 startListenService()
             }
         }

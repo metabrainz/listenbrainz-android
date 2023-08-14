@@ -32,6 +32,7 @@ import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_APPS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_BLACKLIST
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_PERMS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SONGS_ON_DEVICE
+import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SUBMIT_LISTENS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SYSTEM_THEME
 import org.listenbrainz.android.util.Constants.Strings.REFRESH_TOKEN
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
@@ -113,7 +114,10 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
             val listeners = Settings.Secure.getString(context.contentResolver, "enabled_notification_listeners")
             return listeners != null && listeners.contains(context.packageName)
         }
-    
+    override var submitListens: Boolean
+        get() = preferences.getBoolean(PREFERENCE_SUBMIT_LISTENS, true)
+        set(value) { setBoolean(PREFERENCE_SUBMIT_LISTENS, value) }
+
     override var listeningApps: List<String>    // No need to use Set here
         get() {
             val jsonString = preferences.getString(PREFERENCE_LISTENING_APPS, "")
