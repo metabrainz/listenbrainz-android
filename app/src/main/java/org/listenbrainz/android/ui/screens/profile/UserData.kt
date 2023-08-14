@@ -107,16 +107,6 @@ fun UserData(
                     style = MaterialTheme.typography.subtitle1,
                     textAlign = TextAlign.Center,
                 )
-                
-                Button(modifier = Modifier.padding(start = 16.dp), onClick = { viewModel.logout() }) {
-                    Text(
-                        text = "Logout",
-                        color = if (onScreenUiModeIsDark()) Color.White else Color.Black,
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.subtitle1,
-                        textAlign = TextAlign.Center,
-                    )
-                }
             }
             val accessToken by viewModel.appPreferences.getLbAccessTokenFlow().collectAsState(initial = "")
             var tempAccessToken by remember {

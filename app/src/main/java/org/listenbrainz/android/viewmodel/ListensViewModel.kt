@@ -107,12 +107,6 @@ class ListensViewModel @Inject constructor(
         return repository.validateUserToken(token).data?.user_name
     }
     
-    fun logout() {
-        viewModelScope.launch {
-            appPreferences.logoutUser()
-        }
-    }
-    
     fun fetchLinkedServices() {
         viewModelScope.launch {
             val token = appPreferences.getLbAccessToken()

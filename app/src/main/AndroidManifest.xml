@@ -30,10 +30,6 @@
         android:theme="@style/Theme.App.Starting"
         android:usesCleartextTraffic="true"
         tools:targetApi="32">
-        <activity
-            android:name=".ui.screens.settings.SettingsActivity"
-            android:label="@string/title_activity_settings"
-            android:theme="@style/AppTheme" />
 
         <provider
             android:name="androidx.startup.InitializationProvider"
@@ -91,10 +87,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.screens.about.AboutActivity"
-            android:label="@string/about_title"
-            android:theme="@style/AppTheme" />
+
         <activity
             android:name=".ui.screens.dashboard.DonateActivity"
             android:label="@string/donate_title" />

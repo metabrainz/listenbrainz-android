@@ -3,10 +3,6 @@ package org.listenbrainz.android.ui.navigation
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
-import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
-import androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -14,8 +10,6 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -24,20 +18,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.preference.PreferenceManager
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AppNavigationItem
-import org.listenbrainz.android.ui.screens.about.AboutActivity
-import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
 import org.listenbrainz.android.ui.screens.dashboard.DonateActivity
 import org.listenbrainz.android.ui.screens.search.SearchBarState
 import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
-import org.listenbrainz.android.ui.screens.settings.SettingsActivity
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.ui.theme.isUiModeIsDark
-import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
-import org.listenbrainz.android.util.Constants
-import org.listenbrainz.android.util.Utils.getActivity
 
 @Composable
 fun TopBar(
@@ -53,7 +39,9 @@ fun TopBar(
             AppNavigationItem.BrainzPlayer.route -> AppNavigationItem.BrainzPlayer.title
             AppNavigationItem.Explore.route -> AppNavigationItem.Explore.title
             AppNavigationItem.Profile.route -> AppNavigationItem.Profile.title
-            else -> "ListenBrainz"
+            AppNavigationItem.Settings.route -> AppNavigationItem.Settings.title
+            AppNavigationItem.About.route -> AppNavigationItem.About.title
+            else -> ""
         }
     } ?: "ListenBrainz"
     
@@ -64,7 +52,7 @@ fun TopBar(
                 context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://listenbrainz.org")))
             }) {
                 Icon(painterResource(id = R.drawable.ic_listenbrainz_logo_icon),
-                    "MusicBrainz",
+                    "ListenBrainz",
                     tint = Color.Unspecified)
             }
         },
@@ -73,7 +61,7 @@ fun TopBar(
         elevation = 0.dp,
         actions = {
             IconButton(onClick = {
-                context.startActivity(Intent(context, AboutActivity::class.java))
+                navController.navigate(AppNavigationItem.About.route)
             }) {
                 Icon(painterResource(id = R.drawable.ic_info),"About")
             }
@@ -89,7 +77,7 @@ fun TopBar(
             }
 
             IconButton(onClick = {
-                context.startActivity(Intent(context, SettingsActivity::class.java))
+                navController.navigate(AppNavigationItem.Settings.route)
             }) {
                 Icon(painterResource(id = R.drawable.ic_settings),"Settings")
             }
