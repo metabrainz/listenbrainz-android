@@ -23,6 +23,8 @@ enum class ResponseError(val genericToast: String, var actualResponse: String? =
     
     BAD_GATEWAY(genericToast = "Error! Bad gateway."),
     
+    REMOTE_PLAYER_ERROR(genericToast = "Error! Could not play the requested listen."),
+    
     SERVICE_UNAVAILABLE(genericToast = "Server outage detected. Please try again later."),
     
     NETWORK_ERROR(genericToast = "Network issues detected. Make sure device is connected to internet."),

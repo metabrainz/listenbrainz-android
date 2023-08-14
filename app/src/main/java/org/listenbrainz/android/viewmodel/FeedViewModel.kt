@@ -1,5 +1,6 @@
 package org.listenbrainz.android.viewmodel
 
+import android.net.Uri
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.lifecycle.ViewModel
@@ -28,6 +29,7 @@ import org.listenbrainz.android.model.FeedEventVisibilityData
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.repository.feed.FeedRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.repository.remoteplayer.RemotePlayerRepository
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.ui.screens.feed.FeedScreenUiState
 import org.listenbrainz.android.ui.screens.feed.FeedUiEventData
@@ -36,6 +38,7 @@ import org.listenbrainz.android.ui.screens.feed.FeedUiState
 import org.listenbrainz.android.ui.screens.feed.FollowListensPagingSource
 import org.listenbrainz.android.ui.screens.feed.MyFeedPagingSource
 import org.listenbrainz.android.ui.screens.feed.SimilarListensPagingSource
+import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
 
@@ -44,6 +47,7 @@ class FeedViewModel @Inject constructor(
     private val feedRepository: FeedRepository,
     private val socialRepository: SocialRepository,
     private val appPreferences: AppPreferences,
+    private val remotePlayerRepository: RemotePlayerRepository,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ): ViewModel() {
@@ -151,9 +155,7 @@ class FeedViewModel @Inject constructor(
                 isHiddenMap[id] = value
             },
             onError =  { error ->
-                viewModelScope.launch(defaultDispatcher) {
-                    errorFlow.emit(error)
-                }
+                emitError(error)
             },
             feedRepository = feedRepository,
             ioDispatcher = ioDispatcher
@@ -163,9 +165,7 @@ class FeedViewModel @Inject constructor(
         FollowListensPagingSource(
             username = { appPreferences.username },
             onError =  { error ->
-                viewModelScope.launch(defaultDispatcher) {
-                    errorFlow.emit(error)
-                }
+                emitError(error)
             },
             feedRepository = feedRepository,
             ioDispatcher = ioDispatcher
@@ -175,13 +175,59 @@ class FeedViewModel @Inject constructor(
         SimilarListensPagingSource(
             username = { appPreferences.username },
             onError =  { error ->
-                viewModelScope.launch(defaultDispatcher) {
-                    errorFlow.emit(error)
-                }
+                emitError(error)
             },
             feedRepository = feedRepository,
             ioDispatcher = ioDispatcher
         )
+    
+    fun connectToSpotify() {
+        viewModelScope.launch {
+            remotePlayerRepository.connectToSpotify { error ->
+                emitError(error)
+            }
+        }
+    }
+    
+    fun disconnectSpotify(){
+        remotePlayerRepository.disconnectSpotify()
+    }
+    
+    fun play(event: FeedEvent) {
+        val spotifyId = event.metadata.trackMetadata?.additionalInfo?.spotifyId
+        if (spotifyId != null){
+            Uri.parse(spotifyId).lastPathSegment?.let { trackId ->
+                remotePlayerRepository.playUri(trackId){
+                    playFromYoutubeMusic(event)
+                }
+            }
+        } else {
+            playFromYoutubeMusic(event)
+        }
+    }
+    
+    private fun playFromYoutubeMusic(event: FeedEvent) {
+        viewModelScope.launch {
+            if (event.metadata.trackMetadata != null){
+                remotePlayerRepository.apply {
+                    val result = playOnYoutube {
+                        withContext(ioDispatcher) {
+                            searchYoutubeMusicVideoId(
+                                event.metadata.trackMetadata.trackName,
+                                event.metadata.trackMetadata.artistName
+                            )
+                        }
+                    }
+                    
+                    if (result.status == Resource.Status.SUCCESS){
+                        d("Play on youtube music successful")
+                    }
+                }
+            } else {
+                // Could not play song.
+            }
+        }
+    }
     
     fun hideOrDeleteEvent(event: FeedEvent, eventType: FeedEventType, parentUser: String) {
         
@@ -282,6 +328,12 @@ class FeedViewModel @Inject constructor(
     fun clearError() {
         viewModelScope.launch(defaultDispatcher) {
             errorFlow.emit(null)
+        }
+    }
+    
+    fun emitError(error: ResponseError?) {
+        viewModelScope.launch(defaultDispatcher) {
+            errorFlow.emit(error)
         }
     }
     
