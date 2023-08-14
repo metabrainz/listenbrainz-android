@@ -5,6 +5,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -81,7 +83,7 @@ fun ListensScreen(
     fun onListenTap(listen: Listen) {
         if (listen.trackMetadata.additionalInfo?.spotifyId != null) {
             Uri.parse(listen.trackMetadata.additionalInfo.spotifyId).lastPathSegment?.let { trackId ->
-                viewModel.playUri("spotify:track:${trackId}")
+                viewModel.playUri(trackId)
             }
         } else {
             // Execute the API request asynchronously
@@ -92,6 +94,7 @@ fun ListensScreen(
         }
     }
 
+    /** Content **/
 
     // Listens list
     val listens = viewModel.listensFlow.collectAsState().value
@@ -114,7 +117,11 @@ fun ListensScreen(
                 HorizontalPager(state = pagerState, pageCount = 2, modifier = Modifier.fillMaxSize()) { page ->
                     when (page) {
                         0 -> {
-                            AnimatedVisibility(visible = viewModel.listeningNow.collectAsState().value != null) {
+                            AnimatedVisibility(
+                                visible = viewModel.listeningNow.collectAsState().value != null,
+                                enter = slideInVertically(),
+                                exit = slideOutVertically()
+                            ) {
                                 ListeningNowCard(
                                     listeningNow!!,
                                     getCoverArtUrl(
@@ -128,7 +135,11 @@ fun ListensScreen(
                         }
 
                         1 -> {
-                            AnimatedVisibility(visible = viewModel.playerState?.track?.name != null) {
+                            AnimatedVisibility(
+                                visible = viewModel.playerState?.track?.name != null,
+                                enter = slideInVertically(),
+                                exit = slideOutVertically()
+                            ) {
                                 ListeningNowOnSpotify(
                                     playerState = viewModel.playerState,
                                     bitmap = viewModel.bitmap

@@ -57,9 +57,6 @@ class ListensViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
     // TODO: remove dependency of this view-model on application
     //  by moving spotify app remote to a repository.
-
-    private val _listensFlow = MutableStateFlow(listOf<Listen>())
-    val listensFlow = _listensFlow.asStateFlow()
     
     private val _isSpotifyLinked = MutableStateFlow(appPreferences.linkedServices.contains(LinkedService.SPOTIFY))
     val isSpotifyLinked = _isSpotifyLinked.asStateFlow()
@@ -80,7 +77,12 @@ class ListensViewModel @Inject constructor(
 
     private val errorCallback = { throwable: Throwable -> logError(throwable) }
     private var isResumed = false
-
+    
+    // Listens list flow
+    private val _listensFlow = MutableStateFlow(listOf<Listen>())
+    val listensFlow = _listensFlow.asStateFlow()
+    
+    // Listening now flow
     private val _listeningNowFlow: MutableStateFlow<Listen?> = MutableStateFlow(null)
     val listeningNow = _listeningNowFlow.asStateFlow()
 
@@ -91,9 +93,12 @@ class ListensViewModel @Inject constructor(
             socketRepository
                 .listen(appPreferences.username!!)
                 .collect { listen ->
-                    _listensFlow.getAndUpdate {
-                        listOf(listen) + it
-                    }
+                    if (listen.listenedAt == null)
+                        _listeningNowFlow.value = listen
+                    else
+                        _listensFlow.getAndUpdate {
+                            listOf(listen) + it
+                        }
                 }
         }
     }
@@ -247,10 +252,11 @@ class ListensViewModel @Inject constructor(
         isPaused=true
         trackProgress()
     }
+    
     fun trackProgress() {
         var state: PlayerState?
         assertAppRemoteConnected()?.playerApi?.subscribeToPlayerState()?.setEventCallback { playerState ->
-            if(bitmap.id!=playerState.track.uri) {
+            if(bitmap.id != playerState.track.uri) {
                 updateTrackCoverArt(playerState)
                 state=playerState
             }
