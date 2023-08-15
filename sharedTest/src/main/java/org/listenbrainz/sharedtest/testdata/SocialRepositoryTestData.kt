@@ -15,7 +15,7 @@ object SocialRepositoryTestData {
     object ErrorUtil {
         const val userNotFoundError = "User Some_User_That_Does_Not_Exist not found"
         const val authHeaderNotFoundError = "You need to provide an Authorization header."
-        const val alreadyFollowingError = "Jasjeet is already following user JasjeetTest."
+        const val alreadyFollowingError = "Jasjeet is already following user JasjeetTest"
         const val cannotFollowSelfError = "Whoops, cannot follow yourself."
     }
     
