@@ -1,6 +1,5 @@
 package org.listenbrainz.android.ui.screens.listens
 
-import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -24,7 +23,6 @@ import androidx.compose.material.icons.filled.Block
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,13 +32,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.spotify.android.appremote.api.SpotifyAppRemote
-import org.listenbrainz.android.R
-import org.listenbrainz.android.model.Listen
+import androidx.lifecycle.compose.LifecycleStartEffect
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.UserData
@@ -52,17 +47,17 @@ import org.listenbrainz.android.viewmodel.ListensViewModel
 @Composable
 fun ListensScreen(
     viewModel: ListensViewModel = hiltViewModel(),
-    spotifyClientId: String = stringResource(id = R.string.spotifyClientId),
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
 ) {
-    DisposableEffect(Unit) {
-        viewModel.connect(spotifyClientId = spotifyClientId)
-        onDispose {
-            SpotifyAppRemote.disconnect(viewModel.spotifyAppRemote)
+    
+    LifecycleStartEffect(Unit) {
+        viewModel.connectToSpotify()
+        onStopOrDispose {
+            viewModel.disconnectSpotify()
         }
     }
-
+    
     LaunchedEffect(Unit){
         viewModel.appPreferences.username.let {username ->
             if (username != null) {
@@ -80,27 +75,14 @@ fun ListensScreen(
         }
     }
 
-    fun onListenTap(listen: Listen) {
-        if (listen.trackMetadata.additionalInfo?.spotifyId != null) {
-            Uri.parse(listen.trackMetadata.additionalInfo.spotifyId).lastPathSegment?.let { trackId ->
-                viewModel.playUri(trackId)
-            }
-        } else {
-            // Execute the API request asynchronously
-            viewModel.playFromYoutubeMusic(
-                listen.trackMetadata.trackName,
-                listen.trackMetadata.artistName
-            )
-        }
-    }
-
     /** Content **/
 
     // Listens list
-    val listens = viewModel.listensFlow.collectAsState().value
-    val listeningNow = viewModel.listeningNow.collectAsState().value
+    val listens by viewModel.listensFlow.collectAsState()
+    val listeningNow by viewModel.listeningNow.collectAsState()
+    val playerState by viewModel.playerState.collectAsState()
 
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Box(modifier = Modifier.fillMaxSize()) {
 
         var showBlacklist by remember { mutableStateOf(false) }
 
@@ -117,31 +99,25 @@ fun ListensScreen(
                 HorizontalPager(state = pagerState, pageCount = 2, modifier = Modifier.fillMaxSize()) { page ->
                     when (page) {
                         0 -> {
-                            AnimatedVisibility(
-                                visible = viewModel.listeningNow.collectAsState().value != null,
-                                enter = slideInVertically(),
-                                exit = slideOutVertically()
+                            ListeningNowCard(
+                                listeningNow,
+                                getCoverArtUrl(
+                                    caaReleaseMbid = listeningNow?.trackMetadata?.mbidMapping?.caaReleaseMbid,
+                                    caaId = listeningNow?.trackMetadata?.mbidMapping?.caaId
+                                )
                             ) {
-                                ListeningNowCard(
-                                    listeningNow!!,
-                                    getCoverArtUrl(
-                                        caaReleaseMbid = listeningNow.trackMetadata.mbidMapping?.caaReleaseMbid,
-                                        caaId = listeningNow.trackMetadata.mbidMapping?.caaId
-                                    )
-                                ) {
-                                    onListenTap(listeningNow)
-                                }
+                                listeningNow?.let { listen -> viewModel.playListen(listen) }
                             }
                         }
 
                         1 -> {
                             AnimatedVisibility(
-                                visible = viewModel.playerState?.track?.name != null,
+                                visible = playerState?.track?.name != null,
                                 enter = slideInVertically(),
                                 exit = slideOutVertically()
                             ) {
                                 ListeningNowOnSpotify(
-                                    playerState = viewModel.playerState,
+                                    playerState = playerState,
                                     bitmap = viewModel.bitmap
                                 )
                             }
@@ -163,7 +139,7 @@ fun ListensScreen(
                         caaId = listen.trackMetadata.mbidMapping?.caaId
                     )
                 ) {
-                    onListenTap(listen)
+                    viewModel.playListen(listen)
                 }
             }
         }
@@ -171,6 +147,7 @@ fun ListensScreen(
         // Loading Animation
         AnimatedVisibility(
             visible = viewModel.isLoading,
+            modifier = Modifier.align(Alignment.Center),
             enter = fadeIn(initialAlpha = 0.4f),
             exit = fadeOut(animationSpec = tween(durationMillis = 250))
         ) {

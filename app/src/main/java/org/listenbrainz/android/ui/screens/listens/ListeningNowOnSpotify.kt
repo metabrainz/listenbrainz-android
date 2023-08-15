@@ -2,7 +2,14 @@ package org.listenbrainz.android.ui.screens.listens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
@@ -24,10 +31,10 @@ import coil.request.ImageRequest
 import com.spotify.protocol.types.PlayerState
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ListenBitmap
-import org.listenbrainz.android.viewmodel.ListensViewModel
-import org.listenbrainz.android.ui.theme.lb_purple
-import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.offWhite
+import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
+import org.listenbrainz.android.viewmodel.ListensViewModel
 
 @Composable
 fun ListeningNowOnSpotify(
@@ -38,104 +45,97 @@ fun ListeningNowOnSpotify(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(
+                horizontal = ListenBrainzTheme.paddings.horizontal,
+                vertical = 10.dp
+            )
             .clip(RoundedCornerShape(16.dp))
-            .height(180.dp)
             .clickable(onClick = {
-               val isPaused = playerState?.isPaused ?: false
+                val isPaused = playerState?.isPaused ?: false
                 if (isPaused) {
-                     listenViewModel.play()
+                    listenViewModel.play()
                 } else {
-                     listenViewModel.pause()
+                    listenViewModel.pause()
                 }
             }),
         elevation = 0.dp,
         backgroundColor = if (onScreenUiModeIsDark()) Color.Black else offWhite,
     ) {
-        Row(
-            modifier = Modifier
-                .padding(10.dp)
-        ) {
+        Column {
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
             Text(
                 text = "Listening now on spotify",
-                modifier = Modifier.padding(4.dp),
+                modifier = Modifier.padding(horizontal = 16.dp),
                 color = if (onScreenUiModeIsDark()) Color.White else Color.Black,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.subtitle1,
                 textAlign = TextAlign.Center,
             )
-        }
-        Column {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-                .padding(top = 30.dp)
-        ) {
-            val painter = rememberAsyncImagePainter(
-                ImageRequest.Builder(LocalContext.current)
-                    .data(data = bitmap.bitmap)
-                    .placeholder(R.drawable.ic_coverartarchive_logo_no_text)
-                    .error(R.drawable.ic_coverartarchive_logo_no_text)
-                    .build()
-            )
-
-            Image(
+            
+            Row(
                 modifier = Modifier
-                    .size(80.dp, 80.dp)
-                    .clip(RoundedCornerShape(16.dp)),
-                painter = painter,
-                alignment = Alignment.CenterStart,
-                contentDescription = "",
-                contentScale = ContentScale.Crop
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column(modifier = Modifier.align(Alignment.CenterVertically)) {
-                playerState?.track?.name?.let { track ->
-                    Text(
-                        text = track,
-                        modifier = Modifier.padding(0.dp, 0.dp, 5.dp, 0.dp),
-                        color = if (onScreenUiModeIsDark()) Color.White else lb_purple,
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.subtitle1,
-                        maxLines = 1
-                    )
-                }
-                Spacer(modifier = Modifier.height(6.dp))
-
-                Text(
-                    text = buildString {
-                        append(playerState?.track?.artist?.name)
-                    },
-                    modifier = Modifier.padding(0.dp, 0.dp, 5.dp, 0.dp),
-                    color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(alpha = 0.7f),
-                    style = MaterialTheme.typography.caption,
-                    maxLines = 2
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                val painter = rememberAsyncImagePainter(
+                    ImageRequest.Builder(LocalContext.current)
+                        .data(data = bitmap.bitmap)
+                        .placeholder(R.drawable.ic_coverartarchive_logo_no_text)
+                        .error(R.drawable.ic_coverartarchive_logo_no_text)
+                        .build()
                 )
-
-                Row {
+    
+                Image(
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(RoundedCornerShape(16.dp)),
+                    painter = painter,
+                    alignment = Alignment.CenterStart,
+                    contentDescription = "",
+                    contentScale = ContentScale.Crop
+                )
+    
+                Spacer(modifier = Modifier.width(16.dp))
+    
+                Column(modifier = Modifier.align(Alignment.CenterVertically)) {
+                    
+                    playerState?.track?.name?.let { track ->
+                        Text(
+                            text = track,
+                            color = ListenBrainzTheme.colorScheme.listenText,
+                            fontWeight = FontWeight.Bold,
+                            style = ListenBrainzTheme.textStyles.listenTitle,
+                            maxLines = 1
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+        
+                    if (playerState != null) {
+                        Text(
+                            text = playerState.track.artist.name,
+                            color = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),
+                            style = ListenBrainzTheme.textStyles.listenSubtitle,
+                            maxLines = 1
+                        )
+                    }
+        
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
                     playerState?.track?.album?.name?.let { album ->
                         Text(
                             text = album,
-                            modifier = Modifier.padding(0.dp, 6.dp, 12.dp, 0.dp),
-                            color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(alpha = 0.7f),
-                            style = MaterialTheme.typography.caption,
-                            maxLines = 2
+                            color = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),
+                            style = ListenBrainzTheme.textStyles.listenSubtitle,
+                            maxLines = 1
                         )
                     }
+                    
                 }
             }
-        }
-            Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.Bottom,
-        ) {
-                ProgressBar(playerState = playerState)
-          }
+            
         }
 
     }

@@ -7,7 +7,7 @@ import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.util.Resource
 
-interface RemotePlayerRepository {
+interface RemotePlaybackHandler {
     
     suspend fun searchYoutubeMusicVideoId(
         trackName: String,
@@ -18,19 +18,34 @@ interface RemotePlayerRepository {
         getYoutubeMusicVideoId: suspend () -> Resource<String>
     ): Resource<Unit>
     
+    /** Connect to spotify app remote using this function. **Must** connect in *onStart* only.*/
     suspend fun connectToSpotify(onError: (ResponseError) -> Unit = {})
     
+    /** Disconnect to spotify app remote using this function. **Must** disconnect in *onStop* only.*/
     fun disconnectSpotify()
     
-    suspend fun updateTrackCoverArt(playerState: PlayerState): ListenBitmap
+    suspend fun fetchSpotifyTrackCoverArt(playerState: PlayerState?): ListenBitmap
     
+    /** Usually, LB will supply the Spotify-link of the track, but this function requires track the track ID. To
+     * obtain the track id from a LB provided data (usually spotifyId field of a data class) do this:
+     *
+     * ```
+     * Uri.parse(spotifyId).lastPathSegment?.let { trackId ->
+     *     playUri(trackId)
+     * }
+     * ```
+     * @param onFailure should be alternative play option to spotify and should create its own coroutine.
+     * */
     fun playUri(trackId: String, onFailure: () -> Unit)
     
     fun play(onPlay: () -> Unit = {})
     
     fun pause(onPause: () -> Unit = {})
     
+    /** Main function to access all the details about spotify player.
+     * @return null if flow is cancelled.*/
     fun getPlayerState(): Flow<PlayerState?>
     
+    /** @return null if flow is cancelled. */
     fun getPlayerContext(): Flow<PlayerContext?>
 }

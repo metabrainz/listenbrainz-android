@@ -13,6 +13,7 @@ import com.spotify.android.appremote.api.error.CouldNotFindSpotifyApp
 import com.spotify.android.appremote.api.error.NotLoggedInException
 import com.spotify.android.appremote.api.error.UserNotAuthorizedException
 import com.spotify.protocol.client.Subscription
+import com.spotify.protocol.types.ImageUri
 import com.spotify.protocol.types.PlayerContext
 import com.spotify.protocol.types.PlayerState
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -22,6 +23,7 @@ import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
@@ -40,12 +42,16 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 @Singleton
-class RemotePlayerRepositoryImpl @Inject constructor(
+class RemotePlaybackHandlerImpl @Inject constructor(
     @ApplicationContext private val appContext: Context,
     private val youtubeApiService: YouTubeApiService
-) : RemotePlayerRepository {
+) : RemotePlaybackHandler {
     
     private var spotifyAppRemote: SpotifyAppRemote? = null
+    
+    /** This variable is used to maintain concurrency because spotify async tasks can cause
+     * continuations to resume twice.*/
+    private var isResumed: Boolean = false
     
     init {
         SpotifyAppRemote.setDebugMode(BuildConfig.DEBUG)
@@ -116,16 +122,16 @@ class RemotePlayerRepositoryImpl @Inject constructor(
             else -> {
                 /*
                 // Play track via Amazon Music
-                val intent = Intent()
-                val query = listen.trackMetadata.trackName + " " + listen.trackMetadata.artistName
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                intent.setClassName(
-                    "com.amazon.mp3",
-                    "com.amazon.mp3.activity.IntentProxyActivity"
-                )
-                intent.action = MediaStore.INTENT_ACTION_MEDIA_SEARCH
-                intent.putExtra(MediaStore.EXTRA_MEDIA_TITLE, query)
-                context.startActivity(intent)
+                    val intent = Intent()
+                    val query = listen.trackMetadata.trackName + " " + listen.trackMetadata.artistName
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    intent.setClassName(
+                        "com.amazon.mp3",
+                        "com.amazon.mp3.activity.IntentProxyActivity"
+                    )
+                    intent.action = MediaStore.INTENT_ACTION_MEDIA_SEARCH
+                    intent.putExtra(MediaStore.EXTRA_MEDIA_TITLE, query)
+                    context.startActivity(intent)
                 */
                 Resource.failure(error = ResponseError.DOES_NOT_EXIST)
             }
@@ -135,23 +141,24 @@ class RemotePlayerRepositoryImpl @Inject constructor(
     
     override suspend fun connectToSpotify(onError: (ResponseError) -> Unit) {
         try {
-            if (spotifyAppRemote?.isConnected != true){
-                disconnectSpotify()
-                spotifyAppRemote = connectToAppRemote(
-                    true,
-                    spotifyClientId = appContext.getString(R.string.spotifyClientId),
-                    onError
-                )
-            } else {
-                logMessage("Spotify already connected.")
-            }
+            disconnectSpotify()
+            isResumed = false
+            spotifyAppRemote = connectToAppRemote(
+                true,
+                spotifyClientId = appContext.getString(R.string.spotifyClientId),
+                onError
+            )
         } catch (error: Throwable) {
             logError(error)
         }
     }
     
     
-    private suspend fun connectToAppRemote(showAuthView: Boolean, spotifyClientId: String, onError: (ResponseError) -> Unit): SpotifyAppRemote =
+    private suspend fun connectToAppRemote(
+        showAuthView: Boolean,
+        spotifyClientId: String,
+        onError: (ResponseError) -> Unit
+    ): SpotifyAppRemote =
         suspendCoroutine { cont: Continuation<SpotifyAppRemote> ->
             SpotifyAppRemote.connect(
                 appContext,
@@ -160,9 +167,13 @@ class RemotePlayerRepositoryImpl @Inject constructor(
                     .showAuthView(showAuthView)
                     .build(),
                 object : Connector.ConnectionListener {
+                    
                     override fun onConnected(spotifyAppRemote: SpotifyAppRemote) {
                         Log.d("App remote Connected!")
-                        cont.resume(spotifyAppRemote)
+                        if (!isResumed){
+                            cont.resume(spotifyAppRemote)
+                            isResumed = true
+                        }
                     }
                     
                     override fun onFailure(error: Throwable) {
@@ -195,42 +206,63 @@ class RemotePlayerRepositoryImpl @Inject constructor(
                         }
                         
                         // Throw exception
-                        cont.resumeWithException(error)
+                        if (!isResumed){
+                            cont.resumeWithException(error)
+                            isResumed = true
+                        }
+                        
                     }
                 }
             )
         }
     
     
-    override fun disconnectSpotify() { SpotifyAppRemote.disconnect(spotifyAppRemote) }
+    override fun disconnectSpotify() {
+        SpotifyAppRemote.disconnect(spotifyAppRemote)
+        spotifyAppRemote = null
+    }
     
     
-    override suspend fun updateTrackCoverArt(playerState: PlayerState): ListenBitmap = suspendCoroutine { cont ->
+    override suspend fun fetchSpotifyTrackCoverArt(playerState: PlayerState?): ListenBitmap = suspendCoroutine { cont ->
+        
+        // Return if URI is null
+        if (playerState == null){
+            cont.resume(
+                ListenBitmap(
+                    // Fallback Cover Art
+                    bitmap = BitmapFactory.decodeResource(
+                        appContext.resources,
+                        R.drawable.ic_coverartarchive_logo_no_text
+                    ),
+                    id = null
+                )
+            )
+        }
+        
         // Get image from track
-        assertAppRemoteConnected()?.imagesApi?.getImage(playerState.track.imageUri, com.spotify.protocol.types.Image.Dimension.LARGE)
+        assertAppRemoteConnected()?.imagesApi?.getImage(playerState?.track?.imageUri ?: ImageUri(""), com.spotify.protocol.types.Image.Dimension.LARGE)
             ?.setResultCallback { bitmapHere ->
                 cont.resume(
                     ListenBitmap(
                         bitmap = bitmapHere,
-                        id = playerState.track.uri
+                        id = playerState?.track?.uri
                     )
                 )
             }?.setErrorCallback {
                 cont.resume(
                     ListenBitmap(
-                        // Fallback CA
+                        // Fallback Cover Art
                         bitmap = BitmapFactory.decodeResource(
                             appContext.resources,
                             R.drawable.ic_coverartarchive_logo_no_text
                         ),
-                        id = playerState.track.uri
+                        id = null
                     )
                 )
             }
     }
     
     
-    /** @param onFailure should be alternative play option to spotify and should create its own coroutine.*/
     override fun playUri(trackId: String, onFailure: () -> Unit) {
         assertAppRemoteConnected()?.playerApi?.play("spotify:track:${trackId}")?.setResultCallback {
             logMessage("Play command successful!")      //getString(R.string.command_feedback, "play"))
@@ -257,7 +289,6 @@ class RemotePlayerRepositoryImpl @Inject constructor(
     }
     
     
-    /** @return null if flow is cancelled. */
     override fun getPlayerContext(): Flow<PlayerContext?> = callbackFlow {
         
         val playerContextSubscription = assertAppRemoteConnected()?.playerApi
@@ -281,10 +312,9 @@ class RemotePlayerRepositoryImpl @Inject constructor(
             logMessage("Spotify: Player context subscription cancelled.")
             cancelAndResetSubscription(playerContextSubscription)
         }
-    }.distinctUntilChanged()
+    }.distinctUntilChanged().cancellable()
     
     
-    /** Main function to access all the details about spotify player.*/
     override fun getPlayerState(): Flow<PlayerState?> = callbackFlow {
         
         val playerStateSubscription = assertAppRemoteConnected()?.playerApi?.subscribeToPlayerState()
@@ -306,19 +336,19 @@ class RemotePlayerRepositoryImpl @Inject constructor(
                 }
             )
             ?.setErrorCallback { error ->
-                errorCallback(error)
+                logMessage("PlayerState Callback: ${error.localizedMessage}")
                 trySendBlocking(null)
                     .onFailure {
                         it?.printStackTrace()
                     }
-                cancel(error?.localizedMessage.toString())
-            } as Subscription<PlayerState>
+            } as Subscription<PlayerState>?
         
         awaitClose {
             logMessage("Spotify: Player state subscription cancelled.")
             cancelAndResetSubscription(playerStateSubscription)
         }
-    }.distinctUntilChanged()
+        
+    }.distinctUntilChanged().cancellable()
     
     // Private utility functions
     
