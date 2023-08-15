@@ -1,6 +1,8 @@
 package org.listenbrainz.android.repository.remoteplayer
 
+import com.spotify.protocol.types.PlayerContext
 import com.spotify.protocol.types.PlayerState
+import kotlinx.coroutines.flow.Flow
 import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.util.Resource
@@ -23,4 +25,12 @@ interface RemotePlayerRepository {
     suspend fun updateTrackCoverArt(playerState: PlayerState): ListenBitmap
     
     fun playUri(trackId: String, onFailure: () -> Unit)
+    
+    fun play(onPlay: () -> Unit = {})
+    
+    fun pause(onPause: () -> Unit = {})
+    
+    fun getPlayerState(): Flow<PlayerState?>
+    
+    fun getPlayerContext(): Flow<PlayerContext?>
 }

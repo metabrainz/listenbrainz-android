@@ -16,10 +16,13 @@ import com.spotify.protocol.client.Subscription
 import com.spotify.protocol.types.PlayerContext
 import com.spotify.protocol.types.PlayerState
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ListenBitmap
@@ -43,9 +46,6 @@ class RemotePlayerRepositoryImpl @Inject constructor(
 ) : RemotePlayerRepository {
     
     private var spotifyAppRemote: SpotifyAppRemote? = null
-    private var playerStateSubscription: Subscription<PlayerState>? = null
-    private var playerContextSubscription: Subscription<PlayerContext>? = null
-    //var playerState: PlayerState? by mutableStateOf(null)
     
     init {
         SpotifyAppRemote.setDebugMode(BuildConfig.DEBUG)
@@ -142,7 +142,6 @@ class RemotePlayerRepositoryImpl @Inject constructor(
                     spotifyClientId = appContext.getString(R.string.spotifyClientId),
                     onError
                 )
-                onConnected()
             } else {
                 logMessage("Spotify already connected.")
             }
@@ -150,6 +149,7 @@ class RemotePlayerRepositoryImpl @Inject constructor(
             logError(error)
         }
     }
+    
     
     private suspend fun connectToAppRemote(showAuthView: Boolean, spotifyClientId: String, onError: (ResponseError) -> Unit): SpotifyAppRemote =
         suspendCoroutine { cont: Continuation<SpotifyAppRemote> ->
@@ -201,12 +201,9 @@ class RemotePlayerRepositoryImpl @Inject constructor(
             )
         }
     
+    
     override fun disconnectSpotify() { SpotifyAppRemote.disconnect(spotifyAppRemote) }
     
-    private fun onConnected() {
-        onSubscribedToPlayerStateButtonClicked()
-        onSubscribedToPlayerContextButtonClicked()
-    }
     
     override suspend fun updateTrackCoverArt(playerState: PlayerState): ListenBitmap = suspendCoroutine { cont ->
         // Get image from track
@@ -232,100 +229,65 @@ class RemotePlayerRepositoryImpl @Inject constructor(
             }
     }
     
+    
     /** @param onFailure should be alternative play option to spotify and should create its own coroutine.*/
     override fun playUri(trackId: String, onFailure: () -> Unit) {
         assertAppRemoteConnected()?.playerApi?.play("spotify:track:${trackId}")?.setResultCallback {
-            logMessage("play command successful!")      //getString(R.string.command_feedback, "play"))
+            logMessage("Play command successful!")      //getString(R.string.command_feedback, "play"))
         }?.setErrorCallback{
             errorCallback(it)
             onFailure()
         }
     }
     
-    private val playerContextEventCallback = Subscription.EventCallback<PlayerContext> { playerContext ->
     
-    }
-    
-    private val playerStateEventCallback = Subscription.EventCallback<PlayerState> { playerStateHere ->
-        //playerState = playerStateHere
-    }
-    
-    
-    /*fun play(onPlay: () -> Unit){
+    override fun play(onPlay: () -> Unit){
         assertAppRemoteConnected()?.playerApi?.resume()?.setResultCallback {
             onPlay()
-            logMessage("play command successful!")      //getString(R.string.command_feedback, "play"))
+            logMessage("Play command successful!")      //getString(R.string.command_feedback, "play"))
         }?.setErrorCallback(errorCallback)
-        //trackProgress()
-    }*/
-    
-//    fun pause(onPause: () -> Unit){
-//        assertAppRemoteConnected()?.playerApi?.pause()?.setResultCallback {
-//            logMessage("pause command successful!")      //getString(R.string.command_feedback, "play"))
-//        }?.setErrorCallback(errorCallback)
-//        onPause()
-//        //trackProgress()
-//    }
-    
-    /*suspend fun trackProgress(
-        updateState: () -> Unit,
-        updateBitmap: (ListenBitmap) -> Unit,
-        bitmap: ListenBitmap
-    ) = suspendCoroutine { cont ->
-        assertAppRemoteConnected()?.playerApi?.subscribeToPlayerState()?.setEventCallback { playerState ->
-            if(bitmap.id != playerState.track.uri) {
-                updateBitmap(updateTrackCoverArt(playerState))
-                updateState()
-                cont.resume(Unit)
-            }
-        }?.setErrorCallback{
-            errorCallback(it)
-            cont.resumeWithException(it)
-        }
-        
-        /*viewModelScope.launch(Dispatchers.Default) {
-            do {
-                // FIXME: Called even if spotify isn't there which leads to infinite logging.
-                state = assertAppRemoteConnected()?.playerApi?.playerState?.await()?.data
-                val pos = state?.playbackPosition?.toFloat() ?: 0f
-                val duration = state?.track?.duration ?: 1
-                if (progress.value != pos) {
-                    _progress.emit(pos / duration.toFloat())
-                    _songDuration.emit(duration)
-                    _songCurrentPosition.emit(((pos / duration) * duration).toLong())
-                }
-                delay(900L)
-            }while (!isPaused)
-        }*/
-    }*/
-    
-    /*suspend fun seekTo(pos:Float,state: PlayerState?){
-        val duration=state?.track?.duration ?: 1
-        val position=(pos*duration).toLong()
-        assertAppRemoteConnected()?.playerApi?.seekTo(position)?.setResultCallback {
-            logMessage("seek command successful!")      //getString(R.string.command_feedback, "play"))
-        }?.setErrorCallback(errorCallback)
-        viewModelScope.launch(Dispatchers.Default) {
-            if (progress.value != pos) {
-                _progress.emit(pos / duration.toFloat())
-                _songDuration.emit(duration ?: 0)
-                _songCurrentPosition.emit(((pos / duration) * duration).toLong())
-            }
-        }
-    }*/
-    
-    private fun onSubscribedToPlayerContextButtonClicked() {
-        playerContextSubscription = cancelAndResetSubscription(playerContextSubscription)
-        playerContextSubscription = assertAppRemoteConnected()?.playerApi
-            ?.subscribeToPlayerContext()
-            ?.setEventCallback(playerContextEventCallback)
-            ?.setErrorCallback(errorCallback) as Subscription<PlayerContext>
     }
     
-    private fun onSubscribedToPlayerStateButtonClicked() = callbackFlow<PlayerState> {
+    
+    override fun pause(onPause: () -> Unit){
+        assertAppRemoteConnected()?.playerApi?.pause()?.setResultCallback {
+            logMessage("Pause command successful!")      //getString(R.string.command_feedback, "play"))
+        }?.setErrorCallback(errorCallback)
+        onPause()
+    }
+    
+    
+    /** @return null if flow is cancelled. */
+    override fun getPlayerContext(): Flow<PlayerContext?> = callbackFlow {
         
-        playerStateSubscription = cancelAndResetSubscription(playerStateSubscription)
-        playerStateSubscription = assertAppRemoteConnected()?.playerApi?.subscribeToPlayerState()
+        val playerContextSubscription = assertAppRemoteConnected()?.playerApi
+            ?.subscribeToPlayerContext()
+            ?.setEventCallback { playerContext ->
+                trySendBlocking(playerContext)
+                    .onFailure {
+                        it?.printStackTrace()
+                    }
+            }
+            ?.setErrorCallback{ error ->
+                trySendBlocking(null)
+                    .onFailure {
+                        it?.printStackTrace()
+                    }
+                errorCallback(error)
+                cancel(error?.localizedMessage.toString())
+            } as Subscription<PlayerContext>
+    
+        awaitClose {
+            logMessage("Spotify: Player context subscription cancelled.")
+            cancelAndResetSubscription(playerContextSubscription)
+        }
+    }.distinctUntilChanged()
+    
+    
+    /** Main function to access all the details about spotify player.*/
+    override fun getPlayerState(): Flow<PlayerState?> = callbackFlow {
+        
+        val playerStateSubscription = assertAppRemoteConnected()?.playerApi?.subscribeToPlayerState()
             ?.setEventCallback{ playerState ->
                 trySendBlocking(playerState)
                     .onFailure {
@@ -343,21 +305,28 @@ class RemotePlayerRepositoryImpl @Inject constructor(
                     }
                 }
             )
-            ?.setErrorCallback {
-                it?.printStackTrace()
+            ?.setErrorCallback { error ->
+                errorCallback(error)
+                trySendBlocking(null)
+                    .onFailure {
+                        it?.printStackTrace()
+                    }
+                cancel(error?.localizedMessage.toString())
             } as Subscription<PlayerState>
         
         awaitClose {
+            logMessage("Spotify: Player state subscription cancelled.")
             cancelAndResetSubscription(playerStateSubscription)
         }
-    }
+    }.distinctUntilChanged()
     
-    private fun <T : Any?> cancelAndResetSubscription(subscription: Subscription<T>?): Subscription<T>? {
-        return subscription?.let {
+    // Private utility functions
+    
+    private fun <T : Any?> cancelAndResetSubscription(subscription: Subscription<T>?) {
+        subscription?.let {
             if (!it.isCanceled) {
                 it.cancel()
             }
-            null
         }
     }
     
