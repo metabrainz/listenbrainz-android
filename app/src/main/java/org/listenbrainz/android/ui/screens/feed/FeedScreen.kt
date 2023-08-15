@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -37,12 +39,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -67,6 +72,14 @@ fun FeedScreen(
     scrollToTopState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit
 ) {
+    
+    LifecycleStartEffect(Unit) {
+        viewModel.connectToSpotify()
+        onStopOrDispose {
+            viewModel.disconnectSpotify()
+        }
+    }
+    
     val uiState = viewModel.uiState.collectAsState().value
     
     FeedScreen(
@@ -80,8 +93,8 @@ fun FeedScreen(
         onDropDownClick = {
         
         },
-        onPlay = {
-        
+        onPlay = { event ->
+            viewModel.play(event)
         }
     )
 }
@@ -96,7 +109,7 @@ private fun FeedScreen(
     onDeleteOrHide: (event: FeedEvent, eventType: FeedEventType, parentUser: String) -> Unit,
     onDropDownClick: () -> Unit,
     onErrorShown: () -> Unit,
-    onPlay: () -> Unit,
+    onPlay: (event: FeedEvent) -> Unit,
 ) {
     val myFeedPagingData = uiState.myFeedState.data.eventList.collectAsLazyPagingItems()
     val myFeedListState = rememberLazyListState()
@@ -108,22 +121,21 @@ private fun FeedScreen(
     val similarListensListState = rememberLazyListState()
     
     val pagerState = rememberPagerState()
-    val isRefreshing = {
+    val isRefreshing =
         when (pagerState.currentPage) {
-            0 -> myFeedPagingData.itemCount == 0 && myFeedPagingData.loadState.refresh is LoadState.Loading
-            1 -> followListensPagingData.itemCount == 0 && followListensPagingData.loadState.refresh is LoadState.Loading
-            2 -> similarListensPagingData.itemCount == 0 && similarListensPagingData.loadState.refresh is LoadState.Loading
+            0 -> myFeedPagingData.loadState.refresh is LoadState.Loading
+            1 -> followListensPagingData.loadState.refresh is LoadState.Loading
+            2 -> similarListensPagingData.loadState.refresh is LoadState.Loading
             else -> false
         }
-    }
+    
+    
     val pullRefreshState = rememberPullRefreshState(
-        refreshing = isRefreshing(),
+        refreshing = isRefreshing,
         onRefresh = {
-            when (pagerState.currentPage){
-                0 -> myFeedPagingData.refresh()
-                1 -> followListensPagingData.refresh()
-                2 -> similarListensPagingData.refresh()
-            }
+            myFeedPagingData.refresh()
+            followListensPagingData.refresh()
+            similarListensPagingData.refresh()
         }
     )
     
@@ -153,34 +165,53 @@ private fun FeedScreen(
             .fillMaxSize()
             .pullRefresh(state = pullRefreshState)
     ) {
-        
+    
         RetryButton(Modifier.align(Alignment.Center), myFeedPagingData)
     
-        Column {
-            NavigationChips(currentPageStateProvider = { pagerState.currentPage }) { position ->
-                pagerState.animateScrollToPage(position)
-            }
-            HorizontalPager(
-                pageCount = 3,
-                state = pagerState
-            ) { position ->
-                when (position){
-                    0 -> MyFeed(myFeedListState, myFeedPagingData, uiState.myFeedState, onDeleteOrHide, onDropDownClick, onPlay)
-                    1 -> FollowListens(followListensListState, followListensPagingData, onDropDownClick, onPlay)
-                    2 -> SimilarListens(similarListensListState, similarListensPagingData, onDropDownClick, onPlay)
-                }
+        HorizontalPager(
+            pageCount = 3,
+            state = pagerState
+        ) { position ->
+            when (position) {
+                0 -> MyFeed(
+                    myFeedListState,
+                    myFeedPagingData,
+                    uiState.myFeedState,
+                    onDeleteOrHide,
+                    onDropDownClick,
+                    onPlay
+                )
+            
+                1 -> FollowListens(
+                    followListensListState,
+                    followListensPagingData,
+                    onDropDownClick,
+                    onPlay
+                )
+            
+                2 -> SimilarListens(
+                    similarListensListState,
+                    similarListensPagingData,
+                    onDropDownClick,
+                    onPlay
+                )
             }
         }
         
-        ErrorBar(error = uiState.error, onErrorShown = onErrorShown)
-    
-        PullRefreshIndicator(
-            modifier = Modifier.align(Alignment.TopCenter),
-            refreshing = isRefreshing(),
-            state = pullRefreshState
-        )
+        Column(Modifier.fillMaxWidth()) {
+            ErrorBar(error = uiState.error, onErrorShown = onErrorShown)
+            NavigationChips(currentPageStateProvider = { pagerState.currentPage }) { position ->
+                pagerState.animateScrollToPage(position)
+            }
+            PullRefreshIndicator(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                refreshing = isRefreshing,
+                contentColor = ListenBrainzTheme.colorScheme.lbSignatureInverse,
+                backgroundColor = ListenBrainzTheme.colorScheme.level1,
+                state = pullRefreshState
+            )
+        }
     }
-    
 }
 
 
@@ -191,7 +222,7 @@ private fun MyFeed(
     uiState: FeedScreenUiState,
     onDeleteOrHide: (event: FeedEvent, eventType: FeedEventType, parentUser: String) -> Unit,
     onDropDownClick: () -> Unit,
-    onPlay: () -> Unit
+    onPlay: (FeedEvent) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -199,6 +230,8 @@ private fun MyFeed(
             .widthIn(max = LocalConfiguration.current.screenWidthDp.dp),
         state = listState
     ) {
+        
+        item { StartingSpacer() }
         
         items(count = pagingData.itemCount) { index: Int ->
             
@@ -220,7 +253,7 @@ private fun MyFeed(
                             )
                         },
                         onDropdownClick = { onDropDownClick() },
-                        onClick = { onPlay() }
+                        onClick = { onPlay(event) }
                     )
                     
                 }
@@ -241,7 +274,7 @@ fun FollowListens(
     listState: LazyListState,
     pagingData: LazyPagingItems<FeedUiEventItem>,
     onDropDownClick: () -> Unit,
-    onPlay: () -> Unit
+    onPlay: (FeedEvent) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -249,6 +282,8 @@ fun FollowListens(
             .widthIn(max = LocalConfiguration.current.screenWidthDp.dp),
         state = listState,
     ) {
+        
+        item { StartingSpacer() }
         
         items(count = pagingData.itemCount) { index: Int ->
             
@@ -283,7 +318,7 @@ fun FollowListens(
                     },
                     onDropdownIconClick = onDropDownClick,
                 ) {
-                    onPlay()
+                    onPlay(event)
                 }
                 
             }
@@ -302,7 +337,7 @@ fun SimilarListens(
     listState: LazyListState,
     pagingData: LazyPagingItems<FeedUiEventItem>,
     onDropDownClick: () -> Unit,
-    onPlay: () -> Unit
+    onPlay: (FeedEvent) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -310,6 +345,8 @@ fun SimilarListens(
             .widthIn(max = LocalConfiguration.current.screenWidthDp.dp),
         state = listState
     ) {
+        
+        item { StartingSpacer() }
         
         items(count = pagingData.itemCount) { index: Int ->
             
@@ -341,7 +378,7 @@ fun SimilarListens(
                     },
                     onDropdownIconClick = onDropDownClick,
                 ) {
-                    onPlay()
+                    onPlay(event)
                 }
                 
             }
@@ -354,6 +391,10 @@ fun SimilarListens(
     }
 }
 
+@Composable
+fun StartingSpacer() {
+    Spacer(modifier = Modifier.height(60.dp))   // 6 + 6 + 48
+}
 
 @Composable
 fun NavigationChips(
@@ -361,11 +402,20 @@ fun NavigationChips(
     scope: CoroutineScope = rememberCoroutineScope(),
     onClick: suspend (Int) -> Unit
 ){
-    Row(modifier = Modifier.horizontalScroll(rememberScrollState())) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .horizontalScroll(rememberScrollState())
+        .background(
+            Brush.verticalGradient(
+                listOf(
+                    ListenBrainzTheme.colorScheme.background,
+                    Color.Transparent
+                )
+            )
+        )
+    ) {
+        Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.chipsHorizontal/2))
         repeat(3){ position ->
-            if (position == 0) {
-                Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.chipsHorizontal/2))
-            }
             ElevatedSuggestionChip(
                 modifier = Modifier.padding(ListenBrainzTheme.paddings.chipsHorizontal),
                 colors = SuggestionChipDefaults.elevatedSuggestionChipColors(

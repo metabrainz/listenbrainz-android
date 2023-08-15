@@ -91,7 +91,7 @@ fun ListenCardSmall(
             
                     Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.coverArtAndTextGap))
             
-                    TitleAndSubtitle(title = releaseName, subtitle = artistName)
+                    TitleAndSubtitle(modifier = Modifier.padding(end = 6.dp), title = releaseName, subtitle = artistName)
             
                 }
                 
@@ -108,7 +108,7 @@ fun ListenCardSmall(
                             modifier = Modifier
                                 .fillMaxWidth(trailingContentFraction)
                                 .align(Alignment.CenterStart)
-                                .padding(horizontal = 6.dp)
+                                .padding(end = 6.dp)
                         )
                     }
             

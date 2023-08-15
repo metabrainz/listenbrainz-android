@@ -25,41 +25,37 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
-import org.listenbrainz.android.ui.theme.lb_purple
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun ListeningNowCard(listen: Listen, coverArtUrl: String?, onItemClicked: (listen: Listen) -> Unit) {
+fun ListeningNowCard(listen: Listen?, coverArtUrl: String?, onItemClicked: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .clip(RoundedCornerShape(16.dp))
-            .clickable { onItemClicked(listen) },
+            .clickable { onItemClicked() },
         elevation = 0.dp,
         backgroundColor = if (onScreenUiModeIsDark()) Color.Black else offWhite,
     ) {
         Column {
+            
+            Text(
+                text = "Listening now",
+                modifier = Modifier.padding(16.dp),
+                color = if (onScreenUiModeIsDark()) Color.White else Color.Black,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.subtitle1,
+                textAlign = TextAlign.Center
+            )
+            
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
-            ) {
-                Text(
-                    text = "Listening now",
-                    modifier = Modifier.padding(4.dp),
-                    color = if (onScreenUiModeIsDark()) Color.White else Color.Black,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.subtitle1,
-                    textAlign = TextAlign.Center,
-                )
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(horizontal = 16.dp)
             ) {
                 GlideImage(
                     model = coverArtUrl,
@@ -73,57 +69,47 @@ fun ListeningNowCard(listen: Listen, coverArtUrl: String?, onItemClicked: (liste
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                Column(modifier = Modifier.align(Alignment.CenterVertically)) {
-                    Text(
-                        text = listen.trackMetadata.trackName,
-                        modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
-                        color = if (onScreenUiModeIsDark()) Color.White else lb_purple,
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.subtitle1
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = buildString {
-                            append(listen.trackMetadata.artistName)
-                        },
-                        modifier = Modifier.padding(0.dp, 0.dp, 12.dp, 0.dp),
-                        color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(alpha = 0.7f),
-                        style = MaterialTheme.typography.caption
-                    )
-
-                    Row(verticalAlignment = Alignment.Bottom) {
+                if (listen != null){
+                    Column(modifier = Modifier.align(Alignment.CenterVertically)) {
                         Text(
-                            text = listen.trackMetadata.releaseName ?: "",
-                            modifier = Modifier.padding(0.dp, 12.dp, 12.dp, 0.dp),
-                            color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(
-                                alpha = 0.7f
-                            ),
-                            style = MaterialTheme.typography.caption
+                            text = listen.trackMetadata.trackName,
+                            color = ListenBrainzTheme.colorScheme.listenText,
+                            fontWeight = FontWeight.Bold,
+                            style = ListenBrainzTheme.textStyles.listenTitle
                         )
-                    }
-                }
-                /*  Love/Hate Button
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_baseline_heart_broken_24),
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp, 16.dp),
-                                tint = Color.Red
-                            )
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_baseline_heart_broken_24),
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp, 16.dp),
-                                tint = Color.Red
-                            )
+                        
+                        Spacer(modifier = Modifier.height(8.dp))
+        
+                        Text(
+                            text = listen.trackMetadata.artistName,
+                            color = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),
+                            style = ListenBrainzTheme.textStyles.listenSubtitle
+                        )
+    
+                        Spacer(modifier = Modifier.height(8.dp))
+                        
+                        if (!listen.trackMetadata.releaseName.isNullOrEmpty()){
+                            Row(verticalAlignment = Alignment.Bottom) {
+                                Text(
+                                    text = listen.trackMetadata.releaseName,
+                                    color = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),
+                                    style = MaterialTheme.typography.caption
+                                )
+                            }
                         }
-            */
+                    }
+                } else {
+                    Text(
+                        text = "No listening now found.",
+                        modifier = Modifier.align(Alignment.CenterVertically),
+                        color = ListenBrainzTheme.colorScheme.text,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                
             }
+            
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

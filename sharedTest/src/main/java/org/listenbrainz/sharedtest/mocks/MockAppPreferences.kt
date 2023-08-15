@@ -47,7 +47,7 @@ class MockAppPreferences(
     override suspend fun getLbAccessToken(): String = testAccessToken
     
     override fun getLbAccessTokenFlow(): Flow<String> = flow {
-        TODO("Not yet implemented")
+        emit(testAccessToken)
     }
     
     override suspend fun setLbAccessToken(value: String) {

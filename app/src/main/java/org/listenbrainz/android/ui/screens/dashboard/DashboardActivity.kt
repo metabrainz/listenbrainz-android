@@ -39,6 +39,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class DashboardActivity : ComponentActivity() {
+    
     @Inject
     lateinit var appPreferences: AppPreferences
 
@@ -172,7 +173,10 @@ class DashboardActivity : ComponentActivity() {
                     }
                 }
                 
-                SearchScreen(searchBarState = searchBarState)
+                SearchScreen(
+                    isActive = searchBarState.isActive,
+                    deactivate = {searchBarState.deactivate()}
+                )
                 
             }
         }

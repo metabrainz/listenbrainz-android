@@ -45,6 +45,7 @@ data class Theme(
     val chipUnselected: Color,
     val chipSelected: Color,
     val text: Color,
+    val listenText: Color,
     val hint: Color
 )
 
@@ -60,6 +61,7 @@ private val colorSchemeDark = Theme(
     chipUnselected = Color(0xFF1E1E1E),
     chipSelected = Color.Black,
     text = Color.White,
+    listenText = Color.White,
     hint = Color(0xFF8C8C8C)
 )
 
@@ -75,6 +77,7 @@ private val colorSchemeLight = Theme(
     chipUnselected = Color.White,
     chipSelected = Color(0xFFB6B6B6),
     text = Color.Black,
+    listenText = lb_purple,
     hint = Color(0xFF707070)
 )
 
@@ -178,8 +181,7 @@ data class Paddings(
     // New set
     val horizontal: Dp = 9.dp,
     val vertical: Dp = 8.dp,
-    val listenListVertical: Dp = 4.dp,
-    val lazyListAdjacent: Dp = 8.dp,
+    val lazyListAdjacent: Dp = 6.dp,
     val coverArtAndTextGap: Dp = 8.dp,
     val insideCard: Dp = 8.dp,
     val chipsHorizontal: Dp = 6.dp
