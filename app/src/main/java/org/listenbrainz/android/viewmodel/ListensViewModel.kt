@@ -1,8 +1,6 @@
 package org.listenbrainz.android.viewmodel
 
 import android.app.Application
-import android.content.Context
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -18,6 +16,7 @@ import com.spotify.protocol.client.Subscription
 import com.spotify.protocol.types.PlayerContext
 import com.spotify.protocol.types.PlayerState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,14 +24,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
+import kotlinx.coroutines.withContext
 import org.listenbrainz.android.BuildConfig
+import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.repository.remoteplayer.RemotePlayerRepository
 import org.listenbrainz.android.repository.socket.SocketRepository
-import org.listenbrainz.android.service.YouTubeApiService
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.android.util.Log.d
@@ -40,9 +40,6 @@ import org.listenbrainz.android.util.Log.e
 import org.listenbrainz.android.util.Resource.Status.FAILED
 import org.listenbrainz.android.util.Resource.Status.LOADING
 import org.listenbrainz.android.util.Resource.Status.SUCCESS
-import org.listenbrainz.android.util.Utils.getSHA1
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Inject
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
@@ -54,19 +51,18 @@ class ListensViewModel @Inject constructor(
     val repository: ListensRepository,
     val appPreferences: AppPreferences,
     private val application: Application,
-    private val socketRepository: SocketRepository
+    private val socketRepository: SocketRepository,
+    private val remotePlayerRepository: RemotePlayerRepository,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : AndroidViewModel(application) {
     // TODO: remove dependency of this view-model on application
     //  by moving spotify app remote to a repository.
-
-    private val _listensFlow = MutableStateFlow(listOf<Listen>())
-    val listensFlow = _listensFlow.asStateFlow()
     
     private val _isSpotifyLinked = MutableStateFlow(appPreferences.linkedServices.contains(LinkedService.SPOTIFY))
     val isSpotifyLinked = _isSpotifyLinked.asStateFlow()
     
-    var isLoading: Boolean  by mutableStateOf(true)
-    var isPaused=false
+    var isLoading: Boolean by mutableStateOf(true)
+    private var isPaused = false
     var playerState: PlayerState? by mutableStateOf(null)
     private val _songDuration = MutableStateFlow(0L)
     private val _songCurrentPosition = MutableStateFlow(0L)
@@ -81,7 +77,12 @@ class ListensViewModel @Inject constructor(
 
     private val errorCallback = { throwable: Throwable -> logError(throwable) }
     private var isResumed = false
-
+    
+    // Listens list flow
+    private val _listensFlow = MutableStateFlow(listOf<Listen>())
+    val listensFlow = _listensFlow.asStateFlow()
+    
+    // Listening now flow
     private val _listeningNowFlow: MutableStateFlow<Listen?> = MutableStateFlow(null)
     val listeningNow = _listeningNowFlow.asStateFlow()
 
@@ -92,9 +93,12 @@ class ListensViewModel @Inject constructor(
             socketRepository
                 .listen(appPreferences.username!!)
                 .collect { listen ->
-                    _listensFlow.getAndUpdate {
-                        listOf(listen) + it
-                    }
+                    if (listen.listenedAt == null)
+                        _listeningNowFlow.value = listen
+                    else
+                        _listensFlow.getAndUpdate {
+                            listOf(listen) + it
+                        }
                 }
         }
     }
@@ -134,58 +138,22 @@ class ListensViewModel @Inject constructor(
         }
     }
 
-    suspend fun searchYoutubeMusicVideoId(context: Context, trackName: String, artist: String, apiKey: String): String? {
-        val packageName = context.packageName
-        val sha1 = getSHA1(context, packageName)
-
-        val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor { chain ->
-                val request = chain.request().newBuilder()
-                    .addHeader("X-Android-Package", packageName)
-                    .addHeader("X-Android-Cert", sha1 ?: "")
-                    .build()
-                chain.proceed(request)
-            }
-            .build()
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://www.googleapis.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .client(okHttpClient)
-            .build()
-
-        val service = retrofit.create(YouTubeApiService::class.java)
-
-        return try {
-            val response = service.searchVideos(
-                "snippet",
-                "$trackName $artist",
-                "video",
-                "10",
-                apiKey
-            )
-
-            if (response.isSuccessful) {
-                val items = response.body()?.items ?: emptyList()
-                if (items.isNotEmpty()) {
-                    items[0].id.videoId
-                } else {
-                    null
+    fun playFromYoutubeMusic(trackName: String, artist: String) {
+        viewModelScope.launch {
+            remotePlayerRepository.apply {
+                playOnYoutube {
+                    withContext(ioDispatcher) {
+                        searchYoutubeMusicVideoId(trackName, artist)
+                    }
                 }
-            } else {
-                Log.e("YouTube API error", response.errorBody()?.string() ?: "")
-                null
             }
-        } catch (e: Exception) {
-            Log.e("YouTube API error", "Error occurred while searching for video ID", e)
-            null
         }
     }
 
     private fun updateTrackCoverArt(playerState: PlayerState) {
         // Get image from track
         assertAppRemoteConnected()?.imagesApi?.getImage(playerState.track.imageUri, com.spotify.protocol.types.Image.Dimension.LARGE)?.setResultCallback { bitmapHere ->
-            bitmap =ListenBitmap(
+            bitmap = ListenBitmap(
                 bitmap=bitmapHere,
                 id = playerState.track.uri
             )
@@ -278,10 +246,11 @@ class ListensViewModel @Inject constructor(
         isPaused=true
         trackProgress()
     }
+    
     fun trackProgress() {
         var state: PlayerState?
         assertAppRemoteConnected()?.playerApi?.subscribeToPlayerState()?.setEventCallback { playerState ->
-            if(bitmap.id!=playerState.track.uri) {
+            if(bitmap.id != playerState.track.uri) {
                 updateTrackCoverArt(playerState)
                 state=playerState
             }

@@ -28,7 +28,7 @@ object EntityTestUtils {
     
     /** Access token of [testUsername]*/
     const val testAccessToken = "8OC8as-1VpATqk-M79Kf-cdTw123a"
-    const val testAuthHeader = "Bearer $testAccessToken"
+    const val testAuthHeader = "Token $testAccessToken"
     
     /** Main user that is supposed to be logged in.*/
     const val testUsername = "Jasjeet"

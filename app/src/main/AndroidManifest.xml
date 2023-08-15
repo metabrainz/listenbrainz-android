@@ -89,11 +89,20 @@
         </activity>
 
         <activity
-            android:name=".ui.screens.dashboard.DonateActivity"
-            android:label="@string/donate_title" />
+            android:name=".ui.screens.about.AboutActivity"
+            android:label="@string/about_title"
+            android:theme="@style/AppTheme"/>
         <activity
-            android:name=".ui.screens.profile.LoginActivity"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar" /> <!-- Sentry Setup -->
+            android:name=".ui.screens.dashboard.DonateActivity"
+            android:label="@string/donate_title"
+            android:theme="@style/AppTheme"/>
+
+        <activity 
+            android:name="org.listenbrainz.android.ui.screens.profile.LoginActivity"
+            android:theme="@style/AppTheme"/>
+
+        <!-- Sentry Setup -->
+      
         <meta-data
             android:name="io.sentry.dsn"
             android:value="@string/sentryDsn" />

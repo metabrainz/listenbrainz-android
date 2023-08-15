@@ -15,7 +15,6 @@ import org.listenbrainz.android.repository.social.SocialRepositoryImpl
 import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.alreadyFollowingError
-import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.authHeaderNotFoundError
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.cannotFollowSelfError
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.userNotFoundError
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.testFollowersSuccessData
@@ -162,7 +161,7 @@ class SocialRepositoryTest {
         }
         webServer.start()
         val service = RetrofitUtils.createTestService(SocialService::class.java, webServer.url("/"))
-        repository = SocialRepositoryImpl(service, testAuthHeader)
+        repository = SocialRepositoryImpl(service)
     }
     
     @After
@@ -250,14 +249,6 @@ class SocialRepositoryTest {
         assertEquals(null ,result.data?.status)
         assertEquals(ResponseError.BAD_REQUEST, result.error)
         assertEquals(alreadyFollowingError, result.error?.actualResponse)
-        
-        // No Auth Header
-        result = repository.followUser(testFamiliarUser)     // Token is empty.
-    
-        assertEquals(Resource.Status.FAILED, result.status)
-        assertEquals(null ,result.data?.status)
-        assertEquals(ResponseError.AUTH_HEADER_NOT_FOUND, result.error)
-        assertEquals(authHeaderNotFoundError, result.error?.actualResponse)
     }
     
     /* unfollow() tests */
@@ -287,8 +278,6 @@ class SocialRepositoryTest {
     
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(ResponseError.AUTH_HEADER_NOT_FOUND, result.error)
-        assertEquals(authHeaderNotFoundError, result.error?.actualResponse)
     }
     
     @Test

@@ -1,13 +1,12 @@
 package org.listenbrainz.android.ui.screens.listens
 
-import android.content.Context
-import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -31,26 +30,21 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.spotify.android.appremote.api.SpotifyAppRemote
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.UserData
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.ListensViewModel
 
@@ -61,8 +55,6 @@ fun ListensScreen(
     spotifyClientId: String = stringResource(id = R.string.spotifyClientId),
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
-    context: Context = LocalContext.current,
-    scope: CoroutineScope = rememberCoroutineScope()
 ) {
     DisposableEffect(Unit) {
         viewModel.connect(spotifyClientId = spotifyClientId)
@@ -88,70 +80,21 @@ fun ListensScreen(
         }
     }
 
-    val youtubeApiKey = stringResource(id = R.string.youtubeApiKey)
-
     fun onListenTap(listen: Listen) {
         if (listen.trackMetadata.additionalInfo?.spotifyId != null) {
             Uri.parse(listen.trackMetadata.additionalInfo.spotifyId).lastPathSegment?.let { trackId ->
-                viewModel.playUri("spotify:track:${trackId}")
+                viewModel.playUri(trackId)
             }
         } else {
             // Execute the API request asynchronously
-            scope.launch {
-                val videoId = viewModel
-                    .searchYoutubeMusicVideoId(
-                        context = context,
-                        trackName = listen.trackMetadata.trackName,
-                        artist = listen.trackMetadata.artistName,
-                        apiKey = youtubeApiKey
-                    )
-                when {
-                    videoId != null -> {
-                        // Play the track in the YouTube Music app
-                        val trackUri =
-                            Uri.parse("https://music.youtube.com/watch?v=$videoId")
-                        val intent = Intent(Intent.ACTION_VIEW)
-                        intent.data = trackUri
-                        intent.setPackage(Constants.YOUTUBE_MUSIC_PACKAGE_NAME)
-                        val activities =
-                            context.packageManager.queryIntentActivities(intent, 0)
-
-                        when {
-                            activities.isNotEmpty() -> {
-                                context.startActivity(intent)
-                            }
-
-                            else -> {
-                                // Display an error message
-                                Toast.makeText(
-                                    context,
-                                    "YouTube Music is not installed to play the track.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
-                    }
-
-                    else -> {
-                        /*
-                        // Play track via Amazon Music
-                        val intent = Intent()
-                        val query = listen.trackMetadata.trackName + " " + listen.trackMetadata.artistName
-                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                        intent.setClassName(
-                            "com.amazon.mp3",
-                            "com.amazon.mp3.activity.IntentProxyActivity"
-                        )
-                        intent.action = MediaStore.INTENT_ACTION_MEDIA_SEARCH
-                        intent.putExtra(MediaStore.EXTRA_MEDIA_TITLE, query)
-                        context.startActivity(intent)
-                        */
-                    }
-                }
-            }
+            viewModel.playFromYoutubeMusic(
+                listen.trackMetadata.trackName,
+                listen.trackMetadata.artistName
+            )
         }
     }
 
+    /** Content **/
 
     // Listens list
     val listens = viewModel.listensFlow.collectAsState().value
@@ -174,7 +117,11 @@ fun ListensScreen(
                 HorizontalPager(state = pagerState, pageCount = 2, modifier = Modifier.fillMaxSize()) { page ->
                     when (page) {
                         0 -> {
-                            AnimatedVisibility(visible = viewModel.listeningNow.collectAsState().value != null) {
+                            AnimatedVisibility(
+                                visible = viewModel.listeningNow.collectAsState().value != null,
+                                enter = slideInVertically(),
+                                exit = slideOutVertically()
+                            ) {
                                 ListeningNowCard(
                                     listeningNow!!,
                                     getCoverArtUrl(
@@ -188,7 +135,11 @@ fun ListensScreen(
                         }
 
                         1 -> {
-                            AnimatedVisibility(visible = viewModel.playerState?.track?.name != null) {
+                            AnimatedVisibility(
+                                visible = viewModel.playerState?.track?.name != null,
+                                enter = slideInVertically(),
+                                exit = slideOutVertically()
+                            ) {
                                 ListeningNowOnSpotify(
                                     playerState = viewModel.playerState,
                                     bitmap = viewModel.bitmap
@@ -203,7 +154,7 @@ fun ListensScreen(
                 ListenCardSmall(
                     modifier = Modifier.padding(
                         horizontal = ListenBrainzTheme.paddings.horizontal,
-                        vertical = ListenBrainzTheme.paddings.listenListVertical
+                        vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
                     releaseName = listen.trackMetadata.trackName,
                     artistName = listen.trackMetadata.artistName,
@@ -232,7 +183,7 @@ fun ListensScreen(
         }
         
         // FAB
-        // FIXME: MOVE ACCESS TO SHARED PREFERENCES TO COROUTINES.
+        // FIXME: MOVE ACCESS OF SHARED PREFERENCES TO COROUTINES.
         if(viewModel.appPreferences.isNotificationServiceAllowed) {
             AnimatedVisibility(
                 modifier = Modifier

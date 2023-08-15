@@ -1,5 +1,6 @@
 package org.listenbrainz.android.di
 
+import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializationContext
@@ -8,6 +9,7 @@ import com.google.gson.JsonElement
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -18,8 +20,10 @@ import org.listenbrainz.android.service.FeedService
 import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.service.YimService
+import org.listenbrainz.android.service.YouTubeApiService
 import org.listenbrainz.android.util.Constants.LISTENBRAINZ_API_BASE_URL
 import org.listenbrainz.android.util.HeaderInterceptor
+import org.listenbrainz.android.util.Utils
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.lang.reflect.Type
@@ -70,6 +74,25 @@ class ServiceModule {
     fun providesFeedService(appPreferences: AppPreferences): FeedService =
         constructRetrofit(appPreferences)
             .create(FeedService::class.java)
+    
+    @Singleton
+    @Provides
+    fun providesYoutubeApiService(@ApplicationContext context: Context): YouTubeApiService =
+        Retrofit.Builder()
+            .baseUrl("https://www.googleapis.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .client( OkHttpClient.Builder()
+                .addInterceptor { chain ->
+                    val request = chain.request().newBuilder()
+                        .addHeader("X-Android-Package", context.packageName)
+                        .addHeader("X-Android-Cert", Utils.getSHA1(context, context.packageName) ?: "")
+                        .build()
+                    chain.proceed(request)
+                }
+                .build()
+            )
+            .build()
+            .create(YouTubeApiService::class.java)
     
     /* YIM */
     
