@@ -39,6 +39,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class DashboardActivity : ComponentActivity() {
+    
     @Inject
     lateinit var appPreferences: AppPreferences
 

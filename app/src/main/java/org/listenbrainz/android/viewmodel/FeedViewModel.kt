@@ -29,7 +29,7 @@ import org.listenbrainz.android.model.FeedEventVisibilityData
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.repository.feed.FeedRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
-import org.listenbrainz.android.repository.remoteplayer.RemotePlayerRepository
+import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.ui.screens.feed.FeedScreenUiState
 import org.listenbrainz.android.ui.screens.feed.FeedUiEventData
@@ -47,7 +47,7 @@ class FeedViewModel @Inject constructor(
     private val feedRepository: FeedRepository,
     private val socialRepository: SocialRepository,
     private val appPreferences: AppPreferences,
-    private val remotePlayerRepository: RemotePlayerRepository,
+    private val remotePlayerRepository: RemotePlaybackHandler,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ): ViewModel() {

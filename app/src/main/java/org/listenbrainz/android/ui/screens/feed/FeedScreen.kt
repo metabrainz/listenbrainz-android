@@ -34,7 +34,6 @@ import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
@@ -48,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -72,14 +72,15 @@ fun FeedScreen(
     scrollToTopState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit
 ) {
-    val uiState = viewModel.uiState.collectAsState().value
     
-    DisposableEffect(Unit){
+    LifecycleStartEffect(Unit) {
         viewModel.connectToSpotify()
-        onDispose {
+        onStopOrDispose {
             viewModel.disconnectSpotify()
         }
     }
+    
+    val uiState = viewModel.uiState.collectAsState().value
     
     FeedScreen(
         uiState = uiState,
