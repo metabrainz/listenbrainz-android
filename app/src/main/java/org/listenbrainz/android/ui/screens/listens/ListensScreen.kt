@@ -114,7 +114,8 @@ fun ListensScreen(
             item {
                 val pagerState = rememberPagerState()
 
-                HorizontalPager(state = pagerState, pageCount = 2, modifier = Modifier.fillMaxSize()) { page ->
+                // TODO: Figure out the use of ListeningNowOnSpotify. It is hidden for now
+                HorizontalPager(state = pagerState, pageCount = 1, modifier = Modifier.fillMaxSize()) { page ->
                     when (page) {
                         0 -> {
                             AnimatedVisibility(
