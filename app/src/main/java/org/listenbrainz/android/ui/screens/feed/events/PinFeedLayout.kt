@@ -33,7 +33,7 @@ fun PinFeedLayout(
     ) {
         
         ListenCardSmall(
-            releaseName = event.metadata.trackMetadata?.releaseName ?: "Unknown",
+            trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
             artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
             coverArtUrl = remember {
                 Utils.getCoverArtUrl(

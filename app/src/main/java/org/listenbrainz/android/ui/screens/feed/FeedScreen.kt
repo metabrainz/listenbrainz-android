@@ -294,7 +294,7 @@ fun FollowListens(
                         horizontal = ListenBrainzTheme.paddings.horizontal,
                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
-                    releaseName = event.metadata.trackMetadata?.releaseName ?: "Unknown",
+                    trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
                     artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
                     coverArtUrl =
                         Utils.getCoverArtUrl(
@@ -357,7 +357,7 @@ fun SimilarListens(
                         horizontal = ListenBrainzTheme.paddings.horizontal,
                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
-                    releaseName = event.metadata.trackMetadata?.releaseName ?: "Unknown",
+                    trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
                     artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
                     coverArtUrl =
                         Utils.getCoverArtUrl(

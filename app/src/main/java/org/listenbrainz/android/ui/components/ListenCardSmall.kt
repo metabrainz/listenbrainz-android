@@ -42,7 +42,7 @@ import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 @Composable
 fun ListenCardSmall(
     modifier: Modifier = Modifier,
-    releaseName: String,
+    trackName: String,
     artistName: String,
     coverArtUrl: String?,
     shape: Shape = ListenBrainzTheme.shapes.listenCardSmall,
@@ -91,7 +91,7 @@ fun ListenCardSmall(
             
                     Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.coverArtAndTextGap))
             
-                    TitleAndSubtitle(modifier = Modifier.padding(end = 6.dp), title = releaseName, subtitle = artistName)
+                    TitleAndSubtitle(modifier = Modifier.padding(end = 6.dp), title = trackName, subtitle = artistName)
             
                 }
                 
@@ -206,7 +206,7 @@ fun TitleAndSubtitle(
 private fun ListenCardSmallPreview() {
     ListenBrainzTheme {
         ListenCardSmall(
-            releaseName = "Title",
+            trackName = "Title",
             artistName = "Artist",
             coverArtUrl = "",
             enableTrailingContent = true,

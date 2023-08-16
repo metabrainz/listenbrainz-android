@@ -133,7 +133,7 @@ fun ListensScreen(
                         horizontal = ListenBrainzTheme.paddings.horizontal,
                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
-                    releaseName = listen.trackMetadata.trackName,
+                    trackName = listen.trackMetadata.trackName,
                     artistName = listen.trackMetadata.artistName,
                     coverArtUrl = getCoverArtUrl(
                         caaReleaseMbid = listen.trackMetadata.mbidMapping?.caaReleaseMbid,
