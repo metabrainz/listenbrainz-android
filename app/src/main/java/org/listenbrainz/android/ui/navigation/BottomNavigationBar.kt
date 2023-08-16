@@ -52,7 +52,7 @@ fun BottomNavigationBar(
                             ?: item.iconUnselected),
                         modifier = Modifier
                             .size(24.dp)
-                            .padding(top = 5.dp), contentDescription = item.title, tint = MaterialTheme.colorScheme.onSurface
+                            .padding(vertical = 4.dp), contentDescription = item.title, tint = MaterialTheme.colorScheme.onSurface
                     )
                 },
                 label = {

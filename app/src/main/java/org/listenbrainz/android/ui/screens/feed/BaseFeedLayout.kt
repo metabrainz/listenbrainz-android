@@ -22,7 +22,6 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.HideSource
 import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -31,16 +30,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.listenbrainz.android.R
 import org.listenbrainz.android.model.FeedEvent
 import org.listenbrainz.android.model.FeedEventType
 import org.listenbrainz.android.model.FeedEventType.Companion.getTimeStringForFeed
@@ -85,7 +87,8 @@ fun BaseFeedLayout(
                     event = event,
                     eventType = eventType,
                     parentUser = parentUser,
-                    onActionClick = onDeleteOrHide
+                    onActionClick = onDeleteOrHide,
+                    isHidden = isHidden
                 )
             }
         }
@@ -151,6 +154,7 @@ fun Date(
     event: FeedEvent,
     parentUser: String,
     eventType: FeedEventType,
+    isHidden: Boolean = false,
     height: Dp = 24.dp,
     onActionClick: () -> Unit = {}
 ) {
@@ -183,8 +187,10 @@ fun Date(
                 // TODO: USE CUSTOM ICONS HERE.
                 imageVector = if (isActionDelete(event, eventType, parentUser))
                         Icons.Rounded.Delete
+                    else if (isHidden)
+                        ImageVector.vectorResource(id = R.drawable.ic_unhide)
                     else
-                        Icons.Rounded.HideSource,
+                        ImageVector.vectorResource(id = R.drawable.ic_hide),
                 tint = ListenBrainzTheme.colorScheme.lbSignature,
                 contentDescription = if (isActionDelete(
                         event,

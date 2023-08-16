@@ -324,6 +324,7 @@ enum class FeedEventType (
                     
                     val entityType = feedEvent.metadata.entityType ?: "entity"
     
+                    // FIXME: Refactor entityType
                     withStyle(normalStyle){
                         append("reviewed ${getArticle(entityType)} ${entityType}.")
                     }

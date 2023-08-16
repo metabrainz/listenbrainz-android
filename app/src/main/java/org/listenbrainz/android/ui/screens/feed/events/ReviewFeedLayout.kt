@@ -2,11 +2,20 @@ package org.listenbrainz.android.ui.screens.feed.events
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.gowtham.ratingbar.RatingBar
+import com.gowtham.ratingbar.RatingBarStyle
 import org.listenbrainz.android.model.FeedEvent
 import org.listenbrainz.android.model.FeedEventType
 import org.listenbrainz.android.model.Metadata
@@ -31,8 +40,8 @@ fun ReviewFeedLayout(
     ) {
         
         ListenCardSmall(
-            trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
-            artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
+            trackName = event.metadata.entityName ?: "Unknown",
+            artistName = event.metadata.trackMetadata?.artistName ?: "",
             coverArtUrl = remember {
                 Utils.getCoverArtUrl(
                     caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
@@ -44,11 +53,36 @@ fun ReviewFeedLayout(
             enableBlurbContent = true,
             blurbContent = { modifier ->
                 Column(modifier = modifier) {
-                    Text(
-                        text = event.blurbContent,
-                        style = ListenBrainzTheme.textStyles.feedBlurbContent,
-                        color = ListenBrainzTheme.colorScheme.text
-                    )
+                    event.metadata.rating?.toFloat()?.let { rating ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "Rating: ",
+                                color = ListenBrainzTheme.colorScheme.text,
+                                style = ListenBrainzTheme.textStyles.feedBlurbContentTitle
+                            )
+                            RatingBar(
+                                value = rating,
+                                size = 16.dp,
+                                style = RatingBarStyle.Fill(
+                                    inActiveColor = Color.Transparent,
+                                    activeColor = ListenBrainzTheme.colorScheme.golden
+                                ),
+                                spaceBetween = 1.5.dp,
+                                onValueChange = {},
+                                onRatingChanged = {}
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(6.dp))
+    
+                    event.blurbContent?.let {
+                        Text(
+                            text = it,
+                            style = ListenBrainzTheme.textStyles.feedBlurbContent,
+                            color = ListenBrainzTheme.colorScheme.text
+                        )
+                    }
                 }
             },
             onClick = onClick
@@ -70,6 +104,7 @@ private fun ReviewFeedLayoutPreview() {
                     type = "like",
                     hidden = false,
                     metadata = Metadata(
+                        rating = 3,
                         blurbContent = "Good song.",
                         entityType = "track"
                     ),

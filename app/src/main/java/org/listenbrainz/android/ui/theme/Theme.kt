@@ -46,6 +46,8 @@ data class Theme(
     val chipSelected: Color,
     val text: Color,
     val listenText: Color,
+    /** Used for stars.*/
+    val golden: Color = Color(0xFFF9A825),
     val hint: Color
 )
 
@@ -209,6 +211,7 @@ private val LocalShapes = staticCompositionLocalOf { Shapes() }
 @Immutable
 data class TextStyles(
     val feedBlurbContent: TextStyle = TextStyle(fontStyle = FontStyle.Italic, fontSize = 14.sp),
+    val feedBlurbContentTitle: TextStyle = TextStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic, fontSize = 14.sp),
     val chips: TextStyle = TextStyle(fontWeight = FontWeight.Medium),
     val listenTitle: TextStyle = TextStyle(fontWeight = FontWeight.Bold),
     val listenSubtitle: TextStyle = TextStyle(fontWeight = FontWeight.Bold, fontSize = 12.sp)

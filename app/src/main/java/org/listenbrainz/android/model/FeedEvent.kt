@@ -15,6 +15,6 @@ data class FeedEvent(
     @SerializedName("user_id"   ) val userId: Int? = null
 ) {
     /** Quick getter for blurbContent.*/
-    val blurbContent: String
-        get() = this.metadata.blurbContent ?: "Oops! Error loading content."
+    val blurbContent: String?
+        get() = metadata.message ?: metadata.blurbContent ?: metadata.text
 }

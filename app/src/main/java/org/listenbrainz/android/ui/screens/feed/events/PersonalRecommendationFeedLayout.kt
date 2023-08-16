@@ -4,7 +4,6 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
@@ -61,7 +60,10 @@ fun PersonalRecommendationFeedLayout(
                     // Only show "Sent to:" text if user is the one who personally recommended.
                     if (FeedEventType.isUserSelf(event, parentUser)){
                         
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            modifier = Modifier.padding(bottom = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             
                             Text(
                                 text = "Sent to:",
@@ -90,15 +92,15 @@ fun PersonalRecommendationFeedLayout(
                                 }
                             }
                         }
-    
-                        Spacer(modifier = modifier.height(4.dp))
                     }
-                    
-                    Text(
-                        text = event.blurbContent,
-                        style = ListenBrainzTheme.textStyles.feedBlurbContent,
-                        color = ListenBrainzTheme.colorScheme.text
-                    )
+    
+                    event.blurbContent?.let {
+                        Text(
+                            text = it,
+                            style = ListenBrainzTheme.textStyles.feedBlurbContent,
+                            color = ListenBrainzTheme.colorScheme.text
+                        )
+                    }
                 }
             }
         )

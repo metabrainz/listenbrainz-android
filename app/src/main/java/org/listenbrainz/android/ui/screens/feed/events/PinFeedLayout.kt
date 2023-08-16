@@ -43,14 +43,16 @@ fun PinFeedLayout(
             },
             enableDropdownIcon = true,
             onDropdownIconClick = onDropdownClick,
-            enableBlurbContent = true,
+            enableBlurbContent = event.blurbContent != null,
             blurbContent = { modifier ->
-                Column(modifier = modifier) {
-                    Text(
-                        text = event.blurbContent,
-                        style = ListenBrainzTheme.textStyles.feedBlurbContent,
-                        color = ListenBrainzTheme.colorScheme.text
-                    )
+                event.blurbContent?.let {
+                    Column(modifier = modifier) {
+                        Text(
+                            text = it,
+                            style = ListenBrainzTheme.textStyles.feedBlurbContent,
+                            color = ListenBrainzTheme.colorScheme.text
+                        )
+                    }
                 }
             },
             onClick = onClick
