@@ -1,17 +1,25 @@
 package org.listenbrainz.android.ui.screens.feed.events
 
 import android.content.res.Configuration
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gowtham.ratingbar.RatingBar
@@ -30,7 +38,8 @@ fun ReviewFeedLayout(
     parentUser: String,
     onDeleteOrHide: () -> Unit,
     onDropdownClick: () -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    uriHandler: UriHandler = LocalUriHandler.current
 ) {
     BaseFeedLayout(
         eventType = FeedEventType.REVIEW,
@@ -53,25 +62,43 @@ fun ReviewFeedLayout(
             enableBlurbContent = true,
             blurbContent = { modifier ->
                 Column(modifier = modifier) {
-                    event.metadata.rating?.toFloat()?.let { rating ->
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "Rating: ",
-                                color = ListenBrainzTheme.colorScheme.text,
-                                style = ListenBrainzTheme.textStyles.feedBlurbContentTitle
-                            )
-                            RatingBar(
-                                value = rating,
-                                size = 16.dp,
-                                style = RatingBarStyle.Fill(
-                                    inActiveColor = Color.Transparent,
-                                    activeColor = ListenBrainzTheme.colorScheme.golden
-                                ),
-                                spaceBetween = 1.5.dp,
-                                onValueChange = {},
-                                onRatingChanged = {}
-                            )
+                    
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        event.metadata.rating?.toFloat()?.let { rating ->
+                            Row(
+                                modifier = Modifier.align(Alignment.CenterStart),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "Rating: ",
+                                    color = ListenBrainzTheme.colorScheme.text,
+                                    style = ListenBrainzTheme.textStyles.feedBlurbContentTitle
+                                )
+                                RatingBar(
+                                    value = rating,
+                                    size = 16.dp,
+                                    style = RatingBarStyle.Fill(
+                                        inActiveColor = Color.Transparent,
+                                        activeColor = ListenBrainzTheme.colorScheme.golden
+                                    ),
+                                    spaceBetween = 1.5.dp,
+                                    onValueChange = {},
+                                    onRatingChanged = {}
+                                )
+                            }
                         }
+                        
+                        Icon(
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .clickable {
+                                    uriHandler.openUri("https://critiquebrainz.org/review/${event.metadata.reviewMbid}")
+                                },
+                            imageVector = Icons.Default.Link,
+                            tint = ListenBrainzTheme.colorScheme.lbSignature,
+                            contentDescription = "Go to CritiqueBrainz website"
+                        )
+                        
                     }
                     
                     Spacer(modifier = Modifier.height(6.dp))
@@ -112,8 +139,9 @@ private fun ReviewFeedLayoutPreview() {
                 ),
                 onDeleteOrHide = {},
                 onDropdownClick = {},
-                parentUser = "Jasjeet"
-            ) {}
+                parentUser = "Jasjeet",
+                onClick = {}
+            )
         }
     }
 }
