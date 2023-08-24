@@ -1,4 +1,4 @@
-package org.listenbrainz.android.model
+package org.listenbrainz.android.model.yimdata
 
 enum class YimShareable(val code: String) {
     TRACKS("tracks"),
