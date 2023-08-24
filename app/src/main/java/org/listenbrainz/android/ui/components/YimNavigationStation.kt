@@ -7,8 +7,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import org.listenbrainz.android.model.YimScreens
-import org.listenbrainz.android.model.YimShareable
+import org.listenbrainz.android.model.yimdata.YimScreens
+import org.listenbrainz.android.model.yimdata.YimShareable
 import org.listenbrainz.android.viewmodel.YimViewModel
 
 /** Shareable types : "stats", "artists", "albums", "tracks", "discovery-playlist", "missed-playlist".

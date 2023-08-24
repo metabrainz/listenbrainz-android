@@ -33,8 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.YimScreens
-import org.listenbrainz.android.model.YimShareable
+import org.listenbrainz.android.model.yimdata.YimScreens
+import org.listenbrainz.android.model.yimdata.YimShareable
 import org.listenbrainz.android.ui.components.YimShareButton
 import org.listenbrainz.android.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.ui.theme.YearInMusicTheme

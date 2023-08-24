@@ -29,7 +29,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import okhttp3.*
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.YimScreens
+import org.listenbrainz.android.model.yimdata.YimScreens
 import org.listenbrainz.android.model.yimdata.Track
 import org.listenbrainz.android.ui.components.YimLabelText
 import org.listenbrainz.android.ui.components.YimListenCard

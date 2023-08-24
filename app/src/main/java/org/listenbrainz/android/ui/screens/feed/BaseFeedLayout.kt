@@ -43,10 +43,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.FeedEvent
-import org.listenbrainz.android.model.FeedEventType
-import org.listenbrainz.android.model.FeedEventType.Companion.getTimeStringForFeed
-import org.listenbrainz.android.model.FeedEventType.Companion.isActionDelete
+import org.listenbrainz.android.model.feed.FeedEvent
+import org.listenbrainz.android.model.feed.FeedEventType
+import org.listenbrainz.android.model.feed.FeedEventType.Companion.getTimeStringForFeed
+import org.listenbrainz.android.model.feed.FeedEventType.Companion.isActionDelete
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
