@@ -296,6 +296,7 @@ fun ReviewEnabledDialog(
                     enabled = blurbContent.length >= 25 && isCheckBoxTicked
                 ) {
                     onSubmit(selectedEntity, blurbContent, if (rating.toInt() == 0) null else rating.toInt(), selectedLocale)
+                    onDismiss()
                 }
             }
         }
