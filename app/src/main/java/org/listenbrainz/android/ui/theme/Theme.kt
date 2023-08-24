@@ -44,6 +44,10 @@ data class Theme(
     val onLbSignature: Color,
     val chipUnselected: Color,
     val chipSelected: Color,
+    val dialogPositiveButtonEnabled: Color = Color(0xFF5DA855),
+    val dialogPositiveButtonDisabled: Color = Color(0xFF9EB99C),
+    val dialogNegativeButton: Color = Color(0xFF696658),
+    val dialogNegativeButtonText: Color = Color.White,
     val text: Color,
     val listenText: Color,
     /** Used for stars.*/
@@ -186,14 +190,20 @@ data class Paddings(
     val lazyListAdjacent: Dp = 6.dp,
     val coverArtAndTextGap: Dp = 8.dp,
     val insideCard: Dp = 8.dp,
-    val chipsHorizontal: Dp = 6.dp
+    /** Padding for text inside custom made buttons.*/
+    val insideButton: Dp = 8.dp,
+    val adjacentDialogButtons: Dp = 8.dp,
+    val chipsHorizontal: Dp = 6.dp,
+    val insideDialog: Dp = 14.dp,
+    val dialogContent: Dp = 8.dp
 )
 private val LocalPaddings = staticCompositionLocalOf { Paddings() }
 
 @Immutable
 data class Sizes(
     val listenCardHeight: Dp = 60.dp,
-    val listenCardCorner: Dp = 8.dp
+    val listenCardCorner: Dp = 8.dp,
+    val dropdownItem: Dp = 20.dp
 )
 
 private val LocalSizes = staticCompositionLocalOf { Sizes() }
@@ -202,6 +212,7 @@ private val LocalSizes = staticCompositionLocalOf { Sizes() }
 data class Shapes(
     // Change size field when changing this.
     val listenCardSmall: Shape = RoundedCornerShape(8.dp),
+    val dialogs: Shape = RoundedCornerShape(4.dp),
     val listenCard: Shape = RoundedCornerShape(16.dp),
     val chips: Shape = RoundedCornerShape(4.dp)
 )
@@ -213,8 +224,16 @@ data class TextStyles(
     val feedBlurbContent: TextStyle = TextStyle(fontStyle = FontStyle.Italic, fontSize = 14.sp),
     val feedBlurbContentTitle: TextStyle = TextStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic, fontSize = 14.sp),
     val chips: TextStyle = TextStyle(fontWeight = FontWeight.Medium),
+    val dropdownItem: TextStyle = TextStyle(fontWeight = FontWeight.Light, fontSize = 14.sp),
     val listenTitle: TextStyle = TextStyle(fontWeight = FontWeight.Bold),
-    val listenSubtitle: TextStyle = TextStyle(fontWeight = FontWeight.Bold, fontSize = 12.sp)
+    val listenSubtitle: TextStyle = TextStyle(fontWeight = FontWeight.Bold, fontSize = 12.sp),
+    
+    // Dialog
+    val dialogTitle: TextStyle = TextStyle(fontWeight = FontWeight.Light, fontSize = 16.sp),
+    val dialogTitleBold: TextStyle = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp),
+    val dialogButtonText: TextStyle = TextStyle(fontWeight = FontWeight.Light, fontSize = 14.sp),
+    val dialogText: TextStyle = TextStyle(fontWeight = FontWeight.Light, fontSize = 14.sp),
+    val dialogTextBold: TextStyle = TextStyle(fontWeight = FontWeight.Bold, fontSize = 14.sp)
 )
 
 private val LocalTextStyles = staticCompositionLocalOf { TextStyles() }

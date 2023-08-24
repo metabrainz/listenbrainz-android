@@ -24,11 +24,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gowtham.ratingbar.RatingBar
 import com.gowtham.ratingbar.RatingBarStyle
-import org.listenbrainz.android.model.FeedEvent
-import org.listenbrainz.android.model.FeedEventType
 import org.listenbrainz.android.model.Metadata
+import org.listenbrainz.android.model.feed.FeedEvent
+import org.listenbrainz.android.model.feed.FeedEventType
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
+import org.listenbrainz.android.ui.screens.feed.FeedSocialDropdown
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils
 
@@ -39,6 +40,13 @@ fun ReviewFeedLayout(
     onDeleteOrHide: () -> Unit,
     onDropdownClick: () -> Unit,
     onClick: () -> Unit,
+    dropdownState: Int?,
+    index: Int,
+    onOpenInMusicBrainz: () -> Unit,
+    onPin: () -> Unit,
+    onRecommend: () -> Unit,
+    onPersonallyRecommend: () -> Unit,
+    onReview: () -> Unit,
     uriHandler: UriHandler = LocalUriHandler.current
 ) {
     BaseFeedLayout(
@@ -59,6 +67,17 @@ fun ReviewFeedLayout(
             },
             enableDropdownIcon = true,
             onDropdownIconClick = onDropdownClick,
+            dropDown = {
+                FeedSocialDropdown(
+                    isExpanded = dropdownState == index,
+                    onDismiss = onDropdownClick,
+                    onOpenInMusicBrainz = onOpenInMusicBrainz,
+                    onPin = onPin,
+                    onRecommend = onRecommend,
+                    onPersonallyRecommend = onPersonallyRecommend,
+                    onReview = onReview
+                )
+            },
             enableBlurbContent = true,
             blurbContent = { modifier ->
                 Column(modifier = modifier) {
@@ -140,7 +159,14 @@ private fun ReviewFeedLayoutPreview() {
                 onDeleteOrHide = {},
                 onDropdownClick = {},
                 parentUser = "Jasjeet",
-                onClick = {}
+                onClick = {},
+                dropdownState = null,
+                index = 0,
+                onOpenInMusicBrainz = {},
+                onPin = {},
+                onRecommend = {},
+                onPersonallyRecommend = {},
+                onReview = {}
             )
         }
     }

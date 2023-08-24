@@ -1,12 +1,14 @@
 package org.listenbrainz.android.service
 
-import org.listenbrainz.android.model.FeedEvent
+import org.listenbrainz.android.model.PinData
+import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.RecommendationData
 import org.listenbrainz.android.model.Review
 import org.listenbrainz.android.model.SearchResult
 import org.listenbrainz.android.model.SimilarUserData
 import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.SocialResponse
+import org.listenbrainz.android.model.feed.FeedEvent
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -53,6 +55,11 @@ interface SocialService {
         @Path("user_name") username: String,
         @Body data: Review
     ) : Response<FeedEvent>
+    
+    @POST("pin")
+    suspend fun postPin(
+        @Body data: PinnedRecording
+    ) : Response<PinData>
     
     @POST("pin/delete/{id}")
     suspend fun deletePin(
