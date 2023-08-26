@@ -209,7 +209,7 @@ fun ReviewEnabledDialog(
                 )
             }
     
-            Spacer(modifier = Modifier.height(ListenBrainzTheme.paddings.insideDialog/2))
+            Spacer(modifier = Modifier.height(ListenBrainzTheme.paddings.insideDialog))
             
             var localeSearchText by remember {
                 mutableStateOf("")
