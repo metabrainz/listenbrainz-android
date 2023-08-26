@@ -31,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.listenbrainz.android.R
+import org.listenbrainz.android.ui.screens.newsbrainz.NewsBrainzActivity
 import org.listenbrainz.android.ui.screens.yim.YearInMusicActivity
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.offWhite
