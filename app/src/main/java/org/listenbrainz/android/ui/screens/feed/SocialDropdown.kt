@@ -64,7 +64,7 @@ fun FeedSocialDropdown(
             if (trackName != null || artistName != null || releaseName != null)
                 add(SocialDropdownItem.REVIEW(onReview))
             
-            // TODO: Add these in future
+            // TODO: Add these in future once we have its metadata conditions.
             //add(SocialDropdownItem.LINK(onLink))
             //add(SocialDropdownItem.DELETE(onDelete)),
             //add(SocialDropdownItem.INSPECT(onInspect))

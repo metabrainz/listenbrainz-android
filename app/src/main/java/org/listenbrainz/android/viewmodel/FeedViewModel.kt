@@ -265,6 +265,8 @@ class FeedViewModel @Inject constructor(
                     
                     if (result.status == Resource.Status.SUCCESS){
                         d("Play on youtube music successful")
+                    } else {
+                        emitError(ResponseError.REMOTE_PLAYER_ERROR.apply { actualResponse = "Could not play the requested track." })
                     }
                 }
             } else {

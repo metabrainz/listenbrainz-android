@@ -18,10 +18,7 @@ class SimilarListensPagingSource(
 ): PagingSource<Int, FeedUiEventItem>() {
     
     override fun getRefreshKey(state: PagingState<Int, FeedUiEventItem>): Int? {
-        return if ((state.anchorPosition ?: 0) < 10)
-            null
-        else
-            state.lastItemOrNull()?.event?.created
+        return (System.currentTimeMillis()/1000).toInt()
     }
     
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, FeedUiEventItem> {
@@ -29,7 +26,7 @@ class SimilarListensPagingSource(
         val username = username()
         if (username.isNullOrEmpty()) {
             val error = ResponseError.UNAUTHORISED.apply { actualResponse = "Login to access feed." }
-            onError(ResponseError.UNAUTHORISED.apply { actualResponse = "Login to access feed." })
+            onError(error)
             return LoadResult.Error(Exception(error.toast()))
         }
         
@@ -41,7 +38,18 @@ class SimilarListensPagingSource(
             Resource.Status.SUCCESS -> {
                 
                 val processedEvents = processFeedEvents(result.data)
-                val nextKey = processedEvents.lastOrNull()?.event?.created
+                val nextKey = processedEvents.lastOrNull()?.event?.created?.let { newKey ->
+                    // Termination condition.
+                    if (params.key != null && newKey >= params.key!!)
+                        return LoadResult.Page(
+                            data = emptyList(),
+                            prevKey = null,
+                            nextKey = null
+                        )
+                    else
+                        newKey
+        
+                }
                 
                 LoadResult.Page(
                     data = processedEvents,

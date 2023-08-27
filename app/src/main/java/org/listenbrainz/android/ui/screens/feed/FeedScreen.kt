@@ -29,12 +29,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Done
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedSuggestionChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -202,7 +205,14 @@ private fun FeedScreen(
             .pullRefresh(state = pullRefreshState)
     ) {
     
-        RetryButton(Modifier.align(Alignment.Center), myFeedPagingData)
+        RetryButton(
+            modifier = Modifier.align(Alignment.Center),
+            show = myFeedPagingData.itemCount == 0 && myFeedPagingData.loadState.refresh is LoadState.Error,
+        ) {
+            myFeedPagingData.retry()
+            similarListensPagingData.retry()
+            followListensPagingData.retry()
+        }
     
         HorizontalPager(
             pageCount = 3,
@@ -754,11 +764,11 @@ fun NavigationChips(
 }
 
 @Composable
-private fun RetryButton(modifier: Modifier = Modifier, pagingData: LazyPagingItems<FeedUiEventItem>) {
-    if (pagingData.itemCount == 0 && pagingData.loadState.refresh is LoadState.Error) {
+private fun RetryButton(modifier: Modifier = Modifier, show: Boolean, onClick: () -> Unit) {
+    if (show) {
         Button(
             modifier = modifier,
-            onClick = { pagingData.retry() },
+            onClick = onClick,
             colors = ButtonDefaults.buttonColors(containerColor = ListenBrainzTheme.colorScheme.lbSignature)
         ) {
             Text(
@@ -772,10 +782,12 @@ private fun RetryButton(modifier: Modifier = Modifier, pagingData: LazyPagingIte
 
 @Composable
 private fun PagerRearLoadingIndicator(pagingData: LazyPagingItems<FeedUiEventItem>) {
-    Box(Modifier.fillMaxWidth()) {
+    
+    Box(
+        modifier = if (pagingData.itemCount == 0) Modifier.fillMaxSize() else Modifier.fillMaxWidth()
+    ) {
         if (
             pagingData.itemCount != 0 &&
-            pagingData.loadState.refresh is LoadState.Loading ||
             pagingData.loadState.append is LoadState.Loading
         ) {
             
@@ -794,8 +806,39 @@ private fun PagerRearLoadingIndicator(pagingData: LazyPagingItems<FeedUiEventIte
                 modifier = Modifier
                     .align(Alignment.Center)
                     .padding(vertical = 24.dp),
-                pagingData = pagingData
+                show = true,
+                onClick = {
+                    pagingData.retry()
+                }
             )
+            
+        } else if (
+            pagingData.loadState.refresh is LoadState.NotLoading &&
+            pagingData.loadState.append is LoadState.NotLoading
+        ) {
+            // No more data to page.
+            Row(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(vertical = 32.dp), // Default height of m3 button is 40.dp)
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                
+                Icon(
+                    imageVector = Icons.Rounded.Done,
+                    contentDescription = "End of feed.",
+                    tint = ListenBrainzTheme.colorScheme.lbSignature
+                )
+                
+                Spacer(modifier = Modifier.width(6.dp))
+                
+                Text(
+                    text = "You are all caught up!",
+                    fontWeight = FontWeight.Medium,
+                    color = ListenBrainzTheme.colorScheme.lbSignature
+                )
+            }
+            
             
         }
     }
