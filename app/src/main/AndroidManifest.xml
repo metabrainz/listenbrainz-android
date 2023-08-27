@@ -87,7 +87,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.screens.dashboard.DonateActivity"
             android:label="@string/donate_title"
