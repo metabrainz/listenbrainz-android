@@ -17,7 +17,9 @@ class MyFeedPagingSource (
     private val feedRepository: FeedRepository,
     private val ioDispatcher: CoroutineDispatcher
 ): PagingSource<Int, FeedUiEventItem>() {
-    
+
+    private var lastUsedKey: Int? = null
+
     override fun getRefreshKey(state: PagingState<Int, FeedUiEventItem>): Int? {
         return if ((state.anchorPosition ?: 0) < 10)
             null
@@ -42,8 +44,13 @@ class MyFeedPagingSource (
             Resource.Status.SUCCESS -> {
                 
                 val processedEvents = processFeedEvents(result.data)
-                val nextKey = processedEvents.lastOrNull()?.event?.created
-                
+
+                val nextKey = processedEvents.lastOrNull()?.event?.created?.takeIf {
+                    it != lastUsedKey
+                }
+
+                lastUsedKey = nextKey
+
                 LoadResult.Page(
                     data = processedEvents,
                     prevKey = null,
