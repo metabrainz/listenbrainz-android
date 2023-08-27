@@ -2,6 +2,7 @@ package org.listenbrainz.android.ui.navigation
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.net.Uri
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -77,7 +78,21 @@ fun TopBar(
             }
 
             IconButton(onClick = {
-                navController.navigate(AppNavigationItem.Settings.route)
+                if (navBackStackEntry?.destination?.route == AppNavigationItem.Settings.route){
+                    navController.popBackStack()
+                } else {
+                    navController.navigate(AppNavigationItem.Settings.route){
+                        // Avoid building large backstack
+                        popUpTo(AppNavigationItem.Feed.route){
+                            saveState = true
+                        }
+                        // Avoid copies
+                        launchSingleTop = true
+                        // Restore previous state
+                        restoreState = true
+                    }
+                }
+                
             }) {
                 Icon(painterResource(id = R.drawable.ic_settings),"Settings")
             }
@@ -87,6 +102,7 @@ fun TopBar(
 }
 
 @Preview
+@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun TopBarPreview() {
     ListenBrainzTheme {

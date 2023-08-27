@@ -18,13 +18,8 @@ class MyFeedPagingSource (
     private val ioDispatcher: CoroutineDispatcher
 ): PagingSource<Int, FeedUiEventItem>() {
 
-    private var lastUsedKey: Int? = null
-
-    override fun getRefreshKey(state: PagingState<Int, FeedUiEventItem>): Int? {
-        return if ((state.anchorPosition ?: 0) < 10)
-            null
-        else
-            state.lastItemOrNull()?.event?.created
+    override fun getRefreshKey(state: PagingState<Int, FeedUiEventItem>): Int {
+        return (System.currentTimeMillis()/1000).toInt()
     }
     
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, FeedUiEventItem> {
@@ -32,7 +27,7 @@ class MyFeedPagingSource (
         val username = username()
         if (username.isNullOrEmpty()) {
             val error = ResponseError.UNAUTHORISED.apply { actualResponse = "Login to access feed." }
-            onError(ResponseError.UNAUTHORISED.apply { actualResponse = "Login to access feed." })
+            onError(error)
             return LoadResult.Error(Exception(error.toast()))
         }
         
@@ -45,11 +40,18 @@ class MyFeedPagingSource (
                 
                 val processedEvents = processFeedEvents(result.data)
 
-                val nextKey = processedEvents.lastOrNull()?.event?.created?.takeIf {
-                    it != lastUsedKey
+                val nextKey = processedEvents.lastOrNull()?.event?.created?.let { newKey ->
+                    // Termination condition.
+                    if (params.key != null && newKey >= params.key!!)
+                        return LoadResult.Page(
+                            data = emptyList(),
+                            prevKey = null,
+                            nextKey = null
+                        )
+                    else
+                        newKey
+                    
                 }
-
-                lastUsedKey = nextKey
 
                 LoadResult.Page(
                     data = processedEvents,
