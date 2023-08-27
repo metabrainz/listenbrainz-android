@@ -17,8 +17,8 @@ class FollowListensPagingSource(
     private val ioDispatcher: CoroutineDispatcher
 ): PagingSource<Int, FeedUiEventItem>() {
     
-    override fun getRefreshKey(state: PagingState<Int, FeedUiEventItem>): Int? {
-        return null
+    override fun getRefreshKey(state: PagingState<Int, FeedUiEventItem>): Int {
+        return (System.currentTimeMillis()/1000).toInt()
     }
     
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, FeedUiEventItem> {
