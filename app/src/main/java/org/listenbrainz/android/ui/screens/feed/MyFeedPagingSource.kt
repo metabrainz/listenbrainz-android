@@ -45,8 +45,7 @@ class MyFeedPagingSource (
                 
                 val processedEvents = processFeedEvents(result.data)
 
-                // Use event id for nextKey
-                val nextKey = processedEvents.lastOrNull()?.event?.id?.takeIf {
+                val nextKey = processedEvents.lastOrNull()?.event?.created?.takeIf {
                     it != lastUsedKey
                 }
 
