@@ -269,6 +269,7 @@ class FeedViewModel @Inject constructor(
                 }
             } else {
                 // Could not play song.
+                emitError(ResponseError.REMOTE_PLAYER_ERROR.apply { actualResponse = "Could not play the requested track." })
             }
         }
     }

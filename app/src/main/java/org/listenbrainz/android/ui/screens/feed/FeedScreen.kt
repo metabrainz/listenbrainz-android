@@ -79,7 +79,6 @@ import org.listenbrainz.android.ui.screens.feed.dialogs.ReviewDialog
 import org.listenbrainz.android.ui.screens.feed.dialogs.rememberDialogsState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils
-import org.listenbrainz.android.util.Utils.similarityToPercent
 import org.listenbrainz.android.viewmodel.FeedViewModel
 
 @Composable
@@ -168,9 +167,11 @@ private fun FeedScreen(
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
         onRefresh = {
-            myFeedPagingData.refresh()
-            followListensPagingData.refresh()
-            similarListensPagingData.refresh()
+            when (pagerState.currentPage){
+                0 -> myFeedPagingData.refresh()
+                1 -> followListensPagingData.refresh()
+                2 -> similarListensPagingData.refresh()
+            }
         }
     )
     
@@ -631,14 +632,25 @@ fun SimilarListens(
                     enableDropdownIcon = true,
                     enableTrailingContent = true,
                     trailingContent = { modifier ->
-                        TitleAndSubtitle(
+                        /*TitleAndSubtitle(
                             modifier = modifier,
                             title = event.username ?: "Unknown",
                             subtitle = similarityToPercent(event.similarity),
                             alignment = Alignment.End,
                             titleColor = ListenBrainzTheme.colorScheme.lbSignature,
                             subtitleColor = ListenBrainzTheme.colorScheme.lbSignatureInverse
-                        )
+                        )*/
+                        Column(modifier, horizontalAlignment = Alignment.End) {
+                            TitleAndSubtitle(
+                                title = event.username ?: "Unknown",
+                                titleColor = ListenBrainzTheme.colorScheme.lbSignature
+                            )
+                            Date(
+                                event = event,
+                                parentUser = parentUser,
+                                eventType = eventType
+                            )
+                        }
                     },
                     onDropdownIconClick = {
                         dropdownItemIndex.value = if (dropdownItemIndex.value == null){
