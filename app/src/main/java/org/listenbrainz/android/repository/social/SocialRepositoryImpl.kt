@@ -1,13 +1,16 @@
 package org.listenbrainz.android.repository.social
 
-import org.listenbrainz.android.model.FeedEvent
+import org.listenbrainz.android.model.PinData
+import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.RecommendationData
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.ResponseError.Companion.getError
 import org.listenbrainz.android.model.Review
 import org.listenbrainz.android.model.SearchResult
 import org.listenbrainz.android.model.SimilarUserData
 import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.SocialResponse
+import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.logAndReturn
@@ -19,8 +22,10 @@ class SocialRepositoryImpl @Inject constructor(
 ) : SocialRepository {
 
     /** @return Network Failure, User DNE, Success.*/
-    override suspend fun getFollowers(username: String) : Resource<SocialData> =
+    override suspend fun getFollowers(username: String?) : Resource<SocialData> =
         runCatching {
+            if (username == null) return@runCatching Resource.failure(error = ResponseError.AUTH_HEADER_NOT_FOUND)
+            
             val response = service.getFollowersData(username = username)
     
             return@runCatching if (response.isSuccessful) {
@@ -100,8 +105,13 @@ class SocialRepositoryImpl @Inject constructor(
     
         }.getOrElse { logAndReturn(it) }
     
-    override suspend fun postPersonalRecommendation(username: String, data: RecommendationData): Resource<FeedEvent> =
+    override suspend fun postPersonalRecommendation(username: String?, data: RecommendationData): Resource<FeedEvent> =
         runCatching {
+            if (username.isNullOrEmpty())
+                return@runCatching Resource.failure(error = ResponseError.AUTH_HEADER_NOT_FOUND)
+            if (data.metadata.recordingMbid == null && data.metadata.recordingMsid == null)
+                return@runCatching Resource.failure(error = ResponseError.BAD_REQUEST.apply { actualResponse = "Cannot recommend this track." })
+            
             val response = service.postPersonalRecommendation(
                 username = username,
                 data = data
@@ -114,8 +124,12 @@ class SocialRepositoryImpl @Inject constructor(
     
         }.getOrElse { logAndReturn(it) }
     
-    override suspend fun postRecommendationToAll(username: String, data: RecommendationData): Resource<FeedEvent> =
+    override suspend fun postRecommendationToAll(username: String?, data: RecommendationData): Resource<FeedEvent> =
         runCatching {
+            if (username.isNullOrEmpty())
+                return@runCatching Resource.failure(error = ResponseError.AUTH_HEADER_NOT_FOUND)
+            if (data.metadata.recordingMbid == null && data.metadata.recordingMsid == null)
+                return@runCatching Resource.failure(error = ResponseError.BAD_REQUEST.apply { actualResponse = "Cannot recommend this track." })
             
             val response = service.postRecommendationToAll(
                 username = username,
@@ -130,8 +144,11 @@ class SocialRepositoryImpl @Inject constructor(
     
         }.getOrElse { logAndReturn(it) }
     
-    override suspend fun postReview(username: String, data: Review): Resource<FeedEvent> =
+    override suspend fun postReview(username: String?, data: Review): Resource<FeedEvent> =
         runCatching {
+            if (username.isNullOrEmpty()) return@runCatching Resource.failure(error = ResponseError.AUTH_HEADER_NOT_FOUND)
+            if (data.metadata.text.length < 25) return@runCatching Resource.failure(error = ResponseError.BAD_REQUEST.apply { actualResponse = "Review is too short. Please write a review longer than 25 letters." })
+            if (data.metadata.rating != null && data.metadata.rating !in 1..5) return@runCatching  Resource.failure(error = ResponseError.BAD_REQUEST)
             
             val response = service.postReview(
                 username = username,
@@ -145,6 +162,35 @@ class SocialRepositoryImpl @Inject constructor(
             }
     
         }.getOrElse { logAndReturn(it) }
+    
+    override suspend fun pin(
+        recordingMsid: String?,
+        recordingMbid: String?,
+        blurbContent: String?,
+        pinnedUntil: Int
+    ): Resource<PinData> =
+        runCatching {
+        
+            if (recordingMsid == null && recordingMbid == null)
+                return@runCatching Resource.failure(error = ResponseError.BAD_REQUEST.apply { actualResponse = "Cannot pin this particular recording." })
+            
+            val response = service.postPin(
+                data = PinnedRecording(
+                    recordingMsid = recordingMsid,
+                    recordingMbid = recordingMbid,
+                    blurbContent = blurbContent,
+                    pinnedUntil = pinnedUntil
+                )
+            )
+        
+            return@runCatching if (response.isSuccessful) {
+                Resource.success(response.body()!!)
+            } else {
+                Resource.failure(error = getError(response = response))
+            }
+        
+        }.getOrElse { logAndReturn(it) }
+    
     
     override suspend fun deletePin(id: Int): Resource<SocialResponse> =
         runCatching {

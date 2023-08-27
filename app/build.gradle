@@ -95,8 +95,8 @@ android {
         }
     }
     composeOptions {
-        //kotlinCompilerExtensionVersion '1.5.1'
-        kotlinCompilerExtensionVersion '1.4.8'
+        kotlinCompilerExtensionVersion '1.5.1'
+        //kotlinCompilerExtensionVersion '1.4.8'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -249,4 +249,5 @@ dependencies {
 
     // Util
     implementation 'com.github.dariobrux:Timer:1.1.0'
+    implementation 'com.github.a914-gowtham:compose-ratingbar:1.3.4'
 }

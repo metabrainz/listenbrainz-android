@@ -3,9 +3,9 @@ package org.listenbrainz.android.ui.screens.feed
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
-import org.listenbrainz.android.model.FeedEvent
-import org.listenbrainz.android.model.FeedEventType
 import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.android.model.feed.FeedEvent
+import org.listenbrainz.android.model.feed.FeedEventType
 
 
 /** Top most state wrapper for Feed Screen.*/
@@ -13,6 +13,7 @@ data class FeedUiState(
     val myFeedState: FeedScreenUiState = FeedScreenUiState(),
     val followListensFeedState: FeedScreenUiState = FeedScreenUiState(),
     val similarListensFeedState: FeedScreenUiState = FeedScreenUiState(),
+    val searchResult: List<String> = emptyList(),
     val error: ResponseError? = null
 )
 

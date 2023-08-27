@@ -1,4 +1,4 @@
-package org.listenbrainz.android.model
+package org.listenbrainz.android.model.feed
 
 import androidx.compose.runtime.Immutable
 

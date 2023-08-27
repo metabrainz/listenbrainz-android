@@ -100,12 +100,17 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
     }
     
     override suspend fun getLinkedServices(token: String, username: String): List<LinkedService> {
-        val services = service.getServicesLinkedToAccount(user_name = username)
-        val result = mutableListOf<LinkedService>()
-        services.services.forEach {
-            result.add(LinkedService.parseService(it))
+        return try {
+            val services = service.getServicesLinkedToAccount(user_name = username)
+            val result = mutableListOf<LinkedService>()
+            services.services.forEach {
+                result.add(LinkedService.parseService(it))
+            }
+            result
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
         }
-        return result
     }
     
 }

@@ -11,7 +11,7 @@ import androidx.navigation.NavGraphBuilder
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import org.listenbrainz.android.model.YimScreens
+import org.listenbrainz.android.model.yimdata.YimScreens
 import org.listenbrainz.android.ui.screens.yim.*
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
 import org.listenbrainz.android.viewmodel.YimViewModel

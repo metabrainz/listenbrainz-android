@@ -4,9 +4,9 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.model.FeedData
-import org.listenbrainz.android.model.FeedEventType
 import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.android.model.feed.FeedData
+import org.listenbrainz.android.model.feed.FeedEventType
 import org.listenbrainz.android.repository.feed.FeedRepository
 import org.listenbrainz.android.util.Resource
 

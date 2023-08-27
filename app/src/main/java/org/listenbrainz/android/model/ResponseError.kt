@@ -13,6 +13,7 @@ enum class ResponseError(val genericToast: String, var actualResponse: String? =
     
     BAD_REQUEST(genericToast = "Illegal action."),     // "Jasjeet is already following user someotheruser", "Whoops, cannot follow yourself."
     
+    /** Also means the user is not logged in.*/
     AUTH_HEADER_NOT_FOUND(genericToast = "Please login in order to perform this operation."),    // "You need to provide an Authorization header.
     
     RATE_LIMIT_EXCEEDED(genericToast = "Rate limit exceeded."),

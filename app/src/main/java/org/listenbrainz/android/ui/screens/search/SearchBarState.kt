@@ -27,13 +27,13 @@ private class SearchBarStateSaver : Saver<SearchBarState, Boolean> {
 /** State class which controls the main search bar of the app. */
 class SearchBarState(initialState: Boolean = false) {
     
-    private var state by mutableStateOf(initialState,)
+    private var state by mutableStateOf(initialState)
     
     init {
         instance = this
     }
     
-    /** True is search bar is active.*/
+    /** True if search bar is active.*/
     val isActive: Boolean
         get() = this.state
     

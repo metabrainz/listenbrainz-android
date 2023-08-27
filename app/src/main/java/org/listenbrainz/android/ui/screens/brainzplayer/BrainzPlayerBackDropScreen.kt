@@ -444,7 +444,7 @@ fun PlayerScreen(
                     }
                     ListenCardSmall(
                         modifier = modifier,
-                        releaseName = song.title,
+                        trackName = song.title,
                         artistName = song.artist,
                         coverArtUrl = song.albumArt,
                         errorAlbumArt = R.drawable.ic_erroralbumart
