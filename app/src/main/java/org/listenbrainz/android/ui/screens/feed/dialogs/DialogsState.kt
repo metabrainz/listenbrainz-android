@@ -37,12 +37,14 @@ class DialogsState(
         page: Int,
         eventIndex: Int
     ) {
+        // Activation order is important!
         currentEventIndex = eventIndex
         currentPage = page
         currentDialog = dialog
     }
     
     fun deactivateDialog() {
+        // Deactivation order is important!
         currentDialog = Dialog.NONE
         currentPage = null
         currentEventIndex = null

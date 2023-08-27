@@ -221,7 +221,7 @@ private val LocalShapes = staticCompositionLocalOf { Shapes() }
 
 @Immutable
 data class TextStyles(
-    val feedBlurbContent: TextStyle = TextStyle(fontStyle = FontStyle.Italic, fontSize = 14.sp),
+    val feedBlurbContent: TextStyle = TextStyle(fontStyle = FontStyle.Italic, fontSize = 15.sp),
     val feedBlurbContentTitle: TextStyle = TextStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic, fontSize = 14.sp),
     val chips: TextStyle = TextStyle(fontWeight = FontWeight.Medium),
     val dropdownItem: TextStyle = TextStyle(fontWeight = FontWeight.Light, fontSize = 14.sp),
@@ -233,6 +233,7 @@ data class TextStyles(
     val dialogTitleBold: TextStyle = TextStyle(fontWeight = FontWeight.Bold, fontSize = 16.sp),
     val dialogButtonText: TextStyle = TextStyle(fontWeight = FontWeight.Light, fontSize = 14.sp),
     val dialogText: TextStyle = TextStyle(fontWeight = FontWeight.Light, fontSize = 14.sp),
+    val dialogTextField: TextStyle = TextStyle(fontWeight = FontWeight.Light, fontSize = 15.sp),
     val dialogTextBold: TextStyle = TextStyle(fontWeight = FontWeight.Bold, fontSize = 14.sp)
 )
 

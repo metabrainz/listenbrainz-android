@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.tooling.preview.Preview
@@ -18,14 +18,14 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ReviewDialog(
-    trackName: String,
+    trackName: String?,
     artistName: String?,
     releaseName: String?,
     onDismiss: () -> Unit,
     isCritiqueBrainzLinked: suspend () -> Boolean,
     onSubmit: (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String) -> Unit
 ) {
-    var isLinked by remember { mutableStateOf<Boolean?>(null) }
+    var isLinked by rememberSaveable { mutableStateOf<Boolean?>(null) }
     
     LaunchedEffect(Unit){
         isLinked = isCritiqueBrainzLinked()

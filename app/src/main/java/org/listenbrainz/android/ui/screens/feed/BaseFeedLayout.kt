@@ -239,7 +239,7 @@ private fun DynamicHorizontalLine(Content: @Composable () -> Unit) {
             width += it.width
         }
         
-        layout(height = height, width = width /* width of line */) {
+        layout(height = height, width = width) {
             
             dependentPlaceables.forEach { placeable: Placeable ->
                 /** Our icon is 19 dp and line width is 2 dp.*/

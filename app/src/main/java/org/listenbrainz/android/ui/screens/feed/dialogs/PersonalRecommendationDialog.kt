@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterEnd
@@ -28,6 +29,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.StringSnapshotStateListSaver
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
@@ -38,17 +40,16 @@ fun PersonalRecommendationDialog(
     searchUsers: (String) -> Unit,
     onSubmit: (users: List<String>, blurbContent: String) -> Unit
 ) {
-    val users = remember {
-        mutableStateListOf<String>()
+    val users = rememberSaveable(saver = StringSnapshotStateListSaver()) {
+        mutableStateListOf()
     }
-    var blurbContent by remember {
+    var blurbContent by rememberSaveable {
         mutableStateOf("")
     }
     
     BaseDialog(
         onDismiss = onDismiss,
         title = {
-            
             Text(
                 text = buildAnnotatedString {
                     withStyle(ListenBrainzTheme.textStyles.dialogTitle.toSpanStyle()){
@@ -60,7 +61,6 @@ fun PersonalRecommendationDialog(
                 },
                 color = ListenBrainzTheme.colorScheme.text
             )
-            
         },
         
         content = {
@@ -110,6 +110,8 @@ fun PersonalRecommendationDialog(
                 placeholder = "Add followers",
                 onItemClick = { username ->
                     users.add(username)
+                    searchText = ""
+                    searchUsers("")
                 }
             ) { username ->
                 DialogText(username)

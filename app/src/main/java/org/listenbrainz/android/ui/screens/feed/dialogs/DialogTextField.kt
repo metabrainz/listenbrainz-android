@@ -24,12 +24,12 @@ fun DialogTextField(
         modifier = modifier.fillMaxWidth(),
         value = value,
         onValueChange = onValueChange,
-        textStyle = ListenBrainzTheme.textStyles.dialogText,
+        textStyle = ListenBrainzTheme.textStyles.dialogTextField,
         shape = ListenBrainzTheme.shapes.dialogs,
         placeholder ={
             Text(
                 text = placeholder,
-                style = ListenBrainzTheme.textStyles.dialogText,
+                style = ListenBrainzTheme.textStyles.dialogTextField,
                 color = ListenBrainzTheme.colorScheme.hint
             )
         },

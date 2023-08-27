@@ -55,6 +55,7 @@ fun PinFeedLayout(
                 FeedSocialDropdown(
                     isExpanded = dropdownState == index,
                     onDismiss = onDropdownClick,
+                    event = event,
                     onOpenInMusicBrainz = onOpenInMusicBrainz,
                     onPin = onPin,
                     onRecommend = onRecommend,

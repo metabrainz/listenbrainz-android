@@ -8,11 +8,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Link
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -20,10 +20,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gowtham.ratingbar.RatingBar
 import com.gowtham.ratingbar.RatingBarStyle
+import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventType
@@ -70,6 +72,7 @@ fun ReviewFeedLayout(
             dropDown = {
                 FeedSocialDropdown(
                     isExpanded = dropdownState == index,
+                    event = event,
                     onDismiss = onDropdownClick,
                     onOpenInMusicBrainz = onOpenInMusicBrainz,
                     onPin = onPin,
@@ -80,12 +83,14 @@ fun ReviewFeedLayout(
             },
             enableBlurbContent = true,
             blurbContent = { modifier ->
-                Column(modifier = modifier) {
+                val iconSize = 24.dp
+                
+                Box(modifier = modifier.fillMaxWidth()) {
                     
-                    Box(modifier = Modifier.fillMaxWidth()) {
+                    Column(modifier = Modifier.padding(end = iconSize)) {
                         event.metadata.rating?.toFloat()?.let { rating ->
                             Row(
-                                modifier = Modifier.align(Alignment.CenterStart),
+                                modifier = Modifier,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
@@ -105,30 +110,32 @@ fun ReviewFeedLayout(
                                     onRatingChanged = {}
                                 )
                             }
+                            
+                            Spacer(modifier = Modifier.height(6.dp))
                         }
                         
-                        Icon(
-                            modifier = Modifier
-                                .align(Alignment.CenterEnd)
-                                .clickable {
-                                    uriHandler.openUri("https://critiquebrainz.org/review/${event.metadata.reviewMbid}")
-                                },
-                            imageVector = Icons.Default.Link,
-                            tint = ListenBrainzTheme.colorScheme.lbSignature,
-                            contentDescription = "Go to CritiqueBrainz website"
-                        )
+                        event.blurbContent?.let {
+                            Text(
+                                text = it,
+                                style = ListenBrainzTheme.textStyles.feedBlurbContent,
+                                color = ListenBrainzTheme.colorScheme.text
+                            )
+                        }
                         
                     }
-                    
-                    Spacer(modifier = Modifier.height(6.dp))
     
-                    event.blurbContent?.let {
-                        Text(
-                            text = it,
-                            style = ListenBrainzTheme.textStyles.feedBlurbContent,
-                            color = ListenBrainzTheme.colorScheme.text
-                        )
-                    }
+                    Icon(
+                        modifier = Modifier
+                            .size(iconSize)
+                            .padding(4.dp)
+                            .align(Alignment.TopEnd)
+                            .clickable {
+                                uriHandler.openUri("https://critiquebrainz.org/review/${event.metadata.reviewMbid}") },
+                        painter = painterResource(id = R.drawable.ic_redirect),
+                        tint = ListenBrainzTheme.colorScheme.lbSignature,
+                        contentDescription = "Go to CritiqueBrainz website"
+                    )
+                    
                 }
             },
             onClick = onClick

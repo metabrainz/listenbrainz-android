@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -52,7 +53,7 @@ import java.util.Locale
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ReviewEnabledDialog(
-    trackName: String,
+    trackName: String? = null,
     artistName: String? = null,
     releaseName: String? = null,
     onDismiss: () -> Unit,
@@ -60,20 +61,20 @@ fun ReviewEnabledDialog(
     keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current,
     onSubmit: (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String) -> Unit
 ){
-    var blurbContent by remember {
+    var blurbContent by rememberSaveable {
         mutableStateOf("")
     }
-    var selectedEntity by remember {
+    var selectedEntity by rememberSaveable {
         mutableStateOf(ReviewEntityType.RECORDING)
     }
-    var rating by remember {
+    var rating by rememberSaveable {
         mutableStateOf(0f)
     }
-    var selectedLocale by remember {
+    var selectedLocale by rememberSaveable {
         // TODO: Save previously used locale
         mutableStateOf(Locale.getDefault().language)
     }
-    var isCheckBoxTicked by remember { mutableStateOf(false) }
+    var isCheckBoxTicked by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     
     BaseDialog(

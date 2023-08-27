@@ -283,7 +283,7 @@ class FeedViewModel @Inject constructor(
                         trackName = event.metadata.trackMetadata?.trackName ?: return@launch,
                         artistName = event.metadata.trackMetadata.artistName,
                         releaseName = event.metadata.trackMetadata.releaseName,
-                        recordingMbid = event.metadata.trackMetadata.mbidMapping?.recordingMbid ?: return@launch,
+                        recordingMbid = event.metadata.trackMetadata.mbidMapping?.recordingMbid,
                         recordingMsid = event.metadata.trackMetadata.additionalInfo?.recordingMsid
                     )
                 )
@@ -306,7 +306,7 @@ class FeedViewModel @Inject constructor(
                         trackName = event.metadata.trackMetadata?.trackName ?: return@launch,
                         artistName = event.metadata.trackMetadata.artistName,
                         releaseName = event.metadata.trackMetadata.releaseName,
-                        recordingMbid = event.metadata.trackMetadata.mbidMapping?.recordingMbid ?: return@launch,
+                        recordingMbid = event.metadata.trackMetadata.mbidMapping?.recordingMbid,
                         recordingMsid = event.metadata.trackMetadata.additionalInfo?.recordingMsid,
                         users = users,
                         blurbContent = blurbContent

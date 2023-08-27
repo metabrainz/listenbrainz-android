@@ -50,6 +50,7 @@ fun ListenFeedLayout (
             dropDown = {
                 FeedSocialDropdown(
                     isExpanded = dropdownState == index,
+                    event = event,
                     onDismiss = onDropdownClick,
                     onOpenInMusicBrainz = onOpenInMusicBrainz,
                     onPin = onPin,

@@ -10,7 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,11 +28,12 @@ fun PinDialog(
     onDismiss: () -> Unit,
     onSubmit: (String) -> Unit
 ) {
-    var blurbContent by remember {
+    var blurbContent by rememberSaveable {
         mutableStateOf("")
     }
     BaseDialog(
-        onDismiss = { /*TODO*/ },
+        onDismiss = onDismiss,
+        
         title = {
             Text(
                 text = buildAnnotatedString {
@@ -43,6 +44,7 @@ fun PinDialog(
                 color = ListenBrainzTheme.colorScheme.text
             )
         },
+        
         content = {
     
             Text(
@@ -100,6 +102,7 @@ fun PinDialog(
             )
             
         },
+        
         footer = {
             Row(modifier = Modifier.align(Alignment.CenterEnd)) {
         

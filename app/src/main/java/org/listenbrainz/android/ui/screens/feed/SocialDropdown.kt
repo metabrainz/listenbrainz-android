@@ -10,68 +10,66 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import org.listenbrainz.android.R
+import androidx.compose.ui.unit.dp
+import org.listenbrainz.android.model.feed.FeedEvent
+import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
+/** This layer tries to define what options in the dropdown menu are to be shown.*/
 @Composable
 fun FeedSocialDropdown(
     isExpanded: Boolean,
     onDismiss: () -> Unit,
-    onOpenInMusicBrainz: () -> Unit = {},
-    onPin: () -> Unit = {},
-    onRecommend: () -> Unit = {},
-    onPersonallyRecommend: () -> Unit = {},
-    // TODO: Implement rest of the functionalities.
-    //onLink: () -> Unit,
-    onReview: () -> Unit = {},
-    //onDelete: () -> Unit,
-    //onInspect: () -> Unit
+    event: FeedEvent,
+    onOpenInMusicBrainz: (() -> Unit)? = null,
+    onPin: (() -> Unit)? = null,
+    onRecommend: (() -> Unit)? = null,
+    onPersonallyRecommend: (() -> Unit)? = null,
+    onReview: (() -> Unit)? = null,
+    
+    // TODO: Implement these
+    onLink: (() -> Unit)? = null,
+    onDelete: (() -> Unit)? = null,
+    onInspect: (() -> Unit)? = null
 ) {
-    val list = listOf(
-        SocialDropdownItem(
-            icon = R.drawable.ic_redirect,
-            title = "Open in MusicBrainz",
-            onClick = onOpenInMusicBrainz
-        ),
-        SocialDropdownItem(
-            icon = R.drawable.ic_pin,
-            title = "Pin this track",
-            onClick = onPin
-        ),
-        SocialDropdownItem(
-            icon = R.drawable.ic_recommend,
-            title = "Recommend to my followers",
-            onClick = onRecommend
-        ),
-        SocialDropdownItem(
-            icon = R.drawable.ic_send,
-            title = "Personally recommend",
-            onClick = onPersonallyRecommend
-        ),
-        /*SocialDropdownItem(
-            icon = R.drawable.ic_link,
-            title = "Link with MusicBrainz",
-            onClick = onLink
-        ),*/
-        SocialDropdownItem(
-            icon = R.drawable.ic_review,
-            title = "Write a review",
-            onClick = onReview
-        ),
-        /*SocialDropdownItem(
-            icon = R.drawable.ic_delete,
-            title = "Delete listen",
-            onClick = onDelete
-        ),
-        SocialDropdownItem(
-            icon = R.drawable.ic_code,
-            title = "Inspect listen",
-            onClick = onInspect
-        )*/
-    )
+    val list = remember {
+        val trackName = event.metadata.trackMetadata?.trackName
+            ?: if (event.metadata.entityType == ReviewEntityType.RECORDING.code) event.metadata.entityName else null
+        val artistName = event.metadata.trackMetadata?.artistName
+            ?: if (event.metadata.entityType == ReviewEntityType.ARTIST.code) event.metadata.entityName else null
+        val releaseName = event.metadata.trackMetadata?.releaseName
+            ?: if (event.metadata.entityType == ReviewEntityType.RELEASE_GROUP.code) event.metadata.entityName else null
+        val recordingMbid = event.metadata.trackMetadata?.mbidMapping?.recordingMbid
+            ?: event.metadata.reviewMbid
+            ?: event.metadata.trackMetadata?.additionalInfo?.recordingMbid
+    
+        mutableListOf<SocialDropdownItem>().apply {
+            if (recordingMbid != null)
+                add(SocialDropdownItem.OPEN_IN_MUSICBRAINZ(onOpenInMusicBrainz))
+        
+            if (trackName != null && artistName != null){
+                add(SocialDropdownItem.PIN(onPin))
+                
+                // Mbid or msid
+                if (recordingMbid != null || event.metadata.trackMetadata?.additionalInfo?.recordingMsid != null) {
+                    add(SocialDropdownItem.RECOMMEND(onRecommend))
+                    add(SocialDropdownItem.PERSONALLY_RECOMMEND(onPersonallyRecommend))
+                }
+            }
+            
+            if (trackName != null || artistName != null || releaseName != null)
+                add(SocialDropdownItem.REVIEW(onReview))
+            
+            // TODO: Add these in future
+            //add(SocialDropdownItem.LINK(onLink))
+            //add(SocialDropdownItem.DELETE(onDelete)),
+            //add(SocialDropdownItem.INSPECT(onInspect))
+        }
+    }
     
     SocialDropdown(
         isExpanded = isExpanded,
@@ -91,17 +89,12 @@ fun SocialDropdown(
             DropdownItem(
                 icon = item.icon,
                 title = item.title,
-                onClick = item.onClick
+                onClick = item.onClick ?: return@forEach   // We are sure that we would get the same result everytime.
             )
         }
     }
 }
 
-data class SocialDropdownItem(
-    val icon: Int,
-    val title: String,
-    val onClick: () -> Unit
-)
 
 @Composable
 fun DropdownItem(
@@ -133,18 +126,20 @@ fun SocialDropDownPreview(){
     ListenBrainzTheme {
         Surface {
             Box {
+                Surface(modifier = Modifier.size(20.dp)){}
                 SocialDropdown(
                     isExpanded = true,
                     onDismiss = {},
-                    itemList = listOf(),
-                    /*onOpenInMusicBrainz = {},
-                    onPin = {},
-                    onRecommend = {},
-                    onPersonallyRecommend = {},
-                    onLink = {},
-                    onReview = {},
-                    onDelete = {},
-                    onInspect = {}*/
+                    itemList = listOf(
+                        SocialDropdownItem.OPEN_IN_MUSICBRAINZ {},
+                        SocialDropdownItem.PIN{},
+                        SocialDropdownItem.RECOMMEND{},
+                        SocialDropdownItem.PERSONALLY_RECOMMEND{},
+                        SocialDropdownItem.LINK{},
+                        SocialDropdownItem.REVIEW{},
+                        SocialDropdownItem.DELETE{},
+                        SocialDropdownItem.INSPECT{}
+                    )
                 )
             }
         }

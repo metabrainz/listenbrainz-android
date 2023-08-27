@@ -107,7 +107,10 @@ class SocialRepositoryImpl @Inject constructor(
     
     override suspend fun postPersonalRecommendation(username: String?, data: RecommendationData): Resource<FeedEvent> =
         runCatching {
-            if (username.isNullOrEmpty()) return@runCatching Resource.failure(error = ResponseError.AUTH_HEADER_NOT_FOUND)
+            if (username.isNullOrEmpty())
+                return@runCatching Resource.failure(error = ResponseError.AUTH_HEADER_NOT_FOUND)
+            if (data.metadata.recordingMbid == null && data.metadata.recordingMsid == null)
+                return@runCatching Resource.failure(error = ResponseError.BAD_REQUEST.apply { actualResponse = "Cannot recommend this track." })
             
             val response = service.postPersonalRecommendation(
                 username = username,
@@ -123,7 +126,10 @@ class SocialRepositoryImpl @Inject constructor(
     
     override suspend fun postRecommendationToAll(username: String?, data: RecommendationData): Resource<FeedEvent> =
         runCatching {
-            if (username.isNullOrEmpty()) return@runCatching Resource.failure(error = ResponseError.AUTH_HEADER_NOT_FOUND)
+            if (username.isNullOrEmpty())
+                return@runCatching Resource.failure(error = ResponseError.AUTH_HEADER_NOT_FOUND)
+            if (data.metadata.recordingMbid == null && data.metadata.recordingMsid == null)
+                return@runCatching Resource.failure(error = ResponseError.BAD_REQUEST.apply { actualResponse = "Cannot recommend this track." })
             
             val response = service.postRecommendationToAll(
                 username = username,

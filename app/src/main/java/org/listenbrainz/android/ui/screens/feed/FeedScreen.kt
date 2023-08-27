@@ -350,33 +350,47 @@ private fun Dialogs(
 ) {
     when (currentDialog){
         Dialog.NONE -> Unit
-        Dialog.PIN -> PinDialog(
-            trackName = pagingSource[currentEventIndex!!]?.event?.metadata?.trackMetadata?.trackName!!,
-            artistName = pagingSource[currentEventIndex]?.event?.metadata?.trackMetadata?.artistName!!,
-            onDismiss = { deactivateDialog() },
-            onSubmit = { blurbContent ->
-                onPin(pagingSource[currentEventIndex]?.event!!, blurbContent)
-            }
-        )
-        Dialog.PERSONAL_RECOMMENDATION -> PersonalRecommendationDialog(
-            trackName = pagingSource[currentEventIndex!!]?.event?.metadata?.trackMetadata?.trackName!!,
-            onDismiss = { deactivateDialog() },
-            searchResult = searchUserResult,
-            searchUsers = searchUsers,
-            onSubmit = { users, blurbContent ->
-                onPersonallyRecommend(pagingSource[currentEventIndex]?.event!!, users, blurbContent)
-            }
-        )
-        Dialog.REVIEW -> ReviewDialog(
-            trackName = pagingSource[currentEventIndex!!]?.event?.metadata?.trackMetadata?.trackName!!,
-            artistName = pagingSource[currentEventIndex]?.event?.metadata?.trackMetadata?.artistName,
-            releaseName = pagingSource[currentEventIndex]?.event?.metadata?.trackMetadata?.releaseName,
-            onDismiss = { deactivateDialog() },
-            isCritiqueBrainzLinked = isCritiqueBrainzLinked,
-            onSubmit = { type, blurbContent, rating, locale ->
-                onReview(pagingSource[currentEventIndex]?.event!!, type, blurbContent, rating, locale)
-            }
-        )
+        Dialog.PIN -> {
+            val metadata = pagingSource[currentEventIndex!!]?.event?.metadata
+            PinDialog(
+                trackName = metadata?.trackMetadata?.trackName
+                    ?: metadata?.entityName ?: return,
+                artistName = metadata?.trackMetadata?.artistName ?: return,
+                onDismiss = deactivateDialog,
+                onSubmit = { blurbContent ->
+                    onPin(pagingSource[currentEventIndex]?.event!!, blurbContent)
+                }
+            )
+        }
+        Dialog.PERSONAL_RECOMMENDATION -> {
+            val metadata = pagingSource[currentEventIndex!!]?.event?.metadata
+            PersonalRecommendationDialog(
+                trackName = metadata?.trackMetadata?.trackName
+                    ?: metadata?.entityName ?: return,
+                onDismiss = deactivateDialog,
+                searchResult = searchUserResult,
+                searchUsers = searchUsers,
+                onSubmit = { users, blurbContent ->
+                    onPersonallyRecommend(pagingSource[currentEventIndex]?.event!!, users, blurbContent)
+                }
+            )
+        }
+        Dialog.REVIEW -> {
+            val metadata = pagingSource[currentEventIndex!!]?.event?.metadata
+            ReviewDialog(
+                trackName = metadata?.trackMetadata?.trackName
+                    ?: if (metadata?.entityType == ReviewEntityType.RECORDING.code) metadata.entityName else return,
+                artistName = metadata?.trackMetadata?.artistName
+                    ?: if (metadata?.entityType == ReviewEntityType.ARTIST.code) metadata.entityName else null,
+                releaseName = metadata?.trackMetadata?.releaseName
+                    ?: if (metadata?.entityType == ReviewEntityType.RELEASE_GROUP.code) metadata.entityName else null,
+                onDismiss = deactivateDialog,
+                isCritiqueBrainzLinked = isCritiqueBrainzLinked,
+                onSubmit = { type, blurbContent, rating, locale ->
+                    onReview(pagingSource[currentEventIndex]?.event!!, type, blurbContent, rating, locale)
+                }
+            )
+        }
     }
     
 }
@@ -535,6 +549,7 @@ fun FollowListens(
                     dropDown = {
                         FeedSocialDropdown(
                             isExpanded = dropdownItemIndex.value == index,
+                            event = event,
                             onDismiss = {
                                 dropdownItemIndex.value = null
                             },
@@ -635,6 +650,7 @@ fun SimilarListens(
                     dropDown = {
                         FeedSocialDropdown(
                             isExpanded = dropdownItemIndex.value == index,
+                            event = event,
                             onDismiss = { dropdownItemIndex.value = null },
                             onRecommend = {
                                 recommendTrack(event)

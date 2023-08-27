@@ -23,7 +23,7 @@ data class RecommendationMetadata(
     @SerializedName("release_name"  ) val releaseName: String? = null,
     
     /** The MusicBrainz ID of the recording, required. */
-    @SerializedName("recording_mbid") val recordingMbid: String,
+    @SerializedName("recording_mbid") val recordingMbid: String? = null,
     
     /** The MessyBrainz ID of the recording, optional.*/
     @SerializedName("recording_msid") val recordingMsid: String? = null,
