@@ -125,7 +125,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.core:core-ktx:1.10.1'
-    implementation 'androidx.browser:browser:1.5.0' // 1.6.0 requires sdk 34
+    implementation 'androidx.browser:browser:1.6.0'
     implementation 'androidx.preference:preference-ktx:1.2.1'
     implementation 'androidx.core:core-splashscreen:1.0.1'
     implementation "androidx.datastore:datastore-preferences:1.0.0"
@@ -141,11 +141,11 @@ dependencies {
     implementation "androidx.paging:paging-compose:3.2.0"
 
     //Image downloading and Caching library
-    implementation 'com.github.bumptech.glide:glide:4.15.1'
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
     implementation "com.github.bumptech.glide:compose:1.0.0-alpha.3"
     implementation 'io.coil-kt:coil-compose:2.4.0'
     implementation 'com.caverock:androidsvg-aar:1.4'
-    ksp 'com.github.bumptech.glide:compiler:4.15.1'
+    ksp 'com.github.bumptech.glide:compiler:4.16.0'
 
     //Permissions
     implementation "com.google.accompanist:accompanist-permissions:$accompanist_version"
@@ -166,7 +166,7 @@ dependencies {
     implementation "androidx.startup:startup-runtime:1.1.1"
 
     //Jetpack Compose
-    implementation platform('androidx.compose:compose-bom:2023.03.00')
+    implementation platform('androidx.compose:compose-bom:2023.08.00')
     implementation 'androidx.compose.ui:ui-graphics'
     implementation 'androidx.compose.ui:ui'
     implementation 'androidx.compose.ui:ui-tooling'
@@ -207,15 +207,15 @@ dependencies {
     testImplementation 'androidx.arch.core:core-testing:2.2.0'
 
     // Mockito framework
-    testImplementation "org.mockito:mockito-core:5.3.1"
-    testImplementation "org.mockito.kotlin:mockito-kotlin:5.0.0"    // Mockito kotlin
+    testImplementation 'org.mockito:mockito-core:5.5.0'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:5.1.0'    // Mockito kotlin
 
     debugImplementation "androidx.test:monitor:1.6.1"       // Solves "class PlatformTestStorageRegistery not found" error for ui tests.
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
 
     kaptAndroidTest "com.google.dagger:hilt-android-compiler:$hilt_version"
 
-    androidTestImplementation platform('androidx.compose:compose-bom:2023.03.00')
+    androidTestImplementation platform('androidx.compose:compose-bom:2023.08.00')
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     androidTestImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
     androidTestImplementation "androidx.work:work-testing:$work_version"

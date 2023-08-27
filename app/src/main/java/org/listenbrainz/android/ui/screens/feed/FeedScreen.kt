@@ -153,7 +153,7 @@ private fun FeedScreen(
     val similarListensPagingData = uiState.similarListensFeedState.data.eventList.collectAsLazyPagingItems()
     val similarListensListState = rememberLazyListState()
     
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState { 3 }
     val isRefreshing =
         when (pagerState.currentPage) {
             0 -> myFeedPagingData.loadState.refresh is LoadState.Loading
@@ -205,7 +205,6 @@ private fun FeedScreen(
         RetryButton(Modifier.align(Alignment.Center), myFeedPagingData)
     
         HorizontalPager(
-            pageCount = 3,
             state = pagerState,
             pageNestedScrollConnection = PagerDefaults.pageNestedScrollConnection(Orientation.Horizontal)
         ) { position ->
