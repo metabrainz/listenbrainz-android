@@ -13,6 +13,7 @@ object Constants {
     const val SPOTIFY_REDIRECT_URI = "org.listenbrainz.android://callback"
     const val LISTENBRAINZ_API_BASE_URL = "https://api.listenbrainz.org/1/"
     const val ONBOARDING = "onboarding_lb"
+    const val ABOUT_URL = "https://listenbrainz.org/about"
     
     object Headers {
         const val AUTHORIZATION = "Authorization"

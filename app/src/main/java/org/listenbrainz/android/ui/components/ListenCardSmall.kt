@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -38,29 +38,36 @@ import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 
 /**Small configuration of listen card.
  * This composable has fixed height used from [ListenBrainzTheme.sizes].
- * @param trailingContent **MUST** use the given modifier in its top level layout. */
+ * @param enableTrailingContent True means card will reserve space for trailing content.
+ * @param trailingContent **MUST** use the given modifier in its top level layout.
+ * @param dropDown The dropdown we want to show when icon is clicked.
+ * @param dropDownState State of the dropdown icon. Usually, in case of a lazy list, we would want to supply a
+ * mutable state list or map with index/key rather than maintaining a state for each listen card. False means
+ * dropdown should remain closed.
+ * @param enableBlurbContent True means card will shape itself to accommodate content whether it is empty or not.
+ * @author jasje*/
 @Composable
 fun ListenCardSmall(
     modifier: Modifier = Modifier,
-    releaseName: String,
+    trackName: String,
     artistName: String,
     coverArtUrl: String?,
-    shape: Shape = ListenBrainzTheme.shapes.listenCardSmall,
     @DrawableRes errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
     enableDropdownIcon: Boolean = false,
     onDropdownIconClick: () -> Unit = {},
+    dropDown: @Composable () -> Unit = {},
+    dropDownState: Boolean = false,
     enableTrailingContent: Boolean = false,
-    /****MUST** use the given modifier in its top level layout.*/
     trailingContent: @Composable (modifier: Modifier) -> Unit = {},
     enableBlurbContent: Boolean = false,
-    blurbContent: @Composable (modifier: Modifier) -> Unit = {},
+    blurbContent: @Composable ColumnScope.(modifier: Modifier) -> Unit = {},
     onClick: () -> Unit,
 ) {
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .clickable(enabled = true) { onClick() },
-        shape = shape,
+        shape = ListenBrainzTheme.shapes.listenCardSmall,
         shadowElevation = 4.dp,
         color = ListenBrainzTheme.colorScheme.level1
     ) {
@@ -91,7 +98,7 @@ fun ListenCardSmall(
             
                     Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.coverArtAndTextGap))
             
-                    TitleAndSubtitle(modifier = Modifier.padding(end = 6.dp), title = releaseName, subtitle = artistName)
+                    TitleAndSubtitle(modifier = Modifier.padding(end = 6.dp), title = trackName, subtitle = artistName)
             
                 }
                 
@@ -118,8 +125,11 @@ fun ListenCardSmall(
                             modifier = Modifier
                                 .fillMaxWidth(dropDownButtonFraction)
                                 .align(Alignment.CenterEnd),
-                            onDropdownIconClick = onDropdownIconClick
+                            onDropdownIconClick = {
+                                onDropdownIconClick()
+                            }
                         )
+                        dropDown()
                     }
             
                 }
@@ -128,9 +138,7 @@ fun ListenCardSmall(
             
             if (enableBlurbContent) {
                 Divider()
-                blurbContent(modifier = Modifier
-                    .padding(ListenBrainzTheme.paddings.insideCard)
-                )
+                blurbContent(modifier = Modifier.padding(ListenBrainzTheme.paddings.insideCard))
             }
         }
     }
@@ -206,7 +214,7 @@ fun TitleAndSubtitle(
 private fun ListenCardSmallPreview() {
     ListenBrainzTheme {
         ListenCardSmall(
-            releaseName = "Title",
+            trackName = "Title",
             artistName = "Artist",
             coverArtUrl = "",
             enableTrailingContent = true,
@@ -219,10 +227,29 @@ private fun ListenCardSmallPreview() {
             },
             blurbContent = {
                 Column(modifier = it) {
-                    Text(text = "Hello", color = ListenBrainzTheme.colorScheme.text)
+                    Text(text = "Blurb Content", color = ListenBrainzTheme.colorScheme.text)
                 }
-                
             },
+        ) {}
+    }
+}
+
+@Preview
+@Composable
+private fun ListenCardSmallNoBlurbContentPreview() {
+    ListenBrainzTheme {
+        ListenCardSmall(
+            trackName = "Title",
+            artistName = "Artist",
+            coverArtUrl = "",
+            enableTrailingContent = true,
+            enableBlurbContent = false,
+            enableDropdownIcon = true,
+            trailingContent = { modifier ->
+                Column(modifier = modifier) {
+                    TitleAndSubtitle(title = "Userrrrrrrrrrrrrr", subtitle = "60%")
+                }
+            }
         ) {}
     }
 }

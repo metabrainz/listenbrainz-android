@@ -84,8 +84,6 @@ fun ListensScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
 
-        var showBlacklist by remember { mutableStateOf(false) }
-
         LazyColumn(state = listState) {
             item {
                 UserData(
@@ -94,10 +92,10 @@ fun ListensScreen(
             }
 
             item {
-                val pagerState = rememberPagerState()
+                val pagerState = rememberPagerState { 1 }
 
                 // TODO: Figure out the use of ListeningNowOnSpotify. It is hidden for now
-                HorizontalPager(state = pagerState, pageCount = 1, modifier = Modifier.fillMaxSize()) { page ->
+                HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
                     when (page) {
                         0 -> {
                             ListeningNowCard(
@@ -133,7 +131,7 @@ fun ListensScreen(
                         horizontal = ListenBrainzTheme.paddings.horizontal,
                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
-                    releaseName = listen.trackMetadata.trackName,
+                    trackName = listen.trackMetadata.trackName,
                     artistName = listen.trackMetadata.artistName,
                     coverArtUrl = getCoverArtUrl(
                         caaReleaseMbid = listen.trackMetadata.mbidMapping?.caaReleaseMbid,
@@ -153,34 +151,6 @@ fun ListensScreen(
             exit = fadeOut(animationSpec = tween(durationMillis = 250))
         ) {
             LoadingAnimation()
-        }
-
-        // BlackList Dialog
-        if (showBlacklist) {
-            ListeningAppsList(viewModel = viewModel) { showBlacklist = false }
-        }
-        
-        // FAB
-        // FIXME: MOVE ACCESS OF SHARED PREFERENCES TO COROUTINES.
-        if(viewModel.appPreferences.isNotificationServiceAllowed) {
-            AnimatedVisibility(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp), visible = !showBlacklist
-            ) {
-                FloatingActionButton(
-                    modifier = Modifier.border(1.dp, Color.Gray, shape = CircleShape),
-                    shape = CircleShape,
-                    onClick = { showBlacklist = true },
-                    backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Block,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        contentDescription = "Blacklist"
-                    )
-                }
-            }
         }
     }
 }

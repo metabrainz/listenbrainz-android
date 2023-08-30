@@ -23,7 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.YimShareable
+import org.listenbrainz.android.model.yimdata.YimShareable
 import org.listenbrainz.android.viewmodel.YimViewModel
 
 @Composable

@@ -1,7 +1,8 @@
-package org.listenbrainz.android.model
+package org.listenbrainz.android.model.feed
 
 import androidx.compose.runtime.Immutable
 import com.google.gson.annotations.SerializedName
+import org.listenbrainz.android.model.Metadata
 
 @Immutable
 data class FeedEvent(
@@ -15,6 +16,6 @@ data class FeedEvent(
     @SerializedName("user_id"   ) val userId: Int? = null
 ) {
     /** Quick getter for blurbContent.*/
-    val blurbContent: String
-        get() = this.metadata.blurbContent ?: "Oops! Error loading content."
+    val blurbContent: String?
+        get() = metadata.message ?: metadata.blurbContent ?: metadata.text
 }

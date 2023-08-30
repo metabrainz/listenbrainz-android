@@ -1,4 +1,4 @@
-package org.listenbrainz.android.model
+package org.listenbrainz.android.model.feed
 
 import android.content.ActivityNotFoundException
 import androidx.annotation.DrawableRes
@@ -105,18 +105,105 @@ enum class FeedEventType (
         isHidden: Boolean,
         onDeleteOrHide: () -> Unit,
         onDropdownClick: () -> Unit,
-        onClick: () -> Unit
+        dropDownState: Int?,
+        index: Int,
+        onOpenInMusicBrainz: () -> Unit,
+        onRecommend: () -> Unit,
+        onPersonallyRecommend: () -> Unit,
+        onReview: () -> Unit,
+        onPin: () -> Unit,
+        onClick: () -> Unit,
     ){
         when (this){
-            RECORDING_RECOMMENDATION -> RecordingRecommendationFeedLayout(event, parentUser, isHidden, onDeleteOrHide, onDropdownClick, onClick)
-            PERSONAL_RECORDING_RECOMMENDATION -> PersonalRecommendationFeedLayout(event, parentUser, onDeleteOrHide, onDropdownClick, onClick)
-            RECORDING_PIN -> PinFeedLayout(event, isHidden, parentUser, onDeleteOrHide, onDropdownClick, onClick)
-            LIKE -> ListenLikeFeedLayout(event, parentUser, onDeleteOrHide, onDropdownClick, onClick)
-            LISTEN -> ListenFeedLayout(event, parentUser, onDeleteOrHide, onDropdownClick, onClick)
-            FOLLOW -> FollowFeedLayout(event, parentUser)
-            NOTIFICATION -> NotificationFeedLayout(event, onDeleteOrHide)
-            REVIEW -> ReviewFeedLayout(event, parentUser, onDeleteOrHide, onDropdownClick, onClick)
-            UNKNOWN -> UnknownFeedLayout(event)
+            RECORDING_RECOMMENDATION -> RecordingRecommendationFeedLayout(
+                event = event,
+                parentUser = parentUser,
+                isHidden = isHidden,
+                onDeleteOrHide = onDeleteOrHide,
+                onDropdownClick = onDropdownClick,
+                onClick = onClick,
+                dropdownState = dropDownState,
+                index = index,
+                onOpenInMusicBrainz = onOpenInMusicBrainz,
+                onPin = onPin,
+                onReview = onReview,
+                onPersonallyRecommend = onPersonallyRecommend,
+                onRecommend = onRecommend
+            )
+            PERSONAL_RECORDING_RECOMMENDATION -> PersonalRecommendationFeedLayout(
+                event = event,
+                parentUser = parentUser,
+                onDeleteOrHide = onDeleteOrHide,
+                onDropdownClick = onDropdownClick,
+                onClick = onClick,
+                dropdownState = dropDownState,
+                index = index,
+                onOpenInMusicBrainz = onOpenInMusicBrainz,
+                onPin = onPin,
+                onReview = onReview,
+                onPersonallyRecommend = onPersonallyRecommend,
+                onRecommend = onRecommend
+            )
+            RECORDING_PIN -> PinFeedLayout(
+                event = event,
+                isHidden = isHidden,
+                parentUser = parentUser,
+                onDeleteOrHide = onDeleteOrHide,
+                onDropdownClick = onDropdownClick,
+                onClick = onClick,
+                dropdownState = dropDownState,
+                index = index,
+                onOpenInMusicBrainz = onOpenInMusicBrainz,
+                onPin = onPin,
+                onReview = onReview,
+                onPersonallyRecommend = onPersonallyRecommend,
+                onRecommend = onRecommend
+            )
+            LIKE -> ListenLikeFeedLayout(
+                event = event,
+                parentUser = parentUser,
+                onDeleteOrHide = onDeleteOrHide,
+                onDropdownClick = onDropdownClick,
+                onClick = onClick,
+                dropdownState = dropDownState,
+                index = index,
+                onOpenInMusicBrainz = onOpenInMusicBrainz,
+                onPin = onPin,
+                onReview = onReview,
+                onPersonallyRecommend = onPersonallyRecommend,
+                onRecommend = onRecommend
+            )
+            LISTEN -> ListenFeedLayout(
+                event = event,
+                parentUser = parentUser,
+                onDeleteOrHide = onDeleteOrHide,
+                onDropdownClick = onDropdownClick,
+                onClick = onClick,
+                dropdownState = dropDownState,
+                index = index,
+                onOpenInMusicBrainz = onOpenInMusicBrainz,
+                onPin = onPin,
+                onReview = onReview,
+                onPersonallyRecommend = onPersonallyRecommend,
+                onRecommend = onRecommend
+            )
+            FOLLOW -> FollowFeedLayout(event = event, parentUser = parentUser)
+            NOTIFICATION -> NotificationFeedLayout(event = event, onDeleteOrHide = onDeleteOrHide)
+            REVIEW -> ReviewFeedLayout(
+                event = event,
+                parentUser = parentUser,
+                onDeleteOrHide = onDeleteOrHide,
+                onDropdownClick = onDropdownClick,
+                onClick = onClick,
+                dropdownState = dropDownState,
+                index = index,
+                onOpenInMusicBrainz = onOpenInMusicBrainz,
+                onPin = onPin,
+                onReview = onReview,
+                onPersonallyRecommend = onPersonallyRecommend,
+                onRecommend = onRecommend
+            )
+            UNKNOWN -> UnknownFeedLayout(event = event)
         }
     }
     
@@ -324,6 +411,7 @@ enum class FeedEventType (
                     
                     val entityType = feedEvent.metadata.entityType ?: "entity"
     
+                    // FIXME: Refactor entityType
                     withStyle(normalStyle){
                         append("reviewed ${getArticle(entityType)} ${entityType}.")
                     }

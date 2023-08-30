@@ -1,4 +1,4 @@
-package org.listenbrainz.android.model
+package org.listenbrainz.android.model.feed
 
 import com.google.gson.annotations.SerializedName
 

@@ -29,8 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.YimScreens
-import org.listenbrainz.android.model.YimShareable
+import org.listenbrainz.android.model.yimdata.YimScreens
+import org.listenbrainz.android.model.yimdata.YimShareable
 import org.listenbrainz.android.ui.components.YimLabelText
 import org.listenbrainz.android.ui.components.YimNavigationStation
 import org.listenbrainz.android.ui.theme.LocalYimPaddings

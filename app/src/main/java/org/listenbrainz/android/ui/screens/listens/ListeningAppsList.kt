@@ -84,7 +84,7 @@ fun ListeningAppsList(
         },
         title = {
             Text(
-                text = "Listening Apps List",
+                text = "Listening Apps",
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )

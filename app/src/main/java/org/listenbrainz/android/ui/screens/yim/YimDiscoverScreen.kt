@@ -37,7 +37,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.YimScreens
+import org.listenbrainz.android.model.yimdata.YimScreens
 import org.listenbrainz.android.ui.components.SimilarUserCard
 import org.listenbrainz.android.ui.components.YimLabelText
 import org.listenbrainz.android.ui.components.YimListenCard

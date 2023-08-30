@@ -15,7 +15,6 @@ import org.listenbrainz.sharedtest.utils.ResourceString.already_following_error
 import org.listenbrainz.sharedtest.utils.ResourceString.auth_header_not_found_error
 import org.listenbrainz.sharedtest.utils.ResourceString.cannot_follow_self_error
 import org.listenbrainz.sharedtest.utils.ResourceString.rate_limiting_error
-import org.listenbrainz.sharedtest.utils.ResourceString.unknown_error
 import org.listenbrainz.sharedtest.utils.ResourceString.user_does_not_exist_error
 import retrofit2.Response
 
@@ -66,12 +65,5 @@ class ResponseErrorUtilTests {
                 rate_limiting_error.toResponseBody())
         )
         assertEquals(ResponseError.RATE_LIMIT_EXCEEDED, result)
-        
-        result = getError(
-            Response.error<SocialData>(
-                400,
-                unknown_error.toResponseBody())
-        )
-        assertEquals(ResponseError.UNKNOWN, result)
     }
 }

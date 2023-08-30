@@ -5,11 +5,12 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
-import org.listenbrainz.android.model.FeedEvent
-import org.listenbrainz.android.model.FeedEventType
 import org.listenbrainz.android.model.Metadata
+import org.listenbrainz.android.model.feed.FeedEvent
+import org.listenbrainz.android.model.feed.FeedEventType
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
+import org.listenbrainz.android.ui.screens.feed.FeedSocialDropdown
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils
 
@@ -20,7 +21,14 @@ fun RecordingRecommendationFeedLayout(
     isHidden: Boolean,
     onDeleteOrHide: () -> Unit,
     onDropdownClick: () -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    dropdownState: Int?,
+    index: Int,
+    onOpenInMusicBrainz: () -> Unit,
+    onPin: () -> Unit,
+    onRecommend: () -> Unit,
+    onPersonallyRecommend: () -> Unit,
+    onReview: () -> Unit
 ) {
     BaseFeedLayout(
         eventType = FeedEventType.RECORDING_RECOMMENDATION,
@@ -29,7 +37,7 @@ fun RecordingRecommendationFeedLayout(
         parentUser = parentUser,
         onDeleteOrHide = onDeleteOrHide,) {
         ListenCardSmall(
-            releaseName = event.metadata.trackMetadata?.releaseName ?: "Unknown",
+            trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
             artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
             coverArtUrl = remember {
                 Utils.getCoverArtUrl(
@@ -39,6 +47,18 @@ fun RecordingRecommendationFeedLayout(
             },
             enableDropdownIcon = true,
             onDropdownIconClick = onDropdownClick,
+            dropDown = {
+                FeedSocialDropdown(
+                    isExpanded = dropdownState == index,
+                    event = event,
+                    onDismiss = onDropdownClick,
+                    onOpenInMusicBrainz = onOpenInMusicBrainz,
+                    onPin = onPin,
+                    onRecommend = onRecommend,
+                    onPersonallyRecommend = onPersonallyRecommend,
+                    onReview = onReview
+                )
+            },
             onClick = onClick
         )
     }
@@ -61,8 +81,16 @@ private fun RecordingRecommendationFeedCardPreview() {
                 onDeleteOrHide = {},
                 onDropdownClick = {},
                 parentUser = "Jasjeet",
-                isHidden = false
-            ) {}
+                isHidden = false,
+                onClick = {},
+                dropdownState = null,
+                index = 0,
+                onOpenInMusicBrainz = {},
+                onPin = {},
+                onRecommend = {},
+                onPersonallyRecommend = {},
+                onReview = {}
+            )
         }
     }
 }

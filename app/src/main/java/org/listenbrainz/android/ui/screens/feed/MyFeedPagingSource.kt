@@ -4,9 +4,9 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.model.FeedData
-import org.listenbrainz.android.model.FeedEventType
 import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.android.model.feed.FeedData
+import org.listenbrainz.android.model.feed.FeedEventType
 import org.listenbrainz.android.repository.feed.FeedRepository
 import org.listenbrainz.android.util.Resource
 
@@ -17,12 +17,9 @@ class MyFeedPagingSource (
     private val feedRepository: FeedRepository,
     private val ioDispatcher: CoroutineDispatcher
 ): PagingSource<Int, FeedUiEventItem>() {
-    
-    override fun getRefreshKey(state: PagingState<Int, FeedUiEventItem>): Int? {
-        return if ((state.anchorPosition ?: 0) < 10)
-            null
-        else
-            state.lastItemOrNull()?.event?.created
+
+    override fun getRefreshKey(state: PagingState<Int, FeedUiEventItem>): Int {
+        return (System.currentTimeMillis()/1000).toInt()
     }
     
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, FeedUiEventItem> {
@@ -30,7 +27,7 @@ class MyFeedPagingSource (
         val username = username()
         if (username.isNullOrEmpty()) {
             val error = ResponseError.UNAUTHORISED.apply { actualResponse = "Login to access feed." }
-            onError(ResponseError.UNAUTHORISED.apply { actualResponse = "Login to access feed." })
+            onError(error)
             return LoadResult.Error(Exception(error.toast()))
         }
         
@@ -42,8 +39,20 @@ class MyFeedPagingSource (
             Resource.Status.SUCCESS -> {
                 
                 val processedEvents = processFeedEvents(result.data)
-                val nextKey = processedEvents.lastOrNull()?.event?.created
-                
+
+                val nextKey = processedEvents.lastOrNull()?.event?.created?.let { newKey ->
+                    // Termination condition.
+                    if (params.key != null && newKey >= params.key!!)
+                        return LoadResult.Page(
+                            data = emptyList(),
+                            prevKey = null,
+                            nextKey = null
+                        )
+                    else
+                        newKey
+                    
+                }
+
                 LoadResult.Page(
                     data = processedEvents,
                     prevKey = null,

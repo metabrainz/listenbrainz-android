@@ -285,7 +285,7 @@ fun OnAlbumClickScreen(albumID: Long) {
                         horizontal = ListenBrainzTheme.paddings.horizontal,
                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
-                    releaseName = it.title,
+                    trackName = it.title,
                     artistName = it.artist,
                     coverArtUrl = it.albumArt,
                     errorAlbumArt = R.drawable.ic_erroralbumart,

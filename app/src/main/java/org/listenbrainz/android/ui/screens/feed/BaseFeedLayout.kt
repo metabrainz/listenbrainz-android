@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.screens.feed
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -22,8 +23,8 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.HideSource
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -31,21 +32,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.listenbrainz.android.model.FeedEvent
-import org.listenbrainz.android.model.FeedEventType
-import org.listenbrainz.android.model.FeedEventType.Companion.getTimeStringForFeed
-import org.listenbrainz.android.model.FeedEventType.Companion.isActionDelete
+import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Metadata
+import org.listenbrainz.android.model.feed.FeedEvent
+import org.listenbrainz.android.model.feed.FeedEventType
+import org.listenbrainz.android.model.feed.FeedEventType.Companion.getTimeStringForFeed
+import org.listenbrainz.android.model.feed.FeedEventType.Companion.isActionDelete
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -85,7 +89,8 @@ fun BaseFeedLayout(
                     event = event,
                     eventType = eventType,
                     parentUser = parentUser,
-                    onActionClick = onDeleteOrHide
+                    onActionClick = onDeleteOrHide,
+                    isHidden = isHidden
                 )
             }
         }
@@ -151,6 +156,7 @@ fun Date(
     event: FeedEvent,
     parentUser: String,
     eventType: FeedEventType,
+    isHidden: Boolean = false,
     height: Dp = 24.dp,
     onActionClick: () -> Unit = {}
 ) {
@@ -183,8 +189,10 @@ fun Date(
                 // TODO: USE CUSTOM ICONS HERE.
                 imageVector = if (isActionDelete(event, eventType, parentUser))
                         Icons.Rounded.Delete
+                    else if (isHidden)
+                        ImageVector.vectorResource(id = R.drawable.ic_unhide)
                     else
-                        Icons.Rounded.HideSource,
+                        ImageVector.vectorResource(id = R.drawable.ic_hide),
                 tint = ListenBrainzTheme.colorScheme.lbSignature,
                 contentDescription = if (isActionDelete(
                         event,
@@ -231,7 +239,7 @@ private fun DynamicHorizontalLine(Content: @Composable () -> Unit) {
             width += it.width
         }
         
-        layout(height = height, width = width /* width of line */) {
+        layout(height = height, width = width) {
             
             dependentPlaceables.forEach { placeable: Placeable ->
                 /** Our icon is 19 dp and line width is 2 dp.*/
@@ -277,8 +285,9 @@ private fun HorizontalLine(
 
 
 @Preview
+@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
-private fun BaseFeedCardPreview() {
+private fun BaseFeedLayoutPreview() {
     ListenBrainzTheme {
         Surface(color = ListenBrainzTheme.colorScheme.background) {
             val event = FeedEventType.RECORDING_PIN
@@ -297,12 +306,15 @@ private fun BaseFeedCardPreview() {
                 Card(modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp),
+                    colors = CardDefaults.cardColors(containerColor = ListenBrainzTheme.colorScheme.level1),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                 ) {
                     Text(
                         modifier = Modifier
                             .align(Alignment.CenterHorizontally)
                             .padding(20.dp),
-                        text = "Content"
+                        text = "Content",
+                        color = ListenBrainzTheme.colorScheme.text
                     )
                 }
             }

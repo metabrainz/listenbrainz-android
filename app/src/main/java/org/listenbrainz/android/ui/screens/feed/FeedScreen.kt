@@ -1,10 +1,12 @@
 package org.listenbrainz.android.ui.screens.feed
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,28 +23,39 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Surface
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Done
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedSuggestionChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -55,15 +68,20 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.model.FeedEvent
-import org.listenbrainz.android.model.FeedEventType
 import org.listenbrainz.android.model.Metadata
+import org.listenbrainz.android.model.feed.FeedEvent
+import org.listenbrainz.android.model.feed.FeedEventType
+import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.TitleAndSubtitle
+import org.listenbrainz.android.ui.screens.feed.dialogs.Dialog
+import org.listenbrainz.android.ui.screens.feed.dialogs.PersonalRecommendationDialog
+import org.listenbrainz.android.ui.screens.feed.dialogs.PinDialog
+import org.listenbrainz.android.ui.screens.feed.dialogs.ReviewDialog
+import org.listenbrainz.android.ui.screens.feed.dialogs.rememberDialogsState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils
-import org.listenbrainz.android.util.Utils.similarityToPercent
 import org.listenbrainz.android.viewmodel.FeedViewModel
 
 @Composable
@@ -90,9 +108,22 @@ fun FeedScreen(
             viewModel.hideOrDeleteEvent(event, eventType, parentUser)
         },
         onErrorShown = { viewModel.clearError() },
-        onDropDownClick = {
-        
+        recommendTrack = { event ->
+            viewModel.recommend(event)
         },
+        personallyRecommendTrack = { event, users, blurbContent ->
+            viewModel.personallyRecommend(event, users, blurbContent)
+        },
+        review = { event, type, blurbContent, rating, locale ->
+            viewModel.review(event, type, blurbContent, rating, locale)
+        },
+        pin = { event, blurbContent ->
+            viewModel.pin(event, blurbContent)
+        },
+        searchFollower = { query ->
+            viewModel.searchUser(query)
+        },
+        isCritiqueBrainzLinked = { viewModel.isCritiqueBrainzLinked() },
         onPlay = { event ->
             viewModel.play(event)
         }
@@ -107,8 +138,13 @@ private fun FeedScreen(
     scrollToTopState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
     onDeleteOrHide: (event: FeedEvent, eventType: FeedEventType, parentUser: String) -> Unit,
-    onDropDownClick: () -> Unit,
     onErrorShown: () -> Unit,
+    recommendTrack: (event: FeedEvent) -> Unit,
+    personallyRecommendTrack: (event: FeedEvent, users: List<String>, blurbContent: String) -> Unit,
+    review: (event: FeedEvent, entityType: ReviewEntityType, blurbContent: String, rating: Int?, locale: String) -> Unit,
+    pin: (event: FeedEvent, blurbContent: String?) -> Unit,
+    searchFollower: (String) -> Unit,
+    isCritiqueBrainzLinked: suspend () -> Boolean,
     onPlay: (event: FeedEvent) -> Unit,
 ) {
     val myFeedPagingData = uiState.myFeedState.data.eventList.collectAsLazyPagingItems()
@@ -120,7 +156,7 @@ private fun FeedScreen(
     val similarListensPagingData = uiState.similarListensFeedState.data.eventList.collectAsLazyPagingItems()
     val similarListensListState = rememberLazyListState()
     
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState { 3 }
     val isRefreshing =
         when (pagerState.currentPage) {
             0 -> myFeedPagingData.loadState.refresh is LoadState.Loading
@@ -129,13 +165,16 @@ private fun FeedScreen(
             else -> false
         }
     
+    val dialogsState = rememberDialogsState()
     
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
         onRefresh = {
-            myFeedPagingData.refresh()
-            followListensPagingData.refresh()
-            similarListensPagingData.refresh()
+            when (pagerState.currentPage){
+                0 -> myFeedPagingData.refresh()
+                1 -> followListensPagingData.refresh()
+                2 -> similarListensPagingData.refresh()
+            }
         }
     )
     
@@ -166,34 +205,104 @@ private fun FeedScreen(
             .pullRefresh(state = pullRefreshState)
     ) {
     
-        RetryButton(Modifier.align(Alignment.Center), myFeedPagingData)
+        RetryButton(
+            modifier = Modifier.align(Alignment.Center),
+            show = myFeedPagingData.itemCount == 0 && myFeedPagingData.loadState.refresh is LoadState.Error,
+        ) {
+            myFeedPagingData.retry()
+            similarListensPagingData.retry()
+            followListensPagingData.retry()
+        }
     
         HorizontalPager(
-            pageCount = 3,
-            state = pagerState
+            state = pagerState,
+            pageNestedScrollConnection = PagerDefaults.pageNestedScrollConnection(Orientation.Horizontal)
         ) { position ->
             when (position) {
                 0 -> MyFeed(
-                    myFeedListState,
-                    myFeedPagingData,
-                    uiState.myFeedState,
-                    onDeleteOrHide,
-                    onDropDownClick,
-                    onPlay
+                    listState = myFeedListState,
+                    pagingData = myFeedPagingData,
+                    uiState = uiState.myFeedState,
+                    onDeleteOrHide = onDeleteOrHide,
+                    recommendTrack = recommendTrack,
+                    personallyRecommendTrack = { index ->
+                        dialogsState.activateDialog(
+                            Dialog.PERSONAL_RECOMMENDATION,
+                            0,
+                            index
+                        )
+                    },
+                    review = { index ->
+                        dialogsState.activateDialog(
+                            Dialog.REVIEW,
+                            0,
+                            index
+                        )
+                    },
+                    pin = { index ->
+                        dialogsState.activateDialog(
+                            Dialog.PIN,
+                            0,
+                            index
+                        )
+                    },
+                    onPlay = onPlay
                 )
             
                 1 -> FollowListens(
-                    followListensListState,
-                    followListensPagingData,
-                    onDropDownClick,
-                    onPlay
+                    listState = followListensListState,
+                    pagingData = followListensPagingData,
+                    recommendTrack = recommendTrack,
+                    personallyRecommendTrack = { index ->
+                        dialogsState.activateDialog(
+                            Dialog.PERSONAL_RECOMMENDATION,
+                            1,
+                            index
+                        )
+                    },
+                    review = { index ->
+                        dialogsState.activateDialog(
+                            Dialog.REVIEW,
+                            1,
+                            index
+                        )
+                    },
+                    pin = { index ->
+                        dialogsState.activateDialog(
+                            Dialog.PIN,
+                            1,
+                            index
+                        )
+                    },
+                    onPlay = onPlay
                 )
             
                 2 -> SimilarListens(
-                    similarListensListState,
-                    similarListensPagingData,
-                    onDropDownClick,
-                    onPlay
+                    listState = similarListensListState,
+                    pagingData = similarListensPagingData,
+                    recommendTrack = recommendTrack,
+                    personallyRecommendTrack = { index ->
+                        dialogsState.activateDialog(
+                            Dialog.PERSONAL_RECOMMENDATION,
+                            2,
+                            index
+                        )
+                    },
+                    review = { index ->
+                        dialogsState.activateDialog(
+                            Dialog.REVIEW,
+                            2,
+                            index
+                        )
+                    },
+                    pin = { index ->
+                        dialogsState.activateDialog(
+                            Dialog.PIN,
+                            2,
+                            index
+                        )
+                    },
+                    onPlay = onPlay
                 )
             }
         }
@@ -212,8 +321,89 @@ private fun FeedScreen(
             )
         }
     }
+    
+    Dialogs(
+        deactivateDialog = {
+            dialogsState.deactivateDialog()
+        },
+        currentDialog = dialogsState.currentDialog,
+        currentEventIndex = dialogsState.currentEventIndex,
+        pagingSource = remember(dialogsState.currentPage) {
+            when (dialogsState.currentPage) {
+                0 -> myFeedPagingData
+                1 -> followListensPagingData
+                else -> similarListensPagingData
+            }
+        },
+        onPin = pin,
+        searchUserResult = uiState.searchResult,
+        searchUsers = searchFollower,
+        onPersonallyRecommend = personallyRecommendTrack,
+        isCritiqueBrainzLinked = isCritiqueBrainzLinked,
+        onReview = review
+    )
+    
 }
 
+@Composable
+private fun Dialogs(
+    deactivateDialog: () -> Unit,
+    currentDialog: Dialog,
+    currentEventIndex: Int?,
+    pagingSource: LazyPagingItems<FeedUiEventItem>,
+    searchUserResult: List<String>,
+    onPin: (event: FeedEvent, blurbContent: String) -> Unit,
+    searchUsers: (String) -> Unit,
+    onPersonallyRecommend: (event: FeedEvent, users: List<String>, blurbContent: String) -> Unit,
+    isCritiqueBrainzLinked: suspend () -> Boolean,
+    onReview: (event: FeedEvent, type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String) -> Unit
+) {
+    when (currentDialog){
+        Dialog.NONE -> Unit
+        Dialog.PIN -> {
+            val metadata = pagingSource[currentEventIndex!!]?.event?.metadata
+            PinDialog(
+                trackName = metadata?.trackMetadata?.trackName
+                    ?: metadata?.entityName ?: return,
+                artistName = metadata?.trackMetadata?.artistName ?: return,
+                onDismiss = deactivateDialog,
+                onSubmit = { blurbContent ->
+                    onPin(pagingSource[currentEventIndex]?.event!!, blurbContent)
+                }
+            )
+        }
+        Dialog.PERSONAL_RECOMMENDATION -> {
+            val metadata = pagingSource[currentEventIndex!!]?.event?.metadata
+            PersonalRecommendationDialog(
+                trackName = metadata?.trackMetadata?.trackName
+                    ?: metadata?.entityName ?: return,
+                onDismiss = deactivateDialog,
+                searchResult = searchUserResult,
+                searchUsers = searchUsers,
+                onSubmit = { users, blurbContent ->
+                    onPersonallyRecommend(pagingSource[currentEventIndex]?.event!!, users, blurbContent)
+                }
+            )
+        }
+        Dialog.REVIEW -> {
+            val metadata = pagingSource[currentEventIndex!!]?.event?.metadata
+            ReviewDialog(
+                trackName = metadata?.trackMetadata?.trackName
+                    ?: if (metadata?.entityType == ReviewEntityType.RECORDING.code) metadata.entityName else return,
+                artistName = metadata?.trackMetadata?.artistName
+                    ?: if (metadata?.entityType == ReviewEntityType.ARTIST.code) metadata.entityName else null,
+                releaseName = metadata?.trackMetadata?.releaseName
+                    ?: if (metadata?.entityType == ReviewEntityType.RELEASE_GROUP.code) metadata.entityName else null,
+                onDismiss = deactivateDialog,
+                isCritiqueBrainzLinked = isCritiqueBrainzLinked,
+                onSubmit = { type, blurbContent, rating, locale ->
+                    onReview(pagingSource[currentEventIndex]?.event!!, type, blurbContent, rating, locale)
+                }
+            )
+        }
+    }
+    
+}
 
 @Composable
 private fun MyFeed(
@@ -221,9 +411,18 @@ private fun MyFeed(
     pagingData: LazyPagingItems<FeedUiEventItem>,
     uiState: FeedScreenUiState,
     onDeleteOrHide: (event: FeedEvent, eventType: FeedEventType, parentUser: String) -> Unit,
-    onDropDownClick: () -> Unit,
-    onPlay: (FeedEvent) -> Unit
+    recommendTrack: (event: FeedEvent) -> Unit,
+    personallyRecommendTrack: (index: Int) -> Unit,
+    review: (index: Int) -> Unit,
+    pin: (index: Int) -> Unit,
+    onPlay: (FeedEvent) -> Unit,
+    uriHandler: UriHandler = LocalUriHandler.current
 ) {
+    // Since, at most one drop down will be active at a time, then we only need to maintain one state variable.
+    val dropdownItemIndex: MutableState<Int?> = rememberSaveable {
+        mutableStateOf(null)
+    }
+    
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -252,8 +451,39 @@ private fun MyFeed(
                                 parentUser
                             )
                         },
-                        onDropdownClick = { onDropDownClick() },
-                        onClick = { onPlay(event) }
+                        dropDownState = dropdownItemIndex.value,
+                        index = index,
+                        onDropdownClick = {
+                            dropdownItemIndex.value = if (dropdownItemIndex.value == null){
+                                index
+                            } else {
+                                null
+                            }
+                        },
+                        onRecommend = {
+                            recommendTrack(event)
+                            dropdownItemIndex.value = null
+                        },
+                        onPersonallyRecommend = {
+                            personallyRecommendTrack(index)
+                            dropdownItemIndex.value = null
+                        },
+                        onReview = {
+                            review(index)
+                            dropdownItemIndex.value = null
+                        },
+                        onPin = {
+                            pin(index)
+                            dropdownItemIndex.value = null
+                        },
+                        onOpenInMusicBrainz = {
+                            uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@Content}")
+                            dropdownItemIndex.value = null
+                        },
+                        onClick = {
+                            onPlay(event)
+                            dropdownItemIndex.value = null
+                        }
                     )
                     
                 }
@@ -273,13 +503,20 @@ private fun MyFeed(
 fun FollowListens(
     listState: LazyListState,
     pagingData: LazyPagingItems<FeedUiEventItem>,
-    onDropDownClick: () -> Unit,
-    onPlay: (FeedEvent) -> Unit
+    recommendTrack: (event: FeedEvent) -> Unit,
+    personallyRecommendTrack: (index: Int) -> Unit,
+    review: (index: Int) -> Unit,
+    pin: (index: Int) -> Unit,
+    onPlay: (FeedEvent) -> Unit,
+    uriHandler: UriHandler = LocalUriHandler.current
 ) {
+    // Since, at most one drop down will be active at a time, then we only need to maintain one state variable.
+    val dropdownItemIndex: MutableState<Int?> = rememberSaveable {
+        mutableStateOf(null)
+    }
+    
     LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .widthIn(max = LocalConfiguration.current.screenWidthDp.dp),
+        modifier = Modifier.fillMaxWidth(),
         state = listState,
     ) {
         
@@ -294,7 +531,7 @@ fun FollowListens(
                         horizontal = ListenBrainzTheme.paddings.horizontal,
                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
-                    releaseName = event.metadata.trackMetadata?.releaseName ?: "Unknown",
+                    trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
                     artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
                     coverArtUrl =
                         Utils.getCoverArtUrl(
@@ -316,7 +553,37 @@ fun FollowListens(
                             )
                         }
                     },
-                    onDropdownIconClick = onDropDownClick,
+                    onDropdownIconClick = {
+                        dropdownItemIndex.value = if (dropdownItemIndex.value == null) index else null
+                    },
+                    dropDown = {
+                        FeedSocialDropdown(
+                            isExpanded = dropdownItemIndex.value == index,
+                            event = event,
+                            onDismiss = {
+                                dropdownItemIndex.value = null
+                            },
+                            onRecommend = {
+                                recommendTrack(event)
+                                dropdownItemIndex.value = null
+                            },
+                            onPersonallyRecommend = {
+                                personallyRecommendTrack(index)
+                                dropdownItemIndex.value = null
+                            },
+                            onReview = {
+                                review(index)
+                                dropdownItemIndex.value = null
+                            },
+                            onPin = {
+                                pin(index)
+                                dropdownItemIndex.value = null
+                            },
+                            onOpenInMusicBrainz = {
+                                uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@FeedSocialDropdown}")
+                            }
+                        )
+                    }
                 ) {
                     onPlay(event)
                 }
@@ -336,13 +603,20 @@ fun FollowListens(
 fun SimilarListens(
     listState: LazyListState,
     pagingData: LazyPagingItems<FeedUiEventItem>,
-    onDropDownClick: () -> Unit,
-    onPlay: (FeedEvent) -> Unit
+    recommendTrack: (event: FeedEvent) -> Unit,
+    personallyRecommendTrack: (index: Int) -> Unit,
+    review: (index: Int) -> Unit,
+    pin: (index: Int) -> Unit,
+    onPlay: (FeedEvent) -> Unit,
+    uriHandler: UriHandler = LocalUriHandler.current
 ) {
+    // Since, at most one drop down will be active at a time, then we only need to maintain one state variable.
+    val dropdownItemIndex: MutableState<Int?> = rememberSaveable {
+        mutableStateOf(null)
+    }
+    
     LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .widthIn(max = LocalConfiguration.current.screenWidthDp.dp),
+        modifier = Modifier.fillMaxWidth(),
         state = listState
     ) {
         
@@ -357,7 +631,7 @@ fun SimilarListens(
                         horizontal = ListenBrainzTheme.paddings.horizontal,
                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
-                    releaseName = event.metadata.trackMetadata?.releaseName ?: "Unknown",
+                    trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
                     artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
                     coverArtUrl =
                         Utils.getCoverArtUrl(
@@ -367,16 +641,59 @@ fun SimilarListens(
                     enableDropdownIcon = true,
                     enableTrailingContent = true,
                     trailingContent = { modifier ->
-                        TitleAndSubtitle(
+                        /*TitleAndSubtitle(
                             modifier = modifier,
                             title = event.username ?: "Unknown",
                             subtitle = similarityToPercent(event.similarity),
                             alignment = Alignment.End,
                             titleColor = ListenBrainzTheme.colorScheme.lbSignature,
                             subtitleColor = ListenBrainzTheme.colorScheme.lbSignatureInverse
-                        )
+                        )*/
+                        Column(modifier, horizontalAlignment = Alignment.End) {
+                            TitleAndSubtitle(
+                                title = event.username ?: "Unknown",
+                                titleColor = ListenBrainzTheme.colorScheme.lbSignature
+                            )
+                            Date(
+                                event = event,
+                                parentUser = parentUser,
+                                eventType = eventType
+                            )
+                        }
                     },
-                    onDropdownIconClick = onDropDownClick,
+                    onDropdownIconClick = {
+                        dropdownItemIndex.value = if (dropdownItemIndex.value == null){
+                             index
+                        } else {
+                            null
+                        }
+                    },
+                    dropDown = {
+                        FeedSocialDropdown(
+                            isExpanded = dropdownItemIndex.value == index,
+                            event = event,
+                            onDismiss = { dropdownItemIndex.value = null },
+                            onRecommend = {
+                                recommendTrack(event)
+                                dropdownItemIndex.value = null
+                            },
+                            onPersonallyRecommend = {
+                                personallyRecommendTrack(index)
+                                dropdownItemIndex.value = null
+                            },
+                            onReview = {
+                                review(index)
+                                dropdownItemIndex.value = null
+                            },
+                            onPin = {
+                                pin(index)
+                                dropdownItemIndex.value = null
+                            },
+                            onOpenInMusicBrainz = {
+                                uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@FeedSocialDropdown}")
+                            }
+                        )
+                    }
                 ) {
                     onPlay(event)
                 }
@@ -446,11 +763,11 @@ fun NavigationChips(
 }
 
 @Composable
-private fun RetryButton(modifier: Modifier = Modifier, pagingData: LazyPagingItems<FeedUiEventItem>) {
-    if (pagingData.itemCount == 0 && pagingData.loadState.refresh is LoadState.Error) {
+private fun RetryButton(modifier: Modifier = Modifier, show: Boolean, onClick: () -> Unit) {
+    if (show) {
         Button(
             modifier = modifier,
-            onClick = { pagingData.retry() },
+            onClick = onClick,
             colors = ButtonDefaults.buttonColors(containerColor = ListenBrainzTheme.colorScheme.lbSignature)
         ) {
             Text(
@@ -464,10 +781,12 @@ private fun RetryButton(modifier: Modifier = Modifier, pagingData: LazyPagingIte
 
 @Composable
 private fun PagerRearLoadingIndicator(pagingData: LazyPagingItems<FeedUiEventItem>) {
-    Box(Modifier.fillMaxWidth()) {
+    
+    Box(
+        modifier = if (pagingData.itemCount == 0) Modifier.fillMaxSize() else Modifier.fillMaxWidth()
+    ) {
         if (
             pagingData.itemCount != 0 &&
-            pagingData.loadState.refresh is LoadState.Loading ||
             pagingData.loadState.append is LoadState.Loading
         ) {
             
@@ -486,51 +805,85 @@ private fun PagerRearLoadingIndicator(pagingData: LazyPagingItems<FeedUiEventIte
                 modifier = Modifier
                     .align(Alignment.Center)
                     .padding(vertical = 24.dp),
-                pagingData = pagingData
+                show = true,
+                onClick = {
+                    pagingData.retry()
+                }
             )
+            
+        } else if (
+            pagingData.loadState.refresh is LoadState.NotLoading &&
+            pagingData.loadState.append is LoadState.NotLoading
+        ) {
+            // No more data to page.
+            Row(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(vertical = 32.dp), // Default height of m3 button is 40.dp)
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                
+                Icon(
+                    imageVector = Icons.Rounded.Done,
+                    contentDescription = "End of feed.",
+                    tint = ListenBrainzTheme.colorScheme.lbSignature
+                )
+                
+                Spacer(modifier = Modifier.width(6.dp))
+                
+                Text(
+                    text = "You are all caught up!",
+                    fontWeight = FontWeight.Medium,
+                    color = ListenBrainzTheme.colorScheme.lbSignature
+                )
+            }
+            
             
         }
     }
 }
 
 @Preview
+@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun FeedScreenPreview() {
     ListenBrainzTheme {
-        FeedScreen(
-            uiState = FeedUiState(
-                FeedScreenUiState(
-                    FeedUiEventData(eventList = flow {
-                        emit(PagingData.from(
-                            listOf(
-                                FeedUiEventItem(
-                                    eventType = FeedEventType.LISTEN,
-                                    parentUser = "Jasjeet",
-                                    event = FeedEvent(
-                                        0,
-                                        0,
-                                        FeedEventType.LISTEN.type,
-                                        metadata = Metadata(),
-                                        username = "Jasjeet"
+        Surface (color = ListenBrainzTheme.colorScheme.background) {
+            FeedScreen(
+                uiState = FeedUiState(
+                    FeedScreenUiState(
+                        FeedUiEventData(eventList = flow {
+                            emit(PagingData.from(
+                                List(30){
+                                    FeedUiEventItem(
+                                        eventType = FeedEventType.LISTEN,
+                                        parentUser = "Jasjeet",
+                                        event = FeedEvent(
+                                            0,
+                                            0,
+                                            FeedEventType.LISTEN.type,
+                                            metadata = Metadata(),
+                                            username = "Jasjeet"
+                                        )
                                     )
-                                )
-                            )
-                        ))
-                    })
-                )
-            ),
-            scrollToTopState = false,
-            onScrollToTop = {},
-            onDeleteOrHide = { _, _, _ ->
+                                }
+                            ))
+                        })
+                    )
+                ),
+                scrollToTopState = false,
+                onScrollToTop = {},
+                onDeleteOrHide = {_,_,_ -> },
+                onErrorShown = {},
+                recommendTrack = {},
+                personallyRecommendTrack = {_,_,_ -> },
+                review = {_,_,_,_,_ ->},
+                pin = {_,_ ->},
+                searchFollower = {},
+                isCritiqueBrainzLinked = {true},
+                onPlay = {}
+            )
+        }
         
-            },
-            onErrorShown = {},
-            onDropDownClick = {
-        
-            },
-            onPlay = {
-        
-            }
-        )
     }
 }

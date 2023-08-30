@@ -2,6 +2,7 @@ package org.listenbrainz.android.model
 
 import androidx.compose.runtime.Immutable
 import com.google.gson.annotations.SerializedName
+import org.listenbrainz.android.model.feed.FeedListenArtist
 
 @Immutable
 data class MbidMapping(

@@ -46,7 +46,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import kotlinx.coroutines.delay
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.YimScreens
+import org.listenbrainz.android.model.yimdata.YimScreens
 import org.listenbrainz.android.model.yimdata.TopRelease
 import org.listenbrainz.android.ui.components.YimHeadingText
 import org.listenbrainz.android.ui.components.YimNavigationStation

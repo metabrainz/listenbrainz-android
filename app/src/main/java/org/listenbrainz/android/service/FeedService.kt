@@ -1,8 +1,8 @@
 package org.listenbrainz.android.service
 
-import org.listenbrainz.android.model.FeedData
-import org.listenbrainz.android.model.FeedEventDeletionData
-import org.listenbrainz.android.model.FeedEventVisibilityData
+import org.listenbrainz.android.model.feed.FeedData
+import org.listenbrainz.android.model.feed.FeedEventDeletionData
+import org.listenbrainz.android.model.feed.FeedEventVisibilityData
 import org.listenbrainz.android.model.SocialResponse
 import retrofit2.Response
 import retrofit2.http.Body
