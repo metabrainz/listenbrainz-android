@@ -15,6 +15,10 @@ class SettingsViewModel @Inject constructor(
     application: Application,
 ) : AndroidViewModel(application) {
 
+    fun version(): String {
+        return appPreferences.version
+    }
+
     fun logout() {
         viewModelScope.launch {
             appPreferences.logoutUser()
