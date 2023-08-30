@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
@@ -30,9 +31,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavController
@@ -54,11 +63,11 @@ import org.listenbrainz.android.viewmodel.SettingsViewModel
 
 @Composable
 fun SettingsScreen(
-    navController: NavController,
     viewModel: SettingsViewModel = hiltViewModel(),
     listensViewModel: ListensViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
     var showBlacklist by remember { mutableStateOf(false) }
     val darkTheme = onScreenUiModeIsDark()
     val darkThemeCheckedState = remember { mutableStateOf(darkTheme) }
@@ -97,12 +106,19 @@ fun SettingsScreen(
         ) {
             Text(
                 text = "Send listens",
-                color = MaterialTheme.colorScheme.onSurface
+                color = when {
+                    viewModel.appPreferences.isNotificationServiceAllowed -> MaterialTheme.colorScheme.onSurface
+                    else -> Color(0xFF949494)
+                }
             )
 
             Switch(
-                checked = submitListensCheckedState.value,
-                onCheckedChange = { submitListensCheckedState.value = it },
+                checked = submitListensCheckedState.value && viewModel.appPreferences.isNotificationServiceAllowed,
+                onCheckedChange = {
+                    if (viewModel.appPreferences.isNotificationServiceAllowed) {
+                        submitListensCheckedState.value = it
+                    }
+                }
             )
         }
 
@@ -112,8 +128,11 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(18.dp)
+                .padding(top = 12.dp, bottom = 12.dp)
                 .clickable {
-                    showBlacklist = true
+                    if (viewModel.appPreferences.isNotificationServiceAllowed) {
+                        showBlacklist = true
+                    }
                 }
             ,
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -121,7 +140,10 @@ fun SettingsScreen(
         ) {
             Text(
                 text = "Listening apps",
-                color = MaterialTheme.colorScheme.onSurface
+                color = when {
+                    viewModel.appPreferences.isNotificationServiceAllowed -> MaterialTheme.colorScheme.onSurface
+                    else -> Color(0xFF949494)
+                }
             )
         }
 
@@ -203,7 +225,7 @@ fun SettingsScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(18.dp)
+                .padding(top = 18.dp, start = 18.dp, end = 18.dp)
             ,
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
@@ -217,9 +239,11 @@ fun SettingsScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(18.dp)
+                .padding(top = 18.dp, start = 18.dp, end = 18.dp)
                 .clickable {
-                    navController.navigate(AppNavigationItem.About.route)
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.data = Constants.ABOUT_URL.toUri()
+                    context.startActivity(intent)
                 }
             ,
             horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -239,7 +263,7 @@ fun SettingsScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(18.dp)
+                .padding(top = 18.dp, start = 18.dp, end = 18.dp)
                 .clickable {
                     context.startActivity(Intent(context, DonateActivity::class.java))
                 }
@@ -268,7 +292,67 @@ fun SettingsScreen(
         ) {
             Text(
                 text = "v. ${viewModel.version()}",
-                color = MaterialTheme.colorScheme.onSurface
+                color = Color(0xFF949494)
+            )
+        }
+
+        Divider(thickness = 1.dp)
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 18.dp, start = 18.dp, end = 18.dp)
+            ,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Attributions",
+                color = Color(0xFF908EAF)
+            )
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp)
+            ,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            val annotatedStringAttributions: AnnotatedString = buildAnnotatedString {
+                val originalString =
+                        "Animations by Korhan Ulusoy, Jake Cowan, KidA Studio, puput Santoso and Paul Roux on LottieFiles from lottiefiles.com\n\n" +
+                        "The complete resources with links can be found at\n" +
+                        "https://github.com/metabrainz/listenbrainz-android/blob/main/asset_attributions.md"
+                val startIndexGithub = originalString.indexOf("https://github.com")
+                val endIndexGithub = startIndexGithub + 82
+                append(originalString)
+                addStyle(
+                    style = SpanStyle(
+                        textDecoration = TextDecoration.Underline
+                    ), start = startIndexGithub, end = endIndexGithub
+                )
+                addStringAnnotation(
+                    tag = "URL",
+                    annotation = "https://github.com/metabrainz/listenbrainz-android/blob/main/asset_attributions.md",
+                    start = startIndexGithub,
+                    end = endIndexGithub
+                )
+            }
+
+            ClickableText(
+                text = annotatedStringAttributions,
+                style = TextStyle(
+                    color = Color(0xFF949494)
+                ),
+                onClick = { offset ->
+                    annotatedStringAttributions
+                        .getStringAnnotations("URL", offset, offset)
+                        .firstOrNull()?.let { stringAnnotation ->
+                            uriHandler.openUri(stringAnnotation.item)
+                        }
+                }
             )
         }
 
@@ -303,7 +387,6 @@ fun SettingsScreenPreview() {
         SettingsScreen(
              viewModel = hiltViewModel(),
             listensViewModel = hiltViewModel(),
-            navController = rememberNavController()
         )
     }
 }
