@@ -84,8 +84,6 @@ fun ListensScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
 
-        var showBlacklist by remember { mutableStateOf(false) }
-
         LazyColumn(state = listState) {
             item {
                 UserData(
@@ -153,34 +151,6 @@ fun ListensScreen(
             exit = fadeOut(animationSpec = tween(durationMillis = 250))
         ) {
             LoadingAnimation()
-        }
-
-        // BlackList Dialog
-        if (showBlacklist) {
-            ListeningAppsList(viewModel = viewModel) { showBlacklist = false }
-        }
-        
-        // FAB
-        // FIXME: MOVE ACCESS OF SHARED PREFERENCES TO COROUTINES.
-        if(viewModel.appPreferences.isNotificationServiceAllowed) {
-            AnimatedVisibility(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp), visible = !showBlacklist
-            ) {
-                FloatingActionButton(
-                    modifier = Modifier.border(1.dp, Color.Gray, shape = CircleShape),
-                    shape = CircleShape,
-                    onClick = { showBlacklist = true },
-                    backgroundColor = MaterialTheme.colorScheme.tertiaryContainer
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Block,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        contentDescription = "Blacklist"
-                    )
-                }
-            }
         }
     }
 }

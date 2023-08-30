@@ -44,7 +44,7 @@ fun AppNavigation(
             )
         }
         composable(route = AppNavigationItem.Settings.route){
-            SettingsScreen()
+            SettingsScreen(navController = navController)
         }
 
         composable(route = AppNavigationItem.About.route){
