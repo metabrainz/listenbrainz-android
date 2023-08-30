@@ -9,11 +9,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.listenbrainz.android.model.AppNavigationItem
-import org.listenbrainz.android.ui.screens.about.AboutScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen
 import org.listenbrainz.android.ui.screens.explore.ExploreScreen
 import org.listenbrainz.android.ui.screens.feed.FeedScreen
-import org.listenbrainz.android.ui.screens.newsbrainz.NewsBrainzScreen
 import org.listenbrainz.android.ui.screens.profile.ProfileScreen
 import org.listenbrainz.android.ui.screens.settings.SettingsScreen
 
@@ -44,11 +42,7 @@ fun AppNavigation(
             )
         }
         composable(route = AppNavigationItem.Settings.route){
-            SettingsScreen(navController = navController)
-        }
-
-        composable(route = AppNavigationItem.About.route){
-            AboutScreen()
+            SettingsScreen()
         }
     }
 }
