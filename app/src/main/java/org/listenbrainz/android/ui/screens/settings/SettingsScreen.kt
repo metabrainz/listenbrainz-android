@@ -42,6 +42,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -113,6 +114,7 @@ fun SettingsScreen(
 
                 Text(
                     text = "Enable sending listens from this device to ListenBrainz",
+                    fontSize = 12.sp,
                     color = Color(0xFF949494),
                     modifier = Modifier
                         .padding(top = 6.dp)
@@ -155,7 +157,8 @@ fun SettingsScreen(
                 )
 
                 Text(
-                    text = "Enable and disable sending listens from individual apps on this device",
+                    text = "Enable sending listens from individual apps on this device",
+                    fontSize = 12.sp,
                     color = Color(0xFF949494),
                     modifier = Modifier
                         .padding(top = 6.dp)
@@ -182,6 +185,7 @@ fun SettingsScreen(
 
                 Text(
                     text = "Required to send listens",
+                    fontSize = 12.sp,
                     color = Color(0xFF949494),
                     modifier = Modifier
                         .padding(top = 6.dp)
@@ -219,7 +223,8 @@ fun SettingsScreen(
                 )
 
                 Text(
-                    text = "Enable and disable the dark theme on this device",
+                    text = "Enable the dark theme on this device",
+                    fontSize = 12.sp,
                     color = Color(0xFF949494),
                     modifier = Modifier
                         .padding(top = 6.dp)
@@ -380,8 +385,10 @@ fun SettingsScreen(
 
             ClickableText(
                 text = annotatedStringAttributions,
+
                 style = TextStyle(
-                    color = Color(0xFF949494)
+                    color = Color(0xFF949494),
+                    fontSize = 12.sp
                 ),
                 onClick = { offset ->
                     annotatedStringAttributions
