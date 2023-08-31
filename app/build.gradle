@@ -31,8 +31,8 @@ android {
         applicationId 'org.listenbrainz.android'
         minSdk 21
         targetSdk 34
-        versionCode 37
-        versionName "2.2.2"
+        versionCode 39
+        versionName "2.2.4"
         multiDexEnabled true
         testInstrumentationRunner "org.listenbrainz.android.di.CustomTestRunner" // "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -180,11 +180,11 @@ dependencies {
     implementation 'androidx.activity:activity-compose'
 
     // Compose Navigation
-    implementation "androidx.navigation:navigation-compose:$navigationVersion"     // Stable one
+    implementation "androidx.navigation:navigation-compose:$navigationVersion"
     implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
-    implementation "androidx.navigation:navigation-compose:$navigationVersion"     // Stable one
-    implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"     // Experimental but has animations
+    implementation "androidx.navigation:navigation-compose:$navigationVersion"
+    implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"
 
     //Spotify
     implementation files('./lib/spotify-app-remote-release-0.7.2.aar')
@@ -207,7 +207,7 @@ dependencies {
 
     // Mockito framework
     testImplementation 'org.mockito:mockito-core:5.5.0'
-    testImplementation 'org.mockito.kotlin:mockito-kotlin:5.1.0'    // Mockito kotlin
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:5.1.0'
 
     debugImplementation "androidx.test:monitor:1.6.1"       // Solves "class PlatformTestStorageRegistery not found" error for ui tests.
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"

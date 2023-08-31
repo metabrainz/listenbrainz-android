@@ -10,9 +10,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
@@ -40,6 +42,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -100,13 +103,25 @@ fun SettingsScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Send listens",
-                color = when {
-                    viewModel.appPreferences.isNotificationServiceAllowed -> MaterialTheme.colorScheme.onSurface
-                    else -> Color(0xFF949494)
-                }
-            )
+            Column {
+                Text(
+                    text = "Send listens",
+                    color = when {
+                        viewModel.appPreferences.isNotificationServiceAllowed -> MaterialTheme.colorScheme.onSurface
+                        else -> Color(0xFF949494)
+                    }
+                )
+
+                Text(
+                    text = "Enable sending listens from this device to ListenBrainz",
+                    lineHeight = 18.sp,
+                    fontSize = 12.sp,
+                    color = Color(0xFF949494),
+                    modifier = Modifier
+                        .padding(top = 6.dp)
+                        .fillMaxWidth(0.9f)
+                )
+            }
 
             Switch(
                 checked = submitListensCheckedState.value && viewModel.appPreferences.isNotificationServiceAllowed,
@@ -124,7 +139,6 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(18.dp)
-                .padding(top = 12.dp, bottom = 12.dp)
                 .clickable {
                     if (viewModel.appPreferences.isNotificationServiceAllowed) {
                         showBlacklist = true
@@ -134,13 +148,25 @@ fun SettingsScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Listening apps",
-                color = when {
-                    viewModel.appPreferences.isNotificationServiceAllowed -> MaterialTheme.colorScheme.onSurface
-                    else -> Color(0xFF949494)
-                }
-            )
+            Column {
+                Text(
+                    text = "Listening apps",
+                    color = when {
+                        viewModel.appPreferences.isNotificationServiceAllowed -> MaterialTheme.colorScheme.onSurface
+                        else -> Color(0xFF949494)
+                    }
+                )
+
+                Text(
+                    text = "Enable sending listens from individual apps on this device",
+                    lineHeight = 18.sp,
+                    fontSize = 12.sp,
+                    color = Color(0xFF949494),
+                    modifier = Modifier
+                        .padding(top = 6.dp)
+                        .width(240.dp)
+                )
+            }
         }
 
         Divider(thickness = 1.dp)
@@ -153,10 +179,22 @@ fun SettingsScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Notifications (required)",
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Column {
+                Text(
+                    text = "Notifications",
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Text(
+                    text = "Required to send listens",
+                    lineHeight = 18.sp,
+                    fontSize = 12.sp,
+                    color = Color(0xFF949494),
+                    modifier = Modifier
+                        .padding(top = 6.dp)
+                        .fillMaxWidth(0.9f)
+                )
+            }
 
             Switch(
                 checked = notificationsCheckedState.value,
@@ -181,10 +219,22 @@ fun SettingsScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Dark theme",
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Column {
+                Text(
+                    text = "Dark theme",
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Text(
+                    text = "Enable the dark theme on this device",
+                    lineHeight = 18.sp,
+                    fontSize = 12.sp,
+                    color = Color(0xFF949494),
+                    modifier = Modifier
+                        .padding(top = 6.dp)
+                        .fillMaxWidth(0.9f)
+                )
+            }
 
             Switch(
                 checked = darkThemeCheckedState.value,
@@ -339,8 +389,10 @@ fun SettingsScreen(
 
             ClickableText(
                 text = annotatedStringAttributions,
+
                 style = TextStyle(
-                    color = Color(0xFF949494)
+                    color = Color(0xFF949494),
+                    fontSize = 12.sp
                 ),
                 onClick = { offset ->
                     annotatedStringAttributions
