@@ -114,7 +114,7 @@ fun SettingsScreen(
 
                 Text(
                     text = "Enable sending listens from this device to ListenBrainz",
-                    lineHeight = 20.sp,
+                    lineHeight = 18.sp,
                     fontSize = 12.sp,
                     color = Color(0xFF949494),
                     modifier = Modifier
@@ -159,7 +159,7 @@ fun SettingsScreen(
 
                 Text(
                     text = "Enable sending listens from individual apps on this device",
-                    lineHeight = 20.sp,
+                    lineHeight = 18.sp,
                     fontSize = 12.sp,
                     color = Color(0xFF949494),
                     modifier = Modifier
@@ -187,7 +187,7 @@ fun SettingsScreen(
 
                 Text(
                     text = "Required to send listens",
-                    lineHeight = 20.sp,
+                    lineHeight = 18.sp,
                     fontSize = 12.sp,
                     color = Color(0xFF949494),
                     modifier = Modifier
@@ -227,7 +227,7 @@ fun SettingsScreen(
 
                 Text(
                     text = "Enable the dark theme on this device",
-                    lineHeight = 20.sp,
+                    lineHeight = 18.sp,
                     fontSize = 12.sp,
                     color = Color(0xFF949494),
                     modifier = Modifier
