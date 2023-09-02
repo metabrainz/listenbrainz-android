@@ -5,13 +5,13 @@ import org.listenbrainz.android.model.SocialResponse
 import org.listenbrainz.android.model.feed.FeedData
 import org.listenbrainz.android.model.feed.FeedEventDeletionData
 import org.listenbrainz.android.model.feed.FeedEventVisibilityData
-import org.listenbrainz.android.service.FeedService
+import org.listenbrainz.android.service.ApiService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils
 import javax.inject.Inject
 
 class FeedRepositoryImpl @Inject constructor(
-    private val service: FeedService
+    private val service: ApiService
 ) : FeedRepository {
     
     override suspend fun getFeedEvents(

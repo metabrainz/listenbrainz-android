@@ -15,10 +15,8 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.listenbrainz.android.model.yimdata.YimData
 import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.service.ApiService
 import org.listenbrainz.android.service.BlogService
-import org.listenbrainz.android.service.FeedService
-import org.listenbrainz.android.service.ListensService
-import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.service.YouTubeApiService
 import org.listenbrainz.android.util.Constants.LISTENBRAINZ_API_BASE_URL
@@ -54,26 +52,11 @@ class ServiceModule {
         .addConverterFactory(GsonConverterFactory.create())
         .build().create(BlogService::class.java)
 
-    
     @Singleton
     @Provides
-    fun providesListensService(appPreferences: AppPreferences): ListensService =
+    fun providesApiService(appPreferences: AppPreferences): ApiService =
         constructRetrofit(appPreferences)
-            .create(ListensService::class.java)
-    
-    
-    @Singleton
-    @Provides
-    fun providesSocialService(appPreferences: AppPreferences): SocialService =
-        constructRetrofit(appPreferences)
-            .create(SocialService::class.java)
-    
-    
-    @Singleton
-    @Provides
-    fun providesFeedService(appPreferences: AppPreferences): FeedService =
-        constructRetrofit(appPreferences)
-            .create(FeedService::class.java)
+            .create(ApiService::class.java)
     
     @Singleton
     @Provides
@@ -94,7 +77,7 @@ class ServiceModule {
             .build()
             .create(YouTubeApiService::class.java)
     
-    /* YIM */
+    /** YIM **/
     
     private val yimGson: Gson by lazy {
         

@@ -9,7 +9,7 @@ import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.PostResponse
 import org.listenbrainz.android.model.TokenValidation
-import org.listenbrainz.android.service.ListensService
+import org.listenbrainz.android.service.ApiService
 import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Resource.Status.FAILED
@@ -19,12 +19,12 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ListensRepositoryImpl @Inject constructor(val service: ListensService) : ListensRepository {
+class ListensRepositoryImpl @Inject constructor(val service: ApiService) : ListensRepository {
 
     @WorkerThread
     override suspend fun fetchUserListens(userName: String): Resource<List<Listen>> {
         return try {
-            val response = service.getUserListens(user_name = userName, count = 100)
+            val response = service.getUserListens(username = userName, count = 100)
             Resource(SUCCESS, response.payload.listens)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -101,7 +101,7 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
     
     override suspend fun getLinkedServices(token: String, username: String): List<LinkedService> {
         return try {
-            val services = service.getServicesLinkedToAccount(user_name = username)
+            val services = service.getServicesLinkedToAccount(username = username)
             val result = mutableListOf<LinkedService>()
             services.services.forEach {
                 result.add(LinkedService.parseService(it))
