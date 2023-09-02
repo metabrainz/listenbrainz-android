@@ -17,8 +17,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Icon
-import androidx.compose.material.Switch
-import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Info
@@ -44,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import org.listenbrainz.android.R
+import org.listenbrainz.android.ui.components.Switch
 import org.listenbrainz.android.util.Constants.SPOTIFY_PACKAGE_NAME
 import org.listenbrainz.android.viewmodel.ListensViewModel
 
@@ -84,7 +83,7 @@ fun ListeningAppsList(
         },
         title = {
             Text(
-                text = "Listening Apps List",
+                text = "Listening Apps",
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -143,10 +142,6 @@ fun ListeningAppsList(
                                     }
                 
                                 },
-                                colors = SwitchDefaults.colors(
-                                    checkedTrackColor = MaterialTheme.colorScheme.inverseOnSurface,
-                                    checkedThumbColor = MaterialTheme.colorScheme.inverseOnSurface
-                                )
                             )
                         }
     

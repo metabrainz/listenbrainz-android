@@ -5,11 +5,11 @@ plugins {
 
 android {
     namespace 'org.listenbrainz.sharedtest'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         minSdk 21
-        targetSdk 33
+        targetSdk 34
     }
 
     buildTypes {
@@ -44,7 +44,6 @@ dependencies {
     implementation 'androidx.arch.core:core-testing:2.2.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
     implementation "androidx.room:room-testing:2.5.2"
-    implementation 'androidx.core:core-ktx:1.10.1'
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
 
     implementation 'androidx.test:runner:1.5.2'

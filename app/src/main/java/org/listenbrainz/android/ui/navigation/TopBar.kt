@@ -61,29 +61,17 @@ fun TopBar(
         contentColor = MaterialTheme.colorScheme.onSurface,
         elevation = 0.dp,
         actions = {
-            IconButton(onClick = {
-                navController.navigate(AppNavigationItem.About.route)
-            }) {
-                Icon(painterResource(id = R.drawable.ic_info),"About")
-            }
-
             IconButton(onClick = { searchBarState.activate() }) {
                 Icon(painterResource(id = R.drawable.ic_search), contentDescription = "Search users")
-            }
-            
-            IconButton(onClick = {
-                context.startActivity(Intent(context, DonateActivity::class.java))
-            }) {
-                Icon(painterResource(id = R.drawable.ic_donate),"Donate")
             }
 
             IconButton(onClick = {
                 if (navBackStackEntry?.destination?.route == AppNavigationItem.Settings.route){
                     navController.popBackStack()
                 } else {
-                    navController.navigate(AppNavigationItem.Settings.route){
+                    navController.navigate(AppNavigationItem.Settings.route) {
                         // Avoid building large backstack
-                        popUpTo(AppNavigationItem.Feed.route){
+                        popUpTo(AppNavigationItem.Feed.route) {
                             saveState = true
                         }
                         // Avoid copies
@@ -92,7 +80,6 @@ fun TopBar(
                         restoreState = true
                     }
                 }
-                
             }) {
                 Icon(painterResource(id = R.drawable.ic_settings),"Settings")
             }
