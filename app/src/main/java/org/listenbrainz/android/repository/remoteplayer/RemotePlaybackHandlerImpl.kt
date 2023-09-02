@@ -25,6 +25,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ListenBitmap
@@ -47,6 +49,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
     private val youtubeApiService: YouTubeApiService
 ) : RemotePlaybackHandler {
     
+    private val mutex = Mutex()
     private var spotifyAppRemote: SpotifyAppRemote? = null
     
     /** This variable is used to maintain concurrency because spotify async tasks can cause
@@ -141,13 +144,15 @@ class RemotePlaybackHandlerImpl @Inject constructor(
     
     override suspend fun connectToSpotify(onError: (ResponseError) -> Unit) {
         try {
-            disconnectSpotify()
+            SpotifyAppRemote.disconnect(spotifyAppRemote)
             isResumed = false
-            spotifyAppRemote = connectToAppRemote(
-                true,
-                spotifyClientId = appContext.getString(R.string.spotifyClientId),
-                onError
-            )
+            mutex.withLock {
+                spotifyAppRemote = connectToAppRemote(
+                    true,
+                    spotifyClientId = appContext.getString(R.string.spotifyClientId),
+                    onError
+                )
+            }
         } catch (error: Throwable) {
             logError(error)
         }
@@ -207,6 +212,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
                         
                         // Throw exception
                         if (!isResumed){
+                            logError(error)
                             cont.resumeWithException(error)
                             isResumed = true
                         }

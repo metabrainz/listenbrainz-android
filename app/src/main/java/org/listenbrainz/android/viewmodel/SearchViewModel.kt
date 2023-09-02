@@ -3,8 +3,10 @@ package org.listenbrainz.android.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +19,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.listenbrainz.android.di.DefaultDispatcher
 import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.ResponseError
@@ -26,6 +29,7 @@ import org.listenbrainz.android.model.UserListUiState
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
@@ -62,7 +66,7 @@ class SearchViewModel @Inject constructor(
                 val result = repository.searchUser(username)
                 when (result.status) {
                     Resource.Status.SUCCESS -> userListFlow.emit(result.data?.users ?: emptyList())
-                    Resource.Status.FAILED -> emitError(result.error)
+                    Resource.Status.FAILED -> this.coroutineContext.emitError(result.error)
                     else -> return@collectLatest
                 }
             }
@@ -71,18 +75,7 @@ class SearchViewModel @Inject constructor(
         // Observing changes in userListFlow
         viewModelScope.launch(defaultDispatcher) {
             userListFlow.collectLatest { userList ->
-                if (userList.isEmpty()) {
-                    followStateFlow.emit(emptyList())
-                    return@collectLatest
-                }
-                
-                val followList = mutableListOf<Boolean>()
-                userList.forEach {
-                    followList.add(it.isFollowed)
-                }
-                
-                followStateFlow.emit(followList)
-                
+                followStateFlow.emit(userList.map { it.isFollowed })
             }
         }
         
@@ -111,23 +104,31 @@ class SearchViewModel @Inject constructor(
     }
     
     
-    suspend fun toggleFollowStatus(user: User, index: Int) {
+    fun toggleFollowStatus(user: User, index: Int) {
+        viewModelScope.launch(defaultDispatcher) {
+            
+            if (user.username.isEmpty()) return@launch
         
-        if (user.username.isEmpty()) return
-        
-        if (followStateFlow.value[index])
-            optimisticallyUnfollowUser(user, index)
-        else
-            optimisticallyFollowUser(user, index)
-        
+            try {
+                if (followStateFlow.value[index])
+                    coroutineContext.optimisticallyUnfollowUser(user, index)
+                else
+                    coroutineContext.optimisticallyFollowUser(user, index)
+            } catch (e: CancellationException) {
+                e.printStackTrace()
+            }
+            
+        }
     }
     
     
-    private suspend fun optimisticallyFollowUser(user: User, index: Int) {
+    private suspend fun CoroutineContext.optimisticallyFollowUser(user: User, index: Int) {
         
         invertFollowUiState(index)
         
-        val result = repository.followUser(user.username)
+        val result = withContext(ioDispatcher) {
+            repository.followUser(user.username)
+        }
         when (result.status) {
             Resource.Status.FAILED -> {
                 emitError(result.error)
@@ -144,11 +145,12 @@ class SearchViewModel @Inject constructor(
     }
     
     
-    private suspend fun optimisticallyUnfollowUser(user: User, index: Int) {
+    private suspend fun CoroutineContext.optimisticallyUnfollowUser(user: User, index: Int) {
         
         invertFollowUiState(index)
-        
-        val result = repository.unfollowUser(user.username)
+        val result = withContext(ioDispatcher) {
+            repository.unfollowUser(user.username)
+        }
         return when (result.status) {
             Resource.Status.FAILED -> {
                 // Since same response is given by server even if user is unfollowed or not, we
@@ -160,8 +162,9 @@ class SearchViewModel @Inject constructor(
         }
     }
     
-    private fun invertFollowUiState(index: Int) {
+    private fun CoroutineContext.invertFollowUiState(index: Int) {
         
+        ensureActive()
         followStateFlow.getAndUpdate { list ->
             val mutableList = list.toMutableList()
             try {
@@ -175,7 +178,10 @@ class SearchViewModel @Inject constructor(
         
     }
     
-    private suspend fun emitError(error: ResponseError?){ errorFlow.emit(error) }
+    private suspend fun CoroutineContext.emitError(error: ResponseError?){
+        ensureActive()
+        errorFlow.emit(error)
+    }
     
     /** Call this function to reset [errorFlow]'s latest emission.*/
     fun clearErrorFlow() {
