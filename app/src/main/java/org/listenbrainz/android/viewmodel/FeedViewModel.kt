@@ -225,18 +225,6 @@ class FeedViewModel @Inject constructor(
             ioDispatcher = ioDispatcher
         )
     
-    fun connectToSpotify() {
-        viewModelScope.launch {
-            remotePlayerRepository.connectToSpotify { error ->
-                emitError(error)
-            }
-        }
-    }
-    
-    fun disconnectSpotify(){
-        remotePlayerRepository.disconnectSpotify()
-    }
-    
     fun play(event: FeedEvent) {
         val spotifyId = event.metadata.trackMetadata?.additionalInfo?.spotifyId
         if (spotifyId != null){

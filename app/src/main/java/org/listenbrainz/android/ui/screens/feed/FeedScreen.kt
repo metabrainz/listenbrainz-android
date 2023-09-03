@@ -60,7 +60,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -90,13 +89,6 @@ fun FeedScreen(
     scrollToTopState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit
 ) {
-    
-    LifecycleStartEffect(Unit) {
-        viewModel.connectToSpotify()
-        onStopOrDispose {
-            viewModel.disconnectSpotify()
-        }
-    }
     
     val uiState = viewModel.uiState.collectAsState().value
     

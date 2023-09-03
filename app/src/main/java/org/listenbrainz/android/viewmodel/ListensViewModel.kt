@@ -10,11 +10,10 @@ import androidx.lifecycle.viewModelScope
 import com.spotify.protocol.types.PlayerState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.getAndUpdate
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -50,9 +49,7 @@ class ListensViewModel @Inject constructor(
     
     var isLoading: Boolean by mutableStateOf(true)
     
-    private var playerStateEmissionJob: Job? = null
-    private val _playerState = MutableStateFlow<PlayerState?>(null)
-    val playerState = _playerState.asStateFlow()
+    val playerState = remotePlayerRepository.getPlayerState().onEach { updateTrackCoverArt(it) }
     
     private val _songDuration = MutableStateFlow(0L)
     private val _songCurrentPosition = MutableStateFlow(0L)
@@ -83,11 +80,6 @@ class ListensViewModel @Inject constructor(
                 }
         }
         
-        viewModelScope.launch(defaultDispatcher) {
-            remotePlayerRepository.getPlayerState().collectLatest {
-                _playerState.emit(it)
-            }
-        }
     }
 
     suspend fun validateUserToken(token: String): Boolean? {
@@ -123,23 +115,6 @@ class ListensViewModel @Inject constructor(
                 FAILED -> false
             }
         }
-    }
-
-    fun connectToSpotify() {
-        playerStateEmissionJob = viewModelScope.launch {
-            remotePlayerRepository.connectToSpotify()
-            
-            // Now playing for spotify
-            remotePlayerRepository.getPlayerState().collectLatest {
-                updateTrackCoverArt(it)
-                _playerState.emit(it)
-            }
-        }
-    }
-    
-    fun disconnectSpotify() {
-        playerStateEmissionJob?.cancel()
-        remotePlayerRepository.disconnectSpotify()
     }
     
     private suspend fun updateTrackCoverArt(playerState: PlayerState?) = withContext(ioDispatcher) {

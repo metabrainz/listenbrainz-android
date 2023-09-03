@@ -144,9 +144,10 @@ class RemotePlaybackHandlerImpl @Inject constructor(
     
     override suspend fun connectToSpotify(onError: (ResponseError) -> Unit) {
         try {
-            SpotifyAppRemote.disconnect(spotifyAppRemote)
-            isResumed = false
             mutex.withLock {
+                println("CONNECT")
+                SpotifyAppRemote.disconnect(spotifyAppRemote)
+                isResumed = false
                 spotifyAppRemote = connectToAppRemote(
                     true,
                     spotifyClientId = appContext.getString(R.string.spotifyClientId),
@@ -195,7 +196,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
                             // Tell user that they need to login in the spotify app.
                             onError(
                                 ResponseError.REMOTE_PLAYER_ERROR.apply {
-                                    actualResponse = "Login into Spotify app in order to play songs from it."
+                                    actualResponse = "Login into Spotify app in order to play songs from your account."
                                 }
                             )
                         }
@@ -223,9 +224,17 @@ class RemotePlaybackHandlerImpl @Inject constructor(
         }
     
     
-    override fun disconnectSpotify() {
-        SpotifyAppRemote.disconnect(spotifyAppRemote)
-        spotifyAppRemote = null
+    override suspend fun disconnectSpotify() {
+        if (!mutex.isLocked){
+            // Means our app is not establishing another instance and
+            // we are free to disconnect and make spotifyAppRemote null.
+            // We need our mutex to be free because we don't want spotify to be made
+            // null immediately AFTER another instance is assigned by a new screen.
+            mutex.withLock {
+                SpotifyAppRemote.disconnect(spotifyAppRemote)
+                spotifyAppRemote = null
+            }
+        }
     }
     
     

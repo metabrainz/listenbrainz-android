@@ -21,11 +21,14 @@ interface RemotePlaybackHandler {
     
     /** Connect to spotify app remote using this function. **Must** connect in *onStart* only.
      *
-     * **Note**: Only use [Dispatchers.Main] to establish connection.*/
+     * **Note**: Only use [Dispatchers.Main] to establish connection.
+     * Coroutine-safe*/
     suspend fun connectToSpotify(onError: (ResponseError) -> Unit = {})
     
-    /** Disconnect to spotify app remote using this function. **Must** disconnect in *onStop* only.*/
-    fun disconnectSpotify()
+    /** Disconnect to spotify app remote using this function. **Must** disconnect in *onStop* only.
+     *
+     * Coroutine-safe*/
+    suspend fun disconnectSpotify()
     
     suspend fun fetchSpotifyTrackCoverArt(playerState: PlayerState?): ListenBitmap
     

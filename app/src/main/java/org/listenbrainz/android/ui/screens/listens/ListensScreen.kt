@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -16,26 +15,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.FloatingActionButton
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Block
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.LifecycleStartEffect
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.UserData
@@ -50,13 +37,6 @@ fun ListensScreen(
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
 ) {
-    
-    LifecycleStartEffect(Unit) {
-        viewModel.connectToSpotify()
-        onStopOrDispose {
-            viewModel.disconnectSpotify()
-        }
-    }
     
     LaunchedEffect(Unit){
         viewModel.appPreferences.username.let {username ->
@@ -80,7 +60,7 @@ fun ListensScreen(
     // Listens list
     val listens by viewModel.listensFlow.collectAsState()
     val listeningNow by viewModel.listeningNow.collectAsState()
-    val playerState by viewModel.playerState.collectAsState()
+    val playerState by viewModel.playerState.collectAsState(null)
 
     Box(modifier = Modifier.fillMaxSize()) {
 
