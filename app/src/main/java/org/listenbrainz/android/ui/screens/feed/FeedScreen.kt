@@ -99,18 +99,18 @@ fun FeedScreen(
         onDeleteOrHide = { event, eventType, parentUser ->
             viewModel.hideOrDeleteEvent(event, eventType, parentUser)
         },
-        onErrorShown = { viewModel.clearError() },
+        onErrorShown = { viewModel.clearErrorFlow() },
         recommendTrack = { event ->
-            viewModel.recommend(event)
+            viewModel.recommend(event.metadata)
         },
         personallyRecommendTrack = { event, users, blurbContent ->
-            viewModel.personallyRecommend(event, users, blurbContent)
+            viewModel.personallyRecommend(event.metadata, users, blurbContent)
         },
         review = { event, type, blurbContent, rating, locale ->
-            viewModel.review(event, type, blurbContent, rating, locale)
+            viewModel.review(event.metadata, type, blurbContent, rating, locale)
         },
         pin = { event, blurbContent ->
-            viewModel.pin(event, blurbContent)
+            viewModel.pin(event.metadata, blurbContent)
         },
         searchFollower = { query ->
             viewModel.searchUser(query)
@@ -125,7 +125,7 @@ fun FeedScreen(
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
-private fun FeedScreen(
+fun FeedScreen(
     uiState: FeedUiState,
     scrollToTopState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,

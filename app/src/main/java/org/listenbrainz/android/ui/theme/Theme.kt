@@ -32,8 +32,8 @@ import androidx.preference.PreferenceManager
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
-/** Theme for the whole app. */
-data class Theme(
+/** ColorScheme for the whole app. */
+data class ColorScheme(
     val background: Color,
     val onBackground: Color,
     val level1: Color,
@@ -55,7 +55,7 @@ data class Theme(
     val hint: Color
 )
 
-private val colorSchemeDark = Theme(
+private val colorSchemeDark = ColorScheme(
     background = app_bg_dark,
     onBackground = Color.White,
     level1 = app_bottom_nav_dark,
@@ -71,7 +71,7 @@ private val colorSchemeDark = Theme(
     hint = Color(0xFF8C8C8C)
 )
 
-private val colorSchemeLight = Theme(
+private val colorSchemeLight = ColorScheme(
     background = app_bg_day,
     onBackground = Color.Black,
     level1 = app_bottom_nav_day,
@@ -87,7 +87,7 @@ private val colorSchemeLight = Theme(
     hint = Color(0xFF707070)
 )
 
-private lateinit var LocalColorScheme: ProvidableCompositionLocal<Theme>
+private lateinit var LocalColorScheme: ProvidableCompositionLocal<ColorScheme>
 
 private val DarkColorScheme = darkColorScheme(
     background = app_bg_dark,
@@ -300,19 +300,20 @@ fun ListenBrainzTheme(
     }
     
     // Custom ColorScheme
-    val localColorScheme =
+    val localColorScheme = remember(isUiModeIsDark.value) {
         when (isUiModeIsDark.value) {
             true -> colorSchemeDark
             false -> colorSchemeLight
             else -> if (systemTheme) colorSchemeDark else colorSchemeLight
         }
+    }
     
     LocalColorScheme = staticCompositionLocalOf { localColorScheme }
     
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
-            (view.context as Activity).window.statusBarColor = colorScheme.background.toArgb()
+            (view.context as Activity).window.statusBarColor = localColorScheme.background.toArgb()
             val isDark = when (isUiModeIsDark.value){
                 true -> false
                 false -> true
@@ -339,7 +340,7 @@ fun ListenBrainzTheme(
 
 
 object ListenBrainzTheme {
-    val colorScheme: Theme
+    val colorScheme: ColorScheme
         @Composable
         @ReadOnlyComposable
         get() = LocalColorScheme.current

@@ -71,7 +71,6 @@ fun SearchScreen(
         enter = fadeIn(),
         exit = fadeOut()
     ) {
-        
         val uiState: SearchUiState by viewModel.uiState.collectAsState()
         
         SearchScreen(
