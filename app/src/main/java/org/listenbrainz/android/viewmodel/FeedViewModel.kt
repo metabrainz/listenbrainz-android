@@ -54,7 +54,7 @@ class FeedViewModel @Inject constructor(
     private val socialRepository: SocialRepository,
     private val listensRepository: ListensRepository,
     private val appPreferences: AppPreferences,
-    private val remotePlayerRepository: RemotePlaybackHandler,
+    private val remotePlaybackHandler: RemotePlaybackHandler,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ): SocialViewModel<FeedUiState>(socialRepository, appPreferences, ioDispatcher) {
@@ -220,7 +220,7 @@ class FeedViewModel @Inject constructor(
         val spotifyId = event.metadata.trackMetadata?.additionalInfo?.spotifyId
         if (spotifyId != null){
             Uri.parse(spotifyId).lastPathSegment?.let { trackId ->
-                remotePlayerRepository.playUri(trackId){
+                remotePlaybackHandler.playUri(trackId){
                     playFromYoutubeMusic(event)
                 }
             }
@@ -232,7 +232,7 @@ class FeedViewModel @Inject constructor(
     private fun playFromYoutubeMusic(event: FeedEvent) {
         viewModelScope.launch {
             if (event.metadata.trackMetadata != null){
-                remotePlayerRepository.apply {
+                remotePlaybackHandler.apply {
                     val result = playOnYoutube {
                         withContext(ioDispatcher) {
                             searchYoutubeMusicVideoId(

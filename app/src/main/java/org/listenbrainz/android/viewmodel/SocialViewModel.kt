@@ -63,6 +63,7 @@ abstract class SocialViewModel<UiState> (
     ) {
         
         invertUiState(index)
+        
         val result = withContext(ioDispatcher) {
             repository.unfollowUser(user.username)
         }

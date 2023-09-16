@@ -4,16 +4,16 @@ import androidx.activity.ComponentActivity
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.fadeIn
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import org.listenbrainz.android.model.yimdata.YimScreens
 import org.listenbrainz.android.ui.screens.yim.*
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
@@ -29,8 +29,8 @@ fun YimNavigation(
     activity: ComponentActivity,
     networkConnectivityViewModel: NetworkConnectivityViewModel,
 ) {
-    val navController = rememberAnimatedNavController()
-    AnimatedNavHost(
+    val navController = rememberNavController()
+    NavHost(
         navController = navController,
         modifier = Modifier.fillMaxSize(),
         startDestination = YimScreens.YimHomeScreen.name
@@ -82,8 +82,6 @@ fun YimNavigation(
     }
 }
 
-
-@OptIn(ExperimentalAnimationApi::class)
 fun NavGraphBuilder.addYimScreen(
     route : String,
     content : @Composable (AnimatedVisibilityScope.(NavBackStackEntry) -> Unit)

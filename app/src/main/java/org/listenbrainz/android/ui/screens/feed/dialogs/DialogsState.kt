@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.screens.feed.dialogs
 
+import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,37 +27,31 @@ class DialogsState(
     var currentDialog: Dialog by mutableStateOf(initialDialog)
         private set
     
-    var currentPage: Int? by mutableStateOf(initialPage)
-        private set
-    
-    var currentEventIndex: Int? by mutableStateOf(initialEventIndex)
+    var metadata: Bundle? by mutableStateOf(null)
         private set
     
     fun activateDialog(
         dialog: Dialog,
-        page: Int,
-        eventIndex: Int
+        metadata: Bundle,
     ) {
         // Activation order is important!
-        currentEventIndex = eventIndex
-        currentPage = page
+        this.metadata = metadata
         currentDialog = dialog
     }
     
     fun deactivateDialog() {
         // Deactivation order is important!
         currentDialog = Dialog.NONE
-        currentPage = null
-        currentEventIndex = null
+        metadata = null
     }
     
     companion object {
-        class DialogsStateSaver : Saver<DialogsState, Triple<Int, Int?, Int?>> {
-            override fun restore(value: Triple<Int, Int?, Int?>): DialogsState
-                    = DialogsState(Dialog.getDialogFromOrdinal(value.first), value.second, value.third)
+        class DialogsStateSaver : Saver<DialogsState, Int> {
+            override fun restore(value: Int): DialogsState
+                    = DialogsState(Dialog.getDialogFromOrdinal(value))
         
-            override fun SaverScope.save(value: DialogsState): Triple<Int, Int?, Int?> {
-                return Triple(value.currentDialog.ordinal, value.currentPage, value.currentEventIndex)
+            override fun SaverScope.save(value: DialogsState): Int {
+                return value.currentDialog.ordinal
             }
         }
     }

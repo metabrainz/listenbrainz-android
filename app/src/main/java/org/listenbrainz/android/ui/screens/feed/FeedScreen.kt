@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.screens.feed
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.os.Bundle
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -220,22 +221,19 @@ fun FeedScreen(
                     personallyRecommendTrack = { index ->
                         dialogsState.activateDialog(
                             Dialog.PERSONAL_RECOMMENDATION,
-                            0,
-                            index
+                            FeedDialogBundleKeys.feedDialogBundle(0, index),
                         )
                     },
                     review = { index ->
                         dialogsState.activateDialog(
                             Dialog.REVIEW,
-                            0,
-                            index
+                            FeedDialogBundleKeys.feedDialogBundle(0, index)
                         )
                     },
                     pin = { index ->
                         dialogsState.activateDialog(
                             Dialog.PIN,
-                            0,
-                            index
+                            FeedDialogBundleKeys.feedDialogBundle(0, index)
                         )
                     },
                     onPlay = onPlay
@@ -248,22 +246,19 @@ fun FeedScreen(
                     personallyRecommendTrack = { index ->
                         dialogsState.activateDialog(
                             Dialog.PERSONAL_RECOMMENDATION,
-                            1,
-                            index
+                            FeedDialogBundleKeys.feedDialogBundle(1, index)
                         )
                     },
                     review = { index ->
                         dialogsState.activateDialog(
                             Dialog.REVIEW,
-                            1,
-                            index
+                            FeedDialogBundleKeys.feedDialogBundle(1, index)
                         )
                     },
                     pin = { index ->
                         dialogsState.activateDialog(
                             Dialog.PIN,
-                            1,
-                            index
+                            FeedDialogBundleKeys.feedDialogBundle(1, index)
                         )
                     },
                     onPlay = onPlay
@@ -276,22 +271,19 @@ fun FeedScreen(
                     personallyRecommendTrack = { index ->
                         dialogsState.activateDialog(
                             Dialog.PERSONAL_RECOMMENDATION,
-                            2,
-                            index
+                            FeedDialogBundleKeys.feedDialogBundle(2, index)
                         )
                     },
                     review = { index ->
                         dialogsState.activateDialog(
                             Dialog.REVIEW,
-                            2,
-                            index
+                            FeedDialogBundleKeys.feedDialogBundle(2, index)
                         )
                     },
                     pin = { index ->
                         dialogsState.activateDialog(
                             Dialog.PIN,
-                            2,
-                            index
+                            FeedDialogBundleKeys.feedDialogBundle(2, index)
                         )
                     },
                     onPlay = onPlay
@@ -319,9 +311,9 @@ fun FeedScreen(
             dialogsState.deactivateDialog()
         },
         currentDialog = dialogsState.currentDialog,
-        currentEventIndex = dialogsState.currentEventIndex,
-        pagingSource = remember(dialogsState.currentPage) {
-            when (dialogsState.currentPage) {
+        currentEventIndex = dialogsState.metadata?.getInt(FeedDialogBundleKeys.EVENT_INDEX.name),
+        pagingSource = remember(dialogsState.metadata) {
+            when (dialogsState.metadata?.getInt(FeedDialogBundleKeys.PAGE.name)) {
                 0 -> myFeedPagingData
                 1 -> followListensPagingData
                 else -> similarListensPagingData
@@ -834,6 +826,21 @@ private fun PagerRearLoadingIndicator(pagingData: LazyPagingItems<FeedUiEventIte
         }
     }
 }
+
+
+private enum class FeedDialogBundleKeys {
+    PAGE,
+    EVENT_INDEX;
+    companion object {
+        fun feedDialogBundle(page: Int, eventIndex: Int): Bundle {
+            return Bundle().apply {
+                putInt(PAGE.name, page)
+                putInt(EVENT_INDEX.name, eventIndex)
+            }
+        }
+    }
+}
+
 
 @Preview
 @Preview(uiMode = UI_MODE_NIGHT_YES)
