@@ -75,11 +75,11 @@ import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.TitleAndSubtitle
-import org.listenbrainz.android.ui.screens.feed.dialogs.Dialog
-import org.listenbrainz.android.ui.screens.feed.dialogs.PersonalRecommendationDialog
-import org.listenbrainz.android.ui.screens.feed.dialogs.PinDialog
-import org.listenbrainz.android.ui.screens.feed.dialogs.ReviewDialog
-import org.listenbrainz.android.ui.screens.feed.dialogs.rememberDialogsState
+import org.listenbrainz.android.ui.components.dialogs.Dialog
+import org.listenbrainz.android.ui.components.dialogs.PersonalRecommendationDialog
+import org.listenbrainz.android.ui.components.dialogs.PinDialog
+import org.listenbrainz.android.ui.components.dialogs.ReviewDialog
+import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.FeedViewModel
@@ -541,7 +541,7 @@ fun FollowListens(
                         dropdownItemIndex.value = if (dropdownItemIndex.value == null) index else null
                     },
                     dropDown = {
-                        FeedSocialDropdown(
+                        SocialDropdown(
                             isExpanded = dropdownItemIndex.value == index,
                             event = event,
                             onDismiss = {
@@ -653,7 +653,7 @@ fun SimilarListens(
                         }
                     },
                     dropDown = {
-                        FeedSocialDropdown(
+                        SocialDropdown(
                             isExpanded = dropdownItemIndex.value == index,
                             event = event,
                             onDismiss = { dropdownItemIndex.value = null },

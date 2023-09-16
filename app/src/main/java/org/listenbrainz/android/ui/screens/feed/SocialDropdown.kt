@@ -15,16 +15,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.listenbrainz.android.model.feed.FeedEvent
+import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 /** This layer tries to define what options in the dropdown menu are to be shown.*/
 @Composable
-fun FeedSocialDropdown(
+fun SocialDropdown(
     isExpanded: Boolean,
     onDismiss: () -> Unit,
-    event: FeedEvent,
+    metadata: Metadata,
     onOpenInMusicBrainz: (() -> Unit)? = null,
     onPin: (() -> Unit)? = null,
     onRecommend: (() -> Unit)? = null,
@@ -37,15 +37,15 @@ fun FeedSocialDropdown(
     onInspect: (() -> Unit)? = null
 ) {
     val list = remember {
-        val trackName = event.metadata.trackMetadata?.trackName
-            ?: if (event.metadata.entityType == ReviewEntityType.RECORDING.code) event.metadata.entityName else null
-        val artistName = event.metadata.trackMetadata?.artistName
-            ?: if (event.metadata.entityType == ReviewEntityType.ARTIST.code) event.metadata.entityName else null
-        val releaseName = event.metadata.trackMetadata?.releaseName
-            ?: if (event.metadata.entityType == ReviewEntityType.RELEASE_GROUP.code) event.metadata.entityName else null
-        val recordingMbid = event.metadata.trackMetadata?.mbidMapping?.recordingMbid
-            ?: event.metadata.reviewMbid
-            ?: event.metadata.trackMetadata?.additionalInfo?.recordingMbid
+        val trackName = metadata.trackMetadata?.trackName
+            ?: if (metadata.entityType == ReviewEntityType.RECORDING.code) metadata.entityName else null
+        val artistName = metadata.trackMetadata?.artistName
+            ?: if (metadata.entityType == ReviewEntityType.ARTIST.code) metadata.entityName else null
+        val releaseName = metadata.trackMetadata?.releaseName
+            ?: if (metadata.entityType == ReviewEntityType.RELEASE_GROUP.code) metadata.entityName else null
+        val recordingMbid = metadata.trackMetadata?.mbidMapping?.recordingMbid
+            ?: metadata.reviewMbid
+            ?: metadata.trackMetadata?.additionalInfo?.recordingMbid
     
         mutableListOf<SocialDropdownItem>().apply {
             if (recordingMbid != null)
@@ -55,7 +55,7 @@ fun FeedSocialDropdown(
                 add(SocialDropdownItem.PIN(onPin))
                 
                 // Mbid or msid
-                if (recordingMbid != null || event.metadata.trackMetadata?.additionalInfo?.recordingMsid != null) {
+                if (recordingMbid != null || metadata.trackMetadata?.additionalInfo?.recordingMsid != null) {
                     add(SocialDropdownItem.RECOMMEND(onRecommend))
                     add(SocialDropdownItem.PERSONALLY_RECOMMEND(onPersonallyRecommend))
                 }
@@ -79,7 +79,7 @@ fun FeedSocialDropdown(
 }
 
 @Composable
-fun SocialDropdown(
+private fun SocialDropdown(
     isExpanded: Boolean,
     onDismiss: () -> Unit,
     itemList: List<SocialDropdownItem>
@@ -97,7 +97,7 @@ fun SocialDropdown(
 
 
 @Composable
-fun DropdownItem(
+private fun DropdownItem(
     @DrawableRes icon: Int,
     title: String,
     onClick: () -> Unit
