@@ -19,15 +19,14 @@ fun rememberDialogsState(): DialogsState {
 
 class DialogsState(
     initialDialog: Dialog,
-    initialPage: Int? = null,
-    initialEventIndex: Int? = null
+    initialMetadata: Bundle? = null
 ) {
     
     /** True if any dialog is active.*/
     var currentDialog: Dialog by mutableStateOf(initialDialog)
         private set
     
-    var metadata: Bundle? by mutableStateOf(null)
+    var metadata: Bundle? by mutableStateOf(initialMetadata)
         private set
     
     fun activateDialog(
@@ -46,12 +45,12 @@ class DialogsState(
     }
     
     companion object {
-        class DialogsStateSaver : Saver<DialogsState, Int> {
-            override fun restore(value: Int): DialogsState
-                    = DialogsState(Dialog.getDialogFromOrdinal(value))
+        class DialogsStateSaver : Saver<DialogsState, Pair<Int, Bundle?>> {
+            override fun restore(value: Pair<Int, Bundle?>): DialogsState
+                    = DialogsState(Dialog.getDialogFromOrdinal(value.first), value.second)
         
-            override fun SaverScope.save(value: DialogsState): Int {
-                return value.currentDialog.ordinal
+            override fun SaverScope.save(value: DialogsState): Pair<Int, Bundle?> {
+                return Pair(value.currentDialog.ordinal, value.metadata)
             }
         }
     }

@@ -181,10 +181,6 @@ dependencies {
 
     // Compose Navigation
     implementation "androidx.navigation:navigation-compose:$navigationVersion"
-    implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
-    implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
-    implementation "androidx.navigation:navigation-compose:$navigationVersion"
-    implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"
 
     //Spotify
     implementation files('./lib/spotify-app-remote-release-0.7.2.aar')
