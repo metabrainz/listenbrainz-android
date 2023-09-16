@@ -31,8 +31,8 @@ android {
         applicationId 'org.listenbrainz.android'
         minSdk 21
         targetSdk 34
-        versionCode 39
-        versionName "2.2.4"
+        versionCode 40
+        versionName "2.3.0"
         multiDexEnabled true
         testInstrumentationRunner "org.listenbrainz.android.di.CustomTestRunner" // "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

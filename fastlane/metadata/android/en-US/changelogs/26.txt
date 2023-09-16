@@ -1,1 +1,0 @@
-Listen submitter now sends now playing info to the server. UI revamped for screens.
