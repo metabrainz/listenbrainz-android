@@ -543,7 +543,7 @@ fun FollowListens(
                     dropDown = {
                         SocialDropdown(
                             isExpanded = dropdownItemIndex.value == index,
-                            event = event,
+                            metadata = event.metadata,
                             onDismiss = {
                                 dropdownItemIndex.value = null
                             },
@@ -564,7 +564,7 @@ fun FollowListens(
                                 dropdownItemIndex.value = null
                             },
                             onOpenInMusicBrainz = {
-                                uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@FeedSocialDropdown}")
+                                uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@SocialDropdown}")
                             }
                         )
                     }
@@ -655,7 +655,7 @@ fun SimilarListens(
                     dropDown = {
                         SocialDropdown(
                             isExpanded = dropdownItemIndex.value == index,
-                            event = event,
+                            metadata = event.metadata,
                             onDismiss = { dropdownItemIndex.value = null },
                             onRecommend = {
                                 recommendTrack(event)
@@ -674,7 +674,7 @@ fun SimilarListens(
                                 dropdownItemIndex.value = null
                             },
                             onOpenInMusicBrainz = {
-                                uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@FeedSocialDropdown}")
+                                uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@SocialDropdown}")
                             }
                         )
                     }
