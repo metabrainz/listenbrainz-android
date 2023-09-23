@@ -16,13 +16,11 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
     
-    @Singleton
     @Provides
     fun providesAppPreferences(@ApplicationContext context: Context) : AppPreferences =
         AppPreferencesImpl(context)
     
     @Provides
-    @Singleton
     fun providesWorkManager(@ApplicationContext context: Context): WorkManager =
         WorkManager.getInstance(context)
     
@@ -33,8 +31,5 @@ object AppModule {
         appPreferences: AppPreferences,
         workManager: WorkManager
     ) = BrainzPlayerServiceConnection(context, appPreferences, workManager)
-
-    @Singleton
-    @Provides
-    fun providesContext(@ApplicationContext context: Context): Context = context
+    
 }
