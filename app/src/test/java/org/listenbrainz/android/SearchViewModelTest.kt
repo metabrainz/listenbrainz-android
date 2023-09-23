@@ -9,6 +9,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.User
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.viewmodel.SearchViewModel
@@ -34,6 +35,9 @@ class SearchViewModelTest : BaseUnitTest() {
     @Mock
     private lateinit var mockSocialRepository: SocialRepository
 
+    @Mock
+    private lateinit var mockAppPreferences: AppPreferences
+    
     @Before
     fun setup(){
         
@@ -57,7 +61,7 @@ class SearchViewModelTest : BaseUnitTest() {
             mockSocialRepository.followUser(testFamiliarUser)
         }.doReturn(Resource.failure(error = ResponseError.BAD_REQUEST.apply { actualResponse = alreadyFollowingError }))
         
-        viewModel = SearchViewModel(mockSocialRepository, testDispatcher(), testDispatcher())
+        viewModel = SearchViewModel(mockSocialRepository, mockAppPreferences, testDispatcher(), testDispatcher())
     }
     
     @Test
@@ -118,7 +122,7 @@ class SearchViewModelTest : BaseUnitTest() {
         return this
     }
     
-    private suspend fun toggleFollowStatus(user: String, testScope: TestScope) : SearchViewModelTest {
+    private fun toggleFollowStatus (user: String, testScope: TestScope) : SearchViewModelTest {
         testScope.advanceUntilIdle()
         viewModel.toggleFollowStatus(User(user), getIndex(user))
         return this

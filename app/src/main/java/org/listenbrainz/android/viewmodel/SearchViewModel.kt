@@ -107,7 +107,7 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch(defaultDispatcher) {
             
             if (user.username.isEmpty()) return@launch
-        
+            
             try {
                 if (followStateFlow.value[index])
                     coroutineContext.optimisticallyUnfollowUser(user, index) { invertFollowUiState(it) }
