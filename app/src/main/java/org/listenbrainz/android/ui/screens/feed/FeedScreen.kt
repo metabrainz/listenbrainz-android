@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.screens.feed
 
+import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
 import androidx.compose.animation.AnimatedVisibility
@@ -140,13 +141,13 @@ fun FeedScreen(
     isCritiqueBrainzLinked: suspend () -> Boolean,
     onPlay: (event: FeedEvent) -> Unit,
 ) {
-    val myFeedPagingData = uiState.myFeedState.data.eventList.collectAsLazyPagingItems()
+    val myFeedPagingData = uiState.myFeedState.eventList.collectAsLazyPagingItems()
     val myFeedListState = rememberLazyListState()
     
-    val followListensPagingData = uiState.followListensFeedState.data.eventList.collectAsLazyPagingItems()
+    val followListensPagingData = uiState.followListensFeedState.eventList.collectAsLazyPagingItems()
     val followListensListState = rememberLazyListState()
     
-    val similarListensPagingData = uiState.similarListensFeedState.data.eventList.collectAsLazyPagingItems()
+    val similarListensPagingData = uiState.similarListensFeedState.eventList.collectAsLazyPagingItems()
     val similarListensListState = rememberLazyListState()
     
     val pagerState = rememberPagerState { 3 }
@@ -393,7 +394,7 @@ private fun Dialogs(
 private fun MyFeed(
     listState: LazyListState,
     pagingData: LazyPagingItems<FeedUiEventItem>,
-    uiState: FeedScreenUiState,
+    uiState: FeedUiEventData,
     onDeleteOrHide: (event: FeedEvent, eventType: FeedEventType, parentUser: String) -> Unit,
     recommendTrack: (event: FeedEvent) -> Unit,
     personallyRecommendTrack: (index: Int) -> Unit,
@@ -420,14 +421,14 @@ private fun MyFeed(
             
             pagingData[index]?.apply {
                 AnimatedVisibility(
-                    visible = uiState.data.isDeletedMap[event.id] != true,
+                    visible = uiState.isDeletedMap[event.id] != true,
                     enter = expandVertically(),
                     exit = shrinkVertically()
                 ) {
                     eventType.Content(
                         event = event,
                         parentUser = parentUser,
-                        isHidden = uiState.data.isHiddenMap[event.id] == true,
+                        isHidden = uiState.isHiddenMap[event.id] == true,
                         onDeleteOrHide = {
                             onDeleteOrHide(
                                 event,
@@ -842,7 +843,7 @@ private enum class FeedDialogBundleKeys {
 }
 
 
-@Preview
+@Preview(uiMode = UI_MODE_NIGHT_NO)
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun FeedScreenPreview() {
@@ -850,25 +851,23 @@ private fun FeedScreenPreview() {
         Surface (color = ListenBrainzTheme.colorScheme.background) {
             FeedScreen(
                 uiState = FeedUiState(
-                    FeedScreenUiState(
-                        FeedUiEventData(eventList = flow {
-                            emit(PagingData.from(
-                                List(30){
-                                    FeedUiEventItem(
-                                        eventType = FeedEventType.LISTEN,
-                                        parentUser = "Jasjeet",
-                                        event = FeedEvent(
-                                            0,
-                                            0,
-                                            FeedEventType.LISTEN.type,
-                                            metadata = Metadata(),
-                                            username = "Jasjeet"
-                                        )
+                    FeedUiEventData(eventList = flow {
+                        emit(PagingData.from(
+                            List(30){
+                                FeedUiEventItem(
+                                    eventType = FeedEventType.LISTEN,
+                                    parentUser = "Jasjeet",
+                                    event = FeedEvent(
+                                        0,
+                                        0,
+                                        FeedEventType.LISTEN.type,
+                                        metadata = Metadata(),
+                                        username = "Jasjeet"
                                     )
-                                }
-                            ))
-                        })
-                    )
+                                )
+                            }
+                        ))
+                    })
                 ),
                 scrollToTopState = false,
                 onScrollToTop = {},

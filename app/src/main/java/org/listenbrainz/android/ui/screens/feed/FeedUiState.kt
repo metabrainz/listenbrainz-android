@@ -10,17 +10,11 @@ import org.listenbrainz.android.model.feed.FeedEventType
 
 /** Top most state wrapper for Feed Screen.*/
 data class FeedUiState(
-    val myFeedState: FeedScreenUiState = FeedScreenUiState(),
-    val followListensFeedState: FeedScreenUiState = FeedScreenUiState(),
-    val similarListensFeedState: FeedScreenUiState = FeedScreenUiState(),
+    val myFeedState: FeedUiEventData = FeedUiEventData(),
+    val followListensFeedState: FeedUiEventData = FeedUiEventData(),
+    val similarListensFeedState: FeedUiEventData = FeedUiEventData(),
     val searchResult: List<String> = emptyList(),
     val error: ResponseError? = null
-)
-
-/** Represents states of various screens in feed.*/
-data class FeedScreenUiState(
-    val data: FeedUiEventData = FeedUiEventData(),
-    val isLoading: Boolean = true,
 )
 
 /** Data held by each screen.*/
