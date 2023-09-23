@@ -17,13 +17,14 @@ import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.util.Resource
 import kotlin.coroutines.CoroutineContext
 
-
 abstract class SocialViewModel<UiState> (
     private val repository: SocialRepository,
     private val appPreferences: AppPreferences,
     private val ioDispatcher: CoroutineDispatcher,
 ): BaseViewModel<UiState>() {
     
+    /**
+     * @param [invertUiState] **should** check for cancellation internally.*/
     suspend fun CoroutineContext.optimisticallyFollowUser(
         user: User,
         index: Int,
@@ -55,7 +56,8 @@ abstract class SocialViewModel<UiState> (
         }
     }
     
-    
+    /**
+     * @param [invertUiState] **should** check for cancellation internally.*/
     suspend fun CoroutineContext.optimisticallyUnfollowUser(
         user: User,
         index: Int,
