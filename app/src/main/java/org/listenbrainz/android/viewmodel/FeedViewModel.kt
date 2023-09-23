@@ -32,11 +32,12 @@ import org.listenbrainz.android.model.feed.FeedEventType
 import org.listenbrainz.android.model.feed.FeedEventType.Companion.isActionDelete
 import org.listenbrainz.android.model.feed.FeedEventVisibilityData
 import org.listenbrainz.android.repository.feed.FeedRepository
+import org.listenbrainz.android.repository.feed.FeedRepository.Companion.FeedEventCount
+import org.listenbrainz.android.repository.feed.FeedRepository.Companion.FeedListensCount
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
-import org.listenbrainz.android.ui.screens.feed.FeedScreenUiState
 import org.listenbrainz.android.ui.screens.feed.FeedUiEventData
 import org.listenbrainz.android.ui.screens.feed.FeedUiEventItem
 import org.listenbrainz.android.ui.screens.feed.FeedUiState
@@ -67,7 +68,7 @@ class FeedViewModel @Inject constructor(
     
     // My Feed
     private val myFeedPager: Flow<PagingData<FeedUiEventItem>> = Pager(
-        PagingConfig(pageSize = 30),
+        PagingConfig(pageSize = FeedEventCount),
         initialKey = null
     ) { createNewMyFeedPagingSource() }
         .flow
@@ -76,29 +77,26 @@ class FeedViewModel @Inject constructor(
     private val isDeletedMap: SnapshotStateMap<Int, Boolean> = mutableStateMapOf()
     private val isHiddenMap: SnapshotStateMap<Int, Boolean> = mutableStateMapOf()
     private val myFeedFlow = MutableStateFlow(FeedUiEventData(isHiddenMap, isDeletedMap, myFeedPager))
-    private val myFeedLoadingFlow = MutableStateFlow(false)
     
     
     // Follow Listens
     private val followListensPager: Flow<PagingData<FeedUiEventItem>> = Pager(
-        PagingConfig(pageSize = 30),
+        PagingConfig(pageSize = FeedListensCount),
         initialKey = null
     ) { createNewFollowListensPagingSource() }
         .flow
         .cachedIn(viewModelScope)
     private val followListensFlow = MutableStateFlow(FeedUiEventData(eventList = followListensPager))
-    private val followListensLoadingFlow = MutableStateFlow(false)
     
     
     // Similar Listens
     private val similarListensPager: Flow<PagingData<FeedUiEventItem>> = Pager(
-        PagingConfig(pageSize = 30),
+        PagingConfig(pageSize = FeedListensCount),
         initialKey = null
     ) { createNewSimilarListensPagingSource() }
         .flow
         .cachedIn(viewModelScope)
     private val similarListensFlow = MutableStateFlow(FeedUiEventData(eventList = similarListensPager))
-    private val similarListensLoadingFlow = MutableStateFlow(false)
     
     // Exposed UI state
     override val uiState = createUiStateFlow()
@@ -130,9 +128,9 @@ class FeedViewModel @Inject constructor(
     
     override fun createUiStateFlow(): StateFlow<FeedUiState> {
         return combine(
-            createMyFeedFlow(),
-            createFollowListensFlow(),
-            createSimilarListensFlow(),
+            myFeedFlow,
+            followListensFlow,
+            similarListensFlow,
             searchFollowerResult,
             errorFlow
         ){ feedScreenState, followListensState, similarListensState, searchResult, error ->
@@ -141,45 +139,6 @@ class FeedViewModel @Inject constructor(
             viewModelScope,
             SharingStarted.Eagerly,
             FeedUiState()
-        )
-    }
-    
-    private fun createFollowListensFlow(): StateFlow<FeedScreenUiState> {
-        return combine(
-            followListensFlow,
-            followListensLoadingFlow
-        ) { followListensData, isLoading ->
-            FeedScreenUiState(data = followListensData, isLoading = isLoading)
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            FeedScreenUiState()
-        )
-    }
-    
-    private fun createSimilarListensFlow(): StateFlow<FeedScreenUiState> {
-        return combine(
-            similarListensFlow,
-            similarListensLoadingFlow
-        ) { similarListensData, isLoading ->
-            FeedScreenUiState(data = similarListensData, isLoading = isLoading)
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            FeedScreenUiState()
-        )
-    }
-    
-    private fun createMyFeedFlow(): StateFlow<FeedScreenUiState> {
-        return combine(
-            myFeedFlow,
-            myFeedLoadingFlow
-        ) { myFeedData, isLoading ->
-            FeedScreenUiState(data = myFeedData, isLoading = isLoading)
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            FeedScreenUiState()
         )
     }
     
