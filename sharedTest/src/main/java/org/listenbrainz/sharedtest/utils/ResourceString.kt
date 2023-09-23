@@ -1,5 +1,8 @@
 package org.listenbrainz.sharedtest.utils
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+
 object ResourceString {
     
     val auth_header_not_found_error by lazy {
@@ -74,5 +77,8 @@ object ResourceString {
         EntityTestUtils.loadResourceAsString("yim_data.json")
     }
     
+    fun <T> String.toClass(): T {
+        return Gson().fromJson(this, object: TypeToken<T>() {}.type)
+    }
     
 }
