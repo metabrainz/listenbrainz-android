@@ -15,7 +15,7 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.model.AccessToken
@@ -184,7 +184,7 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
     
     
     override suspend fun getLbAccessToken(): String =
-        context.dataStore.data.first()[PreferenceKeys.LB_ACCESS_TOKEN] ?: ""
+        context.dataStore.data.firstOrNull()?.get(PreferenceKeys.LB_ACCESS_TOKEN) ?: ""
     
     override fun getLbAccessTokenFlow(): Flow<String> =
         context.dataStore.data.map { prefs ->
@@ -192,7 +192,7 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
         }
     
     
-    override suspend fun setLbAccessToken(value: String): Unit = withContext(Dispatchers.IO) {
+    override suspend fun setLbAccessToken(value: String) {
         context.dataStore.edit { prefs ->
             prefs[PreferenceKeys.LB_ACCESS_TOKEN] = value
         }
