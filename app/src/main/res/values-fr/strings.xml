@@ -1,2 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="recording_releases">Apparaît sur les Parutions</string>
+    <string name="no_results">Aucun résultat</string>
+    <string name="release_title">Parution</string>
+    <string name="releases">Parutions</string>
+    <string name="app_name">ListenBrainz</string>
+    <string name="search_hint">Rechercher sur ListenBrainz</string>
+    <string name="search_card">Explorer les données de ListenBrainz</string>
+    <string name="news_card">Nouveautés ListenBrainz</string>
+    <string name="welcome">Bienvenue sur ListenBrainz !</string>
+    <string name="welcome_loggedin">Connecté comme</string>
+    <string name="search_type_artist">Artiste</string>
+    <string name="search_type_release">Parution</string>
+    <string name="search_type_label">Maison de disques</string>
+    <string name="search_type_recording">Enregistrement</string>
+    <string name="search_type_release_group">Groupe de parution</string>
+    <string name="search_type_instrument">Intrument</string>
+    <string name="search_type_event">Évènement</string>
+    <string name="search_name">ListenBrainz</string>
+    <string name="auth_title">Authentification</string>
+</resources>
