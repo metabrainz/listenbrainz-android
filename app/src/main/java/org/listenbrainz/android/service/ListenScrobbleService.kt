@@ -8,10 +8,13 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
+import org.listenbrainz.android.BuildConfig
+import org.listenbrainz.android.R
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.ListenSessionListener
 import org.listenbrainz.android.util.Log.d
+import org.listenbrainz.android.util.Utils.toast
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -31,6 +34,9 @@ class ListenScrobbleService : NotificationListenerService() {
     private var listenServiceComponent: ComponentName? = null
 
     override fun onCreate() {
+        if (BuildConfig.DEBUG) {
+            toast(R.string.listen_submission_active)
+        }
         super.onCreate()
         initialize()
     }

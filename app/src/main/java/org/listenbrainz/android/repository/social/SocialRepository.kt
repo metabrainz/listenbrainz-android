@@ -1,5 +1,6 @@
 package org.listenbrainz.android.repository.social
 
+import org.listenbrainz.android.model.EventsResponse
 import org.listenbrainz.android.model.PinData
 import org.listenbrainz.android.model.RecommendationData
 import org.listenbrainz.android.model.Review
@@ -36,7 +37,9 @@ interface SocialRepository {
     suspend fun pin(recordingMsid: String?, recordingMbid: String?, blurbContent: String?, pinnedUntil: Int = (getPinTimeMs() /1000).toInt()): Resource<PinData>
     
     suspend fun deletePin(id: Int): Resource<SocialResponse>
-    
+
+    suspend fun fetchEvents(artistId: String): Resource<EventsResponse>
+
     companion object {
         fun getPinDateString(): String {
             val formatter = SimpleDateFormat("MMM dd, hh:mm aaa", Locale.getDefault())

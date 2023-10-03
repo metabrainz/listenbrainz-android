@@ -1,5 +1,6 @@
 package org.listenbrainz.android.service
 
+import org.listenbrainz.android.model.EventsResponse
 import org.listenbrainz.android.model.PinData
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.RecommendationData
@@ -12,6 +13,7 @@ import org.listenbrainz.android.model.feed.FeedEvent
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -65,4 +67,11 @@ interface SocialService {
     suspend fun deletePin(
         @Path("id") id: Int
     ) : Response<SocialResponse>
+
+    @Headers("User-Agent: ListenBrainz Android")
+    @GET("https://musicbrainz.org/ws/2/event")
+    suspend fun getEvents(
+        @Query("artist") artistId: String,
+        @Query("fmt") format: String
+    ) : Response<EventsResponse>
 }

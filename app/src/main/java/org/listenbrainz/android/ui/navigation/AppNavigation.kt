@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen
+import org.listenbrainz.android.ui.screens.event.EventScreen
 import org.listenbrainz.android.ui.screens.explore.ExploreScreen
 import org.listenbrainz.android.ui.screens.feed.FeedScreen
 import org.listenbrainz.android.ui.screens.profile.ProfileScreen
@@ -27,7 +28,11 @@ fun AppNavigation(
         startDestination = AppNavigationItem.Feed.route
     ){
         composable(route = AppNavigationItem.Feed.route){
-            FeedScreen(scrollToTopState = scrollRequestState, onScrollToTop = onScrollToTop)
+            FeedScreen(
+                scrollToTopState = scrollRequestState,
+                onScrollToTop = onScrollToTop,
+                navController = navController
+            )
         }
         composable(route = AppNavigationItem.BrainzPlayer.route){
             BrainzPlayerScreen()
@@ -43,6 +48,9 @@ fun AppNavigation(
         }
         composable(route = AppNavigationItem.Settings.route){
             SettingsScreen()
+        }
+        composable(route = AppNavigationItem.Event.route){
+            EventScreen()
         }
     }
 }

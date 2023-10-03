@@ -15,6 +15,7 @@ import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.annotation.StringRes
 import androidx.annotation.WorkerThread
 import kotlinx.coroutines.Dispatchers
 import okhttp3.*
@@ -96,6 +97,18 @@ object Utils {
 
     fun roundDuration(duration: Long): Long {
         return (duration / 1000) * 1000
+    }
+
+    fun Context.toast(@StringRes strRes: Int, len: Int = Toast.LENGTH_SHORT) {
+        toast(getString(strRes), len)
+    }
+
+    fun Context.toast(text: String, len: Int = Toast.LENGTH_SHORT) {
+        try {
+            Toast.makeText(this, text, len).show()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     fun getSHA1(context: Context, packageName: String): String? {

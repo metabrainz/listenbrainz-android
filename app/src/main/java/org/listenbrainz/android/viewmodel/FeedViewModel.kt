@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -26,6 +27,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.di.DefaultDispatcher
 import org.listenbrainz.android.di.IoDispatcher
+import org.listenbrainz.android.model.AppNavigationItem
+import org.listenbrainz.android.model.Event
 import org.listenbrainz.android.model.RecommendationData
 import org.listenbrainz.android.model.RecommendationMetadata
 import org.listenbrainz.android.model.ResponseError
@@ -51,6 +54,7 @@ import org.listenbrainz.android.ui.screens.feed.MyFeedPagingSource
 import org.listenbrainz.android.ui.screens.feed.SimilarListensPagingSource
 import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.android.util.Log.d
+import org.listenbrainz.android.util.Log.e
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
 
@@ -108,7 +112,9 @@ class FeedViewModel @Inject constructor(
         .cachedIn(viewModelScope)
     private val similarListensFlow = MutableStateFlow(FeedUiEventData(eventList = similarListensPager))
     private val similarListensLoadingFlow = MutableStateFlow(false)
-    
+
+    val eventsFlow = MutableStateFlow<List<Event>>(emptyList())
+
     // Exposed UI state
     val uiState = createUiStateFlow()
     
@@ -358,6 +364,25 @@ class FeedViewModel @Inject constructor(
     
             if (result.status == Resource.Status.FAILED){
                 emitError(result.error)
+            }
+        }
+    }
+
+    fun fetchEvents(artistId: String) {
+        viewModelScope.launch(ioDispatcher) {
+            val result = socialRepository.fetchEvents(
+                artistId = artistId,
+            )
+
+            if (result.status == Resource.Status.FAILED){
+                e(result.error.toString())
+                emitError(result.error)
+            }
+            else{
+                d("Events fetched successfully: ${result.data?.events}")
+                eventsFlow.emit(
+                    result.data?.events ?: emptyList()
+                )
             }
         }
     }

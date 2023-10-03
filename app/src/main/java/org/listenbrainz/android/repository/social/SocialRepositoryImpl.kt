@@ -1,5 +1,6 @@
 package org.listenbrainz.android.repository.social
 
+import org.listenbrainz.android.model.EventsResponse
 import org.listenbrainz.android.model.PinData
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.RecommendationData
@@ -203,5 +204,18 @@ class SocialRepositoryImpl @Inject constructor(
                 Resource.failure(error = getError(response = response))
             }
         
+        }.getOrElse { logAndReturn(it) }
+
+    override suspend fun fetchEvents(artistId: String): Resource<EventsResponse> =
+        runCatching {
+
+            val response = service.getEvents(artistId, "json")
+
+            return@runCatching if (response.isSuccessful) {
+                Resource.success(response.body()!!)
+            } else {
+                Resource.failure(error = getError(response = response))
+            }
+
         }.getOrElse { logAndReturn(it) }
 }

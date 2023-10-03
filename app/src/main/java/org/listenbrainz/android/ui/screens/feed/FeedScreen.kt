@@ -61,6 +61,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleStartEffect
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -68,6 +70,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventType
@@ -88,7 +91,8 @@ import org.listenbrainz.android.viewmodel.FeedViewModel
 fun FeedScreen(
     viewModel: FeedViewModel = hiltViewModel(),
     scrollToTopState: Boolean,
-    onScrollToTop: (suspend () -> Unit) -> Unit
+    onScrollToTop: (suspend () -> Unit) -> Unit,
+    navController: NavController,
 ) {
     
     LifecycleStartEffect(Unit) {
@@ -125,7 +129,9 @@ fun FeedScreen(
         },
         isCritiqueBrainzLinked = { viewModel.isCritiqueBrainzLinked() },
         onPlay = { event ->
-            viewModel.play(event)
+            viewModel.fetchEvents(event.metadata.trackMetadata?.mbidMapping!!.artistMbids[0])
+
+            navController.navigate(AppNavigationItem.Event.route)
         }
     )
 }
