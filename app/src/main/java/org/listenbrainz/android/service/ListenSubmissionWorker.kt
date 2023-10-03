@@ -9,6 +9,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.AdditionalInfo
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.ListenTrackMetadata
@@ -46,7 +47,9 @@ class ListenSubmissionWorker @AssistedInject constructor(
             additionalInfo = AdditionalInfo(
                 durationMs = inputData.getInt(MediaMetadata.METADATA_KEY_DURATION, 0),
                 mediaPlayer = inputData.getString(MediaMetadata.METADATA_KEY_WRITER)
-                    ?.let { repository.getPackageLabel(it) }
+                    ?.let { repository.getPackageLabel(it) },
+                submissionClient = "ListenBrainz Android",
+                submissionClientVersion = BuildConfig.VERSION_NAME
             )
         )
         
