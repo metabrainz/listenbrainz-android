@@ -1,2 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="releases">Veröffentlichungen</string>
+    <string name="recording_releases">Erscheint in Veröffentlichungen</string>
+</resources>
