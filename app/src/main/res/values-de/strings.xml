@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="releases">Veröffentlichungen</string>
+    <string name="recording_releases">Erscheint in Veröffentlichungen</string>
+    <string name="search_hint">ListenBrainz durchsuchen</string>
+    <string name="search_card">Erkunde ListenBrainz Daten</string>
+    <string name="dash_collections">Sammlungen</string>
+    <string name="dash_donate">Spenden</string>
+    <string name="welcome">Willkommen bei ListenBrainz!</string>
+</resources>
