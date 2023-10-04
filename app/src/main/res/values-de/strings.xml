@@ -35,4 +35,24 @@
     <string name="settings_tagger_directory_summary">Wähle das Verzeichnis, wo Picard deine Dateien finden kann</string>
     <string name="settings_suggestions_summary">Suchvorschläge speichern und anzeigen</string>
     <string name="settings_private_collections">Private Sammlungen</string>
+    <string name="app_name">ListenBrainz</string>
+    <string name="dash_about">Über</string>
+    <string name="welcome_loggedin">Angemeldet als</string>
+    <string name="search_type_artist">Künstler</string>
+    <string name="search_name">ListenBrainz</string>
+    <string name="cover_art_front">Vorderseite</string>
+    <string name="tab_links">MEHR</string>
+    <string name="tab_releases">VERÖFFENTLICHUNG</string>
+    <string name="tab_mediums">MEDIEN</string>
+    <string name="tab_info">INFO</string>
+    <string name="tab_edits">TAGGEN &amp; BEWERTEN</string>
+    <string name="about_title">Über</string>
+    <string name="settings_search">Suche</string>
+    <string name="settings_private_collections_summary">Frage auch private Sammlungen ab, wenn der Benutzer eingeloggt ist.</string>
+    <string name="settings_clear">Suchverlauf löschen</string>
+    <string name="settings_user_data">Benutzerdaten</string>
+    <string name="settings_ratings_tags">Bewertungen und Tags</string>
+    <string name="settings_ratings_tags_summary">Frage Bewertungen und Tags ab, wenn der Benutzer eingeloggt ist.</string>
+    <string name="title_image_size">Bildgröße</string>
+    <string name="title_image_scale_type">Skalierungsart</string>
 </resources>
