@@ -9,8 +9,8 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.Artist
 import org.listenbrainz.android.model.Song
-import org.listenbrainz.android.repository.AppPreferences
-import org.listenbrainz.android.repository.ArtistRepository
+import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.repository.brainzplayer.ArtistRepository
 import javax.inject.Inject
 
 @HiltViewModel

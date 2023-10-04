@@ -13,7 +13,7 @@ import androidx.lifecycle.AndroidViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.UiModes
-import org.listenbrainz.android.repository.AppPreferences
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.ui.screens.onboarding.FeaturesActivity
 import org.listenbrainz.android.util.Log.d
 import javax.inject.Inject

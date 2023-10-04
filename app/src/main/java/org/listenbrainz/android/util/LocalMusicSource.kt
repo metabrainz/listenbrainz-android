@@ -8,9 +8,9 @@ import com.google.android.exoplayer2.MediaItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.model.State
-import org.listenbrainz.android.repository.AlbumRepository
-import org.listenbrainz.android.repository.PlaylistRepository
-import org.listenbrainz.android.repository.SongRepository
+import org.listenbrainz.android.repository.brainzplayer.AlbumRepository
+import org.listenbrainz.android.repository.brainzplayer.PlaylistRepository
+import org.listenbrainz.android.repository.brainzplayer.SongRepository
 import javax.inject.Inject
 
 class LocalMusicSource @Inject constructor(

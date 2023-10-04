@@ -6,29 +6,40 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.captionBar
 import androidx.compose.material.BackdropValue
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.PermissionStatus
-import org.listenbrainz.android.repository.AppPreferences
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.ui.components.DialogLB
-import org.listenbrainz.android.ui.components.TopBar
 import org.listenbrainz.android.ui.navigation.AppNavigation
 import org.listenbrainz.android.ui.navigation.BottomNavigationBar
+import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
+import org.listenbrainz.android.ui.screens.search.SearchScreen
+import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class DashboardActivity : ComponentActivity() {
+    
     @Inject
     lateinit var appPreferences: AppPreferences
 
@@ -53,8 +64,7 @@ class DashboardActivity : ComponentActivity() {
                 }
 
                 val launcher = rememberLauncherForActivityResult(
-                    contract =
-                    ActivityResultContracts.RequestMultiplePermissions()
+                    contract = ActivityResultContracts.RequestMultiplePermissions()
                 ) { permission ->
                     val isGranted = permission.values.any { it }
                     when {
@@ -111,40 +121,78 @@ class DashboardActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val backdropScaffoldState =
                     rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
-                val shouldScrollToTop = remember { mutableStateOf(false) }
-
+                var scrollToTopState by remember { mutableStateOf(false) }
+                val snackbarState = SnackbarHostState()
+                val searchBarState = rememberSearchBarState()
+                val scope = rememberCoroutineScope()
+                
                 Scaffold(
-                    topBar = { TopBar(activity = this, navController = navController) },
+                    topBar = { TopBar(navController = navController, searchBarState = searchBarState) },
                     bottomBar = {
                         BottomNavigationBar(
                             navController = navController,
                             backdropScaffoldState = backdropScaffoldState,
-                            shouldScrollToTop = shouldScrollToTop
+                            scrollToTop = { scrollToTopState = true }
                         )
                     },
-                    backgroundColor = MaterialTheme.colorScheme.background
+                    snackbarHost = {
+                        SnackbarHost(hostState = snackbarState) { snackbarData ->
+                            Snackbar(
+                                snackbarData = snackbarData,
+                                containerColor = MaterialTheme.colorScheme.background,
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                                actionColor = MaterialTheme.colorScheme.inverseOnSurface,
+                                dismissActionContentColor = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    },
+                    containerColor = MaterialTheme.colorScheme.background,
+                    contentWindowInsets = WindowInsets.captionBar
+                
                 ) {
+                    
                     if (isGrantedPerms == PermissionStatus.GRANTED.name) {
+                        
                         BrainzPlayerBackDropScreen(
                             backdropScaffoldState = backdropScaffoldState,
-                            paddingValues = it
+                            paddingValues = it,
                         ) {
                             AppNavigation(
                                 navController = navController,
-                                activity = this,
-                                shouldScrollToTop = shouldScrollToTop
+                                scrollRequestState = scrollToTopState,
+                                onScrollToTop = { scrollToTop ->
+                                    scope.launch {
+                                        if (scrollToTopState){
+                                            scrollToTop()
+                                            scrollToTopState = false
+                                        }
+                                    }
+                                }
                             )
                         }
                     }
                 }
+                
+                SearchScreen(
+                    isActive = searchBarState.isActive,
+                    deactivate = {searchBarState.deactivate()}
+                )
+                
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        if(appPreferences.isNotificationServiceAllowed && !appPreferences.lbAccessToken.isNullOrEmpty()) {
-            App.startListenService()
+        CoroutineScope(Dispatchers.Main).launch {
+            if(
+                appPreferences.isNotificationServiceAllowed &&
+                appPreferences.getLbAccessToken().isNotEmpty() &&
+                appPreferences.submitListens
+            ) {
+                App.startListenService()
+            }
         }
+        
     }
 }

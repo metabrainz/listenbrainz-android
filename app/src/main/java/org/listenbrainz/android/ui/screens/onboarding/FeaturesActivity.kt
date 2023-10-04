@@ -11,7 +11,7 @@ import com.limurse.onboard.OnboardFragment
 import com.limurse.onboard.OnboardPageTransformerType
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.R
-import org.listenbrainz.android.repository.AppPreferences
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
 import org.listenbrainz.android.util.Log.d
 import javax.inject.Inject
@@ -62,8 +62,8 @@ class FeaturesActivity : OnboardAdvanced() {
                 "Track your music listening habits ",
                 resourceId = R.raw.teen,
                 backgroundColor =  ContextCompat.getColor(applicationContext, R.color.app_bg),
-                titleColor = ContextCompat.getColor(applicationContext, R.color.white),
-                descriptionColor = ContextCompat.getColor(applicationContext, R.color.white),
+                titleColor = ContextCompat.getColor(applicationContext, R.color.text),
+                descriptionColor = ContextCompat.getColor(applicationContext, R.color.text),
                 isLottie = true
             )
         )
@@ -74,8 +74,8 @@ class FeaturesActivity : OnboardAdvanced() {
                 "Read and write about an album or event",
                 resourceId = R.raw.review,
                 backgroundColor =  ContextCompat.getColor(applicationContext, R.color.app_bg),
-                titleColor = ContextCompat.getColor(applicationContext, R.color.white),
-                descriptionColor = ContextCompat.getColor(applicationContext, R.color.white),
+                titleColor = ContextCompat.getColor(applicationContext, R.color.text),
+                descriptionColor = ContextCompat.getColor(applicationContext, R.color.text),
                 isLottie = true
             )
         )
@@ -86,8 +86,8 @@ class FeaturesActivity : OnboardAdvanced() {
                 "Listen to locally saved music",
                 resourceId = R.raw.music_player,
                 backgroundColor =  ContextCompat.getColor(applicationContext, R.color.app_bg),
-                titleColor = ContextCompat.getColor(applicationContext, R.color.white),
-                descriptionColor = ContextCompat.getColor(applicationContext, R.color.white),
+                titleColor = ContextCompat.getColor(applicationContext, R.color.text),
+                descriptionColor = ContextCompat.getColor(applicationContext, R.color.text),
                 isLottie = true
             )
         )

@@ -2,6 +2,8 @@ package org.listenbrainz.android.service
 
 import android.content.ComponentName
 import android.content.Context
+import android.media.MediaMetadata
+import android.media.session.PlaybackState
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
@@ -9,15 +11,21 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.work.WorkManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.listenbrainz.android.model.RepeatMode
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlaying
+import org.listenbrainz.android.util.ListenSubmissionState
 import org.listenbrainz.android.util.Resource
 
 class BrainzPlayerServiceConnection(
-    context: Context
+    context: Context,
+    val appPreferences: AppPreferences,
+    val workManager: WorkManager
 ) {
+
     private val _isConnected = MutableStateFlow(Resource(Resource.Status.LOADING, false))
     val isConnected = _isConnected.asStateFlow()
 
@@ -88,40 +96,68 @@ class BrainzPlayerServiceConnection(
         }
     }
     private inner class MediaControllerCallback : MediaControllerCompat.Callback() {
+        val listen: ListenSubmissionState = ListenSubmissionState()
+    
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             _playbackState.value = state ?: EMPTY_PLAYBACK_STATE
-            _playButtonState.value = if (state?.isPlaying==true) Icons.Rounded.Pause
-            else Icons.Rounded.PlayArrow
-            if (state?.isPlaying != previousPlaybackState) _isPlaying.value = state?.isPlaying == true
+            _playButtonState.value =
+                if (state?.isPlaying == true)
+                    Icons.Rounded.Pause
+                else
+                    Icons.Rounded.PlayArrow
+        
+            if (state?.isPlaying != previousPlaybackState) _isPlaying.value =
+                state?.isPlaying == true
             previousPlaybackState = state?.isPlaying == true
+        
+            // Cutout point for normal bp and bp submitter
+            if (appPreferences.isNotificationServiceAllowed) return
+        
+            listen.toggleTimer(state?.playbackState as PlaybackState)
+        
         }
-
+    
         override fun onRepeatModeChanged(repeatMode: Int) {
             super.onRepeatModeChanged(repeatMode)
-            when(repeatMode){
+            when (repeatMode) {
                 PlaybackStateCompat.REPEAT_MODE_NONE -> _repeatModeState.value =
                     RepeatMode.REPEAT_MODE_OFF
+            
                 PlaybackStateCompat.REPEAT_MODE_ONE -> _repeatModeState.value =
                     RepeatMode.REPEAT_MODE_ONE
+            
                 PlaybackStateCompat.REPEAT_MODE_ALL -> _repeatModeState.value =
                     RepeatMode.REPEAT_MODE_ALL
+            
                 else -> _repeatModeState.value = RepeatMode.REPEAT_MODE_OFF
             }
         }
-
+    
         override fun onShuffleModeChanged(shuffleMode: Int) {
             super.onShuffleModeChanged(shuffleMode)
             _shuffleState.value = shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL
-                    || shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL
         }
-
-        override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
+    
+        override fun onMetadataChanged(metadataCompat: MediaMetadataCompat?) {
             _currentlyPlayingSong.value =
-                if (metadata?.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID) == null)
+                if (metadataCompat?.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID) == null)
                     NOTHING_PLAYING
-                else metadata
+                else metadataCompat
+        
+            // Cutoff point for bp and bp submitter.
+            if (appPreferences.isNotificationServiceAllowed) return
+        
+            val metadata = metadataCompat?.mediaMetadata as MediaMetadata
+        
+            listen.initSubmissionFlow(metadata) {
+                // Submit a listen.
+                workManager.enqueue(
+                    listen.buildWorkRequest(listenType = it, player = "ListenBrainz Android")
+                )
+            }
+        
         }
-
+    
         override fun onSessionDestroyed() {
             mediaBrowserConnectionCallback.onConnectionSuspended()
         }

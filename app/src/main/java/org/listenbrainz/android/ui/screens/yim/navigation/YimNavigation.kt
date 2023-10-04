@@ -1,7 +1,10 @@
 package org.listenbrainz.android.ui.screens.yim.navigation
 
 import androidx.activity.ComponentActivity
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -11,7 +14,7 @@ import androidx.navigation.NavGraphBuilder
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import org.listenbrainz.android.model.YimScreens
+import org.listenbrainz.android.model.yimdata.YimScreens
 import org.listenbrainz.android.ui.screens.yim.*
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
 import org.listenbrainz.android.viewmodel.YimViewModel
@@ -39,13 +42,13 @@ fun YimNavigation(
             enterTransition = { fadeIn() },
             exitTransition = {
                 slideOutOfContainer(
-                    towards = AnimatedContentScope.SlideDirection.Up,
+                    towards = AnimatedContentTransitionScope.SlideDirection.Up,
                     animationSpec = tween(screenTransitionDuration)
                 )
             },
             popEnterTransition = {
                 slideIntoContainer(
-                    towards = AnimatedContentScope.SlideDirection.Down,
+                    towards = AnimatedContentTransitionScope.SlideDirection.Down,
                     animationSpec = tween(screenTransitionDuration)
                 )
             }
@@ -89,25 +92,25 @@ fun NavGraphBuilder.addYimScreen(
         route = route,
         enterTransition = {
             slideIntoContainer(
-                towards = AnimatedContentScope.SlideDirection.Up,
+                towards = AnimatedContentTransitionScope.SlideDirection.Up,
                 animationSpec = tween(screenTransitionDuration)
             )
         },
         exitTransition = {
             slideOutOfContainer(
-                towards = AnimatedContentScope.SlideDirection.Up,
+                towards = AnimatedContentTransitionScope.SlideDirection.Up,
                 animationSpec = tween(screenTransitionDuration)
             )
         },
         popEnterTransition = {
             slideIntoContainer(
-                towards = AnimatedContentScope.SlideDirection.Down,
+                towards = AnimatedContentTransitionScope.SlideDirection.Down,
                 animationSpec = tween(screenTransitionDuration)
             )
         },
         popExitTransition = {
             slideOutOfContainer(
-                towards = AnimatedContentScope.SlideDirection.Down,
+                towards = AnimatedContentTransitionScope.SlideDirection.Down,
                 animationSpec = tween(screenTransitionDuration)
             )
         },

@@ -1,8 +1,6 @@
 package org.listenbrainz.sharedtest.utils
 
-import com.google.gson.Gson
 import org.junit.Assert.fail
-import org.listenbrainz.android.model.yimdata.YimPayload
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -28,12 +26,19 @@ object EntityTestUtils {
         return builder.toString()
     }
     
-    val testYimData : YimPayload
-        get() {
-            return Gson().fromJson(loadResourceAsString("yim_data.json"), YimPayload::class.java)
-        }
+    /** Access token of [testUsername]*/
+    const val testAccessToken = "8OC8as-1VpATqk-M79Kf-cdTw123a"
+    const val testAuthHeader = "Token $testAccessToken"
     
-    val testYimUsername : String
-        get() = "jasjeet"
+    /** Main user that is supposed to be logged in.*/
+    const val testUsername = "Jasjeet"
     
+    /** User that is followed or is following [testUsername].*/
+    const val testFamiliarUser = "JasjeetTest"
+    
+    /** User that has no relation whatsoever with [testUsername].*/
+    const val testSomeOtherUser = "AnotherUser"
+    
+    /** This user doesn't exist.*/
+    const val testUserDNE = "Some_User_That_Does_Not_Exist"
 }
