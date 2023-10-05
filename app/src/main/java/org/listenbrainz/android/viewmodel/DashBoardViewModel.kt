@@ -6,48 +6,22 @@ import android.content.Intent
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.core.content.PermissionChecker
 import androidx.core.content.PermissionChecker.checkSelfPermission
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
-import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.UiModes
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.ui.screens.onboarding.FeaturesActivity
-import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log.d
 import javax.inject.Inject
 
 @HiltViewModel
 class DashBoardViewModel @Inject constructor(
     val appPreferences: AppPreferences,
-    private val application: Application,
-    @IoDispatcher ioDispatcher: CoroutineDispatcher
+    private val application: Application
 ) : AndroidViewModel(application) {
-
-    private val _loginStatusFlow: MutableStateFlow<Int> = MutableStateFlow(Constants.Strings.STATUS_LOGGED_OUT)
-    val loginStatusFlow: StateFlow<Int> = _loginStatusFlow.asStateFlow()
-
-    init {
-        viewModelScope.launch(ioDispatcher) {
-            appPreferences.getLoginStatus()
-                .stateIn(this)
-                .collectLatest {
-                    _loginStatusFlow.emit(it)
-                }
-        }
-    }
 
     // Sets Ui mode for XML layouts.
     fun setUiMode(){
@@ -64,8 +38,7 @@ class DashBoardViewModel @Inject constructor(
     
     fun beginOnboarding(activity: ComponentActivity) {
         d("Onboarding status: ${appPreferences.onboardingCompleted}")
-
-        if (!appPreferences.onboardingCompleted || loginStatusFlow.value == Constants.Strings.STATUS_LOGGED_OUT) {
+        if (!appPreferences.onboardingCompleted){
             // TODO: Convert onboarding to a nav component.
             activity.startActivity(Intent(activity, FeaturesActivity::class.java))
             activity.finish()
