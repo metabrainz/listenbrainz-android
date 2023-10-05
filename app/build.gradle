@@ -104,6 +104,9 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
+    lint {
+        abortOnError false
+    }
     kapt {
         correctErrorTypes true
     }

@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.limurse.onboard.OnboardAdvanced
@@ -16,16 +17,20 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
 import org.listenbrainz.android.ui.screens.profile.LoginActivity
+import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log.d
+import org.listenbrainz.android.viewmodel.FeaturesViewModel
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class FeaturesActivity : OnboardAdvanced() {
     @Inject
     lateinit var appPreferences: AppPreferences
+    private val featuresViewModel: FeaturesViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
         showSignInButton = true
         isWizardMode = true
@@ -124,6 +129,16 @@ class FeaturesActivity : OnboardAdvanced() {
 
     override fun onSignInPressed(currentFragment: Fragment?) {
         super.onSignInPressed(currentFragment)
+        featuresViewModel.appPreferences.onboardingCompleted = true
         startActivity(Intent(this, LoginActivity::class.java))
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (featuresViewModel.appPreferences.onboardingCompleted && featuresViewModel.loginStatus() == Constants.Strings.STATUS_LOGGED_IN) {
+            val intent = Intent(this, DashboardActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
     }
 }
