@@ -4,6 +4,9 @@ import android.Manifest
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.limurse.onboard.OnboardAdvanced
@@ -13,18 +16,23 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.R
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
+import org.listenbrainz.android.ui.screens.profile.LoginActivity
+import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log.d
+import org.listenbrainz.android.viewmodel.FeaturesViewModel
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class FeaturesActivity : OnboardAdvanced() {
     @Inject
     lateinit var appPreferences: AppPreferences
+    private val featuresViewModel: FeaturesViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-//        setSignInButton(true)
+
+        showSignInButton = true
         isWizardMode = true
 
         showStatusBar(true)
@@ -102,5 +110,35 @@ class FeaturesActivity : OnboardAdvanced() {
         val intent = Intent(this, DashboardActivity::class.java)
         startActivity(intent)
         finish()
+    }
+
+    override fun onNextPressed(currentFragment: Fragment?) {
+        if (!appPreferences.isNotificationServiceAllowed) {
+            Toast.makeText(this, "Allow notification access to submit listens", Toast.LENGTH_SHORT).show()
+            val intent: Intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+            } else {
+                Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
+            }
+            startActivity(intent)
+        }
+        else {
+            super.onNextPressed(currentFragment)
+        }
+    }
+
+    override fun onSignInPressed(currentFragment: Fragment?) {
+        super.onSignInPressed(currentFragment)
+        featuresViewModel.appPreferences.onboardingCompleted = true
+        startActivity(Intent(this, LoginActivity::class.java))
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (featuresViewModel.appPreferences.onboardingCompleted && featuresViewModel.loginStatus() == Constants.Strings.STATUS_LOGGED_IN) {
+            val intent = Intent(this, DashboardActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
     }
 }

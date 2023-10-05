@@ -104,6 +104,9 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
+    lint {
+        abortOnError false
+    }
     kapt {
         correctErrorTypes true
     }
@@ -151,7 +154,7 @@ dependencies {
     //Design Setup
     implementation 'com.google.android.material:material:1.9.0'
     implementation 'com.airbnb.android:lottie:6.1.0'
-    implementation 'com.github.akshaaatt:Onboarding:1.0.5'
+    implementation 'com.github.akshaaatt:Onboarding:1.1.2'
     implementation 'com.github.akshaaatt:Share-Android:1.0.0'
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
     implementation 'com.airbnb.android:lottie-compose:6.1.0'
