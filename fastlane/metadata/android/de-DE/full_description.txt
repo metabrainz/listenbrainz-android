@@ -1,0 +1,3 @@
+ListenBrainz erfasst die Musik, die du hörst, und bietet dir Einblicke in deine Hörgewohnheiten.
+Mit unseren Visualisierungen kannst du ListenBrainz nutzen, um deine Musikhörgewohnheiten zu verfolgen und deinen Geschmack mit anderen zu teilen.
+Basierend auf deinem Hörverhalten empfehlen wir dir Musik, die dir gefallen könnte, neue Musik, die du von deinen Lieblingskünstlern verpasst hast, und was ähnliche Nutzer gehört haben.
