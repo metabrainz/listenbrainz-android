@@ -1,0 +1,4 @@
+ListenBrainz enregistre la musique que vous écoutez, vous offrant ainsi un aperçu de vos habitudes d'écoute.
+Nos visualisations vous permettent de suivre ces habitudes et de partager vos préférences musicales.
+
+En se basant sur votre historique d'écoute, nous vous suggérons des morceaux qui pourraient vous plaire, vous informons des dernières sorties de vos artistes préférés que vous auriez pu rater, ainsi que des suggestions des utilisateurs partageant vos goûts.
