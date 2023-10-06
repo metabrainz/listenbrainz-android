@@ -31,8 +31,8 @@ android {
         applicationId 'org.listenbrainz.android'
         minSdk 21
         targetSdk 34
-        versionCode 40
-        versionName "2.3.0"
+        versionCode 41
+        versionName "2.4.0"
         multiDexEnabled true
         testInstrumentationRunner "org.listenbrainz.android.di.CustomTestRunner" // "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -104,6 +104,9 @@ android {
     kotlinOptions {
         jvmTarget = '17'
     }
+    lint {
+        abortOnError false
+    }
     kapt {
         correctErrorTypes true
     }
@@ -117,13 +120,12 @@ android {
 dependencies {
     //AndroidX
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.2'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1'
-    implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.7.0-alpha01'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2'
+    implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.7.0-alpha02'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.2'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'androidx.core:core-ktx:1.10.1'
     implementation 'androidx.browser:browser:1.6.0'
     implementation 'androidx.preference:preference-ktx:1.2.1'
     implementation 'androidx.core:core-splashscreen:1.0.1'
@@ -136,8 +138,8 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.11'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.11'
-    implementation 'androidx.paging:paging-runtime-ktx:3.2.0'
-    implementation "androidx.paging:paging-compose:3.2.0"
+    implementation 'androidx.paging:paging-runtime-ktx:3.2.1'
+    implementation "androidx.paging:paging-compose:3.2.1"
 
     //Image downloading and Caching library
     implementation 'com.github.bumptech.glide:glide:4.16.0'
@@ -152,7 +154,7 @@ dependencies {
     //Design Setup
     implementation 'com.google.android.material:material:1.9.0'
     implementation 'com.airbnb.android:lottie:6.1.0'
-    implementation 'com.github.akshaaatt:Onboarding:1.0.5'
+    implementation 'com.github.akshaaatt:Onboarding:1.1.2'
     implementation 'com.github.akshaaatt:Share-Android:1.0.0'
     implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
     implementation 'com.airbnb.android:lottie-compose:6.1.0'

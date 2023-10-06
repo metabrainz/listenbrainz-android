@@ -1,1 +1,0 @@
-Feed section added, settings improved, bugs fixed and more!

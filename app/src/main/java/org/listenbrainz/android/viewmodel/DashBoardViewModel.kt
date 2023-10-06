@@ -1,6 +1,5 @@
 package org.listenbrainz.android.viewmodel
 
-
 import android.Manifest
 import android.app.Application
 import android.content.Intent
@@ -23,7 +22,7 @@ class DashBoardViewModel @Inject constructor(
     val appPreferences: AppPreferences,
     private val application: Application
 ) : AndroidViewModel(application) {
-    
+
     // Sets Ui mode for XML layouts.
     fun setUiMode(){
         when(appPreferences.themePreference){
