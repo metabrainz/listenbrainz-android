@@ -1,5 +1,6 @@
 package org.listenbrainz.android.viewmodel
 
+import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.launch
@@ -10,9 +11,11 @@ import org.listenbrainz.android.model.RecommendationMetadata
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.Review
 import org.listenbrainz.android.model.ReviewMetadata
+import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.util.Resource
 import kotlin.coroutines.CoroutineContext
@@ -20,8 +23,46 @@ import kotlin.coroutines.CoroutineContext
 abstract class SocialViewModel<UiState> (
     private val repository: SocialRepository,
     private val appPreferences: AppPreferences,
+    private val remotePlaybackHandler: RemotePlaybackHandler,
     private val ioDispatcher: CoroutineDispatcher,
 ): BaseViewModel<UiState>() {
+    
+    fun playListen(trackMetadata: TrackMetadata) {
+        val spotifyId = trackMetadata.additionalInfo?.spotifyId
+        if (spotifyId != null){
+            Uri.parse(spotifyId).lastPathSegment?.let { trackId ->
+                remotePlaybackHandler.playUri(
+                    trackId = trackId,
+                    onFailure = { playFromYoutubeMusic(trackMetadata) }
+                )
+            }
+        } else {
+            playFromYoutubeMusic(trackMetadata)
+        }
+    }
+    
+    private fun playFromYoutubeMusic(trackMetadata: TrackMetadata) {
+        viewModelScope.launch {
+            remotePlaybackHandler.apply {
+                playOnYoutube {
+                    withContext(ioDispatcher) {
+                        searchYoutubeMusicVideoId(
+                            trackMetadata.trackName,
+                            trackMetadata.artistName
+                        )
+                    }
+                }
+            }
+        }
+    }
+    
+    fun play(){
+        remotePlaybackHandler.play()
+    }
+    
+    fun pause(){
+        remotePlaybackHandler.pause()
+    }
     
     /**
      * @param [invertUiState] **should** check for cancellation internally.*/

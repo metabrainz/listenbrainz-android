@@ -25,6 +25,7 @@ import org.listenbrainz.android.model.SearchUiState
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.model.UserListUiState
 import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
@@ -34,9 +35,10 @@ import kotlin.coroutines.CoroutineContext
 class SearchViewModel @Inject constructor(
     private val repository: SocialRepository,
     appPreferences: AppPreferences,
+    remotePlaybackHandler: RemotePlaybackHandler,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-) : SocialViewModel<SearchUiState>(repository, appPreferences, ioDispatcher) {
+) : SocialViewModel<SearchUiState>(repository, appPreferences, remotePlaybackHandler, ioDispatcher) {
     
     private val inputQueryFlow = MutableStateFlow("")
     

@@ -15,6 +15,7 @@ interface RemotePlaybackHandler {
         artist: String
     ): Resource<String>
     
+    /** @param getYoutubeMusicVideoId Use [searchYoutubeMusicVideoId] to search for video ID while passing your own coroutine dispatcher.*/
     suspend fun playOnYoutube(
         getYoutubeMusicVideoId: suspend () -> Resource<String>
     ): Resource<Unit>

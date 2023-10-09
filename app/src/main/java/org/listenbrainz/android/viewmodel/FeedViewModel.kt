@@ -58,7 +58,7 @@ class FeedViewModel @Inject constructor(
     private val remotePlaybackHandler: RemotePlaybackHandler,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
-): SocialViewModel<FeedUiState>(socialRepository, appPreferences, ioDispatcher) {
+): SocialViewModel<FeedUiState>(socialRepository, appPreferences, remotePlaybackHandler, ioDispatcher) {
     
     // Search follower flow
     private val inputSearchFollowerQuery = MutableStateFlow("")
@@ -220,15 +220,15 @@ class FeedViewModel @Inject constructor(
         }
     }
     
-    suspend fun isCritiqueBrainzLinked(): Boolean {
-        val username = withContext(ioDispatcher) {appPreferences.username}
-        return if (username == null) {
-            emitError(ResponseError.AUTH_HEADER_NOT_FOUND)
-            false
-        } else {
-            val result = listensRepository.getLinkedServices(appPreferences.getLbAccessToken(), username)
-            result.contains(LinkedService.CRITIQUEBRAINZ)
+    suspend fun isCritiqueBrainzLinked(): Boolean? {
+        val result = listensRepository.getLinkedServices(
+            appPreferences.getLbAccessToken(),
+            withContext(ioDispatcher) { appPreferences.username }
+        )
+        if (!result.status.isSuccessful()) {
+            emitError(result.error)
         }
+        return result.data?.toLinkedServicesList()?.contains(LinkedService.CRITIQUEBRAINZ)
     }
     
     fun hideOrDeleteEvent(event: FeedEvent, eventType: FeedEventType, parentUser: String) {

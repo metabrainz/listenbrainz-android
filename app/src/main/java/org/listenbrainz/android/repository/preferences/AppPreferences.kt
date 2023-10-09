@@ -40,7 +40,7 @@ interface AppPreferences {
     fun getLoginStatus(): Flow<Int>
     
     /****ListenBrainz User Token:** User has to manually fill this token.*/
-    suspend fun getLbAccessToken(): String
+    suspend fun getLbAccessToken(): String?
     
     fun getLbAccessTokenFlow(): Flow<String>
     suspend fun setLbAccessToken(value: String)

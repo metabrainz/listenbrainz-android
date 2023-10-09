@@ -181,8 +181,8 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
          }.distinctUntilChanged()
     
     
-    override suspend fun getLbAccessToken(): String =
-        context.dataStore.data.first()[PreferenceKeys.LB_ACCESS_TOKEN] ?: ""
+    override suspend fun getLbAccessToken(): String? =
+        context.dataStore.data.first()[PreferenceKeys.LB_ACCESS_TOKEN]
     
     override fun getLbAccessTokenFlow(): Flow<String> =
         context.dataStore.data.map { prefs ->

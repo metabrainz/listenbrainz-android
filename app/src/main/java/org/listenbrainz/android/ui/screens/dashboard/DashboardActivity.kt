@@ -194,7 +194,7 @@ class DashboardActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         lifecycleScope.launch(Dispatchers.Main) {
-            if(dashBoardViewModel.isIfNotificationListenerServiceAllowed()) {
+            if(dashBoardViewModel.isNotificationListenerServiceAllowed()) {
                 App.startListenService()
             }
         }

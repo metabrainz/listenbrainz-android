@@ -52,7 +52,6 @@ import org.listenbrainz.android.model.feed.FeedEventType.Companion.getTimeString
 import org.listenbrainz.android.model.feed.FeedEventType.Companion.isActionDelete
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun BaseFeedLayout(
     modifier: Modifier = Modifier,
