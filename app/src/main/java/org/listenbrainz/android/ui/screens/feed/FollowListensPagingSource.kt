@@ -65,20 +65,25 @@ class FollowListensPagingSource(
         
     }
     
-    private fun processFeedEvents(similarListens: FeedData?): List<FeedUiEventItem> {
+    companion object {
         
-        return mutableListOf<FeedUiEventItem>().apply {
+        /** Converts [feedData] to list of [FeedUiEventItem] for presentation.*/
+        fun processFeedEvents(feedData: FeedData?): List<FeedUiEventItem> {
+        
+            return mutableListOf<FeedUiEventItem>().apply {
             
-            similarListens?.payload?.events?.forEach { event ->
-                add(
-                    FeedUiEventItem(
-                        event = event,
-                        eventType = FeedEventType.resolveEvent(event),
-                        parentUser = similarListens.payload.userId
+                feedData?.payload?.events?.forEach { event ->
+                    add(
+                        FeedUiEventItem(
+                            event = event,
+                            eventType = FeedEventType.resolveEvent(event),
+                            parentUser = feedData.payload.userId
+                        )
                     )
-                )
+                }
             }
         }
     }
+    
     
 }

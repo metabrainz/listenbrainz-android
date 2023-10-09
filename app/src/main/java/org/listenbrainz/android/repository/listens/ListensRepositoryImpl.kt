@@ -5,54 +5,32 @@ import android.graphics.drawable.Drawable
 import androidx.annotation.WorkerThread
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.CoverArt
-import org.listenbrainz.android.model.Listen
+import org.listenbrainz.android.model.ListenBrainzExternalServices
 import org.listenbrainz.android.model.ListenSubmitBody
+import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.PostResponse
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.TokenValidation
 import org.listenbrainz.android.service.ApiService
-import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.Resource.Status.FAILED
-import org.listenbrainz.android.util.Resource.Status.SUCCESS
-import org.listenbrainz.android.util.Utils.error
+import org.listenbrainz.android.util.Utils.parseResponse
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class ListensRepositoryImpl @Inject constructor(val service: ApiService) : ListensRepository {
-
-    @WorkerThread
-    override suspend fun fetchUserListens(userName: String): Resource<List<Listen>> {
-        return try {
-            val response = service.getUserListens(username = userName, count = 100)
-            Resource(SUCCESS, response.payload.listens)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Resource(FAILED, null)
-        }
+    
+    override suspend fun fetchUserListens(username: String): Resource<Listens> = parseResponse {
+        service.getUserListens(username = username, count = 100)
     }
 
-    override suspend fun fetchCoverArt(MBID: String): Resource<CoverArt> {
-        return try {
-            val coverArt = service.getCoverArt(MBID)
-            Resource(SUCCESS, coverArt)
-        }
-        catch (e: Exception) {
-            e.printStackTrace()
-            Resource.failure()
-        }
+    override suspend fun fetchCoverArt(mbid: String): Resource<CoverArt> = parseResponse {
+        service.getCoverArt(mbid)
     }
 
     @WorkerThread
-    override suspend fun validateUserToken(token: String): Resource<TokenValidation> {
-        return try {
-            val tokenIsValid = service.checkIfTokenIsValid()
-            Resource(SUCCESS, tokenIsValid)
-        }
-        catch (e: Exception) {
-            e.printStackTrace()
-            Resource.failure()
-        }
+    override suspend fun validateUserToken(token: String): Resource<TokenValidation> = parseResponse {
+        service.checkIfTokenIsValid()
     }
 
     /** Retrieve any installed application's icon. If the requested application is not installed, null is returned.
@@ -84,33 +62,15 @@ class ListensRepositoryImpl @Inject constructor(val service: ApiService) : Liste
     }
     
     
-    override suspend fun submitListen(token: String, body: ListenSubmitBody): Resource<PostResponse> {
-        return try {
-            val response = service.submitListen(body)
-            if (response.isSuccessful){
-                Resource(SUCCESS, response.body())
-            } else {
-                println("submitListen: ${response.error()}")
-                Resource.failure()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Resource.failure()
-        }
+    override suspend fun submitListen(token: String, body: ListenSubmitBody): Resource<PostResponse> = parseResponse {
+        service.submitListen(body)
     }
     
-    override suspend fun getLinkedServices(token: String, username: String): List<LinkedService> {
-        return try {
-            val services = service.getServicesLinkedToAccount(username = username)
-            val result = mutableListOf<LinkedService>()
-            services.services.forEach {
-                result.add(LinkedService.parseService(it))
-            }
-            result
-        } catch (e: Exception) {
-            e.printStackTrace()
-            emptyList()
-        }
+    override suspend fun getLinkedServices(token: String?, username: String?): Resource<ListenBrainzExternalServices> = parseResponse {
+        if (token.isNullOrEmpty() || username.isNullOrEmpty())
+            return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
+        
+        service.getServicesLinkedToAccount(username = username)
     }
     
 }

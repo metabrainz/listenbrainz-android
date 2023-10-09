@@ -20,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import okhttp3.*
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.android.model.ResponseError.Companion.getError
 import org.listenbrainz.android.util.Log.e
 import retrofit2.Response
 import java.io.*
@@ -31,6 +32,21 @@ import java.util.*
  * A set of fairly general Android utility methods.
  */
 object Utils {
+    
+    /** General function to parse an API endpoint's response.
+     * @param request Call the API endpoint here. Run any pre-conditional checks to directly return error/success in some cases. */
+    inline fun <T> parseResponse(request: () -> Response<T>): Resource<T> =
+        runCatching<Resource<T>> {
+            val response = request()
+            
+            return@runCatching if (response.isSuccessful) {
+                Resource.success(response.body()!!)
+            } else {
+                Resource.failure(error = getError(response = response))
+            }
+        
+        }.getOrElse { logAndReturn(it) }
+    
     
     /** Get *CoverArtArchive* url for cover art of a release.
      * @param size Allowed sizes are 250, 500, 750 and 1000. Default is 250.*/

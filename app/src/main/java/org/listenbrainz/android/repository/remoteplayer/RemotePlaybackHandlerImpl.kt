@@ -80,7 +80,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
             if (!items.isNullOrEmpty()) {
                 Resource.success(items.first().id.videoId)
             } else {
-                Resource.failure(error = ResponseError.DOES_NOT_EXIST.apply { actualResponse = "Could not find this song on youtube." })
+                ResponseError.REMOTE_PLAYER_ERROR.asResource("Could not find this song on youtube." )
             }
         } else {
             Resource.failure(error = ResponseError.getError(response = response))
@@ -89,7 +89,6 @@ class RemotePlaybackHandlerImpl @Inject constructor(
     }.getOrElse { Utils.logAndReturn(it) }
     
     
-    /** @param getYoutubeMusicVideoId Use [searchYoutubeMusicVideoId] to search for video ID while passing your own coroutine dispatcher.*/
     override suspend fun playOnYoutube(getYoutubeMusicVideoId: suspend () -> Resource<String>): Resource<Unit> {
         
         val result = getYoutubeMusicVideoId()
@@ -117,7 +116,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
                     }
                     else -> {
                         // Display an error message
-                        Resource.failure(error = ResponseError.DOES_NOT_EXIST.apply { actualResponse = "YouTube Music is not installed to play the track." })
+                        ResponseError.DOES_NOT_EXIST.asResource("YouTube Music is not installed to play the track.")
                     }
                 }
             }
@@ -136,7 +135,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
                     intent.putExtra(MediaStore.EXTRA_MEDIA_TITLE, query)
                     context.startActivity(intent)
                 */
-                Resource.failure(error = ResponseError.DOES_NOT_EXIST)
+                ResponseError.DOES_NOT_EXIST.asResource()
             }
         }
     }
@@ -240,18 +239,18 @@ class RemotePlaybackHandlerImpl @Inject constructor(
     
     override suspend fun fetchSpotifyTrackCoverArt(playerState: PlayerState?): ListenBitmap = suspendCoroutine { cont ->
         
+        fun getFallBackCoverArt(): ListenBitmap = ListenBitmap(
+            // Fallback Cover Art
+            bitmap = BitmapFactory.decodeResource(
+                appContext.resources,
+                R.drawable.ic_coverartarchive_logo_no_text
+            ),
+            id = null
+        )
+        
         // Return if URI is null
         if (playerState == null){
-            cont.resume(
-                ListenBitmap(
-                    // Fallback Cover Art
-                    bitmap = BitmapFactory.decodeResource(
-                        appContext.resources,
-                        R.drawable.ic_coverartarchive_logo_no_text
-                    ),
-                    id = null
-                )
-            )
+            cont.resume(getFallBackCoverArt())
         }
         
         // Get image from track
@@ -264,16 +263,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
                     )
                 )
             }?.setErrorCallback {
-                cont.resume(
-                    ListenBitmap(
-                        // Fallback Cover Art
-                        bitmap = BitmapFactory.decodeResource(
-                            appContext.resources,
-                            R.drawable.ic_coverartarchive_logo_no_text
-                        ),
-                        id = null
-                    )
-                )
+                cont.resume(getFallBackCoverArt())
             }
     }
     

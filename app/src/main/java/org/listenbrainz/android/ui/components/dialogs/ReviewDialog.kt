@@ -17,18 +17,26 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
+/**
+ * @param isCritiqueBrainzLinked null means couldn't fetch results from server.*/
 fun ReviewDialog(
     trackName: String?,
     artistName: String?,
     releaseName: String?,
     onDismiss: () -> Unit,
-    isCritiqueBrainzLinked: suspend () -> Boolean,
+    isCritiqueBrainzLinked: suspend () -> Boolean?,
     onSubmit: (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String) -> Unit
 ) {
     var isLinked by rememberSaveable { mutableStateOf<Boolean?>(null) }
     
     LaunchedEffect(Unit){
-        isLinked = isCritiqueBrainzLinked()
+        val result = isCritiqueBrainzLinked()
+        if (result == null) {
+            // Null means our API request to server has failed.
+            onDismiss()
+            return@LaunchedEffect
+        }
+        isLinked = result
     }
     
     when (isLinked) {
@@ -60,7 +68,7 @@ private fun ReviewDialogPreview(){
             onDismiss = { /*TODO*/ },
             isCritiqueBrainzLinked = {
                 delay(500)
-                true
+                null
             },
             onSubmit = { _,_,_,_ -> }
         )

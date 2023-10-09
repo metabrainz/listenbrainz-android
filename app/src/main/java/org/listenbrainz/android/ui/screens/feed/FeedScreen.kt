@@ -138,7 +138,7 @@ fun FeedScreen(
     review: (event: FeedEvent, entityType: ReviewEntityType, blurbContent: String, rating: Int?, locale: String) -> Unit,
     pin: (event: FeedEvent, blurbContent: String?) -> Unit,
     searchFollower: (String) -> Unit,
-    isCritiqueBrainzLinked: suspend () -> Boolean,
+    isCritiqueBrainzLinked: suspend () -> Boolean?,
     onPlay: (event: FeedEvent) -> Unit,
 ) {
     val myFeedPagingData = uiState.myFeedState.eventList.collectAsLazyPagingItems()
@@ -340,7 +340,7 @@ private fun Dialogs(
     onPin: (event: FeedEvent, blurbContent: String) -> Unit,
     searchUsers: (String) -> Unit,
     onPersonallyRecommend: (event: FeedEvent, users: List<String>, blurbContent: String) -> Unit,
-    isCritiqueBrainzLinked: suspend () -> Boolean,
+    isCritiqueBrainzLinked: suspend () -> Boolean?,
     onReview: (event: FeedEvent, type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String) -> Unit
 ) {
     when (currentDialog){

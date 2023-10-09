@@ -52,7 +52,7 @@ fun ListeningAppsList(
     onDismiss: () -> Unit
 ){
     var blacklist by remember { mutableStateOf(viewModel.appPreferences.listeningBlacklist) }
-    val isSpotifyLinked by viewModel.isSpotifyLinked.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
     LaunchedEffect(Unit){
@@ -146,7 +146,7 @@ fun ListeningAppsList(
                         }
     
                         // Warning for spotify.
-                        AnimatedVisibility (visible = packageName == SPOTIFY_PACKAGE_NAME && isSpotifyLinked){
+                        AnimatedVisibility (visible = packageName == SPOTIFY_PACKAGE_NAME && uiState.isSpotifyLinked){
                             
                             Row(
                                 modifier = Modifier.fillMaxWidth(),

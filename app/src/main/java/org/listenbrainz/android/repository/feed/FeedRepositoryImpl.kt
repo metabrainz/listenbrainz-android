@@ -7,7 +7,7 @@ import org.listenbrainz.android.model.feed.FeedEventDeletionData
 import org.listenbrainz.android.model.feed.FeedEventVisibilityData
 import org.listenbrainz.android.service.ApiService
 import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.Utils
+import org.listenbrainz.android.util.Utils.parseResponse
 import javax.inject.Inject
 
 class FeedRepositoryImpl @Inject constructor(
@@ -19,24 +19,16 @@ class FeedRepositoryImpl @Inject constructor(
         maxTs: Int?,
         minTs: Int?,
         count: Int
-    ) : Resource<FeedData> =
-        runCatching {
-            if (username.isNullOrEmpty()) return@runCatching Resource.failure(error = ResponseError.AUTH_HEADER_NOT_FOUND)
-            
-            val response = service.getFeedEvents(
-                username = username,
-                maxTs = maxTs,
-                minTs = minTs,
-                count = count
-            )
+    ) : Resource<FeedData> = parseResponse {
+        if (username.isNullOrEmpty()) return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
         
-            return@runCatching if (response.isSuccessful) {
-                Resource.success(response.body()!!)
-            } else {
-                Resource.failure(error = ResponseError.getError(response = response))
-            }
-        
-        }.getOrElse { Utils.logAndReturn(it) }
+        service.getFeedEvents(
+            username = username,
+            maxTs = maxTs,
+            minTs = minTs,
+            count = count
+        )
+    }
     
     
     override suspend fun getFeedFollowListens(
@@ -44,24 +36,16 @@ class FeedRepositoryImpl @Inject constructor(
         maxTs: Int?,
         minTs: Int?,
         count: Int
-    ): Resource<FeedData> =
-        runCatching {
-            if (username.isNullOrEmpty()) return@runCatching Resource.failure(error = ResponseError.AUTH_HEADER_NOT_FOUND)
-            
-            val response = service.getFeedFollowListens(
-                username = username,
-                maxTs = maxTs,
-                minTs = minTs,
-                count = count
-            )
+    ): Resource<FeedData> = parseResponse {
+        if (username.isNullOrEmpty()) return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
         
-            return@runCatching if (response.isSuccessful) {
-                Resource.success(response.body()!!)
-            } else {
-                Resource.failure(error = ResponseError.getError(response = response))
-            }
-        
-        }.getOrElse { Utils.logAndReturn(it) }
+        service.getFeedFollowListens(
+            username = username,
+            maxTs = maxTs,
+            minTs = minTs,
+            count = count
+        )
+    }
     
     
     override suspend fun getFeedSimilarListens(
@@ -69,78 +53,48 @@ class FeedRepositoryImpl @Inject constructor(
         maxTs: Int?,
         minTs: Int?,
         count: Int
-    ): Resource<FeedData> =
-        runCatching {
-            if (username.isNullOrEmpty()) return@runCatching Resource.failure(error = ResponseError.AUTH_HEADER_NOT_FOUND)
-            
-            val response = service.getFeedSimilarListens(
-                username = username,
-                maxTs = maxTs,
-                minTs = minTs,
-                count = count
-            )
+    ): Resource<FeedData> =parseResponse {
+        if (username.isNullOrEmpty()) return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
         
-            return@runCatching if (response.isSuccessful) {
-                Resource.success(response.body()!!)
-            } else {
-                Resource.failure(error = ResponseError.getError(response = response))
-            }
-        
-        }.getOrElse { Utils.logAndReturn(it) }
+        service.getFeedSimilarListens(
+            username = username,
+            maxTs = maxTs,
+            minTs = minTs,
+            count = count
+        )
+    }
     
     
     override suspend fun deleteEvent(username: String?, data: FeedEventDeletionData) : Resource<SocialResponse> =
-        runCatching {
-            if (username.isNullOrEmpty()) return@runCatching Resource.failure(error = ResponseError.AUTH_HEADER_NOT_FOUND)
+        parseResponse {
+            if (username.isNullOrEmpty()) return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
             
-            val response = service.deleteEvent(
+            service.deleteEvent(
                 username = username,
                 body = data
             )
-        
-            return@runCatching if (response.isSuccessful) {
-                Resource.success(response.body()!!)
-            } else {
-                Resource.failure(error = ResponseError.getError(response = response))
-            }
-        
-        }.getOrElse { Utils.logAndReturn(it) }
+        }
     
     
     override suspend fun hideEvent(username: String?, data: FeedEventVisibilityData) : Resource<SocialResponse> =
-        runCatching {
-            if (username.isNullOrEmpty()) return@runCatching Resource.failure(error = ResponseError.AUTH_HEADER_NOT_FOUND)
+        parseResponse {
+            if (username.isNullOrEmpty()) return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
             
-            val response = service.hideEvent(
+            service.hideEvent(
                 username = username,
                 body = data
             )
-        
-            return@runCatching if (response.isSuccessful) {
-                Resource.success(response.body()!!)
-            } else {
-                Resource.failure(error = ResponseError.getError(response = response))
-            }
-        
-        }.getOrElse { Utils.logAndReturn(it) }
+        }
     
     
     override suspend fun unhideEvent(username: String?, data: FeedEventVisibilityData) : Resource<SocialResponse> =
-        runCatching {
-            if (username.isNullOrEmpty()) return@runCatching Resource.failure(error = ResponseError.AUTH_HEADER_NOT_FOUND)
+        parseResponse {
+            if (username.isNullOrEmpty()) return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
             
-            val response = service.unhideEvent(
+            service.unhideEvent(
                 username = username,
                 body = data
             )
-        
-            return@runCatching if (response.isSuccessful) {
-                Resource.success(response.body()!!)
-            } else {
-                Resource.failure(error = ResponseError.getError(response = response))
-            }
-        
-        }.getOrElse { Utils.logAndReturn(it) }
-    
+        }
     
 }

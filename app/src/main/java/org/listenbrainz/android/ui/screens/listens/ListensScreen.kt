@@ -39,7 +39,7 @@ fun ListensScreen(
 ) {
     
     LaunchedEffect(Unit){
-        viewModel.appPreferences.username.let {username ->
+        viewModel.appPreferences.username.let { username ->
             if (username != null) {
                 viewModel.fetchUserListens(userName = username)
             }
@@ -56,11 +56,8 @@ fun ListensScreen(
     }
 
     /** Content **/
-
-    // Listens list
-    val listens by viewModel.listensFlow.collectAsState()
-    val listeningNow by viewModel.listeningNow.collectAsState()
-    val playerState by viewModel.playerState.collectAsState(null)
+    
+    val uiState by viewModel.uiState.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
 
@@ -78,26 +75,28 @@ fun ListensScreen(
                 HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
                     when (page) {
                         0 -> {
-                            ListeningNowCard(
-                                listeningNow,
-                                getCoverArtUrl(
-                                    caaReleaseMbid = listeningNow?.trackMetadata?.mbidMapping?.caaReleaseMbid,
-                                    caaId = listeningNow?.trackMetadata?.mbidMapping?.caaId
-                                )
-                            ) {
-                                listeningNow?.let { listen -> viewModel.playListen(listen) }
+                            uiState.listeningNowUiState.listeningNow.let { listeningNow ->
+                                ListeningNowCard(
+                                    listeningNow,
+                                    getCoverArtUrl(
+                                        caaReleaseMbid = listeningNow?.trackMetadata?.mbidMapping?.caaReleaseMbid,
+                                        caaId = listeningNow?.trackMetadata?.mbidMapping?.caaId
+                                    )
+                                ) {
+                                    listeningNow?.let { listen -> viewModel.playListen(listen.trackMetadata) }
+                                }
                             }
                         }
 
                         1 -> {
                             AnimatedVisibility(
-                                visible = playerState?.track?.name != null,
+                                visible = uiState.listeningNowUiState.playerState?.track?.name != null,
                                 enter = slideInVertically(),
                                 exit = slideOutVertically()
                             ) {
                                 ListeningNowOnSpotify(
-                                    playerState = playerState,
-                                    bitmap = viewModel.bitmap
+                                    playerState = uiState.listeningNowUiState.playerState,
+                                    bitmap = uiState.listeningNowUiState.listeningNowBitmap
                                 )
                             }
                         }
@@ -105,7 +104,7 @@ fun ListensScreen(
                 }
             }
 
-            items(items = listens) { listen ->
+            items(items = uiState.listens) { listen ->
                 ListenCardSmall(
                     modifier = Modifier.padding(
                         horizontal = ListenBrainzTheme.paddings.horizontal,
@@ -118,14 +117,14 @@ fun ListensScreen(
                         caaId = listen.trackMetadata.mbidMapping?.caaId
                     )
                 ) {
-                    viewModel.playListen(listen)
+                    viewModel.playListen(listen.trackMetadata)
                 }
             }
         }
 
         // Loading Animation
         AnimatedVisibility(
-            visible = viewModel.isLoading,
+            visible = uiState.isLoading,
             modifier = Modifier.align(Alignment.Center),
             enter = fadeIn(initialAlpha = 0.4f),
             exit = fadeOut(animationSpec = tween(durationMillis = 250))
