@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="recording_releases">Apparaît sur les Parutions</string>
+    <string name="no_results">Aucun résultat</string>
+    <string name="release_title">Parution</string>
+    <string name="releases">Parutions</string>
+    <string name="app_name">ListenBrainz</string>
+    <string name="search_hint">Rechercher sur ListenBrainz</string>
+    <string name="search_card">Explorer les données de ListenBrainz</string>
+    <string name="news_card">Nouveautés ListenBrainz</string>
+    <string name="welcome">Bienvenue sur ListenBrainz !</string>
+    <string name="welcome_loggedin">Connecté comme</string>
+    <string name="search_type_artist">Artiste</string>
+    <string name="search_type_release">Parution</string>
+    <string name="search_type_label">Maison de disques</string>
+    <string name="search_type_recording">Enregistrement</string>
+    <string name="search_type_release_group">Groupe de parution</string>
+    <string name="search_type_instrument">Instrument</string>
+    <string name="search_type_event">Évènement</string>
+    <string name="search_name">ListenBrainz</string>
+    <string name="auth_title">Authentification</string>
+    <string name="artist_title">Artiste</string>
+    <string name="action_logout">Se déconnecter</string>
+    <string name="noresult">Aucun résultat</string>
+    <string name="settings_device_theme_light">Clair</string>
+    <string name="lets_go">C\'est parti !</string>
+    <string name="tab_links">PLUS</string>
+    <string name="tab_releases">PARUTION</string>
+    <string name="tab_mediums">SUPPORTS</string>
+    <string name="tab_info">INFO</string>
+    <string name="cover_art_front">Face avant</string>
+    <string name="loading">Chargement…</string>
+    <string name="action_login">Se connecter</string>
+    <string name="preferences_title">Paramètres</string>
+    <string name="settings_search">Recherche</string>
+    <string name="settings_suggestions">Suggestions</string>
+    <string name="settings_clear">Effacer l\'historique de recherche</string>
+    <string name="settings_user_data">Données d\'utilisateur</string>
+    <string name="settings_device_theme_dark">Sombre</string>
+    <string name="save_checkbox">Enregistrer</string>
+    <string name="logout">Se déconnecter</string>
+    <string name="login">Connexion</string>
+    <string name="next">Suivant</string>
+    <string name="previous">Précédent</string>
+    <string name="finish">Terminer</string>
+</resources>
