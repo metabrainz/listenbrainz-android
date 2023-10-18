@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.PermissionStatus
-import org.listenbrainz.android.model.UiModes
+import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.ui.screens.onboarding.FeaturesActivity
@@ -33,14 +33,18 @@ class DashBoardViewModel @Inject constructor(
 
     // Sets Ui mode for XML layouts.
     fun setUiMode(){
-        when(appPreferences.themePreference){
-            UiModes.DARK_THEME.code -> AppCompatDelegate.setDefaultNightMode(
-                AppCompatDelegate.MODE_NIGHT_YES
-            )
-            UiModes.LIGHT_THEME.code -> AppCompatDelegate.setDefaultNightMode(
-                AppCompatDelegate.MODE_NIGHT_NO
-            )
-            else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        viewModelScope.launch {
+            when(withContext(ioDispatcher) {
+                appPreferences.themePreference()
+            } ){
+                UiMode.DARK -> AppCompatDelegate.setDefaultNightMode(
+                    AppCompatDelegate.MODE_NIGHT_YES
+                )
+                UiMode.LIGHT -> AppCompatDelegate.setDefaultNightMode(
+                    AppCompatDelegate.MODE_NIGHT_NO
+                )
+                else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            }
         }
     }
     
@@ -121,7 +125,7 @@ class DashBoardViewModel @Inject constructor(
         return withContext(ioDispatcher) {
             appPreferences.isNotificationServiceAllowed
                     && appPreferences.submitListens
-                    && !appPreferences.getLbAccessToken().isNullOrEmpty()
+                    && appPreferences.getLbAccessToken().isNotEmpty()
         }
     }
     

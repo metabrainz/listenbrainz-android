@@ -125,7 +125,7 @@ abstract class SocialViewModel<UiState> (
         
         viewModelScope.launch(ioDispatcher) {
             val result = repository.postRecommendationToAll(
-                username = appPreferences.username,
+                username = appPreferences.getUsername(),
                 data = RecommendationData(
                     metadata = RecommendationMetadata(
                         trackName = metadata.trackMetadata?.trackName ?: return@launch,
@@ -147,7 +147,7 @@ abstract class SocialViewModel<UiState> (
         
         viewModelScope.launch(ioDispatcher) {
             val result = repository.postPersonalRecommendation(
-                username = appPreferences.username,
+                username = appPreferences.getUsername(),
                 data = RecommendationData(
                     metadata = RecommendationMetadata(
                         trackName = metadata.trackMetadata?.trackName ?: return@launch,
@@ -172,7 +172,7 @@ abstract class SocialViewModel<UiState> (
         
         viewModelScope.launch(ioDispatcher) {
             val result = repository.postReview(
-                username = appPreferences.username,
+                username = appPreferences.getUsername(),
                 data = Review(
                     metadata = ReviewMetadata(
                         entityName = metadata.trackMetadata?.trackName ?: return@launch,

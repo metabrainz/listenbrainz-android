@@ -29,11 +29,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.screens.newsbrainz.NewsBrainzActivity
 import org.listenbrainz.android.ui.screens.yim.YearInMusicActivity
-import org.listenbrainz.android.ui.theme.lb_purple
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 
@@ -79,20 +80,23 @@ private fun ExploreScreenCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 18.dp, vertical = 10.dp)
+            .padding(
+                horizontal = ListenBrainzTheme.paddings.horizontal,
+                vertical = 10.dp
+            )
             .clip(RoundedCornerShape(16.dp))
             .clickable {
-                context.startActivity(Intent(
-                    context,
-                    nextActivity
-                ))
+                context.startActivity(
+                    Intent(
+                        context,
+                        nextActivity
+                    )
+                )
             },
         backgroundColor = if (onScreenUiModeIsDark()) Color.Black else offWhite,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
             Image(
                 painter = painterResource(id = iconId),
@@ -108,8 +112,9 @@ private fun ExploreScreenCard(
             Text(
                 text = title,
                 modifier = Modifier
-                    .fillMaxWidth(),
-                color = if (onScreenUiModeIsDark()) Color.White else lb_purple,
+                    .fillMaxWidth()
+                    .padding(horizontal = ListenBrainzTheme.paddings.horizontal),
+                color = ListenBrainzTheme.colorScheme.listenText,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.subtitle1
             )
@@ -119,10 +124,19 @@ private fun ExploreScreenCard(
             Text(
                 text = subTitle,
                 modifier = Modifier
-                    .fillMaxWidth(),
-                color = if (onScreenUiModeIsDark()) Color.White else lb_purple.copy(alpha = 0.7f),
+                    .fillMaxWidth()
+                    .padding(horizontal = ListenBrainzTheme.paddings.horizontal),
+                color = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),
                 style = MaterialTheme.typography.caption
             )
         }
+    }
+}
+
+@Preview
+@Composable
+fun ExplorePreview() {
+    ListenBrainzTheme {
+        ExploreScreen()
     }
 }

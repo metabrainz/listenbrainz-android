@@ -8,6 +8,9 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.ListenSessionListener
@@ -29,6 +32,7 @@ class ListenScrobbleService : NotificationListenerService() {
     private var sessionManager: MediaSessionManager? = null
     private var sessionListener: ListenSessionListener? = null
     private var listenServiceComponent: ComponentName? = null
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     override fun onCreate() {
         super.onCreate()
@@ -40,7 +44,7 @@ class ListenScrobbleService : NotificationListenerService() {
     private fun initialize() {
         d("Initializing Listener Service")
         sessionManager = applicationContext.getSystemService(MEDIA_SESSION_SERVICE) as MediaSessionManager
-        sessionListener = ListenSessionListener(appPreferences, workManager)
+        sessionListener = ListenSessionListener(appPreferences, workManager, scope)
         listenServiceComponent = ComponentName(this, this.javaClass)
         
         try {
@@ -68,6 +72,7 @@ class ListenScrobbleService : NotificationListenerService() {
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         super.onNotificationPosted(sbn)
+        print(sbn)
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification) {

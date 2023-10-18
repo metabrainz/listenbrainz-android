@@ -21,7 +21,7 @@ class HeaderInterceptor (
             runCatching {
                 withTimeoutOrNull(3000){
                     val accessToken = appPreferences.getLbAccessToken()
-                    if (!accessToken.isNullOrEmpty()){
+                    if (accessToken.isNotEmpty()){
                         request = request.newBuilder()
                             .addHeader(AUTHORIZATION, "Token $accessToken")
                             .build()

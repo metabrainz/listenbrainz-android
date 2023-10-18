@@ -47,14 +47,6 @@ object Utils {
         
         }.getOrElse { logAndReturn(it) }
     
-    
-    /** Get *CoverArtArchive* url for cover art of a release.
-     * @param size Allowed sizes are 250, 500, 750 and 1000. Default is 250.*/
-    fun getCoverArtUrl(caaReleaseMbid: String?, caaId: Long?, size: Int = 250): String? {
-        if (caaReleaseMbid == null || caaId == null) return null
-        return "https://archive.org/download/mbid-${caaReleaseMbid}/mbid-${caaReleaseMbid}-${caaId}_thumb${size}.jpg"
-    }
-    
     fun <T> logAndReturn(it: Throwable) : Resource<T> {
         it.printStackTrace()
         return when (it){
@@ -62,6 +54,13 @@ object Utils {
             is IOException -> Resource.failure(error = ResponseError.NETWORK_ERROR)
             else -> Resource.failure(error = ResponseError.UNKNOWN)
         }
+    }
+    
+    /** Get *CoverArtArchive* url for cover art of a release.
+     * @param size Allowed sizes are 250, 500, 750 and 1000. Default is 250.*/
+    fun getCoverArtUrl(caaReleaseMbid: String?, caaId: Long?, size: Int = 250): String? {
+        if (caaReleaseMbid == null || caaId == null) return null
+        return "https://archive.org/download/mbid-${caaReleaseMbid}/mbid-${caaReleaseMbid}-${caaId}_thumb${size}.jpg"
     }
     
     fun similarityToPercent(similarity: Float?): String {

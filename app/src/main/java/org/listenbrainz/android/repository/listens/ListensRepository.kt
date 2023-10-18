@@ -11,11 +11,12 @@ import org.listenbrainz.android.util.Resource
 
 interface ListensRepository {
     
-    suspend fun fetchUserListens(username: String): Resource<Listens>
+    suspend fun fetchUserListens(username: String?): Resource<Listens>
     
     suspend fun fetchCoverArt(mbid: String): Resource<CoverArt>
 
-    suspend fun validateUserToken(token: String): Resource<TokenValidation>
+    /** Inputs token from Auth header.*/
+    suspend fun validateToken(token: String): Resource<TokenValidation>
     
     fun getPackageIcon(packageName: String): Drawable?
     

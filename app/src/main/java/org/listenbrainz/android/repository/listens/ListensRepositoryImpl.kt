@@ -2,7 +2,6 @@ package org.listenbrainz.android.repository.listens
 
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
-import androidx.annotation.WorkerThread
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.CoverArt
 import org.listenbrainz.android.model.ListenBrainzExternalServices
@@ -20,17 +19,19 @@ import javax.inject.Singleton
 @Singleton
 class ListensRepositoryImpl @Inject constructor(val service: ApiService) : ListensRepository {
     
-    override suspend fun fetchUserListens(username: String): Resource<Listens> = parseResponse {
+    override suspend fun fetchUserListens(username: String?): Resource<Listens> = parseResponse {
+        if (username.isNullOrEmpty())
+            return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
+        
         service.getUserListens(username = username, count = 100)
     }
 
     override suspend fun fetchCoverArt(mbid: String): Resource<CoverArt> = parseResponse {
         service.getCoverArt(mbid)
     }
-
-    @WorkerThread
-    override suspend fun validateUserToken(token: String): Resource<TokenValidation> = parseResponse {
-        service.checkIfTokenIsValid()
+    
+    override suspend fun validateToken(token: String): Resource<TokenValidation> = parseResponse {
+        service.checkTokenValidity(authHeader = "Token $token")
     }
 
     /** Retrieve any installed application's icon. If the requested application is not installed, null is returned.

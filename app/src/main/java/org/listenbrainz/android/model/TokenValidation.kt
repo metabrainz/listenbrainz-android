@@ -1,8 +1,10 @@
 package org.listenbrainz.android.model
 
+import com.google.gson.annotations.SerializedName
+
 data class TokenValidation(
     val code: Int,
     val message: String,
-    val user_name: String? = null,
+    @SerializedName("user_name") val username: String? = null,
     val valid: Boolean
 )

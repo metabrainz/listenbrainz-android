@@ -23,8 +23,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,7 +35,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -46,45 +43,30 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import kotlinx.coroutines.launch
+import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
-import org.listenbrainz.android.viewmodel.ListensViewModel
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun UserData(
-    viewModel: ListensViewModel,
+    preferencesUiState: PreferencesUiState,
+    updateNotificationServicePermissionStatus: () -> Unit,
+    validateUserToken: suspend (String) -> Boolean,
+    setToken: (String) -> Unit,
     context: Context = LocalContext.current
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     var showDialog by remember { mutableStateOf(false) }
-    val lifecycleOwner = LocalLifecycleOwner.current
     val coroutineScope = rememberCoroutineScope()
 
-    var isNotificationServiceAllowed by remember {
-        mutableStateOf(
-            viewModel.appPreferences.isNotificationServiceAllowed
-        )
-    }
-
-    DisposableEffect(lifecycleOwner) {
-        val lifecycleObserver = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                isNotificationServiceAllowed =
-                    viewModel.appPreferences.isNotificationServiceAllowed
-            }
-        }
-
-        lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
-
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(lifecycleObserver)
-        }
+    LifecycleResumeEffect(Unit) {
+        updateNotificationServicePermissionStatus()
+        onPauseOrDispose {}
     }
 
     Card(
@@ -101,7 +83,7 @@ fun UserData(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = viewModel.appPreferences.username!!,
+                    text = preferencesUiState.username,
                     modifier = Modifier.padding(4.dp),
                     color = if (onScreenUiModeIsDark()) Color.White else Color.Black,
                     fontWeight = FontWeight.Light,
@@ -110,17 +92,17 @@ fun UserData(
                     textAlign = TextAlign.Center,
                 )
             }
-            val accessToken by viewModel.appPreferences.getLbAccessTokenFlow().collectAsState(initial = "")
+            
             var tempAccessToken by remember {
-                mutableStateOf(accessToken)
+                mutableStateOf(preferencesUiState.accessToken)
             }
-            if(accessToken.isEmpty()) {
+            if(preferencesUiState.accessToken.isEmpty()) {
                 Row(
                     modifier = Modifier
                         .padding(16.dp)
                 ) {
                     OutlinedTextField(
-                        value = accessToken,
+                        value = preferencesUiState.accessToken,
                         onValueChange = { newText ->
                             tempAccessToken = newText
                         },
@@ -129,16 +111,16 @@ fun UserData(
                         keyboardActions = KeyboardActions(
                             onDone = {
                                 coroutineScope.launch {
-                                    val tokenValid = viewModel.validateUserToken(accessToken)
-                                    if (tokenValid != null && tokenValid) {
+                                    val tokenValid = validateUserToken(preferencesUiState.accessToken)
+                                    if (tokenValid) {
                                         coroutineScope.launch {
-                                            viewModel.appPreferences.setLbAccessToken(tempAccessToken)
+                                            setToken(tempAccessToken)
                                         }
                                         keyboardController?.hide()
                                         focusManager.clearFocus()
                                     } else {
                                         coroutineScope.launch {
-                                            viewModel.appPreferences.setLbAccessToken("")
+                                            setToken("")
                                         }
                                         Toast.makeText(
                                             context,
@@ -170,7 +152,7 @@ fun UserData(
                 }
             }
 
-            if(!viewModel.appPreferences.isNotificationServiceAllowed) {
+            if(!preferencesUiState.isNotificationServiceAllowed) {
                 Row(
                     modifier = Modifier
                         .padding(16.dp)
@@ -178,22 +160,12 @@ fun UserData(
                     Button(
                         modifier = Modifier.padding(4.dp),
                         onClick = {
-                            if (!isNotificationServiceAllowed) {
-                                showDialog = true
-                            }
+                            showDialog = !showDialog
                         }
                     ) {
                         Text(
-                            text = when {
-                                viewModel.appPreferences.isNotificationServiceAllowed -> {
-                                    "Great! You've already given the app permission to your notifications"
-                                }
-
-                                else -> {
-                                    "Start submitting listens by giving the app permission to your notifications"
-                                }
-                            },
-                            color = if (onScreenUiModeIsDark()) Color.White else Color.Black
+                            text = "Start submitting listens by giving the app permission to your notifications",
+                            color = ListenBrainzTheme.colorScheme.text
                         )
                     }
                 }
@@ -237,6 +209,9 @@ fun UserData(
 @Composable
 fun UserDataPreview() {
     UserData(
-        viewModel = hiltViewModel()
+        PreferencesUiState(),
+        {},
+        { true },
+        {}
     )
 }

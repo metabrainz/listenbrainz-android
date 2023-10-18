@@ -9,7 +9,7 @@ import org.listenbrainz.android.repository.feed.FeedRepository
 import org.listenbrainz.android.util.Resource
 
 class SimilarListensPagingSource(
-    private val username: () -> String?,
+    private val username: suspend () -> String,
     private val onError: (error: ResponseError?) -> Unit,
     private val feedRepository: FeedRepository,
     private val ioDispatcher: CoroutineDispatcher
@@ -22,7 +22,7 @@ class SimilarListensPagingSource(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, FeedUiEventItem> {
         
         val username = username()
-        if (username.isNullOrEmpty()) {
+        if (username.isEmpty()) {
             val error = ResponseError.UNAUTHORISED.apply { actualResponse = "Login to access feed." }
             onError(error)
             return LoadResult.Error(Exception(error.toast()))

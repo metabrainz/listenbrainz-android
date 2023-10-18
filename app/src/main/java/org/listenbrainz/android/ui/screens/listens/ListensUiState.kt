@@ -8,7 +8,6 @@ import org.listenbrainz.android.model.ResponseError
 data class ListensUiState(
     val listens: List<Listen> = emptyList(),
     val listeningNowUiState: ListeningNowUiState = ListeningNowUiState(),
-    val isSpotifyLinked: Boolean = false,
     val isLoading: Boolean = true,
     val error: ResponseError? = null
 )

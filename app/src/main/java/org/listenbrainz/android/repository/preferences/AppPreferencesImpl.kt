@@ -14,14 +14,20 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.model.AccessToken
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.Playable
+import org.listenbrainz.android.model.UiMode
+import org.listenbrainz.android.model.UiMode.Companion.asUiMode
 import org.listenbrainz.android.model.UserInfo
+import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.LISTENING_APPS
+import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.THEME
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Constants.ONBOARDING
 import org.listenbrainz.android.util.Constants.Strings.CURRENT_PLAYABLE
@@ -52,14 +58,23 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
                 listOf(SharedPreferencesMigration(
                     context,
                     context.packageName + "_preferences",
-                    setOf(LB_ACCESS_TOKEN, /*USERNAME*/)
+                    setOf(
+                        LB_ACCESS_TOKEN,
+                        USERNAME,
+                        PREFERENCE_LISTENING_BLACKLIST,
+                        PREFERENCE_SYSTEM_THEME,
+                        PREFERENCE_LISTENING_APPS
+                    )
                 ))
             }
         )
     
         private object PreferenceKeys {
             val LB_ACCESS_TOKEN = stringPreferencesKey(Constants.Strings.LB_ACCESS_TOKEN)
-            //val USERNAME = stringPreferencesKey(Constants.Strings.USERNAME)
+            val USERNAME = stringPreferencesKey(Constants.Strings.USERNAME)
+            val LISTENING_BLACKLIST = stringPreferencesKey(PREFERENCE_LISTENING_BLACKLIST)
+            val THEME = stringPreferencesKey(PREFERENCE_SYSTEM_THEME)
+            val LISTENING_APPS = stringPreferencesKey(PREFERENCE_LISTENING_APPS)
         }
     }
     
@@ -88,44 +103,77 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
         editor.apply()
     }
     
+    private val datastore: Flow<Preferences>
+        get() = context.dataStore.data
+    
     // Preferences Implementation
-    override val themePreference: String?
-        get() = preferences.getString(PREFERENCE_SYSTEM_THEME, "Use device theme")
+    
+    override suspend fun themePreference(): UiMode =
+        datastore.first()[THEME].asUiMode()
+    
+    override fun themePreferenceFlow(): Flow<UiMode> =
+        datastore.map { it[THEME].asUiMode() }
+    
+    override suspend fun setThemePreference(value: UiMode) {
+        context.dataStore.edit { it[THEME] = value.name }
+    }
     
     override var permissionsPreference: String?
         get() = preferences.getString(PREFERENCE_PERMS, PermissionStatus.NOT_REQUESTED.name)
         set(value) = setString(PREFERENCE_PERMS, value)
     
-    override var listeningBlacklist: List<String>
-        get() {
-            val jsonString = preferences.getString(PREFERENCE_LISTENING_BLACKLIST, "")
-            val type = object : TypeToken<List<String>>() {}.type
-            return gson.fromJson(jsonString, type) ?: listOf()
+    override suspend fun getListeningBlacklist(): List<String> {
+        return gson.fromJson(
+            datastore.firstOrNull()?.get(PreferenceKeys.LISTENING_BLACKLIST) ?: "",
+            object : TypeToken<List<String>>() {}.type
+        ) ?: listOf()
+    }
+    
+    
+    override fun getListeningBlacklistFlow(): Flow<List<String>> =
+        datastore.map { prefs ->
+            gson.fromJson(
+                prefs[PreferenceKeys.LISTENING_BLACKLIST] ?: "",
+                object : TypeToken<List<String>>() {}.type
+            ) ?: listOf()
         }
-        set(value) {
-            val jsonString = gson.toJson(value)
-            setString(PREFERENCE_LISTENING_BLACKLIST, jsonString)
+    
+    override suspend fun setListeningBlacklist(value: List<String>) {
+        context.dataStore.edit { prefs ->
+            prefs[PreferenceKeys.LISTENING_BLACKLIST] = gson.toJson(value)
         }
+    }
 
     override val isNotificationServiceAllowed: Boolean
         get() {
             val listeners = Settings.Secure.getString(context.contentResolver, "enabled_notification_listeners")
             return listeners != null && listeners.contains(context.packageName)
         }
+    
     override var submitListens: Boolean
         get() = preferences.getBoolean(PREFERENCE_SUBMIT_LISTENS, true)
         set(value) { setBoolean(PREFERENCE_SUBMIT_LISTENS, value) }
-
-    override var listeningApps: List<String>    // No need to use Set here
-        get() {
-            val jsonString = preferences.getString(PREFERENCE_LISTENING_APPS, "")
-            val type = object : TypeToken<List<String>>() {}.type
-            return gson.fromJson(jsonString, type) ?: listOf()
+    
+    override suspend fun getListeningApps(): List<String> =
+        gson.fromJson(
+            datastore.firstOrNull()?.get(LISTENING_APPS) ?: "",
+            object : TypeToken<List<String>>() {}.type
+        ) ?: listOf()
+    
+    
+    override fun getListeningAppsFlow(): Flow<List<String>> =
+        datastore.map {
+            gson.fromJson(
+                datastore.firstOrNull()?.get(LISTENING_APPS) ?: "",
+                object : TypeToken<List<String>>() {}.type
+            ) ?: listOf()
         }
-        set(value) {
-            val jsonString = gson.toJson(value)
-            setString(PREFERENCE_LISTENING_APPS, jsonString)
+    
+    override suspend fun setListeningApps(value: List<String>) {
+        context.dataStore.edit { prefs ->
+            prefs[LISTENING_APPS] = gson.toJson(value)
         }
+    }
 
     override val version: String
         get() = try {
@@ -139,18 +187,6 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
         get() = preferences.getBoolean(ONBOARDING, false)
         set(value) = setBoolean(ONBOARDING, value)
     
-    override fun saveOAuthToken(token: AccessToken) {
-        val editor = preferences.edit()
-        editor.putString(REFRESH_TOKEN, token.refreshToken)
-        editor.apply()
-    }
-    
-    override fun saveUserInfo(userInfo: UserInfo) {
-        val editor = preferences.edit()
-        editor.putString(USERNAME, userInfo.username)
-        editor.apply()
-    }
-
     override suspend fun logoutUser() = withContext(Dispatchers.IO) {
         val editor = preferences.edit()
         editor.remove(REFRESH_TOKEN)
@@ -172,7 +208,7 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
 
     /* Login Preferences */
     
-    override fun getLoginStatus(): Flow<Int> =
+    override fun getLoginStatusFlow(): Flow<Int> =
          getLbAccessTokenFlow().map { token ->
              if (token.isNotEmpty())
                  STATUS_LOGGED_IN
@@ -180,11 +216,14 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
                  STATUS_LOGGED_OUT
          }.distinctUntilChanged()
     
+    override suspend fun isUserLoggedIn() : Boolean =
+        getLbAccessToken().isNotEmpty()
+    
     override suspend fun getLbAccessToken(): String =
-        context.dataStore.data.firstOrNull()?.get(PreferenceKeys.LB_ACCESS_TOKEN) ?: ""
+        datastore.firstOrNull()?.get(PreferenceKeys.LB_ACCESS_TOKEN) ?: ""
     
     override fun getLbAccessTokenFlow(): Flow<String> =
-        context.dataStore.data.map { prefs ->
+        datastore.map { prefs ->
             prefs[PreferenceKeys.LB_ACCESS_TOKEN] ?: ""
         }
     
@@ -194,24 +233,19 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
         }
     }
 
-    /*override fun getUsernameFlow(): Flow<String> =
-        context.dataStore.data.map { prefs ->
-            prefs[PreferenceKeys.LB_ACCESS_TOKEN] ?: ""
+    override fun getUsernameFlow(): Flow<String> =
+        datastore.map { prefs ->
+            prefs[PreferenceKeys.USERNAME] ?: ""
         }
-    
     
     override suspend fun getUsername(): String =
-        context.dataStore.data.first()[PreferenceKeys.USERNAME] ?: ""
+        datastore.firstOrNull()?.get(PreferenceKeys.USERNAME) ?: ""
     
-    override suspend fun setUsername(value: String): Unit = withContext(Dispatchers.IO) {
+    override suspend fun setUsername(value: String?): Unit = withContext(Dispatchers.IO) {
         context.dataStore.edit { prefs ->
-            prefs[PreferenceKeys.USERNAME] = value
+            prefs[PreferenceKeys.USERNAME] = value ?: ""
         }
-    }*/
-    
-    override var username: String?
-        get() = preferences.getString(USERNAME, "")
-        set(value) = setString(USERNAME, value)
+    }
     
     override var linkedServices: List<LinkedService>
         get() {

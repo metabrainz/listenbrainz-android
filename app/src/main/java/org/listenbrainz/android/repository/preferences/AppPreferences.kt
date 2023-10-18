@@ -1,13 +1,17 @@
 package org.listenbrainz.android.repository.preferences
 
 import kotlinx.coroutines.flow.Flow
-import org.listenbrainz.android.model.AccessToken
 import org.listenbrainz.android.model.Playable
-import org.listenbrainz.android.model.UserInfo
+import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.util.LinkedService
 
 interface AppPreferences {
-    val themePreference : String?
+    
+    suspend fun themePreference(): UiMode
+    
+    fun themePreferenceFlow(): Flow<UiMode>
+    
+    suspend fun setThemePreference(value: UiMode)
     
     /**
      *
@@ -21,15 +25,21 @@ interface AppPreferences {
     var permissionsPreference: String?
 
     /** Blacklist for ListenService.*/
-    var listeningBlacklist: List<String>
+    suspend fun getListeningBlacklist(): List<String>
+    
+    fun getListeningBlacklistFlow(): Flow<List<String>>
+    
+    suspend fun setListeningBlacklist(value: List<String>)
     
     /** Music Apps in users device registered by listenService.*/
-    var listeningApps: List<String>
+    suspend fun getListeningApps(): List<String>
+    
+    fun getListeningAppsFlow(): Flow<List<String>>
+    
+    suspend fun setListeningApps(value: List<String>)
 
     var onboardingCompleted: Boolean
-
-    fun saveOAuthToken(token: AccessToken)
-    fun saveUserInfo(userInfo: UserInfo)
+    
     suspend fun logoutUser()
 
     val version: String
@@ -37,21 +47,22 @@ interface AppPreferences {
     var currentPlayable : Playable?
     
     /* Login related preferences */
-    fun getLoginStatus(): Flow<Int>
+    fun getLoginStatusFlow(): Flow<Int>
+    
+    suspend fun isUserLoggedIn() : Boolean
     
     /****ListenBrainz User Token:** User has to manually fill this token.*/
-    suspend fun getLbAccessToken(): String?
+    suspend fun getLbAccessToken(): String
     
     fun getLbAccessTokenFlow(): Flow<String>
-    suspend fun setLbAccessToken(value: String)
     
-    /*suspend fun getUsername(): String
+    suspend fun setLbAccessToken(value: String)
     
     fun getUsernameFlow(): Flow<String>
     
-    suspend fun setUsername(value: String)*/
+    suspend fun getUsername(): String
     
-    var username: String?
+    suspend fun setUsername(value: String?)
     
     val refreshToken: String?
     

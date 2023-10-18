@@ -169,14 +169,15 @@ fun YimHomeScreen(
                         Resource.Status.SUCCESS -> {
     
                             // Down Arrow animation
-                            val infiniteAnim = rememberInfiniteTransition()
+                            val infiniteAnim = rememberInfiniteTransition(label = "infiniteAnim")
                             val animValue by infiniteAnim.animateFloat(
                                 initialValue = 0f,
                                 targetValue = 45f,
                                 animationSpec = infiniteRepeatable(
                                     animation = tween(durationMillis = 600, delayMillis = 200),
                                     repeatMode = RepeatMode.Reverse
-                                )
+                                ),
+                                label = "animValue"
                             )
                             
                             if (viewModel.yimData.value.data?.payload?.data != null) {
@@ -222,7 +223,8 @@ fun YimHomeScreen(
             // Bottom Window height animation
             val bottomBarHeight by animateDpAsState(
                 targetValue = if (startAnimations) 180.dp else 0.dp,
-                animationSpec = tween(durationMillis = 1000)
+                animationSpec = tween(durationMillis = 1000),
+                label = "bottomBarHeight"
             )
         
             // Bottom window content
@@ -235,6 +237,7 @@ fun YimHomeScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
+                val username by viewModel.getUsernameFlow().collectAsState(initial = "")
                 
                 // Bottom Window text
                 Text(
@@ -257,7 +260,7 @@ fun YimHomeScreen(
                                 fontWeight = FontWeight.Bold
                             )
                         ){
-                            append(viewModel.getUserName() + "'s")
+                            append("$username's")
                         }
                         withStyle(
                             style = SpanStyle(

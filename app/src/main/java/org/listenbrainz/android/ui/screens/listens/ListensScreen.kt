@@ -23,14 +23,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.UserData
+import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.Utils.getCoverArtUrl
+import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.ListensViewModel
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ListensScreen(
     viewModel: ListensViewModel = hiltViewModel(),
@@ -38,39 +39,66 @@ fun ListensScreen(
     onScrollToTop: (suspend () -> Unit) -> Unit,
 ) {
     
-    LaunchedEffect(Unit){
-        viewModel.appPreferences.username.let { username ->
-            if (username != null) {
-                viewModel.fetchUserListens(userName = username)
-            }
+    val uiState by viewModel.uiState.collectAsState()
+    val preferencesUiState by viewModel.preferencesUiState.collectAsState()
+    
+    ListensScreen(
+        scrollRequestState = scrollRequestState,
+        onScrollToTop = onScrollToTop,
+        uiState = uiState,
+        preferencesUiState = preferencesUiState,
+        updateNotificationServicePermissionStatus = {
+            viewModel.updateNotificationServicePermissionStatus()
+        },
+        validateUserToken = { token ->
+            viewModel.validateUserToken(token)
+        },
+        setToken = {
+            viewModel.setAccessToken(it)
+        },
+        playListen = {
+            viewModel.playListen(it)
         }
-    }
+    )
+}
 
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ListensScreen(
+    scrollRequestState: Boolean,
+    onScrollToTop: (suspend () -> Unit) -> Unit,
+    uiState: ListensUiState,
+    preferencesUiState: PreferencesUiState,
+    updateNotificationServicePermissionStatus: () -> Unit,
+    validateUserToken: suspend (String) -> Boolean,
+    setToken: (String) -> Unit,
+    playListen: (TrackMetadata) -> Unit
+) {
     val listState = rememberLazyListState()
-
+    
     // Scroll to the top when shouldScrollToTop becomes true
     LaunchedEffect(scrollRequestState) {
         onScrollToTop {
             listState.scrollToItem(0)
         }
     }
-
-    /** Content **/
     
-    val uiState by viewModel.uiState.collectAsState()
-
     Box(modifier = Modifier.fillMaxSize()) {
-
+        
         LazyColumn(state = listState) {
             item {
                 UserData(
-                    viewModel = viewModel
+                    preferencesUiState,
+                    updateNotificationServicePermissionStatus,
+                    validateUserToken,
+                    setToken
                 )
             }
-
+            
             item {
                 val pagerState = rememberPagerState { 1 }
-
+                
                 // TODO: Figure out the use of ListeningNowOnSpotify. It is hidden for now
                 HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
                     when (page) {
@@ -78,16 +106,16 @@ fun ListensScreen(
                             uiState.listeningNowUiState.listeningNow.let { listeningNow ->
                                 ListeningNowCard(
                                     listeningNow,
-                                    getCoverArtUrl(
+                                    Utils.getCoverArtUrl(
                                         caaReleaseMbid = listeningNow?.trackMetadata?.mbidMapping?.caaReleaseMbid,
                                         caaId = listeningNow?.trackMetadata?.mbidMapping?.caaId
                                     )
                                 ) {
-                                    listeningNow?.let { listen -> viewModel.playListen(listen.trackMetadata) }
+                                    listeningNow?.let { listen -> playListen(listen.trackMetadata) }
                                 }
                             }
                         }
-
+                        
                         1 -> {
                             AnimatedVisibility(
                                 visible = uiState.listeningNowUiState.playerState?.track?.name != null,
@@ -103,7 +131,7 @@ fun ListensScreen(
                     }
                 }
             }
-
+            
             items(items = uiState.listens) { listen ->
                 ListenCardSmall(
                     modifier = Modifier.padding(
@@ -112,16 +140,16 @@ fun ListensScreen(
                     ),
                     trackName = listen.trackMetadata.trackName,
                     artistName = listen.trackMetadata.artistName,
-                    coverArtUrl = getCoverArtUrl(
+                    coverArtUrl = Utils.getCoverArtUrl(
                         caaReleaseMbid = listen.trackMetadata.mbidMapping?.caaReleaseMbid,
                         caaId = listen.trackMetadata.mbidMapping?.caaId
                     )
                 ) {
-                    viewModel.playListen(listen.trackMetadata)
+                    playListen(listen.trackMetadata)
                 }
             }
         }
-
+        
         // Loading Animation
         AnimatedVisibility(
             visible = uiState.isLoading,
@@ -137,5 +165,14 @@ fun ListensScreen(
 @Preview
 @Composable
 fun ListensScreenPreview() {
-    ListensScreen(onScrollToTop = {}, scrollRequestState = false)
+    ListensScreen(
+        onScrollToTop = {},
+        scrollRequestState = false,
+        updateNotificationServicePermissionStatus = {},
+        uiState = ListensUiState(),
+        preferencesUiState = PreferencesUiState(),
+        validateUserToken = { true },
+        setToken = {},
+        playListen = {}
+    )
 }

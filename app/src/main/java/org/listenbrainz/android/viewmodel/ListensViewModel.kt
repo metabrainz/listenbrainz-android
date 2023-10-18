@@ -1,5 +1,6 @@
 package org.listenbrainz.android.viewmodel
 
+import android.graphics.drawable.Drawable
 import androidx.lifecycle.viewModelScope
 import com.spotify.protocol.types.PlayerState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,6 +18,7 @@ import kotlinx.coroutines.withContext
 import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.ListenBitmap
+import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
@@ -24,6 +26,7 @@ import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.repository.socket.SocketRepository
 import org.listenbrainz.android.ui.screens.listens.ListeningNowUiState
 import org.listenbrainz.android.ui.screens.listens.ListensUiState
+import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.android.util.Resource.Status.FAILED
 import org.listenbrainz.android.util.Resource.Status.SUCCESS
@@ -31,15 +34,16 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ListensViewModel @Inject constructor(
-    val repository: ListensRepository,
-    val appPreferences: AppPreferences,
     socialRepository: SocialRepository,
+    private val repository: ListensRepository,
+    private val appPreferences: AppPreferences,
     private val socketRepository: SocketRepository,
     private val remotePlaybackHandler: RemotePlaybackHandler,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : SocialViewModel<ListensUiState>(socialRepository, appPreferences, remotePlaybackHandler, ioDispatcher) {
     
     private val isSpotifyLinked = MutableStateFlow(appPreferences.linkedServices.contains(LinkedService.SPOTIFY))
+    private val isNotificationServiceAllowed = MutableStateFlow(appPreferences.isNotificationServiceAllowed)
     private val isLoading = MutableStateFlow(true)
     private val playerState = remotePlaybackHandler.getPlayerState().onEach { updateTrackCoverArt(it) }
     private val songDuration = MutableStateFlow(0L)
@@ -50,11 +54,18 @@ class ListensViewModel @Inject constructor(
     private val listeningNowFlow: MutableStateFlow<Listen?> = MutableStateFlow(null)
     
     override val uiState: StateFlow<ListensUiState> = createUiStateFlow()
+    val preferencesUiState: StateFlow<PreferencesUiState> = createPreferencesUiStateFlow()
     
     init {
         viewModelScope.launch(ioDispatcher) {
+            val username = appPreferences.getUsername()
+            
+            if (username.isEmpty()) return@launch
+            
+            fetchUserListens(username = username)
+            
             socketRepository
-                .listen(appPreferences.username!!)
+                .listen(username)
                 .collect { listen ->
                     if (listen.listenedAt == null)
                         listeningNowFlow.value = listen
@@ -86,28 +97,79 @@ class ListensViewModel @Inject constructor(
                     array[5] as Float
                 )
             },
-            isSpotifyLinked,
             isLoading,
             errorFlow,
-        ){ listens, listeningNowState, isSpotifyLinked, isLoading, error->
-            ListensUiState(listens, listeningNowState, isSpotifyLinked, isLoading, error)
+        ){ listens, listeningNowState, isLoading, error->
+            ListensUiState(listens, listeningNowState, isLoading, error)
         }.stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
             ListensUiState()
         )
-
-    suspend fun validateUserToken(token: String): Boolean? {
-        return repository.validateUserToken(token).data?.valid
+    
+    @Suppress("UNCHECKED_CAST")
+    private fun createPreferencesUiStateFlow(): StateFlow<PreferencesUiState> =
+        combine(
+            isSpotifyLinked,
+            appPreferences.getUsernameFlow(),
+            appPreferences.getLbAccessTokenFlow(),
+            isNotificationServiceAllowed,
+            appPreferences.getListeningBlacklistFlow(),
+            appPreferences.getListeningAppsFlow(),
+            appPreferences.themePreferenceFlow()
+        ) { array ->
+            PreferencesUiState(
+                array[0] as Boolean,
+                array[1] as String,
+                array[2] as String,
+                array[3] as Boolean,
+                array[4] as List<String>,
+                array[5] as List<String>,
+                array[6] as UiMode,
+            )
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            PreferencesUiState()
+        )
+    
+    fun getPackageIcon(packageName: String): Drawable? = repository.getPackageIcon(packageName)
+    fun getPackageLabel(packageName: String): String = repository.getPackageLabel(packageName)
+    
+    fun setBlacklist(list: List<String>) {
+        viewModelScope.launch {
+            appPreferences.setListeningBlacklist(list)
+        }
+    }
+    
+    suspend fun validateUserToken(token: String): Boolean {
+        return repository.validateToken(token).data?.valid ?: false
     }
 
-    suspend fun retrieveUsername(token: String): String? {
-        return repository.validateUserToken(token).data?.user_name
+    fun setAccessToken(token:String) {
+        viewModelScope.launch {
+            appPreferences.setLbAccessToken(token)
+        }
+    }
+    
+    suspend fun saveUserDetails(token: String) {
+        val result = repository.validateToken(token)
+        if (result.status.isSuccessful() && result.data?.valid == true) {
+            appPreferences.setUsername( result.data.username )
+            appPreferences.setLbAccessToken(token)
+        } else {
+            errorFlow.emit(result.error)
+        }
     }
     
     fun fetchLinkedServices() {
         viewModelScope.launch {
-            val result = repository.getLinkedServices(token = appPreferences.getLbAccessToken(), username = appPreferences.username)
+            val result = withContext(ioDispatcher) {
+                repository.getLinkedServices(
+                    token = appPreferences.getLbAccessToken(),
+                    username = appPreferences.getUsername()
+                )
+            }
             if (result.status.isSuccessful()) {
                 result.data!!.toLinkedServicesList().also { services ->
                     isSpotifyLinked.emit(services.contains(LinkedService.SPOTIFY))
@@ -116,10 +178,20 @@ class ListensViewModel @Inject constructor(
             }
         }
     }
-
-    fun fetchUserListens(userName: String) {
+    
+    fun updateNotificationServicePermissionStatus() {
         viewModelScope.launch {
-            val response = repository.fetchUserListens(userName)
+            isNotificationServiceAllowed.emit(
+                withContext(ioDispatcher) {
+                    appPreferences.isNotificationServiceAllowed
+                }
+            )
+        }
+    }
+
+    private fun fetchUserListens(username: String?) {
+        viewModelScope.launch {
+            val response = withContext(ioDispatcher) { repository.fetchUserListens(username) }
             isLoading.emit(
                 when(response.status){
                     SUCCESS -> {
@@ -127,10 +199,19 @@ class ListensViewModel @Inject constructor(
                         listensFlow.update { response.data?.payload?.listens ?: emptyList() }
                         false
                     }
-                    FAILED -> false
+                    FAILED -> {
+                        errorFlow.emit(response.error)
+                        false
+                    }
                     else -> throw IllegalStateException()
                 }
             )
+        }
+    }
+    
+    suspend fun isNotificationServiceAllowed(): Boolean {
+        return withContext(ioDispatcher) {
+            appPreferences.isNotificationServiceAllowed
         }
     }
     

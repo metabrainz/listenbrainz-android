@@ -10,7 +10,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -90,7 +89,7 @@ fun SettingsScreen(
 
     Column(modifier = Modifier
         .fillMaxSize()
-        .padding(8.dp)
+        .padding(horizontal = 8.dp)
         .verticalScroll(rememberScrollState())
     ) {
         Divider(thickness = 1.dp)
@@ -421,8 +420,23 @@ fun SettingsScreen(
         //        Divider(thickness = 1.dp)
 
         // BlackList Dialog
+        val uiState by listensViewModel.preferencesUiState.collectAsState()
         if (showBlacklist) {
-            ListeningAppsList(viewModel = listensViewModel) { showBlacklist = false }
+            ListeningAppsList(
+                preferencesUiState = uiState,
+                fetchLinkedServices = {
+                     listensViewModel.fetchLinkedServices()
+                },
+                getPackageIcon = { packageName ->
+                    listensViewModel.getPackageIcon(packageName)
+                },
+                getPackageLabel = { packageName ->
+                    listensViewModel.getPackageLabel(packageName)
+                },
+                setBlacklist = { newList ->
+                    listensViewModel.setBlacklist(newList)
+                },
+            ) { showBlacklist = false }
         }
     }
 }

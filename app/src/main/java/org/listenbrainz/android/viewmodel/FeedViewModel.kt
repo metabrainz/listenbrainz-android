@@ -102,25 +102,22 @@ class FeedViewModel @Inject constructor(
     override val uiState = createUiStateFlow()
     
     init {
-        viewModelScope.launch(ioDispatcher) {
+        viewModelScope.launch(defaultDispatcher) {
             searchFollowerQuery.collectLatest { query ->
                 if (query.isEmpty()) return@collectLatest
                 
-                // TODO: FIX THIS
-                val result = socialRepository.getFollowers(appPreferences.username)
-                println(result.data)
-                withContext(defaultDispatcher){
-                    if (result.status == Resource.Status.SUCCESS){
-                        searchFollowerResult.emit(
-                            result.data?.followers?.filter {
-                                it.startsWith(query, ignoreCase = true) || it.contains(query, ignoreCase = true)
-                            } ?: emptyList()
-                        )
-                        println(searchFollowerResult.value)
-                    } else {
-                        emitError(error = result.error)
-                    }
+                val result = socialRepository.getFollowers(appPreferences.getUsername())
+                if (result.status == Resource.Status.SUCCESS){
+                    searchFollowerResult.emit(
+                        result.data?.followers?.filter {
+                            it.startsWith(query, ignoreCase = true) || it.contains(query, ignoreCase = true)
+                        } ?: emptyList()
+                    )
+                    println(searchFollowerResult.value)
+                } else {
+                    emitError(error = result.error)
                 }
+                
             }
         }
         
@@ -144,7 +141,7 @@ class FeedViewModel @Inject constructor(
     
     private fun createNewMyFeedPagingSource(): MyFeedPagingSource =
         MyFeedPagingSource(
-            username = { appPreferences.username },
+            username = { appPreferences.getUsername() },
             addEntryToMap = { id, value ->
                 isHiddenMap[id] = value
             },
@@ -157,7 +154,7 @@ class FeedViewModel @Inject constructor(
     
     private fun createNewFollowListensPagingSource(): FollowListensPagingSource =
         FollowListensPagingSource(
-            username = { appPreferences.username },
+            username = { appPreferences.getUsername() } ,
             onError =  { error ->
                 emitError(error)
             },
@@ -167,7 +164,7 @@ class FeedViewModel @Inject constructor(
     
     private fun createNewSimilarListensPagingSource(): SimilarListensPagingSource =
         SimilarListensPagingSource(
-            username = { appPreferences.username },
+            username = { appPreferences.getUsername() },
             onError =  { error ->
                 emitError(error)
             },
@@ -223,7 +220,7 @@ class FeedViewModel @Inject constructor(
     suspend fun isCritiqueBrainzLinked(): Boolean? {
         val result = listensRepository.getLinkedServices(
             appPreferences.getLbAccessToken(),
-            withContext(ioDispatcher) { appPreferences.username }
+            appPreferences.getUsername()
         )
         if (!result.status.isSuccessful()) {
             emitError(result.error)
@@ -255,7 +252,7 @@ class FeedViewModel @Inject constructor(
             if (type == FeedEventType.RECORDING_PIN.type) {
                 socialRepository.deletePin(id)
             } else {
-                feedRepository.deleteEvent(appPreferences.username, FeedEventDeletionData(eventId = id.toString(), eventType = type))
+                feedRepository.deleteEvent(appPreferences.getUsername(), FeedEventDeletionData(eventId = id.toString(), eventType = type))
             }
         }
     
@@ -277,7 +274,7 @@ class FeedViewModel @Inject constructor(
         toggleHiddenStatus(data)
         
         val result = withContext(ioDispatcher) {
-            feedRepository.hideEvent(appPreferences.username, data)
+            feedRepository.hideEvent(appPreferences.getUsername(), data)
         }
         
         when (result.status) {
@@ -297,7 +294,7 @@ class FeedViewModel @Inject constructor(
         toggleHiddenStatus(data)
         
         val result = withContext(ioDispatcher) {
-            feedRepository.unhideEvent(appPreferences.username, data)
+            feedRepository.unhideEvent(appPreferences.getUsername(), data)
         }
         
         when (result.status) {

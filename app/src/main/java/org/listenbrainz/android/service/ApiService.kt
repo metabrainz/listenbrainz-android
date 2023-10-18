@@ -18,9 +18,11 @@ import org.listenbrainz.android.model.feed.FeedData
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventDeletionData
 import org.listenbrainz.android.model.feed.FeedEventVisibilityData
+import org.listenbrainz.android.util.Constants.Headers.AUTHORIZATION
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -39,7 +41,9 @@ interface ApiService {
     suspend fun getCoverArt(@Path("MBID") mbid: String): Response<CoverArt>
     
     @GET("validate-token")
-    suspend fun checkIfTokenIsValid(): Response<TokenValidation>
+    suspend fun checkTokenValidity(
+        @Header(AUTHORIZATION) authHeader: String
+    ): Response<TokenValidation>
     
     @POST("submit-listens")
     suspend fun submitListen(@Body body: ListenSubmitBody?): Response<PostResponse>
