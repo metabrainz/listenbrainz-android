@@ -33,8 +33,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.ui.theme.lb_purple
-import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 
 /**Small configuration of listen card.
  * This composable has fixed height used from [ListenBrainzTheme.sizes].
@@ -186,8 +184,8 @@ fun TitleAndSubtitle(
     title: String,
     subtitle: String = "",
     alignment: Alignment.Horizontal = Alignment.Start,
-    titleColor: Color = if (onScreenUiModeIsDark()) Color.White else lb_purple,
-    subtitleColor: Color = (if (onScreenUiModeIsDark()) Color.White else lb_purple).copy(alpha = 0.7f)
+    titleColor: Color = ListenBrainzTheme.colorScheme.listenText,
+    subtitleColor: Color = titleColor.copy(alpha = 0.7f)
 ) {
     Column(modifier = modifier, horizontalAlignment = alignment) {
         Text(

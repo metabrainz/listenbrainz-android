@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,15 +14,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -31,22 +27,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.screens.newsbrainz.NewsBrainzActivity
 import org.listenbrainz.android.ui.screens.yim.YearInMusicActivity
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.ui.theme.offWhite
-import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 
 @Composable
 fun ExploreScreen() {
-    Surface(modifier = Modifier.fillMaxSize()) {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = ListenBrainzTheme.colorScheme.background
+    ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .verticalScroll(rememberScrollState())
                 .fillMaxWidth()
-                .background(androidx.compose.material3.MaterialTheme.colorScheme.background)
         ) {
             
             // Yim Card
@@ -77,14 +74,13 @@ private fun ExploreScreenCard(
     subTitle: String,
     context: Context = LocalContext.current
 ) {
-    Card(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
                 horizontal = ListenBrainzTheme.paddings.horizontal,
                 vertical = 10.dp
             )
-            .clip(RoundedCornerShape(16.dp))
             .clickable {
                 context.startActivity(
                     Intent(
@@ -93,7 +89,9 @@ private fun ExploreScreenCard(
                     )
                 )
             },
-        backgroundColor = if (onScreenUiModeIsDark()) Color.Black else offWhite,
+        color = ListenBrainzTheme.colorScheme.level1,
+        elevation = 6.dp,
+        shape = RoundedCornerShape(12.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -107,28 +105,31 @@ private fun ExploreScreenCard(
                     .fillMaxWidth()
             )
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Text(
                 text = title,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = ListenBrainzTheme.paddings.horizontal),
+                    .padding(start = 12.dp, end = ListenBrainzTheme.paddings.horizontal),
                 color = ListenBrainzTheme.colorScheme.listenText,
                 fontWeight = FontWeight.Bold,
+                fontSize = 18.sp,
                 style = MaterialTheme.typography.subtitle1
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(2.dp))
 
             Text(
                 text = subTitle,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = ListenBrainzTheme.paddings.horizontal),
+                    .padding(start = 12.dp, end = ListenBrainzTheme.paddings.horizontal),
                 color = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),
                 style = MaterialTheme.typography.caption
             )
+    
+            Spacer(modifier = Modifier.height(12.dp))
         }
     }
 }

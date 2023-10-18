@@ -19,6 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AppNavigationItem
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -34,7 +35,7 @@ fun BottomNavigationBar(
         AppNavigationItem.Profile
     )
     BottomNavigation(
-        backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
+        backgroundColor = ListenBrainzTheme.colorScheme.nav,
         elevation = 0.dp
     ) {
         val coroutineScope = rememberCoroutineScope()

@@ -26,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,14 +46,14 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
-import androidx.preference.PreferenceManager
+import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.ui.components.Switch
 import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
 import org.listenbrainz.android.ui.screens.dashboard.DonateActivity
 import org.listenbrainz.android.ui.screens.listens.ListeningAppsList
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.ui.theme.isUiModeIsDark
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Utils.getActivity
@@ -68,6 +69,7 @@ fun SettingsScreen(
     val uriHandler = LocalUriHandler.current
     var showBlacklist by remember { mutableStateOf(false) }
     val darkTheme = onScreenUiModeIsDark()
+    val scope = rememberCoroutineScope()
     val darkThemeCheckedState = remember { mutableStateOf(darkTheme) }
     val submitListensCheckedState = remember { mutableStateOf(viewModel.appPreferences.submitListens) }
     val notificationsCheckedState = remember { mutableStateOf(viewModel.appPreferences.isNotificationServiceAllowed) }
@@ -240,23 +242,18 @@ fun SettingsScreen(
                 onCheckedChange = {
                     val intent = Intent(context, DashboardActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    val preferences = PreferenceManager.getDefaultSharedPreferences(context).edit()
                     when (darkTheme) {
                         false -> {
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                            isUiModeIsDark.value = true
-                            preferences.putString(
-                                Constants.Strings.PREFERENCE_SYSTEM_THEME,
-                                context.getString(R.string.settings_device_theme_dark)
-                            ).apply()
+                            scope.launch {
+                                viewModel.appPreferences.setThemePreference(UiMode.DARK)
+                            }
                         }
                         true -> {
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                            isUiModeIsDark.value = false
-                            preferences.putString(
-                                Constants.Strings.PREFERENCE_SYSTEM_THEME,
-                                context.getString(R.string.settings_device_theme_light)
-                            ).apply()
+                            scope.launch {
+                                viewModel.appPreferences.setThemePreference(UiMode.LIGHT)
+                            }
                         }
                     }
                     context.getActivity()?.recreate() ?: context.startActivity(intent)
