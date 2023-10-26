@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.di.IoDispatcher
@@ -57,54 +56,62 @@ class ListensViewModel @Inject constructor(
     val preferencesUiState: StateFlow<PreferencesUiState> = createPreferencesUiStateFlow()
     
     init {
-        viewModelScope.launch(ioDispatcher) {
-            val username = appPreferences.getUsername()
-            
+        viewModelScope.launch {
+            val username = withContext(ioDispatcher) { appPreferences.getUsername() }
             if (username.isEmpty()) return@launch
             
-            fetchUserListens(username = username)
+            launch { fetchUserListens(username = username) }
             
-            socketRepository
-                .listen(username)
-                .collect { listen ->
-                    if (listen.listenedAt == null)
-                        listeningNowFlow.value = listen
-                    else
-                        listensFlow.getAndUpdate {
-                            listOf(listen) + it
-                        }
-                }
+            withContext(ioDispatcher) {
+                socketRepository
+                    .listen(username)
+                    .collect { listen ->
+                        if (listen.listenedAt == null)
+                            listeningNowFlow.emit(listen)
+                        else
+                            listensFlow.getAndUpdate {
+                                listOf(listen) + it
+                            }
+                    }
+            }
         }
     }
     
     override fun createUiStateFlow(): StateFlow<ListensUiState> =
         combine(
             listensFlow,
-            combine(
-                listeningNowFlow,
-                listeningNowBitmap,
-                playerState,
-                songDuration,
-                songCurrentPosition,
-                progress
-            ) { array -> // listen, bitmap, playerState, songDuration, songCurrentPosition, progress ->
-                ListeningNowUiState(
-                    array[0] as Listen?,
-                    array[1] as ListenBitmap,
-                    array[2] as PlayerState?,
-                    array[3] as Long,
-                    array[4] as Long,
-                    array[5] as Float
-                )
-            },
+            createListeningNowUiStateFlow(),
             isLoading,
             errorFlow,
-        ){ listens, listeningNowState, isLoading, error->
+        ){ listens, listeningNowState, isLoading, error ->
             ListensUiState(listens, listeningNowState, isLoading, error)
         }.stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
             ListensUiState()
+        )
+    
+    private fun createListeningNowUiStateFlow(): StateFlow<ListeningNowUiState> =
+        combine(
+            listeningNowFlow,
+            listeningNowBitmap,
+            playerState,
+            songDuration,
+            songCurrentPosition,
+            progress
+        ) { array -> // listen, bitmap, playerState, songDuration, songCurrentPosition, progress ->
+            ListeningNowUiState(
+                array[0] as Listen?,
+                array[1] as ListenBitmap,
+                array[2] as PlayerState?,
+                array[3] as Long,
+                array[4] as Long,
+                array[5] as Float
+            )
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            ListeningNowUiState()
         )
     
     @Suppress("UNCHECKED_CAST")
@@ -189,24 +196,19 @@ class ListensViewModel @Inject constructor(
         }
     }
 
-    private fun fetchUserListens(username: String?) {
-        viewModelScope.launch {
-            val response = withContext(ioDispatcher) { repository.fetchUserListens(username) }
-            isLoading.emit(
-                when(response.status){
-                    SUCCESS -> {
-                        // Updating listens
-                        listensFlow.update { response.data?.payload?.listens ?: emptyList() }
-                        false
-                    }
-                    FAILED -> {
-                        errorFlow.emit(response.error)
-                        false
-                    }
-                    else -> throw IllegalStateException()
-                }
-            )
+    private suspend fun fetchUserListens(username: String?) {
+        val response = withContext(ioDispatcher) { repository.fetchUserListens(username) }
+        when(response.status){
+            SUCCESS -> {
+                // Updating listens
+                listensFlow.emit(response.data?.payload?.listens ?: emptyList())
+            }
+            FAILED -> {
+                errorFlow.emit(response.error)
+            }
+            else -> throw IllegalStateException()
         }
+        isLoading.emit(false)
     }
     
     suspend fun isNotificationServiceAllowed(): Boolean {

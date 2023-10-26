@@ -254,7 +254,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
         }
         
         // Get image from track
-        assertAppRemoteConnected()?.imagesApi?.getImage(playerState?.track?.imageUri ?: ImageUri(""), com.spotify.protocol.types.Image.Dimension.LARGE)
+        (assertAppRemoteConnected() ?: return@suspendCoroutine).imagesApi.getImage(playerState?.track?.imageUri ?: ImageUri(""), com.spotify.protocol.types.Image.Dimension.LARGE)
             ?.setResultCallback { bitmapHere ->
                 cont.resume(
                     ListenBitmap(

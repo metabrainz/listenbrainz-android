@@ -129,7 +129,6 @@ class ListenSubmissionState(
     /** Run [artist] and [title] value-check before invoking this function.*/
     private fun setDurationAndCallbacks(metadata: MediaMetadata, onSubmit: (ListenType) -> Unit) {
         duration = metadata.getLong(MediaMetadata.METADATA_KEY_DURATION)
-        
         timestamp = System.currentTimeMillis() / 1000
         
         // d(duration.toString())

@@ -15,8 +15,10 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.listenbrainz.android.model.yimdata.YimData
 import org.listenbrainz.android.repository.preferences.AppPreferences
-import org.listenbrainz.android.service.ApiService
 import org.listenbrainz.android.service.BlogService
+import org.listenbrainz.android.service.FeedService
+import org.listenbrainz.android.service.ListensService
+import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.service.YouTubeApiService
 import org.listenbrainz.android.util.Constants.LISTENBRAINZ_API_BASE_URL
@@ -31,10 +33,12 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class ServiceModule {
     
+    private val okHttpClient by lazy { OkHttpClient() }
+    
     private fun constructRetrofit(appPreferences: AppPreferences): Retrofit =
         Retrofit.Builder()
             .client(
-                OkHttpClient()
+                okHttpClient
                     .newBuilder()
                     .addInterceptor(HeaderInterceptor(appPreferences))
                     .addInterceptor (HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS))
@@ -49,20 +53,37 @@ class ServiceModule {
     @get:Provides
     val blogService: BlogService = Retrofit.Builder()
         .baseUrl("https://public-api.wordpress.com/rest/v1.1/sites/")
+        .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build().create(BlogService::class.java)
-
+    
     @Singleton
     @Provides
-    fun providesApiService(appPreferences: AppPreferences): ApiService =
+    fun providesListensService(appPreferences: AppPreferences): ListensService =
         constructRetrofit(appPreferences)
-            .create(ApiService::class.java)
+            .create(ListensService::class.java)
+    
+    
+    @Singleton
+    @Provides
+    fun providesSocialService(appPreferences: AppPreferences): SocialService =
+        constructRetrofit(appPreferences)
+            .create(SocialService::class.java)
+    
+    
+    @Singleton
+    @Provides
+    fun providesFeedService(appPreferences: AppPreferences): FeedService =
+        constructRetrofit(appPreferences)
+            .create(FeedService::class.java)
+    
     
     @Singleton
     @Provides
     fun providesYoutubeApiService(@ApplicationContext context: Context): YouTubeApiService =
         Retrofit.Builder()
             .baseUrl("https://www.googleapis.com/")
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .client( OkHttpClient.Builder()
                 .addInterceptor { chain ->
@@ -119,6 +140,7 @@ class ServiceModule {
     @get:Provides
     val yimService: YimService = Retrofit.Builder()
             .baseUrl(LISTENBRAINZ_API_BASE_URL)
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(yimGson))
             .build()
             .create(YimService::class.java)

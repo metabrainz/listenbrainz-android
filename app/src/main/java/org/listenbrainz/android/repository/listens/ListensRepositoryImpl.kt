@@ -10,14 +10,14 @@ import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.PostResponse
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.TokenValidation
-import org.listenbrainz.android.service.ApiService
+import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.parseResponse
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ListensRepositoryImpl @Inject constructor(val service: ApiService) : ListensRepository {
+class ListensRepositoryImpl @Inject constructor(val service: ListensService) : ListensRepository {
     
     override suspend fun fetchUserListens(username: String?): Resource<Listens> = parseResponse {
         if (username.isNullOrEmpty())
