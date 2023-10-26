@@ -58,7 +58,7 @@ class FeedViewModel @Inject constructor(
     private val remotePlaybackHandler: RemotePlaybackHandler,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
-): SocialViewModel<FeedUiState>(socialRepository, appPreferences, remotePlaybackHandler, ioDispatcher) {
+): BaseViewModel<FeedUiState>() {
     
     // Search follower flow
     private val inputSearchFollowerQuery = MutableStateFlow("")

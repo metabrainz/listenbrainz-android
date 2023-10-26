@@ -85,10 +85,12 @@ import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.FeedViewModel
+import org.listenbrainz.android.viewmodel.SocialViewModel
 
 @Composable
 fun FeedScreen(
     viewModel: FeedViewModel = hiltViewModel(),
+    socialViewModel: SocialViewModel = hiltViewModel(),
     scrollToTopState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit
 ) {
@@ -104,16 +106,16 @@ fun FeedScreen(
         },
         onErrorShown = { viewModel.clearErrorFlow() },
         recommendTrack = { event ->
-            viewModel.recommend(event.metadata)
+            socialViewModel.recommend(event.metadata)
         },
         personallyRecommendTrack = { event, users, blurbContent ->
-            viewModel.personallyRecommend(event.metadata, users, blurbContent)
+            socialViewModel.personallyRecommend(event.metadata, users, blurbContent)
         },
         review = { event, type, blurbContent, rating, locale ->
-            viewModel.review(event.metadata, type, blurbContent, rating, locale)
+            socialViewModel.review(event.metadata, type, blurbContent, rating, locale)
         },
         pin = { event, blurbContent ->
-            viewModel.pin(event.metadata, blurbContent)
+            socialViewModel.pin(event.metadata, blurbContent)
         },
         searchFollower = { query ->
             viewModel.searchUser(query)

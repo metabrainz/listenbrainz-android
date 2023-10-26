@@ -31,10 +31,12 @@ import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.ListensViewModel
+import org.listenbrainz.android.viewmodel.SocialViewModel
 
 @Composable
 fun ListensScreen(
     viewModel: ListensViewModel = hiltViewModel(),
+    socialViewModel: SocialViewModel = hiltViewModel(),
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
 ) {
@@ -57,7 +59,7 @@ fun ListensScreen(
             viewModel.setAccessToken(it)
         },
         playListen = {
-            viewModel.playListen(it)
+            socialViewModel.playListen(it)
         }
     )
 }

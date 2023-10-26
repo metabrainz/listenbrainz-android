@@ -21,7 +21,6 @@ import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
-import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.repository.socket.SocketRepository
 import org.listenbrainz.android.ui.screens.listens.ListeningNowUiState
 import org.listenbrainz.android.ui.screens.listens.ListensUiState
@@ -33,13 +32,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ListensViewModel @Inject constructor(
-    socialRepository: SocialRepository,
     private val repository: ListensRepository,
     private val appPreferences: AppPreferences,
     private val socketRepository: SocketRepository,
     private val remotePlaybackHandler: RemotePlaybackHandler,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-) : SocialViewModel<ListensUiState>(socialRepository, appPreferences, remotePlaybackHandler, ioDispatcher) {
+) : BaseViewModel<ListensUiState>() {
     
     private val isSpotifyLinked = MutableStateFlow(appPreferences.linkedServices.contains(LinkedService.SPOTIFY))
     private val isNotificationServiceAllowed = MutableStateFlow(appPreferences.isNotificationServiceAllowed)

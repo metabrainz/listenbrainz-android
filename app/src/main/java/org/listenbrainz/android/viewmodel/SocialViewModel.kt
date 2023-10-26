@@ -2,15 +2,24 @@ package org.listenbrainz.android.viewmodel
 
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.listenbrainz.android.di.DefaultDispatcher
+import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.RecommendationData
 import org.listenbrainz.android.model.RecommendationMetadata
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.Review
 import org.listenbrainz.android.model.ReviewMetadata
+import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.model.feed.ReviewEntityType
@@ -18,14 +27,27 @@ import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.util.Resource
+import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
-abstract class SocialViewModel<UiState> (
+@HiltViewModel
+class SocialViewModel @Inject constructor(
     private val repository: SocialRepository,
     private val appPreferences: AppPreferences,
     private val remotePlaybackHandler: RemotePlaybackHandler,
-    private val ioDispatcher: CoroutineDispatcher,
-): BaseViewModel<UiState>() {
+    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+): BaseViewModel<SocialUiState>() {
+    
+    override val uiState: StateFlow<SocialUiState> = createUiStateFlow()
+    override fun createUiStateFlow(): StateFlow<SocialUiState> =
+        errorFlow.map {
+            SocialUiState(it)
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            SocialUiState()
+        )
     
     fun playListen(trackMetadata: TrackMetadata) {
         val spotifyId = trackMetadata.additionalInfo?.spotifyId
@@ -62,6 +84,23 @@ abstract class SocialViewModel<UiState> (
     
     fun pause(){
         remotePlaybackHandler.pause()
+    }
+    
+    fun toggleFollowStatus(user: User, index: Int, currentStatus: Boolean, invertFollowUiState: (index: Int) -> Unit) {
+        viewModelScope.launch(defaultDispatcher) {
+            
+            if (user.username.isEmpty()) return@launch
+            
+            try {
+                if (currentStatus)
+                    coroutineContext.optimisticallyUnfollowUser(user, index) { invertFollowUiState(it) }
+                else
+                    coroutineContext.optimisticallyFollowUser(user, index) { invertFollowUiState(it) }
+            } catch (e: CancellationException) {
+                e.printStackTrace()
+            }
+            
+        }
     }
     
     /**
