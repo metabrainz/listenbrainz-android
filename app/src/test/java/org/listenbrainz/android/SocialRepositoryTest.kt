@@ -12,7 +12,7 @@ import org.junit.Test
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.repository.social.SocialRepositoryImpl
-import org.listenbrainz.android.service.ApiService
+import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.alreadyFollowingError
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.cannotFollowSelfError
@@ -160,7 +160,7 @@ class SocialRepositoryTest {
             }
         }
         webServer.start()
-        val service = RetrofitUtils.createTestService(ApiService::class.java, webServer.url("/"))
+        val service = RetrofitUtils.createTestService(SocialService::class.java, webServer.url("/"))
         repository = SocialRepositoryImpl(service)
     }
     

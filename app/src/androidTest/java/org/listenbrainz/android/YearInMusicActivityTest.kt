@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.LargeTest
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
@@ -20,10 +19,9 @@ import org.listenbrainz.android.viewmodel.YimViewModel
 import org.listenbrainz.sharedtest.mocks.MockAppPreferences
 import org.listenbrainz.sharedtest.mocks.MockNetworkConnectivityViewModel
 import org.listenbrainz.sharedtest.mocks.MockYimRepository
-import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername
 
 @RunWith(AndroidJUnit4::class)
-@LargeTest
+//@LargeTest
 @HiltAndroidTest
 class YearInMusicActivityTest {
     
@@ -40,7 +38,7 @@ class YearInMusicActivityTest {
         activity = rule.activity
         val yimViewModel = YimViewModel(
             MockYimRepository(),
-            MockAppPreferences(username = testUsername)
+            MockAppPreferences()
         )
         val networkViewModel = MockNetworkConnectivityViewModel(ConnectivityObserver.NetworkStatus.AVAILABLE)
 
