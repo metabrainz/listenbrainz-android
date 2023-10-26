@@ -2,7 +2,6 @@ package org.listenbrainz.android
 
 import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -13,7 +12,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.listenbrainz.android.ui.screens.yim.navigation.YimNavigation
-import org.listenbrainz.android.ui.theme.isUiModeIsDark
 import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 import org.listenbrainz.android.viewmodel.YimViewModel
 import org.listenbrainz.sharedtest.mocks.MockAppPreferences
@@ -45,8 +43,6 @@ class YearInMusicActivityTest {
         rule.setContent {
             YimNavigation(yimViewModel = yimViewModel, activity = activity, networkConnectivityViewModel = networkViewModel)
         }
-        
-        isUiModeIsDark = mutableStateOf(true)
     }
     
     @Test
