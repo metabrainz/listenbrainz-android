@@ -2,6 +2,7 @@ package org.listenbrainz.android.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,7 +32,7 @@ class SearchViewModel @Inject constructor(
     private val repository: SocialRepository,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-) : BaseViewModel<SearchUiState>() {
+) : FollowUnfollowModel<SearchUiState>(repository, ioDispatcher) {
     
     private val inputQueryFlow = MutableStateFlow("")
     
@@ -75,6 +76,21 @@ class SearchViewModel @Inject constructor(
         
     }
     
+    fun toggleFollowStatus(user: User, index: Int) {
+        viewModelScope.launch(defaultDispatcher) {
+            
+            if (user.username.isEmpty()) return@launch
+            
+            try {
+                if (followStateFlow.value[index])
+                    coroutineContext.optimisticallyUnfollowUser(user, index) { invertFollowUiState(it) }
+                else
+                    coroutineContext.optimisticallyFollowUser(user, index) { invertFollowUiState(it) }
+            } catch (e: CancellationException) {
+                e.printStackTrace()
+            }
+        }
+    }
     
     override fun createUiStateFlow(): StateFlow<SearchUiState> {
         return combine(
@@ -98,7 +114,7 @@ class SearchViewModel @Inject constructor(
     }
     
     
-    fun invertFollowUiState(index: Int) {
+    private fun invertFollowUiState(index: Int) {
         viewModelScope.launch {
             followStateFlow.getAndUpdate { list ->
                 val mutableList = list.toMutableList()

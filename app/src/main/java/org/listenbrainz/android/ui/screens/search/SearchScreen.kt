@@ -58,13 +58,11 @@ import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.FollowButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.SearchViewModel
-import org.listenbrainz.android.viewmodel.SocialViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SearchScreen(
     isActive: Boolean,
-    socialViewModel: SocialViewModel = hiltViewModel(),
     viewModel: SearchViewModel = hiltViewModel(),
     deactivate: () -> Unit
 ) {
@@ -83,13 +81,7 @@ fun SearchScreen(
             },
             onQueryChange = { query -> viewModel.updateQueryFlow(query) },
             onFollowClick = { user, index ->
-                socialViewModel.toggleFollowStatus(
-                    user,
-                    index,
-                    uiState.result.isFollowedList[index]
-                ){
-                    viewModel.invertFollowUiState(it)
-                }
+                viewModel.toggleFollowStatus(user, index)
             },
             onClear = { viewModel.clearUi() },
             onErrorShown = { viewModel.clearErrorFlow() },
