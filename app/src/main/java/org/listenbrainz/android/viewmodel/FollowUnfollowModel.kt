@@ -7,7 +7,6 @@ import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.util.Resource
-import kotlin.coroutines.CoroutineContext
 
 abstract class FollowUnfollowModel<UiState>(
     private val repository: SocialRepository,
@@ -16,10 +15,10 @@ abstract class FollowUnfollowModel<UiState>(
     
     /**
      * @param [invertUiState] **should** check for cancellation internally.*/
-    suspend fun CoroutineContext.optimisticallyFollowUser(
+    suspend fun optimisticallyFollowUser(
         user: User,
         index: Int,
-        invertUiState: CoroutineContext.(index: Int) -> Unit
+        invertUiState: (index: Int) -> Unit
     ) {
         /** Determines if user is followed or not.*/
         fun userIsAlreadyFollowed(error: ResponseError?): Boolean {
@@ -49,10 +48,10 @@ abstract class FollowUnfollowModel<UiState>(
     
     /**
      * @param [invertUiState] **should** check for cancellation internally.*/
-    suspend fun CoroutineContext.optimisticallyUnfollowUser(
+    suspend fun optimisticallyUnfollowUser(
         user: User,
         index: Int,
-        invertUiState: CoroutineContext.(index: Int) -> Unit
+        invertUiState: (index: Int) -> Unit
     ) {
         
         invertUiState(index)

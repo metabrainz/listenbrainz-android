@@ -83,9 +83,9 @@ class SearchViewModel @Inject constructor(
             
             try {
                 if (followStateFlow.value[index])
-                    coroutineContext.optimisticallyUnfollowUser(user, index) { invertFollowUiState(it) }
+                    optimisticallyUnfollowUser(user, index) { invertFollowUiState(it) }
                 else
-                    coroutineContext.optimisticallyFollowUser(user, index) { invertFollowUiState(it) }
+                    optimisticallyFollowUser(user, index) { invertFollowUiState(it) }
             } catch (e: CancellationException) {
                 e.printStackTrace()
             }
@@ -115,6 +115,7 @@ class SearchViewModel @Inject constructor(
     
     
     private fun invertFollowUiState(index: Int) {
+        // If the view-model is destroyed at this point, Ui state will not be inverted.
         viewModelScope.launch {
             followStateFlow.getAndUpdate { list ->
                 val mutableList = list.toMutableList()
