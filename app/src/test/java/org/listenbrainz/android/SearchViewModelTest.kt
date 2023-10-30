@@ -9,8 +9,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.User
-import org.listenbrainz.android.repository.preferences.AppPreferences
-import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.viewmodel.SearchViewModel
@@ -35,12 +33,6 @@ class SearchViewModelTest : BaseUnitTest() {
     
     @Mock
     private lateinit var mockSocialRepository: SocialRepository
-
-    @Mock
-    private lateinit var mockAppPreferences: AppPreferences
-    
-    @Mock
-    private lateinit var remotePlaybackHandler: RemotePlaybackHandler
     
     @Before
     fun setup(){
@@ -65,7 +57,7 @@ class SearchViewModelTest : BaseUnitTest() {
             mockSocialRepository.followUser(testFamiliarUser)
         }.doReturn(Resource.failure(error = ResponseError.BAD_REQUEST.apply { actualResponse = alreadyFollowingError }))
         
-        viewModel = SearchViewModel(mockSocialRepository, mockAppPreferences, remotePlaybackHandler, testDispatcher(), testDispatcher())
+        viewModel = SearchViewModel(mockSocialRepository, testDispatcher(), testDispatcher())
     }
     
     @Test
