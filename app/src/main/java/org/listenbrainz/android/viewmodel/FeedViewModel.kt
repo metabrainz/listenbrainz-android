@@ -3,7 +3,6 @@ package org.listenbrainz.android.viewmodel
 import android.net.Uri
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -26,23 +25,19 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.di.DefaultDispatcher
 import org.listenbrainz.android.di.IoDispatcher
-import org.listenbrainz.android.model.RecommendationData
-import org.listenbrainz.android.model.RecommendationMetadata
 import org.listenbrainz.android.model.ResponseError
-import org.listenbrainz.android.model.Review
-import org.listenbrainz.android.model.ReviewMetadata
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventDeletionData
 import org.listenbrainz.android.model.feed.FeedEventType
 import org.listenbrainz.android.model.feed.FeedEventType.Companion.isActionDelete
 import org.listenbrainz.android.model.feed.FeedEventVisibilityData
-import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.repository.feed.FeedRepository
+import org.listenbrainz.android.repository.feed.FeedRepository.Companion.FeedEventCount
+import org.listenbrainz.android.repository.feed.FeedRepository.Companion.FeedListensCount
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
-import org.listenbrainz.android.ui.screens.feed.FeedScreenUiState
 import org.listenbrainz.android.ui.screens.feed.FeedUiEventData
 import org.listenbrainz.android.ui.screens.feed.FeedUiEventItem
 import org.listenbrainz.android.ui.screens.feed.FeedUiState
@@ -60,13 +55,10 @@ class FeedViewModel @Inject constructor(
     private val socialRepository: SocialRepository,
     private val listensRepository: ListensRepository,
     private val appPreferences: AppPreferences,
-    private val remotePlayerRepository: RemotePlaybackHandler,
+    private val remotePlaybackHandler: RemotePlaybackHandler,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
-): ViewModel() {
-    
-    // Single error flow for feed screen.
-    private val errorFlow = MutableStateFlow<ResponseError?>(null)
+): BaseViewModel<FeedUiState>() {
     
     // Search follower flow
     private val inputSearchFollowerQuery = MutableStateFlow("")
@@ -76,7 +68,7 @@ class FeedViewModel @Inject constructor(
     
     // My Feed
     private val myFeedPager: Flow<PagingData<FeedUiEventItem>> = Pager(
-        PagingConfig(pageSize = 30),
+        PagingConfig(pageSize = FeedEventCount),
         initialKey = null
     ) { createNewMyFeedPagingSource() }
         .flow
@@ -85,63 +77,57 @@ class FeedViewModel @Inject constructor(
     private val isDeletedMap: SnapshotStateMap<Int, Boolean> = mutableStateMapOf()
     private val isHiddenMap: SnapshotStateMap<Int, Boolean> = mutableStateMapOf()
     private val myFeedFlow = MutableStateFlow(FeedUiEventData(isHiddenMap, isDeletedMap, myFeedPager))
-    private val myFeedLoadingFlow = MutableStateFlow(false)
     
     
     // Follow Listens
     private val followListensPager: Flow<PagingData<FeedUiEventItem>> = Pager(
-        PagingConfig(pageSize = 30),
+        PagingConfig(pageSize = FeedListensCount),
         initialKey = null
     ) { createNewFollowListensPagingSource() }
         .flow
         .cachedIn(viewModelScope)
     private val followListensFlow = MutableStateFlow(FeedUiEventData(eventList = followListensPager))
-    private val followListensLoadingFlow = MutableStateFlow(false)
     
     
     // Similar Listens
     private val similarListensPager: Flow<PagingData<FeedUiEventItem>> = Pager(
-        PagingConfig(pageSize = 30),
+        PagingConfig(pageSize = FeedListensCount),
         initialKey = null
     ) { createNewSimilarListensPagingSource() }
         .flow
         .cachedIn(viewModelScope)
     private val similarListensFlow = MutableStateFlow(FeedUiEventData(eventList = similarListensPager))
-    private val similarListensLoadingFlow = MutableStateFlow(false)
     
     // Exposed UI state
-    val uiState = createUiStateFlow()
+    override val uiState = createUiStateFlow()
     
     init {
-        viewModelScope.launch(ioDispatcher) {
+        viewModelScope.launch(defaultDispatcher) {
             searchFollowerQuery.collectLatest { query ->
                 if (query.isEmpty()) return@collectLatest
                 
-                // TODO: FIX THIS
-                val result = socialRepository.getFollowers(appPreferences.username)
-                println(result.data)
-                withContext(defaultDispatcher){
-                    if (result.status == Resource.Status.SUCCESS){
-                        searchFollowerResult.emit(
-                            result.data?.followers?.filter {
-                                it.startsWith(query, ignoreCase = true) || it.contains(query, ignoreCase = true)
-                            } ?: emptyList()
-                        )
-                        println(searchFollowerResult.value)
-                    } else {
-                        emitError(error = result.error)
-                    }
+                val result = socialRepository.getFollowers(appPreferences.getUsername())
+                if (result.status == Resource.Status.SUCCESS){
+                    searchFollowerResult.emit(
+                        result.data?.followers?.filter {
+                            it.startsWith(query, ignoreCase = true) || it.contains(query, ignoreCase = true)
+                        } ?: emptyList()
+                    )
+                    println(searchFollowerResult.value)
+                } else {
+                    emitError(error = result.error)
                 }
+                
             }
         }
         
     }
     
-    private fun createUiStateFlow(): StateFlow<FeedUiState> {
+    override fun createUiStateFlow(): StateFlow<FeedUiState> {
         return combine(
-            createMyFeedFlow(),
-            createFollowListensFlow(),
-            createSimilarListensFlow(),
+            myFeedFlow,
+            followListensFlow,
+            similarListensFlow,
             searchFollowerResult,
             errorFlow
         ){ feedScreenState, followListensState, similarListensState, searchResult, error ->
@@ -153,48 +139,9 @@ class FeedViewModel @Inject constructor(
         )
     }
     
-    private fun createFollowListensFlow(): StateFlow<FeedScreenUiState> {
-        return combine(
-            followListensFlow,
-            followListensLoadingFlow
-        ) { followListensData, isLoading ->
-            FeedScreenUiState(data = followListensData, isLoading = isLoading)
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            FeedScreenUiState()
-        )
-    }
-    
-    private fun createSimilarListensFlow(): StateFlow<FeedScreenUiState> {
-        return combine(
-            similarListensFlow,
-            similarListensLoadingFlow
-        ) { similarListensData, isLoading ->
-            FeedScreenUiState(data = similarListensData, isLoading = isLoading)
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            FeedScreenUiState()
-        )
-    }
-    
-    private fun createMyFeedFlow(): StateFlow<FeedScreenUiState> {
-        return combine(
-            myFeedFlow,
-            myFeedLoadingFlow
-        ) { myFeedData, isLoading ->
-            FeedScreenUiState(data = myFeedData, isLoading = isLoading)
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            FeedScreenUiState()
-        )
-    }
-    
     private fun createNewMyFeedPagingSource(): MyFeedPagingSource =
         MyFeedPagingSource(
-            username = { appPreferences.username },
+            username = { appPreferences.getUsername() },
             addEntryToMap = { id, value ->
                 isHiddenMap[id] = value
             },
@@ -207,7 +154,7 @@ class FeedViewModel @Inject constructor(
     
     private fun createNewFollowListensPagingSource(): FollowListensPagingSource =
         FollowListensPagingSource(
-            username = { appPreferences.username },
+            username = { appPreferences.getUsername() } ,
             onError =  { error ->
                 emitError(error)
             },
@@ -217,7 +164,7 @@ class FeedViewModel @Inject constructor(
     
     private fun createNewSimilarListensPagingSource(): SimilarListensPagingSource =
         SimilarListensPagingSource(
-            username = { appPreferences.username },
+            username = { appPreferences.getUsername() },
             onError =  { error ->
                 emitError(error)
             },
@@ -225,23 +172,11 @@ class FeedViewModel @Inject constructor(
             ioDispatcher = ioDispatcher
         )
     
-    fun connectToSpotify() {
-        viewModelScope.launch {
-            remotePlayerRepository.connectToSpotify { error ->
-                emitError(error)
-            }
-        }
-    }
-    
-    fun disconnectSpotify(){
-        remotePlayerRepository.disconnectSpotify()
-    }
-    
     fun play(event: FeedEvent) {
         val spotifyId = event.metadata.trackMetadata?.additionalInfo?.spotifyId
         if (spotifyId != null){
             Uri.parse(spotifyId).lastPathSegment?.let { trackId ->
-                remotePlayerRepository.playUri(trackId){
+                remotePlaybackHandler.playUri(trackId){
                     playFromYoutubeMusic(event)
                 }
             }
@@ -253,7 +188,7 @@ class FeedViewModel @Inject constructor(
     private fun playFromYoutubeMusic(event: FeedEvent) {
         viewModelScope.launch {
             if (event.metadata.trackMetadata != null){
-                remotePlayerRepository.apply {
+                remotePlaybackHandler.apply {
                     val result = playOnYoutube {
                         withContext(ioDispatcher) {
                             searchYoutubeMusicVideoId(
@@ -276,107 +211,21 @@ class FeedViewModel @Inject constructor(
         }
     }
     
-    fun recommend(event: FeedEvent) {
-        
-        viewModelScope.launch(ioDispatcher) {
-            val result = socialRepository.postRecommendationToAll(
-                username = appPreferences.username,
-                data = RecommendationData(
-                    metadata = RecommendationMetadata(
-                        trackName = event.metadata.trackMetadata?.trackName ?: return@launch,
-                        artistName = event.metadata.trackMetadata.artistName,
-                        releaseName = event.metadata.trackMetadata.releaseName,
-                        recordingMbid = event.metadata.trackMetadata.mbidMapping?.recordingMbid,
-                        recordingMsid = event.metadata.trackMetadata.additionalInfo?.recordingMsid
-                    )
-                )
-            )
-            
-            if (result.status == Resource.Status.FAILED){
-                emitError(result.error)
-            }
-        }
-        
-    }
-    
-    fun personallyRecommend(event: FeedEvent, users: List<String>, blurbContent: String) {
-        
-        viewModelScope.launch(ioDispatcher) {
-            val result = socialRepository.postPersonalRecommendation(
-                username = appPreferences.username,
-                data = RecommendationData(
-                    metadata = RecommendationMetadata(
-                        trackName = event.metadata.trackMetadata?.trackName ?: return@launch,
-                        artistName = event.metadata.trackMetadata.artistName,
-                        releaseName = event.metadata.trackMetadata.releaseName,
-                        recordingMbid = event.metadata.trackMetadata.mbidMapping?.recordingMbid,
-                        recordingMsid = event.metadata.trackMetadata.additionalInfo?.recordingMsid,
-                        users = users,
-                        blurbContent = blurbContent
-                    )
-                )
-            )
-    
-            if (result.status == Resource.Status.FAILED){
-                emitError(result.error)
-            }
-        }
-        
-    }
-    
-    fun review(event: FeedEvent, entityType: ReviewEntityType, blurbContent: String, rating: Int?, locale: String){
-        
-        viewModelScope.launch(ioDispatcher) {
-            val result = socialRepository.postReview(
-                username = appPreferences.username,
-                data = Review(
-                    metadata = ReviewMetadata(
-                        entityName = event.metadata.trackMetadata?.trackName ?: return@launch,
-                        entityId = (event.metadata.trackMetadata.mbidMapping?.recordingMbid ?: return@launch).toString(),
-                        entityType = entityType.code,
-                        text = blurbContent,
-                        rating = rating,
-                        language = locale
-                    )
-                )
-            )
-            
-            if (result.status == Resource.Status.FAILED){
-                emitError(result.error)
-            }
-        }
-    }
-    
-    fun pin(event: FeedEvent, blurbContent: String? ) {
-        
-        viewModelScope.launch(ioDispatcher) {
-            val result = socialRepository.pin(
-                recordingMsid = event.metadata.trackMetadata?.additionalInfo?.recordingMsid,
-                recordingMbid = event.metadata.trackMetadata?.mbidMapping?.recordingMbid,
-                blurbContent = blurbContent
-            )
-    
-            if (result.status == Resource.Status.FAILED){
-                emitError(result.error)
-            }
-        }
-    }
-    
     fun searchUser(query: String){
         viewModelScope.launch {
             inputSearchFollowerQuery.emit(query)
         }
     }
     
-    suspend fun isCritiqueBrainzLinked(): Boolean {
-        val username = withContext(ioDispatcher) {appPreferences.username}
-        return if (username == null) {
-            emitError(ResponseError.AUTH_HEADER_NOT_FOUND)
-            false
-        } else {
-            val result = listensRepository.getLinkedServices(appPreferences.getLbAccessToken(), username)
-            result.contains(LinkedService.CRITIQUEBRAINZ)
+    suspend fun isCritiqueBrainzLinked(): Boolean? {
+        val result = listensRepository.getLinkedServices(
+            appPreferences.getLbAccessToken(),
+            appPreferences.getUsername()
+        )
+        if (!result.status.isSuccessful()) {
+            emitError(result.error)
         }
+        return result.data?.toLinkedServicesList()?.contains(LinkedService.CRITIQUEBRAINZ)
     }
     
     fun hideOrDeleteEvent(event: FeedEvent, eventType: FeedEventType, parentUser: String) {
@@ -403,7 +252,7 @@ class FeedViewModel @Inject constructor(
             if (type == FeedEventType.RECORDING_PIN.type) {
                 socialRepository.deletePin(id)
             } else {
-                feedRepository.deleteEvent(appPreferences.username, FeedEventDeletionData(eventId = id.toString(), eventType = type))
+                feedRepository.deleteEvent(appPreferences.getUsername(), FeedEventDeletionData(eventId = id.toString(), eventType = type))
             }
         }
     
@@ -425,7 +274,7 @@ class FeedViewModel @Inject constructor(
         toggleHiddenStatus(data)
         
         val result = withContext(ioDispatcher) {
-            feedRepository.hideEvent(appPreferences.username, data)
+            feedRepository.hideEvent(appPreferences.getUsername(), data)
         }
         
         when (result.status) {
@@ -445,7 +294,7 @@ class FeedViewModel @Inject constructor(
         toggleHiddenStatus(data)
         
         val result = withContext(ioDispatcher) {
-            feedRepository.unhideEvent(appPreferences.username, data)
+            feedRepository.unhideEvent(appPreferences.getUsername(), data)
         }
         
         when (result.status) {
@@ -466,18 +315,6 @@ class FeedViewModel @Inject constructor(
         } catch (e: Exception) {
             errorFlow.emit(ResponseError.UNKNOWN)
             e.printStackTrace()
-        }
-    }
-    
-    fun clearError() {
-        viewModelScope.launch(defaultDispatcher) {
-            errorFlow.emit(null)
-        }
-    }
-    
-    private fun emitError(error: ResponseError?) {
-        viewModelScope.launch(defaultDispatcher) {
-            errorFlow.emit(error)
         }
     }
     

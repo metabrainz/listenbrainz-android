@@ -13,6 +13,7 @@ import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.AdditionalInfo
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.ListenTrackMetadata
+import org.listenbrainz.android.model.ListenType
 import org.listenbrainz.android.model.dao.PendingListensDao
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
@@ -55,7 +56,7 @@ class ListenSubmissionWorker @AssistedInject constructor(
         
         // Our listen to submit
         val listen = ListenSubmitBody.Payload(
-            timestamp = if(inputData.getString("TYPE") == "single") inputData.getLong(Constants.Strings.TIMESTAMP, 0) else null,
+            timestamp = if(inputData.getString("TYPE") == ListenType.SINGLE.code) inputData.getLong(Constants.Strings.TIMESTAMP, 0) else null,
             metadata = metadata
         )
     

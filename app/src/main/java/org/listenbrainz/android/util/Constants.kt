@@ -39,7 +39,7 @@ object Constants {
     
 }
 
-enum class LinkedService(code: String, packageName: String? = null) {
+enum class LinkedService(val code: String, val packageName: String? = null) {
     
     SPOTIFY("spotify", SPOTIFY_PACKAGE_NAME),
     CRITIQUEBRAINZ("critiquebrainz"),

@@ -20,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import okhttp3.*
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.android.model.ResponseError.Companion.getError
 import org.listenbrainz.android.util.Log.e
 import retrofit2.Response
 import java.io.*
@@ -32,12 +33,19 @@ import java.util.*
  */
 object Utils {
     
-    /** Get *CoverArtArchive* url for cover art of a release.
-     * @param size Allowed sizes are 250, 500, 750 and 1000. Default is 250.*/
-    fun getCoverArtUrl(caaReleaseMbid: String?, caaId: Long?, size: Int = 250): String? {
-        if (caaReleaseMbid == null || caaId == null) return null
-        return "https://archive.org/download/mbid-${caaReleaseMbid}/mbid-${caaReleaseMbid}-${caaId}_thumb${size}.jpg"
-    }
+    /** General function to parse an API endpoint's response.
+     * @param request Call the API endpoint here. Run any pre-conditional checks to directly return error/success in some cases. */
+    inline fun <T> parseResponse(request: () -> Response<T>): Resource<T> =
+        runCatching<Resource<T>> {
+            val response = request()
+            
+            return@runCatching if (response.isSuccessful) {
+                Resource.success(response.body()!!)
+            } else {
+                Resource.failure(error = getError(response = response))
+            }
+        
+        }.getOrElse { logAndReturn(it) }
     
     fun <T> logAndReturn(it: Throwable) : Resource<T> {
         it.printStackTrace()
@@ -46,6 +54,13 @@ object Utils {
             is IOException -> Resource.failure(error = ResponseError.NETWORK_ERROR)
             else -> Resource.failure(error = ResponseError.UNKNOWN)
         }
+    }
+    
+    /** Get *CoverArtArchive* url for cover art of a release.
+     * @param size Allowed sizes are 250, 500, 750 and 1000. Default is 250.*/
+    fun getCoverArtUrl(caaReleaseMbid: String?, caaId: Long?, size: Int = 250): String? {
+        if (caaReleaseMbid == null || caaId == null) return null
+        return "https://archive.org/download/mbid-${caaReleaseMbid}/mbid-${caaReleaseMbid}-${caaId}_thumb${size}.jpg"
     }
     
     fun similarityToPercent(similarity: Float?): String {
@@ -92,10 +107,6 @@ object Utils {
         val intent = Intent(Intent.ACTION_SENDTO, uri)
         intent.putExtra(Intent.EXTRA_SUBJECT, subject)
         return intent
-    }
-
-    fun roundDuration(duration: Long): Long {
-        return (duration / 1000) * 1000
     }
 
     fun getSHA1(context: Context, packageName: String): String? {

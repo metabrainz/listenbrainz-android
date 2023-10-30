@@ -1,5 +1,6 @@
-package org.listenbrainz.android.ui.screens.feed.dialogs
+package org.listenbrainz.android.ui.components.dialogs
 
+import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,45 +19,38 @@ fun rememberDialogsState(): DialogsState {
 
 class DialogsState(
     initialDialog: Dialog,
-    initialPage: Int? = null,
-    initialEventIndex: Int? = null
+    initialMetadata: Bundle? = null
 ) {
     
     /** True if any dialog is active.*/
     var currentDialog: Dialog by mutableStateOf(initialDialog)
         private set
     
-    var currentPage: Int? by mutableStateOf(initialPage)
-        private set
-    
-    var currentEventIndex: Int? by mutableStateOf(initialEventIndex)
+    var metadata: Bundle? by mutableStateOf(initialMetadata)
         private set
     
     fun activateDialog(
         dialog: Dialog,
-        page: Int,
-        eventIndex: Int
+        metadata: Bundle,
     ) {
         // Activation order is important!
-        currentEventIndex = eventIndex
-        currentPage = page
+        this.metadata = metadata
         currentDialog = dialog
     }
     
     fun deactivateDialog() {
         // Deactivation order is important!
         currentDialog = Dialog.NONE
-        currentPage = null
-        currentEventIndex = null
+        metadata = null
     }
     
     companion object {
-        class DialogsStateSaver : Saver<DialogsState, Triple<Int, Int?, Int?>> {
-            override fun restore(value: Triple<Int, Int?, Int?>): DialogsState
-                    = DialogsState(Dialog.getDialogFromOrdinal(value.first), value.second, value.third)
+        class DialogsStateSaver : Saver<DialogsState, Pair<Int, Bundle?>> {
+            override fun restore(value: Pair<Int, Bundle?>): DialogsState
+                    = DialogsState(Dialog.getDialogFromOrdinal(value.first), value.second)
         
-            override fun SaverScope.save(value: DialogsState): Triple<Int, Int?, Int?> {
-                return Triple(value.currentDialog.ordinal, value.currentPage, value.currentEventIndex)
+            override fun SaverScope.save(value: DialogsState): Pair<Int, Bundle?> {
+                return Pair(value.currentDialog.ordinal, value.metadata)
             }
         }
     }

@@ -11,7 +11,7 @@ import org.listenbrainz.android.repository.feed.FeedRepository
 import org.listenbrainz.android.util.Resource
 
 class FollowListensPagingSource(
-    private val username: () -> String?,
+    private val username: suspend () -> String,
     private val onError: (error: ResponseError?) -> Unit,
     private val feedRepository: FeedRepository,
     private val ioDispatcher: CoroutineDispatcher
@@ -24,7 +24,7 @@ class FollowListensPagingSource(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, FeedUiEventItem> {
         
         val username = username()
-        if (username.isNullOrEmpty()) {
+        if (username.isEmpty()) {
             val error = ResponseError.UNAUTHORISED.apply { actualResponse = "Login to access feed." }
             onError(ResponseError.UNAUTHORISED.apply { actualResponse = "Login to access feed." })
             return LoadResult.Error(Exception(error.toast()))
@@ -65,20 +65,25 @@ class FollowListensPagingSource(
         
     }
     
-    private fun processFeedEvents(similarListens: FeedData?): List<FeedUiEventItem> {
+    companion object {
         
-        return mutableListOf<FeedUiEventItem>().apply {
+        /** Converts [feedData] to list of [FeedUiEventItem] for presentation.*/
+        fun processFeedEvents(feedData: FeedData?): List<FeedUiEventItem> {
+        
+            return mutableListOf<FeedUiEventItem>().apply {
             
-            similarListens?.payload?.events?.forEach { event ->
-                add(
-                    FeedUiEventItem(
-                        event = event,
-                        eventType = FeedEventType.resolveEvent(event),
-                        parentUser = similarListens.payload.userId
+                feedData?.payload?.events?.forEach { event ->
+                    add(
+                        FeedUiEventItem(
+                            event = event,
+                            eventType = FeedEventType.resolveEvent(event),
+                            parentUser = feedData.payload.userId
+                        )
                     )
-                )
+                }
             }
         }
     }
+    
     
 }

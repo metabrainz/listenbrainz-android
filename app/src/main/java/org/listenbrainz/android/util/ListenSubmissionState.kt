@@ -128,13 +128,14 @@ class ListenSubmissionState(
     
     /** Run [artist] and [title] value-check before invoking this function.*/
     private fun setDurationAndCallbacks(metadata: MediaMetadata, onSubmit: (ListenType) -> Unit) {
-        duration =
-            roundDuration(duration = metadata.getLong(MediaMetadata.METADATA_KEY_DURATION) / 2L)
-                .coerceAtMost(240000)   // Since maximum time required to validate a listen as submittable listen is 4 minutes.
+        duration = metadata.getLong(MediaMetadata.METADATA_KEY_DURATION)
         timestamp = System.currentTimeMillis() / 1000
         
         // d(duration.toString())
-        timer.setDuration(duration)
+        timer.setDuration(
+            roundDuration(duration = duration / 2L)     // Since maximum time required to validate a listen as submittable listen is 4 minutes.
+                .coerceAtMost(240000)
+        )
         
         // Setting listener
         timer.setOnTimerListener(listener = object : OnTimerListener {
@@ -182,7 +183,7 @@ class ListenSubmissionState(
         val data = Data.Builder()
             .putString(MediaMetadata.METADATA_KEY_ARTIST, artist)
             .putString(MediaMetadata.METADATA_KEY_TITLE, title)
-            .putInt(MediaMetadata.METADATA_KEY_DURATION, (duration*2).toInt())
+            .putInt(MediaMetadata.METADATA_KEY_DURATION, duration.toInt())
             .putString(MediaMetadata.METADATA_KEY_WRITER, player)
             .putString(MediaMetadata.METADATA_KEY_ALBUM, releaseName)
             .putString("TYPE", listenType.code)

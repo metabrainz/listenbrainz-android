@@ -9,32 +9,56 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.PermissionChecker
 import androidx.core.content.PermissionChecker.checkSelfPermission
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.PermissionStatus
-import org.listenbrainz.android.model.UiModes
+import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.ui.screens.onboarding.FeaturesActivity
 import org.listenbrainz.android.util.Log.d
 import javax.inject.Inject
 
 @HiltViewModel
 class DashBoardViewModel @Inject constructor(
-    val appPreferences: AppPreferences,
-    private val application: Application
+    private val appPreferences: AppPreferences,
+    private val application: Application,
+    private val remotePlaybackHandler: RemotePlaybackHandler,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : AndroidViewModel(application) {
 
     // Sets Ui mode for XML layouts.
     fun setUiMode(){
-        when(appPreferences.themePreference){
-            UiModes.DARK_THEME.code -> AppCompatDelegate.setDefaultNightMode(
-                AppCompatDelegate.MODE_NIGHT_YES
-            )
-            UiModes.LIGHT_THEME.code -> AppCompatDelegate.setDefaultNightMode(
-                AppCompatDelegate.MODE_NIGHT_NO
-            )
-            else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        viewModelScope.launch {
+            when(withContext(ioDispatcher) {
+                appPreferences.themePreference()
+            } ){
+                UiMode.DARK -> AppCompatDelegate.setDefaultNightMode(
+                    AppCompatDelegate.MODE_NIGHT_YES
+                )
+                UiMode.LIGHT -> AppCompatDelegate.setDefaultNightMode(
+                    AppCompatDelegate.MODE_NIGHT_NO
+                )
+                else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            }
         }
     }
+    
+    suspend fun getPermissionsPreference(): String? =
+        withContext(ioDispatcher) {
+            appPreferences.permissionsPreference
+        }
+    
+    fun setPermissionsPreference(value: String?) =
+        viewModelScope.launch(ioDispatcher) {
+            appPreferences.permissionsPreference = value
+        }
+        
+    
     
     fun beginOnboarding(activity: ComponentActivity) {
         d("Onboarding status: ${appPreferences.onboardingCompleted}")
@@ -71,12 +95,12 @@ class DashBoardViewModel @Inject constructor(
                     checkSelfPermission(application.applicationContext, Manifest.permission.READ_MEDIA_IMAGES) == PermissionChecker.PERMISSION_GRANTED &&
                     checkSelfPermission(application.applicationContext, Manifest.permission.READ_MEDIA_AUDIO) == PermissionChecker.PERMISSION_GRANTED
                 ){
-                    appPreferences.permissionsPreference = PermissionStatus.GRANTED.name
+                    setPermissionsPreference(PermissionStatus.GRANTED.name)
                 }
             }
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
                 if (checkSelfPermission(application.applicationContext, Manifest.permission.READ_EXTERNAL_STORAGE) == PermissionChecker.PERMISSION_GRANTED) {
-                    appPreferences.permissionsPreference = PermissionStatus.GRANTED.name
+                    setPermissionsPreference(PermissionStatus.GRANTED.name)
                 }
             }
             else -> {
@@ -91,9 +115,29 @@ class DashBoardViewModel @Inject constructor(
                         }
                     }
                 ){
-                    appPreferences.permissionsPreference = PermissionStatus.GRANTED.name
+                    setPermissionsPreference(PermissionStatus.GRANTED.name)
                 }
             }
         }
+    }
+    
+    suspend fun isNotificationListenerServiceAllowed(): Boolean {
+        return withContext(ioDispatcher) {
+            appPreferences.isNotificationServiceAllowed
+                    && appPreferences.submitListens
+                    && appPreferences.getLbAccessToken().isNotEmpty()
+        }
+    }
+    
+    fun connectToSpotify() {
+        viewModelScope.launch {
+            remotePlaybackHandler.connectToSpotify {
+                // TODO: Propagate error to UI
+            }
+        }
+    }
+    
+    fun disconnectSpotify() {
+        viewModelScope.launch { remotePlaybackHandler.disconnectSpotify() }
     }
 }

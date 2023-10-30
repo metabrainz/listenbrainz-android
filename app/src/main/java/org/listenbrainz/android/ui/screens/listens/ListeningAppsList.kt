@@ -1,5 +1,8 @@
 package org.listenbrainz.android.ui.screens.listens
 
+import android.graphics.Canvas
+import android.graphics.ColorFilter
+import android.graphics.drawable.Drawable
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -25,11 +28,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,24 +37,24 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.Switch
+import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.android.util.Constants.SPOTIFY_PACKAGE_NAME
-import org.listenbrainz.android.viewmodel.ListensViewModel
 
 @Composable
 fun ListeningAppsList(
-    viewModel: ListensViewModel = hiltViewModel(),
+    preferencesUiState: PreferencesUiState,
+    fetchLinkedServices: () -> Unit,
+    getPackageIcon: (String) -> Drawable?,
+    getPackageLabel: (String) -> String,
+    setBlacklist: (List<String>) -> Unit,
     onDismiss: () -> Unit
 ){
-    var blacklist by remember { mutableStateOf(viewModel.appPreferences.listeningBlacklist) }
-    val isSpotifyLinked by viewModel.isSpotifyLinked.collectAsState()
-    val context = LocalContext.current
 
     LaunchedEffect(Unit){
-        viewModel.fetchLinkedServices()
+        fetchLinkedServices()
     }
     
     AlertDialog(
@@ -90,7 +88,7 @@ fun ListeningAppsList(
         },
         text = {
             LazyColumn {
-                items(items = viewModel.appPreferences.listeningApps){packageName ->
+                items(items = preferencesUiState.listeningApps){ packageName ->
                     
                     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
                         
@@ -108,18 +106,17 @@ fun ListeningAppsList(
                                         .fillMaxWidth(0.15f)
                                         .padding(end = 5.dp),
                                     painter = rememberDrawablePainter(
-                                        drawable = viewModel.repository.getPackageIcon(packageName)
-                                            ?: AppCompatResources.getDrawable(
-                                                context,
-                                                R.drawable.music_regular
-                                            )
+                                        drawable = getPackageIcon(packageName) ?: AppCompatResources.getDrawable(
+                                            LocalContext.current,
+                                            R.drawable.music_regular
+                                        )
                                     ),
                                     contentDescription = null
                                 )
             
                                 Text(
                                     modifier = Modifier.fillMaxWidth(0.85f),
-                                    text = viewModel.repository.getPackageLabel(packageName),
+                                    text = getPackageLabel(packageName),
                                     color = MaterialTheme.colorScheme.onSurface,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
@@ -129,16 +126,12 @@ fun ListeningAppsList(
                                 modifier = Modifier
                                     .fillMaxWidth(0.15f)
                                     .align(Alignment.CenterEnd),
-                                checked = packageName !in blacklist,
+                                checked = packageName !in preferencesUiState.listeningBlacklist,
                                 onCheckedChange = { isChecked ->
                                     if (!isChecked) {
-                                        viewModel.appPreferences.listeningBlacklist =
-                                            blacklist + packageName
-                                        blacklist = blacklist + packageName
+                                        setBlacklist(preferencesUiState.listeningBlacklist.toMutableList() + packageName)
                                     } else {
-                                        viewModel.appPreferences.listeningBlacklist =
-                                            blacklist - packageName
-                                        blacklist = blacklist - packageName
+                                        setBlacklist(preferencesUiState.listeningBlacklist.toMutableList() - packageName)
                                     }
                 
                                 },
@@ -146,7 +139,7 @@ fun ListeningAppsList(
                         }
     
                         // Warning for spotify.
-                        AnimatedVisibility (visible = packageName == SPOTIFY_PACKAGE_NAME && isSpotifyLinked){
+                        AnimatedVisibility (visible = packageName == SPOTIFY_PACKAGE_NAME && preferencesUiState.isSpotifyLinked){
                             
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -178,5 +171,29 @@ fun ListeningAppsList(
 @Preview
 @Composable
 fun ListeningAppsListPreview(){
-    ListeningAppsList {}
+    ListeningAppsList(
+        PreferencesUiState(),
+        {},
+        {
+            object : Drawable() {
+                override fun draw(canvas: Canvas) {
+                    TODO("Not yet implemented")
+                }
+    
+                override fun setAlpha(alpha: Int) {
+                    TODO("Not yet implemented")
+                }
+    
+                override fun setColorFilter(colorFilter: ColorFilter?) {
+                    TODO("Not yet implemented")
+                }
+    
+                override fun getOpacity(): Int {
+                    TODO("Not yet implemented")
+                }
+    
+            } },
+        { "Package Label" },
+        {}
+    ){}
 }

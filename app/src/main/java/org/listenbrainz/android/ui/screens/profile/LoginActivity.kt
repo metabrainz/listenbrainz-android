@@ -23,9 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.ViewModelProvider
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils.getActivity
 import org.listenbrainz.android.viewmodel.ListensViewModel
@@ -84,14 +82,10 @@ fun ListenBrainzLogin(viewModel: ListensViewModel) {
                 webViewClient = ListenBrainzWebClient { token ->
                     // Token is not null or empty.
                     coroutineScope.launch {
-                        viewModel.appPreferences.setLbAccessToken(token)
-                        withContext(Dispatchers.IO){
-                            viewModel.appPreferences.username = viewModel.retrieveUsername(token)
-                        }
+                        viewModel.saveUserDetails(token)
                         activity?.finish()
                     }
                 }
-                
                 clearCookies()
                 settings.javaScriptEnabled = true
                 setLayerType(View.LAYER_TYPE_HARDWARE, null)

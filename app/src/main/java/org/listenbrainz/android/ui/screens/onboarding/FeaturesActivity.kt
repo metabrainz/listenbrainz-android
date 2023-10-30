@@ -9,15 +9,16 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.limurse.onboard.OnboardAdvanced
 import com.limurse.onboard.OnboardFragment
 import com.limurse.onboard.OnboardPageTransformerType
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
 import org.listenbrainz.android.ui.screens.profile.LoginActivity
-import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.viewmodel.FeaturesViewModel
 import javax.inject.Inject
@@ -135,10 +136,16 @@ class FeaturesActivity : OnboardAdvanced() {
 
     override fun onResume() {
         super.onResume()
-        if (featuresViewModel.appPreferences.onboardingCompleted && featuresViewModel.loginStatus() == Constants.Strings.STATUS_LOGGED_IN) {
-            val intent = Intent(this, DashboardActivity::class.java)
-            startActivity(intent)
-            finish()
+        lifecycleScope.launch {
+            if (
+                featuresViewModel.appPreferences.onboardingCompleted &&
+                featuresViewModel.appPreferences.isUserLoggedIn()
+            ) {
+                val intent = Intent(this@FeaturesActivity, DashboardActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
         }
+        
     }
 }
