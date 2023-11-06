@@ -14,10 +14,6 @@ object Constants {
     const val LISTENBRAINZ_API_BASE_URL = "https://api.listenbrainz.org/1/"
     const val ONBOARDING = "onboarding_lb"
     const val ABOUT_URL = "https://listenbrainz.org/about"
-    
-    object Headers {
-        const val AUTHORIZATION = "Authorization"
-    }
 
     object Strings {
         const val TIMESTAMP = "timestamp"
@@ -35,6 +31,11 @@ object Constants {
         const val REFRESH_TOKEN = "refresh_token"
         const val STATUS_LOGGED_IN = 1
         const val STATUS_LOGGED_OUT = 0
+
+        const val CHANNEL_NOTI_SCROBBLING = "noti_scrobbling"
+        const val CHANNEL_NOTI_SCR_ERR = "noti_scrobble_errors"
+        const val CHANNEL_NOTI_NEW_APP = "noti_new_app"
+        const val CHANNEL_NOTI_PENDING = "noti_pending_scrobbles"
     }
     
 }

@@ -1,5 +1,7 @@
 package org.listenbrainz.android.ui.screens.dashboard
 
+import android.app.ActivityManager
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -26,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.PermissionStatus
+import org.listenbrainz.android.service.ListenScrobbleService
 import org.listenbrainz.android.ui.components.DialogLB
 import org.listenbrainz.android.ui.navigation.AppNavigation
 import org.listenbrainz.android.ui.navigation.BottomNavigationBar
@@ -194,9 +197,21 @@ class DashboardActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         lifecycleScope.launch(Dispatchers.Main) {
-            if(dashBoardViewModel.isNotificationListenerServiceAllowed()) {
-                App.startListenService()
+            if (dashBoardViewModel.isNotificationListenerServiceAllowed()) {
+                if (!isServiceRunning(ListenScrobbleService::class.java)) {
+                    App.startListenService()
+                }
             }
         }
+    }
+
+    private fun isServiceRunning(serviceClass: Class<*>): Boolean {
+        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                return true
+            }
+        }
+        return false
     }
 }
