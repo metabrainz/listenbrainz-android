@@ -43,6 +43,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -280,7 +281,11 @@ fun SettingsScreen(
                                     it,
                                     BuildConfig.APPLICATION_ID
                                 )?.let { intent ->
-                                    intent.putExtra(Intent.EXTRA_SUBJECT, "Log File")
+                                    intent.putExtra(Intent.EXTRA_SUBJECT, "Log Files")
+                                    intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("android@metabrainz.org"))
+                                    intent.putExtra(Intent.EXTRA_TEXT, "Please find the attached log files.")
+                                    intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, "${BuildConfig.APPLICATION_ID}.provider", zipFile))
+                                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                                     try {
                                         context.startActivity(Intent.createChooser(intent, "Email logs..."))
                                     } catch (e: java.lang.Exception) {
