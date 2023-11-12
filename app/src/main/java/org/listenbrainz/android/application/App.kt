@@ -11,6 +11,8 @@ import androidx.hilt.work.HiltWorkerFactory
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.Configuration
+import com.limurse.logger.Logger
+import com.limurse.logger.config.Config
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -32,6 +34,15 @@ class App : Application(), Configuration.Provider {
 
     override fun onCreate() {
         super.onCreate()
+        val logDirectory = applicationContext.getExternalFilesDir(null)?.path.orEmpty()
+        val config = Config.Builder(logDirectory)
+            .setDefaultTag(Constants.TAG)
+            .setLogcatEnable(true)
+            .setDataFormatterPattern("dd-MM-yyyy-HH:mm:ss")
+            .setStartupData(collectStartupData())
+            .build()
+
+        Logger.init(config)
 
         if (BuildConfig.DEBUG) {
             enableStrictMode()
@@ -51,6 +62,17 @@ class App : Application(), Configuration.Provider {
 
         createChannels()
     }
+
+    private fun collectStartupData(): Map<String, String> = mapOf(
+        "App Version" to System.currentTimeMillis().toString(),
+        "Device Application Id" to BuildConfig.APPLICATION_ID,
+        "Device Version Code" to BuildConfig.VERSION_CODE.toString(),
+        "Device Version Name" to BuildConfig.VERSION_NAME,
+        "Device Build Type" to BuildConfig.BUILD_TYPE,
+        "Device" to Build.DEVICE,
+        "Device SDK" to Build.VERSION.SDK_INT.toString(),
+        "Device Manufacturer" to Build.MANUFACTURER
+    )
 
     private fun createChannels() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)

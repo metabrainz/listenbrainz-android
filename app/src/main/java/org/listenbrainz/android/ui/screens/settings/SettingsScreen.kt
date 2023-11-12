@@ -46,7 +46,10 @@ import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
+import com.limurse.logger.Logger
+import com.limurse.logger.util.FileIntent
 import kotlinx.coroutines.launch
+import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.ui.components.Switch
@@ -260,6 +263,57 @@ fun SettingsScreen(
                     darkThemeCheckedState.value = it
                 },
             )
+        }
+
+        Divider(thickness = 1.dp)
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp)
+                .clickable {
+                    Logger.apply {
+                        compressLogsInZipFile { zipFile ->
+                            zipFile?.let {
+                                FileIntent.fromFile(
+                                    context,
+                                    it,
+                                    BuildConfig.APPLICATION_ID
+                                )?.let { intent ->
+                                    intent.putExtra(Intent.EXTRA_SUBJECT, "Log File")
+                                    try {
+                                        context.startActivity(Intent.createChooser(intent, "Email logs..."))
+                                    } catch (e: java.lang.Exception) {
+                                        e(throwable = e)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(
+                    text = "Report an issue",
+                    color = when {
+                        viewModel.appPreferences.isNotificationServiceAllowed -> MaterialTheme.colorScheme.onSurface
+                        else -> Color(0xFF949494)
+                    }
+                )
+
+                Text(
+                    text = "Submit app logs for further investigation",
+                    lineHeight = 18.sp,
+                    fontSize = 12.sp,
+                    color = Color(0xFF949494),
+                    modifier = Modifier
+                        .padding(top = 6.dp)
+                        .width(240.dp)
+                )
+            }
         }
 
         Divider(thickness = 1.dp)
