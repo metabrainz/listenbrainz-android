@@ -56,7 +56,10 @@ class ListenSubmissionWorker @AssistedInject constructor(
         
         // Our listen to submit
         val listen = ListenSubmitBody.Payload(
-            timestamp = if(inputData.getString("TYPE") == ListenType.SINGLE.code) inputData.getLong(Constants.Strings.TIMESTAMP, 0) else null,
+            timestamp = when (ListenType.SINGLE.code) {
+                inputData.getString("TYPE") -> inputData.getLong(Constants.Strings.TIMESTAMP, 0)
+                else -> null
+            },
             metadata = metadata
         )
     
@@ -69,45 +72,51 @@ class ListenSubmissionWorker @AssistedInject constructor(
             repository.submitListen(token, body)
         }
         
-        return if (response.status == Resource.Status.SUCCESS){
-            d("Listen submitted.")
-            
-            // Means conditions are met. Work manager automatically manages internet state.
-            val pendingListens = pendingListensDao.getPendingListens()
-            
-            if (pendingListens.isNotEmpty()) {
-                
-                val submission = withContext(Dispatchers.IO){
-                    repository.submitListen(
-                        token,
-                        ListenSubmitBody().apply {
-                            listenType = "import"
-                            addListens(listensList = pendingListens)
+        return when (response.status) {
+            Resource.Status.SUCCESS -> {
+                d("Listen submitted.")
+
+                // Means conditions are met. Work manager automatically manages internet state.
+                val pendingListens = pendingListensDao.getPendingListens()
+
+                if (pendingListens.isNotEmpty()) {
+
+                    val submission = withContext(Dispatchers.IO){
+                        repository.submitListen(
+                            token,
+                            ListenSubmitBody().apply {
+                                listenType = "import"
+                                addListens(listensList = pendingListens)
+                            }
+
+                        )
+                    }
+
+                    when (submission.status) {
+                        Resource.Status.SUCCESS -> {
+                            // Empty all pending listens.
+                            d("Pending listens submitted.")
+                            pendingListensDao.deleteAllPendingListens()
                         }
-                        
-                    )
+                        else -> {
+                            w("Could not submit pending listens.")
+                        }
+                    }
                 }
-    
-                if (submission.status == Resource.Status.SUCCESS){
-                    // Empty all pending listens.
-                    d("Pending listens submitted.")
-                    pendingListensDao.deleteAllPendingListens()
-                } else {
-                    w("Could not submit pending listens.")
+
+                Result.success()
+
+            }
+            else -> {
+                // In case of failure, we add this listen to pending list.
+                if (inputData.getString("TYPE") == "single"){
+                    // We don't want to submit playing nows later.
+                    d("Submission failed, listen saved.")
+                    pendingListensDao.addListen(listen)
                 }
+
+                Result.failure()
             }
-            
-            Result.success()
-            
-        } else {
-            // In case of failure, we add this listen to pending list.
-            if (inputData.getString("TYPE") == "single"){
-                // We don't want to submit playing nows later.
-                d("Submission failed, listen saved.")
-                pendingListensDao.addListen(listen)
-            }
-            
-            Result.failure()
         }
     }
 }

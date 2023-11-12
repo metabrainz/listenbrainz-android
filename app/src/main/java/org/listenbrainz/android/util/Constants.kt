@@ -36,6 +36,7 @@ object Constants {
         const val CHANNEL_NOTI_SCR_ERR = "noti_scrobble_errors"
         const val CHANNEL_NOTI_NEW_APP = "noti_new_app"
         const val CHANNEL_NOTI_PENDING = "noti_pending_scrobbles"
+        const val CHANNEL_ID = "listen_scrobble_channel"
     }
     
 }

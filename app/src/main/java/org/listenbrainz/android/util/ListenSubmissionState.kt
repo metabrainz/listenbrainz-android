@@ -11,7 +11,6 @@ import com.dariobrux.kotimer.interfaces.OnTimerListener
 import org.listenbrainz.android.model.ListenType
 import org.listenbrainz.android.service.ListenSubmissionWorker
 
-
 class ListenSubmissionState(
     private var artist: String? = null,
     private var title: String? = null,
