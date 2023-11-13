@@ -282,7 +282,7 @@ fun SettingsScreen(
                                     BuildConfig.APPLICATION_ID
                                 )?.let { intent ->
                                     intent.putExtra(Intent.EXTRA_SUBJECT, "Log Files")
-                                    intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("android@metabrainz.org"))
+                                    intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("mobile@metabrainz.org"))
                                     intent.putExtra(Intent.EXTRA_TEXT, "Please find the attached log files.")
                                     intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, "${BuildConfig.APPLICATION_ID}.provider", zipFile))
                                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
