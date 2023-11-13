@@ -26,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.PermissionStatus
+import org.listenbrainz.android.service.ListenScrobbleService
 import org.listenbrainz.android.ui.components.DialogLB
 import org.listenbrainz.android.ui.navigation.AppNavigation
 import org.listenbrainz.android.ui.navigation.BottomNavigationBar
@@ -34,6 +35,7 @@ import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScre
 import org.listenbrainz.android.ui.screens.search.SearchScreen
 import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.Utils.isServiceRunning
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
 @AndroidEntryPoint
@@ -194,8 +196,10 @@ class DashboardActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         lifecycleScope.launch(Dispatchers.Main) {
-            if(dashBoardViewModel.isNotificationListenerServiceAllowed()) {
-                App.startListenService()
+            if (dashBoardViewModel.isNotificationListenerServiceAllowed()) {
+                if (!isServiceRunning(ListenScrobbleService::class.java)) {
+                    App.startListenService()
+                }
             }
         }
     }

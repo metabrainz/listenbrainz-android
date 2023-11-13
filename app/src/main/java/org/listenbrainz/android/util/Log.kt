@@ -1,24 +1,18 @@
 package org.listenbrainz.android.util
 
-import android.util.Log
+import com.limurse.logger.Logger
 
 object Log {
 
-    private const val TAG = Constants.TAG
-
     fun e(message: String) {
-        Log.e(TAG, message)
+        Logger.e(msg =  message)
     }
 
     fun d(message: String) {
-        Log.d(TAG, message)
-    }
-
-    fun v(message: String) {
-        Log.v(TAG, message)
+        Logger.d(msg = message)
     }
     
     fun w(message: String) {
-        Log.w(TAG, message)
+        Logger.w(msg = message)
     }
 }

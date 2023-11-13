@@ -15,9 +15,11 @@ import org.listenbrainz.android.util.Log.d
 class ListenSessionListener(val appPreferences: AppPreferences, val workManager: WorkManager, private val serviceScope: CoroutineScope) : OnActiveSessionsChangedListener {
     
     private val activeSessions: MutableMap<MediaController, ListenCallback?> = HashMap()
+    private var controllers: List<MediaController>? = null
 
     @Synchronized
     override fun onActiveSessionsChanged(controllers: List<MediaController>?) {
+        this.controllers = controllers
         d("onActiveSessionsChanged: EXECUTED")
         if (controllers == null) return
         clearSessions()
@@ -59,6 +61,13 @@ class ListenSessionListener(val appPreferences: AppPreferences, val workManager:
         }
         activeSessions.clear()
     }
+
+    fun isMediaPlaying() =
+        controllers?.any {
+            it.playbackState?.state == PlaybackState.STATE_PLAYING &&
+                    !it.metadata?.getString(MediaMetadata.METADATA_KEY_ARTIST).isNullOrEmpty() &&
+                    !it.metadata?.getString(MediaMetadata.METADATA_KEY_TITLE).isNullOrEmpty()
+        } ?: false
 
     private inner class ListenCallback(private val player: String) : MediaController.Callback() {
         val listenSubmissionState: ListenSubmissionState = ListenSubmissionState()
