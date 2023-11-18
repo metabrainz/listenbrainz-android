@@ -10,6 +10,8 @@ import com.dariobrux.kotimer.Timer
 import com.dariobrux.kotimer.interfaces.OnTimerListener
 import org.listenbrainz.android.model.ListenType
 import org.listenbrainz.android.service.ListenSubmissionWorker
+import org.listenbrainz.android.util.Log.d
+import org.listenbrainz.android.util.Log.w
 
 class ListenSubmissionState(
     private var artist: String? = null,
@@ -37,15 +39,15 @@ class ListenSubmissionState(
         timer.stop()
         
         when {
-            state != null -> Log.d("onMetadataChanged: Listen Metadata $state")
-            else -> Log.d("onMetadataChanged: Listen Metadata")
+            state != null -> d("onMetadataChanged: Listen Metadata $state")
+            else -> d("onMetadataChanged: Listen Metadata")
         }
     
         setArtist(metadata)
         setTitle(metadata)
     
         if (isMetadataFaulty()) {
-            Log.w("${if (artist == null) "Artist" else "Title"} is null, listen cancelled.")
+            w("${if (artist == null) "Artist" else "Title"} is null, listen cancelled.")
             return
         }
     
@@ -61,7 +63,7 @@ class ListenSubmissionState(
         if (state == null) return
         
         this.state = state
-        Log.d("onPlaybackStateChanged: Listen PlaybackState " + state.state)
+        d("onPlaybackStateChanged: Listen PlaybackState " + state.state)
     
         if (isDurationUndefined() || submitted) return
     
@@ -144,7 +146,7 @@ class ListenSubmissionState(
             }
             
             override fun onTimerPaused(remainingMillis: Long) {
-                Log.d("${remainingMillis / 1000} seconds left to submit listen.")
+                d("${remainingMillis / 1000} seconds left to submit listen.")
             }
             
             override fun onTimerRun(milliseconds: Long) {}
@@ -158,11 +160,11 @@ class ListenSubmissionState(
             override fun onTimerStopped() {}
             
         }, callbacksOnMainThread = true)
-        Log.d("Listener Set")
+        d("Listener Set")
     }
     
     private fun resetMetadata() {
-        Log.d("Metadata Reset")
+        d("Metadata Reset")
         artist = null
         title = null
         timestamp = 0

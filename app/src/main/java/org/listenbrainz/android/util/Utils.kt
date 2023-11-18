@@ -159,7 +159,7 @@ object Utils {
         try {
             nm.notify(0, notificationBuilder.build())
         } catch (e: RuntimeException) {
-            e("Error showing notification")
+            e(message = "Error showing notification")
         }
     }
 
@@ -219,7 +219,7 @@ object Utils {
             input.close()
             output.toString()
         } catch (e: IOException) {
-            e("Error reading text file from assets folder.")
+            e(message = "Error reading text file from assets folder.")
             ""
         }
     }
@@ -320,9 +320,9 @@ object Utils {
                 
                 if (!appImagesFolder.exists()) {
                     if (appImagesFolder.mkdirs())        // Making sure folder exists.
-                        Log.e("saveBitmap", "Successfully created app directory.")
+                        e("saveBitmap", "Successfully created app directory.")
                     else
-                        Log.e("saveBitmap", "Failed to create a directory.", )
+                        e("saveBitmap", "Failed to create a directory.", )
                 }
                 
                 val f = File(imagePath)
@@ -352,6 +352,5 @@ object Utils {
         }
         
         return resultUrl
-        
     }
 }
