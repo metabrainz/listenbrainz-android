@@ -17,7 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.repository.preferences.AppPreferences
-import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
+import org.listenbrainz.android.ui.screens.main.MainActivity
 import org.listenbrainz.android.ui.screens.profile.LoginActivity
 import org.listenbrainz.android.util.Log.d
 import org.listenbrainz.android.viewmodel.FeaturesViewModel
@@ -31,8 +31,7 @@ class FeaturesActivity : OnboardAdvanced() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-
+        
         showSignInButton = true
         isWizardMode = true
 
@@ -108,7 +107,7 @@ class FeaturesActivity : OnboardAdvanced() {
         super.onDonePressed(currentFragment)
         d("Onboarding completed")
         appPreferences.onboardingCompleted = true
-        val intent = Intent(this, DashboardActivity::class.java)
+        val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish()
     }
@@ -141,7 +140,7 @@ class FeaturesActivity : OnboardAdvanced() {
                 featuresViewModel.appPreferences.onboardingCompleted &&
                 featuresViewModel.appPreferences.isUserLoggedIn()
             ) {
-                val intent = Intent(this@FeaturesActivity, DashboardActivity::class.java)
+                val intent = Intent(this@FeaturesActivity, MainActivity::class.java)
                 startActivity(intent)
                 finish()
             }

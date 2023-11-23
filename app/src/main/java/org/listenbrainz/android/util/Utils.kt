@@ -17,7 +17,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
@@ -28,7 +28,6 @@ import okhttp3.*
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.ResponseError.Companion.getError
-import org.listenbrainz.android.service.ListenScrobbleService
 import org.listenbrainz.android.util.Constants.Strings.CHANNEL_ID
 import org.listenbrainz.android.util.Log.e
 import retrofit2.Response
@@ -51,7 +50,9 @@ object Utils {
             return@runCatching if (response.isSuccessful) {
                 Resource.success(response.body()!!)
             } else {
-                Resource.failure(error = getError(response = response))
+                val error = getError(response = response)
+                Log.w(error.name + ": " + error.actualResponse)
+                Resource.failure(error = error)
             }
         
         }.getOrElse { logAndReturn(it) }
@@ -143,7 +144,15 @@ object Utils {
         }
         return false
     }
-
+    
+    fun Context.openAppSystemSettings() {
+        startActivity(Intent().apply {
+            action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+            data = Uri.fromParts("package", packageName, null)
+        })
+    }
+    
+    
     fun notifyScrobble(songTitle: String, artistName: String, albumArt: Bitmap?, nm: NotificationManager, context: Context) {
         val notificationBuilder = NotificationCompat.Builder(context,
             CHANNEL_ID

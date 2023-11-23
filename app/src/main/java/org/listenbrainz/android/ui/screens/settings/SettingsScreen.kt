@@ -54,8 +54,8 @@ import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.ui.components.Switch
-import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
-import org.listenbrainz.android.ui.screens.dashboard.DonateActivity
+import org.listenbrainz.android.ui.screens.main.MainActivity
+import org.listenbrainz.android.ui.screens.main.DonateActivity
 import org.listenbrainz.android.ui.screens.listens.ListeningAppsList
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
@@ -244,7 +244,7 @@ fun SettingsScreen(
             Switch(
                 checked = darkThemeCheckedState.value,
                 onCheckedChange = {
-                    val intent = Intent(context, DashboardActivity::class.java)
+                    val intent = Intent(context, MainActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     when (darkTheme) {
                         false -> {

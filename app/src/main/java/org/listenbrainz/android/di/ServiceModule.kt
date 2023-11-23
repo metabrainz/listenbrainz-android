@@ -12,7 +12,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import org.listenbrainz.android.model.yimdata.YimData
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.BlogService
@@ -41,7 +40,7 @@ class ServiceModule {
                 okHttpClient
                     .newBuilder()
                     .addInterceptor(HeaderInterceptor(appPreferences))
-                    .addInterceptor (HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS))
+                    //.addInterceptor (HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS))
                     .build()
             )
             .baseUrl(LISTENBRAINZ_API_BASE_URL)

@@ -79,7 +79,7 @@
             android:name=".ui.screens.onboarding.FeaturesActivity"
             android:theme="@style/Theme.Material3.DayNight.NoActionBar" />
         <activity
-            android:name=".ui.screens.dashboard.DashboardActivity"
+            android:name=".ui.screens.main.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -88,7 +88,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.screens.dashboard.DonateActivity"
+            android:name=".ui.screens.main.DonateActivity"
             android:label="@string/donate_title"
             android:theme="@style/AppTheme"/>
 

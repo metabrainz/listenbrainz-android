@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.dashboard
+package org.listenbrainz.android.ui.screens.main
 
 import android.net.Uri
 import android.os.Bundle
