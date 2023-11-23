@@ -3,7 +3,6 @@ package org.listenbrainz.android.service
 import android.content.ComponentName
 import android.content.Context
 import android.media.MediaMetadata
-import android.media.session.PlaybackState
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
@@ -14,6 +13,7 @@ import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.work.WorkManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlaying
@@ -82,7 +82,7 @@ class BrainzPlayerServiceConnection(
     ) : MediaBrowserCompat.ConnectionCallback() {
         override fun onConnected() {
             mediaController = MediaControllerCompat(context, mediaBrowser.sessionToken).apply {
-                registerCallback(MediaControllerCallback())
+                registerCallback(MediaControllerCallback(context))
             }
             _isConnected.value = Resource(Resource.Status.SUCCESS, true)
         }
@@ -95,8 +95,8 @@ class BrainzPlayerServiceConnection(
             _isConnected.value = Resource(Resource.Status.FAILED, false)
         }
     }
-    private inner class MediaControllerCallback : MediaControllerCompat.Callback() {
-        val listen: ListenSubmissionState = ListenSubmissionState()
+    private inner class MediaControllerCallback(context: Context) : MediaControllerCompat.Callback() {
+        val listenSubmissionState: ListenSubmissionState = ListenSubmissionState(workManager, context)
     
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             _playbackState.value = state ?: EMPTY_PLAYBACK_STATE
@@ -113,7 +113,7 @@ class BrainzPlayerServiceConnection(
             // Cutout point for normal bp and bp submitter
             if (appPreferences.isNotificationServiceAllowed) return
         
-            listen.toggleTimer(state?.playbackState as PlaybackState)
+            listenSubmissionState.alertPlaybackStateChanged()
         
         }
     
@@ -149,12 +149,7 @@ class BrainzPlayerServiceConnection(
         
             val metadata = metadataCompat?.mediaMetadata as MediaMetadata
         
-            listen.initSubmissionFlow(metadata) {
-                // Submit a listen.
-                workManager.enqueue(
-                    listen.buildWorkRequest(listenType = it, player = "ListenBrainz Android")
-                )
-            }
+            listenSubmissionState.onControllerCallback(metadata, BuildConfig.APPLICATION_ID)
         
         }
     
