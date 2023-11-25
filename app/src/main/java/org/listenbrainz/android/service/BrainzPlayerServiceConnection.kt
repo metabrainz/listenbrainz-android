@@ -14,6 +14,7 @@ import androidx.work.WorkManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.listenbrainz.android.BuildConfig
+import org.listenbrainz.android.model.PlayingTrack.Companion.toPlayingTrack
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlaying
@@ -148,8 +149,8 @@ class BrainzPlayerServiceConnection(
             if (appPreferences.isNotificationServiceAllowed) return
         
             val metadata = metadataCompat?.mediaMetadata as MediaMetadata
-        
-            listenSubmissionState.onControllerCallback(metadata, BuildConfig.APPLICATION_ID)
+            
+            listenSubmissionState.onControllerCallback(metadata.toPlayingTrack(BuildConfig.APPLICATION_ID))
         
         }
     

@@ -18,6 +18,7 @@ import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.ListenTrackMetadata
 import org.listenbrainz.android.model.ListenType
 import org.listenbrainz.android.model.PlayingTrack
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.dao.PendingListensDao
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
@@ -115,9 +116,13 @@ class ListenSubmissionWorker @AssistedInject constructor(
             else -> {
                 // In case of failure, we add this listen to pending list.
                 if (inputData.getString("TYPE") == "single"){
-                    // We don't want to submit playing nows later.
-                    d("Submission failed, listen saved.")
-                    pendingListensDao.addListen(listen)
+                    if (response.error?.ordinal == ResponseError.BAD_REQUEST.ordinal) {
+                        d("Submission failed, not saving listen because metadata is faulty.")
+                    } else {
+                        // We don't want to submit playing nows later.
+                        d("Submission failed, listen saved.")
+                        pendingListensDao.addListen(listen)
+                    }
                 }
 
                 Result.failure()

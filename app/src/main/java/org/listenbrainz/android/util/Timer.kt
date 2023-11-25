@@ -1,13 +1,15 @@
 package org.listenbrainz.android.util
 
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import org.listenbrainz.android.model.OnTimerListener
 import org.listenbrainz.android.model.Status
 import java.util.Timer
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.concurrent.fixedRateTimer
 
-class Timer {
+class Timer(private val isDaemon: Boolean = false) {
     
     private val handler: Handler by lazy { Handler(Looper.getMainLooper()) }
     
@@ -16,18 +18,13 @@ class Timer {
     private var listener: OnTimerListener? = null
     
     private var initialTimerDuration = 0L
-    private var currentDuration = 0L
+    private var currentDuration: AtomicLong = AtomicLong(0)
     private var startDelay = 0L
-    private var isDaemon = false
     private var callbacksOnMainThread = false
     
     fun setDuration(duration: Long) {
         initialTimerDuration = duration
-        currentDuration = duration
-    }
-    
-    fun setIsDaemon(isDaemon: Boolean) {
-        this.isDaemon = isDaemon
+        currentDuration.set(duration)
     }
     
     fun setStartDelay(delay: Long) {
@@ -47,7 +44,7 @@ class Timer {
         
         // When the status is end or stop I must reinitialize the duration to initial duration.
         if (status == Status.END || status == Status.STOP) {
-            currentDuration = initialTimerDuration
+            currentDuration.set(initialTimerDuration)
             status = null
         }
         
@@ -64,10 +61,16 @@ class Timer {
         
         timer = fixedRateTimer("timer", isDaemon, delay, 1000) {
             
-            currentDuration -= 1_000
-            
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                currentDuration.getAndUpdate {
+                    it - 1_000
+                }
+            } else {
+                currentDuration.addAndGet(-1_000)
+            }
+    
             // When I arrive to -1 it means that all the milliseconds at 0 seconds are passed.
-            if (currentDuration <= -1_000L) {
+            if (currentDuration.get() <= -1_000L) {
                 end()
                 return@fixedRateTimer
             }
@@ -81,7 +84,7 @@ class Timer {
             status = Status.RUN
             
             execute {
-                listener?.onTimerRun(currentDuration)
+                listener?.onTimerRun(currentDuration.get())
             }
         }
     }
@@ -118,8 +121,15 @@ class Timer {
         }
     }
     
-    fun extendDuration(seconds: Long) {
-        currentDuration += seconds
+    fun extendDuration(extensionSeconds: (passedSeconds: Long) -> Long) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            currentDuration.getAndUpdate {
+                extensionSeconds(initialTimerDuration - it)
+            }
+        } else {
+            currentDuration.addAndGet(extensionSeconds(initialTimerDuration - currentDuration.get()))
+        }
+        
     }
     
     fun pause() {
@@ -132,7 +142,7 @@ class Timer {
             purge()
         }
         execute {
-            listener?.onTimerPaused(currentDuration)
+            listener?.onTimerPaused(currentDuration.get())
         }
     }
     
@@ -142,6 +152,6 @@ class Timer {
             purge()
         }
         timer = null
-        currentDuration = 0
+        currentDuration.set(0)
     }
 }

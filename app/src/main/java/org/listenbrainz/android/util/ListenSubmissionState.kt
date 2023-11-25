@@ -34,92 +34,107 @@ class ListenSubmissionState(
      * playing track AND current playing track's metadata has been derived from **Listen Callback**.
      * @param onTrackIsSimilarNotificationTrack lambda to run when the new track is similar to current
      * playing track AND current playing track's metadata has been derived from **onNotificationPosted**.*/
-    private fun updatePlayingTrack(
-        newTrack: PlayingTrack,
+    private fun PlayingTrack.updatePlayingTrack(
         onTrackIsOutdated: (newTrack: PlayingTrack) -> Unit,
         onTrackIsSimilarNotificationTrack: (newTrack: PlayingTrack) -> Unit,
         onTrackIsSimilarCallbackTrack: (newTrack: PlayingTrack) -> Unit,
     ) {
-        if (playingTrack.isNothing() || !playingTrack.isSimilarTo(newTrack)) {
-    
-            // Before Metadata set
-            timer.stop()
-            playingTrack.reset()
-        
-            onTrackIsOutdated(newTrack)
+        if (playingTrack.isNothing() || playingTrack.isOutdated(this)) {
             
-            // After metadata set
-            if (isMetadataFaulty()) {
-                w("${if (playingTrack.artist == null) "Artist" else "Title"} is null, listen cancelled.")
-                return
-            }
-    
-            initTimer()
+            onTrackIsOutdated(this)
             
         } else if (playingTrack.isNotificationTrack()) {
             // This means only onPostedNotification's metadata has arrived and callback is late.
             // Timer is already started but we need to update its duration.
             
-            onTrackIsSimilarNotificationTrack(newTrack)
+            onTrackIsSimilarNotificationTrack(this)
         } else if (playingTrack.isCallbackTrack()) {
             // Track is callback track.
             
-            onTrackIsSimilarCallbackTrack(newTrack)
+            onTrackIsSimilarCallbackTrack(this)
         }
         
     }
+    
+    private fun beforeMetadataSet() {
+        // Before Metadata set
+        timer.stop()
+        playingTrack.reset()
+    }
+    
+    private fun afterMetadataSet() {
+        // After metadata set
+        if (isMetadataFaulty()) {
+            w("${if (playingTrack.artist == null) "Artist" else "Title"} is null, listen cancelled.")
+            playingTrack.reset()
+            return
+        }
+    
+        initTimer()
+    }
+    
     
     /** Initialize listen metadata and timer.
      * @param metadata Metadata to set the state's data.
      * @param pkg Package of music player the song is being played from.
      */
     fun onControllerCallback(
-        metadata: MediaMetadata,
-        pkg: String,
+        newTrack: PlayingTrack
     ){
-        updatePlayingTrack(
-            newTrack = metadata.toPlayingTrack(pkg),
-            onTrackIsOutdated = { newTrack ->
-                // Updating currentTrack
-                playingTrack = newTrack
-            },
-            onTrackIsSimilarCallbackTrack = { newTrack ->
-                // Do nothing for now
-            },
-            onTrackIsSimilarNotificationTrack = { newTrack ->
-                // Update but retain timestamp.
-                playingTrack = newTrack.apply { timestamp = playingTrack.timestamp }    // Current track will always have more metadata here
-                
-                // Update timer.
-                timer.extendDuration((newTrack.duration - 60_000) / 2)
-            }
-        )
-        // No need to toggle timer here
-    }
-    
-    fun alertMediaNotificationActive(newTrack: PlayingTrack) {
-        val oldTrack = playingTrack.copy()
-        updatePlayingTrack(
-            newTrack = newTrack,
+        newTrack.updatePlayingTrack(
             onTrackIsOutdated = { track ->
                 // Updating currentTrack
+                beforeMetadataSet()
                 playingTrack = track
+                afterMetadataSet()
             },
             onTrackIsSimilarCallbackTrack = { track ->
-                // Always prefer notification timestamp.
-                playingTrack.timestamp = track.timestamp
+                // Usually this won't happen because metadata isn't being changed.
+                beforeMetadataSet()
+                playingTrack = track
+                afterMetadataSet()
             },
             onTrackIsSimilarNotificationTrack = { track ->
-                // Do nothing
+                // Update but retain timestamp and playingNowSubmitted.
+                // We usually do not expect this callback to arrive later for submitted to change.
+                playingTrack = track.apply {
+                    timestamp = playingTrack.timestamp
+                    playingNowSubmitted = playingTrack.playingNowSubmitted
+                }    // Current track will always have more metadata here
+                
+                // Update timer because now we have duration.
+                timer.extendDuration { secondsPassed ->
+                    track.duration/2 - secondsPassed
+                }
             }
         )
-        
-        // We definitely know that whenever the notification bar changes a bit, we will get a state
-        // update which means we have a valid reason to query is music is playing or not.
-        if (oldTrack.isSimilarTo(newTrack)) {
-            alertPlaybackStateChanged()
-        }
-        
+        // No need to toggle timer here since we can rely on onNotificationPosted to do that.
+    }
+    
+    fun alertMediaNotificationUpdate(newTrack: PlayingTrack) {
+        newTrack.updatePlayingTrack(
+            onTrackIsOutdated = { track ->
+                beforeMetadataSet()
+                
+                playingTrack = if (playingTrack.isSimilarTo(track)){
+                    // Old track has useful metadata like duration, so smartly retrieve.
+                    track.apply { duration = playingTrack.duration }
+                } else {
+                    track
+                }
+                
+                afterMetadataSet()
+            },
+            onTrackIsSimilarCallbackTrack = { track ->
+                // We definitely know that whenever the notification bar changes a bit, we will get a state
+                // update which means we have a valid reason to query if music is playing or not.
+                alertPlaybackStateChanged()
+            },
+            onTrackIsSimilarNotificationTrack = { track ->
+                // Same as above.
+                alertPlaybackStateChanged()
+            }
+        )
     }
     
     fun alertMediaPlayerRemoved(notification: StatusBarNotification) {
@@ -128,26 +143,32 @@ class ListenSubmissionState(
     
     /** Toggle timer based on state. */
     fun alertPlaybackStateChanged() {
-        
-         //d("onPlaybackStateChanged: Listen PlaybackState " + state.state)
         if (playingTrack.isNothing() || playingTrack.isSubmitted()) return
         
+        d(audioManager.isMusicActive)
         if (audioManager.isMusicActive) {
             timer.start()
-            //d("Timer started")
+            d("Timer started")
         } else {
             timer.pause()
-            //d("Timer paused")
+            d("Timer paused")
         }
     }
     
     /** Run [artist] and [title] value-check before invoking this function.*/
     private fun initTimer() {
         // d(duration.toString())
-        timer.setDuration(
-            roundDuration(duration = playingTrack.duration / 2L)     // Since maximum time required to validate a listen as submittable listen is 4 minutes.
-                .coerceIn(60_000L..240_000L)      // If we have no information about the duration, we'll submit after 1 minute.
-        )
+        if (playingTrack.duration != 0L) {
+            timer.setDuration(
+                roundDuration(duration = playingTrack.duration / 2L)     // Since maximum time required to validate a listen as submittable listen is 4 minutes.
+                    .coerceAtMost(240_000L)
+            )
+        } else {
+            timer.setDuration(
+                roundDuration(duration = DEFAULT_DURATION)     // Since maximum time required to validate a listen as submittable listen is 4 minutes.
+            )
+        }
+        
         
         // Setting listener
         timer.setOnTimerListener(listener = object : OnTimerListener {
@@ -167,8 +188,9 @@ class ListenSubmissionState(
                 }
             }
             
-        }, callbacksOnMainThread = true)
+        }, callbacksOnMainThread = false)
         d("Timer Set")
+        alertPlaybackStateChanged()
     }
     
     // Utility functions
@@ -180,23 +202,11 @@ class ListenSubmissionState(
     private fun submitListen(listenType: ListenType) =
         workManager.enqueue(buildWorkRequest(playingTrack, listenType))
     
-    private fun MediaMetadata.toPlayingTrack(pkgName: String): PlayingTrack {
-        return PlayingTrack(
-            timestamp = System.currentTimeMillis(),
-            artist = extractArtist(),
-            title = extractTitle(),
-            duration = extractDuration(),
-            releaseName = extractReleaseName(),
-            pkgName = pkgName,
-            playingNowSubmitted = false
-        )
-    }
-    
     private fun isMetadataFaulty(): Boolean = playingTrack.artist.isNullOrEmpty() || playingTrack.title.isNullOrEmpty()
     
-    private fun isDurationUndefined(): Boolean = playingTrack.duration <= 0
-    
     companion object {
+        const val DEFAULT_DURATION: Long = 60_000L
+        
         fun MediaMetadata.extractTitle(): String? = when {
             !getString(MediaMetadata.METADATA_KEY_TITLE)
                 .isNullOrEmpty() -> getString(
