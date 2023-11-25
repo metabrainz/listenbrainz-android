@@ -69,7 +69,6 @@ data class PlayingTrack(
                 // If the difference in timestamps is greater than duration of the whole track, it
                 // means our track is outdated for sure.
                 when {
-                    submitted -> false
                     newTrack.duration != 0L -> {
                         // New track is callback track, duration data available.
                         newTrack.timestamp - timestamp >= newTrack.duration
@@ -78,6 +77,7 @@ data class PlayingTrack(
                         // New track is callback track, duration data available.
                         newTrack.timestamp - timestamp >= this.duration
                     }
+                    submitted -> true
                     else -> {
                         // New track and old track both are notification track. So, no duration
                         // available. We use default duration.
@@ -85,7 +85,7 @@ data class PlayingTrack(
                     }
                 }
             }
-            else -> false
+            else -> true
         }
     }
     

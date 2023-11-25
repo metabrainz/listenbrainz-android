@@ -7,6 +7,7 @@ import android.media.session.PlaybackState
 import android.service.notification.StatusBarNotification
 import androidx.work.WorkManager
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -41,6 +42,15 @@ class ScrobbleManagerImpl @Inject constructor(
     
     /** Used to avoid repetitive submissions.*/
     private var lastNotificationPostTs = System.currentTimeMillis()
+    private lateinit var blackList: List<String>
+    
+    init {
+        scope.launch(Dispatchers.Default) {
+            appPreferences.getListeningBlacklistFlow().collect {
+                blackList = it
+            }
+        }
+    }
     
     override fun onMetadataChanged(metadata: MediaMetadata?, player: String) {
         scope.launch {
@@ -57,8 +67,10 @@ class ScrobbleManagerImpl @Inject constructor(
                     ) return@withLock
                     
                     lastCallbackTs = newTimestamp
+    
+                    // Log.e("META")
                     
-                    val newTrack = metadata.toPlayingTrack(player)
+                    val newTrack = metadata.toPlayingTrack(player).apply { timestamp = newTimestamp }
                     onControllerCallback(newTrack)
                 }
             }
@@ -79,8 +91,7 @@ class ScrobbleManagerImpl @Inject constructor(
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         scope.launch {
             mutex.withLock {
-                
-                // Only CATEGORY_TRANSPORT contain media player metadata
+                // Only CATEGORY_TRANSPORT contain media player metadata.
                 if (sbn?.notification?.category != Notification.CATEGORY_TRANSPORT) return@withLock
     
                 val newTrack = PlayingTrack(
@@ -97,14 +108,15 @@ class ScrobbleManagerImpl @Inject constructor(
                     && newTrack.pkgName == listenSubmissionState.playingTrack.pkgName
                     && newTrack.title == listenSubmissionState.playingTrack.title) return@withLock
                 
+                // Check for blacklisted apps
+                if (sbn.packageName in appPreferences.getListeningBlacklist()) return@withLock
+                
+                // Log.e("NOTI")
+                
                 lastNotificationPostTs = newTrack.timestamp
                 
-                // Check for blacklisted apps
-                if (sbn.packageName !in appPreferences.getListeningBlacklist()) {
-                    
-                    // Alert submission state
-                    listenSubmissionState.alertMediaNotificationUpdate(newTrack)
-                }
+                // Alert submission state
+                listenSubmissionState.alertMediaNotificationUpdate(newTrack)
             }
         }
     }

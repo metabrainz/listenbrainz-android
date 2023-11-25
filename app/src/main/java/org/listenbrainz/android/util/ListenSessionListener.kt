@@ -21,6 +21,7 @@ class ListenSessionListener(
     private val serviceScope: CoroutineScope
 ) : OnActiveSessionsChangedListener {
     
+    private val availableSessions: ConcurrentHashMap<MediaController, ListenCallback?> = ConcurrentHashMap()
     private val activeSessions: ConcurrentHashMap<MediaController, ListenCallback?> = ConcurrentHashMap()
 
     @Synchronized
@@ -33,24 +34,37 @@ class ListenSessionListener(
     
     init {
         serviceScope.launch {
-            // Unregistering callback is now reactive.
             appPreferences
                 .getListeningBlacklistFlow()
                 .distinctUntilChanged()
                 .collectLatest { blacklist ->
-                    activeSessions.forEach { entry ->
-                        if (entry.key.packageName in blacklist) {
-                            // Unregister listen callback
-                            entry.key.unregisterCallback(entry.value!!)
+                    // Unregistering callback is reactive.
+                    launch {
+                        for (entry in activeSessions) {
+                            if (entry.key.packageName in blacklist) {
+                                // Unregister listen callback
+                                entry.key.unregisterCallback(entry.value!!)
+            
+                                // remove the active session.
+                                activeSessions.remove(entry.key)
+                                d("### UNREGISTERED MediaController Callback for ${entry.key.packageName}.")
+                            }
+                        }
+                    }
+                    
+                    // Registering callback is reactive.
+                    for (entry in availableSessions) {
+                        if (!activeSessions.contains(entry.key.packageName) && entry.key.packageName !in blacklist) {
+                            // register listen callback
+                            entry.key.registerCallback(entry.value!!)
                             
                             // remove the active session.
-                            activeSessions.remove(entry.key)
-                            d("### UNREGISTERED MediaController Callback for ${entry.key.packageName}.")
-                            return@collectLatest
+                            activeSessions[entry.key] = entry.value!!
+                            d("### REGISTERED MediaController Callback for ${entry.key.packageName}.")
+                            break
                         }
                     }
                 }
-            
         }
     }
     
@@ -59,9 +73,11 @@ class ListenSessionListener(
             appPreferences.getListeningBlacklist()
         }
         for (controller in controllers) {
+            availableSessions[controller] = ListenCallback(controller.packageName)
             // BlackList
-            if (controller.packageName in blacklist)
+            if (controller.packageName in blacklist){
                 continue
+            }
 
             val callback = ListenCallback(controller.packageName)
             activeSessions[controller] = callback
@@ -88,6 +104,7 @@ class ListenSessionListener(
             d("### UNREGISTERED MediaController Callback for ${controller.packageName}.")
         }
         activeSessions.clear()
+        availableSessions.clear()
     }
 
     private inner class ListenCallback(private val player: String) : MediaController.Callback() {

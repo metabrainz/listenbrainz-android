@@ -41,6 +41,8 @@ class Timer(private val isDaemon: Boolean = false) {
         if (status == Status.RUN) {
             return
         }
+    
+        Log.d("Timer started")
         
         // When the status is end or stop I must reinitialize the duration to initial duration.
         if (status == Status.END || status == Status.STOP) {
@@ -136,6 +138,7 @@ class Timer(private val isDaemon: Boolean = false) {
         if (status == Status.STOP || status == Status.PAUSE || status == Status.END) {
             return
         }
+        Log.d("Timer paused")
         status = Status.PAUSE
         timer?.apply {
             cancel()

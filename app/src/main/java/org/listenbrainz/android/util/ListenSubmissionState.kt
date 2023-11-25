@@ -39,7 +39,7 @@ class ListenSubmissionState(
         onTrackIsSimilarNotificationTrack: (newTrack: PlayingTrack) -> Unit,
         onTrackIsSimilarCallbackTrack: (newTrack: PlayingTrack) -> Unit,
     ) {
-        if (playingTrack.isNothing() || playingTrack.isOutdated(this)) {
+        if (playingTrack.isOutdated(this)) {
             
             onTrackIsOutdated(this)
             
@@ -53,7 +53,6 @@ class ListenSubmissionState(
             
             onTrackIsSimilarCallbackTrack(this)
         }
-        
     }
     
     private fun beforeMetadataSet() {
@@ -72,7 +71,6 @@ class ListenSubmissionState(
     
         initTimer()
     }
-    
     
     /** Initialize listen metadata and timer.
      * @param metadata Metadata to set the state's data.
@@ -135,6 +133,7 @@ class ListenSubmissionState(
                 alertPlaybackStateChanged()
             }
         )
+        alertPlaybackStateChanged()
     }
     
     fun alertMediaPlayerRemoved(notification: StatusBarNotification) {
@@ -142,16 +141,14 @@ class ListenSubmissionState(
     }
     
     /** Toggle timer based on state. */
+    @Synchronized
     fun alertPlaybackStateChanged() {
-        if (playingTrack.isNothing() || playingTrack.isSubmitted()) return
+        if (playingTrack.isSubmitted()) return
         
-        d(audioManager.isMusicActive)
         if (audioManager.isMusicActive) {
             timer.start()
-            d("Timer started")
         } else {
             timer.pause()
-            d("Timer paused")
         }
     }
     
@@ -188,7 +185,7 @@ class ListenSubmissionState(
                 }
             }
             
-        }, callbacksOnMainThread = false)
+        }, callbacksOnMainThread = true)
         d("Timer Set")
         alertPlaybackStateChanged()
     }
@@ -205,7 +202,7 @@ class ListenSubmissionState(
     private fun isMetadataFaulty(): Boolean = playingTrack.artist.isNullOrEmpty() || playingTrack.title.isNullOrEmpty()
     
     companion object {
-        const val DEFAULT_DURATION: Long = 60_000L
+        const val DEFAULT_DURATION: Long = 90_000L
         
         fun MediaMetadata.extractTitle(): String? = when {
             !getString(MediaMetadata.METADATA_KEY_TITLE)

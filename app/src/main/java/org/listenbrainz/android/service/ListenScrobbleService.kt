@@ -11,9 +11,7 @@ import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.MainScope
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.scrobblemanager.ScrobbleManager
 import org.listenbrainz.android.util.Constants.Strings.CHANNEL_ID
@@ -34,7 +32,7 @@ class ListenScrobbleService : NotificationListenerService() {
     private var sessionManager: MediaSessionManager? = null
     private var sessionListener: ListenSessionListener? = null
     private var listenServiceComponent: ComponentName? = null
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val scope = MainScope()
     private val nm by lazy {
         ContextCompat.getSystemService(
             this,
