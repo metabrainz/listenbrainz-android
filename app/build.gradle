@@ -191,7 +191,7 @@ dependencies {
     implementation files('./lib/spotify-app-remote-release-0.7.2.aar')
 
     // HTML Parser for retrieving token
-    implementation 'org.jsoup:jsoup:1.16.2'
+    implementation 'org.jsoup:jsoup:1.17.1'
 
     //Socket IO
     implementation ('io.socket:socket.io-client:2.1.0') {
