@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 buildscript {
     ext {
-        kotlin_version = '1.9.10'
+        kotlin_version = '1.9.21'
         navigationVersion = '2.7.5'
         hilt_version = '2.48.1'
         compose_version = '1.5.4'
