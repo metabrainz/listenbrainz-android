@@ -14,8 +14,10 @@ import androidx.work.Configuration
 import com.limurse.logger.Logger
 import com.limurse.logger.config.Config
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
 import org.listenbrainz.android.repository.preferences.AppPreferences
@@ -54,7 +56,7 @@ class App : Application(), Configuration.Provider {
             if(
                 appPreferences.isNotificationServiceAllowed &&
                 appPreferences.getLbAccessToken().isNotEmpty() &&
-                appPreferences.submitListens
+                withContext(Dispatchers.IO) { appPreferences.submitListens }
             ) {
                 startListenService()
             }

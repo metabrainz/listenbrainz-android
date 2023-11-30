@@ -124,9 +124,8 @@ class DashBoardViewModel @Inject constructor(
     suspend fun isNotificationListenerServiceAllowed(): Boolean {
         return withContext(ioDispatcher) {
             appPreferences.isNotificationServiceAllowed
-                    && appPreferences.submitListens
-                    && appPreferences.getLbAccessToken().isNotEmpty()
-        }
+                && appPreferences.submitListens
+        } && appPreferences.getLbAccessToken().isNotEmpty()
     }
     
     fun connectToSpotify() {

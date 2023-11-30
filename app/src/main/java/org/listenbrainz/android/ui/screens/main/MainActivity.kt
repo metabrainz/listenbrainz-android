@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.dashboard
+package org.listenbrainz.android.ui.screens.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -36,10 +36,11 @@ import org.listenbrainz.android.ui.screens.search.SearchScreen
 import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils.isServiceRunning
+import org.listenbrainz.android.util.Utils.openAppSystemSettings
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
 @AndroidEntryPoint
-class DashboardActivity : ComponentActivity() {
+class MainActivity : ComponentActivity() {
     
     private lateinit var dashBoardViewModel: DashBoardViewModel
 
@@ -122,6 +123,10 @@ class DashboardActivity : ComponentActivity() {
                         DialogLB(
                             title = "Permissions required",
                             description = "Please grant storage permissions from settings for the app to function.",
+                            options = arrayOf("Open Settings"),
+                            firstOptionListener = {
+                                openAppSystemSettings()
+                            },
                             dismissOnBackPress = false,
                             dismissOnClickOutside = false,
                             onDismiss = {}

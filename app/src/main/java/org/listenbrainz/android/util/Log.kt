@@ -4,15 +4,15 @@ import com.limurse.logger.Logger
 
 object Log {
 
-    fun e(message: String) {
-        Logger.e(msg =  message)
+    fun e(message: Any?, tag: String? = null, ) {
+        Logger.e(tag, msg = message.toString())
     }
 
-    fun d(message: String) {
-        Logger.d(msg = message)
+    fun d(message: Any?) {
+        Logger.d(msg = message.toString())
     }
     
-    fun w(message: String) {
-        Logger.w(msg = message)
+    fun w(message: Any?) {
+        Logger.w(msg = message.toString())
     }
 }

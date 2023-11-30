@@ -37,6 +37,13 @@ object Constants {
         const val CHANNEL_NOTI_NEW_APP = "noti_new_app"
         const val CHANNEL_NOTI_PENDING = "noti_pending_scrobbles"
         const val CHANNEL_ID = "listen_scrobble_channel"
+
+        const val CHANNEL_PIXEL_NP =
+            "com.google.intelligence.sense.ambientmusic.MusicNotificationChannel"
+        const val PACKAGE_PIXEL_NP = "com.google.intelligence.sense"
+        const val PACKAGE_PIXEL_NP_R = "com.google.android.as"
+        const val PACKAGE_PIXEL_NP_AMM = "com.kieronquinn.app.pixelambientmusic"
+        const val PACKAGE_SHAZAM = "com.shazam.android"
     }
     
 }

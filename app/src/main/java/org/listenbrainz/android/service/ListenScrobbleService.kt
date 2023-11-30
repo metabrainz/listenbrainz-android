@@ -10,13 +10,10 @@ import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import androidx.core.content.ContextCompat
-import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import org.listenbrainz.android.repository.listens.ListensRepository
+import kotlinx.coroutines.MainScope
 import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.repository.scrobblemanager.ScrobbleManager
 import org.listenbrainz.android.util.Constants.Strings.CHANNEL_ID
 import org.listenbrainz.android.util.ListenSessionListener
 import org.listenbrainz.android.util.Log.d
@@ -30,15 +27,12 @@ class ListenScrobbleService : NotificationListenerService() {
     lateinit var appPreferences: AppPreferences
     
     @Inject
-    lateinit var listensRepository: ListensRepository
-
-    @Inject
-    lateinit var workManager: WorkManager
+    lateinit var scrobbleManager: ScrobbleManager
     
     private var sessionManager: MediaSessionManager? = null
     private var sessionListener: ListenSessionListener? = null
     private var listenServiceComponent: ComponentName? = null
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val scope = MainScope()
     private val nm by lazy {
         ContextCompat.getSystemService(
             this,
@@ -56,16 +50,16 @@ class ListenScrobbleService : NotificationListenerService() {
     private fun initialize() {
         d("Initializing Listener Service")
         sessionManager = applicationContext.getSystemService(MEDIA_SESSION_SERVICE) as MediaSessionManager
-        sessionListener = ListenSessionListener(appPreferences, workManager, scope)
+        sessionListener = ListenSessionListener(appPreferences, scrobbleManager, scope)
         listenServiceComponent = ComponentName(this, this.javaClass)
         createNotificationChannel()
 
         try {
             sessionManager?.addOnActiveSessionsChangedListener(sessionListener!!, listenServiceComponent)
         } catch (e: SecurityException) {
-            e("Could not add session listener due to security exception: ${e.message}")
+            e(message = "Could not add session listener due to security exception: ${e.message}")
         } catch (e: Exception) {
-            e("Could not add session listener: ${e.message}")
+            e(message = "Could not add session listener: ${e.message}")
         }
     }
 
@@ -75,13 +69,20 @@ class ListenScrobbleService : NotificationListenerService() {
         sessionListener?.let { sessionManager?.removeOnActiveSessionsChangedListener(it) }
     }
 
-    override fun onNotificationPosted(sbn: StatusBarNotification) {
-        super.onNotificationPosted(sbn)
-        print(sbn)
+    override fun onNotificationPosted(sbn: StatusBarNotification?) {
+        scrobbleManager.onNotificationPosted(sbn)
     }
 
-    override fun onNotificationRemoved(sbn: StatusBarNotification) {
-        super.onNotificationRemoved(sbn)
+    override fun onNotificationRemoved(
+        sbn: StatusBarNotification?,
+        rankingMap: RankingMap?,
+        reason: Int
+    ) {
+        if (reason == REASON_APP_CANCEL || reason == REASON_APP_CANCEL_ALL ||
+            reason == REASON_TIMEOUT || reason == REASON_ERROR
+        ) {
+            scrobbleManager.onNotificationRemoved(sbn)
+        }
     }
 
     companion object {

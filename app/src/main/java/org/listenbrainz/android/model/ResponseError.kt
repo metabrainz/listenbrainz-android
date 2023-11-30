@@ -4,6 +4,7 @@ import androidx.compose.runtime.Stable
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.listenbrainz.android.util.Resource
+import org.listenbrainz.android.util.Utils.error
 import retrofit2.Response
 
 
@@ -70,7 +71,7 @@ enum class ResponseError(val genericToast: String, var actualResponse: String? =
          * returning errors is the sole motive.*/
         fun <T> parseError(response: Response<T>) : ApiError =
             Gson().fromJson(
-                /* json = */ response.errorBody()?.string(),
+                /* json = */ response.error(),
                 /* typeOfT = */ object : TypeToken<ApiError>() {}.type
             )
         
