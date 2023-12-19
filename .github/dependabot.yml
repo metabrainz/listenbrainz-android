@@ -10,7 +10,7 @@ updates:
       time: "00:00"
 
   # Updates for Gradle dependencies used in the app
-  - package-ecosystem: gradle
+  - package-ecosystem: "gradle"
     directory: "/"
     target-branch: "dev"
     schedule:
