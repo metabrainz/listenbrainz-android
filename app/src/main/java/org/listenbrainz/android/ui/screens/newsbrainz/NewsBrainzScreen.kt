@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.text.HtmlCompat
 import org.listenbrainz.android.model.BlogPost
@@ -128,11 +129,13 @@ fun BlogCard(
                 Text(
                     text = parsedTitle,
                     textAlign = TextAlign.Left,
-                    color = ListenBrainzTheme.colorScheme.lbSignature
+                    color = ListenBrainzTheme.colorScheme.lbSignature,
+                    modifier = Modifier.padding(end = 5.dp).fillMaxWidth(0.9F)
                 )
                 IconButton(onClick = { onLongClick() }) {
-                   Icon(painter = painterResource(id = R.drawable.news_share), contentDescription = "Share News Button" , tint = ListenBrainzTheme.colorScheme.hint
+                   Icon(painter = painterResource(id = R.drawable.news_share), contentDescription = "Share News Button" , tint = ListenBrainzTheme.colorScheme.hint , modifier = Modifier.padding(start = 5.dp)
                    )
+
                 }
             }
 
@@ -149,7 +152,9 @@ fun BlogCard(
             Text(
                 text = parsedContent,
                 maxLines = 4,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                overflow = TextOverflow.Ellipsis
+
             )
         }
     }
