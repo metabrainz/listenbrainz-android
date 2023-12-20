@@ -208,7 +208,7 @@ dependencies {
 
     // Mockito framework
     testImplementation 'org.mockito:mockito-core:5.7.0'
-    testImplementation 'org.mockito.kotlin:mockito-kotlin:5.1.0'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:5.2.1'
 
     debugImplementation "androidx.test:monitor:1.6.1"       // Solves "class PlatformTestStorageRegistery not found" error for ui tests.
     debugImplementation 'androidx.compose.ui:ui-test-manifest:1.5.4'
