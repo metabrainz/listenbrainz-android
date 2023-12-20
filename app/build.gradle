@@ -135,9 +135,9 @@ dependencies {
     //Web Service Setup
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.11'
+    implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.12'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.11'
+    implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.12'
     implementation 'androidx.paging:paging-runtime-ktx:3.2.1'
     implementation "androidx.paging:paging-compose:3.2.1"
 
@@ -202,7 +202,7 @@ dependencies {
     implementation 'androidx.test.ext:junit-ktx:1.1.5'
     implementation 'app.cash.turbine:turbine:1.0.0'
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'com.squareup.okhttp3:mockwebserver:5.0.0-alpha.11'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:5.0.0-alpha.12'
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
     testImplementation 'androidx.arch.core:core-testing:2.2.0'
 
