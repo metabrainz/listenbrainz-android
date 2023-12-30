@@ -48,6 +48,10 @@
             android:label="@string/title_activity_year_in_music"
             android:theme="@style/AppTheme" />
         <activity
+            android:name=".ui.screens.yim23.YearInMusic23Activity"
+            android:label="YearInMusic23Activity"
+            android:theme="@style/AppTheme" />
+        <activity
             android:name=".ui.screens.newsbrainz.NewsBrainzActivity"
             android:label="@string/title_activity_news_brainz"
             android:theme="@style/AppTheme" />

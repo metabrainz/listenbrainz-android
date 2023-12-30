@@ -2,6 +2,7 @@ package org.listenbrainz.android.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -49,4 +50,32 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     )
     
+)
+
+
+
+
+val yim23Typography = Typography(
+    bodyMedium = TextStyle(
+        fontFamily = FontFamily(Font(R.font.roboto_regular)),
+        fontWeight = FontWeight.Normal,
+        fontSize = 10.sp,
+    ),
+    labelSmall = TextStyle(
+        fontFamily = FontFamily(Font(R.font.inter_black)),
+        fontWeight = FontWeight(900),
+        fontSize = 12.sp,
+    ),
+    bodyLarge = TextStyle(
+        fontFamily = FontFamily(Font(R.font.roboto_regular)),
+        fontWeight = FontWeight.Normal,
+        fontSize = 28.sp,
+    ),
+    titleLarge = TextStyle(
+        fontFamily = FontFamily(Font(R.font.inter_black)),
+        fontWeight = FontWeight.ExtraBold,
+        fontSize = 24.sp,
+        lineHeight = 34.25.sp,
+        letterSpacing = 12.sp,
+    ),
 )
