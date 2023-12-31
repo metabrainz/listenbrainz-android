@@ -18,9 +18,17 @@ import org.listenbrainz.android.model.yimdata.Yim23Screens
 import org.listenbrainz.android.model.yimdata.YimScreens
 import org.listenbrainz.android.ui.screens.yim.*
 import org.listenbrainz.android.ui.screens.yim.navigation.addYimScreen
+import org.listenbrainz.android.ui.screens.yim23.Yim23AlbumsListScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23ChartTitleScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23HomeScreen
+import org.listenbrainz.android.ui.screens.yim23.Yim23PlaylistTitleScreen
+import org.listenbrainz.android.ui.screens.yim23.Yim23StatsGraphScreen
+import org.listenbrainz.android.ui.screens.yim23.Yim23StatsHeatMapScreen
+import org.listenbrainz.android.ui.screens.yim23.Yim23StatsScreen
+import org.listenbrainz.android.ui.screens.yim23.Yim23StatsTitleScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23TopAlbumsScreen
+import org.listenbrainz.android.ui.screens.yim23.Yim23TopArtistsScreen
+import org.listenbrainz.android.ui.screens.yim23.Yim23TopSongsScreen
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
 import org.listenbrainz.android.viewmodel.YimViewModel
@@ -68,6 +76,30 @@ fun Yim23Navigation(
 
         addYim23Screen( route = Yim23Screens.YimTopAlbumScreen.name ){
             Yim23TopAlbumsScreen(viewModel = yimViewModel, navController = navController)
+        }
+        addYim23Screen( route = Yim23Screens.YimAlbumsListScreen.name ){
+            Yim23AlbumsListScreen(viewModel = yimViewModel, navController = navController)
+        }
+        addYim23Screen( route = Yim23Screens.YimTopSongsScreen.name ){
+            Yim23TopSongsScreen(viewModel = yimViewModel, navController = navController)
+        }
+        addYim23Screen( route = Yim23Screens.YimTopArtistsScreen.name ){
+            Yim23TopArtistsScreen(viewModel = yimViewModel, navController = navController)
+        }
+        addYim23Screen( route = Yim23Screens.YimStatsTitleScreen.name){
+            Yim23StatsTitleScreen(viewModel = yimViewModel, navController = navController)
+        }
+        addYim23Screen( route = Yim23Screens.YimStatsScreen.name){
+            Yim23StatsScreen(viewModel = yimViewModel, navController = navController)
+        }
+        addYim23Screen( route = Yim23Screens.YimStatsHeatMapScreen.name){
+            Yim23StatsHeatMapScreen(viewModel = yimViewModel, navController = navController)
+        }
+        addYim23Screen( route = Yim23Screens.YimStatsGraphScreen.name){
+        Yim23StatsGraphScreen(viewModel = yimViewModel, navController = navController)
+        }
+        addYim23Screen( route = Yim23Screens.YimPlaylistsTitleScreen.name){
+            Yim23PlaylistTitleScreen(viewModel = yimViewModel, navController = navController)
         }
     }
 }

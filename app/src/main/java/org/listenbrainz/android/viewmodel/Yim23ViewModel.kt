@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.text.toLowerCase
 import androidx.lifecycle.viewModelScope
 import com.caverock.androidsvg.SVG
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -76,12 +77,100 @@ class Yim23ViewModel @Inject constructor(
         return list
     }
 
+    fun getMostListenedMonth () : Pair<String , Int> {
+        var jan: Int = 0
+        var feb: Int = 0
+        var mar: Int = 0
+        var apr: Int = 0
+        var may: Int = 0
+        var jun: Int = 0
+        var jul: Int = 0
+        var aug: Int = 0
+        var sep: Int = 0
+        var oct: Int = 0
+        var nov: Int = 0
+        var dec: Int = 0
+
+        yimData.value.data?.payload?.data?.listensPerDay?.forEach {
+            if (it.timeRange.lowercase().contains("jan")) {
+                jan += (it.listenCount)
+            }
+            if (it.timeRange.lowercase().contains("feb")) {
+                feb += (it.listenCount)
+            }
+            if (it.timeRange.lowercase().contains("mar")) {
+                mar += (it.listenCount)
+            }
+            if (it.timeRange.lowercase().contains("apr")) {
+                apr += (it.listenCount)
+            }
+            if (it.timeRange.lowercase().contains("may")) {
+                may += (it.listenCount)
+            }
+            if (it.timeRange.lowercase().contains("jun")) {
+                jun += (it.listenCount)
+            }
+            if (it.timeRange.lowercase().contains("jul")) {
+                jul += (it.listenCount)
+            }
+            if (it.timeRange.lowercase().contains("aug")) {
+                aug += (it.listenCount)
+            }
+            if (it.timeRange.lowercase().contains("sept")) {
+                sep += (it.listenCount)
+            }
+            if (it.timeRange.lowercase().contains("oct")) {
+                oct += (it.listenCount)
+            }
+            if (it.timeRange.lowercase().contains("nov")) {
+                nov += (it.listenCount)
+            }
+            if (it.timeRange.lowercase().contains("dec")) {
+                dec += (it.listenCount)
+            }
+        }
+
+        val list: List<Int> = listOf(jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec)
+
+        var max_list = 0
+        var index = 0
+        for (i in 1..12) {
+            if(list[i-1] > max_list){
+                max_list = list[i-1]
+                index = i
+            }
+        }
+
+        val month : String = when (index) {
+            1 -> "January"
+            2 -> "February"
+            3 -> "March"
+            4 -> "April"
+            5 -> "May"
+            6 -> "June"
+            7 -> "July"
+            8 -> "August"
+            9 -> "September"
+            10 -> "October"
+            11 -> "November"
+            12 -> "December"
+            else -> ""
+        }
+
+        val ans : Pair<String , Int> = Pair(month , max_list)
+        return ans
+    }
+
     /** List of new releases of those artists that the user listens to.*/
     fun getNewReleasesOfTopArtists() : ArrayList<NewReleasesOfTopArtist>? {
         return yimData.value.data?.payload?.data?.newReleasesOfTopArtists
     }
 
     /** The year of which the user listened most songs of. */
+    fun getYearListens() : Map<String , Int> {
+        return yimData.value.data?.payload?.data?.mostListenedYear!!
+    }
+
     fun getMostListenedYear() : Int? {
         val mapEntry = yimData.value.data?.payload?.data?.mostListenedYear?.maxBy {
             it.value
@@ -147,6 +236,10 @@ class Yim23ViewModel @Inject constructor(
 
     fun getTotalReleasesCount() : Int? {
         return yimData.value.data?.payload?.data?.totalReleasesCount
+    }
+
+    fun getTopGenres () : List<TopGenre> {
+        return yimData.value.data?.payload?.data?.topGenres!!.toList()
     }
 
     /** [getUrlsForAlbumArt]

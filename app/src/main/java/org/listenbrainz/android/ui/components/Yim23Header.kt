@@ -57,7 +57,7 @@ fun Yim23Header (username : String , navController : NavController , upperScreen
         }
         Row(modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 92.dp) , horizontalArrangement = Arrangement.Center) {
+            .padding(top = 62.dp) , horizontalArrangement = Arrangement.Center) {
             Column (modifier = Modifier.width(250.dp)) {
                 Text("MY YEAR IN MUSIC" , style = MaterialTheme.typography.titleLarge , color = MaterialTheme.colorScheme.surface , maxLines = 2 , textAlign = TextAlign.Center)
             }

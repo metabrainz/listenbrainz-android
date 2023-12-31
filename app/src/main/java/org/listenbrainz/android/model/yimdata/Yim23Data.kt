@@ -14,6 +14,7 @@ data class Yim23Data (
     @SerializedName("similar_users"                    ) var similarUsers              : Map<String, Double>?               = null,
 
     @SerializedName("top_artists"                      ) var topArtists                : ArrayList<TopArtist>               = arrayListOf(),
+    @SerializedName("top_genres"                      ) var topGenres                  : ArrayList<TopGenre>               = arrayListOf(),
     @SerializedName("top_recordings"                   ) var topRecordings             : ArrayList<TopRecording>            = arrayListOf(),
     @SerializedName("top_release_groups"                     ) var topReleases               : ArrayList<TopReleaseYim23>              = arrayListOf(),
     @SerializedName("total_artists_count"              ) var totalArtistsCount         : Int                                = 0,

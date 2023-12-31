@@ -218,8 +218,8 @@ fun Yim23HomeScreen(
                                     .paddingFromBaseline(60.dp)
                                     .height(48.dp)
                                     .width(103.dp))
-                                Text("Oh no! We don't have enough 2023 statistics for ${username}." , style = MaterialTheme.typography.bodyLarge , color = MaterialTheme.colorScheme.onBackground , textAlign = TextAlign.Center , modifier = Modifier.paddingFromBaseline(top = 60.dp))
-                                Text("Submit enough listens before the end of December to generate your #yearinmusic next year" , color = MaterialTheme.colorScheme.onBackground , style = MaterialTheme.typography.bodyLarge , modifier = Modifier.paddingFromBaseline(top = 40.dp , bottom=40.dp) , textAlign = TextAlign.Center)
+                                Text("Oh no! We don't have enough 2023 statistics for ${username}." , style = MaterialTheme.typography.bodyMedium , color = MaterialTheme.colorScheme.onBackground , textAlign = TextAlign.Center , modifier = Modifier.paddingFromBaseline(top = 60.dp))
+                                Text("Submit enough listens before the end of December to generate your #yearinmusic next year" , color = MaterialTheme.colorScheme.onBackground , style = MaterialTheme.typography.bodyMedium , modifier = Modifier.paddingFromBaseline(top = 40.dp , bottom=40.dp) , textAlign = TextAlign.Center)
                                 Box(modifier = Modifier
                                     .weight(1f)
                                     .background(MaterialTheme.colorScheme.onBackground)){

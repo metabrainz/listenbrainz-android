@@ -66,7 +66,7 @@ fun Yim23TopAlbumsScreen (
                 }
             }
             Yim23ShareButton()
-            Yim23Footer(footerText = "MY TOP ALBUMS", navController = navController, isUsername = false, downScreen = Yim23Screens.YimChartTitleScreen)
+            Yim23Footer(footerText = "MY TOP ALBUMS", navController = navController, isUsername = false, downScreen = Yim23Screens.YimAlbumsListScreen)
         }
     }
 

@@ -56,7 +56,7 @@ val Typography = Typography(
 
 
 val yim23Typography = Typography(
-    bodyMedium = TextStyle(
+    bodySmall = TextStyle(
         fontFamily = FontFamily(Font(R.font.roboto_regular)),
         fontWeight = FontWeight.Normal,
         fontSize = 10.sp,
@@ -66,10 +66,25 @@ val yim23Typography = Typography(
         fontWeight = FontWeight(900),
         fontSize = 12.sp,
     ),
+    labelMedium = TextStyle(
+        fontFamily = FontFamily(Font(R.font.inter_black)),
+        fontWeight = FontWeight(900),
+        fontSize = 22.sp,
+    ),
+    labelLarge = TextStyle(
+        fontSize = 70.sp,
+        fontFamily = FontFamily(Font(R.font.inter_black)),
+        fontWeight = FontWeight(900),
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = FontFamily(Font(R.font.roboto_regular)),
+        fontWeight = FontWeight.Normal,
+        fontSize = 26.sp,
+    ),
     bodyLarge = TextStyle(
         fontFamily = FontFamily(Font(R.font.roboto_regular)),
         fontWeight = FontWeight.Normal,
-        fontSize = 28.sp,
+        fontSize = 32.sp,
     ),
     titleLarge = TextStyle(
         fontFamily = FontFamily(Font(R.font.inter_black)),
