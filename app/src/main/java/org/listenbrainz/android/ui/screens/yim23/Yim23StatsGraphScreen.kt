@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.screens.yim23
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -53,13 +54,17 @@ fun Yim23StatsGraphScreen (
     navController: NavController
 ) {
     val username by viewModel.getUsernameFlow().collectAsState(initial = "")
+    val mostListenedYear = viewModel.getMostListenedYear()!!
     Yim23Theme(themeType = viewModel.themeType.value) {
         Column (modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.onBackground) , verticalArrangement = Arrangement.SpaceBetween) {
             Yim23Header(username = username, navController = navController, upperScreen = Yim23Screens.YimStatsHeatMapScreen)
+            Spacer(modifier = Modifier.padding(top = 11.dp))
+            Text("Most of the songs I listened to were from ${mostListenedYear.key} (${mostListenedYear.value} songs)" , style = MaterialTheme.typography.bodyLarge , color = MaterialTheme.colorScheme.background , textAlign = TextAlign.Center)
+            Spacer(modifier = Modifier.padding(top = 21.dp))
             Yim23Graph(viewModel = viewModel)
-            Yim23Footer(footerText = "MY STATS", isUsername = false, navController = navController, downScreen = Yim23Screens.YimPlaylistsTitleScreen)
+            Yim23Footer(footerText = "MY STATS", isUsername = true, navController = navController, downScreen = Yim23Screens.YimPlaylistsTitleScreen)
         }
     }
 }
@@ -69,45 +74,46 @@ fun Yim23StatsGraphScreen (
 private fun Yim23Graph (viewModel: Yim23ViewModel , paddings: YimPaddings = LocalYimPaddings.current) {
     val listState = rememberLazyListState()
     val graphState = rememberLazyListState()
-    LaunchedEffect(graphState.isScrollInProgress){
-        listState.animateScrollToItem(index = listState.firstVisibleItemIndex)
-    }
+
     Box (modifier = Modifier
         .fillMaxWidth()
-        .height(320.dp)
+        .padding(start = 11.dp ,end= 11.dp)
+        .height(250.dp)
+        .clip(RoundedCornerShape(10.dp))
         .background(Color(0xFFe0e5de)) , contentAlignment = Alignment.TopCenter) {
         LazyRow (state = graphState) {
             items(viewModel.getYearListens().toList()) { item ->
-                val height = (item.second * 300) / (viewModel.getMostListenedYear()!!)
+                val height = (item.second * 250) / (viewModel.getMostListenedYear()!!.value)
                 Column {
                     Spacer(modifier = Modifier
                         .width(20.dp)
                         .padding(horizontal = 1.dp)
-                        .height(300.dp - height.dp))
+                        .height(250.dp - height.dp))
                     Spacer(modifier = Modifier
                         .width(20.dp)
                         .padding(horizontal = 1.dp)
                         .height(height.dp)
-                        .background(Color.Red))
+                        .background(Color(0xFFe36b3c)))
                 }
             }
         }
     }
-
+    LaunchedEffect(graphState.isScrollInProgress){
+        listState.animateScrollToItem(index = graphState.firstVisibleItemIndex/4)
+    }
 
 
     LazyRow(
         state = listState,
         modifier = Modifier
-            .height(20.dp),
+            .height(20.dp).padding(start = 11.dp , end = 11.dp),
         userScrollEnabled = false
     ){
-        items(listOf("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+        items(listOf("1960" , "1965" , "1970" , "1975" , "1980" , "1985" , "1990" , "1995" , "2000" , "2005" , "2010" , "2015" , "2020")
         ){ month ->
             Text(
                 text = month,
-                modifier = Modifier
-                    .width(89.25.dp),
+                modifier = Modifier.width(89.dp),
                 textAlign = TextAlign.Center,
                 fontSize = 12.sp
             )

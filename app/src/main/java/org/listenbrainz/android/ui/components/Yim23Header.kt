@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.IconButton
@@ -39,12 +40,12 @@ fun Yim23Header (username : String , navController : NavController , upperScreen
             Column (modifier = Modifier.width(100.dp)) {
                 Text(username.uppercase(), style = MaterialTheme.typography.labelSmall , color = MaterialTheme.colorScheme.background , maxLines = 1 , overflow = TextOverflow.Ellipsis)
             }
+
             IconButton(onClick = { navController.navigate(route = upperScreen.name) } , modifier = Modifier
-                .height(26.dp)
-                .width(26.dp)
                 .clip(
                     RoundedCornerShape(100.dp)
                 )
+                .size(26.dp)
                 .background(MaterialTheme.colorScheme.background)
             ) {
                 Image(imageVector = ImageVector.vectorResource(R.drawable.yim23_up_arrow), contentDescription = "Up arrow" , colorFilter = ColorFilter.tint(

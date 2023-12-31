@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.IconButton
@@ -34,12 +35,12 @@ fun Yim23Footer (footerText : String , isUsername : Boolean , navController : Na
         .fillMaxWidth()
         .padding(top = 0.dp) , horizontalArrangement = Arrangement.Center) {
         if(!isUsername) {
-            Column(modifier = Modifier.width(250.dp)) {
+            Column(modifier = Modifier.width(300.dp)) {
                 Text(
                     footerText.uppercase(),
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.surface,
-                    maxLines = 2,
+                    maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center
                 )
@@ -63,15 +64,14 @@ fun Yim23Footer (footerText : String , isUsername : Boolean , navController : Na
             Text("#YEARINMUSIC", style = MaterialTheme.typography.labelSmall , color = MaterialTheme.colorScheme.background , maxLines = 1 , overflow = TextOverflow.Ellipsis)
         }
         IconButton(onClick = { navController.navigate(route = downScreen.name) } , modifier = Modifier
-            .height(26.dp)
-            .width(26.dp)
             .clip(
                 RoundedCornerShape(100.dp)
             )
+            .size(26.dp)
             .background(MaterialTheme.colorScheme.background)
 
         ) {
-            Image(imageVector = ImageVector.vectorResource(R.drawable.yim23_arrow_down), contentDescription = "Down arrow" , colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground))
+            Image(imageVector = ImageVector.vectorResource(R.drawable.yim23_arrow_down), contentDescription = "Down arrow" , colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onBackground) , modifier = Modifier.align(Alignment.CenterVertically))
         }
         Column (modifier = Modifier.width(100.dp) , horizontalAlignment = Alignment.End) {
             Text("LISTENBRAINZ" , style = MaterialTheme.typography.labelSmall , color = MaterialTheme.colorScheme.background)

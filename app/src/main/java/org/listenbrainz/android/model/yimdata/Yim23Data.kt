@@ -24,10 +24,8 @@ data class Yim23Data (
     @SerializedName("total_recordings_count"           ) var totalRecordingsCount      : Int                                = 0,
     @SerializedName("total_releases_count"             ) var totalReleasesCount        : Int                                = 0,
 
-    @SerializedName("playlist-top-discoveries-for-year"                ) var topDiscoveriesPlaylist         : TopDiscoveriesPlaylist = TopDiscoveriesPlaylist(),
-    @SerializedName("playlist-top-discoveries-for-year-coverart"       ) var topDiscoveriesPlaylistCoverArt : Map<String, String>       = mapOf(),
-    @SerializedName("playlist-top-missed-recordings-for-year"          ) var topMissedPlaylist              : TopMissedPlaylist = TopMissedPlaylist(),
-    @SerializedName("playlist-top-missed-recordings-for-year-coverart" ) var topMissedPlaylistCoverArt      : Map<String, String>       = mapOf()
+    @SerializedName("top-discoveries"                ) var topDiscoveriesPlaylist         : Yim23TopDiscoveries = Yim23TopDiscoveries(),
+    @SerializedName("top-missed-recordings"                ) var topMissedRecordings         : Yim23TopDiscoveries = Yim23TopDiscoveries()
 
 )
 

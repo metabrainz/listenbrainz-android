@@ -69,7 +69,7 @@ fun Yim23StatsHeatMapScreen (
             Text("(${mostListenedMonth.second} Songs)" , textAlign = TextAlign.Center , color = MaterialTheme.colorScheme.background , style = MaterialTheme.typography.bodyLarge)
             Yim23HeatMap(viewModel = viewModel)
             Spacer(modifier = Modifier.padding(bottom = 11.dp))
-            Yim23Footer(footerText = "MY STATS", isUsername = false, navController = navController, downScreen = Yim23Screens.YimStatsGraphScreen)
+            Yim23Footer(footerText = "MY STATS", isUsername = true, navController = navController, downScreen = Yim23Screens.YimStatsGraphScreen)
         }
     }
 }

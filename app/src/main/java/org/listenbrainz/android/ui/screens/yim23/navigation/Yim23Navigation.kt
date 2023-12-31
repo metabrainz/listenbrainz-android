@@ -20,7 +20,15 @@ import org.listenbrainz.android.ui.screens.yim.*
 import org.listenbrainz.android.ui.screens.yim.navigation.addYimScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23AlbumsListScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23ChartTitleScreen
+import org.listenbrainz.android.ui.screens.yim23.Yim23DiscoveriesListScreen
+import org.listenbrainz.android.ui.screens.yim23.Yim23DiscoveriesScreen
+import org.listenbrainz.android.ui.screens.yim23.Yim23DiscoveriesTitleScreen
+import org.listenbrainz.android.ui.screens.yim23.Yim23FriendsScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23HomeScreen
+import org.listenbrainz.android.ui.screens.yim23.Yim23MissedSongsListScreen
+import org.listenbrainz.android.ui.screens.yim23.Yim23MissedSongsScreen
+import org.listenbrainz.android.ui.screens.yim23.Yim23MusicBuddiesScreen
+import org.listenbrainz.android.ui.screens.yim23.Yim23NewAlbumsFromTopArtistsScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23PlaylistTitleScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23StatsGraphScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23StatsHeatMapScreen
@@ -100,6 +108,33 @@ fun Yim23Navigation(
         }
         addYim23Screen( route = Yim23Screens.YimPlaylistsTitleScreen.name){
             Yim23PlaylistTitleScreen(viewModel = yimViewModel, navController = navController)
+        }
+        addYim23Screen( route = Yim23Screens.YimDiscoveriesScreen.name){
+            Yim23DiscoveriesScreen(viewModel = yimViewModel, navController = navController)
+        }
+        addYim23Screen( route = Yim23Screens.YimDiscoveriesListScreen.name){
+            Yim23DiscoveriesListScreen(viewModel = yimViewModel, navController = navController)
+        }
+        addYim23Screen( route = Yim23Screens.YimMissedSongsScreen.name){
+            Yim23MissedSongsScreen(viewModel = yimViewModel, navController = navController)
+        }
+        addYim23Screen( route = Yim23Screens.YimMissedSongsListScreen.name){
+            Yim23MissedSongsListScreen(viewModel = yimViewModel, navController = navController)
+        }
+        addYim23Screen( route = Yim23Screens.YimDiscoverTitleScreen.name){
+            Yim23DiscoveriesTitleScreen(viewModel = yimViewModel, navController = navController)
+        }
+        addYim23Screen( route = Yim23Screens.YimNewAlbumsFromTopArtistsScreen.name){
+            Yim23NewAlbumsFromTopArtistsScreen(viewModel = yimViewModel, navController = navController)
+        }
+        addYim23Screen( route = Yim23Screens.YimMusicBuddiesScreen.name){
+            Yim23MusicBuddiesScreen(viewModel = yimViewModel, navController = navController)
+        }
+        addYim23Screen( route = Yim23Screens.YimFriendsScreen.name){
+            Yim23FriendsScreen(viewModel = yimViewModel, navController = navController)
+        }
+        addYim23Screen( route = Yim23Screens.YimLastScreen.name){
+            Yim23LastScreen(viewModel = yimViewModel, navController = navController)
         }
     }
 }
