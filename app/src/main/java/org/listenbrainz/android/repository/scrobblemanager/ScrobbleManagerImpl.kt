@@ -4,14 +4,14 @@ import android.app.Notification
 import android.content.Context
 import android.media.MediaMetadata
 import android.media.session.PlaybackState
+import android.os.Handler
+import android.os.Looper
 import android.service.notification.StatusBarNotification
 import androidx.work.WorkManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.listenbrainz.android.model.PlayingTrack
 import org.listenbrainz.android.model.PlayingTrack.Companion.toPlayingTrack
 import org.listenbrainz.android.repository.preferences.AppPreferences
@@ -29,13 +29,9 @@ class ScrobbleManagerImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ): ScrobbleManager {
     
+    private val handler: Handler by lazy { Handler(Looper.getMainLooper()) }
     private val listenSubmissionState = ListenSubmissionState(workManager, context)
     private val scope = MainScope()
-    
-    /** This mutex is used to ensure that [ListenSubmissionState.playingTrack] is not changed in a
-     * non thread-safe manner. Only one of the metadata alerts (ListenCallback or onNotificationPosted)
-     * can change [ListenSubmissionState] at a time.*/
-    private val mutex = Mutex()
     
     /** Used to avoid repetitive submissions.*/
     private var lastCallbackTs = System.currentTimeMillis()
@@ -53,27 +49,26 @@ class ScrobbleManagerImpl @Inject constructor(
     }
     
     override fun onMetadataChanged(metadata: MediaMetadata?, player: String) {
-        scope.launch {
-            mutex.withLock {
-                if (metadata == null) return@withLock
-                
-                val newTimestamp = System.currentTimeMillis()
-                with(listenSubmissionState) {
-                    
-                    // Repetitive submissions blocker
-                    if (playingTrack.isCallbackTrack() &&
-                        newTimestamp in lastCallbackTs .. lastCallbackTs + CALLBACK_SUBMISSION_TIMEOUT_INTERVAL
-                        && metadata.extractTitle() == listenSubmissionState.playingTrack.title
-                    ) return@withLock
-                    
-                    lastCallbackTs = newTimestamp
+        handler.post {
+            if (metadata == null) return@post
     
-                    // Log.e("META")
-                    
-                    val newTrack = metadata.toPlayingTrack(player).apply { timestamp = newTimestamp }
-                    onControllerCallback(newTrack)
-                }
+            val newTimestamp = System.currentTimeMillis()
+            with(listenSubmissionState) {
+        
+                // Repetitive submissions blocker
+                if (playingTrack.isCallbackTrack() &&
+                    newTimestamp in lastCallbackTs..lastCallbackTs + CALLBACK_SUBMISSION_TIMEOUT_INTERVAL
+                    && metadata.extractTitle() == playingTrack.title
+                ) return@post
+        
+                lastCallbackTs = newTimestamp
+        
+                val newTrack =
+                    metadata.toPlayingTrack(player).apply { timestamp = newTimestamp }
+                
+                onControllerCallback(newTrack)
             }
+            // Log.e("META")
         }
     }
     
@@ -89,35 +84,35 @@ class ScrobbleManagerImpl @Inject constructor(
     /** NOTE FOR FUTURE USE: When onNotificationPosted is called twice within 300..600ms delay, it usually
      * means the track has been changed.*/
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
-        scope.launch {
-            mutex.withLock {
-                // Only CATEGORY_TRANSPORT contain media player metadata.
-                if (sbn?.notification?.category != Notification.CATEGORY_TRANSPORT) return@withLock
+        handler.post {
+            // Only CATEGORY_TRANSPORT contain media player metadata.
+            if (sbn?.notification?.category != Notification.CATEGORY_TRANSPORT) return@post
     
-                val newTrack = PlayingTrack(
-                    title = sbn.notification.extras.getString(Notification.EXTRA_TITLE)
-                        ?: return@withLock,
-                    artist = sbn.notification.extras.getString(Notification.EXTRA_TEXT)
-                        ?: return@withLock,
-                    pkgName = sbn.packageName,
-                    timestamp = sbn.notification.`when`
-                )
-                
-                // Avoid repetitive submissions
-                if (newTrack.timestamp in lastNotificationPostTs .. lastNotificationPostTs + NOTI_SUBMISSION_TIMEOUT_INTERVAL
-                    && newTrack.pkgName == listenSubmissionState.playingTrack.pkgName
-                    && newTrack.title == listenSubmissionState.playingTrack.title) return@withLock
-                
+            val newTrack = PlayingTrack(
+                title = sbn.notification.extras.getString(Notification.EXTRA_TITLE)
+                    ?: return@post,
+                artist = sbn.notification.extras.getString(Notification.EXTRA_TEXT)
+                    ?: return@post,
+                pkgName = sbn.packageName,
+                timestamp = sbn.notification.`when`
+            )
+    
+            // Avoid repetitive submissions
+            with(listenSubmissionState) {
+                if (newTrack.timestamp in lastNotificationPostTs..lastNotificationPostTs + NOTI_SUBMISSION_TIMEOUT_INTERVAL
+                    && newTrack.pkgName == playingTrack.pkgName
+                    && newTrack.title == playingTrack.title
+                ) return@post
+    
                 // Check for blacklisted apps
-                if (sbn.packageName in appPreferences.getListeningBlacklist()) return@withLock
-                
-                // Log.e("NOTI")
-                
+                if (sbn.packageName in blackList) return@post
+    
                 lastNotificationPostTs = newTrack.timestamp
-                
+    
                 // Alert submission state
-                listenSubmissionState.alertMediaNotificationUpdate(newTrack)
+                alertMediaNotificationUpdate(newTrack)
             }
+            // Log.e("NOTI")
         }
     }
     

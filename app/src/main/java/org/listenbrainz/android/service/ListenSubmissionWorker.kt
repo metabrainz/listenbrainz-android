@@ -80,7 +80,11 @@ class ListenSubmissionWorker @AssistedInject constructor(
         
         return when (response.status) {
             Resource.Status.SUCCESS -> {
-                d("Listen submitted.")
+                if (body.listenType == ListenType.PLAYING_NOW.code) {
+                    d("Playing Now submitted")
+                } else {
+                    d("Listen submitted")
+                }
 
                 // Means conditions are met. Work manager automatically manages internet state.
                 val pendingListens = pendingListensDao.getPendingListens()
