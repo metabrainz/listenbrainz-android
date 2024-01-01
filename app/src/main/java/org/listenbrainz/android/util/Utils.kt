@@ -51,7 +51,6 @@ object Utils {
                 Resource.success(response.body()!!)
             } else {
                 val error = getError(response = response)
-                Log.w(error.name + ": " + error.actualResponse)
                 Resource.failure(error = error)
             }
         
