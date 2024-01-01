@@ -4,7 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id 'com.google.devtools.ksp'
     id 'dagger.hilt.android.plugin'
-    id "io.sentry.android.gradle" version "3.14.0"
+    id "io.sentry.android.gradle" version "4.1.1"
 }
 
 def keystorePropertiesFile = rootProject.file("keystore.properties")
