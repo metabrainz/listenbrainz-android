@@ -28,7 +28,7 @@ class FeaturesViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(ioDispatcher) {
-            appPreferences.getLoginStatus()
+            appPreferences.getLoginStatusFlow()
                 .stateIn(this)
                 .collectLatest {
                     _loginStatusFlow.emit(it)

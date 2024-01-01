@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.feed.dialogs
+package org.listenbrainz.android.ui.components.dialogs
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row

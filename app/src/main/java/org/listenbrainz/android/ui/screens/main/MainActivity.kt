@@ -1,11 +1,10 @@
-package org.listenbrainz.android.ui.screens.dashboard
+package org.listenbrainz.android.ui.screens.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.captionBar
 import androidx.compose.material.BackdropValue
@@ -18,14 +17,16 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.LifecycleStartEffect
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.PermissionStatus
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.service.ListenScrobbleService
 import org.listenbrainz.android.ui.components.DialogLB
 import org.listenbrainz.android.ui.navigation.AppNavigation
 import org.listenbrainz.android.ui.navigation.BottomNavigationBar
@@ -34,33 +35,44 @@ import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScre
 import org.listenbrainz.android.ui.screens.search.SearchScreen
 import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.Utils.isServiceRunning
+import org.listenbrainz.android.util.Utils.openAppSystemSettings
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
-import javax.inject.Inject
 
 @AndroidEntryPoint
-class DashboardActivity : ComponentActivity() {
+class MainActivity : ComponentActivity() {
     
-    @Inject
-    lateinit var appPreferences: AppPreferences
+    private lateinit var dashBoardViewModel: DashBoardViewModel
 
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
+        dashBoardViewModel = ViewModelProvider(this)[DashBoardViewModel::class.java]
 
         setContent {
             ListenBrainzTheme {
                 // TODO: Since this view-model will remain throughout the lifecycle of the app,
                 //  we can have tasks which require such lifecycle access or longevity. We can get this view-model's
                 //  instance anywhere when we initialize it as a hilt view-model.
-                val dashBoardViewModel : DashBoardViewModel by viewModels()
     
                 dashBoardViewModel.setUiMode()
                 dashBoardViewModel.beginOnboarding(this)
                 dashBoardViewModel.updatePermissionPreference()
                 
-                var isGrantedPerms by remember {
-                    mutableStateOf(dashBoardViewModel.appPreferences.permissionsPreference)
+                LifecycleStartEffect {
+                    dashBoardViewModel.connectToSpotify()
+                    onStopOrDispose {
+                        dashBoardViewModel.disconnectSpotify()
+                    }
+                }
+                
+                var isGrantedPerms: String? by remember {
+                    mutableStateOf(null)
+                }
+                
+                LaunchedEffect(Unit) {
+                    isGrantedPerms = dashBoardViewModel.getPermissionsPreference()
                 }
 
                 val launcher = rememberLauncherForActivityResult(
@@ -70,7 +82,7 @@ class DashboardActivity : ComponentActivity() {
                     when {
                         isGranted -> {
                             isGrantedPerms = PermissionStatus.GRANTED.name
-                            dashBoardViewModel.appPreferences.permissionsPreference  = PermissionStatus.GRANTED.name
+                            dashBoardViewModel.setPermissionsPreference(PermissionStatus.GRANTED.name)
                         }
                         else -> {
                             isGrantedPerms = when(isGrantedPerms){
@@ -82,7 +94,7 @@ class DashboardActivity : ComponentActivity() {
                                 }
                                 else -> {PermissionStatus.DENIED_TWICE.name}
                             }
-                            dashBoardViewModel.appPreferences.permissionsPreference = isGrantedPerms
+                            dashBoardViewModel.setPermissionsPreference(isGrantedPerms)
                         }
                     }
                 }
@@ -111,6 +123,10 @@ class DashboardActivity : ComponentActivity() {
                         DialogLB(
                             title = "Permissions required",
                             description = "Please grant storage permissions from settings for the app to function.",
+                            options = arrayOf("Open Settings"),
+                            firstOptionListener = {
+                                openAppSystemSettings()
+                            },
                             dismissOnBackPress = false,
                             dismissOnClickOutside = false,
                             onDismiss = {}
@@ -184,15 +200,12 @@ class DashboardActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        CoroutineScope(Dispatchers.Main).launch {
-            if(
-                appPreferences.isNotificationServiceAllowed &&
-                appPreferences.getLbAccessToken().isNotEmpty() &&
-                appPreferences.submitListens
-            ) {
-                App.startListenService()
+        lifecycleScope.launch(Dispatchers.Main) {
+            if (dashBoardViewModel.isNotificationListenerServiceAllowed()) {
+                if (!isServiceRunning(ListenScrobbleService::class.java)) {
+                    App.startListenService()
+                }
             }
         }
-        
     }
 }

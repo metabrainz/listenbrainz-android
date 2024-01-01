@@ -31,7 +31,7 @@ import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventType
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
-import org.listenbrainz.android.ui.screens.feed.FeedSocialDropdown
+import org.listenbrainz.android.ui.screens.feed.SocialDropdown
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils
 
@@ -70,9 +70,9 @@ fun ReviewFeedLayout(
             enableDropdownIcon = true,
             onDropdownIconClick = onDropdownClick,
             dropDown = {
-                FeedSocialDropdown(
+                SocialDropdown(
                     isExpanded = dropdownState == index,
-                    event = event,
+                    metadata = event.metadata,
                     onDismiss = onDropdownClick,
                     onOpenInMusicBrainz = onOpenInMusicBrainz,
                     onPin = onPin,

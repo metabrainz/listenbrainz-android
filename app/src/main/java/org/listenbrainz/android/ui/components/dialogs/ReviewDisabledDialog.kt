@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.feed.dialogs
+package org.listenbrainz.android.ui.components.dialogs
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image

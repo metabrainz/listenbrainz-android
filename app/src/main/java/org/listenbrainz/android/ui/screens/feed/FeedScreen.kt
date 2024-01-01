@@ -1,6 +1,8 @@
 package org.listenbrainz.android.ui.screens.feed
 
+import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.os.Bundle
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -44,6 +46,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -60,7 +63,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -75,30 +77,25 @@ import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.TitleAndSubtitle
-import org.listenbrainz.android.ui.screens.feed.dialogs.Dialog
-import org.listenbrainz.android.ui.screens.feed.dialogs.PersonalRecommendationDialog
-import org.listenbrainz.android.ui.screens.feed.dialogs.PinDialog
-import org.listenbrainz.android.ui.screens.feed.dialogs.ReviewDialog
-import org.listenbrainz.android.ui.screens.feed.dialogs.rememberDialogsState
+import org.listenbrainz.android.ui.components.dialogs.Dialog
+import org.listenbrainz.android.ui.components.dialogs.PersonalRecommendationDialog
+import org.listenbrainz.android.ui.components.dialogs.PinDialog
+import org.listenbrainz.android.ui.components.dialogs.ReviewDialog
+import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.FeedViewModel
+import org.listenbrainz.android.viewmodel.SocialViewModel
 
 @Composable
 fun FeedScreen(
     viewModel: FeedViewModel = hiltViewModel(),
+    socialViewModel: SocialViewModel = hiltViewModel(),
     scrollToTopState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit
 ) {
     
-    LifecycleStartEffect(Unit) {
-        viewModel.connectToSpotify()
-        onStopOrDispose {
-            viewModel.disconnectSpotify()
-        }
-    }
-    
-    val uiState = viewModel.uiState.collectAsState().value
+    val uiState by viewModel.uiState.collectAsState()
     
     FeedScreen(
         uiState = uiState,
@@ -107,18 +104,18 @@ fun FeedScreen(
         onDeleteOrHide = { event, eventType, parentUser ->
             viewModel.hideOrDeleteEvent(event, eventType, parentUser)
         },
-        onErrorShown = { viewModel.clearError() },
+        onErrorShown = { viewModel.clearErrorFlow() },
         recommendTrack = { event ->
-            viewModel.recommend(event)
+            socialViewModel.recommend(event.metadata)
         },
         personallyRecommendTrack = { event, users, blurbContent ->
-            viewModel.personallyRecommend(event, users, blurbContent)
+            socialViewModel.personallyRecommend(event.metadata, users, blurbContent)
         },
         review = { event, type, blurbContent, rating, locale ->
-            viewModel.review(event, type, blurbContent, rating, locale)
+            socialViewModel.review(event.metadata, type, blurbContent, rating, locale)
         },
         pin = { event, blurbContent ->
-            viewModel.pin(event, blurbContent)
+            socialViewModel.pin(event.metadata, blurbContent)
         },
         searchFollower = { query ->
             viewModel.searchUser(query)
@@ -133,7 +130,7 @@ fun FeedScreen(
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
-private fun FeedScreen(
+fun FeedScreen(
     uiState: FeedUiState,
     scrollToTopState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
@@ -144,16 +141,16 @@ private fun FeedScreen(
     review: (event: FeedEvent, entityType: ReviewEntityType, blurbContent: String, rating: Int?, locale: String) -> Unit,
     pin: (event: FeedEvent, blurbContent: String?) -> Unit,
     searchFollower: (String) -> Unit,
-    isCritiqueBrainzLinked: suspend () -> Boolean,
+    isCritiqueBrainzLinked: suspend () -> Boolean?,
     onPlay: (event: FeedEvent) -> Unit,
 ) {
-    val myFeedPagingData = uiState.myFeedState.data.eventList.collectAsLazyPagingItems()
+    val myFeedPagingData = uiState.myFeedState.eventList.collectAsLazyPagingItems()
     val myFeedListState = rememberLazyListState()
     
-    val followListensPagingData = uiState.followListensFeedState.data.eventList.collectAsLazyPagingItems()
+    val followListensPagingData = uiState.followListensFeedState.eventList.collectAsLazyPagingItems()
     val followListensListState = rememberLazyListState()
     
-    val similarListensPagingData = uiState.similarListensFeedState.data.eventList.collectAsLazyPagingItems()
+    val similarListensPagingData = uiState.similarListensFeedState.eventList.collectAsLazyPagingItems()
     val similarListensListState = rememberLazyListState()
     
     val pagerState = rememberPagerState { 3 }
@@ -228,22 +225,19 @@ private fun FeedScreen(
                     personallyRecommendTrack = { index ->
                         dialogsState.activateDialog(
                             Dialog.PERSONAL_RECOMMENDATION,
-                            0,
-                            index
+                            FeedDialogBundleKeys.feedDialogBundle(0, index),
                         )
                     },
                     review = { index ->
                         dialogsState.activateDialog(
                             Dialog.REVIEW,
-                            0,
-                            index
+                            FeedDialogBundleKeys.feedDialogBundle(0, index)
                         )
                     },
                     pin = { index ->
                         dialogsState.activateDialog(
                             Dialog.PIN,
-                            0,
-                            index
+                            FeedDialogBundleKeys.feedDialogBundle(0, index)
                         )
                     },
                     onPlay = onPlay
@@ -256,22 +250,19 @@ private fun FeedScreen(
                     personallyRecommendTrack = { index ->
                         dialogsState.activateDialog(
                             Dialog.PERSONAL_RECOMMENDATION,
-                            1,
-                            index
+                            FeedDialogBundleKeys.feedDialogBundle(1, index)
                         )
                     },
                     review = { index ->
                         dialogsState.activateDialog(
                             Dialog.REVIEW,
-                            1,
-                            index
+                            FeedDialogBundleKeys.feedDialogBundle(1, index)
                         )
                     },
                     pin = { index ->
                         dialogsState.activateDialog(
                             Dialog.PIN,
-                            1,
-                            index
+                            FeedDialogBundleKeys.feedDialogBundle(1, index)
                         )
                     },
                     onPlay = onPlay
@@ -284,22 +275,19 @@ private fun FeedScreen(
                     personallyRecommendTrack = { index ->
                         dialogsState.activateDialog(
                             Dialog.PERSONAL_RECOMMENDATION,
-                            2,
-                            index
+                            FeedDialogBundleKeys.feedDialogBundle(2, index)
                         )
                     },
                     review = { index ->
                         dialogsState.activateDialog(
                             Dialog.REVIEW,
-                            2,
-                            index
+                            FeedDialogBundleKeys.feedDialogBundle(2, index)
                         )
                     },
                     pin = { index ->
                         dialogsState.activateDialog(
                             Dialog.PIN,
-                            2,
-                            index
+                            FeedDialogBundleKeys.feedDialogBundle(2, index)
                         )
                     },
                     onPlay = onPlay
@@ -327,9 +315,9 @@ private fun FeedScreen(
             dialogsState.deactivateDialog()
         },
         currentDialog = dialogsState.currentDialog,
-        currentEventIndex = dialogsState.currentEventIndex,
-        pagingSource = remember(dialogsState.currentPage) {
-            when (dialogsState.currentPage) {
+        currentEventIndex = dialogsState.metadata?.getInt(FeedDialogBundleKeys.EVENT_INDEX.name),
+        pagingSource = remember(dialogsState.metadata) {
+            when (dialogsState.metadata?.getInt(FeedDialogBundleKeys.PAGE.name)) {
                 0 -> myFeedPagingData
                 1 -> followListensPagingData
                 else -> similarListensPagingData
@@ -355,7 +343,7 @@ private fun Dialogs(
     onPin: (event: FeedEvent, blurbContent: String) -> Unit,
     searchUsers: (String) -> Unit,
     onPersonallyRecommend: (event: FeedEvent, users: List<String>, blurbContent: String) -> Unit,
-    isCritiqueBrainzLinked: suspend () -> Boolean,
+    isCritiqueBrainzLinked: suspend () -> Boolean?,
     onReview: (event: FeedEvent, type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String) -> Unit
 ) {
     when (currentDialog){
@@ -409,7 +397,7 @@ private fun Dialogs(
 private fun MyFeed(
     listState: LazyListState,
     pagingData: LazyPagingItems<FeedUiEventItem>,
-    uiState: FeedScreenUiState,
+    uiState: FeedUiEventData,
     onDeleteOrHide: (event: FeedEvent, eventType: FeedEventType, parentUser: String) -> Unit,
     recommendTrack: (event: FeedEvent) -> Unit,
     personallyRecommendTrack: (index: Int) -> Unit,
@@ -436,14 +424,14 @@ private fun MyFeed(
             
             pagingData[index]?.apply {
                 AnimatedVisibility(
-                    visible = uiState.data.isDeletedMap[event.id] != true,
+                    visible = uiState.isDeletedMap[event.id] != true,
                     enter = expandVertically(),
                     exit = shrinkVertically()
                 ) {
                     eventType.Content(
                         event = event,
                         parentUser = parentUser,
-                        isHidden = uiState.data.isHiddenMap[event.id] == true,
+                        isHidden = uiState.isHiddenMap[event.id] == true,
                         onDeleteOrHide = {
                             onDeleteOrHide(
                                 event,
@@ -557,9 +545,9 @@ fun FollowListens(
                         dropdownItemIndex.value = if (dropdownItemIndex.value == null) index else null
                     },
                     dropDown = {
-                        FeedSocialDropdown(
+                        SocialDropdown(
                             isExpanded = dropdownItemIndex.value == index,
-                            event = event,
+                            metadata = event.metadata,
                             onDismiss = {
                                 dropdownItemIndex.value = null
                             },
@@ -580,7 +568,7 @@ fun FollowListens(
                                 dropdownItemIndex.value = null
                             },
                             onOpenInMusicBrainz = {
-                                uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@FeedSocialDropdown}")
+                                uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@SocialDropdown}")
                             }
                         )
                     }
@@ -669,9 +657,9 @@ fun SimilarListens(
                         }
                     },
                     dropDown = {
-                        FeedSocialDropdown(
+                        SocialDropdown(
                             isExpanded = dropdownItemIndex.value == index,
-                            event = event,
+                            metadata = event.metadata,
                             onDismiss = { dropdownItemIndex.value = null },
                             onRecommend = {
                                 recommendTrack(event)
@@ -690,7 +678,7 @@ fun SimilarListens(
                                 dropdownItemIndex.value = null
                             },
                             onOpenInMusicBrainz = {
-                                uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@FeedSocialDropdown}")
+                                uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@SocialDropdown}")
                             }
                         )
                     }
@@ -843,7 +831,22 @@ private fun PagerRearLoadingIndicator(pagingData: LazyPagingItems<FeedUiEventIte
     }
 }
 
-@Preview
+
+private enum class FeedDialogBundleKeys {
+    PAGE,
+    EVENT_INDEX;
+    companion object {
+        fun feedDialogBundle(page: Int, eventIndex: Int): Bundle {
+            return Bundle().apply {
+                putInt(PAGE.name, page)
+                putInt(EVENT_INDEX.name, eventIndex)
+            }
+        }
+    }
+}
+
+
+@Preview(uiMode = UI_MODE_NIGHT_NO)
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun FeedScreenPreview() {
@@ -851,25 +854,23 @@ private fun FeedScreenPreview() {
         Surface (color = ListenBrainzTheme.colorScheme.background) {
             FeedScreen(
                 uiState = FeedUiState(
-                    FeedScreenUiState(
-                        FeedUiEventData(eventList = flow {
-                            emit(PagingData.from(
-                                List(30){
-                                    FeedUiEventItem(
-                                        eventType = FeedEventType.LISTEN,
-                                        parentUser = "Jasjeet",
-                                        event = FeedEvent(
-                                            0,
-                                            0,
-                                            FeedEventType.LISTEN.type,
-                                            metadata = Metadata(),
-                                            username = "Jasjeet"
-                                        )
+                    FeedUiEventData(eventList = flow {
+                        emit(PagingData.from(
+                            List(30){
+                                FeedUiEventItem(
+                                    eventType = FeedEventType.LISTEN,
+                                    parentUser = "Jasjeet",
+                                    event = FeedEvent(
+                                        0,
+                                        0,
+                                        FeedEventType.LISTEN.type,
+                                        metadata = Metadata(),
+                                        username = "Jasjeet"
                                     )
-                                }
-                            ))
-                        })
-                    )
+                                )
+                            }
+                        ))
+                    })
                 ),
                 scrollToTopState = false,
                 onScrollToTop = {},

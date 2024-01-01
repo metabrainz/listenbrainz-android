@@ -12,7 +12,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import org.listenbrainz.android.model.yimdata.YimData
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.BlogService
@@ -33,13 +32,15 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class ServiceModule {
     
+    private val okHttpClient by lazy { OkHttpClient() }
+    
     private fun constructRetrofit(appPreferences: AppPreferences): Retrofit =
         Retrofit.Builder()
             .client(
-                OkHttpClient()
+                okHttpClient
                     .newBuilder()
                     .addInterceptor(HeaderInterceptor(appPreferences))
-                    .addInterceptor (HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS))
+                    //.addInterceptor (HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS))
                     .build()
             )
             .baseUrl(LISTENBRAINZ_API_BASE_URL)
@@ -51,9 +52,9 @@ class ServiceModule {
     @get:Provides
     val blogService: BlogService = Retrofit.Builder()
         .baseUrl("https://public-api.wordpress.com/rest/v1.1/sites/")
+        .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build().create(BlogService::class.java)
-
     
     @Singleton
     @Provides
@@ -75,11 +76,13 @@ class ServiceModule {
         constructRetrofit(appPreferences)
             .create(FeedService::class.java)
     
+    
     @Singleton
     @Provides
     fun providesYoutubeApiService(@ApplicationContext context: Context): YouTubeApiService =
         Retrofit.Builder()
             .baseUrl("https://www.googleapis.com/")
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .client( OkHttpClient.Builder()
                 .addInterceptor { chain ->
@@ -94,7 +97,7 @@ class ServiceModule {
             .build()
             .create(YouTubeApiService::class.java)
     
-    /* YIM */
+    /** YIM **/
     
     private val yimGson: Gson by lazy {
         
@@ -136,6 +139,7 @@ class ServiceModule {
     @get:Provides
     val yimService: YimService = Retrofit.Builder()
             .baseUrl(LISTENBRAINZ_API_BASE_URL)
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(yimGson))
             .build()
             .create(YimService::class.java)

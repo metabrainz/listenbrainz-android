@@ -8,7 +8,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,16 +31,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.text.HtmlCompat
 import org.listenbrainz.android.model.BlogPost
 import org.listenbrainz.android.ui.components.LoadingAnimation
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.viewmodel.NewsListViewModel
+import org.listenbrainz.android.R
 
 @Composable
 fun NewsBrainzScreen(
@@ -109,6 +116,7 @@ fun BlogCard(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
+
             val parsedTitle: String = when {
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.N -> {
                     Html.fromHtml(post.title, Html.FROM_HTML_MODE_COMPACT).toString()
@@ -117,11 +125,19 @@ fun BlogCard(
                     HtmlCompat.fromHtml(post.title, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
                 }
             }
-            Text(
-                text = parsedTitle,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Row (verticalAlignment = Alignment.CenterVertically , modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.SpaceBetween){
+                Text(
+                    text = parsedTitle,
+                    textAlign = TextAlign.Left,
+                    color = ListenBrainzTheme.colorScheme.lbSignature,
+                    modifier = Modifier.padding(end = 5.dp).fillMaxWidth(0.9F)
+                )
+                IconButton(onClick = { onLongClick() }) {
+                   Icon(painter = painterResource(id = R.drawable.news_share), contentDescription = "Share News Button" , tint = ListenBrainzTheme.colorScheme.hint , modifier = Modifier.padding(start = 5.dp)
+                   )
+
+                }
+            }
 
             Spacer(Modifier.height(16.dp))
 
@@ -135,8 +151,10 @@ fun BlogCard(
             }
             Text(
                 text = parsedContent,
-                maxLines = 5,
-                color = MaterialTheme.colorScheme.onSurface
+                maxLines = 4,
+                color = MaterialTheme.colorScheme.onSurface,
+                overflow = TextOverflow.Ellipsis
+
             )
         }
     }

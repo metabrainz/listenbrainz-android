@@ -33,7 +33,7 @@ class SearchViewModelTest : BaseUnitTest() {
     
     @Mock
     private lateinit var mockSocialRepository: SocialRepository
-
+    
     @Before
     fun setup(){
         
@@ -118,7 +118,7 @@ class SearchViewModelTest : BaseUnitTest() {
         return this
     }
     
-    private suspend fun toggleFollowStatus(user: String, testScope: TestScope) : SearchViewModelTest {
+    private fun toggleFollowStatus (user: String, testScope: TestScope) : SearchViewModelTest {
         testScope.advanceUntilIdle()
         viewModel.toggleFollowStatus(User(user), getIndex(user))
         return this

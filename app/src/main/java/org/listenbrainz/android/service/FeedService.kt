@@ -1,9 +1,9 @@
 package org.listenbrainz.android.service
 
+import org.listenbrainz.android.model.SocialResponse
 import org.listenbrainz.android.model.feed.FeedData
 import org.listenbrainz.android.model.feed.FeedEventDeletionData
 import org.listenbrainz.android.model.feed.FeedEventVisibilityData
-import org.listenbrainz.android.model.SocialResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -12,7 +12,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface FeedService {
-
+    
     @GET("user/{user_name}/feed/events")
     suspend fun getFeedEvents(
         @Path("user_name") username: String,

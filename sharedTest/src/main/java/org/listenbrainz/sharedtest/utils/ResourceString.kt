@@ -1,5 +1,8 @@
 package org.listenbrainz.sharedtest.utils
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+
 object ResourceString {
     
     val auth_header_not_found_error by lazy {
@@ -38,6 +41,30 @@ object ResourceString {
         EntityTestUtils.loadResourceAsString("user_does_not_exist_error.json")
     }
     
+    val my_feed_page_1 by lazy {
+        EntityTestUtils.loadResourceAsString("my_feed_page_1.json")
+    }
+    
+    val my_feed_page_2 by lazy {
+        EntityTestUtils.loadResourceAsString("my_feed_page_2.json")
+    }
+    
+    val follow_listens_page_1 by lazy {
+        EntityTestUtils.loadResourceAsString("follow_listens_page_1.json")
+    }
+    
+    val follow_listens_page_2 by lazy {
+        EntityTestUtils.loadResourceAsString("follow_listens_page_2.json")
+    }
+    
+    val similar_listens_page_1 by lazy {
+        EntityTestUtils.loadResourceAsString("similar_listens_page_1.json")
+    }
+    
+    val similar_listens_page_2 by lazy {
+        EntityTestUtils.loadResourceAsString("similar_listens_page_2.json")
+    }
+    
     val rate_limiting_error by lazy {
         "{\"code\":429,\"error\":\"\"}"
     }
@@ -50,5 +77,8 @@ object ResourceString {
         EntityTestUtils.loadResourceAsString("yim_data.json")
     }
     
+    fun <T> String.toClass(): T {
+        return Gson().fromJson(this, object: TypeToken<T>() {}.type)
+    }
     
 }

@@ -14,7 +14,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,9 +24,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.UserListUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
@@ -48,9 +44,8 @@ fun FollowButton(
     height: Dp = 30.dp,
     fontSize: TextUnit = (height.value/2 - 1).sp,
     cornerRadius: Dp = 6.dp,
-    scope: CoroutineScope,
     buttonColor: Color = ListenBrainzTheme.colorScheme.lbSignature,
-    onClick: suspend () -> Unit,
+    onClick: () -> Unit,
 ) {
     
     val transition = updateTransition(
@@ -75,11 +70,7 @@ fun FollowButton(
         modifier = modifier
             .height(height)
             .width(height * (2.5f))
-            .clickable {
-                scope.launch(Dispatchers.IO) {
-                    onClick()
-                }
-            },
+            .clickable { onClick() },
         border = BorderStroke(2.dp, buttonColor),
         shape = RoundedCornerShape(cornerRadius),
         color = Color.Unspecified
@@ -100,6 +91,6 @@ fun FollowButton(
 @Composable
 fun FollowButtonPreview() {
     ListenBrainzTheme {
-        FollowButton(isFollowedState = true, scope = rememberCoroutineScope()){}
+        FollowButton(isFollowedState = true){}
     }
 }

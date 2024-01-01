@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -32,7 +33,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -49,7 +49,6 @@ import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.flow
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.SearchUiState
@@ -72,7 +71,6 @@ fun SearchScreen(
         enter = fadeIn(),
         exit = fadeOut()
     ) {
-        
         val uiState: SearchUiState by viewModel.uiState.collectAsState()
         
         SearchScreen(
@@ -99,7 +97,7 @@ private fun SearchScreen(
     onDismiss: () -> Unit,
     onQueryChange: (String) -> Unit,
     /** Must return if the operation was successful.*/
-    onFollowClick: suspend (User, Int) -> Unit,
+    onFollowClick: (User, Int) -> Unit,
     onClear: () -> Unit,
     keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current,
     onSearch: (String) -> Unit = {
@@ -190,12 +188,11 @@ private fun SearchScreen(
 @Composable
 private fun UserList(
     uiState: SearchUiState,
-    onFollowClick: suspend (User, Int) -> Unit,
-    scope: CoroutineScope = rememberCoroutineScope()
+    onFollowClick: (User, Int) -> Unit
 ) {
     
     LazyColumn(contentPadding = PaddingValues(ListenBrainzTheme.paddings.lazyListAdjacent)) {
-        items(uiState.result.userList.size) { index ->
+        itemsIndexed(uiState.result.userList) { index, user ->
             
             Column {
                 Box(
@@ -216,7 +213,7 @@ private fun UserList(
                         Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.coverArtAndTextGap))
                         
                         Text(
-                            text = uiState.result.userList[index].username,
+                            text = user.username,
                             color = ListenBrainzTheme.colorScheme.text,
                             fontWeight = FontWeight.Bold
                         )
@@ -224,8 +221,7 @@ private fun UserList(
                     
                     FollowButton(
                         modifier = Modifier.align(Alignment.CenterEnd),
-                        isFollowedState = uiState.result.isFollowedList[index],
-                        scope = scope,
+                        isFollowedState = uiState.result.isFollowedList[index]
                     ) {
                         onFollowClick(uiState.result.userList[index], index)
                     }

@@ -1,12 +1,17 @@
 package org.listenbrainz.android.model
 
+import androidx.compose.runtime.Stable
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import org.listenbrainz.android.util.Resource
+import org.listenbrainz.android.util.Utils.error
 import retrofit2.Response
 
-/** These exceptions need to handled in view-model, shown via UI and not just thrown.
+
+/** These exceptions need to be handled in view-model, shown via UI and not just thrown.
  * @param genericToast Generic message for the error.
  * @param actualResponse Actual response given by the server.*/
+@Stable
 enum class ResponseError(val genericToast: String, var actualResponse: String? = null) {
     
     DOES_NOT_EXIST(genericToast = "Error! Object not found."),     // "User Some_User_That_Does_Not_Exist not found"
@@ -38,6 +43,10 @@ enum class ResponseError(val genericToast: String, var actualResponse: String? =
     /** Simple function that returns the most suitable message to show the user.*/
     fun toast(): String = actualResponse ?: genericToast
     
+    /** Wrap this [ResponseError] in [Resource] with an optional parameter to add the actual response.*/
+    fun <T> asResource(actualResponse: String? = null): Resource<T> =
+        Resource.failure(error = this.apply { this@ResponseError.actualResponse = actualResponse })
+    
     companion object {
         
         /** Get [ResponseError] for a given Retrofit **error** [Response] from server.*/
@@ -62,7 +71,7 @@ enum class ResponseError(val genericToast: String, var actualResponse: String? =
          * returning errors is the sole motive.*/
         fun <T> parseError(response: Response<T>) : ApiError =
             Gson().fromJson(
-                /* json = */ response.errorBody()?.string(),
+                /* json = */ response.error(),
                 /* typeOfT = */ object : TypeToken<ApiError>() {}.type
             )
         

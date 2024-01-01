@@ -7,7 +7,15 @@ import org.listenbrainz.android.model.ResponseError
 class Resource<T>(val status: Status, val data: T?, val error: ResponseError? = null) {
     
     enum class Status {
-        LOADING, FAILED, SUCCESS
+        LOADING, FAILED, SUCCESS;
+        
+        fun isSuccessful(): Boolean {
+            return this == SUCCESS
+        }
+        
+        fun isFailed(): Boolean {
+            return this == FAILED
+        }
     }
 
     companion object {

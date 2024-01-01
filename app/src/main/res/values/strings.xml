@@ -5,7 +5,7 @@
     <string name="releases">Releases</string>
     <string name="recording_releases">Appears On Releases</string>
 
-    <!-- DashboardActivity -->
+    <!-- MainActivity -->
     <string name="app_name">ListenBrainz</string>
     <string name="search_hint">Search ListenBrainz</string>
     <string name="search_card">Explore ListenBrainz data</string>
@@ -229,6 +229,34 @@
     <string name="tt_yim_charts_parent" translatable="false">tt_yim_charts_parent</string>
     <string name="tt_yim_statistics_parent" translatable="false">tt_yim_statistics_parent</string>
     <string name="title_activity_settings" translatable="false">SettingsActivity</string>
+
+    <!-- Scrobble -->
+    <string name="state_scrobbling">Now scrobbling…</string>
+    <string name="state_scrobbled">Scrobbled</string>
+    <string name="unscrobble">Unscrobble</string>
+    <string name="state_unscrobbled">Unscrobbled</string>
+    <string name="state_unrecognised_artist">Unrecognised artist</string>
+    <string name="tap_to_edit">(Tap to edit)</string>
+    <string name="recently_scrobbled">Recently Scrobbled</string>
+    <string name="new_player" formatted="true"
+        comment="(%1 = App name) detected (shown in notification, when a new music player is detected)"
+        >%1$s detected</string>
+    <string name="new_player_prompt">Keep scrobbling this app?</string>
+    <string name="no_scrobbles">No songs here yet…</string>
+    <string name="channel_err"
+        comment="Its a noun"
+        >Scrobble errors</string>
+    <string name="new_app">New app</string>
+    <string name="no_apps_enabled">No apps are enabled</string>
+    <string name="n_more" formatted="true"
+        comment="n more( pending scrobbles)"
+        >%1$d more</string>
+    <string name="pending_scrobbles">Pending Scrobbles</string>
+    <string name="pending_scrobble">Pending scrobble</string>
+    <string name="pending_scrobbles_noti">Processing pending scrobbles</string>
+    <string name="s_top_scrobbles" formatted="true"
+        comment="%1= the word weekly or monthly"
+        >%1$s top scrobbles</string>
 
     <!-- CritiqueBrainz-->
     <string name="cb_review_tc">You acknowledge and agree that your contributed reviews to CritiqueBrainz are licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0) license. You agree to license your work under this license. You represent and warrant that you own or control all rights in and to the work, that nothing in the work infringes the rights of any third-party, and that you have the permission to use and to license the work under the selected Creative Commons license. Finally, you give the MetaBrainz Foundation permission to license this content for commercial use outside of Creative Commons licenses in order to support the operations of the organization.</string>

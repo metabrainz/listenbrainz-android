@@ -34,14 +34,14 @@ import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
-import org.listenbrainz.android.viewmodel.ListensViewModel
+import org.listenbrainz.android.viewmodel.SocialViewModel
 
 @Composable
 fun ListeningNowOnSpotify(
     playerState: PlayerState?,
     bitmap: ListenBitmap
 ){
-    val listenViewModel = hiltViewModel<ListensViewModel>()
+    val socialViewModel = hiltViewModel<SocialViewModel>()
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -53,9 +53,9 @@ fun ListeningNowOnSpotify(
             .clickable(onClick = {
                 val isPaused = playerState?.isPaused ?: false
                 if (isPaused) {
-                    listenViewModel.play()
+                    socialViewModel.play()
                 } else {
-                    listenViewModel.pause()
+                    socialViewModel.pause()
                 }
             }),
         elevation = 0.dp,

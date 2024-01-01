@@ -1,8 +1,8 @@
 package org.listenbrainz.android.viewmodel
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,14 +31,13 @@ import javax.inject.Inject
 class SearchViewModel @Inject constructor(
     private val repository: SocialRepository,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
-) : ViewModel() {
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+) : FollowUnfollowModel<SearchUiState>(repository, ioDispatcher) {
     
     private val inputQueryFlow = MutableStateFlow("")
     
     @OptIn(FlowPreview::class)
     private val queryFlow = inputQueryFlow.asStateFlow().debounce(500).distinctUntilChanged()
-    private val errorFlow = MutableStateFlow<ResponseError?>(null)
     
     // Result flows
     private val userListFlow = MutableStateFlow<List<User>>(emptyList())
@@ -48,7 +47,7 @@ class SearchViewModel @Inject constructor(
             emit(UserListUiState(userList, isFollowedList))
         }
     
-    val uiState = createUiStateFlow()
+    override val uiState: StateFlow<SearchUiState> = createUiStateFlow()
     
     init {
         // Engage query flow
@@ -71,25 +70,29 @@ class SearchViewModel @Inject constructor(
         // Observing changes in userListFlow
         viewModelScope.launch(defaultDispatcher) {
             userListFlow.collectLatest { userList ->
-                if (userList.isEmpty()) {
-                    followStateFlow.emit(emptyList())
-                    return@collectLatest
-                }
-                
-                val followList = mutableListOf<Boolean>()
-                userList.forEach {
-                    followList.add(it.isFollowed)
-                }
-                
-                followStateFlow.emit(followList)
-                
+                followStateFlow.emit(userList.map { it.isFollowed })
             }
         }
         
     }
     
+    fun toggleFollowStatus(user: User, index: Int) {
+        viewModelScope.launch(defaultDispatcher) {
+            
+            if (user.username.isEmpty()) return@launch
+            
+            try {
+                if (followStateFlow.value[index])
+                    optimisticallyUnfollowUser(user, index) { invertFollowUiState(it) }
+                else
+                    optimisticallyFollowUser(user, index) { invertFollowUiState(it) }
+            } catch (e: CancellationException) {
+                e.printStackTrace()
+            }
+        }
+    }
     
-    private fun createUiStateFlow(): StateFlow<SearchUiState> {
+    override fun createUiStateFlow(): StateFlow<SearchUiState> {
         return combine(
             inputQueryFlow,
             resultFlow,
@@ -111,78 +114,22 @@ class SearchViewModel @Inject constructor(
     }
     
     
-    suspend fun toggleFollowStatus(user: User, index: Int) {
-        
-        if (user.username.isEmpty()) return
-        
-        if (followStateFlow.value[index])
-            optimisticallyUnfollowUser(user, index)
-        else
-            optimisticallyFollowUser(user, index)
-        
-    }
-    
-    
-    private suspend fun optimisticallyFollowUser(user: User, index: Int) {
-        
-        invertFollowUiState(index)
-        
-        val result = repository.followUser(user.username)
-        when (result.status) {
-            Resource.Status.FAILED -> {
-                emitError(result.error)
-                
-                if (userIsAlreadyFollowed(result.error)){
-                    // We won't toggle back follow state if user is already followed.
-                    return
-                }
-                
-                invertFollowUiState(index)
-            }
-            else -> Unit
-        }
-    }
-    
-    
-    private suspend fun optimisticallyUnfollowUser(user: User, index: Int) {
-        
-        invertFollowUiState(index)
-        
-        val result = repository.unfollowUser(user.username)
-        return when (result.status) {
-            Resource.Status.FAILED -> {
-                // Since same response is given by server even if user is unfollowed or not, we
-                // won't do anything here.
-                invertFollowUiState(index)
-                emitError(result.error)
-            }
-            else -> Unit
-        }
-    }
-    
     private fun invertFollowUiState(index: Int) {
-        
-        followStateFlow.getAndUpdate { list ->
-            val mutableList = list.toMutableList()
-            try {
-                mutableList[index] = !mutableList[index]
-            } catch (e: IndexOutOfBoundsException){
-                // This means query has already changed while we were evaluating this function.
-                return@getAndUpdate list
-            }
-            return@getAndUpdate mutableList
-        }
-        
-    }
-    
-    private suspend fun emitError(error: ResponseError?){ errorFlow.emit(error) }
-    
-    /** Call this function to reset [errorFlow]'s latest emission.*/
-    fun clearErrorFlow() {
+        // If the view-model is destroyed at this point, Ui state will not be inverted.
         viewModelScope.launch {
-            errorFlow.emit(null)
+            followStateFlow.getAndUpdate { list ->
+                val mutableList = list.toMutableList()
+                try {
+                    mutableList[index] = !mutableList[index]
+                } catch (e: IndexOutOfBoundsException){
+                    // This means query has already changed while we were evaluating this function.
+                    return@getAndUpdate list
+                }
+                return@getAndUpdate mutableList
+            }
         }
     }
+    
     
     fun clearUi() {
         viewModelScope.launch {
@@ -190,9 +137,4 @@ class SearchViewModel @Inject constructor(
             inputQueryFlow.emit("")
         }
     }
-    
-    /** True if the error states the the user is already being followed.*/
-    private fun userIsAlreadyFollowed(error: ResponseError?): Boolean =
-        error == ResponseError.BAD_REQUEST &&
-                error.actualResponse?.contains("already following") == true
 }

@@ -2,6 +2,7 @@ package org.listenbrainz.android.repository.remoteplayer
 
 import com.spotify.protocol.types.PlayerContext
 import com.spotify.protocol.types.PlayerState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.model.ResponseError
@@ -14,15 +15,21 @@ interface RemotePlaybackHandler {
         artist: String
     ): Resource<String>
     
+    /** @param getYoutubeMusicVideoId Use [searchYoutubeMusicVideoId] to search for video ID while passing your own coroutine dispatcher.*/
     suspend fun playOnYoutube(
         getYoutubeMusicVideoId: suspend () -> Resource<String>
     ): Resource<Unit>
     
-    /** Connect to spotify app remote using this function. **Must** connect in *onStart* only.*/
+    /** Connect to spotify app remote using this function. **Must** connect in *onStart* only.
+     *
+     * **Note**: Only use [Dispatchers.Main] to establish connection.
+     * Coroutine-safe*/
     suspend fun connectToSpotify(onError: (ResponseError) -> Unit = {})
     
-    /** Disconnect to spotify app remote using this function. **Must** disconnect in *onStop* only.*/
-    fun disconnectSpotify()
+    /** Disconnect to spotify app remote using this function. **Must** disconnect in *onStop* only.
+     *
+     * Coroutine-safe*/
+    suspend fun disconnectSpotify()
     
     suspend fun fetchSpotifyTrackCoverArt(playerState: PlayerState?): ListenBitmap
     

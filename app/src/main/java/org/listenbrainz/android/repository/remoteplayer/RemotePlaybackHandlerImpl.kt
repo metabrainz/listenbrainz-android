@@ -25,6 +25,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ListenBitmap
@@ -47,6 +49,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
     private val youtubeApiService: YouTubeApiService
 ) : RemotePlaybackHandler {
     
+    private val mutex = Mutex()
     private var spotifyAppRemote: SpotifyAppRemote? = null
     
     /** This variable is used to maintain concurrency because spotify async tasks can cause
@@ -77,7 +80,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
             if (!items.isNullOrEmpty()) {
                 Resource.success(items.first().id.videoId)
             } else {
-                Resource.failure(error = ResponseError.DOES_NOT_EXIST.apply { actualResponse = "Could not find this song on youtube." })
+                ResponseError.REMOTE_PLAYER_ERROR.asResource("Could not find this song on youtube." )
             }
         } else {
             Resource.failure(error = ResponseError.getError(response = response))
@@ -86,7 +89,6 @@ class RemotePlaybackHandlerImpl @Inject constructor(
     }.getOrElse { Utils.logAndReturn(it) }
     
     
-    /** @param getYoutubeMusicVideoId Use [searchYoutubeMusicVideoId] to search for video ID while passing your own coroutine dispatcher.*/
     override suspend fun playOnYoutube(getYoutubeMusicVideoId: suspend () -> Resource<String>): Resource<Unit> {
         
         val result = getYoutubeMusicVideoId()
@@ -114,7 +116,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
                     }
                     else -> {
                         // Display an error message
-                        Resource.failure(error = ResponseError.DOES_NOT_EXIST.apply { actualResponse = "YouTube Music is not installed to play the track." })
+                        ResponseError.DOES_NOT_EXIST.asResource("YouTube Music is not installed to play the track.")
                     }
                 }
             }
@@ -133,7 +135,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
                     intent.putExtra(MediaStore.EXTRA_MEDIA_TITLE, query)
                     context.startActivity(intent)
                 */
-                Resource.failure(error = ResponseError.DOES_NOT_EXIST)
+                ResponseError.DOES_NOT_EXIST.asResource()
             }
         }
     }
@@ -141,13 +143,16 @@ class RemotePlaybackHandlerImpl @Inject constructor(
     
     override suspend fun connectToSpotify(onError: (ResponseError) -> Unit) {
         try {
-            disconnectSpotify()
-            isResumed = false
-            spotifyAppRemote = connectToAppRemote(
-                true,
-                spotifyClientId = appContext.getString(R.string.spotifyClientId),
-                onError
-            )
+            mutex.withLock {
+                println("CONNECT")
+                SpotifyAppRemote.disconnect(spotifyAppRemote)
+                isResumed = false
+                spotifyAppRemote = connectToAppRemote(
+                    true,
+                    spotifyClientId = appContext.getString(R.string.spotifyClientId),
+                    onError
+                )
+            }
         } catch (error: Throwable) {
             logError(error)
         }
@@ -190,7 +195,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
                             // Tell user that they need to login in the spotify app.
                             onError(
                                 ResponseError.REMOTE_PLAYER_ERROR.apply {
-                                    actualResponse = "Login into Spotify app in order to play songs from it."
+                                    actualResponse = "Login into Spotify app in order to play songs from your account."
                                 }
                             )
                         }
@@ -207,6 +212,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
                         
                         // Throw exception
                         if (!isResumed){
+                            logError(error)
                             cont.resumeWithException(error)
                             isResumed = true
                         }
@@ -217,30 +223,38 @@ class RemotePlaybackHandlerImpl @Inject constructor(
         }
     
     
-    override fun disconnectSpotify() {
-        SpotifyAppRemote.disconnect(spotifyAppRemote)
-        spotifyAppRemote = null
+    override suspend fun disconnectSpotify() {
+        if (!mutex.isLocked){
+            // Means our app is not establishing another instance and
+            // we are free to disconnect and make spotifyAppRemote null.
+            // We need our mutex to be free because we don't want spotify to be made
+            // null immediately AFTER another instance is assigned by a new screen.
+            mutex.withLock {
+                SpotifyAppRemote.disconnect(spotifyAppRemote)
+                spotifyAppRemote = null
+            }
+        }
     }
     
     
     override suspend fun fetchSpotifyTrackCoverArt(playerState: PlayerState?): ListenBitmap = suspendCoroutine { cont ->
         
+        fun getFallBackCoverArt(): ListenBitmap = ListenBitmap(
+            // Fallback Cover Art
+            bitmap = BitmapFactory.decodeResource(
+                appContext.resources,
+                R.drawable.ic_coverartarchive_logo_no_text
+            ),
+            id = null
+        )
+        
         // Return if URI is null
         if (playerState == null){
-            cont.resume(
-                ListenBitmap(
-                    // Fallback Cover Art
-                    bitmap = BitmapFactory.decodeResource(
-                        appContext.resources,
-                        R.drawable.ic_coverartarchive_logo_no_text
-                    ),
-                    id = null
-                )
-            )
+            cont.resume(getFallBackCoverArt())
         }
         
         // Get image from track
-        assertAppRemoteConnected()?.imagesApi?.getImage(playerState?.track?.imageUri ?: ImageUri(""), com.spotify.protocol.types.Image.Dimension.LARGE)
+        (assertAppRemoteConnected() ?: return@suspendCoroutine).imagesApi.getImage(playerState?.track?.imageUri ?: ImageUri(""), com.spotify.protocol.types.Image.Dimension.LARGE)
             ?.setResultCallback { bitmapHere ->
                 cont.resume(
                     ListenBitmap(
@@ -249,16 +263,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
                     )
                 )
             }?.setErrorCallback {
-                cont.resume(
-                    ListenBitmap(
-                        // Fallback Cover Art
-                        bitmap = BitmapFactory.decodeResource(
-                            appContext.resources,
-                            R.drawable.ic_coverartarchive_logo_no_text
-                        ),
-                        id = null
-                    )
-                )
+                cont.resume(getFallBackCoverArt())
             }
     }
     

@@ -10,7 +10,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,17 +43,21 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
-import androidx.preference.PreferenceManager
+import com.limurse.logger.Logger
+import com.limurse.logger.util.FileIntent
+import kotlinx.coroutines.launch
+import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.ui.components.Switch
-import org.listenbrainz.android.ui.screens.dashboard.DashboardActivity
-import org.listenbrainz.android.ui.screens.dashboard.DonateActivity
+import org.listenbrainz.android.ui.screens.main.MainActivity
+import org.listenbrainz.android.ui.screens.main.DonateActivity
 import org.listenbrainz.android.ui.screens.listens.ListeningAppsList
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.ui.theme.isUiModeIsDark
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Utils.getActivity
@@ -69,6 +73,7 @@ fun SettingsScreen(
     val uriHandler = LocalUriHandler.current
     var showBlacklist by remember { mutableStateOf(false) }
     val darkTheme = onScreenUiModeIsDark()
+    val scope = rememberCoroutineScope()
     val darkThemeCheckedState = remember { mutableStateOf(darkTheme) }
     val submitListensCheckedState = remember { mutableStateOf(viewModel.appPreferences.submitListens) }
     val notificationsCheckedState = remember { mutableStateOf(viewModel.appPreferences.isNotificationServiceAllowed) }
@@ -90,7 +95,7 @@ fun SettingsScreen(
 
     Column(modifier = Modifier
         .fillMaxSize()
-        .padding(8.dp)
+        .padding(horizontal = 8.dp)
         .verticalScroll(rememberScrollState())
     ) {
         Divider(thickness = 1.dp)
@@ -239,31 +244,81 @@ fun SettingsScreen(
             Switch(
                 checked = darkThemeCheckedState.value,
                 onCheckedChange = {
-                    val intent = Intent(context, DashboardActivity::class.java)
+                    val intent = Intent(context, MainActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    val preferences = PreferenceManager.getDefaultSharedPreferences(context).edit()
                     when (darkTheme) {
                         false -> {
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                            isUiModeIsDark.value = true
-                            preferences.putString(
-                                Constants.Strings.PREFERENCE_SYSTEM_THEME,
-                                context.getString(R.string.settings_device_theme_dark)
-                            ).apply()
+                            scope.launch {
+                                viewModel.appPreferences.setThemePreference(UiMode.DARK)
+                            }
                         }
                         true -> {
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                            isUiModeIsDark.value = false
-                            preferences.putString(
-                                Constants.Strings.PREFERENCE_SYSTEM_THEME,
-                                context.getString(R.string.settings_device_theme_light)
-                            ).apply()
+                            scope.launch {
+                                viewModel.appPreferences.setThemePreference(UiMode.LIGHT)
+                            }
                         }
                     }
                     context.getActivity()?.recreate() ?: context.startActivity(intent)
                     darkThemeCheckedState.value = it
                 },
             )
+        }
+
+        Divider(thickness = 1.dp)
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp)
+                .clickable {
+                    Logger.apply {
+                        compressLogsInZipFile { zipFile ->
+                            zipFile?.let {
+                                FileIntent.fromFile(
+                                    context,
+                                    it,
+                                    BuildConfig.APPLICATION_ID
+                                )?.let { intent ->
+                                    intent.putExtra(Intent.EXTRA_SUBJECT, "Log Files")
+                                    intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("mobile@metabrainz.org"))
+                                    intent.putExtra(Intent.EXTRA_TEXT, "Please find the attached log files.")
+                                    intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, "${BuildConfig.APPLICATION_ID}.provider", zipFile))
+                                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                    try {
+                                        context.startActivity(Intent.createChooser(intent, "Email logs..."))
+                                    } catch (e: java.lang.Exception) {
+                                        e(throwable = e)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(
+                    text = "Report an issue",
+                    color = when {
+                        viewModel.appPreferences.isNotificationServiceAllowed -> MaterialTheme.colorScheme.onSurface
+                        else -> Color(0xFF949494)
+                    }
+                )
+
+                Text(
+                    text = "Submit app logs for further investigation",
+                    lineHeight = 18.sp,
+                    fontSize = 12.sp,
+                    color = Color(0xFF949494),
+                    modifier = Modifier
+                        .padding(top = 6.dp)
+                        .width(240.dp)
+                )
+            }
         }
 
         Divider(thickness = 1.dp)
@@ -421,8 +476,23 @@ fun SettingsScreen(
         //        Divider(thickness = 1.dp)
 
         // BlackList Dialog
+        val uiState by listensViewModel.preferencesUiState.collectAsState()
         if (showBlacklist) {
-            ListeningAppsList(viewModel = listensViewModel) { showBlacklist = false }
+            ListeningAppsList(
+                preferencesUiState = uiState,
+                fetchLinkedServices = {
+                     listensViewModel.fetchLinkedServices()
+                },
+                getPackageIcon = { packageName ->
+                    listensViewModel.getPackageIcon(packageName)
+                },
+                getPackageLabel = { packageName ->
+                    listensViewModel.getPackageLabel(packageName)
+                },
+                setBlacklist = { newList ->
+                    listensViewModel.setBlacklist(newList)
+                },
+            ) { showBlacklist = false }
         }
     }
 }

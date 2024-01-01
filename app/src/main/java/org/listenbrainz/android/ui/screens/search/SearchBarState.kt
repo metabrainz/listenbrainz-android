@@ -11,27 +11,13 @@ import androidx.compose.runtime.setValue
 /** Get state of app's main search bar. If an instance is already defined, that instance will be returned.*/
 @Composable
 fun rememberSearchBarState(): SearchBarState {
-    return SearchBarState.instance ?: rememberSaveable(saver = SearchBarStateSaver()) { SearchBarState() }
-}
-
-private class SearchBarStateSaver : Saver<SearchBarState, Boolean> {
-    override fun restore(value: Boolean): SearchBarState
-        = SearchBarState(value)
-    
-    override fun SaverScope.save(value: SearchBarState): Boolean {
-        value.resetInstance()
-        return value.isActive
-    }
+    return rememberSaveable(saver = SearchBarState.Companion.SearchBarStateSaver()) { SearchBarState() }
 }
 
 /** State class which controls the main search bar of the app. */
 class SearchBarState(initialState: Boolean = false) {
     
     private var state by mutableStateOf(initialState)
-    
-    init {
-        instance = this
-    }
     
     /** True if search bar is active.*/
     val isActive: Boolean
@@ -43,11 +29,14 @@ class SearchBarState(initialState: Boolean = false) {
     /** Hide or deactivate the search bar.*/
     fun deactivate() { state = false }
     
-    internal fun resetInstance() { instance = null }
-    
     companion object {
-        var instance: SearchBarState? = null
-            private set
+        class SearchBarStateSaver : Saver<SearchBarState, Boolean> {
+            override fun restore(value: Boolean): SearchBarState
+                = SearchBarState(value)
+        
+            override fun SaverScope.save(value: SearchBarState): Boolean
+                = value.isActive
+        }
     }
     
 }

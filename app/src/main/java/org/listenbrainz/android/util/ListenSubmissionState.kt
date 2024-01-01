@@ -1,214 +1,249 @@
 package org.listenbrainz.android.util
 
+import android.content.Context
+import android.media.AudioManager
 import android.media.MediaMetadata
-import android.media.session.PlaybackState
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequest
-import androidx.work.OneTimeWorkRequestBuilder
+import android.service.notification.StatusBarNotification
+import androidx.core.content.ContextCompat
 import androidx.work.WorkManager
-import com.dariobrux.kotimer.Timer
-import com.dariobrux.kotimer.interfaces.OnTimerListener
 import org.listenbrainz.android.model.ListenType
-import org.listenbrainz.android.service.ListenSubmissionWorker
-
+import org.listenbrainz.android.model.OnTimerListener
+import org.listenbrainz.android.model.PlayingTrack
+import org.listenbrainz.android.service.ListenSubmissionWorker.Companion.buildWorkRequest
+import org.listenbrainz.android.util.Log.d
+import org.listenbrainz.android.util.Log.w
 
 class ListenSubmissionState(
-    private var artist: String? = null,
-    private var title: String? = null,
-    private var releaseName: String? = null,
-    private var timestamp: Long = 0,
-    private var duration: Long = 0,
-    private var state: PlaybackState? = null
+    private val workManager: WorkManager,
+    private val context: Context
 ) {
-    
+    var playingTrack: PlayingTrack = PlayingTrack()
+        private set
+    private val audioManager by lazy {
+        ContextCompat.getSystemService(
+            context,
+            AudioManager::class.java
+        )!!
+    }
     private val timer: Timer = Timer()
-    private var submitted: Boolean = false
-    private var playingNowSubmitted = false
     
-    /** Initialize listen metadata and timer.
-     * @param metadata Metadata to set the state's data.
-     * @param submitListen Function to submit a listen. Use [ListenSubmissionWorker] and pass it into [WorkManager]
-     * to execute work request. Use [buildWorkRequest] function to build a work request.*/
-    fun initSubmissionFlow(metadata: MediaMetadata?, submitListen: (ListenType) -> Unit){
-        
-        if (metadata == null) return
-        
-        // Stop timer and reset metadata.
-        resetMetadata()     // Do not perform this action in timer's onTimerStop due to concurrency issues.
-        timer.stop()
-        
-        when {
-            state != null -> Log.d("onMetadataChanged: Listen Metadata $state")
-            else -> Log.d("onMetadataChanged: Listen Metadata")
+    /**
+     * @param newTrack
+     * @param onTrackIsOutdated lambda to run when the current track is outdated.
+     * @param onTrackIsSimilarCallbackTrack lambda to run when the new track is similar to current
+     * playing track AND current playing track's metadata has been derived from **Listen Callback**.
+     * @param onTrackIsSimilarNotificationTrack lambda to run when the new track is similar to current
+     * playing track AND current playing track's metadata has been derived from **onNotificationPosted**.*/
+    private fun PlayingTrack.updatePlayingTrack(
+        onTrackIsOutdated: (newTrack: PlayingTrack) -> Unit,
+        onTrackIsSimilarNotificationTrack: (newTrack: PlayingTrack) -> Unit,
+        onTrackIsSimilarCallbackTrack: (newTrack: PlayingTrack) -> Unit,
+    ) {
+        if (playingTrack.isOutdated(this)) {
+            
+            onTrackIsOutdated(this)
+            
+        } else if (playingTrack.isNotificationTrack()) {
+            // This means only onPostedNotification's metadata has arrived and callback is late.
+            // Timer is already started but we need to update its duration.
+            
+            onTrackIsSimilarNotificationTrack(this)
+        } else if (playingTrack.isCallbackTrack()) {
+            // Track is callback track.
+            
+            onTrackIsSimilarCallbackTrack(this)
         }
+    }
     
-        setArtist(metadata)
-        setTitle(metadata)
+    private fun beforeMetadataSet() {
+        // Before Metadata set
+        timer.stop()
+        playingTrack.reset()
+    }
     
+    private fun afterMetadataSet() {
+        // After metadata set
         if (isMetadataFaulty()) {
-            Log.w("${if (artist == null) "Artist" else "Title"} is null, listen cancelled.")
+            w("${if (playingTrack.artist == null) "Artist" else "Title"} is null, listen cancelled.")
+            playingTrack.reset()
             return
         }
     
-        setMiscellaneousDetails(metadata)
-        setDurationAndCallbacks(metadata){
-            submitListen(it)
-        }
+        initTimer()
+    }
+    
+    /** Initialize listen metadata and timer.
+     * @param metadata Metadata to set the state's data.
+     * @param pkg Package of music player the song is being played from.
+     */
+    fun onControllerCallback(
+        newTrack: PlayingTrack
+    ){
+        newTrack.updatePlayingTrack(
+            onTrackIsOutdated = { track ->
+                // Updating currentTrack
+                beforeMetadataSet()
+                playingTrack = track
+                afterMetadataSet()
+            },
+            onTrackIsSimilarCallbackTrack = { track ->
+                // Usually this won't happen because metadata isn't being changed.
+                beforeMetadataSet()
+                playingTrack = track
+                afterMetadataSet()
+            },
+            onTrackIsSimilarNotificationTrack = { track ->
+                // Update but retain timestamp and playingNowSubmitted.
+                // We usually do not expect this callback to arrive later for submitted to change.
+                playingTrack = track.apply {
+                    timestamp = playingTrack.timestamp
+                    playingNowSubmitted = playingTrack.playingNowSubmitted
+                }    // Current track will always have more metadata here
+                
+                // Update timer because now we have duration.
+                timer.extendDuration { secondsPassed ->
+                    track.duration/2 - secondsPassed
+                }
+            }
+        )
+        // No need to toggle timer here since we can rely on onNotificationPosted to do that.
+    }
+    
+    fun alertMediaNotificationUpdate(newTrack: PlayingTrack) {
+        newTrack.updatePlayingTrack(
+            onTrackIsOutdated = { track ->
+                beforeMetadataSet()
+                
+                playingTrack = if (playingTrack.isSimilarTo(track)){
+                    // Old track has useful metadata like duration, so smartly retrieve.
+                    track.apply { duration = playingTrack.duration }
+                } else {
+                    track
+                }
+                
+                afterMetadataSet()
+            },
+            onTrackIsSimilarCallbackTrack = { track ->
+                // We definitely know that whenever the notification bar changes a bit, we will get a state
+                // update which means we have a valid reason to query if music is playing or not.
+                alertPlaybackStateChanged()
+            },
+            onTrackIsSimilarNotificationTrack = { track ->
+                // Same as above.
+                alertPlaybackStateChanged()
+            }
+        )
+        alertPlaybackStateChanged()
+    }
+    
+    fun alertMediaPlayerRemoved(notification: StatusBarNotification) {
+        d("Removed " + notification.notification.extras)
     }
     
     /** Toggle timer based on state. */
-    fun toggleTimer(state: PlaybackState?) {
-    
-        if (state == null) return
+    @Synchronized
+    fun alertPlaybackStateChanged() {
+        if (playingTrack.isSubmitted()) return
         
-        this.state = state
-        Log.d("onPlaybackStateChanged: Listen PlaybackState " + state.state)
-    
-        if (isDurationUndefined() || submitted) return
-    
-        if (state.state == PlaybackState.STATE_PLAYING) {
+        if (audioManager.isMusicActive) {
             timer.start()
-            // d("Timer started")
-        }
-    
-        if (state.state == PlaybackState.STATE_PAUSED) {
+        } else {
             timer.pause()
-            // d("Timer paused")
         }
-    }
-    
-    // Metadata setter functions
-    
-    private fun setTitle(metadata: MediaMetadata) {
-        title = when {
-            !metadata.getString(MediaMetadata.METADATA_KEY_TITLE)
-                .isNullOrEmpty() -> metadata.getString(
-                MediaMetadata.METADATA_KEY_TITLE
-            )
-            
-            !metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE)
-                .isNullOrEmpty() -> metadata.getString(
-                MediaMetadata.METADATA_KEY_DISPLAY_TITLE
-            )
-            
-            else -> null
-        }
-    }
-    
-    private fun setArtist(metadata: MediaMetadata) {
-        artist = when {
-            !metadata.getString(MediaMetadata.METADATA_KEY_ARTIST)
-                .isNullOrEmpty() -> metadata.getString(
-                MediaMetadata.METADATA_KEY_ARTIST
-            )
-            
-            !metadata.getString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST)
-                .isNullOrEmpty() -> metadata.getString(
-                MediaMetadata.METADATA_KEY_ALBUM_ARTIST
-            )
-            
-            !metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE)
-                .isNullOrEmpty() -> metadata.getString(
-                MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE
-            )
-            
-            !metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION)
-                .isNullOrEmpty() -> metadata.getString(
-                MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION
-            )
-            
-            else -> null
-        }
-    }
-    
-    /** Sets releaseName*/
-    private fun setMiscellaneousDetails(metadata: MediaMetadata) {
-        releaseName = metadata.getString(MediaMetadata.METADATA_KEY_ALBUM)
     }
     
     /** Run [artist] and [title] value-check before invoking this function.*/
-    private fun setDurationAndCallbacks(metadata: MediaMetadata, onSubmit: (ListenType) -> Unit) {
-        duration =
-            roundDuration(duration = metadata.getLong(MediaMetadata.METADATA_KEY_DURATION) / 2L)
-                .coerceAtMost(240000)   // Since maximum time required to validate a listen as submittable listen is 4 minutes.
-        timestamp = System.currentTimeMillis() / 1000
-        
+    private fun initTimer() {
         // d(duration.toString())
-        timer.setDuration(duration)
+        if (playingTrack.duration != 0L) {
+            timer.setDuration(
+                roundDuration(duration = playingTrack.duration / 2L)     // Since maximum time required to validate a listen as submittable listen is 4 minutes.
+                    .coerceAtMost(240_000L)
+            )
+        } else {
+            timer.setDuration(
+                roundDuration(duration = DEFAULT_DURATION)     // Since maximum time required to validate a listen as submittable listen is 4 minutes.
+            )
+        }
+        
         
         // Setting listener
         timer.setOnTimerListener(listener = object : OnTimerListener {
             override fun onTimerEnded() {
-                onSubmit(ListenType.SINGLE)
-                submitted = true
+                submitListen(ListenType.SINGLE)
+                playingTrack.submitted = true
             }
             
             override fun onTimerPaused(remainingMillis: Long) {
-                Log.d("${remainingMillis / 1000} seconds left to submit listen.")
+                d("${remainingMillis / 1000} seconds left to submit listen.")
             }
             
-            override fun onTimerRun(milliseconds: Long) {}
             override fun onTimerStarted() {
-                if (!playingNowSubmitted){
-                    onSubmit(ListenType.PLAYING_NOW)
-                    playingNowSubmitted = true
+                if (!playingTrack.playingNowSubmitted) {
+                    submitListen(ListenType.PLAYING_NOW)
+                    playingTrack.playingNowSubmitted = true
                 }
             }
             
-            override fun onTimerStopped() {}
-            
         }, callbacksOnMainThread = true)
-        Log.d("Listener Set")
-    }
-    
-    private fun resetMetadata() {
-        Log.d("Metadata Reset")
-        artist = null
-        title = null
-        timestamp = 0
-        duration = 0
-        submitted = false
-        releaseName = null
-        playingNowSubmitted = false
+        d("Timer Set")
+        alertPlaybackStateChanged()
     }
     
     // Utility functions
-    
-    /** Build a one time work request to submit a listen.
-     * @param listenType Type of listen to submit.
-     * @param player Media player that the song is being submitted from.*/
-    fun buildWorkRequest(listenType: ListenType, player: String): OneTimeWorkRequest {
-        
-        val data = Data.Builder()
-            .putString(MediaMetadata.METADATA_KEY_ARTIST, artist)
-            .putString(MediaMetadata.METADATA_KEY_TITLE, title)
-            .putInt(MediaMetadata.METADATA_KEY_DURATION, (duration*2).toInt())
-            .putString(MediaMetadata.METADATA_KEY_WRITER, player)
-            .putString(MediaMetadata.METADATA_KEY_ALBUM, releaseName)
-            .putString("TYPE", listenType.code)
-            .putLong(Constants.Strings.TIMESTAMP, timestamp)
-            .build()
-        
-        /** We are not going to set network constraints as we want to minimize API calls
-         * by bulk submitting listens.*/
-        /*val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()*/
-        
-        return OneTimeWorkRequestBuilder<ListenSubmissionWorker>()
-            .setInputData(data)
-            //.setConstraints(constraints)
-            .build()
-        
-    }
     
     private fun roundDuration(duration: Long): Long {
         return (duration / 1000) * 1000
     }
     
-    // Metadata checker functions
+    private fun submitListen(listenType: ListenType) =
+        workManager.enqueue(buildWorkRequest(playingTrack, listenType))
     
-    private fun isMetadataFaulty(): Boolean = artist.isNullOrEmpty() || title.isNullOrEmpty()
+    private fun isMetadataFaulty(): Boolean = playingTrack.artist.isNullOrEmpty() || playingTrack.title.isNullOrEmpty()
     
-    private fun isDurationUndefined(): Boolean = duration <= 0
+    companion object {
+        const val DEFAULT_DURATION: Long = 90_000L
+        
+        fun MediaMetadata.extractTitle(): String? = when {
+            !getString(MediaMetadata.METADATA_KEY_TITLE)
+                .isNullOrEmpty() -> getString(
+                MediaMetadata.METADATA_KEY_TITLE
+            )
+    
+            !getString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE)
+                .isNullOrEmpty() -> getString(
+                MediaMetadata.METADATA_KEY_DISPLAY_TITLE
+            )
+    
+            else -> null
+        }
+    
+        fun MediaMetadata.extractArtist(): String? = when {
+            !getString(MediaMetadata.METADATA_KEY_ARTIST)
+                .isNullOrEmpty() -> getString(
+                MediaMetadata.METADATA_KEY_ARTIST
+            )
+    
+            !getString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST)
+                .isNullOrEmpty() -> getString(
+                MediaMetadata.METADATA_KEY_ALBUM_ARTIST
+            )
+    
+            !getString(MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE)
+                .isNullOrEmpty() -> getString(
+                MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE
+            )
+    
+            !getString(MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION)
+                .isNullOrEmpty() -> getString(
+                MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION
+            )
+    
+            else -> null
+        }
+        
+        fun MediaMetadata.extractDuration(): Long = getLong(MediaMetadata.METADATA_KEY_DURATION)
+    
+        fun MediaMetadata.extractReleaseName(): String? = getString(MediaMetadata.METADATA_KEY_ALBUM)
+    }
 }

@@ -15,9 +15,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
-import javax.inject.Singleton
 
-@Singleton
 interface SocialService {
     
     @GET("user/{user_name}/followers")
@@ -42,7 +40,7 @@ interface SocialService {
     suspend fun postPersonalRecommendation(
         @Path("user_name") username: String,
         @Body data: RecommendationData
-        ) : Response<FeedEvent>
+    ) : Response<FeedEvent>
     
     @POST("user/{user_name}/timeline-event/create/recording")
     suspend fun postRecommendationToAll(
@@ -65,4 +63,5 @@ interface SocialService {
     suspend fun deletePin(
         @Path("id") id: Int
     ) : Response<SocialResponse>
+    
 }

@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -62,7 +63,9 @@
         </service>
         <service
             android:name=".service.BrainzPlayerService"
-            android:exported="true">
+            android:foregroundServiceType="mediaPlayback"
+            android:exported="true"
+            android:permission="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK">
             <intent-filter>
                 <action android:name="android.media.browse.MediaMrowserService" />
             </intent-filter>
@@ -79,7 +82,7 @@
             android:name=".ui.screens.onboarding.FeaturesActivity"
             android:theme="@style/Theme.Material3.DayNight.NoActionBar" />
         <activity
-            android:name=".ui.screens.dashboard.DashboardActivity"
+            android:name=".ui.screens.main.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -88,7 +91,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.screens.dashboard.DonateActivity"
+            android:name=".ui.screens.main.DonateActivity"
             android:label="@string/donate_title"
             android:theme="@style/AppTheme"/>
 
@@ -107,6 +110,17 @@
         <meta-data
             android:name="io.sentry.traces.user-interaction.enable"
             android:value="true" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
+
     </application>
 
 </manifest>
