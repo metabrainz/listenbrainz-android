@@ -11,7 +11,6 @@ object Constants {
     const val FEEDBACK_EMAIL = "support@metabrainz.org"
     const val FEEDBACK_SUBJECT = "[LBAndroid] Feedback"
     const val SPOTIFY_REDIRECT_URI = "org.listenbrainz.android://callback"
-    const val LISTENBRAINZ_API_BASE_URL = "https://api.listenbrainz.org/1/"
     const val ONBOARDING = "onboarding_lb"
     const val ABOUT_URL = "https://listenbrainz.org/about"
 

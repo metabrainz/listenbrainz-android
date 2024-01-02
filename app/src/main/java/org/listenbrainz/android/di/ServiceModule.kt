@@ -12,6 +12,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
+import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.yimdata.YimData
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.BlogService
@@ -20,7 +21,6 @@ import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.service.YouTubeApiService
-import org.listenbrainz.android.util.Constants.LISTENBRAINZ_API_BASE_URL
 import org.listenbrainz.android.util.HeaderInterceptor
 import org.listenbrainz.android.util.Utils
 import retrofit2.Retrofit
@@ -43,7 +43,7 @@ class ServiceModule {
                     //.addInterceptor (HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS))
                     .build()
             )
-            .baseUrl(LISTENBRAINZ_API_BASE_URL)
+            .baseUrl(BuildConfig.API_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     
@@ -138,7 +138,7 @@ class ServiceModule {
     @get:Singleton
     @get:Provides
     val yimService: YimService = Retrofit.Builder()
-            .baseUrl(LISTENBRAINZ_API_BASE_URL)
+            .baseUrl(BuildConfig.API_BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(yimGson))
             .build()

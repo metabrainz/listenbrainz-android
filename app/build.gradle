@@ -47,32 +47,24 @@ android {
 
     buildTypes {
         debug {
-            if (localPropertiesFile.exists()) {
-                def localProperties = new Properties()
-                localProperties.load(new FileInputStream(localPropertiesFile))
+            addLocalProperties(debug, localPropertiesFile)
 
-                if(localProperties.getProperty('youtubeApiKey') != null && !localProperties.getProperty('youtubeApiKey').isEmpty()){
-                    resValue("string", "youtubeApiKey", localProperties['youtubeApiKey'])
-                }
-                else{
-                    resValue("string", "youtubeApiKey", "test")
-                }
-
-                if (localProperties.getProperty('spotifyClientId') != null && !localProperties.getProperty('spotifyClientId').isEmpty()){
-                    resValue("string", "spotifyClientId", localProperties['spotifyClientId'])
-                }
-                else{
-                    resValue("string", "spotifyClientId", "test")
-                }
-            }
-            else{
-                resValue("string", "youtubeApiKey", "test")
-                resValue("string", "spotifyClientId", "test")
-            }
-            resValue("string", "sentryDsn", "")
+            buildConfigField "String", "API_BASE_URL", '"https://api.listenbrainz.org/1/"'
+            buildConfigField "String", "WEBSITE_BASE_URL", '"https://listenbrainz.org/"'
 
             applicationIdSuffix ".debug"
             versionNameSuffix ".debug"
+        }
+        beta {
+            debuggable true
+            addLocalProperties(beta, localPropertiesFile)
+
+            buildConfigField "String", "API_BASE_URL", '"https://beta-api.listenbrainz.org/1/"'
+            buildConfigField "String", "WEBSITE_BASE_URL", '"https://beta.listenbrainz.org/"'
+
+            applicationIdSuffix ".beta"
+            versionNameSuffix ".beta"
+            signingConfig signingConfigs.debug
         }
         release {
             if (keystorePropertiesFile.exists()) {
@@ -89,6 +81,10 @@ android {
                 resValue("string", "spotifyClientId", "")
                 resValue("string", "sentryDsn", "")
             }
+
+            buildConfigField "String", "API_BASE_URL", '"https://api.listenbrainz.org/1/"'
+            buildConfigField "String", "WEBSITE_BASE_URL", '"https://listenbrainz.org/"'
+
             minifyEnabled false
             //shrinkResources true
             //proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -115,6 +111,32 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+}
+
+static def addLocalProperties(buildType, localPropertiesFile) {
+    if (localPropertiesFile.exists()) {
+        def localProperties = new Properties()
+        localProperties.load(new FileInputStream(localPropertiesFile))
+
+        if(localProperties.getProperty('youtubeApiKey') != null && !localProperties.getProperty('youtubeApiKey').isEmpty()){
+            buildType.resValue("string", "youtubeApiKey", localProperties['youtubeApiKey'])
+        }
+        else{
+            buildType.resValue("string", "youtubeApiKey", "test")
+        }
+
+        if (localProperties.getProperty('spotifyClientId') != null && !localProperties.getProperty('spotifyClientId').isEmpty()){
+            buildType.resValue("string", "spotifyClientId", localProperties['spotifyClientId'])
+        }
+        else{
+            buildType.resValue("string", "spotifyClientId", "test")
+        }
+    }
+    else{
+        buildType.resValue("string", "youtubeApiKey", "test")
+        buildType.resValue("string", "spotifyClientId", "test")
+    }
+    buildType.resValue("string", "sentryDsn", "")
 }
 
 dependencies {
