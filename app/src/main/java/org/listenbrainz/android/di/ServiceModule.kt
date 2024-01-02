@@ -22,6 +22,7 @@ import org.listenbrainz.android.service.Yim23Service
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.service.YouTubeApiService
 import org.listenbrainz.android.util.Constants.LISTENBRAINZ_API_BASE_URL
+import org.listenbrainz.android.util.Constants.LISTENBRAINZ_BETA_API_BASE_URL
 import org.listenbrainz.android.util.HeaderInterceptor
 import org.listenbrainz.android.util.Utils
 import retrofit2.Retrofit
@@ -148,7 +149,7 @@ class ServiceModule {
     @get:Singleton
     @get:Provides
     val yim23Service: Yim23Service = Retrofit.Builder()
-        .baseUrl(LISTENBRAINZ_API_BASE_URL)
+        .baseUrl(LISTENBRAINZ_BETA_API_BASE_URL)
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create(yimGson))
         .build()

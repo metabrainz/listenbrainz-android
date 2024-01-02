@@ -12,9 +12,9 @@ import javax.inject.Inject
 class Yim23RepositoryImpl @Inject constructor(private val service: Yim23Service) : Yim23Repository {
 
     @WorkerThread
-    override suspend fun getYimData(username: String , year : Number): Resource<Yim23Payload> {
+    override suspend fun getYimData(username: String): Resource<Yim23Payload> {
         return try {
-            val response = service.getYimData(username = username , year = year)
+            val response = service.getYimData(username = username)
             Resource(Resource.Status.SUCCESS, response)
         }catch (e: Exception){
             e.printStackTrace()

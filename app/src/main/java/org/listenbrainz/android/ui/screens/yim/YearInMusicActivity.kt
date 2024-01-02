@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.screens.yim
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent

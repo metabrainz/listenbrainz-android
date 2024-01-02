@@ -8,17 +8,21 @@ import android.widget.Toast
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.toLowerCase
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import com.caverock.androidsvg.SVG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
+import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.yimdata.*
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.yim.YimRepository
 import org.listenbrainz.android.repository.yim23.Yim23Repository
+import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.saveBitmap
+import retrofit2.Response
 import java.net.URL
 import javax.inject.Inject
 
@@ -42,7 +46,7 @@ class Yim23ViewModel @Inject constructor(
 
     override fun getData() {
         viewModelScope.launch {
-            val response = repository.getYimData(username = getUsername() , 2023)
+            val response = repository.getYimData(username = getUsername())
             when (response.status){
                 Resource.Status.SUCCESS -> yimData.value = response
                 Resource.Status.LOADING -> yimData.value = Resource.loading()
@@ -230,13 +234,6 @@ class Yim23ViewModel @Inject constructor(
         return yimData.value.data?.payload?.data?.totalNewArtistsDiscovered
     }
 
-    fun getTotalRecordingsCount() : Int? {
-        return yimData.value.data?.payload?.data?.totalRecordingsCount
-    }
-
-    fun getTotalReleasesCount() : Int? {
-        return yimData.value.data?.payload?.data?.totalReleasesCount
-    }
 
     fun getTopGenres () : List<TopGenre> {
         return yimData.value.data?.payload?.data?.topGenres!!.toList()
@@ -249,6 +246,8 @@ class Yim23ViewModel @Inject constructor(
     fun getMissedSongs () : Yim23TopDiscoveries {
         return yimData.value.data?.payload?.data?.topMissedRecordings!!
     }
+
+
 
 
 

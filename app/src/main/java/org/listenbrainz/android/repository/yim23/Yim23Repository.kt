@@ -5,5 +5,5 @@ import org.listenbrainz.android.model.yimdata.YimPayload
 import org.listenbrainz.android.util.Resource
 
 interface Yim23Repository {
-    suspend fun getYimData(username: String , year : Number): Resource<Yim23Payload>
+    suspend fun getYimData(username: String): Resource<Yim23Payload>
 }
