@@ -28,6 +28,7 @@ android {
     }
 
     defaultConfig {
+        applicationId 'org.listenbrainz.android'
         minSdk 21
         targetSdk 34
         versionCode 41
@@ -42,32 +43,6 @@ android {
     buildFeatures {
         compose true
         viewBinding true
-    }
-
-    flavorDimensions "buildType"
-
-    productFlavors {
-        aloo {
-            isDefault true
-            dimension "buildType"
-
-            buildConfigField "String", "API_BASE_URL", '"https://api.listenbrainz.org/1/"'
-            buildConfigField "String", "WEBSITE_BASE_URL", '"https://listenbrainz.org/"'
-        }
-
-        mooli {
-            dimension "buildType"
-
-            buildConfigField "String", "API_BASE_URL", '"https://beta-api.listenbrainz.org/1/"'
-            buildConfigField "String", "WEBSITE_BASE_URL", '"https://beta.listenbrainz.org/"'
-        }
-
-        gobi {
-            dimension "buildType"
-
-            buildConfigField "String", "API_BASE_URL", '"https://test-api.listenbrainz.org/1/"'
-            buildConfigField "String", "WEBSITE_BASE_URL", '"https://test.listenbrainz.org/"'
-        }
     }
 
     buildTypes {
