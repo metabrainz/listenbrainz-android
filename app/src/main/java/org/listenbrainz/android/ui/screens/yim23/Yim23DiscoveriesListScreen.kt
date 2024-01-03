@@ -42,11 +42,8 @@ fun Yim23DiscoveriesListScreen (
         Column (modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.onBackground), verticalArrangement = Arrangement.SpaceBetween) {
-            Yim23Header(username = username, navController = navController, upperScreen = Yim23Screens.YimDiscoveriesScreen)
+            Yim23Header(username = username, navController = navController)
             Yim23Discoveries(viewModel = viewModel)
-            Column (modifier = Modifier.fillMaxWidth().padding(top = 11.dp , end = 11.dp) , horizontalAlignment = Alignment.CenterHorizontally) {
-                Yim23ShareButton()
-            }
             Yim23Footer(footerText = "DISCOVERIES OF 2023", isUsername = false, navController = navController, downScreen = Yim23Screens.YimMissedSongsScreen)
         }
     }

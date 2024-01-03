@@ -36,11 +36,12 @@ fun Yim23PlaylistTitleScreen (
     navController: NavController
 ) {
     val username by viewModel.getUsernameFlow().collectAsState(initial = "")
+    Yim23AutomaticScroll(navController = navController, time = 1500, downScreen = Yim23Screens.YimDiscoveriesScreen)
     Yim23Theme(themeType = viewModel.themeType.value) {
         Column (modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.onBackground) , verticalArrangement = Arrangement.SpaceBetween) {
-            Yim23Header(username = username, navController = navController, upperScreen = Yim23Screens.YimStatsGraphScreen)
+            Yim23Header(username = username, navController = navController)
             Box (modifier = Modifier
                 .fillMaxWidth()
                 .height(300.dp)){
@@ -53,9 +54,7 @@ fun Yim23PlaylistTitleScreen (
                 Text("PLAYLISTS" , style = MaterialTheme.typography.titleLarge , color = MaterialTheme.colorScheme.background , modifier = Modifier.align(
                     Alignment.Center))
             }
-            Column (modifier = Modifier.fillMaxWidth() , horizontalAlignment = Alignment.CenterHorizontally) {
-                Yim23ShareButton()
-            }
+
 
             Yim23Footer(footerText = username, isUsername = true, navController = navController, downScreen = Yim23Screens.YimDiscoveriesScreen)
         }

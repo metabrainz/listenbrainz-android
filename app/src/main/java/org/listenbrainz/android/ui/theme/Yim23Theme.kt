@@ -53,7 +53,7 @@ fun Yim23Theme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = yim23Typography,
+        typography = yim23Typography(),
         content = content
     )
 

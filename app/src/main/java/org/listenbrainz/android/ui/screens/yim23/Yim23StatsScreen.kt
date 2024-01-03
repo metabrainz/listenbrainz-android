@@ -39,10 +39,10 @@ fun Yim23StatsScreen (
         Column (modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.onBackground) , verticalArrangement = Arrangement.SpaceBetween) {
-            Yim23Header(username = username, navController = navController, upperScreen = Yim23Screens.YimStatsTitleScreen)
+            Yim23Header(username = username, navController = navController)
             Yim23Stats(viewModel = viewModel)
             Spacer(modifier = Modifier.padding(bottom = 20.dp))
-            Yim23Footer(footerText = "MY STATS", isUsername = false , navController = navController, downScreen = Yim23Screens.YimStatsHeatMapScreen)
+            Yim23Footer(footerText = "MY        STATS", isUsername = false , navController = navController, downScreen = Yim23Screens.YimStatsHeatMapScreen)
         }
     }
 }
@@ -92,7 +92,6 @@ private fun Yim23Stats (viewModel: Yim23ViewModel) {
             Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier.width(80.dp).padding(top = 5.dp , bottom = 5.dp))
             Text("new artists discovered" , textAlign = TextAlign.Center , style = MaterialTheme.typography.bodyMedium ,  color = MaterialTheme.colorScheme.background)
         }
-        Yim23ShareButton()
         Column (horizontalAlignment = Alignment.CenterHorizontally , modifier = Modifier.width(160.dp)) {
             Text(totalArtists!!.toString() , style = MaterialTheme.typography.bodyLarge , color = MaterialTheme.colorScheme.background)
             Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier.width(80.dp).padding(top = 5.dp , bottom = 5.dp))

@@ -15,6 +15,7 @@ import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModelImpl
+import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
 import org.listenbrainz.android.viewmodel.YimViewModel
 
@@ -25,6 +26,7 @@ class YearInMusic23Activity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val yim23ViewModel : Yim23ViewModel by viewModels()
+        val socialViewModel : SocialViewModel by viewModels()
         val networkConnectivityViewModel: NetworkConnectivityViewModel =
             ViewModelProvider(this)[NetworkConnectivityViewModelImpl::class.java]
 
@@ -35,7 +37,7 @@ class YearInMusic23Activity : ComponentActivity() {
                 Toast.makeText(this, "Please Login to access your Year in Music!", Toast.LENGTH_LONG).show()
                 finish()
             }
-            Yim23Navigation(yimViewModel = yim23ViewModel, networkConnectivityViewModel = networkConnectivityViewModel, activity = this)
+            Yim23Navigation(yimViewModel = yim23ViewModel, socialViewModel = socialViewModel,networkConnectivityViewModel = networkConnectivityViewModel, activity = this)
         }
     }
 }

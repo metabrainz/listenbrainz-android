@@ -42,14 +42,13 @@ fun Yim23AlbumsListScreen (
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Yim23Header(username = username, navController = navController, upperScreen = Yim23Screens.YimTopAlbumScreen)
+            Yim23Header(username = username, navController = navController)
             Box(contentAlignment = Alignment.BottomCenter) {
                 Column (verticalArrangement = Arrangement.spacedBy(-30.dp) , horizontalAlignment = Alignment.Start , modifier = Modifier.fillMaxWidth()) {
                     val topReleases : List<TopReleaseYim23>? = viewModel.getTopReleases()?.toList()
                     for(i in 1..5)
                         Text(topReleases!![i].releaseName ,  color = MaterialTheme.colorScheme.background , style = MaterialTheme.typography.labelLarge , maxLines = 1)
                 }
-                Yim23ShareButton()
             }
 
             Yim23Footer(footerText = "MY TOP ALBUMS", isUsername = false, navController = navController, downScreen = Yim23Screens.YimTopSongsScreen)

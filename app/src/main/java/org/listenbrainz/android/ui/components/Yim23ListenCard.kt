@@ -70,12 +70,12 @@ fun Yim23ListenCard(
                     contentScale = ContentScale.Fit,
                     contentDescription = "Album Cover Art"
                 ) {
-                    it.placeholder(R.drawable.ic_erroralbumart)
+                    it.placeholder(R.drawable.ic_coverartarchive_logo_no_text)
                         .override(75)
                 }
             }
             else{
-                Image(painter = painterResource(id = R.drawable.ic_erroralbumart) , contentDescription = "")
+                Image(painter = painterResource(id = R.drawable.ic_coverartarchive_logo_no_text) , contentDescription = "")
             }
 
 

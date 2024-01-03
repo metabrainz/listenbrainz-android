@@ -37,15 +37,15 @@ fun Yim23DiscoveriesTitleScreen (
     navController: NavController
 ) {
     val username by viewModel.getUsernameFlow().collectAsState(initial = "")
+    Yim23AutomaticScroll(navController = navController, time = 1500, downScreen = Yim23Screens.YimNewAlbumsFromTopArtistsScreen)
     Yim23Theme(themeType = viewModel.themeType.value) {
         Column (modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.onBackground) , verticalArrangement = Arrangement.SpaceBetween , horizontalAlignment = Alignment.CenterHorizontally)
         {
-            Yim23Header(username = username, navController = navController, upperScreen = Yim23Screens.YimMissedSongsListScreen)
+            Yim23Header(username = username, navController = navController)
             Text("DISCOVER" , style = MaterialTheme.typography.titleLarge , color = MaterialTheme.colorScheme.background)
             Column (modifier = Modifier.fillMaxWidth() , horizontalAlignment = Alignment.CenterHorizontally) {
-                Yim23ShareButton()
                 Spacer(modifier = Modifier.padding(bottom= 11.dp))
                 Yim23Footer(footerText = username, navController = navController, isUsername = true, downScreen = Yim23Screens.YimNewAlbumsFromTopArtistsScreen)
 

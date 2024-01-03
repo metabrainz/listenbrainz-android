@@ -47,7 +47,7 @@ fun Yim23TopAlbumsScreen (
         Column (modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.onBackground) , verticalArrangement = Arrangement.SpaceBetween , horizontalAlignment = Alignment.CenterHorizontally) {
-            Yim23Header(username = username, navController = navController, upperScreen = Yim23Screens.YimChartTitleScreen)
+            Yim23Header(username = username, navController = navController)
             Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center) {
                 Box  {
                     Image(painter = painterResource(id = R.drawable.yim23_left_curtain), contentDescription = "Left curtain" ,
@@ -65,7 +65,7 @@ fun Yim23TopAlbumsScreen (
                             .zIndex(1f) , alignment = Alignment.TopEnd)
                 }
             }
-            Yim23ShareButton()
+
             Yim23Footer(footerText = "MY TOP ALBUMS", navController = navController, isUsername = false, downScreen = Yim23Screens.YimAlbumsListScreen)
         }
     }

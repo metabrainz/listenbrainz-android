@@ -25,6 +25,7 @@ import org.listenbrainz.android.ui.screens.yim23.Yim23DiscoveriesScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23DiscoveriesTitleScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23FriendsScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23HomeScreen
+import org.listenbrainz.android.ui.screens.yim23.Yim23LastScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23MissedSongsListScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23MissedSongsScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23MusicBuddiesScreen
@@ -38,6 +39,7 @@ import org.listenbrainz.android.ui.screens.yim23.Yim23TopAlbumsScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23TopArtistsScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23TopSongsScreen
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
+import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
 import org.listenbrainz.android.viewmodel.YimViewModel
 
@@ -48,6 +50,7 @@ private const val screenTransitionDuration = 900
 @Composable
 fun Yim23Navigation(
     yimViewModel: Yim23ViewModel,
+    socialViewModel: SocialViewModel,
     activity: ComponentActivity,
     networkConnectivityViewModel: NetworkConnectivityViewModel,
 ) {
@@ -131,7 +134,7 @@ fun Yim23Navigation(
             Yim23MusicBuddiesScreen(viewModel = yimViewModel, navController = navController)
         }
         addYim23Screen( route = Yim23Screens.YimFriendsScreen.name){
-            Yim23FriendsScreen(viewModel = yimViewModel, navController = navController)
+            Yim23FriendsScreen(viewModel = yimViewModel, socialViewModel = socialViewModel, navController = navController)
         }
         addYim23Screen( route = Yim23Screens.YimLastScreen.name){
             Yim23LastScreen(viewModel = yimViewModel, navController = navController)

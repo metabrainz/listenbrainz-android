@@ -41,7 +41,7 @@ fun Yim23TopSongsScreen (
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.onBackground) , verticalArrangement = Arrangement.SpaceBetween)
         {
-            Yim23Header(username = username, navController = navController, upperScreen = Yim23Screens.YimAlbumsListScreen)
+            Yim23Header(username = username, navController = navController)
             Box(contentAlignment = Alignment.BottomCenter , modifier = Modifier.padding(top = 5.dp)) {
                 Column (verticalArrangement = Arrangement.spacedBy(0.dp) , horizontalAlignment = Alignment.Start , modifier = Modifier.fillMaxWidth()) {
                     val topRecordings : List<TopRecording>? = viewModel.getTopRecordings()!!.toList()
@@ -53,11 +53,6 @@ fun Yim23TopSongsScreen (
                         }
                 }
             }
-            Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center) {
-                Yim23ShareButton()
-            }
-
-            Spacer(modifier = Modifier.padding(vertical = 11.dp))
             Yim23Footer(footerText = "MY TOP SONGS", isUsername = false, navController = navController, downScreen = Yim23Screens.YimStatsTitleScreen)
         }
     }

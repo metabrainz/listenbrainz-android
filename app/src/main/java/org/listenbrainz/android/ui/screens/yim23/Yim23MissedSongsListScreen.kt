@@ -42,11 +42,9 @@ fun Yim23MissedSongsListScreen (
         Column (modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.onBackground), verticalArrangement = Arrangement.SpaceBetween) {
-            Yim23Header(username = username, navController = navController, upperScreen = Yim23Screens.YimMissedSongsScreen)
+            Yim23Header(username = username, navController = navController)
             Yim23MissedSongs(viewModel = viewModel)
-            Column (modifier = Modifier.fillMaxWidth().padding(top = 11.dp , end = 11.dp) , horizontalAlignment = Alignment.CenterHorizontally) {
-                Yim23ShareButton()
-            }
+
             Yim23Footer(footerText = "MISSED SONGS 2023", isUsername = false, navController = navController, downScreen = Yim23Screens.YimDiscoverTitleScreen)
         }
     }

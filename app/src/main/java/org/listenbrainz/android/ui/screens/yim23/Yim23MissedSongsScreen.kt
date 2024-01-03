@@ -54,7 +54,7 @@ fun Yim23MissedSongsScreen (
         Column (modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.onBackground), verticalArrangement = Arrangement.SpaceBetween) {
-            Yim23Header(username = username, navController = navController, upperScreen = Yim23Screens.YimDiscoveriesListScreen)
+            Yim23Header(username = username, navController = navController)
             Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center){
                 Box (contentAlignment = Alignment.Center ) {
                     Image(painter = painterResource(id = R.drawable.yim23_arrows) , contentDescription = "" , modifier = Modifier.zIndex(1f).align(
@@ -63,9 +63,7 @@ fun Yim23MissedSongsScreen (
                 }
 
             }
-            Column (modifier = Modifier.fillMaxWidth().padding() , horizontalAlignment = Alignment.CenterHorizontally) {
-                Yim23ShareButton()
-            }
+
             Yim23Footer(footerText = "MISSED SONGS 2023", isUsername = false, navController = navController, downScreen = Yim23Screens.YimMissedSongsListScreen)
         }
     }

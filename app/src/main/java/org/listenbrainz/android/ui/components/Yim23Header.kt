@@ -31,7 +31,7 @@ import org.listenbrainz.android.model.yimdata.Yim23Screens
 
 
 @Composable
-fun Yim23Header (username : String , navController : NavController , upperScreen: Yim23Screens) {
+fun Yim23Header (username : String , navController : NavController) {
     Box () {
         Row (modifier = Modifier
             .padding(horizontal = 12.dp, vertical = 20.dp)
@@ -41,7 +41,7 @@ fun Yim23Header (username : String , navController : NavController , upperScreen
                 Text(username.uppercase(), style = MaterialTheme.typography.labelSmall , color = MaterialTheme.colorScheme.background , maxLines = 1 , overflow = TextOverflow.Ellipsis)
             }
 
-            IconButton(onClick = { navController.navigate(route = upperScreen.name) } , modifier = Modifier
+            IconButton(onClick = { navController.popBackStack() } , modifier = Modifier
                 .clip(
                     RoundedCornerShape(100.dp)
                 )

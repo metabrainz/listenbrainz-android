@@ -64,7 +64,7 @@ fun Yim23StatsHeatMapScreen (
         Column (modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.onBackground) , verticalArrangement = Arrangement.SpaceBetween , horizontalAlignment = Alignment.CenterHorizontally) {
-            Yim23Header(username = username, navController = navController, upperScreen = Yim23Screens.YimStatsScreen)
+            Yim23Header(username = username, navController = navController)
             Text("I listened to the most music in ${mostListenedMonth.first}" , textAlign = TextAlign.Center , color = MaterialTheme.colorScheme.background , style = MaterialTheme.typography.bodyLarge , modifier = Modifier.padding(start = 20.dp , end = 20.dp))
             Text("(${mostListenedMonth.second} Songs)" , textAlign = TextAlign.Center , color = MaterialTheme.colorScheme.background , style = MaterialTheme.typography.bodyLarge)
             Yim23HeatMap(viewModel = viewModel)

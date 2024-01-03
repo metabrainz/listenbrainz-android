@@ -43,12 +43,13 @@ fun Yim23ChartTitleScreen (
     navController: NavController
 ) {
     val username by viewModel.getUsernameFlow().collectAsState(initial = "")
+    Yim23AutomaticScroll(navController = navController, time = 1500, downScreen = Yim23Screens.YimTopAlbumScreen)
     Yim23Theme(themeType = viewModel.themeType.value) {
         Box(modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.onBackground)){
             Column (modifier = Modifier.fillMaxSize() , verticalArrangement = Arrangement.SpaceBetween) {
-                Yim23Header(username = username, navController = navController , upperScreen = Yim23Screens.YimLandingScreen)
+                Yim23Header(username = username, navController = navController)
                 Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center) {
                     Text("CHARTS" , style = MaterialTheme.typography.titleLarge , color = MaterialTheme.colorScheme.background , textAlign = TextAlign.Center)
                 }
@@ -58,7 +59,7 @@ fun Yim23ChartTitleScreen (
                         Row (modifier = Modifier
                             .padding(start = padding.dp)
                             .fillMaxWidth() , horizontalArrangement = Arrangement.SpaceAround , verticalAlignment = Alignment.CenterVertically) {
-                            Yim23ShareButton()
+
                             Image(painter = painterResource(id = R.drawable.yim23_chart_people), contentDescription = "Yim23 charts icon" , modifier = Modifier
                                 .width(99.dp)
                                 .height(120.dp))

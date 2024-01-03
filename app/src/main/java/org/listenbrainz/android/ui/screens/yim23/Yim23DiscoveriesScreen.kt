@@ -49,7 +49,7 @@ fun Yim23DiscoveriesScreen (
         Column (modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.onBackground) , verticalArrangement = Arrangement.SpaceBetween) {
-            Yim23Header(username = username, navController = navController, upperScreen = Yim23Screens.YimPlaylistsTitleScreen)
+            Yim23Header(username = username, navController = navController)
             Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center){
                 Box (contentAlignment = Alignment.BottomCenter) {
                     Image(painter = painterResource(id = R.drawable.yim23_hug) , contentDescription = "" , modifier = Modifier.zIndex(1f).align(
@@ -57,9 +57,6 @@ fun Yim23DiscoveriesScreen (
                     Yim23DiscoveriesArt(viewModel = viewModel)
                 }
 
-            }
-            Column (modifier = Modifier.fillMaxWidth().padding(top = 10.dp , bottom= 10.dp) , horizontalAlignment = Alignment.CenterHorizontally) {
-                Yim23ShareButton()
             }
 
             Yim23Footer(footerText = "DISCOVERIES OF 2023", isUsername = false, navController = navController, downScreen = Yim23Screens.YimDiscoveriesListScreen)

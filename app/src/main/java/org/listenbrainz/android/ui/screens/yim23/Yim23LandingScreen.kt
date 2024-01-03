@@ -76,8 +76,8 @@ fun Yim23HomeScreen(
 
         ){
         Column (Modifier.fillMaxSize() , horizontalAlignment = Alignment.CenterHorizontally) {
-
             when (networkStatus.value) {
+
                 ConnectivityObserver.NetworkStatus.AVAILABLE -> {
                     // Data status checking
                     when (viewModel.yimData.value.status) {
@@ -93,12 +93,12 @@ fun Yim23HomeScreen(
                         }
 
                         else -> {
-                            // Checks if user has less listens, i.e., No yim data available.
                             if (viewModel.yimData.value.data?.payload?.data != null) {
                                 Row(
                                     modifier = Modifier
+                                        .padding(top = 22.dp)
                                         .fillMaxWidth()
-                                        .padding(start = 70.dp, top = 22.dp), horizontalArrangement = Arrangement.Center
+                                        , horizontalArrangement = Arrangement.Center
                                 ) {
                                     Image(
                                         painter = painterResource(id = when (viewModel.themeType.value) {
@@ -221,9 +221,9 @@ fun Yim23HomeScreen(
                                 Text("Oh no! We don't have enough 2023 statistics for ${username}." , style = MaterialTheme.typography.bodyMedium , color = MaterialTheme.colorScheme.onBackground , textAlign = TextAlign.Center , modifier = Modifier.paddingFromBaseline(top = 60.dp))
                                 Text("Submit enough listens before the end of December to generate your #yearinmusic next year" , color = MaterialTheme.colorScheme.onBackground , style = MaterialTheme.typography.bodyMedium , modifier = Modifier.paddingFromBaseline(top = 40.dp , bottom=40.dp) , textAlign = TextAlign.Center)
                                 Box(modifier = Modifier
-                                    .weight(1f)
+                                    .fillMaxWidth()
                                     .background(MaterialTheme.colorScheme.onBackground)){
-                                    Column (verticalArrangement = Arrangement.SpaceEvenly , horizontalAlignment = Alignment.CenterHorizontally , modifier = Modifier.fillMaxSize()) {
+                                    Column (verticalArrangement = Arrangement.SpaceEvenly , horizontalAlignment = Alignment.CenterHorizontally , ) {
                                         Text(username.uppercase(),style=MaterialTheme.typography.titleLarge , color = MaterialTheme.colorScheme.background , modifier = Modifier.paddingFromBaseline(top = 40.dp))
                                         Row (modifier = Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.Center) {
                                             Yim23ShareButton()
