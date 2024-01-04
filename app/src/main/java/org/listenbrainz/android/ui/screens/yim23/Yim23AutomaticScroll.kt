@@ -15,18 +15,16 @@ fun Yim23AutomaticScroll (
     time : Int,
     downScreen : Yim23Screens
 ){
-    var timeLeft by remember {
-        mutableStateOf(time)
+    var alreadyScrolled by remember {
+        mutableStateOf(false)
     }
 
-    LaunchedEffect(key1 = timeLeft) {
-        while (timeLeft > 0) {
-            delay(1L)
-            timeLeft--
-        }
-    }
-    if(timeLeft == 0){
-        navController.navigate(route = downScreen.name) // Make sure this happens only once
-        timeLeft = -1
+    LaunchedEffect(Unit) {
+        if (alreadyScrolled)
+            return@LaunchedEffect
+
+        delay(time.toLong())
+        navController.navigate(downScreen.name)
+        alreadyScrolled = true
     }
 }
