@@ -28,9 +28,10 @@ import org.listenbrainz.android.model.yimdata.Yim23TopDiscoveries
 import org.listenbrainz.android.model.yimdata.Yim23Track
 import org.listenbrainz.android.ui.components.Yim23Footer
 import org.listenbrainz.android.ui.components.Yim23Header
-import org.listenbrainz.android.ui.components.Yim23ListenCard
 import org.listenbrainz.android.ui.components.Yim23ShareButton
+import org.listenbrainz.android.ui.components.YimListenCard
 import org.listenbrainz.android.ui.theme.Yim23Theme
+import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
 
 @Composable
@@ -67,7 +68,7 @@ private fun Yim23NewAlbumsFromTopArtists (viewModel: Yim23ViewModel) {
     ) {
         LazyColumn (state = rememberLazyListState()) {
             items(newReleases) {
-                Yim23ListenCard(releaseName = it.title, artistName = it.artistCreditName, caaId = it.caaId.toString(), caaReleaseMbid = it.caaReleaseMbid)
+                YimListenCard(releaseName = it.title, artistName = it.artistCreditName, coverArtUrl = Utils.getCoverArtUrl(caaId = it.caaId, caaReleaseMbid = it.caaReleaseMbid , size = 500),)
             }
         }
     }
