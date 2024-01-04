@@ -119,7 +119,7 @@
     <string name="dash_tag">Tag</string>
     <string name="save_checkbox">Speichern</string>
     <string name="select_button">Auswählen</string>
-    <string name="settings_appearance">Erscheinung</string>
+    <string name="settings_appearance">Erscheinungsbild</string>
     <string name="releaseadd">Veröffentlichung hinzufügen</string>
     <string name="eventadd">Ereignis hinzufügen</string>
     <string name="labeladd">Label hinzufügen</string>
@@ -128,4 +128,23 @@
     <string name="play_podcast_button_label">Podcast abspielen</string>
     <string name="play_artist_button_label">Künstler abspielen</string>
     <string name="cb_review_tc">Du bestätigst und stimmst zu, dass deine Rezensionen zu CritiqueBrainz unter einer Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0) Lizenz lizenziert wird. Du stimmst zu, dein Werk im Rahmen dieser Lizenz zu lizenzieren. Du versichert und garantierst, das du sämtliche Rechte in und an dem Werk besitzt oder kontrollierst, dass nichts in dem Werk die Rechte von Dritten verletzt, und dass du die Erlaubnis hast, um das Werk zu verwenden und unter der gewählten Creative Commons-Lizenz zu lizenzieren. Abschließend gibst du der MetaBrainz-Stiftung die Erlaubnis zum Lizenzieren dieses Inhaltes für die kommerzielle Nutzung außerhalb von Creative-Commons-Lizenzen, um die Operationen der Organisation zu unterstützen.</string>
+    <string name="login_failed_user_info">Abrufen der Benutzer-Informationen fehlgeschlagen</string>
+    <string name="state_unrecognised_artist">Unbekannter Künstler</string>
+    <string name="brainzplayer_notification_channel_name">Aktuelle BrainzPlayer-Wiedergabe</string>
+    <string name="new_player" formatted="true" comment="(%1 = App name) detected (shown in notification, when a new music player is detected)">%1$s erkannt</string>
+    <string name="login_success_access_token">Zugriffs-Token erfolgreich erhalten</string>
+    <string name="new_app">Neue App</string>
+    <string name="play_album_button_label">Album abspielen</string>
+    <string name="login_failed_access_token">Abrufen des Zugriffs-Token fehlgeschlagen.</string>
+    <string name="lookup_label">Nachschlagen mit</string>
+    <string name="settings_tagger_directory">Dateiverzeichnis</string>
+    <string name="no_scrobbles">Hier gibt\'s noch keine Songs…</string>
+    <string name="n_more" formatted="true" comment="n more( pending scrobbles)">%1$d mehr</string>
+    <string name="play_playlist_button_label">Wiedergabeliste abspielen</string>
+    <string name="tap_to_edit">(Zum Bearbeiten tippen)</string>
+    <string name="no_apps_enabled">Keine App ist aktiviert</string>
+    <string name="login_success_user_info">Benutzer-Informationen erfolgreich abgerufen</string>
+    <string name="brainzplayer_notification_channel_description">Steuerung für aktuell wiedergegebenes Lied</string>
+    <string name="is_in_collection_feedback">Ist in der Benutzersammlung? %1$s</string>
+    <string name="settings_listenbrainz_token">ListenBrainz Benutzer-Token</string>
 </resources>
