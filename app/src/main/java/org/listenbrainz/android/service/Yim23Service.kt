@@ -11,7 +11,7 @@ import javax.inject.Singleton
 @Singleton
 interface Yim23Service {
 
-    // https://api.listenbrainz.org/1/stats/user/(user_name)/year-in-music/2022
+
     @GET("stats/user/{user_name}/year-in-music/2023")
     suspend fun getYimData(@Path("user_name") username: String): Response<Yim23Payload>
 
