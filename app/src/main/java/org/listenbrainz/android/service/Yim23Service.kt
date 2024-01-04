@@ -8,6 +8,8 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import javax.inject.Singleton
 
+// TODO: TO BE REMOVED WHEN YIM GOES LIVE
+
 @Singleton
 interface Yim23Service {
 
