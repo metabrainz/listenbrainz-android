@@ -149,6 +149,7 @@ class ServiceModule {
     @get:Singleton
     @get:Provides
     val yim23Service: Yim23Service = Retrofit.Builder()
+        //TODO : To be removed when YIM goes live
         .baseUrl(LISTENBRAINZ_BETA_API_BASE_URL)
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create(yimGson))
