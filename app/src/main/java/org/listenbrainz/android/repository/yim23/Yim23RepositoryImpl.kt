@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 class Yim23RepositoryImpl @Inject constructor(private val service: Yim23Service) : Yim23Repository {
 
-    @WorkerThread
+
     override suspend fun getYimData(username: String?): Resource<Yim23Payload> {
         return Utils.parseResponse {
             if(username == null) return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
