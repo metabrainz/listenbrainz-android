@@ -18,9 +18,11 @@ import org.listenbrainz.android.service.BlogService
 import org.listenbrainz.android.service.FeedService
 import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.service.SocialService
+import org.listenbrainz.android.service.Yim23Service
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.service.YouTubeApiService
 import org.listenbrainz.android.util.Constants.LISTENBRAINZ_API_BASE_URL
+import org.listenbrainz.android.util.Constants.LISTENBRAINZ_BETA_API_BASE_URL
 import org.listenbrainz.android.util.HeaderInterceptor
 import org.listenbrainz.android.util.Utils
 import retrofit2.Retrofit
@@ -143,4 +145,14 @@ class ServiceModule {
             .addConverterFactory(GsonConverterFactory.create(yimGson))
             .build()
             .create(YimService::class.java)
+
+    @get:Singleton
+    @get:Provides
+    val yim23Service: Yim23Service = Retrofit.Builder()
+        //TODO : To be removed when YIM goes live
+        .baseUrl(LISTENBRAINZ_BETA_API_BASE_URL)
+        .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create(yimGson))
+        .build()
+        .create(Yim23Service::class.java)
 }

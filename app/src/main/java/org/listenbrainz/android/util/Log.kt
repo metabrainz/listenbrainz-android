@@ -4,7 +4,7 @@ import com.limurse.logger.Logger
 
 object Log {
 
-    fun e(message: Any?, tag: String? = null, ) {
+    fun e(message: Any?, tag: String? = null) {
         Logger.e(tag, msg = message.toString())
     }
 

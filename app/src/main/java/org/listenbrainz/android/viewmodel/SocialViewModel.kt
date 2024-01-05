@@ -1,14 +1,19 @@
 package org.listenbrainz.android.viewmodel
 
 import android.net.Uri
+import android.util.Log
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.Metadata
@@ -16,6 +21,7 @@ import org.listenbrainz.android.model.RecommendationData
 import org.listenbrainz.android.model.RecommendationMetadata
 import org.listenbrainz.android.model.Review
 import org.listenbrainz.android.model.ReviewMetadata
+import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.feed.ReviewEntityType
@@ -164,4 +170,12 @@ class SocialViewModel @Inject constructor(
             }
         }
     }
+
+   fun getFollowers(username : String) : Resource<SocialData> = runBlocking {
+        val deferredResult = async{
+            repository.getFollowers(username)
+        }
+       return@runBlocking deferredResult.await()
+    }
+
 }

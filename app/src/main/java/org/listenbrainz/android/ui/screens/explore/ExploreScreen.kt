@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.screens.newsbrainz.NewsBrainzActivity
 import org.listenbrainz.android.ui.screens.yim.YearInMusicActivity
+import org.listenbrainz.android.ui.screens.yim23.YearInMusic23Activity
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @Composable
@@ -45,7 +46,12 @@ fun ExploreScreen() {
                 .verticalScroll(rememberScrollState())
                 .fillMaxWidth()
         ) {
-            
+            ExploreScreenCard(
+                nextActivity = YearInMusic23Activity::class.java,
+                iconId = R.drawable.yim23_explore_tile,
+                title = "Your Year in Music 2023",
+                subTitle = "Review"
+            )
             // Yim Card
             ExploreScreenCard(
                 nextActivity = YearInMusicActivity::class.java,

@@ -1,160 +1,108 @@
 package org.listenbrainz.android.util
 
-import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import org.listenbrainz.android.model.OnTimerListener
-import org.listenbrainz.android.model.Status
-import java.util.Timer
-import java.util.concurrent.atomic.AtomicLong
-import kotlin.concurrent.fixedRateTimer
+import org.listenbrainz.android.model.TimerState
 
-class Timer(private val isDaemon: Boolean = false) {
+class Timer {
+    companion object {
+        private const val MESSAGE_TOKEN = 69
+        private const val TAG = "Timer"
+    }
     
-    private val handler: Handler by lazy { Handler(Looper.getMainLooper()) }
+    private val mHandler: Handler by lazy { Handler(Looper.getMainLooper()) }
     
-    private var timer: Timer? = null
-    private var status: Status? = null
-    private var listener: OnTimerListener? = null
+    private var mState: TimerState = TimerState.ENDED
+    private var mListener: OnTimerListener? = null
     
-    private var initialTimerDuration = 0L
-    private var currentDuration: AtomicLong = AtomicLong(0)
-    private var startDelay = 0L
-    private var callbacksOnMainThread = false
+    private var mInitialDuration = 0L
+    private var mResumeTs: Long = 0
+    private var mDurationLeft: Long = 0L
     
     fun setDuration(duration: Long) {
-        initialTimerDuration = duration
-        currentDuration.set(duration)
+        mInitialDuration = duration
+        this.mDurationLeft = duration
     }
     
-    fun setStartDelay(delay: Long) {
-        this.startDelay = delay
+    fun setOnTimerListener(listener: OnTimerListener) {
+        this.mListener = listener
+        android.util.Log.d(TAG, "setOnTimerListener: ")
     }
     
-    fun setOnTimerListener(listener: OnTimerListener, callbacksOnMainThread: Boolean) {
-        this.listener = listener
-        this.callbacksOnMainThread = callbacksOnMainThread
-    }
+    fun startOrResume(delay: Long = 0L) {
+        when (mState) {
+            TimerState.RUNNING -> return
+            TimerState.PAUSED -> {
+                mResumeTs = SystemClock.uptimeMillis()
+                
+                mHandler.postAtTime(
+                    { end() },
+                    MESSAGE_TOKEN,
+                    mResumeTs + mDurationLeft
+                )
+                Log.d("Timer resumed")
+                
+                mListener?.onTimerResumed()
+                mState = TimerState.RUNNING
+            }
+            TimerState.ENDED -> {
+                mResumeTs = SystemClock.uptimeMillis()
+                
+                mHandler.postAtTime(
+                    { end() },
+                    MESSAGE_TOKEN,
+                    mResumeTs + mDurationLeft + delay
+                )
+                Log.d("Timer started")
     
-    fun start() {
-        
-        if (status == Status.RUN) {
-            return
-        }
-    
-        Log.d("Timer started")
-        
-        // When the status is end or stop I must reinitialize the duration to initial duration.
-        if (status == Status.END || status == Status.STOP) {
-            currentDuration.set(initialTimerDuration)
-            status = null
-        }
-        
-        val delay = when (status) {
-            null -> {
-                startDelay
+                mListener?.onTimerStarted()
+                mState = TimerState.RUNNING
             }
-            else -> {
-                0
-            }
-        }
-        
-        status = Status.START
-        
-        timer = fixedRateTimer("timer", isDaemon, delay, 1000) {
-            
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                currentDuration.getAndUpdate {
-                    it - 1_000
-                }
-            } else {
-                currentDuration.addAndGet(-1_000)
-            }
-    
-            // When I arrive to -1 it means that all the milliseconds at 0 seconds are passed.
-            if (currentDuration.get() <= -1_000L) {
-                end()
-                return@fixedRateTimer
-            }
-            
-            if (status == Status.START) {
-                execute {
-                    listener?.onTimerStarted()
-                }
-            }
-            
-            status = Status.RUN
-            
-            execute {
-                listener?.onTimerRun(currentDuration.get())
-            }
-        }
-    }
-    
-    private fun execute(f: () -> Unit) {
-        if (callbacksOnMainThread) {
-            handler.post {
-                f.invoke()
-            }
-        } else {
-            f.invoke()
         }
     }
     
     private fun end() {
-        if (status == Status.END) {
+        if (mState == TimerState.ENDED) {
             return
         }
-        status = Status.END
-        recycle()
-        execute {
-            listener?.onTimerEnded()
-        }
+        mState = TimerState.ENDED
+        mListener?.onTimerEnded()
+        reset()
     }
     
     fun stop() {
-        if (status == Status.STOP) {
+        if (mState == TimerState.ENDED) {
             return
         }
-        status = Status.STOP
-        recycle()
-        execute {
-            listener?.onTimerStopped()
-        }
+        mState = TimerState.ENDED
+        mHandler.removeCallbacksAndMessages(MESSAGE_TOKEN)
+        reset()
     }
     
     fun extendDuration(extensionSeconds: (passedSeconds: Long) -> Long) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            currentDuration.getAndUpdate {
-                extensionSeconds(initialTimerDuration - it)
-            }
-        } else {
-            currentDuration.addAndGet(extensionSeconds(initialTimerDuration - currentDuration.get()))
-        }
-        
+        pause()
+        mDurationLeft += extensionSeconds(/*passedSeconds =*/mInitialDuration - mDurationLeft)
+        startOrResume()
     }
     
     fun pause() {
-        if (status == Status.STOP || status == Status.PAUSE || status == Status.END) {
+        Log.d("Timer paused")
+        if (mState == TimerState.PAUSED || mState == TimerState.ENDED) {
             return
         }
-        Log.d("Timer paused")
-        status = Status.PAUSE
-        timer?.apply {
-            cancel()
-            purge()
-        }
-        execute {
-            listener?.onTimerPaused(currentDuration.get())
-        }
+        mState = TimerState.PAUSED
+        mHandler.removeCallbacksAndMessages(MESSAGE_TOKEN)
+        
+        val durationLeft = mDurationLeft - (SystemClock.uptimeMillis() - mResumeTs)
+        mListener?.onTimerPaused(durationLeft)
+        this.mDurationLeft = durationLeft
     }
     
-    private fun recycle() {
-        timer?.apply {
-            cancel()
-            purge()
-        }
-        timer = null
-        currentDuration.set(0)
+    private fun reset() {
+        mResumeTs = 0L
+        mDurationLeft = 0L
+        mInitialDuration = 0L
     }
 }
