@@ -17,6 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -70,22 +73,21 @@ fun YimListenCard(
             Column(modifier = Modifier) {
                 Text(
                     text = releaseName,
-                    style = MaterialTheme.typography.bodyMedium
-                        .copy(
-                            fontWeight = FontWeight.Bold,
-                            color = lb_purple,
-                            fontSize = 14.sp
-                        ),
+                    style = TextStyle(
+                        fontFamily = FontFamily(Font(R.font.roboto_regular)),
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 14.sp,
+                    ),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = artistName,
-                    style = MaterialTheme.typography.bodyMedium
-                        .copy(
-                            fontWeight = FontWeight.Bold,
-                            color = lb_purple.copy(alpha = 0.7f)
-                        ),
+                    style = TextStyle(
+                        fontFamily = FontFamily(Font(R.font.roboto_regular)),
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 10.sp,
+                    ),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
