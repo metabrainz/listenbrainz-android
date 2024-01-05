@@ -77,7 +77,7 @@ fun Yim23FriendsScreen (
                 Text("VISIT SOME FRIENDS" , style = MaterialTheme.typography.titleLarge ,
                     color = MaterialTheme.colorScheme.background , textAlign = TextAlign.Center)
             }
-            Yim23Friends(viewModel = viewModel , socialViewModel = socialViewModel)
+            Yim23Friends(username = username, socialViewModel = socialViewModel)
             Yim23Footer(footerText = username, isUsername = true, navController = navController,
                 downScreen = Yim23Screens.YimLastScreen)
         }
@@ -90,8 +90,8 @@ fun Yim23FriendsScreen (
 
 @ExperimentalFoundationApi
 @Composable
-private fun Yim23Friends (viewModel: Yim23ViewModel , socialViewModel: SocialViewModel) {
-    var followers : Resource<SocialData> = remember {socialViewModel.getFollowers("aerozol")}
+private fun Yim23Friends (username : String, socialViewModel: SocialViewModel) {
+    var followers : Resource<SocialData> = remember {socialViewModel.getFollowers(username)}
     val animationScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
     if(followers != null){
