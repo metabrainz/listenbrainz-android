@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,24 +41,36 @@ fun Yim23TopArtistsScreen (
     Yim23Theme(themeType = viewModel.themeType.value) {
         Column (modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground) , verticalArrangement = Arrangement.SpaceBetween)
+            .background(MaterialTheme.colorScheme.onBackground) ,
+            verticalArrangement = Arrangement.SpaceBetween)
         {
             Yim23Header(username = username, navController = navController)
             Box(contentAlignment = Alignment.BottomCenter , modifier = Modifier.padding(top = 5.dp)) {
-                Column (verticalArrangement = Arrangement.spacedBy(0.dp) , horizontalAlignment = Alignment.Start , modifier = Modifier.fillMaxWidth()) {
-                    val topArtists : List<TopArtist>? = viewModel.getTopArtists()!!.toList()
+                Column (verticalArrangement = Arrangement.spacedBy(0.dp) ,
+                    horizontalAlignment = Alignment.Start , modifier = Modifier.fillMaxWidth()) {
+                    val topArtists : List<TopArtist>? = remember {
+                        viewModel.getTopArtists()!!.toList()
+                    }
                     for(i in 1..10)
                         Row () {
-                            if(i == 10) Text("X" , style = MaterialTheme.typography.labelMedium , color = MaterialTheme.colorScheme.background , modifier = Modifier.padding(start = 11.dp,end = 21.dp))
-                            else Text((i).toString() ,  style = MaterialTheme.typography.labelMedium , color = MaterialTheme.colorScheme.background , modifier = Modifier.padding(start = 11.dp,end = 21.dp))
-                            Text(topArtists!![i-1].artistName!!, style = MaterialTheme.typography.labelMedium , color = MaterialTheme.colorScheme.background , maxLines = 1 , overflow = TextOverflow.Clip)
+                            if(i == 10) Text("X" , style = MaterialTheme.typography.labelMedium ,
+                                color = MaterialTheme.colorScheme.background ,
+                                modifier = Modifier.padding(start = 11.dp,end = 21.dp))
+                            else Text((i).toString() ,  style = MaterialTheme.typography.labelMedium ,
+                                color = MaterialTheme.colorScheme.background ,
+                                modifier = Modifier.padding(start = 11.dp,end = 21.dp))
+                            Text(topArtists!![i-1].artistName!!,
+                                style = MaterialTheme.typography.labelMedium ,
+                                color = MaterialTheme.colorScheme.background ,
+                                maxLines = 1 , overflow = TextOverflow.Clip)
                         }
                 }
             }
 
 
             Spacer(modifier = Modifier.padding(vertical = 11.dp))
-            Yim23Footer(footerText = "MY TOP SONGS", isUsername = false, navController = navController, downScreen = Yim23Screens.YimStatsTitleScreen)
+            Yim23Footer(footerText = "MY TOP SONGS", isUsername = false,
+                navController = navController, downScreen = Yim23Screens.YimStatsTitleScreen)
         }
     }
 

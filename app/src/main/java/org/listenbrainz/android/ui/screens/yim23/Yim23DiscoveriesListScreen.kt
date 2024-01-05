@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,10 +43,12 @@ fun Yim23DiscoveriesListScreen (
     Yim23Theme(themeType = viewModel.themeType.value) {
         Column (modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground), verticalArrangement = Arrangement.SpaceBetween) {
+            .background(MaterialTheme.colorScheme.onBackground),
+            verticalArrangement = Arrangement.SpaceBetween) {
             Yim23Header(username = username, navController = navController)
             Yim23Discoveries(viewModel = viewModel)
-            Yim23Footer(footerText = "DISCOVERIES OF 2023", isUsername = false, navController = navController, downScreen = Yim23Screens.YimMissedSongsScreen)
+            Yim23Footer(footerText = "DISCOVERIES OF 2023", isUsername = false,
+                navController = navController, downScreen = Yim23Screens.YimMissedSongsScreen)
         }
     }
 }
@@ -53,7 +56,7 @@ fun Yim23DiscoveriesListScreen (
 
 @Composable
 private fun Yim23Discoveries (viewModel: Yim23ViewModel) {
-    val topDiscoveries : List<Yim23Track> = viewModel.getTopDiscoveries().playlist.tracks.toList()
+    val topDiscoveries : List<Yim23Track> = remember {viewModel.getTopDiscoveries().playlist.tracks.toList()}
     Box (modifier = Modifier
         .fillMaxWidth()
         .padding(start = 11.dp, end = 11.dp)
@@ -69,7 +72,9 @@ private fun Yim23Discoveries (viewModel: Yim23ViewModel) {
             items(topDiscoveries) {
                 YimListenCard(releaseName = it.title, artistName = it.creator,
                     coverArtUrl = Utils.getCoverArtUrl(
-                        caaId = it.extension.extensionData.additionalMetadata.caaId.toLong(), caaReleaseMbid = it.extension.extensionData.additionalMetadata.caaReleaseMbid , size = 500
+                        caaId = it.extension.extensionData.additionalMetadata.caaId.toLong(),
+                        caaReleaseMbid = it.extension.extensionData.additionalMetadata.caaReleaseMbid ,
+                        size = 500
                     )
                    )
             }

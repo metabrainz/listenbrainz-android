@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -42,22 +43,28 @@ fun Yim23TopAlbumsScreen (
     navController: NavController,
 ) {
     val username by viewModel.getUsernameFlow().collectAsState(initial = "")
-    val topReleases : List<TopReleaseYim23>? = viewModel.getTopReleases()?.toList()
+    val topReleases : List<TopReleaseYim23>? = remember {
+        viewModel.getTopReleases()?.toList()
+    }
     Yim23Theme(themeType = viewModel.themeType.value) {
         Column (modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground) , verticalArrangement = Arrangement.SpaceBetween , horizontalAlignment = Alignment.CenterHorizontally) {
+            .background(MaterialTheme.colorScheme.onBackground) ,
+            verticalArrangement = Arrangement.SpaceBetween ,
+            horizontalAlignment = Alignment.CenterHorizontally) {
             Yim23Header(username = username, navController = navController)
             Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center) {
                 Box  {
-                    Image(painter = painterResource(id = R.drawable.yim23_left_curtain), contentDescription = "Left curtain" ,
+                    Image(painter = painterResource(id = R.drawable.yim23_left_curtain),
+                        contentDescription = "Left curtain" ,
                         Modifier
                             .width(200.dp)
                             .height(275.dp)
                             .offset(x = -75.dp, y = -10.dp)
                             .zIndex(1f), alignment = Alignment.TopStart)
                     AlbumCoverPic(topReleases)
-                    Image(painter = painterResource(id = R.drawable.yim23_right_curtain), contentDescription = "Right curtain" ,
+                    Image(painter = painterResource(id = R.drawable.yim23_right_curtain),
+                        contentDescription = "Right curtain" ,
                         Modifier
                             .width(200.dp)
                             .height(275.dp)
@@ -66,7 +73,8 @@ fun Yim23TopAlbumsScreen (
                 }
             }
 
-            Yim23Footer(footerText = "MY TOP ALBUMS", navController = navController, isUsername = false, downScreen = Yim23Screens.YimAlbumsListScreen)
+            Yim23Footer(footerText = "MY TOP ALBUMS", navController = navController,
+                isUsername = false, downScreen = Yim23Screens.YimAlbumsListScreen)
         }
     }
 

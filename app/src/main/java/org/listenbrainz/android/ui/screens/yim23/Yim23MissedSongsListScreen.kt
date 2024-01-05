@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,11 +43,12 @@ fun Yim23MissedSongsListScreen (
     Yim23Theme(themeType = viewModel.themeType.value) {
         Column (modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground), verticalArrangement = Arrangement.SpaceBetween) {
+            .background(MaterialTheme.colorScheme.onBackground),
+            verticalArrangement = Arrangement.SpaceBetween) {
             Yim23Header(username = username, navController = navController)
             Yim23MissedSongs(viewModel = viewModel)
-
-            Yim23Footer(footerText = "MISSED SONGS 2023", isUsername = false, navController = navController, downScreen = Yim23Screens.YimDiscoverTitleScreen)
+            Yim23Footer(footerText = "MISSED SONGS 2023", isUsername = false,
+                navController = navController, downScreen = Yim23Screens.YimDiscoverTitleScreen)
         }
     }
 }
@@ -54,7 +56,7 @@ fun Yim23MissedSongsListScreen (
 
 @Composable
 private fun Yim23MissedSongs (viewModel: Yim23ViewModel) {
-    val topMissedSongs : List<Yim23Track> = viewModel.getMissedSongs().playlist.tracks.toList()
+    val topMissedSongs : List<Yim23Track> = remember {viewModel.getMissedSongs().playlist.tracks.toList()}
     Box (modifier = Modifier
         .fillMaxWidth()
         .padding(start = 11.dp, end = 11.dp)
@@ -68,7 +70,11 @@ private fun Yim23MissedSongs (viewModel: Yim23ViewModel) {
     ) {
         LazyColumn (state = rememberLazyListState()) {
             items(topMissedSongs) {
-                YimListenCard(releaseName = it.title, artistName = it.creator, coverArtUrl = Utils.getCoverArtUrl(caaId = it.extension.extensionData.additionalMetadata.caaId.toLong(), caaReleaseMbid = it.extension.extensionData.additionalMetadata.caaReleaseMbid , size = 500),)
+                YimListenCard(releaseName = it.title, artistName = it.creator, coverArtUrl =
+                Utils.getCoverArtUrl(
+                    caaId = it.extension.extensionData.additionalMetadata.caaId.toLong(),
+                    caaReleaseMbid = it.extension.extensionData.additionalMetadata.caaReleaseMbid,
+                    size = 500),)
             }
         }
     }

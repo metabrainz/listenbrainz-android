@@ -54,17 +54,21 @@ fun Yim23StatsGraphScreen (
     navController: NavController
 ) {
     val username by viewModel.getUsernameFlow().collectAsState(initial = "")
-    val mostListenedYear = viewModel.getMostListenedYear()!!
+    val mostListenedYear = remember {viewModel.getMostListenedYear()}
     Yim23Theme(themeType = viewModel.themeType.value) {
         Column (modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground) , verticalArrangement = Arrangement.SpaceBetween) {
+            .background(MaterialTheme.colorScheme.onBackground) ,
+            verticalArrangement = Arrangement.SpaceBetween) {
             Yim23Header(username = username, navController = navController)
             Spacer(modifier = Modifier.padding(top = 11.dp))
-            Text("Most of the songs I listened to were from ${mostListenedYear.key} (${mostListenedYear.value} songs)" , style = MaterialTheme.typography.bodyLarge , color = MaterialTheme.colorScheme.background , textAlign = TextAlign.Center)
+            Text("Most of the songs I listened to were from ${mostListenedYear!!.key} " +
+                    "(${mostListenedYear.value} songs)" , style = MaterialTheme.typography.bodyLarge
+                , color = MaterialTheme.colorScheme.background , textAlign = TextAlign.Center)
             Spacer(modifier = Modifier.padding(top = 21.dp))
             Yim23Graph(viewModel = viewModel)
-            Yim23Footer(footerText = "MY STATS", isUsername = true, navController = navController, downScreen = Yim23Screens.YimPlaylistsTitleScreen)
+            Yim23Footer(footerText = "MY STATS", isUsername = true, navController = navController,
+                downScreen = Yim23Screens.YimPlaylistsTitleScreen)
         }
     }
 }
@@ -74,6 +78,7 @@ fun Yim23StatsGraphScreen (
 private fun Yim23Graph (viewModel: Yim23ViewModel , paddings: YimPaddings = LocalYimPaddings.current) {
     val listState = rememberLazyListState()
     val graphState = rememberLazyListState()
+    val yearListens = remember {viewModel.getYearListens().toList()}
 
     Box (modifier = Modifier
         .fillMaxWidth()
@@ -82,7 +87,7 @@ private fun Yim23Graph (viewModel: Yim23ViewModel , paddings: YimPaddings = Loca
         .clip(RoundedCornerShape(10.dp))
         .background(Color(0xFFe0e5de)) , contentAlignment = Alignment.TopCenter) {
         LazyRow (state = graphState) {
-            items(viewModel.getYearListens().toList()) { item ->
+            items(yearListens) { item ->
                 val height = (item.second * 250) / (viewModel.getMostListenedYear()!!.value)
                 Column {
                     Spacer(modifier = Modifier
@@ -111,7 +116,8 @@ private fun Yim23Graph (viewModel: Yim23ViewModel , paddings: YimPaddings = Loca
             .padding(start = 11.dp, end = 11.dp),
         userScrollEnabled = false
     ){
-        items(listOf("1960" , "1965" , "1970" , "1975" , "1980" , "1985" , "1990" , "1995" , "2000" , "2005" , "2010" , "2015" , "2020")
+        items(listOf("1960" , "1965" , "1970" , "1975" , "1980" , "1985" , "1990" , "1995" , "2000"
+            , "2005" , "2010" , "2015" , "2020")
         ){ month ->
             Text(
                 text = month,
@@ -122,4 +128,5 @@ private fun Yim23Graph (viewModel: Yim23ViewModel , paddings: YimPaddings = Loca
         }
     }
 }
+
 

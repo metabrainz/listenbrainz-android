@@ -56,14 +56,20 @@ fun Yim23LastScreen (
     Yim23Theme(themeType = viewModel.themeType.value) {
         Column (modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background), verticalArrangement = Arrangement.SpaceBetween) {
+            .background(MaterialTheme.colorScheme.background),
+            verticalArrangement = Arrangement.SpaceBetween) {
             Box (modifier = Modifier.padding(top = 10.dp)) {
                 Column {
-                    Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center , verticalAlignment = Alignment.CenterVertically) {
-                        Button(onClick = {
-                                         navController.navigate(route = Yim23Screens.YimLandingScreen.name)
-                        } , colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.onBackground)) {
-                            Text("START AGAIN" , style = MaterialTheme.typography.bodySmall , color = MaterialTheme.colorScheme.background)
+                    Row (modifier = Modifier.fillMaxWidth() ,
+                        horizontalArrangement = Arrangement.Center ,
+                        verticalAlignment = Alignment.CenterVertically) {
+                        Button(onClick =
+                        {
+                            navController.navigate(route = Yim23Screens.YimLandingScreen.name)
+                        } ,
+                            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.onBackground)) {
+                            Text("START AGAIN" , style = MaterialTheme.typography.bodySmall ,
+                                color = MaterialTheme.colorScheme.background)
                         }
                         Spacer(modifier = Modifier.padding(start = 10.dp , end = 10.dp))
                         IconButton(onClick = { navController.popBackStack() } , modifier = Modifier
@@ -73,13 +79,16 @@ fun Yim23LastScreen (
                             .size(26.dp)
                             .background(MaterialTheme.colorScheme.onBackground)
                         ) {
-                            Image(imageVector = ImageVector.vectorResource(R.drawable.yim23_up_arrow), contentDescription = "Up arrow" , colorFilter = ColorFilter.tint(
+                            Image(imageVector = ImageVector.vectorResource(R.drawable.yim23_up_arrow),
+                                contentDescription = "Up arrow" , colorFilter = ColorFilter.tint(
                                 MaterialTheme.colorScheme.background))
                         }
                     }
                     Spacer(modifier = Modifier.padding(top = 5.dp , bottom = 5.dp))
-                    Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center) {
-                        Text("#YEAR IN MUSIC" , color = MaterialTheme.colorScheme.onBackground , style = MaterialTheme.typography.titleLarge)
+                    Row (modifier = Modifier.fillMaxWidth() ,
+                        horizontalArrangement = Arrangement.Center) {
+                        Text("#YEAR IN MUSIC" , color = MaterialTheme.colorScheme.onBackground ,
+                            style = MaterialTheme.typography.titleLarge)
                     }
                 }
 
@@ -88,12 +97,19 @@ fun Yim23LastScreen (
             Box () {
                 Column (modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 11.dp, end = 11.dp) , horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(painter = painterResource(id = R.drawable.yim23_g_heart), contentDescription = "Heart illustration" , modifier = Modifier
+                    .padding(start = 11.dp, end = 11.dp) ,
+                    horizontalAlignment = Alignment.CenterHorizontally) {
+                    Image(painter = painterResource(id = R.drawable.yim23_g_heart),
+                        contentDescription = "Heart illustration" , modifier = Modifier
                         .height(123.dp)
                         .width(108.dp))
-                    Text("Wishing you a restful 2024,\u2028from the ListenBrainz team." , color = MaterialTheme.colorScheme.onBackground , style = MaterialTheme.typography.bodyMedium , textAlign = TextAlign.Center)
-                    Text("If you have questions or feedback don't hesitate to contact us on our forums, by email, IRC, X, Bluesky or Mastodon\n" , color = MaterialTheme.colorScheme.onBackground , style = MaterialTheme.typography.bodyMedium , textAlign = TextAlign.Center)
+                    Text("Wishing you a restful 2024,\u2028from the ListenBrainz team." ,
+                        color = MaterialTheme.colorScheme.onBackground ,
+                        style = MaterialTheme.typography.bodyMedium , textAlign = TextAlign.Center)
+                    Text("If you have questions or feedback don't hesitate to contact us on our" +
+                            " forums, by email, IRC, X, Bluesky or Mastodon\n" ,
+                        color = MaterialTheme.colorScheme.onBackground ,
+                        style = MaterialTheme.typography.bodyMedium , textAlign = TextAlign.Center)
                 }
             }
 
@@ -102,14 +118,17 @@ fun Yim23LastScreen (
                 .height(160.dp)
                 .background(MaterialTheme.colorScheme.onBackground)) {
                 Column {
-                    Column (verticalArrangement = Arrangement.SpaceEvenly , horizontalAlignment = Alignment.CenterHorizontally , ) {
+                    Column (verticalArrangement = Arrangement.SpaceEvenly ,
+                        horizontalAlignment = Alignment.CenterHorizontally , ) {
                         androidx.compose.material.Text(
                             username.uppercase(),
                             style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.background,
                             modifier = Modifier.paddingFromBaseline(top = 40.dp)
                         )
-                        Row (modifier = Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.Center) {
+                        Row (modifier = Modifier.fillMaxWidth() ,
+                            verticalAlignment = Alignment.CenterVertically ,
+                            horizontalArrangement = Arrangement.Center) {
                             Yim23ShareButton()
                             ListenBrainzProfileButton()
                             AddUser()

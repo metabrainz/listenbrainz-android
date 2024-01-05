@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,17 +44,28 @@ fun Yim23TopSongsScreen (
         {
             Yim23Header(username = username, navController = navController)
             Box(contentAlignment = Alignment.BottomCenter , modifier = Modifier.padding(top = 5.dp)) {
-                Column (verticalArrangement = Arrangement.spacedBy(0.dp) , horizontalAlignment = Alignment.Start , modifier = Modifier.fillMaxWidth()) {
-                    val topRecordings : List<TopRecording>? = viewModel.getTopRecordings()!!.toList()
+                Column (verticalArrangement = Arrangement.spacedBy(0.dp) ,
+                    horizontalAlignment = Alignment.Start , modifier = Modifier.fillMaxWidth()) {
+                    val topRecordings : List<TopRecording>? = remember {
+                        viewModel.getTopRecordings()!!.toList()
+                    }
                     for(i in 1..10)
                         Row () {
-                            if(i == 10) Text("X" , style = MaterialTheme.typography.labelMedium , color = MaterialTheme.colorScheme.background , modifier = Modifier.padding(start = 11.dp,end = 21.dp))
-                            else Text((i).toString() ,  style = MaterialTheme.typography.labelMedium , color = MaterialTheme.colorScheme.background , modifier = Modifier.padding(start = 11.dp,end = 21.dp))
-                            Text(topRecordings!![i-1].trackName, style = MaterialTheme.typography.labelMedium , color = MaterialTheme.colorScheme.background , maxLines = 1 , overflow = TextOverflow.Clip)
+                            if(i == 10) Text("X" , style = MaterialTheme.typography.labelMedium
+                                , color = MaterialTheme.colorScheme.background ,
+                                modifier = Modifier.padding(start = 11.dp,end = 21.dp))
+                            else Text((i).toString() ,  style = MaterialTheme.typography.labelMedium
+                                , color = MaterialTheme.colorScheme.background ,
+                                modifier = Modifier.padding(start = 11.dp,end = 21.dp))
+                            Text(topRecordings!![i-1].trackName,
+                                style = MaterialTheme.typography.labelMedium ,
+                                color = MaterialTheme.colorScheme.background , maxLines = 1 ,
+                                overflow = TextOverflow.Clip)
                         }
                 }
             }
-            Yim23Footer(footerText = "MY TOP SONGS", isUsername = false, navController = navController, downScreen = Yim23Screens.YimStatsTitleScreen)
+            Yim23Footer(footerText = "MY TOP SONGS", isUsername = false,
+                navController = navController, downScreen = Yim23Screens.YimStatsTitleScreen)
         }
     }
 

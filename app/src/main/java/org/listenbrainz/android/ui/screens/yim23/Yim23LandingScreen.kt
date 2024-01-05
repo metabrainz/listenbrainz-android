@@ -101,7 +101,8 @@ fun Yim23HomeScreen(
                                         , horizontalArrangement = Arrangement.Center
                                 ) {
                                     Image(
-                                        painter = painterResource(id = when (viewModel.themeType.value) {
+                                        painter =
+                                        painterResource(id = when (viewModel.themeType.value) {
                                             0 -> R.drawable.yim23_pick_color_green
                                             1 -> R.drawable.yim23_pick_color_red
                                             2 -> R.drawable.yim23_pick_color_blue
@@ -150,15 +151,26 @@ fun Yim23HomeScreen(
                                     .paddingFromBaseline(top = 80.dp)
                                     .width(277.dp)
                                     .height(135.dp), contentDescription = "")
-                                IconButton(onClick = {navController.navigate(route = Yim23Screens.YimChartTitleScreen.name)} , modifier = Modifier.paddingFromBaseline(top = 75.dp)) {
-                                    Icon(imageVector = ImageVector.vectorResource(R.drawable.yim23_down_arrow_green) , contentDescription = "Yim23 down icon" , tint = MaterialTheme.colorScheme.onBackground)
+                                IconButton(onClick =
+                                {navController.navigate(route = Yim23Screens.YimChartTitleScreen.name)} ,
+                                    modifier = Modifier.paddingFromBaseline(top = 75.dp)) {
+                                    Icon(imageVector =
+                                    ImageVector.vectorResource(R.drawable.yim23_down_arrow_green) ,
+                                        contentDescription = "Yim23 down icon" ,
+                                        tint = MaterialTheme.colorScheme.onBackground)
                                 }
                                 Box(modifier = Modifier
                                     .weight(1f)
                                     .background(MaterialTheme.colorScheme.onBackground)){
-                                    Column (verticalArrangement = Arrangement.SpaceEvenly , horizontalAlignment = Alignment.CenterHorizontally , modifier = Modifier.fillMaxSize()) {
-                                        Text(username.uppercase(),style=MaterialTheme.typography.titleLarge , color = MaterialTheme.colorScheme.background , modifier = Modifier.paddingFromBaseline(top = 40.dp))
-                                        Row (modifier = Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.Center) {
+                                    Column (verticalArrangement = Arrangement.SpaceEvenly ,
+                                        horizontalAlignment = Alignment.CenterHorizontally ,
+                                        modifier = Modifier.fillMaxSize()) {
+                                        Text(username.uppercase(),style=MaterialTheme.typography.titleLarge ,
+                                            color = MaterialTheme.colorScheme.background ,
+                                            modifier = Modifier.paddingFromBaseline(top = 40.dp))
+                                        Row (modifier = Modifier.fillMaxWidth() ,
+                                            verticalAlignment = Alignment.CenterVertically ,
+                                            horizontalArrangement = Arrangement.Center) {
                                             Yim23ShareButton()
                                             ListenBrainzProfileButton()
                                             AddUser()
@@ -170,7 +182,8 @@ fun Yim23HomeScreen(
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(start = 70.dp, top = 22.dp), horizontalArrangement = Arrangement.Center
+                                        .padding(start = 70.dp, top = 22.dp),
+                                    horizontalArrangement = Arrangement.Center
                                 ) {
                                     Image(
                                         painter = painterResource(id = when (viewModel.themeType.value) {
@@ -214,18 +227,34 @@ fun Yim23HomeScreen(
                                     color = MaterialTheme.colorScheme.onBackground,
                                     modifier = Modifier.paddingFromBaseline(top = 53.dp)
                                 )
-                                Image(painter = painterResource(id = R.drawable.yim23_flower_green) , contentDescription = "" , modifier = Modifier
+                                Image(painter = painterResource(id = R.drawable.yim23_flower_green) ,
+                                    contentDescription = "" , modifier = Modifier
                                     .paddingFromBaseline(60.dp)
                                     .height(48.dp)
                                     .width(103.dp))
-                                Text("Oh no! We don't have enough 2023 statistics for ${username}." , style = MaterialTheme.typography.bodyMedium , color = MaterialTheme.colorScheme.onBackground , textAlign = TextAlign.Center , modifier = Modifier.paddingFromBaseline(top = 60.dp))
-                                Text("Submit enough listens before the end of December to generate your #yearinmusic next year" , color = MaterialTheme.colorScheme.onBackground , style = MaterialTheme.typography.bodyMedium , modifier = Modifier.paddingFromBaseline(top = 40.dp , bottom=40.dp) , textAlign = TextAlign.Center)
+                                Text("Oh no! We don't have enough 2023 statistics for ${username}." ,
+                                    style = MaterialTheme.typography.bodyMedium ,
+                                    color = MaterialTheme.colorScheme.onBackground ,
+                                    textAlign = TextAlign.Center ,
+                                    modifier = Modifier.paddingFromBaseline(top = 60.dp))
+                                Text("Submit enough listens before the end of December to " +
+                                        "generate your #yearinmusic next year" ,
+                                    color = MaterialTheme.colorScheme.onBackground ,
+                                    style = MaterialTheme.typography.bodyMedium ,
+                                    modifier = Modifier.paddingFromBaseline(top = 40.dp , bottom=40.dp) ,
+                                    textAlign = TextAlign.Center)
                                 Box(modifier = Modifier
                                     .fillMaxWidth()
                                     .background(MaterialTheme.colorScheme.onBackground)){
-                                    Column (verticalArrangement = Arrangement.SpaceEvenly , horizontalAlignment = Alignment.CenterHorizontally , ) {
-                                        Text(username.uppercase(),style=MaterialTheme.typography.titleLarge , color = MaterialTheme.colorScheme.background , modifier = Modifier.paddingFromBaseline(top = 40.dp))
-                                        Row (modifier = Modifier.fillMaxWidth() , verticalAlignment = Alignment.CenterVertically , horizontalArrangement = Arrangement.Center) {
+                                    Column (verticalArrangement = Arrangement.SpaceEvenly ,
+                                        horizontalAlignment = Alignment.CenterHorizontally , ) {
+                                        Text(username.uppercase(),
+                                            style=MaterialTheme.typography.titleLarge ,
+                                            color = MaterialTheme.colorScheme.background ,
+                                            modifier = Modifier.paddingFromBaseline(top = 40.dp))
+                                        Row (modifier = Modifier.fillMaxWidth() ,
+                                            verticalAlignment = Alignment.CenterVertically ,
+                                            horizontalArrangement = Arrangement.Center) {
                                             Yim23ShareButton()
                                             ListenBrainzProfileButton()
                                             AddUser()
@@ -237,7 +266,8 @@ fun Yim23HomeScreen(
                         }
                     }
                 }
-                else -> {Toast.makeText(context , "Please check your internet connection" , Toast.LENGTH_LONG)}
+                else -> {Toast.makeText(context , "Please check your internet connection" ,
+                    Toast.LENGTH_LONG)}
             }
 
 

@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,14 +45,20 @@ fun Yim23AlbumsListScreen (
         ) {
             Yim23Header(username = username, navController = navController)
             Box(contentAlignment = Alignment.BottomCenter) {
-                Column (verticalArrangement = Arrangement.spacedBy(-30.dp) , horizontalAlignment = Alignment.Start , modifier = Modifier.fillMaxWidth()) {
-                    val topReleases : List<TopReleaseYim23>? = viewModel.getTopReleases()?.toList()
+                Column (verticalArrangement = Arrangement.spacedBy(-30.dp) ,
+                    horizontalAlignment = Alignment.Start , modifier = Modifier.fillMaxWidth()) {
+                    val topReleases : List<TopReleaseYim23>? = remember {
+                        viewModel.getTopReleases()?.toList()
+                    }
                     for(i in 1..5)
-                        Text(topReleases!![i].releaseName ,  color = MaterialTheme.colorScheme.background , style = MaterialTheme.typography.labelLarge , maxLines = 1)
+                        Text(topReleases!![i-1].releaseName ,
+                            color = MaterialTheme.colorScheme.background ,
+                            style = MaterialTheme.typography.labelLarge , maxLines = 1)
                 }
             }
 
-            Yim23Footer(footerText = "MY TOP ALBUMS", isUsername = false, navController = navController, downScreen = Yim23Screens.YimTopSongsScreen)
+            Yim23Footer(footerText = "MY TOP ALBUMS", isUsername = false,
+                navController = navController, downScreen = Yim23Screens.YimTopSongsScreen)
         }
     }
 }

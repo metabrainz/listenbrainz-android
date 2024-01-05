@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,13 +70,16 @@ fun Yim23FriendsScreen (
     Yim23Theme(themeType = viewModel.themeType.value) {
         Column (modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground), verticalArrangement = Arrangement.SpaceBetween) {
+            .background(MaterialTheme.colorScheme.onBackground),
+            verticalArrangement = Arrangement.SpaceBetween) {
             Yim23Header(username = username, navController = navController)
             Column (modifier = Modifier , horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("VISIT SOME FRIENDS" , style = MaterialTheme.typography.titleLarge , color = MaterialTheme.colorScheme.background , textAlign = TextAlign.Center)
+                Text("VISIT SOME FRIENDS" , style = MaterialTheme.typography.titleLarge ,
+                    color = MaterialTheme.colorScheme.background , textAlign = TextAlign.Center)
             }
             Yim23Friends(viewModel = viewModel , socialViewModel = socialViewModel)
-            Yim23Footer(footerText = username, isUsername = true, navController = navController, downScreen = Yim23Screens.YimLastScreen)
+            Yim23Footer(footerText = username, isUsername = true, navController = navController,
+                downScreen = Yim23Screens.YimLastScreen)
         }
     }
 }
@@ -87,7 +91,7 @@ fun Yim23FriendsScreen (
 @ExperimentalFoundationApi
 @Composable
 private fun Yim23Friends (viewModel: Yim23ViewModel , socialViewModel: SocialViewModel) {
-    var followers : Resource<SocialData> = socialViewModel.getFollowers("aerozol")
+    var followers : Resource<SocialData> = remember {socialViewModel.getFollowers("aerozol")}
     val animationScope = rememberCoroutineScope()
     val uriHandler = LocalUriHandler.current
     if(followers != null){
@@ -99,7 +103,8 @@ private fun Yim23Friends (viewModel: Yim23ViewModel , socialViewModel: SocialVie
                 page ->
                 Surface (modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 30.dp, end = 30.dp) , color = MaterialTheme.colorScheme.background
+                    .padding(start = 30.dp, end = 30.dp) ,
+                    color = MaterialTheme.colorScheme.background
                 , onClick = {
                         uriHandler.openUri("https://beta.listenbrainz.org/user/${followers.data!!.followers!![page]}/year-in-music/2023/")
                     }
@@ -110,10 +115,16 @@ private fun Yim23Friends (viewModel: Yim23ViewModel , socialViewModel: SocialVie
                         .clip(
                             RoundedCornerShape(10.dp)
                         )
-                        .background(MaterialTheme.colorScheme.background) , horizontalAlignment = Alignment.CenterHorizontally , verticalArrangement = Arrangement.Center) {
-                        Text(followers.data!!.followers!![page] , color = MaterialTheme.colorScheme.onBackground , style = MaterialTheme.typography.bodyLarge)
-                        Divider(modifier = Modifier.width(60.dp) , color = MaterialTheme.colorScheme.onBackground)
-                        Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.SpaceBetween) {
+                        .background(MaterialTheme.colorScheme.background) ,
+                        horizontalAlignment = Alignment.CenterHorizontally ,
+                        verticalArrangement = Arrangement.Center) {
+                        Text(followers.data!!.followers!![page] ,
+                            color = MaterialTheme.colorScheme.onBackground ,
+                            style = MaterialTheme.typography.bodyLarge)
+                        Divider(modifier = Modifier.width(60.dp) ,
+                            color = MaterialTheme.colorScheme.onBackground)
+                        Row (modifier = Modifier.fillMaxWidth() ,
+                            horizontalArrangement = Arrangement.SpaceBetween) {
                             IconButton(onClick = {
                                 animationScope.launch {
                                     pagerState.animateScrollToPage(pagerState.currentPage - 1)
@@ -122,8 +133,10 @@ private fun Yim23Friends (viewModel: Yim23ViewModel , socialViewModel: SocialVie
                                 .size(26.dp)
                                 .clip(RoundedCornerShape(100.dp))
                                 .background(MaterialTheme.colorScheme.onBackground)) {
-                                Image(imageVector = ImageVector.vectorResource(R.drawable.yim23_arrow_left), contentDescription = "Up arrow" , colorFilter = ColorFilter.tint(
-                                    MaterialTheme.colorScheme.background) , modifier = Modifier.zIndex(1f))
+                                Image(imageVector = ImageVector.vectorResource(R.drawable.yim23_arrow_left),
+                                    contentDescription = "Up arrow" , colorFilter = ColorFilter.tint(
+                                    MaterialTheme.colorScheme.background) ,
+                                    modifier = Modifier.zIndex(1f))
                             }
                             IconButton(onClick = {
                                 animationScope.launch {
@@ -133,7 +146,8 @@ private fun Yim23Friends (viewModel: Yim23ViewModel , socialViewModel: SocialVie
                                 .size(26.dp)
                                 .clip(RoundedCornerShape(100.dp))
                                 .background(MaterialTheme.colorScheme.onBackground)) {
-                                Image(imageVector = ImageVector.vectorResource(R.drawable.yim23_right_arrow), contentDescription = "Up arrow" , colorFilter = ColorFilter.tint(
+                                Image(imageVector = ImageVector.vectorResource(R.drawable.yim23_right_arrow),
+                                    contentDescription = "Up arrow" , colorFilter = ColorFilter.tint(
                                     MaterialTheme.colorScheme.background) ,  modifier = Modifier.zIndex(1f))
                             }
                         }

@@ -37,18 +37,24 @@ fun Yim23StatsTitleScreen (
     navController: NavController
 ) {
     val username by viewModel.getUsernameFlow().collectAsState(initial = "")
-    Yim23AutomaticScroll(navController = navController, time = 1500, downScreen = Yim23Screens.YimStatsScreen)
+    Yim23AutomaticScroll(navController = navController, time = 1500,
+        downScreen = Yim23Screens.YimStatsScreen)
     Yim23Theme(themeType = viewModel.themeType.value) {
         Column (modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground) , verticalArrangement = Arrangement.SpaceBetween , horizontalAlignment = Alignment.CenterHorizontally)
+            .background(MaterialTheme.colorScheme.onBackground) ,
+            verticalArrangement = Arrangement.SpaceBetween ,
+            horizontalAlignment = Alignment.CenterHorizontally)
         {
             Yim23Header(username = username, navController = navController)
-            Text("STATS" , style = MaterialTheme.typography.titleLarge , color = MaterialTheme.colorScheme.background)
-            Column (modifier = Modifier.fillMaxWidth() , horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("STATS" , style = MaterialTheme.typography.titleLarge ,
+                color = MaterialTheme.colorScheme.background)
+            Column (modifier = Modifier.fillMaxWidth() ,
+                horizontalAlignment = Alignment.CenterHorizontally) {
 
                 Spacer(modifier = Modifier.padding(bottom= 11.dp))
-                Yim23Footer(footerText = username, navController = navController, isUsername = true, downScreen = Yim23Screens.YimStatsScreen)
+                Yim23Footer(footerText = username, navController = navController,
+                    isUsername = true, downScreen = Yim23Screens.YimStatsScreen)
 
             }
         }

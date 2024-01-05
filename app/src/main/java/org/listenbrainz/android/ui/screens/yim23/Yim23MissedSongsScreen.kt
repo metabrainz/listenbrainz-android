@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,18 +53,26 @@ fun Yim23MissedSongsScreen (
     Yim23Theme(themeType = viewModel.themeType.value) {
         Column (modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground), verticalArrangement = Arrangement.SpaceBetween) {
+            .background(MaterialTheme.colorScheme.onBackground),
+            verticalArrangement = Arrangement.SpaceBetween) {
             Yim23Header(username = username, navController = navController)
             Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center){
                 Box (contentAlignment = Alignment.Center ) {
-                    Image(painter = painterResource(id = R.drawable.yim23_arrows) , contentDescription = "" , modifier = Modifier.zIndex(1f).align(
-                        Alignment.BottomCenter).width(330.dp).height(330.dp))
+                    Image(painter = painterResource(id = R.drawable.yim23_arrows) ,
+                        contentDescription = "" , modifier = Modifier
+                            .zIndex(1f)
+                            .align(
+                                Alignment.BottomCenter
+                            )
+                            .width(330.dp)
+                            .height(330.dp))
                     Yim23MissedSongsArt(viewModel = viewModel)
                 }
 
             }
 
-            Yim23Footer(footerText = "MISSED SONGS 2023", isUsername = false, navController = navController, downScreen = Yim23Screens.YimMissedSongsListScreen)
+            Yim23Footer(footerText = "MISSED SONGS 2023", isUsername = false,
+                navController = navController, downScreen = Yim23Screens.YimMissedSongsListScreen)
         }
     }
 }
@@ -71,12 +80,13 @@ fun Yim23MissedSongsScreen (
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun Yim23MissedSongsArt (viewModel: Yim23ViewModel) {
-    val tracks = viewModel.getMissedSongs().playlist.tracks.toList()
+    val tracks = remember {viewModel.getMissedSongs().playlist.tracks.toList()}
     Column  {
         for (j in 1..3)
             Row () {
                 for(i in 3*j-2..3*j){
-                    if(tracks[i-1].extension.extensionData.additionalMetadata.caaReleaseMbid != "" && tracks[i-1].extension.extensionData.additionalMetadata.caaId != "")
+                    if(tracks[i-1].extension.extensionData.additionalMetadata.caaReleaseMbid != ""
+                        && tracks[i-1].extension.extensionData.additionalMetadata.caaId != "")
                         GlideImage(
                             model = Utils.getCoverArtUrl(
                                 caaReleaseMbid = tracks[i-1].extension.extensionData.additionalMetadata.caaReleaseMbid,
@@ -91,7 +101,8 @@ private fun Yim23MissedSongsArt (viewModel: Yim23ViewModel) {
                             it.override(300).placeholder(R.drawable.yim_album_placeholder)
                         }
                     else{
-                        Image(painter = painterResource(id = R.drawable.yim_album_placeholder) , contentDescription = "LB logo placeholder" ,  modifier = Modifier.size(80.dp))
+                        Image(painter = painterResource(id = R.drawable.yim_album_placeholder) ,
+                            contentDescription = "LB logo placeholder" ,  modifier = Modifier.size(80.dp))
                     }
                 }
             }

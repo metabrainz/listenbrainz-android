@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,11 +43,12 @@ fun Yim23MusicBuddiesScreen (
     Yim23Theme(themeType = viewModel.themeType.value) {
         Column (modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground), verticalArrangement = Arrangement.SpaceBetween) {
+            .background(MaterialTheme.colorScheme.onBackground),
+            verticalArrangement = Arrangement.SpaceBetween) {
             Yim23Header(username = username, navController = navController)
             Yim23MusicBuddies(viewModel = viewModel)
-
-            Yim23Footer(footerText = "MUSIC BUDDIES", isUsername = false, navController = navController, downScreen = Yim23Screens.YimFriendsScreen)
+            Yim23Footer(footerText = "MUSIC BUDDIES", isUsername = false,
+                navController = navController, downScreen = Yim23Screens.YimFriendsScreen)
         }
     }
 }
@@ -54,7 +56,9 @@ fun Yim23MusicBuddiesScreen (
 
 @Composable
 private fun Yim23MusicBuddies (viewModel: Yim23ViewModel) {
-    val musicBuddies  = viewModel.getSimilarUsers()!!
+    val musicBuddies  = remember {
+        viewModel.getSimilarUsers()
+    }
     Box (modifier = Modifier
         .fillMaxWidth()
         .padding(start = 11.dp, end = 11.dp)
@@ -67,8 +71,9 @@ private fun Yim23MusicBuddies (viewModel: Yim23ViewModel) {
         )
     ) {
         LazyColumn (state = rememberLazyListState()) {
-            itemsIndexed(musicBuddies.toList()) {index , it ->
-                SimilarUserCard(uiModeIsDark = false,index = index, userName = it.first, similarity = it.second.toFloat() , cardBackGround = Color(0xFFe0e5de))
+            itemsIndexed(musicBuddies!!.toList()) {index , it ->
+                SimilarUserCard(uiModeIsDark = false,index = index, userName = it.first,
+                    similarity = it.second.toFloat() , cardBackGround = Color(0xFFe0e5de))
             }
         }
     }

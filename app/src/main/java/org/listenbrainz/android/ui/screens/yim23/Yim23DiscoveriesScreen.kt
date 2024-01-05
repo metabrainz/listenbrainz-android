@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,18 +49,27 @@ fun Yim23DiscoveriesScreen (
     Yim23Theme(themeType = viewModel.themeType.value) {
         Column (modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground) , verticalArrangement = Arrangement.SpaceBetween) {
+            .background(MaterialTheme.colorScheme.onBackground) ,
+            verticalArrangement = Arrangement.SpaceBetween) {
             Yim23Header(username = username, navController = navController)
             Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center){
                 Box (contentAlignment = Alignment.BottomCenter) {
-                    Image(painter = painterResource(id = R.drawable.yim23_hug) , contentDescription = "" , modifier = Modifier.zIndex(1f).align(
-                        Alignment.BottomCenter).width(550.dp).height(300.dp).offset(x = 15.dp))
+                    Image(painter = painterResource(id = R.drawable.yim23_hug) ,
+                        contentDescription = "" , modifier = Modifier
+                        .zIndex(1f)
+                        .align(
+                            Alignment.BottomCenter
+                        )
+                        .width(550.dp)
+                        .height(300.dp)
+                        .offset(x = 15.dp))
                     Yim23DiscoveriesArt(viewModel = viewModel)
                 }
 
             }
 
-            Yim23Footer(footerText = "DISCOVERIES OF 2023", isUsername = false, navController = navController, downScreen = Yim23Screens.YimDiscoveriesListScreen)
+            Yim23Footer(footerText = "DISCOVERIES OF 2023", isUsername = false,
+                navController = navController, downScreen = Yim23Screens.YimDiscoveriesListScreen)
         }
     }
 }
@@ -69,8 +79,8 @@ fun Yim23DiscoveriesScreen (
 private fun Yim23DiscoveriesArt(
     viewModel: Yim23ViewModel
 ) {
-    val yimTopDiscoveries : Yim23TopDiscoveries = viewModel.getTopDiscoveries()
-    val tracks : List<Yim23Track> = yimTopDiscoveries.playlist.tracks.toList()
+    val yimTopDiscoveries : Yim23TopDiscoveries = remember {viewModel.getTopDiscoveries()}
+    val tracks            : List<Yim23Track>    = remember {yimTopDiscoveries.playlist.tracks.toList()}
 
 
 
@@ -78,7 +88,8 @@ private fun Yim23DiscoveriesArt(
         for (j in 1..3)
             Row () {
                 for(i in 3*j-2..3*j){
-                    if(tracks[i-1].extension.extensionData.additionalMetadata.caaReleaseMbid != "" && tracks[i-1].extension.extensionData.additionalMetadata.caaId != "")
+                    if(tracks[i-1].extension.extensionData.additionalMetadata.caaReleaseMbid != "" &&
+                        tracks[i-1].extension.extensionData.additionalMetadata.caaId != "")
                     GlideImage(
                         model = Utils.getCoverArtUrl(
                             caaReleaseMbid = tracks[i-1].extension.extensionData.additionalMetadata.caaReleaseMbid,
@@ -93,7 +104,9 @@ private fun Yim23DiscoveriesArt(
                         it.override(300).placeholder(R.drawable.yim_album_placeholder)
                     }
                     else{
-                        Image(painter = painterResource(id = R.drawable.yim_album_placeholder) , contentDescription = "LB logo placeholder" ,  modifier = Modifier.size(80.dp))
+                        Image(painter = painterResource(id = R.drawable.yim_album_placeholder) ,
+                            contentDescription = "LB logo placeholder" ,
+                            modifier = Modifier.size(80.dp))
                     }
                 }
             }

@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.capitalize
@@ -49,53 +50,91 @@ fun Yim23StatsScreen (
 
 @Composable
 private fun Yim23Stats (viewModel: Yim23ViewModel) {
-    val topGenre : TopGenre = viewModel.getTopGenres()[0]
-    val musicDay : String = viewModel.getDayOfWeek().substring(0,3)
-    val totalArtists : Int? = viewModel.getTotalArtistCount()
-    val totalSongs : Int?  = viewModel.getTotalListenCount()
-    val newArtisis : Int? = viewModel.getTotalNewArtistsDiscovered()
-    val newArtistPercent : Int? = (newArtisis!! * 100/totalArtists!!)
-    val totaldays : Double? = viewModel.getTotalListeningTime()!!/(60*60*24)
+    val topGenre         : TopGenre     = remember {viewModel.getTopGenres()[0]}
+    val musicDay         : String       = remember {viewModel.getDayOfWeek().substring(0,3)}
+    val totalArtists     : Int?     =     remember {viewModel.getTotalArtistCount()}
+    val totalSongs       : Int?       =   remember {viewModel.getTotalListenCount()}
+    val newArtisis       : Int? =         remember {viewModel.getTotalNewArtistsDiscovered()}
+    val newArtistPercent : Int? =         remember {(newArtisis!! * 100/totalArtists!!)}
+    val totaldays        : Double? =      remember {viewModel.getTotalListeningTime()!!/(60*60*24)}
     Row (modifier = Modifier
-        .padding(start = 11.dp, end = 11.dp , top = 11.dp)
+        .padding(start = 11.dp, end = 11.dp, top = 11.dp)
         .fillMaxWidth() , horizontalArrangement = Arrangement.SpaceBetween) {
-        Column (horizontalAlignment = Alignment.CenterHorizontally ,modifier = Modifier.width(160.dp)) {
-            Text(totalSongs!!.toString() , style = MaterialTheme.typography.bodyLarge , color = MaterialTheme.colorScheme.background)
-            Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier.width(80.dp).padding(top = 5.dp , bottom = 5.dp))
-            Text("songs    played" , textAlign = TextAlign.Center , style = MaterialTheme.typography.bodyMedium ,  color = MaterialTheme.colorScheme.background)
+        Column (horizontalAlignment = Alignment.CenterHorizontally ,
+            modifier = Modifier.width(160.dp)) {
+            Text(totalSongs!!.toString() , style = MaterialTheme.typography.bodyLarge ,
+                color = MaterialTheme.colorScheme.background)
+            Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier
+                .width(80.dp)
+                .padding(top = 5.dp, bottom = 5.dp))
+            Text("songs    played" , textAlign = TextAlign.Center ,
+                style = MaterialTheme.typography.bodyMedium ,
+                color = MaterialTheme.colorScheme.background)
         }
-        Column (horizontalAlignment = Alignment.CenterHorizontally , modifier = Modifier.width(160.dp)) {
-            Text(topGenre.genre , style = MaterialTheme.typography.bodyLarge , color = MaterialTheme.colorScheme.background)
-            Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier.width(80.dp).padding(top = 5.dp , bottom = 5.dp))
-            Text("was my top genre" , textAlign = TextAlign.Center , style = MaterialTheme.typography.bodyMedium ,  color = MaterialTheme.colorScheme.background)
+        Column (horizontalAlignment = Alignment.CenterHorizontally ,
+            modifier = Modifier.width(160.dp)) {
+            Text(topGenre.genre , style = MaterialTheme.typography.bodyLarge ,
+                color = MaterialTheme.colorScheme.background)
+            Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier
+                .width(80.dp)
+                .padding(top = 5.dp, bottom = 5.dp))
+            Text("was my top genre" , textAlign = TextAlign.Center ,
+                style = MaterialTheme.typography.bodyMedium ,
+                color = MaterialTheme.colorScheme.background)
         }
     }
     Row (modifier = Modifier
-        .padding(start = 11.dp, end = 11.dp , top = 11.dp)
+        .padding(start = 11.dp, end = 11.dp, top = 11.dp)
         .fillMaxWidth() , horizontalArrangement = Arrangement.SpaceBetween) {
-        Column (horizontalAlignment = Alignment.CenterHorizontally , modifier = Modifier.width(160.dp)) {
-            Text(totaldays!!.toInt().toString() , style = MaterialTheme.typography.bodyLarge , color = MaterialTheme.colorScheme.background)
-            Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier.width(80.dp).padding(top = 5.dp , bottom = 5.dp))
-            Text("days (atleast!)" , textAlign = TextAlign.Center , style = MaterialTheme.typography.bodyMedium ,  color = MaterialTheme.colorScheme.background)
+        Column (horizontalAlignment = Alignment.CenterHorizontally ,
+            modifier = Modifier.width(160.dp)) {
+            Text(totaldays!!.toInt().toString() , style = MaterialTheme.typography.bodyLarge ,
+                color = MaterialTheme.colorScheme.background)
+            Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier
+                .width(80.dp)
+                .padding(top = 5.dp, bottom = 5.dp))
+            Text("days (atleast!)" , textAlign = TextAlign.Center ,
+                style = MaterialTheme.typography.bodyMedium ,
+                color = MaterialTheme.colorScheme.background)
         }
-        Column (horizontalAlignment = Alignment.CenterHorizontally , modifier = Modifier.width(160.dp)) {
-            Text(musicDay , style = MaterialTheme.typography.bodyLarge , color = MaterialTheme.colorScheme.background)
-            Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier.width(80.dp).padding(top = 5.dp , bottom = 5.dp))
-            Text("was my music day" , textAlign = TextAlign.Center , style = MaterialTheme.typography.bodyMedium ,  color = MaterialTheme.colorScheme.background)
+        Column (horizontalAlignment = Alignment.CenterHorizontally ,
+            modifier = Modifier.width(160.dp)) {
+            Text(musicDay , style = MaterialTheme.typography.bodyLarge ,
+                color = MaterialTheme.colorScheme.background)
+            Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier
+                .width(80.dp)
+                .padding(top = 5.dp, bottom = 5.dp))
+            Text("was my music day" , textAlign = TextAlign.Center ,
+                style = MaterialTheme.typography.bodyMedium ,
+                color = MaterialTheme.colorScheme.background)
         }
     }
     Row (modifier = Modifier
-        .padding(start = 11.dp, end = 11.dp , top = 11.dp)
-        .fillMaxWidth() , horizontalArrangement = Arrangement.SpaceBetween , verticalAlignment = Alignment.CenterVertically) {
-        Column (horizontalAlignment = Alignment.CenterHorizontally , modifier = Modifier.width(160.dp)) {
-            Text(newArtistPercent!!.toString() + "%" , style = MaterialTheme.typography.bodyLarge , color = MaterialTheme.colorScheme.background)
-            Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier.width(80.dp).padding(top = 5.dp , bottom = 5.dp))
-            Text("new artists discovered" , textAlign = TextAlign.Center , style = MaterialTheme.typography.bodyMedium ,  color = MaterialTheme.colorScheme.background)
+        .padding(start = 11.dp, end = 11.dp, top = 11.dp)
+        .fillMaxWidth() , horizontalArrangement = Arrangement.SpaceBetween ,
+        verticalAlignment = Alignment.CenterVertically) {
+        Column (horizontalAlignment = Alignment.CenterHorizontally ,
+            modifier = Modifier.width(160.dp)) {
+            Text(newArtistPercent!!.toString() + "%" ,
+                style = MaterialTheme.typography.bodyLarge ,
+                color = MaterialTheme.colorScheme.background)
+            Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier
+                .width(80.dp)
+                .padding(top = 5.dp, bottom = 5.dp))
+            Text("new artists discovered" , textAlign = TextAlign.Center ,
+                style = MaterialTheme.typography.bodyMedium ,
+                color = MaterialTheme.colorScheme.background)
         }
-        Column (horizontalAlignment = Alignment.CenterHorizontally , modifier = Modifier.width(160.dp)) {
-            Text(totalArtists!!.toString() , style = MaterialTheme.typography.bodyLarge , color = MaterialTheme.colorScheme.background)
-            Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier.width(80.dp).padding(top = 5.dp , bottom = 5.dp))
-            Text("different artists" , textAlign = TextAlign.Center , style = MaterialTheme.typography.bodyMedium ,  color = MaterialTheme.colorScheme.background)
+        Column (horizontalAlignment = Alignment.CenterHorizontally ,
+            modifier = Modifier.width(160.dp)) {
+            Text(totalArtists!!.toString() , style = MaterialTheme.typography.bodyLarge ,
+                color = MaterialTheme.colorScheme.background)
+            Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier
+                .width(80.dp)
+                .padding(top = 5.dp, bottom = 5.dp))
+            Text("different artists" , textAlign = TextAlign.Center ,
+                style = MaterialTheme.typography.bodyMedium ,
+                color = MaterialTheme.colorScheme.background)
         }
     }
 }

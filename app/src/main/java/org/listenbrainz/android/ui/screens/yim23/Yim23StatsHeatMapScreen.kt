@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,17 +60,25 @@ fun Yim23StatsHeatMapScreen (
     navController: NavController
 ) {
     val username by viewModel.getUsernameFlow().collectAsState(initial = "")
-    val mostListenedMonth : Pair<String , Int> = viewModel.getMostListenedMonth()
+    val mostListenedMonth : Pair<String , Int> = remember {viewModel.getMostListenedMonth()}
     Yim23Theme(themeType = viewModel.themeType.value) {
         Column (modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground) , verticalArrangement = Arrangement.SpaceBetween , horizontalAlignment = Alignment.CenterHorizontally) {
+            .background(MaterialTheme.colorScheme.onBackground) ,
+            verticalArrangement = Arrangement.SpaceBetween ,
+            horizontalAlignment = Alignment.CenterHorizontally) {
             Yim23Header(username = username, navController = navController)
-            Text("I listened to the most music in ${mostListenedMonth.first}" , textAlign = TextAlign.Center , color = MaterialTheme.colorScheme.background , style = MaterialTheme.typography.bodyLarge , modifier = Modifier.padding(start = 20.dp , end = 20.dp))
-            Text("(${mostListenedMonth.second} Songs)" , textAlign = TextAlign.Center , color = MaterialTheme.colorScheme.background , style = MaterialTheme.typography.bodyLarge)
+            Text("I listened to the most music in ${mostListenedMonth.first}" ,
+                textAlign = TextAlign.Center , color = MaterialTheme.colorScheme.background ,
+                style = MaterialTheme.typography.bodyLarge ,
+                modifier = Modifier.padding(start = 20.dp , end = 20.dp))
+            Text("(${mostListenedMonth.second} Songs)" , textAlign = TextAlign.Center ,
+                color = MaterialTheme.colorScheme.background ,
+                style = MaterialTheme.typography.bodyLarge)
             Yim23HeatMap(viewModel = viewModel)
             Spacer(modifier = Modifier.padding(bottom = 11.dp))
-            Yim23Footer(footerText = "MY STATS", isUsername = true, navController = navController, downScreen = Yim23Screens.YimStatsGraphScreen)
+            Yim23Footer(footerText = "MY STATS", isUsername = true, navController = navController,
+                downScreen = Yim23Screens.YimStatsGraphScreen)
         }
     }
 }
@@ -123,7 +132,7 @@ private fun Yim23HeatMap (viewModel: Yim23ViewModel , paddings: YimPaddings = Lo
                 listState.animateScrollToItem(index = gridState.firstVisibleItemIndex/26)
             }
             // Heat Map Grid
-            val listensOfYear = viewModel.getListensListOfYear()
+            val listensOfYear = remember {viewModel.getListensListOfYear()}
             LazyHorizontalGrid(
                 state = gridState,
                 modifier = Modifier

@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,10 +44,12 @@ fun Yim23NewAlbumsFromTopArtistsScreen (
     Yim23Theme(themeType = viewModel.themeType.value) {
         Column (modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground), verticalArrangement = Arrangement.SpaceBetween) {
+            .background(MaterialTheme.colorScheme.onBackground),
+            verticalArrangement = Arrangement.SpaceBetween) {
             Yim23Header(username = username, navController = navController)
             Yim23NewAlbumsFromTopArtists(viewModel = viewModel)
-            Yim23Footer(footerText = "NEW ALBUMS FROM TOP ARTISTS", isUsername = false, navController = navController, downScreen = Yim23Screens.YimMusicBuddiesScreen)
+            Yim23Footer(footerText = "NEW ALBUMS FROM TOP ARTISTS", isUsername = false,
+                navController = navController, downScreen = Yim23Screens.YimMusicBuddiesScreen)
         }
     }
 }
@@ -54,7 +57,9 @@ fun Yim23NewAlbumsFromTopArtistsScreen (
 
 @Composable
 private fun Yim23NewAlbumsFromTopArtists (viewModel: Yim23ViewModel) {
-    val newReleases : List<NewReleasesOfTopArtist> = viewModel.getNewReleasesOfTopArtists()!!
+    val newReleases : List<NewReleasesOfTopArtist> = remember {
+        viewModel.getNewReleasesOfTopArtists()!!
+    }
     Box (modifier = Modifier
         .fillMaxWidth()
         .padding(start = 11.dp, end = 11.dp)
@@ -68,7 +73,11 @@ private fun Yim23NewAlbumsFromTopArtists (viewModel: Yim23ViewModel) {
     ) {
         LazyColumn (state = rememberLazyListState()) {
             items(newReleases) {
-                YimListenCard(releaseName = it.title, artistName = it.artistCreditName, coverArtUrl = Utils.getCoverArtUrl(caaId = it.caaId, caaReleaseMbid = it.caaReleaseMbid , size = 500),)
+                YimListenCard(releaseName = it.title, artistName = it.artistCreditName, coverArtUrl =
+                Utils.getCoverArtUrl(
+                    caaId = it.caaId,
+                    caaReleaseMbid = it.caaReleaseMbid ,
+                    size = 500),)
             }
         }
     }

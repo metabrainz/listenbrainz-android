@@ -43,7 +43,8 @@ fun Yim23ChartTitleScreen (
     navController: NavController
 ) {
     val username by viewModel.getUsernameFlow().collectAsState(initial = "")
-    Yim23AutomaticScroll(navController = navController, time = 1500, downScreen = Yim23Screens.YimTopAlbumScreen)
+    Yim23AutomaticScroll(navController = navController, time = 1500,
+        downScreen = Yim23Screens.YimTopAlbumScreen)
     Yim23Theme(themeType = viewModel.themeType.value) {
         Box(modifier = Modifier
             .fillMaxSize()
@@ -51,20 +52,24 @@ fun Yim23ChartTitleScreen (
             Column (modifier = Modifier.fillMaxSize() , verticalArrangement = Arrangement.SpaceBetween) {
                 Yim23Header(username = username, navController = navController)
                 Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center) {
-                    Text("CHARTS" , style = MaterialTheme.typography.titleLarge , color = MaterialTheme.colorScheme.background , textAlign = TextAlign.Center)
+                    Text("CHARTS" , style = MaterialTheme.typography.titleLarge ,
+                        color = MaterialTheme.colorScheme.background , textAlign = TextAlign.Center)
                 }
                 Box () {
                     val padding = 0.36*(LocalConfiguration.current.screenWidthDp)
                     Column {
                         Row (modifier = Modifier
                             .padding(start = padding.dp)
-                            .fillMaxWidth() , horizontalArrangement = Arrangement.SpaceAround , verticalAlignment = Alignment.CenterVertically) {
+                            .fillMaxWidth() , horizontalArrangement = Arrangement.SpaceAround ,
+                            verticalAlignment = Alignment.CenterVertically) {
 
-                            Image(painter = painterResource(id = R.drawable.yim23_chart_people), contentDescription = "Yim23 charts icon" , modifier = Modifier
+                            Image(painter = painterResource(id = R.drawable.yim23_chart_people),
+                                contentDescription = "Yim23 charts icon" , modifier = Modifier
                                 .width(99.dp)
                                 .height(120.dp))
                         }
-                        Yim23Footer(footerText = username, navController = navController, isUsername = true, downScreen = Yim23Screens.YimTopAlbumScreen)
+                        Yim23Footer(footerText = username, navController = navController,
+                            isUsername = true, downScreen = Yim23Screens.YimTopAlbumScreen)
                     }
                 }
 
