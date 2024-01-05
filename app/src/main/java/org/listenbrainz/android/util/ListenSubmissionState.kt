@@ -27,7 +27,7 @@ class ListenSubmissionState(
     }
     private val timer: Timer = Timer()
     
-    /**
+    /** Update current [playingTrack] with [this] given some conditions.
      * @param newTrack
      * @param onTrackIsOutdated lambda to run when the current track is outdated.
      * @param onTrackIsSimilarCallbackTrack lambda to run when the new track is similar to current
@@ -146,7 +146,7 @@ class ListenSubmissionState(
         if (playingTrack.isSubmitted()) return
         
         if (audioManager.isMusicActive) {
-            timer.start()
+            timer.startOrResume()
         } else {
             timer.pause()
         }
@@ -166,7 +166,6 @@ class ListenSubmissionState(
             )
         }
         
-        
         // Setting listener
         timer.setOnTimerListener(listener = object : OnTimerListener {
             override fun onTimerEnded() {
@@ -184,8 +183,7 @@ class ListenSubmissionState(
                     playingTrack.playingNowSubmitted = true
                 }
             }
-            
-        }, callbacksOnMainThread = true)
+        })
         d("Timer Set")
         alertPlaybackStateChanged()
     }
@@ -202,7 +200,7 @@ class ListenSubmissionState(
     private fun isMetadataFaulty(): Boolean = playingTrack.artist.isNullOrEmpty() || playingTrack.title.isNullOrEmpty()
     
     companion object {
-        const val DEFAULT_DURATION: Long = 90_000L
+        const val DEFAULT_DURATION: Long = 60_000L
         
         fun MediaMetadata.extractTitle(): String? = when {
             !getString(MediaMetadata.METADATA_KEY_TITLE)

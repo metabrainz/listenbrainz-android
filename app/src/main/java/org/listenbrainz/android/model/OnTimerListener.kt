@@ -1,9 +1,8 @@
 package org.listenbrainz.android.model
 
 interface OnTimerListener {
-    fun onTimerRun(milliseconds: Long) {}
-    fun onTimerStarted()
+    fun onTimerStarted() {}
+    fun onTimerResumed() {}
     fun onTimerPaused(remainingMillis: Long)
-    fun onTimerStopped() {}
-    fun onTimerEnded()
+    fun onTimerEnded() {}
 }
