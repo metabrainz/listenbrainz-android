@@ -123,16 +123,15 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
         return gson.fromJson(
             datastore.firstOrNull()?.get(PreferenceKeys.LISTENING_BLACKLIST) ?: "",
             object : TypeToken<List<String>>() {}.type
-        ) ?: listOf()
+        ) ?: emptyList()
     }
-    
     
     override fun getListeningBlacklistFlow(): Flow<List<String>> =
         datastore.map { prefs ->
             gson.fromJson(
                 prefs[PreferenceKeys.LISTENING_BLACKLIST] ?: "",
                 object : TypeToken<List<String>>() {}.type
-            ) ?: listOf()
+            ) ?: emptyList()
         }
     
     override suspend fun setListeningBlacklist(value: List<String>) {
@@ -155,7 +154,7 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
         gson.fromJson(
             datastore.firstOrNull()?.get(LISTENING_APPS) ?: "",
             object : TypeToken<List<String>>() {}.type
-        ) ?: listOf()
+        ) ?: emptyList()
     
     
     override fun getListeningAppsFlow(): Flow<List<String>> =
@@ -163,7 +162,7 @@ class AppPreferencesImpl(private val context : Context): AppPreferences {
             gson.fromJson(
                 datastore.firstOrNull()?.get(LISTENING_APPS) ?: "",
                 object : TypeToken<List<String>>() {}.type
-            ) ?: listOf()
+            ) ?: emptyList()
         }
     
     override suspend fun setListeningApps(value: List<String>) {
