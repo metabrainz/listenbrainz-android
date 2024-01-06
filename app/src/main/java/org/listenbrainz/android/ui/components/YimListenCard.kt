@@ -75,7 +75,7 @@ fun YimListenCard(
                     text = releaseName,
                     style = TextStyle(
                         fontFamily = FontFamily(Font(R.font.roboto_regular)),
-                        fontWeight = FontWeight.Normal,
+                        fontWeight = FontWeight.Bold,
                         fontSize = 14.sp,
                     ),
                     maxLines = 1,
