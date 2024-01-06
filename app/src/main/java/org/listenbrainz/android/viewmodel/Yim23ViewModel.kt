@@ -9,6 +9,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.text.toLowerCase
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.caverock.androidsvg.SVG
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,7 +31,7 @@ import javax.inject.Inject
 class Yim23ViewModel @Inject constructor(
     private val repository: Yim23Repository,
     private val appPreferences: AppPreferences
-) : BaseYimViewModel() {
+) : ViewModel() {
     // Yim data resource
     var yimData:
             MutableState<
@@ -44,7 +45,7 @@ class Yim23ViewModel @Inject constructor(
         getData()
     }
 
-    override fun getData() {
+    private fun getData() {
         viewModelScope.launch {
             val response = repository.getYimData(username = getUsername())
             when (response.status){
