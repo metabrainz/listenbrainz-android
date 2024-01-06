@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.listenbrainz.android.model.yimdata.Yim23Screens
+import org.listenbrainz.android.model.yimdata.Yim23ThemeData
 import org.listenbrainz.android.model.yimdata.YimScreens
 import org.listenbrainz.android.ui.components.Yim23ShareButton
 import org.listenbrainz.android.ui.theme.Yim23Theme
@@ -103,10 +104,10 @@ fun Yim23HomeScreen(
                                     Image(
                                         painter =
                                         painterResource(id = when (viewModel.themeType.value) {
-                                            0 -> R.drawable.yim23_pick_color_green
-                                            1 -> R.drawable.yim23_pick_color_red
-                                            2 -> R.drawable.yim23_pick_color_blue
-                                            3 -> R.drawable.yim23_pick_color_grey
+                                            Yim23ThemeData.greenTheme -> R.drawable.yim23_pick_color_green
+                                            Yim23ThemeData.redTheme -> R.drawable.yim23_pick_color_red
+                                            Yim23ThemeData.blueTheme -> R.drawable.yim23_pick_color_blue
+                                            Yim23ThemeData.grayTheme -> R.drawable.yim23_pick_color_grey
                                             else -> R.drawable.yim23_pick_color_green
                                         }),
                                         contentDescription = "",
@@ -121,16 +122,16 @@ fun Yim23HomeScreen(
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     ColorPicker(color = yim23Green, onClick = {
-                                        viewModel.themeType.value = 0
+                                        viewModel.themeType.value = Yim23ThemeData.greenTheme
                                     })
                                     ColorPicker(color = yim23Red, onClick = {
-                                        viewModel.themeType.value = 1
+                                        viewModel.themeType.value = Yim23ThemeData.redTheme
                                     })
                                     ColorPicker(color = yim23Blue, onClick = {
-                                        viewModel.themeType.value = 2
+                                        viewModel.themeType.value = Yim23ThemeData.blueTheme
                                     })
                                     ColorPicker(color = yim23Grey, onClick = {
-                                        viewModel.themeType.value = 3
+                                        viewModel.themeType.value = Yim23ThemeData.grayTheme
                                     })
                                 }
                                 Text(
@@ -141,10 +142,10 @@ fun Yim23HomeScreen(
                                 )
                                 Image(painter = painterResource(
                                     id = when (viewModel.themeType.value) {
-                                        0 -> R.drawable.yim23_2023_green
-                                        1 -> R.drawable.yim23_2023_red
-                                        2 -> R.drawable.yim23_2023_blue
-                                        3 -> R.drawable.yim23_2023_grey
+                                        Yim23ThemeData.greenTheme -> R.drawable.yim23_2023_green
+                                        Yim23ThemeData.redTheme -> R.drawable.yim23_2023_red
+                                        Yim23ThemeData.blueTheme -> R.drawable.yim23_2023_blue
+                                        Yim23ThemeData.grayTheme -> R.drawable.yim23_2023_grey
                                         else -> R.drawable.yim23_2023_green
                                     },
                                 ), modifier = Modifier
@@ -187,10 +188,10 @@ fun Yim23HomeScreen(
                                 ) {
                                     Image(
                                         painter = painterResource(id = when (viewModel.themeType.value) {
-                                            0 -> R.drawable.yim23_pick_color_green
-                                            1 -> R.drawable.yim23_pick_color_red
-                                            2 -> R.drawable.yim23_pick_color_blue
-                                            3 -> R.drawable.yim23_pick_color_grey
+                                            Yim23ThemeData.greenTheme -> R.drawable.yim23_pick_color_green
+                                            Yim23ThemeData.redTheme -> R.drawable.yim23_pick_color_red
+                                            Yim23ThemeData.blueTheme -> R.drawable.yim23_pick_color_blue
+                                            Yim23ThemeData.grayTheme -> R.drawable.yim23_pick_color_grey
                                             else -> R.drawable.yim23_pick_color_green
                                         }),
                                         contentDescription = "",
@@ -206,19 +207,19 @@ fun Yim23HomeScreen(
                                 ) {
                                     ColorPicker(color = yim23Green, onClick = {
 
-                                        viewModel.themeType = mutableStateOf(0)
+                                        viewModel.themeType = mutableStateOf(Yim23ThemeData.greenTheme)
                                     })
                                     ColorPicker(color = yim23Red, onClick = {
 
-                                        viewModel.themeType = mutableStateOf(1)
+                                        viewModel.themeType = mutableStateOf(Yim23ThemeData.redTheme)
                                     })
                                     ColorPicker(color = yim23Blue, onClick = {
 
-                                        viewModel.themeType = mutableStateOf(2)
+                                        viewModel.themeType = mutableStateOf(Yim23ThemeData.blueTheme)
                                     })
                                     ColorPicker(color = yim23Grey, onClick = {
 
-                                        viewModel.themeType = mutableStateOf(3)
+                                        viewModel.themeType = mutableStateOf(Yim23ThemeData.grayTheme)
                                     })
                                 }
                                 Text(
