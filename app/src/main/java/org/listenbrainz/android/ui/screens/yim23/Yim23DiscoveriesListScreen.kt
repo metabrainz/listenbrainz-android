@@ -70,9 +70,10 @@ private fun Yim23Discoveries (viewModel: Yim23ViewModel) {
         ) {
         LazyColumn (state = rememberLazyListState()) {
             items(topDiscoveries) {
+
                 YimListenCard(releaseName = it.title, artistName = it.creator,
                     coverArtUrl = Utils.getCoverArtUrl(
-                        caaId = it.extension.extensionData.additionalMetadata.caaId.toLong(),
+                        caaId = it.extension.extensionData.additionalMetadata.caaId,
                         caaReleaseMbid = it.extension.extensionData.additionalMetadata.caaReleaseMbid ,
                         size = 500
                     )
