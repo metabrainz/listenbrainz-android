@@ -1,10 +1,5 @@
 package org.listenbrainz.android.ui.screens.yim23
 
-import android.content.Intent
-import android.net.Uri
-import android.os.Bundle
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -12,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -37,23 +31,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
-import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.yimdata.Yim23Screens
-import org.listenbrainz.android.ui.components.Yim23Footer
-import org.listenbrainz.android.ui.components.Yim23Header
-import org.listenbrainz.android.ui.theme.Yim23Theme
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
@@ -67,33 +54,27 @@ fun Yim23FriendsScreen (
     navController: NavController
 ) {
     val username by viewModel.getUsernameFlow().collectAsState(initial = "")
-    Yim23Theme(themeType = viewModel.themeType.value) {
-        Column (modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground),
-            verticalArrangement = Arrangement.SpaceBetween) {
-            Yim23Header(username = username, navController = navController)
-            Column (modifier = Modifier , horizontalAlignment = Alignment.CenterHorizontally) {
-                Text("VISIT SOME FRIENDS" , style = MaterialTheme.typography.titleLarge ,
-                    color = MaterialTheme.colorScheme.background , textAlign = TextAlign.Center)
-            }
-            Yim23Friends(username = username, socialViewModel = socialViewModel)
-            Yim23Footer(footerText = username, isUsername = true, navController = navController,
-                downScreen = Yim23Screens.YimLastScreen)
+    Yim23BaseScreen(
+        viewModel = viewModel,
+        navController = navController,
+        footerText = "VISIT SOME FRIENDS",
+        isUsername = false,
+        downScreen = Yim23Screens.YimLastScreen
+    ) {
+        Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center) {
+            Text("VISIT SOME FRIENDS" , style = MaterialTheme.typography.titleLarge ,
+                color = MaterialTheme.colorScheme.background , textAlign = TextAlign.Center)
         }
+        Yim23Friends(username = username, socialViewModel = socialViewModel)
     }
 }
-
-
-
-
 
 @ExperimentalFoundationApi
 @Composable
 private fun Yim23Friends (username : String, socialViewModel: SocialViewModel) {
     var followers : Resource<SocialData> = remember {socialViewModel.getFollowers(username)}
-    val animationScope = rememberCoroutineScope()
-    val uriHandler = LocalUriHandler.current
+    val animationScope                   = rememberCoroutineScope()
+    val uriHandler                       = LocalUriHandler.current
     if(followers != null){
         val pagerState = rememberPagerState {
             followers.data!!.followers!!.size
@@ -151,18 +132,14 @@ private fun Yim23Friends (username : String, socialViewModel: SocialViewModel) {
                                     MaterialTheme.colorScheme.background) ,  modifier = Modifier.zIndex(1f))
                             }
                         }
-
                     }
                 }
-
             }
         }
-        }
+    }
     else{
         CircularProgressIndicator()
     }
-
-
 }
 
 

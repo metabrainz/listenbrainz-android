@@ -36,32 +36,28 @@ fun Yim23PlaylistTitleScreen (
     navController: NavController
 ) {
     val username by viewModel.getUsernameFlow().collectAsState(initial = "")
-    Yim23AutomaticScroll(navController = navController, time = 1500,
-        downScreen = Yim23Screens.YimDiscoveriesScreen)
-    Yim23Theme(themeType = viewModel.themeType.value) {
-        Column (modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground) ,
-            verticalArrangement = Arrangement.SpaceBetween) {
-            Yim23Header(username = username, navController = navController)
-            Box (modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)){
-                Image(painter = painterResource(id = R.drawable.yim23_ghost),
-                    contentDescription = "" , modifier = Modifier
+    Yim23BaseScreen(
+        viewModel     = viewModel,
+        navController = navController,
+        footerText    = username,
+        isUsername    = true,
+        downScreen    = Yim23Screens.YimDiscoveriesScreen
+    ) {
+        Yim23AutomaticScroll(navController = navController, time = 1500,
+            downScreen = Yim23Screens.YimDiscoveriesScreen)
+        Box (modifier = Modifier
+            .fillMaxWidth()
+            .height(300.dp)){
+            Image(painter = painterResource(id = R.drawable.yim23_ghost),
+                contentDescription = "" , modifier = Modifier
                     .width(97.dp)
                     .height(103.dp)
                     .align(
                         Alignment.TopStart
                     ))
-                Text("PLAYLISTS" , style = MaterialTheme.typography.titleLarge ,
-                    color = MaterialTheme.colorScheme.background , modifier = Modifier.align(
+            Text("PLAYLISTS" , style = MaterialTheme.typography.titleLarge ,
+                color = MaterialTheme.colorScheme.background , modifier = Modifier.align(
                     Alignment.Center))
-            }
-
-
-            Yim23Footer(footerText = username, isUsername = true, navController = navController,
-                downScreen = Yim23Screens.YimDiscoveriesScreen)
         }
     }
 }

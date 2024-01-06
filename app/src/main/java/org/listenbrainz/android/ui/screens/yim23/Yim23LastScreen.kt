@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.yimdata.Yim23Screens
+import org.listenbrainz.android.model.yimdata.Yim23ThemeData
 import org.listenbrainz.android.model.yimdata.Yim23TopDiscoveries
 import org.listenbrainz.android.model.yimdata.Yim23Track
 import org.listenbrainz.android.ui.components.Yim23Footer
@@ -99,7 +100,13 @@ fun Yim23LastScreen (
                     .fillMaxWidth()
                     .padding(start = 11.dp, end = 11.dp) ,
                     horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(painter = painterResource(id = R.drawable.yim23_g_heart),
+                    Image(painter = painterResource(id = when (viewModel.themeType.value) {
+                        Yim23ThemeData.greenTheme -> R.drawable.yim23_g_heart
+                        Yim23ThemeData.redTheme -> R.drawable.yim23_red_heart
+                        Yim23ThemeData.blueTheme -> R.drawable.yim23_blue_heart
+                        Yim23ThemeData.grayTheme -> R.drawable.yim23_grey_heart
+                        else -> R.drawable.yim23_g_heart
+                    }),
                         contentDescription = "Heart illustration" , modifier = Modifier
                         .height(123.dp)
                         .width(108.dp))
@@ -116,10 +123,9 @@ fun Yim23LastScreen (
             Box (modifier = Modifier
                 .fillMaxWidth()
                 .height(160.dp)
-                .background(MaterialTheme.colorScheme.onBackground)) {
+                .background(MaterialTheme.colorScheme.onBackground) , contentAlignment = Alignment.Center) {
                 Column {
-                    Column (verticalArrangement = Arrangement.SpaceEvenly ,
-                        horizontalAlignment = Alignment.CenterHorizontally , ) {
+                    Column (horizontalAlignment = Alignment.CenterHorizontally) {
                         androidx.compose.material.Text(
                             username.uppercase(),
                             style = MaterialTheme.typography.titleLarge,

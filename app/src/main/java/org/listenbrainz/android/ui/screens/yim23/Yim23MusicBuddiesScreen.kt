@@ -40,16 +40,14 @@ fun Yim23MusicBuddiesScreen (
     navController: NavController
 ) {
     val username by viewModel.getUsernameFlow().collectAsState(initial = "")
-    Yim23Theme(themeType = viewModel.themeType.value) {
-        Column (modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground),
-            verticalArrangement = Arrangement.SpaceBetween) {
-            Yim23Header(username = username, navController = navController)
-            Yim23MusicBuddies(viewModel = viewModel)
-            Yim23Footer(footerText = "MUSIC BUDDIES", isUsername = false,
-                navController = navController, downScreen = Yim23Screens.YimFriendsScreen)
-        }
+    Yim23BaseScreen(
+        viewModel     = viewModel,
+        navController = navController,
+        footerText    = "MUSIC BUDDIES",
+        isUsername    = false,
+        downScreen    = Yim23Screens.YimFriendsScreen
+    ) {
+        Yim23MusicBuddies(viewModel = viewModel)
     }
 }
 
@@ -77,5 +75,4 @@ private fun Yim23MusicBuddies (viewModel: Yim23ViewModel) {
             }
         }
     }
-
 }

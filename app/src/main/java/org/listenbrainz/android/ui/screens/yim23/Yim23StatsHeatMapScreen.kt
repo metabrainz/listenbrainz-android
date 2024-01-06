@@ -59,27 +59,25 @@ fun Yim23StatsHeatMapScreen (
     viewModel: Yim23ViewModel,
     navController: NavController
 ) {
-    val username by viewModel.getUsernameFlow().collectAsState(initial = "")
     val mostListenedMonth : Pair<String , Int> = remember {viewModel.getMostListenedMonth()}
-    Yim23Theme(themeType = viewModel.themeType.value) {
-        Column (modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground) ,
-            verticalArrangement = Arrangement.SpaceBetween ,
-            horizontalAlignment = Alignment.CenterHorizontally) {
-            Yim23Header(username = username, navController = navController)
-            Text("I listened to the most music in ${mostListenedMonth.first}" ,
-                textAlign = TextAlign.Center , color = MaterialTheme.colorScheme.background ,
-                style = MaterialTheme.typography.bodyLarge ,
-                modifier = Modifier.padding(start = 20.dp , end = 20.dp))
+    Yim23BaseScreen(
+        viewModel     = viewModel,
+        navController = navController,
+        footerText    = "MY STATS",
+        isUsername    = true,
+        downScreen    = Yim23Screens.YimStatsGraphScreen
+    ) {
+        Text("I listened to the most music in ${mostListenedMonth.first}" ,
+            textAlign = TextAlign.Center , color = MaterialTheme.colorScheme.background ,
+            style = MaterialTheme.typography.bodyLarge ,
+            modifier = Modifier.padding(start = 20.dp , end = 20.dp))
+        Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center) {
             Text("(${mostListenedMonth.second} Songs)" , textAlign = TextAlign.Center ,
                 color = MaterialTheme.colorScheme.background ,
                 style = MaterialTheme.typography.bodyLarge)
-            Yim23HeatMap(viewModel = viewModel)
-            Spacer(modifier = Modifier.padding(bottom = 11.dp))
-            Yim23Footer(footerText = "MY STATS", isUsername = true, navController = navController,
-                downScreen = Yim23Screens.YimStatsGraphScreen)
         }
+        Yim23HeatMap(viewModel = viewModel)
+        Spacer(modifier = Modifier.padding(bottom = 11.dp))
     }
 }
 
@@ -99,14 +97,12 @@ private fun Yim23HeatMap (viewModel: Yim23ViewModel , paddings: YimPaddings = Lo
             ),
 
     ) {
-
         Column(
             Modifier
                 .fillMaxSize()
                 .padding(horizontal = paddings.smallPadding),
             verticalArrangement = Arrangement.Center
         ) {
-
             // Month row
             val listState = rememberLazyListState()
             LazyRow(
@@ -127,7 +123,6 @@ private fun Yim23HeatMap (viewModel: Yim23ViewModel , paddings: YimPaddings = Lo
                 }
             }
             val gridState = rememberLazyGridState()
-
             LaunchedEffect(gridState.isScrollInProgress){
                 listState.animateScrollToItem(index = gridState.firstVisibleItemIndex/26)
             }
@@ -142,7 +137,6 @@ private fun Yim23HeatMap (viewModel: Yim23ViewModel , paddings: YimPaddings = Lo
             ){
                 items( listensOfYear )
                 { item ->
-
                     // Heatmap square
                     Box(
                         modifier = Modifier
@@ -158,16 +152,8 @@ private fun Yim23HeatMap (viewModel: Yim23ViewModel , paddings: YimPaddings = Lo
                                 }
                             ),
                     )
-
                 }
             }
-
-
         }
     }
-
     }
-
-
-
-

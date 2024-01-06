@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.screens.yim23
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.animation.core.*
@@ -27,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import org.listenbrainz.android.model.yimdata.Yim23Screens
 import org.listenbrainz.android.model.yimdata.Yim23ThemeData
-import org.listenbrainz.android.model.yimdata.YimScreens
 import org.listenbrainz.android.ui.components.Yim23ShareButton
 import org.listenbrainz.android.ui.theme.Yim23Theme
 import org.listenbrainz.android.ui.theme.yim23Blue
@@ -177,7 +175,6 @@ fun Yim23HomeScreen(
                                             AddUser()
                                         }
                                     }
-
                                 }
                             } else {
                                 Row(
@@ -269,21 +266,10 @@ fun Yim23HomeScreen(
                 }
                 else -> {Toast.makeText(context , "Please check your internet connection" ,
                     Toast.LENGTH_LONG)}
+                }
             }
-
-
-
-
-
-
-
-
-        }
-
-
         }
     }
-
 }
 
 @Composable
@@ -293,12 +279,8 @@ fun ColorPicker(color: Color , onClick : () -> Unit ) {
         .width(32.dp)
         .height(32.dp),
      shape =  RoundedCornerShape(100) 
-    ) {
-        
-    }
+    ) {}
 }
-
-
 
 @Composable
 fun ListenBrainzProfileButton() {

@@ -42,42 +42,36 @@ fun Yim23TopAlbumsScreen (
     viewModel: Yim23ViewModel,
     navController: NavController,
 ) {
-    val username by viewModel.getUsernameFlow().collectAsState(initial = "")
     val topReleases : List<TopReleaseYim23>? = remember {
         viewModel.getTopReleases()?.toList()
     }
-    Yim23Theme(themeType = viewModel.themeType.value) {
-        Column (modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground) ,
-            verticalArrangement = Arrangement.SpaceBetween ,
-            horizontalAlignment = Alignment.CenterHorizontally) {
-            Yim23Header(username = username, navController = navController)
-            Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center) {
-                Box  {
-                    Image(painter = painterResource(id = R.drawable.yim23_left_curtain),
-                        contentDescription = "Left curtain" ,
-                        Modifier
-                            .width(200.dp)
-                            .height(275.dp)
-                            .offset(x = -75.dp, y = -10.dp)
-                            .zIndex(1f), alignment = Alignment.TopStart)
-                    AlbumCoverPic(topReleases)
-                    Image(painter = painterResource(id = R.drawable.yim23_right_curtain),
-                        contentDescription = "Right curtain" ,
-                        Modifier
-                            .width(200.dp)
-                            .height(275.dp)
-                            .offset(x = 115.dp, y = -10.dp)
-                            .zIndex(1f) , alignment = Alignment.TopEnd)
-                }
+    Yim23BaseScreen(
+        viewModel     = viewModel,
+        navController = navController,
+        footerText    = "MY TOP ALBUMS",
+        isUsername    = false,
+        downScreen    = Yim23Screens.YimAlbumsListScreen,
+    ){
+        Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center) {
+            Box  {
+                Image(painter = painterResource(id = R.drawable.yim23_left_curtain),
+                    contentDescription = "Left curtain" ,
+                    Modifier
+                        .width(200.dp)
+                        .height(275.dp)
+                        .offset(x = -75.dp, y = -10.dp)
+                        .zIndex(1f), alignment = Alignment.TopStart)
+                AlbumCoverPic(topReleases)
+                Image(painter = painterResource(id = R.drawable.yim23_right_curtain),
+                    contentDescription = "Right curtain" ,
+                    Modifier
+                        .width(200.dp)
+                        .height(275.dp)
+                        .offset(x = 115.dp, y = -10.dp)
+                        .zIndex(1f) , alignment = Alignment.TopEnd)
             }
-
-            Yim23Footer(footerText = "MY TOP ALBUMS", navController = navController,
-                isUsername = false, downScreen = Yim23Screens.YimAlbumsListScreen)
         }
     }
-
 }
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -102,7 +96,4 @@ private fun AlbumCoverPic (list: List<TopReleaseYim23>?) {
                 }
             }
     }
-
-
-
 }
