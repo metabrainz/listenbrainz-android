@@ -55,7 +55,7 @@ fun Yim23NewAlbumsFromTopArtistsScreen (
 @Composable
 private fun Yim23NewAlbumsFromTopArtists (viewModel: Yim23ViewModel) {
     val newReleases : List<NewReleasesOfTopArtist> = remember {
-        viewModel.getNewReleasesOfTopArtists()!!
+        viewModel.getNewReleasesOfTopArtists() ?: listOf()
     }
     Box (modifier = Modifier
         .fillMaxWidth()

@@ -55,7 +55,7 @@ fun Yim23MusicBuddiesScreen (
 @Composable
 private fun Yim23MusicBuddies (viewModel: Yim23ViewModel) {
     val musicBuddies  = remember {
-        viewModel.getSimilarUsers()
+        viewModel.getSimilarUsers() ?: listOf()
     }
     Box (modifier = Modifier
         .fillMaxWidth()
@@ -69,7 +69,7 @@ private fun Yim23MusicBuddies (viewModel: Yim23ViewModel) {
         )
     ) {
         LazyColumn (state = rememberLazyListState()) {
-            itemsIndexed(musicBuddies!!.toList()) {index , it ->
+            itemsIndexed(musicBuddies.toList()) {index , it ->
                 SimilarUserCard(uiModeIsDark = false,index = index, userName = it.first,
                     similarity = it.second.toFloat() , cardBackGround = Color(0xFFe0e5de))
             }

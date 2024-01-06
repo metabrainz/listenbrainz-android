@@ -33,11 +33,11 @@ fun Yim23AlbumsListScreen (
         Box(contentAlignment = Alignment.BottomCenter) {
             Column (verticalArrangement = Arrangement.spacedBy(-30.dp) ,
                 horizontalAlignment = Alignment.Start , modifier = Modifier.fillMaxWidth()) {
-                val topReleases : List<TopReleaseYim23>? = remember {
-                    viewModel.getTopReleases()?.toList()
+                val topReleases : List<TopReleaseYim23> = remember {
+                    viewModel.getTopReleases() ?: listOf()
                 }
                 for(i in 1..5)
-                    Text(topReleases!![i-1].releaseName ,
+                    Text(topReleases[i-1].releaseName ,
                         color = MaterialTheme.colorScheme.background ,
                         style = MaterialTheme.typography.labelLarge , maxLines = 1)
             }

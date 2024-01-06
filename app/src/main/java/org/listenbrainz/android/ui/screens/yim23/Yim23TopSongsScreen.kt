@@ -38,7 +38,7 @@ fun Yim23TopSongsScreen (
             Column (verticalArrangement = Arrangement.spacedBy(0.dp) ,
                 horizontalAlignment = Alignment.Start , modifier = Modifier.fillMaxWidth()) {
                 val topRecordings : List<TopRecording>? = remember {
-                    viewModel.getTopRecordings()!!.toList()
+                    viewModel.getTopRecordings() ?: listOf()
                 }
                 for(i in 1..10)
                     Row () {

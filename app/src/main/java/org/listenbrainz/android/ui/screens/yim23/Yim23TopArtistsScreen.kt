@@ -36,7 +36,7 @@ fun Yim23TopArtistsScreen (
             Column (verticalArrangement = Arrangement.spacedBy(0.dp) ,
                 horizontalAlignment = Alignment.Start , modifier = Modifier.fillMaxWidth()) {
                 val topArtists : List<TopArtist>? = remember {
-                    viewModel.getTopArtists()!!.toList()
+                    viewModel.getTopArtists() ?: listOf()
                 }
                 for(i in 1..10)
                     Row () {
