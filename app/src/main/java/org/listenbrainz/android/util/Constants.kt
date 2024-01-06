@@ -19,6 +19,7 @@ object Constants {
     object Strings {
         const val TIMESTAMP = "timestamp"
         const val PREFERENCE_LISTENING_BLACKLIST = "listening_blacklist"
+        const val PREFERENCE_LISTENING_WHITELIST = "listening_whitelist"
         const val PREFERENCE_SUBMIT_LISTENS = "submit_listens"
         const val PREFERENCE_LISTENING_APPS = "listening_apps"
         const val PREFERENCE_SYSTEM_THEME = "app_theme"
@@ -57,8 +58,8 @@ enum class LinkedService(val code: String, val packageName: String? = null) {
     UNKNOWN("");
     
     companion object {
-        fun parseService(code: String) : LinkedService {
-            return when (code[0]) {
+        fun String.toLinkedService(): LinkedService {
+            return when (this[0]) {
                 's' -> SPOTIFY
                 'c' -> CRITIQUEBRAINZ
                 'm' -> MUSICBRAINZ
