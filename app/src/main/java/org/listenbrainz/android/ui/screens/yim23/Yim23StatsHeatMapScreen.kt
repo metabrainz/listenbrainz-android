@@ -44,9 +44,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.yimdata.Yim23Screens
+import org.listenbrainz.android.model.yimdata.YimHeatMapColors
 import org.listenbrainz.android.ui.components.Yim23Footer
 import org.listenbrainz.android.ui.components.Yim23Header
 import org.listenbrainz.android.ui.components.YimHeadingText
+import org.listenbrainz.android.ui.components.YimHeatMap
 import org.listenbrainz.android.ui.theme.ColorScheme
 import org.listenbrainz.android.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.ui.theme.Yim23Theme
@@ -60,6 +62,13 @@ fun Yim23StatsHeatMapScreen (
     navController: NavController
 ) {
     val mostListenedMonth : Pair<String , Int> = remember {viewModel.getMostListenedMonth()}
+    val yim23HeatMapColors : YimHeatMapColors = YimHeatMapColors(
+        greaterThan150 = Color(0xFFE5743E),
+        greaterThan100 = Color(0xFF353070),
+        greaterThan50 = Color(0xFFbeb6e4),
+        greaterThan0 = Color(0xFFeeedf0)
+    )
+
     Yim23BaseScreen(
         viewModel     = viewModel,
         navController = navController,
@@ -76,84 +85,7 @@ fun Yim23StatsHeatMapScreen (
                 color = MaterialTheme.colorScheme.background ,
                 style = MaterialTheme.typography.bodyLarge)
         }
-        Yim23HeatMap(viewModel = viewModel)
+        YimHeatMap(paddings = YimPaddings(), listensOfYear = viewModel.getListensListOfYear() , backgroundColor = Color(0xFFe0e5de) , heatMapColors = yim23HeatMapColors)
         Spacer(modifier = Modifier.padding(bottom = 11.dp))
     }
 }
-
-@Composable
-private fun Yim23HeatMap (viewModel: Yim23ViewModel , paddings: YimPaddings = LocalYimPaddings.current) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 11.dp, end = 11.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .height(240.dp)
-            .background(Color(0xFFe0e5de))
-            .padding(
-                start = paddings.defaultPadding,
-                end = paddings.defaultPadding,
-                bottom = paddings.defaultPadding
-            ),
-
-    ) {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .padding(horizontal = paddings.smallPadding),
-            verticalArrangement = Arrangement.Center
-        ) {
-            // Month row
-            val listState = rememberLazyListState()
-            LazyRow(
-                state = listState,
-                modifier = Modifier
-                    .height(20.dp),
-                userScrollEnabled = false
-            ){
-                items(listOf("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
-                ){ month ->
-                    Text(
-                        text = month,
-                        modifier = Modifier
-                            .width(89.25.dp),
-                        textAlign = TextAlign.Center,
-                        fontSize = 12.sp
-                    )
-                }
-            }
-            val gridState = rememberLazyGridState()
-            LaunchedEffect(gridState.isScrollInProgress){
-                listState.animateScrollToItem(index = gridState.firstVisibleItemIndex/26)
-            }
-            // Heat Map Grid
-            val listensOfYear = remember {viewModel.getListensListOfYear()}
-            LazyHorizontalGrid(
-                state = gridState,
-                modifier = Modifier
-                    .height(160.dp)
-                    .padding(bottom = paddings.smallPadding),
-                rows = GridCells.Fixed(7)
-            ){
-                items( listensOfYear )
-                { item ->
-                    // Heatmap square
-                    Box(
-                        modifier = Modifier
-                            .width(20.dp)
-                            .padding(1.dp)
-                            .background(
-                                when {
-                                    item >= 150 -> Color(0xFFE5743E)
-                                    item in 100..149 -> Color(0xFF353070)
-                                    item in 50..99 -> Color(0xFFbeb6e4)
-                                    item in 1..49 -> Color(0xFFeeedf0)
-                                    else -> offWhite
-                                }
-                            ),
-                    )
-                }
-            }
-        }
-    }
-    }
