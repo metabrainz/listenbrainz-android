@@ -26,7 +26,7 @@ fun Yim23StatsTitleScreen (
         isUsername    = true,
         downScreen    = Yim23Screens.YimStatsScreen
     ) {
-        Yim23AutomaticScroll(navController = navController, time = 1500,
+        Yim23AutomaticScroll(navController = navController, time = 3000,
             downScreen = Yim23Screens.YimStatsScreen)
         Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center) {
             Text("STATS" , style = MaterialTheme.typography.titleLarge ,

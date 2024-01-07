@@ -26,7 +26,7 @@ fun Yim23DiscoveriesTitleScreen (
         isUsername = true,
         downScreen = Yim23Screens.YimNewAlbumsFromTopArtistsScreen
     ) {
-        Yim23AutomaticScroll(navController = navController, time = 1500,
+        Yim23AutomaticScroll(navController = navController, time = 3000,
             downScreen = Yim23Screens.YimNewAlbumsFromTopArtistsScreen)
         Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center) {
             Text("DISCOVER" , style = MaterialTheme.typography.titleLarge ,
