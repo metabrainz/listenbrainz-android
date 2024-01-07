@@ -100,13 +100,7 @@ fun Yim23LastScreen (
                     .fillMaxWidth()
                     .padding(start = 11.dp, end = 11.dp) ,
                     horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(painter = painterResource(id = when (viewModel.themeType.value) {
-                        Yim23ThemeData.greenTheme -> R.drawable.yim23_g_heart
-                        Yim23ThemeData.redTheme -> R.drawable.yim23_red_heart
-                        Yim23ThemeData.blueTheme -> R.drawable.yim23_blue_heart
-                        Yim23ThemeData.grayTheme -> R.drawable.yim23_grey_heart
-                        else -> R.drawable.yim23_g_heart
-                    }),
+                    Image(painter = painterResource(id = viewModel.themeType.value.heartRes),
                         contentDescription = "Heart illustration" , modifier = Modifier
                         .height(123.dp)
                         .width(108.dp))

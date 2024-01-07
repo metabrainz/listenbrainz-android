@@ -39,7 +39,7 @@ class Yim23ViewModel @Inject constructor(
                     >
             = mutableStateOf(Resource.loading())
     val loginFlow = appPreferences.getLoginStatusFlow()
-    var themeType : MutableState<Yim23ThemeData> = mutableStateOf(Yim23ThemeData.greenTheme)
+    var themeType : MutableState<Yim23ThemeData> = mutableStateOf(Yim23ThemeData.GREEN)
 
     init {
         getData()

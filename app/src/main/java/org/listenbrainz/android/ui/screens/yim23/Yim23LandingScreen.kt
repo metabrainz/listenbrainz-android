@@ -101,13 +101,7 @@ fun Yim23HomeScreen(
                                 ) {
                                     Image(
                                         painter =
-                                        painterResource(id = when (viewModel.themeType.value) {
-                                            Yim23ThemeData.greenTheme -> R.drawable.yim23_pick_color_green
-                                            Yim23ThemeData.redTheme -> R.drawable.yim23_pick_color_red
-                                            Yim23ThemeData.blueTheme -> R.drawable.yim23_pick_color_blue
-                                            Yim23ThemeData.grayTheme -> R.drawable.yim23_pick_color_grey
-                                            else -> R.drawable.yim23_pick_color_green
-                                        }),
+                                        painterResource(id = viewModel.themeType.value.pickColorRes),
                                         contentDescription = "",
                                         modifier = Modifier
                                             .width(160.dp)
@@ -120,16 +114,16 @@ fun Yim23HomeScreen(
                                     modifier = Modifier.fillMaxWidth()
                                 ) {
                                     ColorPicker(color = yim23Green, onClick = {
-                                        viewModel.themeType.value = Yim23ThemeData.greenTheme
+                                        viewModel.themeType.value = Yim23ThemeData.GREEN
                                     })
                                     ColorPicker(color = yim23Red, onClick = {
-                                        viewModel.themeType.value = Yim23ThemeData.redTheme
+                                        viewModel.themeType.value = Yim23ThemeData.RED
                                     })
                                     ColorPicker(color = yim23Blue, onClick = {
-                                        viewModel.themeType.value = Yim23ThemeData.blueTheme
+                                        viewModel.themeType.value = Yim23ThemeData.BLUE
                                     })
                                     ColorPicker(color = yim23Grey, onClick = {
-                                        viewModel.themeType.value = Yim23ThemeData.grayTheme
+                                        viewModel.themeType.value = Yim23ThemeData.GRAY
                                     })
                                 }
                                 Text(
@@ -139,12 +133,7 @@ fun Yim23HomeScreen(
                                     modifier = Modifier.paddingFromBaseline(top = 53.dp)
                                 )
                                 Image(painter = painterResource(
-                                    id = when (viewModel.themeType.value) {
-                                        Yim23ThemeData.greenTheme -> R.drawable.yim23_2023_green
-                                        Yim23ThemeData.redTheme -> R.drawable.yim23_2023_red
-                                        Yim23ThemeData.blueTheme -> R.drawable.yim23_2023_blue
-                                        Yim23ThemeData.grayTheme -> R.drawable.yim23_2023_grey
-                                    },
+                                    id = viewModel.themeType.value.homeIllustration,
                                 ), modifier = Modifier
                                     .paddingFromBaseline(top = 80.dp)
                                     .width(277.dp)
@@ -182,13 +171,7 @@ fun Yim23HomeScreen(
                                     horizontalArrangement = Arrangement.Center
                                 ) {
                                     Image(
-                                        painter = painterResource(id = when (viewModel.themeType.value) {
-                                            Yim23ThemeData.greenTheme -> R.drawable.yim23_pick_color_green
-                                            Yim23ThemeData.redTheme -> R.drawable.yim23_pick_color_red
-                                            Yim23ThemeData.blueTheme -> R.drawable.yim23_pick_color_blue
-                                            Yim23ThemeData.grayTheme -> R.drawable.yim23_pick_color_grey
-                                            else -> R.drawable.yim23_pick_color_green
-                                        }),
+                                        painter = painterResource(id = viewModel.themeType.value.pickColorRes),
                                         contentDescription = "",
                                         modifier = Modifier
                                             .width(160.dp)
@@ -202,19 +185,19 @@ fun Yim23HomeScreen(
                                 ) {
                                     ColorPicker(color = yim23Green, onClick = {
 
-                                        viewModel.themeType = mutableStateOf(Yim23ThemeData.greenTheme)
+                                        viewModel.themeType = mutableStateOf(Yim23ThemeData.GREEN)
                                     })
                                     ColorPicker(color = yim23Red, onClick = {
 
-                                        viewModel.themeType = mutableStateOf(Yim23ThemeData.redTheme)
+                                        viewModel.themeType = mutableStateOf(Yim23ThemeData.RED)
                                     })
                                     ColorPicker(color = yim23Blue, onClick = {
 
-                                        viewModel.themeType = mutableStateOf(Yim23ThemeData.blueTheme)
+                                        viewModel.themeType = mutableStateOf(Yim23ThemeData.BLUE)
                                     })
                                     ColorPicker(color = yim23Grey, onClick = {
 
-                                        viewModel.themeType = mutableStateOf(Yim23ThemeData.grayTheme)
+                                        viewModel.themeType = mutableStateOf(Yim23ThemeData.GRAY)
                                     })
                                 }
                                 Text(
