@@ -1,11 +1,13 @@
 package org.listenbrainz.android.ui.screens.yim23
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -48,7 +50,8 @@ fun Yim23TopSongsScreen (
                         else Text((i).toString() ,  style = MaterialTheme.typography.labelMedium
                             , color = MaterialTheme.colorScheme.background ,
                             modifier = Modifier.padding(start = 11.dp,end = 21.dp))
-                        Text(topRecordings!![i-1].trackName,
+                        Text(topRecordings!![i-1].trackName.uppercase(),
+                            modifier = Modifier.horizontalScroll(rememberScrollState() , false),
                             style = MaterialTheme.typography.labelMedium ,
                             color = MaterialTheme.colorScheme.background , maxLines = 1 ,
                             overflow = TextOverflow.Clip)
