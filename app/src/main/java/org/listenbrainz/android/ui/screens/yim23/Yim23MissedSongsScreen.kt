@@ -86,7 +86,7 @@ private fun Yim23MissedSongsArt (viewModel: Yim23ViewModel) {
             Row () {
                 for(i in 3*j-2..3*j){
                     if(tracks[i-1].extension.extensionData.additionalMetadata.caaReleaseMbid != ""
-                        && tracks[i-1].extension.extensionData.additionalMetadata.caaId != "")
+                        && tracks[i-1].extension.extensionData.additionalMetadata.caaId != 0L)
                         GlideImage(
                             model = Utils.getCoverArtUrl(
                                 caaReleaseMbid = tracks[i-1].extension.extensionData.additionalMetadata.caaReleaseMbid,
