@@ -144,7 +144,6 @@ fun Yim23HomeScreen(
                                         Yim23ThemeData.redTheme -> R.drawable.yim23_2023_red
                                         Yim23ThemeData.blueTheme -> R.drawable.yim23_2023_blue
                                         Yim23ThemeData.grayTheme -> R.drawable.yim23_2023_grey
-                                        else -> R.drawable.yim23_2023_green
                                     },
                                 ), modifier = Modifier
                                     .paddingFromBaseline(top = 80.dp)
@@ -159,15 +158,14 @@ fun Yim23HomeScreen(
                                         tint = MaterialTheme.colorScheme.onBackground)
                                 }
                                 Box(modifier = Modifier
-                                    .weight(1f)
                                     .background(MaterialTheme.colorScheme.onBackground)){
                                     Column (verticalArrangement = Arrangement.SpaceEvenly ,
                                         horizontalAlignment = Alignment.CenterHorizontally ,
-                                        modifier = Modifier.fillMaxSize()) {
+                                        modifier = Modifier.fillMaxWidth()) {
                                         Text(username.uppercase(),style=MaterialTheme.typography.titleLarge ,
                                             color = MaterialTheme.colorScheme.background ,
-                                            modifier = Modifier.paddingFromBaseline(top = 40.dp))
-                                        Row (modifier = Modifier.fillMaxWidth() ,
+                                            modifier = Modifier.paddingFromBaseline(top = 60.dp))
+                                        Row (modifier = Modifier.fillMaxWidth().paddingFromBaseline(bottom = 60.dp) ,
                                             verticalAlignment = Alignment.CenterVertically ,
                                             horizontalArrangement = Arrangement.Center) {
                                             Yim23ShareButton()
@@ -287,7 +285,7 @@ fun ListenBrainzProfileButton() {
     Button(onClick = { /*TODO*/ } , colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface) , modifier = Modifier
         .padding(11.dp)
         .height(49.dp)) {
-        Text("Profile" , style = MaterialTheme.typography.titleMedium , color = MaterialTheme.colorScheme.background)
+        Text("ListenBrainz Profile" , style = MaterialTheme.typography.titleMedium , color = MaterialTheme.colorScheme.background)
     }
 }
 
