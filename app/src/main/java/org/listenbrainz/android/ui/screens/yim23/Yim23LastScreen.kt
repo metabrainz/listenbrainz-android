@@ -145,5 +145,3 @@ fun Yim23LastScreen (
         }
     }
 }
-
-

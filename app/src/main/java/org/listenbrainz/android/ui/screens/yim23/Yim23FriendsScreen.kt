@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.screens.yim23
 
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -31,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
@@ -53,7 +56,6 @@ fun Yim23FriendsScreen (
     socialViewModel: SocialViewModel,
     navController: NavController
 ) {
-    val username by viewModel.getUsernameFlow().collectAsState(initial = "")
     Yim23BaseScreen(
         viewModel = viewModel,
         navController = navController,
@@ -65,19 +67,21 @@ fun Yim23FriendsScreen (
             Text("VISIT SOME FRIENDS" , style = MaterialTheme.typography.titleLarge ,
                 color = MaterialTheme.colorScheme.background , textAlign = TextAlign.Center)
         }
-        Yim23Friends(username = username, socialViewModel = socialViewModel)
+        Yim23Friends(socialViewModel = socialViewModel)
     }
 }
 
 @ExperimentalFoundationApi
 @Composable
-private fun Yim23Friends (username : String, socialViewModel: SocialViewModel) {
-    var followers : Resource<SocialData> = remember {socialViewModel.getFollowers(username)}
-    val animationScope                   = rememberCoroutineScope()
-    val uriHandler                       = LocalUriHandler.current
-    if(followers != null){
+private fun Yim23Friends (socialViewModel: SocialViewModel) {
+    socialViewModel.getFollowers()
+    val animationScope                                  = rememberCoroutineScope()
+    val uriHandler                                      = LocalUriHandler.current
+    val followers : MutableState<Resource<SocialData>?> = socialViewModel.friendsData
+    val context                                         = LocalContext.current
+    if(followers.value?.status != Resource.Status.LOADING){
         val pagerState = rememberPagerState {
-            followers.data!!.followers!!.size
+            followers.value?.data?.followers!!.size
         }
         Box {
             HorizontalPager(state = pagerState) {
@@ -87,7 +91,14 @@ private fun Yim23Friends (username : String, socialViewModel: SocialViewModel) {
                     .padding(start = 30.dp, end = 30.dp) ,
                     color = MaterialTheme.colorScheme.background
                 , onClick = {
-                        uriHandler.openUri("https://beta.listenbrainz.org/user/${followers.data!!.followers!![page]}/year-in-music/2023/")
+                        try {
+                            uriHandler.openUri("https://beta.listenbrainz.org/user/${followers.value?.data?.followers!![page]}/year-in-music/2023/")
+                        }
+                        catch (e : Error) {
+                            Toast.makeText(context, "Error occured", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+
                     }
                 ) {
                     Column(modifier = Modifier
@@ -99,7 +110,7 @@ private fun Yim23Friends (username : String, socialViewModel: SocialViewModel) {
                         .background(MaterialTheme.colorScheme.background) ,
                         horizontalAlignment = Alignment.CenterHorizontally ,
                         verticalArrangement = Arrangement.Center) {
-                        Text(followers.data!!.followers!![page] ,
+                        Text(followers.value?.data?.followers!![page] ,
                             color = MaterialTheme.colorScheme.onBackground ,
                             style = MaterialTheme.typography.bodyLarge)
                         Divider(modifier = Modifier.width(60.dp) ,
@@ -141,5 +152,3 @@ private fun Yim23Friends (username : String, socialViewModel: SocialViewModel) {
         CircularProgressIndicator()
     }
 }
-
-
