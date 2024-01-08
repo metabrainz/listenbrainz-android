@@ -103,7 +103,7 @@ fun yim23Typography () : Typography {
             fontWeight = FontWeight.ExtraBold,
             fontSize = 24.sp,
             lineHeight = 34.25.sp,
-            letterSpacing = (0.015*width).sp,
+            letterSpacing = (0.010*width).sp,
         ),
     )
 }

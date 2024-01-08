@@ -65,7 +65,7 @@ fun Yim23HomeScreen(
                     detectDragGestures { change, dragAmount ->
                         val (x, y) = dragAmount
                         if (y < 0) {
-                            if(swipeState == 0){
+                            if (swipeState == 0) {
                                 navController.navigate(route = Yim23Screens.YimChartTitleScreen.name)
                                 swipeState = 1
                             }
@@ -93,74 +93,78 @@ fun Yim23HomeScreen(
 
                         else -> {
                             if (viewModel.yimData.value.data?.payload?.data != null) {
-                                Row(
-                                    modifier = Modifier
-                                        .padding(top = 22.dp)
-                                        .fillMaxWidth()
-                                        , horizontalArrangement = Arrangement.Center
-                                ) {
-                                    Image(
-                                        painter =
-                                        painterResource(id = viewModel.themeType.value.pickColorRes),
-                                        contentDescription = "",
-                                        modifier = Modifier
-                                            .width(160.dp)
-                                            .height(31.dp)
-                                    )
+                                Column (modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxWidth() , horizontalAlignment = Alignment.CenterHorizontally , verticalArrangement = Arrangement.SpaceBetween) {
+
+                                    Column (modifier = Modifier.fillMaxWidth() , horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Row(
+                                            modifier = Modifier
+                                                .padding(top = 22.dp)
+                                                .fillMaxWidth()
+                                            , horizontalArrangement = Arrangement.Center
+                                        ) {
+                                            Image(
+                                                painter =
+                                                painterResource(id = viewModel.themeType.value.pickColorRes),
+                                                contentDescription = "",
+                                                modifier = Modifier
+                                                    .width(160.dp)
+                                                    .height(31.dp)
+                                            )
+                                        }
+                                        Row(
+                                            horizontalArrangement = Arrangement.Center,
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            ColorPicker(color = yim23Green, onClick = {
+                                                viewModel.themeType.value = Yim23ThemeData.GREEN
+                                            })
+                                            ColorPicker(color = yim23Red, onClick = {
+                                                viewModel.themeType.value = Yim23ThemeData.RED
+                                            })
+                                            ColorPicker(color = yim23Blue, onClick = {
+                                                viewModel.themeType.value = Yim23ThemeData.BLUE
+                                            })
+                                            ColorPicker(color = yim23Grey, onClick = {
+                                                viewModel.themeType.value = Yim23ThemeData.GRAY
+                                            })
+                                        }
+                                        Text(
+                                            text = "#YEAR IN MUSIC",
+                                            style = MaterialTheme.typography.titleLarge,
+                                            color = MaterialTheme.colorScheme.onBackground,
+                                        )
+
+                                    }
+
+                                    Image(painter = painterResource(
+                                        id = viewModel.themeType.value.homeIllustration,
+                                    ), modifier = Modifier
+                                        .width(277.dp)
+                                        .height(135.dp), contentDescription = "")
+                                    IconButton(onClick =
+                                    {navController.navigate(route = Yim23Screens.YimChartTitleScreen.name)} ,
+                                        modifier = Modifier) {
+                                        Icon(imageVector =
+                                        ImageVector.vectorResource(R.drawable.yim23_down_arrow_green) ,
+                                            contentDescription = "Yim23 down icon" ,
+                                            tint = MaterialTheme.colorScheme.onBackground)
+                                    }
                                 }
 
-                                Row(
-                                    horizontalArrangement = Arrangement.Center,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    ColorPicker(color = yim23Green, onClick = {
-                                        viewModel.themeType.value = Yim23ThemeData.GREEN
-                                    })
-                                    ColorPicker(color = yim23Red, onClick = {
-                                        viewModel.themeType.value = Yim23ThemeData.RED
-                                    })
-                                    ColorPicker(color = yim23Blue, onClick = {
-                                        viewModel.themeType.value = Yim23ThemeData.BLUE
-                                    })
-                                    ColorPicker(color = yim23Grey, onClick = {
-                                        viewModel.themeType.value = Yim23ThemeData.GRAY
-                                    })
-                                }
-                                Text(
-                                    text = "#YEAR IN MUSIC",
-                                    style = MaterialTheme.typography.titleLarge,
-                                    color = MaterialTheme.colorScheme.onBackground,
-                                    modifier = Modifier.paddingFromBaseline(top = 53.dp)
-                                )
-                                Image(painter = painterResource(
-                                    id = viewModel.themeType.value.homeIllustration,
-                                ), modifier = Modifier
-                                    .paddingFromBaseline(top = 80.dp)
-                                    .width(277.dp)
-                                    .height(135.dp), contentDescription = "")
-                                IconButton(onClick =
-                                {navController.navigate(route = Yim23Screens.YimChartTitleScreen.name)} ,
-                                    modifier = Modifier.paddingFromBaseline(top = 75.dp)) {
-                                    Icon(imageVector =
-                                    ImageVector.vectorResource(R.drawable.yim23_down_arrow_green) ,
-                                        contentDescription = "Yim23 down icon" ,
-                                        tint = MaterialTheme.colorScheme.onBackground)
-                                }
-                                Box(modifier = Modifier
-                                    .background(MaterialTheme.colorScheme.onBackground)){
-                                    Column (verticalArrangement = Arrangement.SpaceEvenly ,
-                                        horizontalAlignment = Alignment.CenterHorizontally ,
-                                        modifier = Modifier.fillMaxWidth()) {
-                                        Text(username.uppercase(),style=MaterialTheme.typography.titleLarge ,
-                                            color = MaterialTheme.colorScheme.background ,
-                                            modifier = Modifier.paddingFromBaseline(top = 60.dp))
-                                        Row (modifier = Modifier.fillMaxWidth().paddingFromBaseline(bottom = 60.dp) ,
-                                            verticalAlignment = Alignment.CenterVertically ,
-                                            horizontalArrangement = Arrangement.Center) {
-                                            Yim23ShareButton()
-                                            ListenBrainzProfileButton()
-                                            AddUser()
-                                        }
+                                Column (horizontalAlignment = Alignment.CenterHorizontally ,
+                                    modifier = Modifier.fillMaxWidth().height(150.dp).background(MaterialTheme.colorScheme.onBackground) , verticalArrangement = Arrangement.Center ) {
+                                    Text(username.uppercase(),style=MaterialTheme.typography.titleLarge ,
+                                        color = MaterialTheme.colorScheme.background ,
+                                        )
+                                    Row (modifier = Modifier
+                                        .fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically ,
+                                        horizontalArrangement = Arrangement.Center) {
+                                        Yim23ShareButton()
+                                        ListenBrainzProfileButton()
+                                        AddUser()
                                     }
                                 }
                             } else {
@@ -208,9 +212,9 @@ fun Yim23HomeScreen(
                                 )
                                 Image(painter = painterResource(id = R.drawable.yim23_flower_green) ,
                                     contentDescription = "" , modifier = Modifier
-                                    .paddingFromBaseline(60.dp)
-                                    .height(48.dp)
-                                    .width(103.dp))
+                                        .paddingFromBaseline(60.dp)
+                                        .height(48.dp)
+                                        .width(103.dp))
                                 Text("Oh no! We don't have enough 2023 statistics for ${username}." ,
                                     style = MaterialTheme.typography.bodyMedium ,
                                     color = MaterialTheme.colorScheme.onBackground ,
