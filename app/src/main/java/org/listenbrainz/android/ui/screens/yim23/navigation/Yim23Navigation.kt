@@ -132,10 +132,10 @@ fun Yim23Navigation(
             Yim23NewAlbumsFromTopArtistsScreen(viewModel = yimViewModel, navController = navController)
         }
         addYimScreen( route = Yim23Screens.YimMusicBuddiesScreen.name){
-            Yim23MusicBuddiesScreen(viewModel = yimViewModel, socialViewModel = socialViewModel , navController = navController)
+            Yim23MusicBuddiesScreen(viewModel = yimViewModel, navController = navController)
         }
         addYimScreen( route = Yim23Screens.YimFriendsScreen.name){
-            Yim23FriendsScreen(viewModel = yimViewModel, socialViewModel = socialViewModel, navController = navController)
+            Yim23FriendsScreen(viewModel = yimViewModel, navController = navController)
         }
         addYimScreen( route = Yim23Screens.YimLastScreen.name){
             Yim23LastScreen(viewModel = yimViewModel, navController = navController)

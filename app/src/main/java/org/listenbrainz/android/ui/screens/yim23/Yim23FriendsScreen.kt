@@ -55,7 +55,6 @@ import org.listenbrainz.android.viewmodel.Yim23ViewModel
 @ExperimentalFoundationApi
 fun Yim23FriendsScreen (
     viewModel: Yim23ViewModel,
-    socialViewModel: SocialViewModel,
     navController: NavController
 ) {
     Yim23BaseScreen(
@@ -69,17 +68,14 @@ fun Yim23FriendsScreen (
             Text("VISIT SOME FRIENDS" , style = MaterialTheme.typography.titleLarge ,
                 color = MaterialTheme.colorScheme.background , textAlign = TextAlign.Center)
         }
-        Yim23Friends(socialViewModel = socialViewModel)
+        Yim23Friends(viewModel)
     }
 }
 
 @ExperimentalFoundationApi
 @Composable
-private fun Yim23Friends (socialViewModel: SocialViewModel) {
-    val followers : MutableState<Resource<SocialData>?> = remember{ mutableStateOf(Resource.loading()) }
-    LaunchedEffect(Unit){
-        followers.value = socialViewModel.getFollowers()
-    }
+private fun Yim23Friends (viewModel: Yim23ViewModel) {
+    val followers : MutableState<Resource<SocialData>?> = remember{ viewModel.followers }
     val animationScope                                  = rememberCoroutineScope()
     val uriHandler                                      = LocalUriHandler.current
     val context                                         = LocalContext.current

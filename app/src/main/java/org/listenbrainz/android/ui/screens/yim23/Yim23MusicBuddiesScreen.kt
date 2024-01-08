@@ -46,14 +46,10 @@ import org.listenbrainz.android.viewmodel.Yim23ViewModel
 @Composable
 fun Yim23MusicBuddiesScreen (
     viewModel: Yim23ViewModel,
-    socialViewModel: SocialViewModel,
     navController: NavController
 ) {
-    val followers : MutableState<Resource<SocialData>?> = remember{ mutableStateOf(Resource.loading()) }
+    val followers = remember { viewModel.followers }
     val context = LocalContext.current
-    LaunchedEffect(Unit){
-        followers.value = socialViewModel.getFollowers()
-    }
     if(followers.value?.status == Resource.Status.SUCCESS){
         Yim23BaseScreen(
             viewModel     = viewModel,
