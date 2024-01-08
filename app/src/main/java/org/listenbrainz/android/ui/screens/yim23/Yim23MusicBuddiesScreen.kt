@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.screens.yim23
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,16 +14,20 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.listenbrainz.android.model.SocialData
@@ -44,22 +49,33 @@ fun Yim23MusicBuddiesScreen (
     socialViewModel: SocialViewModel,
     navController: NavController
 ) {
-    socialViewModel.getFollowers()
-    val followers : MutableState<Resource<SocialData>?> = remember {
-        socialViewModel.friendsData
+    val followers : MutableState<Resource<SocialData>?> = remember{ mutableStateOf(Resource.loading()) }
+    val context = LocalContext.current
+    LaunchedEffect(Unit){
+        followers.value = socialViewModel.getFollowers()
     }
-    Yim23BaseScreen(
-        viewModel     = viewModel,
-        navController = navController,
-        footerText    = "MUSIC BUDDIES",
-        isUsername    = false,
-        downScreen    = when (followers.value?.data?.followers!!.size){
-            0 -> Yim23Screens.YimLastScreen
-            else -> Yim23Screens.YimFriendsScreen
+    if(followers.value?.status == Resource.Status.SUCCESS){
+        Yim23BaseScreen(
+            viewModel     = viewModel,
+            navController = navController,
+            footerText    = "MUSIC BUDDIES",
+            isUsername    = false,
+            downScreen    = when (followers.value?.data?.followers!!.size){
+                0 -> Yim23Screens.YimLastScreen
+                else -> Yim23Screens.YimFriendsScreen
+            }
+        ) {
+            Yim23MusicBuddies(viewModel = viewModel)
         }
-    ) {
-        Yim23MusicBuddies(viewModel = viewModel)
     }
+    else{
+        if(followers.value?.status == Resource.Status.LOADING)
+        Toast.makeText(context , "Loading" , Toast.LENGTH_SHORT).show()
+        else{
+            Toast.makeText(context , "Error occoured" , Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
 }
 

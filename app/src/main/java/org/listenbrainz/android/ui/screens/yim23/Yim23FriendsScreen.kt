@@ -23,9 +23,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -74,10 +76,12 @@ fun Yim23FriendsScreen (
 @ExperimentalFoundationApi
 @Composable
 private fun Yim23Friends (socialViewModel: SocialViewModel) {
-    socialViewModel.getFollowers()
+    val followers : MutableState<Resource<SocialData>?> = remember{ mutableStateOf(Resource.loading()) }
+    LaunchedEffect(Unit){
+        followers.value = socialViewModel.getFollowers()
+    }
     val animationScope                                  = rememberCoroutineScope()
     val uriHandler                                      = LocalUriHandler.current
-    val followers : MutableState<Resource<SocialData>?> = socialViewModel.friendsData
     val context                                         = LocalContext.current
     if(followers.value?.status != Resource.Status.LOADING){
         val pagerState = rememberPagerState {
