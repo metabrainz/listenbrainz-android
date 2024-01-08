@@ -40,17 +40,14 @@ fun Yim23NewAlbumsFromTopArtistsScreen (
     viewModel: Yim23ViewModel,
     navController: NavController
 ) {
-    val username by viewModel.getUsernameFlow().collectAsState(initial = "")
-    Yim23Theme(themeType = viewModel.themeType.value) {
-        Column (modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground),
-            verticalArrangement = Arrangement.SpaceBetween) {
-            Yim23Header(username = username, navController = navController)
-            Yim23NewAlbumsFromTopArtists(viewModel = viewModel)
-            Yim23Footer(footerText = "NEW ALBUMS FROM TOP ARTISTS", isUsername = false,
-                navController = navController, downScreen = Yim23Screens.YimMusicBuddiesScreen)
-        }
+    Yim23BaseScreen(
+        viewModel     = viewModel,
+        navController = navController,
+        footerText    = "NEW ALBUMS FROM TOP ARTISTS",
+        isUsername    = false,
+        downScreen    = Yim23Screens.YimMusicBuddiesScreen
+    ) {
+        Yim23NewAlbumsFromTopArtists(viewModel = viewModel)
     }
 }
 
@@ -58,7 +55,7 @@ fun Yim23NewAlbumsFromTopArtistsScreen (
 @Composable
 private fun Yim23NewAlbumsFromTopArtists (viewModel: Yim23ViewModel) {
     val newReleases : List<NewReleasesOfTopArtist> = remember {
-        viewModel.getNewReleasesOfTopArtists()!!
+        viewModel.getNewReleasesOfTopArtists() ?: listOf()
     }
     Box (modifier = Modifier
         .fillMaxWidth()
@@ -81,5 +78,4 @@ private fun Yim23NewAlbumsFromTopArtists (viewModel: Yim23ViewModel) {
             }
         }
     }
-
 }

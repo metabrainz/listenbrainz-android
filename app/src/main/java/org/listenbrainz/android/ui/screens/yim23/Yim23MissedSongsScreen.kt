@@ -50,29 +50,25 @@ fun Yim23MissedSongsScreen (
     navController: NavController
 ) {
     val username by viewModel.getUsernameFlow().collectAsState(initial = "")
-    Yim23Theme(themeType = viewModel.themeType.value) {
-        Column (modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground),
-            verticalArrangement = Arrangement.SpaceBetween) {
-            Yim23Header(username = username, navController = navController)
-            Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center){
-                Box (contentAlignment = Alignment.Center ) {
-                    Image(painter = painterResource(id = R.drawable.yim23_arrows) ,
-                        contentDescription = "" , modifier = Modifier
-                            .zIndex(1f)
-                            .align(
-                                Alignment.BottomCenter
-                            )
-                            .width(330.dp)
-                            .height(330.dp))
-                    Yim23MissedSongsArt(viewModel = viewModel)
-                }
-
+    Yim23BaseScreen(
+        viewModel     = viewModel,
+        navController = navController,
+        footerText    = "MISSED SONGS 2023",
+        isUsername    = false,
+        downScreen    = Yim23Screens.YimMissedSongsListScreen
+    ) {
+        Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center){
+            Box (contentAlignment = Alignment.Center ) {
+                Image(painter = painterResource(id = R.drawable.yim23_arrows) ,
+                    contentDescription = "" , modifier = Modifier
+                        .zIndex(1f)
+                        .align(
+                            Alignment.BottomCenter
+                        )
+                        .width(330.dp)
+                        .height(330.dp))
+                Yim23MissedSongsArt(viewModel = viewModel)
             }
-
-            Yim23Footer(footerText = "MISSED SONGS 2023", isUsername = false,
-                navController = navController, downScreen = Yim23Screens.YimMissedSongsListScreen)
         }
     }
 }

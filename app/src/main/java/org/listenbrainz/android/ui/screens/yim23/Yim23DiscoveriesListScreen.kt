@@ -39,17 +39,14 @@ fun Yim23DiscoveriesListScreen (
     viewModel: Yim23ViewModel,
     navController: NavController
 ) {
-    val username by viewModel.getUsernameFlow().collectAsState(initial = "")
-    Yim23Theme(themeType = viewModel.themeType.value) {
-        Column (modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground),
-            verticalArrangement = Arrangement.SpaceBetween) {
-            Yim23Header(username = username, navController = navController)
-            Yim23Discoveries(viewModel = viewModel)
-            Yim23Footer(footerText = "DISCOVERIES OF 2023", isUsername = false,
-                navController = navController, downScreen = Yim23Screens.YimMissedSongsScreen)
-        }
+    Yim23BaseScreen(
+        viewModel     = viewModel,
+        navController = navController,
+        footerText    = "DISCOVERIES OF 2023",
+        isUsername    = false,
+        downScreen    = Yim23Screens.YimMissedSongsScreen
+    ) {
+        Yim23Discoveries(viewModel = viewModel)
     }
 }
 
@@ -81,5 +78,4 @@ private fun Yim23Discoveries (viewModel: Yim23ViewModel) {
             }
         }
     }
-
 }

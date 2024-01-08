@@ -2,7 +2,10 @@ package org.listenbrainz.android.viewmodel
 
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,6 +28,7 @@ import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.feed.ReviewEntityType
+import org.listenbrainz.android.model.yimdata.Yim23Payload
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
@@ -38,6 +42,15 @@ class SocialViewModel @Inject constructor(
     private val remotePlaybackHandler: RemotePlaybackHandler,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ): FollowUnfollowModel<SocialUiState>(repository, ioDispatcher) {
+
+    var friendsData : MutableState<
+            Resource<SocialData>?
+            > = mutableStateOf(Resource.loading())
+
+
+   init {
+       getFollowers()
+   }
     
     override val uiState: StateFlow<SocialUiState> = createUiStateFlow()
     override fun createUiStateFlow(): StateFlow<SocialUiState> =
@@ -171,11 +184,17 @@ class SocialViewModel @Inject constructor(
         }
     }
 
-   fun getFollowers(username : String) : Resource<SocialData> = runBlocking {
-        val deferredResult = async{
-            repository.getFollowers(username)
-        }
-       return@runBlocking deferredResult.await()
+   fun getFollowers() {
+       viewModelScope.launch (ioDispatcher) {
+           val username = withContext(ioDispatcher) { appPreferences.getUsername() }
+           val result = repository.getFollowers(username)
+           if(result.status == Resource.Status.FAILED){
+               emitError(result.error)
+           }
+           else{
+               friendsData.value = result
+           }
+       }
     }
 
 }

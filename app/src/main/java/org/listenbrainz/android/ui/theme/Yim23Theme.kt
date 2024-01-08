@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import org.listenbrainz.android.model.yimdata.Yim23ThemeData
 
 private val greenColorScheme = darkColorScheme(
     background = yim23Background,
@@ -38,15 +39,15 @@ private val greyColorScheme = darkColorScheme(
 
 @Composable
 fun Yim23Theme(
-    themeType : Number,
+    themeType : Yim23ThemeData,
     systemUiController : SystemUiController = rememberSystemUiController(),
     content: @Composable () -> Unit
 ){
     val colorScheme =  when (themeType) {
-        0 -> greenColorScheme
-        1 -> redColorScheme
-        2 -> blueColorScheme
-        3 -> greyColorScheme
+        Yim23ThemeData.greenTheme -> greenColorScheme
+        Yim23ThemeData.redTheme -> redColorScheme
+        Yim23ThemeData.blueTheme -> blueColorScheme
+        Yim23ThemeData.grayTheme -> greyColorScheme
         else -> greenColorScheme
     }
 

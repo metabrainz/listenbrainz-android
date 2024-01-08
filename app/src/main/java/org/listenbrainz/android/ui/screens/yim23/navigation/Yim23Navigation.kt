@@ -82,97 +82,63 @@ fun Yim23Navigation(
             Yim23HomeScreen(viewModel = yimViewModel, networkConnectivityViewModel = networkConnectivityViewModel,navController = navController, activity = activity)
         }
 
-        addYim23Screen( route = Yim23Screens.YimChartTitleScreen.name ){
+        addYimScreen( route = Yim23Screens.YimChartTitleScreen.name ){
             Yim23ChartTitleScreen(viewModel = yimViewModel, navController = navController)
         }
 
-        addYim23Screen( route = Yim23Screens.YimTopAlbumScreen.name ){
+        addYimScreen( route = Yim23Screens.YimTopAlbumScreen.name ){
             Yim23TopAlbumsScreen(viewModel = yimViewModel, navController = navController)
         }
-        addYim23Screen( route = Yim23Screens.YimAlbumsListScreen.name ){
+        addYimScreen( route = Yim23Screens.YimAlbumsListScreen.name ){
             Yim23AlbumsListScreen(viewModel = yimViewModel, navController = navController)
         }
-        addYim23Screen( route = Yim23Screens.YimTopSongsScreen.name ){
+        addYimScreen( route = Yim23Screens.YimTopSongsScreen.name ){
             Yim23TopSongsScreen(viewModel = yimViewModel, navController = navController)
         }
-        addYim23Screen( route = Yim23Screens.YimTopArtistsScreen.name ){
+        addYimScreen( route = Yim23Screens.YimTopArtistsScreen.name ){
             Yim23TopArtistsScreen(viewModel = yimViewModel, navController = navController)
         }
-        addYim23Screen( route = Yim23Screens.YimStatsTitleScreen.name){
+        addYimScreen( route = Yim23Screens.YimStatsTitleScreen.name){
             Yim23StatsTitleScreen(viewModel = yimViewModel, navController = navController)
         }
-        addYim23Screen( route = Yim23Screens.YimStatsScreen.name){
+        addYimScreen( route = Yim23Screens.YimStatsScreen.name){
             Yim23StatsScreen(viewModel = yimViewModel, navController = navController)
         }
-        addYim23Screen( route = Yim23Screens.YimStatsHeatMapScreen.name){
+        addYimScreen( route = Yim23Screens.YimStatsHeatMapScreen.name){
             Yim23StatsHeatMapScreen(viewModel = yimViewModel, navController = navController)
         }
-        addYim23Screen( route = Yim23Screens.YimStatsGraphScreen.name){
+        addYimScreen( route = Yim23Screens.YimStatsGraphScreen.name){
         Yim23StatsGraphScreen(viewModel = yimViewModel, navController = navController)
         }
-        addYim23Screen( route = Yim23Screens.YimPlaylistsTitleScreen.name){
+        addYimScreen( route = Yim23Screens.YimPlaylistsTitleScreen.name){
             Yim23PlaylistTitleScreen(viewModel = yimViewModel, navController = navController)
         }
-        addYim23Screen( route = Yim23Screens.YimDiscoveriesScreen.name){
+        addYimScreen( route = Yim23Screens.YimDiscoveriesScreen.name){
             Yim23DiscoveriesScreen(viewModel = yimViewModel, navController = navController)
         }
-        addYim23Screen( route = Yim23Screens.YimDiscoveriesListScreen.name){
+        addYimScreen( route = Yim23Screens.YimDiscoveriesListScreen.name){
             Yim23DiscoveriesListScreen(viewModel = yimViewModel, navController = navController)
         }
-        addYim23Screen( route = Yim23Screens.YimMissedSongsScreen.name){
+        addYimScreen( route = Yim23Screens.YimMissedSongsScreen.name){
             Yim23MissedSongsScreen(viewModel = yimViewModel, navController = navController)
         }
-        addYim23Screen( route = Yim23Screens.YimMissedSongsListScreen.name){
+        addYimScreen( route = Yim23Screens.YimMissedSongsListScreen.name){
             Yim23MissedSongsListScreen(viewModel = yimViewModel, navController = navController)
         }
-        addYim23Screen( route = Yim23Screens.YimDiscoverTitleScreen.name){
+        addYimScreen( route = Yim23Screens.YimDiscoverTitleScreen.name){
             Yim23DiscoveriesTitleScreen(viewModel = yimViewModel, navController = navController)
         }
-        addYim23Screen( route = Yim23Screens.YimNewAlbumsFromTopArtistsScreen.name){
+        addYimScreen( route = Yim23Screens.YimNewAlbumsFromTopArtistsScreen.name){
             Yim23NewAlbumsFromTopArtistsScreen(viewModel = yimViewModel, navController = navController)
         }
-        addYim23Screen( route = Yim23Screens.YimMusicBuddiesScreen.name){
-            Yim23MusicBuddiesScreen(viewModel = yimViewModel, navController = navController)
+        addYimScreen( route = Yim23Screens.YimMusicBuddiesScreen.name){
+            Yim23MusicBuddiesScreen(viewModel = yimViewModel, socialViewModel = socialViewModel , navController = navController)
         }
-        addYim23Screen( route = Yim23Screens.YimFriendsScreen.name){
+        addYimScreen( route = Yim23Screens.YimFriendsScreen.name){
             Yim23FriendsScreen(viewModel = yimViewModel, socialViewModel = socialViewModel, navController = navController)
         }
-        addYim23Screen( route = Yim23Screens.YimLastScreen.name){
+        addYimScreen( route = Yim23Screens.YimLastScreen.name){
             Yim23LastScreen(viewModel = yimViewModel, navController = navController)
         }
     }
-}
-
-fun NavGraphBuilder.addYim23Screen(
-    route : String,
-    content : @Composable (AnimatedVisibilityScope.(NavBackStackEntry) -> Unit),
-){
-    composable(
-        route = route,
-        enterTransition = {
-            slideIntoContainer(
-                towards = AnimatedContentTransitionScope.SlideDirection.Up,
-                animationSpec = tween(screenTransitionDuration)
-            )
-        },
-        exitTransition = {
-            slideOutOfContainer(
-                towards = AnimatedContentTransitionScope.SlideDirection.Up,
-                animationSpec = tween(screenTransitionDuration)
-            )
-        },
-        popEnterTransition = {
-            slideIntoContainer(
-                towards = AnimatedContentTransitionScope.SlideDirection.Down,
-                animationSpec = tween(screenTransitionDuration)
-            )
-        },
-        popExitTransition = {
-            slideOutOfContainer(
-                towards = AnimatedContentTransitionScope.SlideDirection.Down,
-                animationSpec = tween(screenTransitionDuration)
-            )
-        },
-        content = content
-    )
 }

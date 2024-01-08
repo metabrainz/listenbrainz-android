@@ -22,7 +22,6 @@ fun Yim23AutomaticScroll (
     LaunchedEffect(Unit) {
         if (alreadyScrolled)
             return@LaunchedEffect
-
         delay(time.toLong())
         navController.navigate(downScreen.name)
         alreadyScrolled = true
