@@ -71,7 +71,7 @@ private fun Yim23Stats (viewModel: Yim23ViewModel) {
             Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier
                 .width(80.dp)
                 .padding(top = 5.dp, bottom = 5.dp))
-            Text("was my top genre" , textAlign = TextAlign.Center ,
+            Text("was my\ntop genre" , textAlign = TextAlign.Center ,
                 style = MaterialTheme.typography.bodyMedium ,
                 color = MaterialTheme.colorScheme.background)
         }
@@ -86,7 +86,7 @@ private fun Yim23Stats (viewModel: Yim23ViewModel) {
             Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier
                 .width(80.dp)
                 .padding(top = 5.dp, bottom = 5.dp))
-            Text("days ( atleast! )" , textAlign = TextAlign.Center ,
+            Text("days\n(at least!)" , textAlign = TextAlign.Center ,
                 style = MaterialTheme.typography.bodyMedium ,
                 color = MaterialTheme.colorScheme.background)
         }
