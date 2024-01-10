@@ -48,7 +48,7 @@ fun Yim23Footer (footerText : String , isUsername : Boolean , navController : Na
 
                 , horizontalArrangement = Arrangement.Center) {
                 if(!isUsername) {
-                    Column(modifier = Modifier.width(300.dp)) {
+                    Column(modifier = Modifier.width(250.dp)) {
                         Text(
                             footerText.uppercase(),
                             style = MaterialTheme.typography.titleLarge,

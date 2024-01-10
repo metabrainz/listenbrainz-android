@@ -423,7 +423,7 @@ fun SettingsScreen(
         ) {
             val annotatedStringAttributions: AnnotatedString = buildAnnotatedString {
                 val originalString =
-                        "Animations by Korhan Ulusoy, Jake Cowan, KidA Studio, puput Santoso and Paul Roux on LottieFiles from lottiefiles.com\n\n" +
+                        "Animations by Korhan Ulusoy, Jake Cowan, KidA Studio, puput Santoso , Charts by Patrick Michalik and Paul Roux on LottieFiles from lottiefiles.com\n\n" +
                         "The complete resources with links can be found at\n" +
                         "https://github.com/metabrainz/listenbrainz-android/blob/main/asset_attributions.md"
                 val startIndexGithub = originalString.indexOf("https://github.com")
