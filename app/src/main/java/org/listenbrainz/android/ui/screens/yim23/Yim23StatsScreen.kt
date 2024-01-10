@@ -13,9 +13,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import org.listenbrainz.android.R
 import org.listenbrainz.android.model.yimdata.TopGenre
 import org.listenbrainz.android.model.yimdata.Yim23Screens
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
@@ -46,11 +51,11 @@ private fun Yim23Stats (viewModel: Yim23ViewModel) {
     val newArtistPercent : Int? =         remember {(newArtisis!! * 100/totalArtists!!)}
     val totaldays        : Double? =      remember {viewModel.getTotalListeningTime()!!/(60*60*24)}
     Row (modifier = Modifier
-        .padding(start = 11.dp, end = 11.dp, top = 11.dp)
+        .padding(start = 21.dp, end = 21.dp, top = 11.dp)
         .fillMaxWidth() , horizontalArrangement = Arrangement.SpaceBetween) {
         Column (horizontalAlignment = Alignment.CenterHorizontally ,
             modifier = Modifier.width(160.dp)) {
-            Text(totalSongs!!.toString() , style = MaterialTheme.typography.bodyLarge ,
+            Text(totalSongs!!.toString() , style = MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily(Font(R.font.roboto_bold)))  ,
                 color = MaterialTheme.colorScheme.background)
             Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier
                 .width(80.dp)
@@ -61,33 +66,33 @@ private fun Yim23Stats (viewModel: Yim23ViewModel) {
         }
         Column (horizontalAlignment = Alignment.CenterHorizontally ,
             modifier = Modifier.width(160.dp)) {
-            Text(topGenre.genre , style = MaterialTheme.typography.bodyLarge ,
+            Text(topGenre.genre.replaceFirstChar { char -> char.uppercase() } , style = MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily(Font(R.font.roboto_bold))) ,
                 color = MaterialTheme.colorScheme.background)
             Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier
                 .width(80.dp)
                 .padding(top = 5.dp, bottom = 5.dp))
-            Text("was my top genre" , textAlign = TextAlign.Center ,
+            Text("was my\ntop genre" , textAlign = TextAlign.Center ,
                 style = MaterialTheme.typography.bodyMedium ,
                 color = MaterialTheme.colorScheme.background)
         }
     }
     Row (modifier = Modifier
-        .padding(start = 11.dp, end = 11.dp, top = 11.dp)
+        .padding(start = 21.dp, end = 21.dp, top = 11.dp)
         .fillMaxWidth() , horizontalArrangement = Arrangement.SpaceBetween) {
         Column (horizontalAlignment = Alignment.CenterHorizontally ,
             modifier = Modifier.width(160.dp)) {
-            Text(totaldays!!.toInt().toString() , style = MaterialTheme.typography.bodyLarge ,
+            Text(totaldays!!.toInt().toString() , style = MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily(Font(R.font.roboto_bold))) ,
                 color = MaterialTheme.colorScheme.background)
             Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier
                 .width(80.dp)
                 .padding(top = 5.dp, bottom = 5.dp))
-            Text("days (atleast!)" , textAlign = TextAlign.Center ,
+            Text("days\n(at least!)" , textAlign = TextAlign.Center ,
                 style = MaterialTheme.typography.bodyMedium ,
                 color = MaterialTheme.colorScheme.background)
         }
         Column (horizontalAlignment = Alignment.CenterHorizontally ,
             modifier = Modifier.width(160.dp)) {
-            Text(musicDay , style = MaterialTheme.typography.bodyLarge ,
+            Text(musicDay , style = MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily(Font(R.font.roboto_bold))) ,
                 color = MaterialTheme.colorScheme.background)
             Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier
                 .width(80.dp)
@@ -98,13 +103,13 @@ private fun Yim23Stats (viewModel: Yim23ViewModel) {
         }
     }
     Row (modifier = Modifier
-        .padding(start = 11.dp, end = 11.dp, top = 11.dp)
+        .padding(start = 21.dp, end = 21.dp, top = 11.dp)
         .fillMaxWidth() , horizontalArrangement = Arrangement.SpaceBetween ,
         verticalAlignment = Alignment.CenterVertically) {
         Column (horizontalAlignment = Alignment.CenterHorizontally ,
             modifier = Modifier.width(160.dp)) {
             Text(newArtistPercent!!.toString() + "%" ,
-                style = MaterialTheme.typography.bodyLarge ,
+                style = MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily(Font(R.font.roboto_bold))) ,
                 color = MaterialTheme.colorScheme.background)
             Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier
                 .width(80.dp)
@@ -115,7 +120,7 @@ private fun Yim23Stats (viewModel: Yim23ViewModel) {
         }
         Column (horizontalAlignment = Alignment.CenterHorizontally ,
             modifier = Modifier.width(160.dp)) {
-            Text(totalArtists!!.toString() , style = MaterialTheme.typography.bodyLarge ,
+            Text(totalArtists!!.toString() , style = MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily(Font(R.font.roboto_bold))) ,
                 color = MaterialTheme.colorScheme.background)
             Divider(color = MaterialTheme.colorScheme.background , modifier = Modifier
                 .width(80.dp)

@@ -43,14 +43,8 @@ class SocialViewModel @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ): FollowUnfollowModel<SocialUiState>(repository, ioDispatcher) {
 
-    var friendsData : MutableState<
-            Resource<SocialData>?
-            > = mutableStateOf(Resource.loading())
 
 
-   init {
-       getFollowers()
-   }
     
     override val uiState: StateFlow<SocialUiState> = createUiStateFlow()
     override fun createUiStateFlow(): StateFlow<SocialUiState> =
@@ -184,17 +178,13 @@ class SocialViewModel @Inject constructor(
         }
     }
 
-   fun getFollowers() {
-       viewModelScope.launch (ioDispatcher) {
-           val username = withContext(ioDispatcher) { appPreferences.getUsername() }
-           val result = repository.getFollowers(username)
-           if(result.status == Resource.Status.FAILED){
-               emitError(result.error)
-           }
-           else{
-               friendsData.value = result
-           }
-       }
+    suspend fun getFollowers(): Resource<SocialData> {
+        val username = appPreferences.getUsername()
+        return repository.getFollowers(username).also {
+            if(it.status == Resource.Status.FAILED){
+                emitError(it.error)
+            }
+        }
     }
 
 }

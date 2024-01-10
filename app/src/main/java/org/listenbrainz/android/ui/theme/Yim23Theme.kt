@@ -44,10 +44,10 @@ fun Yim23Theme(
     content: @Composable () -> Unit
 ){
     val colorScheme =  when (themeType) {
-        Yim23ThemeData.greenTheme -> greenColorScheme
-        Yim23ThemeData.redTheme -> redColorScheme
-        Yim23ThemeData.blueTheme -> blueColorScheme
-        Yim23ThemeData.grayTheme -> greyColorScheme
+        Yim23ThemeData.GREEN -> greenColorScheme
+        Yim23ThemeData.RED -> redColorScheme
+        Yim23ThemeData.BLUE -> blueColorScheme
+        Yim23ThemeData.GRAY -> greyColorScheme
         else -> greenColorScheme
     }
 

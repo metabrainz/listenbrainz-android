@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.text.toLowerCase
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.Flow
 import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.yimdata.*
 import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.repository.yim.YimRepository
 import org.listenbrainz.android.repository.yim23.Yim23Repository
 import org.listenbrainz.android.service.SocialService
@@ -30,6 +32,7 @@ import javax.inject.Inject
 @HiltViewModel
 class Yim23ViewModel @Inject constructor(
     private val repository: Yim23Repository,
+    private val socialRepository: SocialRepository,
     private val appPreferences: AppPreferences
 ) : ViewModel() {
     // Yim data resource
@@ -39,10 +42,12 @@ class Yim23ViewModel @Inject constructor(
                     >
             = mutableStateOf(Resource.loading())
     val loginFlow = appPreferences.getLoginStatusFlow()
-    var themeType : MutableState<Yim23ThemeData> = mutableStateOf(Yim23ThemeData.greenTheme)
+    var themeType : MutableState<Yim23ThemeData> = mutableStateOf(Yim23ThemeData.GREEN)
+    val followers : MutableState<Resource<SocialData>?> =  mutableStateOf(Resource.loading())
 
     init {
         getData()
+        getFollowers()
     }
 
     private fun getData() {
@@ -286,6 +291,17 @@ class Yim23ViewModel @Inject constructor(
                 e.localizedMessage?.let { Log.e("YimShareError", it) }
             }
 
+        }
+    }
+
+    fun getFollowers() {
+        viewModelScope.launch {
+            val response = socialRepository.getFollowers(getUsername())
+            when (response.status) {
+                Resource.Status.SUCCESS -> followers.value = response
+                Resource.Status.FAILED -> followers.value = Resource.failure()
+                Resource.Status.LOADING -> followers.value = Resource.loading()
+            }
         }
     }
 }

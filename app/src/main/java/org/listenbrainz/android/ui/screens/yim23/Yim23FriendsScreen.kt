@@ -23,9 +23,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -53,7 +55,6 @@ import org.listenbrainz.android.viewmodel.Yim23ViewModel
 @ExperimentalFoundationApi
 fun Yim23FriendsScreen (
     viewModel: Yim23ViewModel,
-    socialViewModel: SocialViewModel,
     navController: NavController
 ) {
     Yim23BaseScreen(
@@ -67,17 +68,16 @@ fun Yim23FriendsScreen (
             Text("VISIT SOME FRIENDS" , style = MaterialTheme.typography.titleLarge ,
                 color = MaterialTheme.colorScheme.background , textAlign = TextAlign.Center)
         }
-        Yim23Friends(socialViewModel = socialViewModel)
+        Yim23Friends(viewModel)
     }
 }
 
 @ExperimentalFoundationApi
 @Composable
-private fun Yim23Friends (socialViewModel: SocialViewModel) {
-    socialViewModel.getFollowers()
+private fun Yim23Friends (viewModel: Yim23ViewModel) {
+    val followers : MutableState<Resource<SocialData>?> = remember{ viewModel.followers }
     val animationScope                                  = rememberCoroutineScope()
     val uriHandler                                      = LocalUriHandler.current
-    val followers : MutableState<Resource<SocialData>?> = socialViewModel.friendsData
     val context                                         = LocalContext.current
     if(followers.value?.status != Resource.Status.LOADING){
         val pagerState = rememberPagerState {

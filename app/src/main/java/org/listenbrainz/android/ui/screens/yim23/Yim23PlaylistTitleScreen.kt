@@ -43,7 +43,7 @@ fun Yim23PlaylistTitleScreen (
         isUsername    = true,
         downScreen    = Yim23Screens.YimDiscoveriesScreen
     ) {
-        Yim23AutomaticScroll(navController = navController, time = 1500,
+        Yim23AutomaticScroll(navController = navController, time = 3000,
             downScreen = Yim23Screens.YimDiscoveriesScreen)
         Box (modifier = Modifier
             .fillMaxWidth()

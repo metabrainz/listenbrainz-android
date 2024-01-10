@@ -38,7 +38,7 @@ fun Yim23ChartTitleScreen (
         isUsername    = true,
         downScreen    = Yim23Screens.YimTopAlbumScreen
     ) {
-        Yim23AutomaticScroll(navController = navController, time = 1500,
+        Yim23AutomaticScroll(navController = navController, time = 3000,
             downScreen = Yim23Screens.YimTopAlbumScreen)
         Box(modifier = Modifier
             .height(400.dp) , contentAlignment = Alignment.BottomCenter){

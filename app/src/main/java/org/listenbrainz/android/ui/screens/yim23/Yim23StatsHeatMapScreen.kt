@@ -76,15 +76,10 @@ fun Yim23StatsHeatMapScreen (
         isUsername    = true,
         downScreen    = Yim23Screens.YimStatsGraphScreen
     ) {
-        Text("I listened to the most music in ${mostListenedMonth.first}" ,
+        Text("I listened to the most music in ${mostListenedMonth.first} (${mostListenedMonth.second} Songs)" ,
             textAlign = TextAlign.Center , color = MaterialTheme.colorScheme.background ,
             style = MaterialTheme.typography.bodyLarge ,
             modifier = Modifier.padding(start = 20.dp , end = 20.dp))
-        Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center) {
-            Text("(${mostListenedMonth.second} Songs)" , textAlign = TextAlign.Center ,
-                color = MaterialTheme.colorScheme.background ,
-                style = MaterialTheme.typography.bodyLarge)
-        }
         YimHeatMap(paddings = YimPaddings(), listensOfYear = viewModel.getListensListOfYear() , backgroundColor = Color(0xFFe0e5de) , heatMapColors = yim23HeatMapColors)
         Spacer(modifier = Modifier.padding(bottom = 11.dp))
     }
