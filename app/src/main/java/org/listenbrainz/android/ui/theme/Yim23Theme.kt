@@ -1,18 +1,13 @@
 package org.listenbrainz.android.ui.theme
 
 import android.app.Activity
-import android.util.Log
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import kotlinx.coroutines.delay
 import org.listenbrainz.android.model.yimdata.Yim23ThemeData
 
 private val greenColorScheme = darkColorScheme(
@@ -56,8 +51,6 @@ fun Yim23Theme(
     val view = LocalView.current
     (view.context as Activity).window.statusBarColor = colorScheme.onBackground.toArgb()
     (view.context as Activity).window.navigationBarColor = colorScheme.onBackground.toArgb()
-
-
 
     MaterialTheme(
         colorScheme = colorScheme,
