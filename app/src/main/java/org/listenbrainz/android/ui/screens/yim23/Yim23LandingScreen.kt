@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.screens.yim23
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.animation.core.*
@@ -19,13 +20,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.yimdata.Yim23Screens
 import org.listenbrainz.android.model.yimdata.Yim23ThemeData
+import org.listenbrainz.android.model.yimdata.YimShareable
 import org.listenbrainz.android.ui.components.Yim23ShareButton
 import org.listenbrainz.android.ui.theme.Yim23Theme
 import org.listenbrainz.android.ui.theme.yim23Blue
@@ -153,8 +160,13 @@ fun Yim23HomeScreen(
                                     }
                                 }
 
+
+
                                 Column (horizontalAlignment = Alignment.CenterHorizontally ,
-                                    modifier = Modifier.fillMaxWidth().height(150.dp).background(MaterialTheme.colorScheme.onBackground) , verticalArrangement = Arrangement.Center ) {
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(120.dp)
+                                        .background(MaterialTheme.colorScheme.onBackground), verticalArrangement = Arrangement.Center ) {
                                     Text(username.uppercase(),style=MaterialTheme.typography.titleLarge ,
                                         color = MaterialTheme.colorScheme.background ,
                                         )
@@ -162,8 +174,11 @@ fun Yim23HomeScreen(
                                         .fillMaxWidth(),
                                         verticalAlignment = Alignment.CenterVertically ,
                                         horizontalArrangement = Arrangement.Center) {
-                                        Yim23ShareButton()
-                                        ListenBrainzProfileButton()
+                                        Yim23ShareButton(
+                                            viewModel = viewModel,
+                                            typeOfImage = arrayOf(YimShareable.OVERVIEW)
+                                        )
+                                        ListenBrainzProfileButton(navController= navController)
                                         AddUser()
                                     }
                                 }
@@ -238,8 +253,11 @@ fun Yim23HomeScreen(
                                         Row (modifier = Modifier.fillMaxWidth() ,
                                             verticalAlignment = Alignment.CenterVertically ,
                                             horizontalArrangement = Arrangement.Center) {
-                                            Yim23ShareButton()
-                                            ListenBrainzProfileButton()
+                                            Yim23ShareButton(
+                                                viewModel = viewModel,
+                                                typeOfImage = arrayOf(YimShareable.OVERVIEW)
+                                            )
+                                            ListenBrainzProfileButton(navController = navController)
                                             AddUser()
                                         }
                                     }
@@ -268,7 +286,7 @@ fun ColorPicker(color: Color , onClick : () -> Unit ) {
 }
 
 @Composable
-fun ListenBrainzProfileButton() {
+fun ListenBrainzProfileButton(navController: NavHostController) {
     Button(onClick = { /*TODO*/ } , colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface) , modifier = Modifier
         .padding(11.dp)
         .height(49.dp)) {
