@@ -267,7 +267,7 @@ class Yim23ViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val bitmap: Bitmap = Bitmap.createBitmap(924,924,Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
-            val imageURL = "https://api.listenbrainz.org/1/art/year-in-music/2022/${getUsername()}?image=$sharableType"
+            val imageURL = "https://api.listenbrainz.org/1/art/year-in-music/2023/${getUsername()}?image=$sharableType"
 
             try {
                 // Download Image from URL
