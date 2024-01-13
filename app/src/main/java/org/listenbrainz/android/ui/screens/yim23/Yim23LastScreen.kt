@@ -51,6 +51,7 @@ import org.listenbrainz.android.model.yimdata.Yim23Screens
 import org.listenbrainz.android.model.yimdata.Yim23ThemeData
 import org.listenbrainz.android.model.yimdata.Yim23TopDiscoveries
 import org.listenbrainz.android.model.yimdata.Yim23Track
+import org.listenbrainz.android.model.yimdata.YimShareable
 import org.listenbrainz.android.ui.components.Yim23Footer
 import org.listenbrainz.android.ui.components.Yim23Header
 import org.listenbrainz.android.ui.components.Yim23ShareButton
@@ -261,9 +262,8 @@ fun Yim23LastScreen (
                         Row (modifier = Modifier.fillMaxWidth() ,
                             verticalAlignment = Alignment.CenterVertically ,
                             horizontalArrangement = Arrangement.Center) {
-                            Yim23ShareButton()
-                            ListenBrainzProfileButton()
-                            AddUser()
+                            Yim23ShareButton(viewModel=viewModel , typeOfImage = arrayOf(YimShareable.OVERVIEW))
+//                            ListenBrainzProfileButton(navController = navController)
                         }
                     }
                 }

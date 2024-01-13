@@ -23,6 +23,7 @@ import androidx.navigation.NavController
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.yimdata.TopGenre
 import org.listenbrainz.android.model.yimdata.Yim23Screens
+import org.listenbrainz.android.model.yimdata.YimShareable
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
 
 @Composable
@@ -33,8 +34,9 @@ fun Yim23StatsScreen (
     Yim23BaseScreen(
         viewModel     = viewModel,
         navController = navController,
-        footerText    = "MY        STATS",
-        isUsername    = false,
+        footerText    = "MY STATS",
+        shareable     = YimShareable.STATISTICS,
+        isUsername    = true,
         downScreen    = Yim23Screens.YimStatsHeatMapScreen
     ) {
         Yim23Stats(viewModel = viewModel)

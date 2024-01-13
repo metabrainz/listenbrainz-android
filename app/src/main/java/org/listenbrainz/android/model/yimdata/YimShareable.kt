@@ -6,5 +6,6 @@ enum class YimShareable(val code: String) {
     ARTISTS("artists"),
     ALBUMS("albums"),
     DISCOVERIES("discovery-playlist"),
-    UNDISCOVERED("missed-playlist")
+    UNDISCOVERED("missed-playlist"),
+    OVERVIEW("overview")
 }
