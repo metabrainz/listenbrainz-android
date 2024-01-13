@@ -8,6 +8,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -94,7 +95,7 @@ fun Yim23Navigation(
         }
 
         composable(route = AppNavigationItem.Profile.route){
-            ListenBrainzTheme {
+            Surface (color = ListenBrainzTheme.colorScheme.background) {
                 ProfileScreen(
                     onScrollToTop = { scrollToTop ->
                         scope.launch {
