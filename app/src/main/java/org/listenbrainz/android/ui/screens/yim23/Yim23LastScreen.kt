@@ -264,7 +264,6 @@ fun Yim23LastScreen (
                             horizontalArrangement = Arrangement.Center) {
                             Yim23ShareButton(viewModel=viewModel , typeOfImage = arrayOf(YimShareable.OVERVIEW))
 //                            ListenBrainzProfileButton(navController = navController)
-                            AddUser()
                         }
                     }
                 }

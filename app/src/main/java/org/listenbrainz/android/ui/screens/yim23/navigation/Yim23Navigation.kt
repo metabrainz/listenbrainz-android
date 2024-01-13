@@ -9,14 +9,22 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.launch
+import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.yimdata.Yim23Screens
 import org.listenbrainz.android.model.yimdata.YimScreens
+import org.listenbrainz.android.ui.screens.profile.ProfileScreen
 import org.listenbrainz.android.ui.screens.yim.*
 import org.listenbrainz.android.ui.screens.yim.navigation.addYimScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23AlbumsListScreen
@@ -39,6 +47,7 @@ import org.listenbrainz.android.ui.screens.yim23.Yim23StatsTitleScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23TopAlbumsScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23TopArtistsScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23TopSongsScreen
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
@@ -56,6 +65,8 @@ fun Yim23Navigation(
     networkConnectivityViewModel: NetworkConnectivityViewModel,
 ) {
     val navController = rememberNavController()
+    var scrollToTopState by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     NavHost(
         navController = navController,
         modifier = Modifier.fillMaxSize(),
@@ -81,6 +92,23 @@ fun Yim23Navigation(
         ) {
             Yim23HomeScreen(viewModel = yimViewModel, networkConnectivityViewModel = networkConnectivityViewModel,navController = navController, activity = activity)
         }
+
+        composable(route = AppNavigationItem.Profile.route){
+            ListenBrainzTheme {
+                ProfileScreen(
+                    onScrollToTop = { scrollToTop ->
+                        scope.launch {
+                            if (scrollToTopState){
+                                scrollToTop()
+                                scrollToTopState = false
+                            }
+                        }
+                    },
+                    scrollRequestState = false
+                )
+            }
+        }
+
 
         addYimScreen( route = Yim23Screens.YimChartTitleScreen.name ){
             Yim23ChartTitleScreen(viewModel = yimViewModel, navController = navController)

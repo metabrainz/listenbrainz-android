@@ -25,6 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.coroutineScope
@@ -34,12 +35,14 @@ import org.listenbrainz.android.model.yimdata.Yim23Screens
 import org.listenbrainz.android.model.yimdata.Yim23ThemeData
 import org.listenbrainz.android.model.yimdata.YimShareable
 import org.listenbrainz.android.ui.components.Yim23ShareButton
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.Yim23Theme
 import org.listenbrainz.android.ui.theme.yim23Blue
 import org.listenbrainz.android.ui.theme.yim23Green
 import org.listenbrainz.android.ui.theme.yim23Grey
 import org.listenbrainz.android.ui.theme.yim23Red
 import org.listenbrainz.android.util.Resource
+import org.listenbrainz.android.util.Utils.getActivity
 import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
@@ -179,7 +182,6 @@ fun Yim23HomeScreen(
                                             typeOfImage = arrayOf(YimShareable.OVERVIEW)
                                         )
                                         ListenBrainzProfileButton(navController= navController)
-                                        AddUser()
                                     }
                                 }
                             } else {
@@ -258,7 +260,7 @@ fun Yim23HomeScreen(
                                                 typeOfImage = arrayOf(YimShareable.OVERVIEW)
                                             )
                                             ListenBrainzProfileButton(navController = navController)
-                                            AddUser()
+
                                         }
                                     }
 
@@ -287,16 +289,19 @@ fun ColorPicker(color: Color , onClick : () -> Unit ) {
 
 @Composable
 fun ListenBrainzProfileButton(navController: NavHostController) {
-    Button(onClick = { /*TODO*/ } , colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface) , modifier = Modifier
-        .padding(11.dp)
-        .height(49.dp)) {
-        Text("ListenBrainz Profile" , style = MaterialTheme.typography.titleMedium , color = MaterialTheme.colorScheme.background)
-    }
-}
 
-@Composable
-fun AddUser() {
-    Button(onClick = { /*TODO*/ } , colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface)) {
-        Icon(imageVector = ImageVector.vectorResource(R.drawable.yim23_add_user) , contentDescription = "Yim23 share icon" , tint = MaterialTheme.colorScheme.background)
-    }
+        val context = LocalContext.current
+        Button(onClick = {
+            try {
+                navController.navigate(route = AppNavigationItem.Profile.route)
+            }
+            catch (e : Error){
+                Toast.makeText(context ,e.toString() , Toast.LENGTH_SHORT)
+            }
+        } , colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface) , modifier = Modifier
+            .padding(11.dp)
+            .height(49.dp)) {
+            Text("Back To Profile" , style = MaterialTheme.typography.titleMedium , color = MaterialTheme.colorScheme.background)
+        }
+
 }
