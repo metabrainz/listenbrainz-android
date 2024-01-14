@@ -50,6 +50,7 @@ import org.listenbrainz.android.util.TypeConverter
 
 class AppPreferencesImpl(private val context: Context): AppPreferences {
     companion object {
+        private val gson = Gson()
         private val blacklistMigration: DataMigration<Preferences> =
             object: DataMigration<Preferences> {
                 override suspend fun cleanUp() = Unit
@@ -60,10 +61,10 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
                 }
             
                 override suspend fun migrate(currentData: Preferences): Preferences {
-                    val blacklist = currentData[LISTENING_BLACKLIST].toList()
-                    val appList = currentData[LISTENING_APPS].toList()
+                    val blacklist = currentData[LISTENING_BLACKLIST].asStringList()
+                    val appList = currentData[LISTENING_APPS].asStringList()
                     
-                    val whitelist = currentData[LISTENING_WHITELIST].toList().toMutableSet()
+                    val whitelist = currentData[LISTENING_WHITELIST].asStringList().toMutableSet()
                     appList.forEach { pkg ->
                         if (!blacklist.contains(pkg)) {
                             whitelist.add(pkg)
@@ -105,8 +106,8 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
             val LISTENING_APPS = stringPreferencesKey(PREFERENCE_LISTENING_APPS)
         }
         
-        private fun String?.toList(): List<String> {
-            return Gson().fromJson<List<String>>(
+        private fun String?.asStringList(): List<String> {
+            return gson.fromJson(
                 this ?: "",
                 object : TypeToken<List<String>>() {}.type
             ) ?: emptyList()
@@ -114,7 +115,6 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
     }
     
     private val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-    private val gson = Gson()
     // Helper Functions
     
     private fun setString(key: String?, value: String?) {
@@ -158,18 +158,12 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
         set(value) = setString(PREFERENCE_PERMS, value)
     
     override suspend fun getListeningWhitelist(): List<String> {
-        return gson.fromJson(
-            datastore.firstOrNull()?.get(LISTENING_WHITELIST) ?: "",
-            object : TypeToken<List<String>>() {}.type
-        ) ?: emptyList()
+        return datastore.firstOrNull()?.get(LISTENING_WHITELIST).asStringList()
     }
     
     override fun getListeningWhitelistFlow(): Flow<List<String>> =
         datastore.map { prefs ->
-            gson.fromJson(
-                prefs[LISTENING_WHITELIST] ?: "",
-                object : TypeToken<List<String>>() {}.type
-            ) ?: emptyList()
+            prefs[LISTENING_WHITELIST].asStringList()
         }
     
     override suspend fun setListeningWhitelist(value: List<String>) {
@@ -189,18 +183,11 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
         set(value) { setBoolean(PREFERENCE_SUBMIT_LISTENS, value) }
     
     override suspend fun getListeningApps(): List<String> =
-        gson.fromJson(
-            datastore.firstOrNull()?.get(LISTENING_APPS) ?: "",
-            object : TypeToken<List<String>>() {}.type
-        ) ?: emptyList()
-    
+        datastore.firstOrNull()?.get(LISTENING_APPS).asStringList()
     
     override fun getListeningAppsFlow(): Flow<List<String>> =
         datastore.map {
-            gson.fromJson(
-                datastore.firstOrNull()?.get(LISTENING_APPS) ?: "",
-                object : TypeToken<List<String>>() {}.type
-            ) ?: emptyList()
+            datastore.firstOrNull()?.get(LISTENING_APPS).asStringList()
         }
     
     override suspend fun setListeningApps(value: List<String>) {
