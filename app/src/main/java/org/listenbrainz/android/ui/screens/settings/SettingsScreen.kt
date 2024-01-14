@@ -54,9 +54,9 @@ import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.ui.components.Switch
-import org.listenbrainz.android.ui.screens.main.MainActivity
-import org.listenbrainz.android.ui.screens.main.DonateActivity
 import org.listenbrainz.android.ui.screens.listens.ListeningAppsList
+import org.listenbrainz.android.ui.screens.main.DonateActivity
+import org.listenbrainz.android.ui.screens.main.MainActivity
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.util.Constants
@@ -489,8 +489,8 @@ fun SettingsScreen(
                 getPackageLabel = { packageName ->
                     listensViewModel.getPackageLabel(packageName)
                 },
-                setBlacklist = { newList ->
-                    listensViewModel.setBlacklist(newList)
+                setWhitelist = { newList ->
+                    listensViewModel.setWhitelist(newList)
                 },
             ) { showBlacklist = false }
         }

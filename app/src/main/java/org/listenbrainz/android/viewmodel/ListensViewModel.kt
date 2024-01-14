@@ -119,7 +119,7 @@ class ListensViewModel @Inject constructor(
             appPreferences.getUsernameFlow(),
             appPreferences.getLbAccessTokenFlow(),
             isNotificationServiceAllowed,
-            appPreferences.getListeningBlacklistFlow(),
+            appPreferences.getListeningWhitelistFlow(),
             appPreferences.getListeningAppsFlow(),
             appPreferences.themePreferenceFlow()
         ) { array ->
@@ -141,9 +141,9 @@ class ListensViewModel @Inject constructor(
     fun getPackageIcon(packageName: String): Drawable? = repository.getPackageIcon(packageName)
     fun getPackageLabel(packageName: String): String = repository.getPackageLabel(packageName)
     
-    fun setBlacklist(list: List<String>) {
+    fun setWhitelist(list: List<String>) {
         viewModelScope.launch {
-            appPreferences.setListeningBlacklist(list)
+            appPreferences.setListeningWhitelist(list)
         }
     }
     

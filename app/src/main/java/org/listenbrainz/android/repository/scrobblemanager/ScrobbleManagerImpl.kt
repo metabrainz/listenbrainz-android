@@ -38,12 +38,12 @@ class ScrobbleManagerImpl @Inject constructor(
     
     /** Used to avoid repetitive submissions.*/
     private var lastNotificationPostTs = System.currentTimeMillis()
-    private lateinit var blackList: List<String>
+    private lateinit var whitelist: List<String>
     
     init {
         scope.launch(Dispatchers.Default) {
-            appPreferences.getListeningBlacklistFlow().collect {
-                blackList = it
+            appPreferences.getListeningWhitelistFlow().collect {
+                whitelist = it
             }
         }
     }
@@ -104,8 +104,8 @@ class ScrobbleManagerImpl @Inject constructor(
                     && newTrack.title == playingTrack.title
                 ) return@post
     
-                // Check for blacklisted apps
-                if (sbn.packageName in blackList) return@post
+                // Check for whitelisted apps
+                if (sbn.packageName !in whitelist) return@post
     
                 lastNotificationPostTs = newTrack.timestamp
     
@@ -119,7 +119,7 @@ class ScrobbleManagerImpl @Inject constructor(
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         scope.launch {
             if (sbn?.notification?.category == Notification.CATEGORY_TRANSPORT
-                && sbn.packageName !in appPreferences.getListeningBlacklist()
+                && sbn.packageName in appPreferences.getListeningWhitelist()
             ) {
                 listenSubmissionState.alertMediaPlayerRemoved(sbn)
             }

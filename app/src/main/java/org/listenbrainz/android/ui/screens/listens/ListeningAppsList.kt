@@ -49,7 +49,7 @@ fun ListeningAppsList(
     fetchLinkedServices: () -> Unit,
     getPackageIcon: (String) -> Drawable?,
     getPackageLabel: (String) -> String,
-    setBlacklist: (List<String>) -> Unit,
+    setWhitelist: (List<String>) -> Unit,
     onDismiss: () -> Unit
 ){
 
@@ -126,12 +126,12 @@ fun ListeningAppsList(
                                 modifier = Modifier
                                     .fillMaxWidth(0.15f)
                                     .align(Alignment.CenterEnd),
-                                checked = packageName !in preferencesUiState.listeningBlacklist,
+                                checked = packageName in preferencesUiState.listeningWhitelist,
                                 onCheckedChange = { isChecked ->
-                                    if (!isChecked) {
-                                        setBlacklist(preferencesUiState.listeningBlacklist.toMutableList() + packageName)
+                                    if (isChecked) {
+                                        setWhitelist(preferencesUiState.listeningWhitelist.toMutableList() + packageName)
                                     } else {
-                                        setBlacklist(preferencesUiState.listeningBlacklist.toMutableList() - packageName)
+                                        setWhitelist(preferencesUiState.listeningWhitelist.toMutableList() - packageName)
                                     }
                 
                                 },

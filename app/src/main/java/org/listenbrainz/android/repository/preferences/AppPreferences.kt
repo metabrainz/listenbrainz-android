@@ -24,12 +24,12 @@ interface AppPreferences {
      * [PermissionStatus.DENIED_TWICE] -> permission is denied twice and cannot be asked again. User need to go to settings to enable the permission.*/
     var permissionsPreference: String?
 
-    /** Blacklist for ListenService.*/
-    suspend fun getListeningBlacklist(): List<String>
+    /** Whitelist for ListenService.*/
+    suspend fun getListeningWhitelist(): List<String>
     
-    fun getListeningBlacklistFlow(): Flow<List<String>>
+    fun getListeningWhitelistFlow(): Flow<List<String>>
     
-    suspend fun setListeningBlacklist(value: List<String>)
+    suspend fun setListeningWhitelist(value: List<String>)
     
     /** Music Apps in users device registered by listenService.*/
     suspend fun getListeningApps(): List<String>

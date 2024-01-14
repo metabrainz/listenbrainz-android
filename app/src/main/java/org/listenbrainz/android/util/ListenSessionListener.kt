@@ -26,7 +26,7 @@ class ListenSessionListener(
 
     @Synchronized
     override fun onActiveSessionsChanged(controllers: List<MediaController>?) {
-        d("onActiveSessionsChanged: EXECUTED")
+        // d("onActiveSessionsChanged: EXECUTED")
         if (controllers == null) return
         clearSessions()
         registerControllers(controllers)
@@ -35,13 +35,13 @@ class ListenSessionListener(
     init {
         serviceScope.launch {
             appPreferences
-                .getListeningBlacklistFlow()
+                .getListeningWhitelistFlow()
                 .distinctUntilChanged()
-                .collectLatest { blacklist ->
+                .collectLatest { whitelist ->
                     // Unregistering callback is reactive.
                     launch {
                         for (entry in activeSessions) {
-                            if (entry.key.packageName in blacklist) {
+                            if (entry.key.packageName !in whitelist) {
                                 // Unregister listen callback
                                 entry.key.unregisterCallback(entry.value!!)
             
@@ -54,11 +54,11 @@ class ListenSessionListener(
                     
                     // Registering callback is reactive.
                     for (entry in availableSessions) {
-                        if (!activeSessions.contains(entry.key.packageName) && entry.key.packageName !in blacklist) {
+                        if (!activeSessions.contains(entry.key.packageName) && entry.key.packageName in whitelist) {
                             // register listen callback
                             entry.key.registerCallback(entry.value!!)
                             
-                            // remove the active session.
+                            // add to active sessions.
                             activeSessions[entry.key] = entry.value!!
                             d("### REGISTERED MediaController Callback for ${entry.key.packageName}.")
                             break
@@ -69,15 +69,19 @@ class ListenSessionListener(
     }
     
     private fun registerControllers(controllers: List<MediaController>) {
-        val blacklist = runBlocking {
-            appPreferences.getListeningBlacklist()
+        val whitelist = runBlocking {
+            appPreferences.getListeningWhitelist()
         }
+        
+        fun MediaController.shouldScrobble(): Boolean = packageName in whitelist
+        
         for (controller in controllers) {
             availableSessions[controller] = ListenCallback(controller.packageName)
             // BlackList
-            if (controller.packageName in blacklist){
+            if (!controller.shouldScrobble()){
                 continue
             }
+            controller.extras
 
             val callback = ListenCallback(controller.packageName)
             activeSessions[controller] = callback

@@ -39,15 +39,15 @@ class MockAppPreferences(
         TODO("Not yet implemented")
     }
     
-    override suspend fun getListeningBlacklist(): List<String> {
+    override suspend fun getListeningWhitelist(): List<String> {
         TODO("Not yet implemented")
     }
     
-    override fun getListeningBlacklistFlow(): Flow<List<String>> {
+    override fun getListeningWhitelistFlow(): Flow<List<String>> {
         TODO("Not yet implemented")
     }
     
-    override suspend fun setListeningBlacklist(value: List<String>) {
+    override suspend fun setListeningWhitelist(value: List<String>) {
         TODO("Not yet implemented")
     }
     
