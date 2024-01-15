@@ -24,8 +24,10 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.yimdata.Yim23Screens
 import org.listenbrainz.android.model.yimdata.Yim23ThemeData
+import org.listenbrainz.android.model.yimdata.YimShareable
 import org.listenbrainz.android.ui.components.Yim23ShareButton
 import org.listenbrainz.android.ui.theme.Yim23Theme
 import org.listenbrainz.android.ui.theme.yim23Blue
@@ -52,16 +54,21 @@ fun Yim23HomeScreen(
     var swipeState by remember {
         mutableStateOf(0)
     }
+    var isYimAvailable by remember {
+        mutableStateOf(false)
+    }
+    var isYimLoading by remember {
+        mutableStateOf(true)
+    }
 
     Yim23Theme (viewModel.themeType.value) {
-        val networkStatus = networkConnectivityViewModel.getNetworkStatusFlow()
-            .collectAsState(initial = ConnectivityObserver.NetworkStatus.UNAVAILABLE)
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .pointerInput(Unit) {
+        ) {
+            Column(modifier = when (isYimAvailable) {
+                true -> Modifier.fillMaxSize().pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
                         val (x, y) = dragAmount
                         if (y < 0) {
@@ -73,184 +80,218 @@ fun Yim23HomeScreen(
                     }
                 }
 
-        ){
-        Column (Modifier.fillMaxSize() , horizontalAlignment = Alignment.CenterHorizontally) {
-            when (networkStatus.value) {
-
-                ConnectivityObserver.NetworkStatus.AVAILABLE -> {
-                    // Data status checking
-                    when (viewModel.yimData.value.status) {
-                        Resource.Status.LOADING -> {
-                            Toast.makeText(context, "Loading", Toast.LENGTH_SHORT)
-                                .show()
+                else -> Modifier.fillMaxSize()
+            }, horizontalAlignment = Alignment.CenterHorizontally) {
+                when (viewModel.yimData.value.status) {
+                    Resource.Status.SUCCESS -> {
+                        if (viewModel.yimData.value.data?.payload?.data?.totalListenCount != 0) {
+                            isYimAvailable = true
                         }
+                        isYimLoading = false
+                    }
 
-                        Resource.Status.FAILED -> {
-                            Toast.makeText(context, "Something went wrong.", Toast.LENGTH_LONG)
-                                .show()
-                            activity.finish()
-                        }
+                    Resource.Status.FAILED -> {
+                        Toast.makeText(context, "Something went wrong.", Toast.LENGTH_LONG)
+                            .show()
+                        activity.finish()
+                        isYimAvailable = false
+                    }
 
-                        else -> {
-                            if (viewModel.yimData.value.data?.payload?.data != null) {
-                                Column (modifier = Modifier
-                                    .weight(1f)
-                                    .fillMaxWidth() , horizontalAlignment = Alignment.CenterHorizontally , verticalArrangement = Arrangement.SpaceBetween) {
+                    Resource.Status.LOADING -> {
+                        isYimLoading = true
+                    }
+                }
 
-                                    Column (modifier = Modifier.fillMaxWidth() , horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Row(
-                                            modifier = Modifier
-                                                .padding(top = 22.dp)
-                                                .fillMaxWidth()
-                                            , horizontalArrangement = Arrangement.Center
-                                        ) {
-                                            Image(
-                                                painter =
-                                                painterResource(id = viewModel.themeType.value.pickColorRes),
-                                                contentDescription = "",
-                                                modifier = Modifier
-                                                    .width(160.dp)
-                                                    .height(31.dp)
-                                            )
-                                        }
-                                        Row(
-                                            horizontalArrangement = Arrangement.Center,
-                                            modifier = Modifier.fillMaxWidth()
-                                        ) {
-                                            ColorPicker(color = yim23Green, onClick = {
-                                                viewModel.themeType.value = Yim23ThemeData.GREEN
-                                            })
-                                            ColorPicker(color = yim23Red, onClick = {
-                                                viewModel.themeType.value = Yim23ThemeData.RED
-                                            })
-                                            ColorPicker(color = yim23Blue, onClick = {
-                                                viewModel.themeType.value = Yim23ThemeData.BLUE
-                                            })
-                                            ColorPicker(color = yim23Grey, onClick = {
-                                                viewModel.themeType.value = Yim23ThemeData.GRAY
-                                            })
-                                        }
-                                        Text(
-                                            text = "#YEAR IN MUSIC",
-                                            style = MaterialTheme.typography.titleLarge,
-                                            color = MaterialTheme.colorScheme.onBackground,
-                                        )
+                if (isYimAvailable || isYimLoading) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
 
-                                    }
-
-                                    Image(painter = painterResource(
-                                        id = viewModel.themeType.value.homeIllustration,
-                                    ), modifier = Modifier
-                                        .width(277.dp)
-                                        .height(135.dp), contentDescription = "")
-                                    IconButton(onClick =
-                                    {navController.navigate(route = Yim23Screens.YimChartTitleScreen.name)} ,
-                                        modifier = Modifier) {
-                                        Icon(imageVector =
-                                        ImageVector.vectorResource(R.drawable.yim23_down_arrow_green) ,
-                                            contentDescription = "Yim23 down icon" ,
-                                            tint = MaterialTheme.colorScheme.onBackground)
-                                    }
-                                }
-
-                                Column (horizontalAlignment = Alignment.CenterHorizontally ,
-                                    modifier = Modifier.fillMaxWidth().height(150.dp).background(MaterialTheme.colorScheme.onBackground) , verticalArrangement = Arrangement.Center ) {
-                                    Text(username.uppercase(),style=MaterialTheme.typography.titleLarge ,
-                                        color = MaterialTheme.colorScheme.background ,
-                                        )
-                                    Row (modifier = Modifier
-                                        .fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically ,
-                                        horizontalArrangement = Arrangement.Center) {
-                                        Yim23ShareButton()
-                                        ListenBrainzProfileButton()
-                                        AddUser()
-                                    }
-                                }
-                            } else {
-                                Row(
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .padding(top = 22.dp)
+                                    .fillMaxWidth(), horizontalArrangement = Arrangement.Center
+                            ) {
+                                Image(
+                                    painter =
+                                    painterResource(id = viewModel.themeType.value.pickColorRes),
+                                    contentDescription = "",
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(start = 70.dp, top = 22.dp),
-                                    horizontalArrangement = Arrangement.Center
-                                ) {
-                                    Image(
-                                        painter = painterResource(id = viewModel.themeType.value.pickColorRes),
-                                        contentDescription = "",
-                                        modifier = Modifier
-                                            .width(160.dp)
-                                            .height(31.dp)
-                                    )
-                                }
-
-                                Row(
-                                    horizontalArrangement = Arrangement.Center,
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    ColorPicker(color = yim23Green, onClick = {
-
-                                        viewModel.themeType = mutableStateOf(Yim23ThemeData.GREEN)
-                                    })
-                                    ColorPicker(color = yim23Red, onClick = {
-
-                                        viewModel.themeType = mutableStateOf(Yim23ThemeData.RED)
-                                    })
-                                    ColorPicker(color = yim23Blue, onClick = {
-
-                                        viewModel.themeType = mutableStateOf(Yim23ThemeData.BLUE)
-                                    })
-                                    ColorPicker(color = yim23Grey, onClick = {
-
-                                        viewModel.themeType = mutableStateOf(Yim23ThemeData.GRAY)
-                                    })
-                                }
-                                Text(
-                                    text = "#YEAR IN MUSIC",
-                                    style = MaterialTheme.typography.titleLarge,
-                                    color = MaterialTheme.colorScheme.onBackground,
-                                    modifier = Modifier.paddingFromBaseline(top = 53.dp)
+                                        .width(160.dp)
+                                        .height(31.dp)
                                 )
-                                Image(painter = painterResource(id = R.drawable.yim23_flower_green) ,
-                                    contentDescription = "" , modifier = Modifier
-                                        .paddingFromBaseline(60.dp)
-                                        .height(48.dp)
-                                        .width(103.dp))
-                                Text("Oh no! We don't have enough 2023 statistics for ${username}." ,
-                                    style = MaterialTheme.typography.bodyMedium ,
-                                    color = MaterialTheme.colorScheme.onBackground ,
-                                    textAlign = TextAlign.Center ,
-                                    modifier = Modifier.paddingFromBaseline(top = 60.dp))
-                                Text("Submit enough listens before the end of December to " +
-                                        "generate your #yearinmusic next year" ,
-                                    color = MaterialTheme.colorScheme.onBackground ,
-                                    style = MaterialTheme.typography.bodyMedium ,
-                                    modifier = Modifier.paddingFromBaseline(top = 40.dp , bottom=40.dp) ,
-                                    textAlign = TextAlign.Center)
-                                Box(modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(MaterialTheme.colorScheme.onBackground)){
-                                    Column (verticalArrangement = Arrangement.SpaceEvenly ,
-                                        horizontalAlignment = Alignment.CenterHorizontally , ) {
-                                        Text(username.uppercase(),
-                                            style=MaterialTheme.typography.titleLarge ,
-                                            color = MaterialTheme.colorScheme.background ,
-                                            modifier = Modifier.paddingFromBaseline(top = 40.dp))
-                                        Row (modifier = Modifier.fillMaxWidth() ,
-                                            verticalAlignment = Alignment.CenterVertically ,
-                                            horizontalArrangement = Arrangement.Center) {
-                                            Yim23ShareButton()
-                                            ListenBrainzProfileButton()
-                                            AddUser()
-                                        }
-                                    }
+                            }
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                ColorPicker(color = yim23Green, onClick = {
+                                    viewModel.themeType.value = Yim23ThemeData.GREEN
+                                })
+                                ColorPicker(color = yim23Red, onClick = {
+                                    viewModel.themeType.value = Yim23ThemeData.RED
+                                })
+                                ColorPicker(color = yim23Blue, onClick = {
+                                    viewModel.themeType.value = Yim23ThemeData.BLUE
+                                })
+                                ColorPicker(color = yim23Grey, onClick = {
+                                    viewModel.themeType.value = Yim23ThemeData.GRAY
+                                })
+                            }
+                            Text(
+                                text = "#YEAR IN MUSIC",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onBackground,
+                            )
 
-                                }
+                        }
+
+                        Image(
+                            painter = painterResource(
+                                id = viewModel.themeType.value.homeIllustration,
+                            ), modifier = Modifier
+                                .width(277.dp)
+                                .height(135.dp), contentDescription = ""
+                        )
+                        if (isYimAvailable) {
+                            Icon(
+                                imageVector =
+                                ImageVector.vectorResource(R.drawable.yim23_down_arrow_green),
+                                contentDescription = "Yim23 down icon",
+                                tint = MaterialTheme.colorScheme.onBackground,
+                                modifier = Modifier.padding(vertical = 10.dp)
+                            )
+                        } else {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(15.dp),
+                                color = MaterialTheme.colorScheme.onBackground,
+                                strokeWidth = 3.dp
+                            )
+                        }
+                    }
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp)
+                            .background(MaterialTheme.colorScheme.onBackground),
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            username.uppercase(), style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.background,
+                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Yim23ShareButton(
+                                viewModel = viewModel,
+                                typeOfImage = arrayOf(YimShareable.OVERVIEW)
+                            )
+                            ListenBrainzProfileButton(navController = navController)
+                        }
+                    }
+                } else {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 70.dp, top = 22.dp),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Image(
+                                painter = painterResource(id = viewModel.themeType.value.pickColorRes),
+                                contentDescription = "",
+                                modifier = Modifier
+                                    .width(160.dp)
+                                    .height(31.dp)
+                            )
+                        }
+
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            ColorPicker(color = yim23Green, onClick = {
+                                viewModel.themeType.value = Yim23ThemeData.GREEN
+                            })
+                            ColorPicker(color = yim23Red, onClick = {
+                                viewModel.themeType.value = Yim23ThemeData.RED
+                            })
+                            ColorPicker(color = yim23Blue, onClick = {
+                                viewModel.themeType.value = Yim23ThemeData.BLUE
+                            })
+                            ColorPicker(color = yim23Grey, onClick = {
+                                viewModel.themeType.value = Yim23ThemeData.GRAY
+                            })
+                        }
+                        Text(
+                            text = "#YEAR IN MUSIC",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.paddingFromBaseline(top = 53.dp)
+                        )
+                        Image(
+                            painter = painterResource(id = R.drawable.yim23_flower_green),
+                            contentDescription = "", modifier = Modifier
+                                .paddingFromBaseline(60.dp)
+                                .height(48.dp)
+                                .width(103.dp)
+                        )
+                        Text(
+                            "Oh no! We don't have enough 2023 statistics for ${username}.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.paddingFromBaseline(top = 60.dp)
+                        )
+                        Text(
+                            "Submit enough listens before the end of December to " +
+                                    "generate your #yearinmusic next year",
+                            color = MaterialTheme.colorScheme.onBackground,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.paddingFromBaseline(top = 40.dp, bottom = 40.dp),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.onBackground)
+                    ) {
+                        Column(
+                            verticalArrangement = Arrangement.SpaceEvenly,
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text(
+                                username.uppercase(),
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.background,
+                                modifier = Modifier.paddingFromBaseline(top = 40.dp)
+                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                ListenBrainzProfileButton(navController = navController)
                             }
                         }
                     }
-                }
-                else -> {Toast.makeText(context , "Please check your internet connection" ,
-                    Toast.LENGTH_LONG)}
                 }
             }
         }
@@ -268,17 +309,19 @@ fun ColorPicker(color: Color , onClick : () -> Unit ) {
 }
 
 @Composable
-fun ListenBrainzProfileButton() {
-    Button(onClick = { /*TODO*/ } , colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface) , modifier = Modifier
-        .padding(11.dp)
-        .height(49.dp)) {
-        Text("ListenBrainz Profile" , style = MaterialTheme.typography.titleMedium , color = MaterialTheme.colorScheme.background)
-    }
-}
+fun ListenBrainzProfileButton(navController: NavHostController) {
 
-@Composable
-fun AddUser() {
-    Button(onClick = { /*TODO*/ } , colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface)) {
-        Icon(imageVector = ImageVector.vectorResource(R.drawable.yim23_add_user) , contentDescription = "Yim23 share icon" , tint = MaterialTheme.colorScheme.background)
-    }
+        val context = LocalContext.current
+        Button(onClick = {
+            try {
+                navController.navigate(route = AppNavigationItem.Profile.route)
+            }
+            catch (e : Error){
+                Toast.makeText(context ,e.toString() , Toast.LENGTH_SHORT)
+            }
+        } , colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface) , modifier = Modifier
+            .padding(11.dp)
+            .height(49.dp)) {
+            Text("Back To Profile" , style = MaterialTheme.typography.titleMedium , color = MaterialTheme.colorScheme.background)
+        }
 }

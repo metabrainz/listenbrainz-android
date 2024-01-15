@@ -1,12 +1,9 @@
 package org.listenbrainz.android.ui.theme
 
 import android.app.Activity
-import android.util.Log
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import com.google.accompanist.systemuicontroller.SystemUiController
@@ -51,6 +48,9 @@ fun Yim23Theme(
         else -> greenColorScheme
     }
 
+    val view = LocalView.current
+    (view.context as Activity).window.statusBarColor = colorScheme.onBackground.toArgb()
+    (view.context as Activity).window.navigationBarColor = colorScheme.onBackground.toArgb()
 
     MaterialTheme(
         colorScheme = colorScheme,
