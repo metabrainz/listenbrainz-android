@@ -1,9 +1,6 @@
 package org.listenbrainz.android.viewmodel
 
 import android.net.Uri
-import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -90,7 +87,7 @@ class SocialViewModel @Inject constructor(
         
         viewModelScope.launch(ioDispatcher) {
             val result = repository.postRecommendationToAll(
-                username = appPreferences.getUsername(),
+                username = appPreferences.username.get(),
                 data = RecommendationData(
                     metadata = RecommendationMetadata(
                         trackName = metadata.trackMetadata?.trackName ?: return@launch,
@@ -112,7 +109,7 @@ class SocialViewModel @Inject constructor(
         
         viewModelScope.launch(ioDispatcher) {
             val result = repository.postPersonalRecommendation(
-                username = appPreferences.getUsername(),
+                username = appPreferences.username.get(),
                 data = RecommendationData(
                     metadata = RecommendationMetadata(
                         trackName = metadata.trackMetadata?.trackName ?: return@launch,
@@ -137,7 +134,7 @@ class SocialViewModel @Inject constructor(
         
         viewModelScope.launch(ioDispatcher) {
             val result = repository.postReview(
-                username = appPreferences.getUsername(),
+                username = appPreferences.username.get(),
                 data = Review(
                     metadata = ReviewMetadata(
                         entityName = metadata.trackMetadata?.trackName ?: return@launch,

@@ -42,7 +42,7 @@ class ScrobbleManagerImpl @Inject constructor(
     
     init {
         scope.launch(Dispatchers.Default) {
-            appPreferences.getListeningWhitelistFlow().collect {
+            appPreferences.listeningWhitelist.getFlow().collect {
                 whitelist = it
             }
         }
@@ -119,7 +119,7 @@ class ScrobbleManagerImpl @Inject constructor(
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         scope.launch {
             if (sbn?.notification?.category == Notification.CATEGORY_TRANSPORT
-                && sbn.packageName in appPreferences.getListeningWhitelist()
+                && sbn.packageName in appPreferences.listeningWhitelist.get()
             ) {
                 listenSubmissionState.alertMediaPlayerRemoved(sbn)
             }

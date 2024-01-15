@@ -208,7 +208,7 @@ fun ListenBrainzTheme(
     content: @Composable () -> Unit
 ) {
     
-    val uiMode by appPreferences.themePreferenceFlow().collectAsState(initial = UiMode.FOLLOW_SYSTEM)
+    val uiMode by appPreferences.themePreference.getFlow().collectAsState(initial = UiMode.FOLLOW_SYSTEM)
     LocalUiMode = staticCompositionLocalOf { uiMode }
     
     // With Dynamic Color

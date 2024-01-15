@@ -22,6 +22,7 @@ object Constants {
         const val PREFERENCE_LISTENING_WHITELIST = "listening_whitelist"
         const val PREFERENCE_SUBMIT_LISTENS = "submit_listens"
         const val PREFERENCE_LISTENING_APPS = "listening_apps"
+        const val PREFERENCE_IS_SCROBBLING_ALLOWED = "listening_apps"
         const val PREFERENCE_SYSTEM_THEME = "app_theme"
         const val PREFERENCE_PERMS = "perms_code"
         const val PREFERENCE_ALBUMS_ON_DEVICE = "PREFERENCE_ALBUMS_ON_DEVICE"

@@ -35,7 +35,7 @@ class DashBoardViewModel @Inject constructor(
     fun setUiMode(){
         viewModelScope.launch {
             when(withContext(ioDispatcher) {
-                appPreferences.themePreference()
+                appPreferences.themePreference.get()
             } ){
                 UiMode.DARK -> AppCompatDelegate.setDefaultNightMode(
                     AppCompatDelegate.MODE_NIGHT_YES
@@ -125,7 +125,7 @@ class DashBoardViewModel @Inject constructor(
         return withContext(ioDispatcher) {
             appPreferences.isNotificationServiceAllowed
                 && appPreferences.submitListens
-        } && appPreferences.getLbAccessToken().isNotEmpty()
+        } && appPreferences.lbAccessToken.get().isNotEmpty()
     }
     
     fun connectToSpotify() {

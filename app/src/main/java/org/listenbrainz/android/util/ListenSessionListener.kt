@@ -35,7 +35,7 @@ class ListenSessionListener(
     init {
         serviceScope.launch {
             appPreferences
-                .getListeningWhitelistFlow()
+                .listeningWhitelist.getFlow()
                 .distinctUntilChanged()
                 .collectLatest { whitelist ->
                     // Unregistering callback is reactive.
@@ -70,7 +70,7 @@ class ListenSessionListener(
     
     private fun registerControllers(controllers: List<MediaController>) {
         val whitelist = runBlocking {
-            appPreferences.getListeningWhitelist()
+            appPreferences.listeningWhitelist.get()
         }
         
         fun MediaController.shouldScrobble(): Boolean = packageName in whitelist
@@ -92,9 +92,9 @@ class ListenSessionListener(
         // Adding any new app packages found in the notification.
         serviceScope.launch(Dispatchers.Default) {
             controllers.forEach { controller ->
-                val appList = appPreferences.getListeningApps()
+                val appList = appPreferences.listeningApps.get()
                 if (controller.packageName !in appList){
-                    appPreferences.setListeningApps(appList.plus(controller.packageName))
+                    appPreferences.listeningApps.set(appList.plus(controller.packageName))
                 }
             }
         }
