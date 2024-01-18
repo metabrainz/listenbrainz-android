@@ -46,16 +46,17 @@ fun Yim23DiscoveriesScreen (
     navController: NavController
 ) {
     val username by viewModel.getUsernameFlow().collectAsState(initial = "")
-    Yim23Theme(themeType = viewModel.themeType.value) {
-        Column (modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground) ,
-            verticalArrangement = Arrangement.SpaceBetween) {
-            Yim23Header(username = username, navController = navController)
-            Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center){
-                Box (contentAlignment = Alignment.BottomCenter) {
-                    Image(painter = painterResource(id = R.drawable.yim23_hug) ,
-                        contentDescription = "" , modifier = Modifier
+    Yim23BaseScreen(
+        viewModel      = viewModel,
+        navController  = navController,
+        footerText     = "DISCOVERIES OF 2023",
+        isUsername     = false,
+        downScreen     = Yim23Screens.YimDiscoveriesListScreen
+    ) {
+        Row (modifier = Modifier.fillMaxWidth() , horizontalArrangement = Arrangement.Center){
+            Box (contentAlignment = Alignment.BottomCenter) {
+                Image(painter = painterResource(id = R.drawable.yim23_hug) ,
+                    contentDescription = "" , modifier = Modifier
                         .zIndex(1f)
                         .align(
                             Alignment.BottomCenter
@@ -63,13 +64,8 @@ fun Yim23DiscoveriesScreen (
                         .width(550.dp)
                         .height(300.dp)
                         .offset(x = 15.dp))
-                    Yim23DiscoveriesArt(viewModel = viewModel)
-                }
-
+                Yim23DiscoveriesArt(viewModel = viewModel)
             }
-
-            Yim23Footer(footerText = "DISCOVERIES OF 2023", isUsername = false,
-                navController = navController, downScreen = Yim23Screens.YimDiscoveriesListScreen)
         }
     }
 }
@@ -82,14 +78,12 @@ private fun Yim23DiscoveriesArt(
     val yimTopDiscoveries : Yim23TopDiscoveries = remember {viewModel.getTopDiscoveries()}
     val tracks            : List<Yim23Track>    = remember {yimTopDiscoveries.playlist.tracks.toList()}
 
-
-
     Column  {
         for (j in 1..3)
             Row () {
                 for(i in 3*j-2..3*j){
                     if(tracks[i-1].extension.extensionData.additionalMetadata.caaReleaseMbid != "" &&
-                        tracks[i-1].extension.extensionData.additionalMetadata.caaId != "")
+                        tracks[i-1].extension.extensionData.additionalMetadata.caaId != 0L)
                     GlideImage(
                         model = Utils.getCoverArtUrl(
                             caaReleaseMbid = tracks[i-1].extension.extensionData.additionalMetadata.caaReleaseMbid,
@@ -110,6 +104,5 @@ private fun Yim23DiscoveriesArt(
                     }
                 }
             }
+        }
     }
-
-}

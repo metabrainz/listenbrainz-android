@@ -1,16 +1,14 @@
 package org.listenbrainz.android.ui.theme
 
 import android.app.Activity
-import android.util.Log
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import com.google.accompanist.systemuicontroller.SystemUiController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import org.listenbrainz.android.model.yimdata.Yim23ThemeData
 
 private val greenColorScheme = darkColorScheme(
     background = yim23Background,
@@ -38,18 +36,21 @@ private val greyColorScheme = darkColorScheme(
 
 @Composable
 fun Yim23Theme(
-    themeType : Number,
+    themeType : Yim23ThemeData,
     systemUiController : SystemUiController = rememberSystemUiController(),
     content: @Composable () -> Unit
 ){
     val colorScheme =  when (themeType) {
-        0 -> greenColorScheme
-        1 -> redColorScheme
-        2 -> blueColorScheme
-        3 -> greyColorScheme
+        Yim23ThemeData.GREEN -> greenColorScheme
+        Yim23ThemeData.RED -> redColorScheme
+        Yim23ThemeData.BLUE -> blueColorScheme
+        Yim23ThemeData.GRAY -> greyColorScheme
         else -> greenColorScheme
     }
 
+    val view = LocalView.current
+    (view.context as Activity).window.statusBarColor = colorScheme.onBackground.toArgb()
+    (view.context as Activity).window.navigationBarColor = colorScheme.onBackground.toArgb()
 
     MaterialTheme(
         colorScheme = colorScheme,

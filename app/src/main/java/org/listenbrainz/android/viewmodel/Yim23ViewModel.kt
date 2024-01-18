@@ -23,8 +23,9 @@ import javax.inject.Inject
 @HiltViewModel
 class Yim23ViewModel @Inject constructor(
     private val repository: Yim23Repository,
+    private val socialRepository: SocialRepository,
     private val appPreferences: AppPreferences
-) : BaseYimViewModel() {
+) : ViewModel() {
     // Yim data resource
     var yimData:
             MutableState<
@@ -32,13 +33,15 @@ class Yim23ViewModel @Inject constructor(
                     >
             = mutableStateOf(Resource.loading())
     val loginFlow = appPreferences.getLoginStatusFlow()
-    var themeType : MutableState<Int> = mutableStateOf(0)
+    var themeType : MutableState<Yim23ThemeData> = mutableStateOf(Yim23ThemeData.GREEN)
+    val followers : MutableState<Resource<SocialData>?> =  mutableStateOf(Resource.loading())
 
     init {
         getData()
+        getFollowers()
     }
 
-    override fun getData() {
+    private fun getData() {
         viewModelScope.launch {
             val response = repository.getYimData(username = getUsername())
             when (response.status){
@@ -241,21 +244,13 @@ class Yim23ViewModel @Inject constructor(
         return yimData.value.data?.payload?.data?.topMissedRecordings!!
     }
 
-
-
-
-
-
-
-
-
     /** Shareable types : "stats", "artists", "albums", "tracks", "discovery-playlist", "missed-playlist".*/
     fun saveSharableImage(sharableType: String, context: Context)
     {
         viewModelScope.launch(Dispatchers.IO) {
             val bitmap: Bitmap = Bitmap.createBitmap(924,924,Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
-            val imageURL = "https://api.listenbrainz.org/1/art/year-in-music/2022/${getUsername()}?image=$sharableType"
+            val imageURL = "https://api.listenbrainz.org/1/art/year-in-music/2023/${getUsername()}?image=$sharableType"
 
             try {
                 // Download Image from URL
@@ -279,6 +274,17 @@ class Yim23ViewModel @Inject constructor(
                 e.localizedMessage?.let { Log.e("YimShareError", it) }
             }
 
+        }
+    }
+
+    fun getFollowers() {
+        viewModelScope.launch {
+            val response = socialRepository.getFollowers(getUsername())
+            when (response.status) {
+                Resource.Status.SUCCESS -> followers.value = response
+                Resource.Status.FAILED -> followers.value = Resource.failure()
+                Resource.Status.LOADING -> followers.value = Resource.loading()
+            }
         }
     }
 }

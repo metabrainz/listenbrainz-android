@@ -31,13 +31,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.accompanist.drawablepainter.rememberDrawablePainter
+import androidx.core.graphics.drawable.toBitmap
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.Switch
 import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
@@ -100,20 +102,23 @@ fun ListeningAppsList(
                                     .fillMaxWidth(0.85f),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-            
-                                Image(
-                                    modifier = Modifier
-                                        .fillMaxWidth(0.15f)
-                                        .padding(end = 5.dp),
-                                    painter = rememberDrawablePainter(
-                                        drawable = getPackageIcon(packageName) ?: AppCompatResources.getDrawable(
-                                            LocalContext.current,
-                                            R.drawable.music_regular
-                                        )
-                                    ),
-                                    contentDescription = null
-                                )
-            
+
+                                val context = LocalContext.current
+                                val drawable = getPackageIcon(packageName)
+                                    ?: AppCompatResources.getDrawable(context, R.drawable.music_regular)
+                                val bitmap = drawable?.toBitmap()
+                                val painter = if (bitmap != null) BitmapPainter(bitmap.asImageBitmap()) else null
+
+                                if (painter != null) {
+                                    Image(
+                                        modifier = Modifier
+                                            .fillMaxWidth(0.15f)
+                                            .padding(end = 5.dp),
+                                        painter = painter,
+                                        contentDescription = null
+                                    )
+                                }
+
                                 Text(
                                     modifier = Modifier.fillMaxWidth(0.85f),
                                     text = getPackageLabel(packageName),
