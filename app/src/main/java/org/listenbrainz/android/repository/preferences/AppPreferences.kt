@@ -48,7 +48,11 @@ interface AppPreferences {
     
     var linkedServices: List<LinkedService>
     
+    /** Default is true. */
     val isScrobblingAllowed: DataStorePreference<Boolean>
+    
+    /** Default is true. */
+    val shouldScrobbleNewPlayers: DataStorePreference<Boolean>
 
     val isNotificationServiceAllowed: Boolean
     

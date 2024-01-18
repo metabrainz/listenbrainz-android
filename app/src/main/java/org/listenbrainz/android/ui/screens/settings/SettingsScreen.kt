@@ -78,18 +78,22 @@ fun SettingsScreen(
     val scope = rememberCoroutineScope()
     
     val darkThemeCheckedState = remember { mutableStateOf(darkTheme) }
-    val submitListensCheckedState by viewModel.appPreferences.isScrobblingAllowed
-        .getFlow().collectAsState(initial = true)
-    val notificationsCheckedState = remember {
+    /** This preference state can only be changed when the user exits the app, and we always update
+     * this state when the user exits the app, this will always be true.*/
+    var isNotificationServiceAllowed by remember {
         mutableStateOf(viewModel.appPreferences.isNotificationServiceAllowed)
     }
+    val submitListensCheckedState by viewModel.appPreferences.isScrobblingAllowed
+        .getFlow().collectAsState(initial = true)
+    val shouldScrobbleNewPlayers by viewModel.appPreferences
+        .shouldScrobbleNewPlayers.getFlow().collectAsState(initial = true)
     
     val lifecycleOwner = LocalLifecycleOwner.current
     val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
     LaunchedEffect(lifecycleState) {
         when (lifecycleState) {
             Lifecycle.State.RESUMED -> {
-                notificationsCheckedState.value = withContext(Dispatchers.IO) {
+                isNotificationServiceAllowed = withContext(Dispatchers.IO) {
                     viewModel.appPreferences.isNotificationServiceAllowed
                 }
             }
@@ -116,7 +120,7 @@ fun SettingsScreen(
                 Text(
                     text = "Send listens",
                     color = when {
-                        viewModel.appPreferences.isNotificationServiceAllowed -> MaterialTheme.colorScheme.onSurface
+                        isNotificationServiceAllowed -> MaterialTheme.colorScheme.onSurface
                         else -> Color(0xFF949494)
                     }
                 )
@@ -133,13 +137,10 @@ fun SettingsScreen(
             }
 
             Switch(
-                checked = submitListensCheckedState && viewModel.appPreferences.isNotificationServiceAllowed,
+                checked = submitListensCheckedState && isNotificationServiceAllowed,
                 onCheckedChange = { checked ->
                     scope.launch {
-                        val isNLSAllowed = withContext(Dispatchers.IO) {
-                            viewModel.appPreferences.isNotificationServiceAllowed
-                        }
-                        if (isNLSAllowed) {
+                        if (isNotificationServiceAllowed) {
                             // Set preference
                             viewModel.appPreferences.isScrobblingAllowed.set(checked)
                         }
@@ -151,12 +152,13 @@ fun SettingsScreen(
 
         Divider(thickness = 1.dp)
 
+        // Blacklist
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(18.dp)
                 .clickable {
-                    if (viewModel.appPreferences.isNotificationServiceAllowed) {
+                    if (isNotificationServiceAllowed) {
                         showBlacklist = true
                     }
                 }
@@ -168,7 +170,7 @@ fun SettingsScreen(
                 Text(
                     text = "Listening apps",
                     color = when {
-                        viewModel.appPreferences.isNotificationServiceAllowed -> MaterialTheme.colorScheme.onSurface
+                        isNotificationServiceAllowed -> MaterialTheme.colorScheme.onSurface
                         else -> Color(0xFF949494)
                     }
                 )
@@ -213,7 +215,7 @@ fun SettingsScreen(
             }
 
             Switch(
-                checked = notificationsCheckedState.value,
+                checked = isNotificationServiceAllowed,
                 onCheckedChange = {
                     val intent: Intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                         Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
@@ -221,6 +223,43 @@ fun SettingsScreen(
                         Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
                     }
                     context.startActivity(intent)
+                },
+            )
+        }
+
+        Divider(thickness = 1.dp)
+        
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(18.dp)
+            ,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(
+                    text = "Enable new players",
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Text(
+                    text = "When a new music app is detected, automatically use it to submit listens",
+                    lineHeight = 18.sp,
+                    fontSize = 12.sp,
+                    color = Color(0xFF949494),
+                    modifier = Modifier
+                        .padding(top = 6.dp, end = 6.dp)
+                        .fillMaxWidth(0.9f)
+                )
+            }
+
+            Switch(
+                checked = shouldScrobbleNewPlayers,
+                onCheckedChange = {
+                    scope.launch {
+                        viewModel.appPreferences.shouldScrobbleNewPlayers.set(it)
+                    }
                 },
             )
         }
@@ -315,7 +354,7 @@ fun SettingsScreen(
                 Text(
                     text = "Report an issue",
                     color = when {
-                        viewModel.appPreferences.isNotificationServiceAllowed -> MaterialTheme.colorScheme.onSurface
+                        isNotificationServiceAllowed -> MaterialTheme.colorScheme.onSurface
                         else -> Color(0xFF949494)
                     }
                 )

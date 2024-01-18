@@ -20,7 +20,6 @@ class ListenSessionListener(
     val scrobbleManager: ScrobbleManager,
     private val serviceScope: CoroutineScope
 ) : OnActiveSessionsChangedListener {
-    
     private val availableSessions: ConcurrentHashMap<MediaController, ListenCallback?> = ConcurrentHashMap()
     private val activeSessions: ConcurrentHashMap<MediaController, ListenCallback?> = ConcurrentHashMap()
 
@@ -69,9 +68,7 @@ class ListenSessionListener(
     }
     
     private fun registerControllers(controllers: List<MediaController>) {
-        val whitelist = runBlocking {
-            appPreferences.listeningWhitelist.get()
-        }
+        val whitelist = runBlocking { appPreferences.listeningWhitelist.get() }
         
         fun MediaController.shouldScrobble(): Boolean = packageName in whitelist
         
@@ -81,25 +78,41 @@ class ListenSessionListener(
             if (!controller.shouldScrobble()){
                 continue
             }
-            controller.extras
-
             val callback = ListenCallback(controller.packageName)
             activeSessions[controller] = callback
             controller.registerCallback(callback)
             d("### REGISTERED MediaController callback for ${controller.packageName}.")
         }
 
-        // Adding any new app packages found in the notification.
-        serviceScope.launch(Dispatchers.Default) {
-            controllers.forEach { controller ->
-                val appList = appPreferences.listeningApps.get()
-                if (controller.packageName !in appList){
-                    appPreferences.listeningApps.set(appList.plus(controller.packageName))
-                }
-            }
-        }
+        updateAppsList(controllers)
         
         // println(appPreferences.listeningApps)
+    }
+    
+    private fun updateAppsList(controllers: List<MediaController>) {
+        // Adding any new app packages found in the notification.
+        serviceScope.launch(Dispatchers.Default) {
+            val shouldScrobbleNewPlayer = appPreferences.shouldScrobbleNewPlayers.get()
+            fun addToWhiteList(packageName: String) {
+                launch {
+                    appPreferences.listeningWhitelist.getAndUpdate { whitelist ->
+                        whitelist.toMutableList().plus(packageName)
+                    }
+                }
+            }
+        
+            appPreferences.listeningApps.getAndUpdate {
+                val appList = it.toMutableList()
+                controllers.forEach { controller ->
+                    if (controller.packageName !in appList){
+                        if (shouldScrobbleNewPlayer)
+                            addToWhiteList(controller.packageName)
+                        appList.add(controller.packageName)
+                    }
+                }
+                return@getAndUpdate appList
+            }
+        }
     }
 
     fun clearSessions() {

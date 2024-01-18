@@ -27,6 +27,7 @@ import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Compan
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.LISTENING_APPS
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.LISTENING_BLACKLIST
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.LISTENING_WHITELIST
+import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.SHOULD_SCROBBLE_NEW_PLAYERS
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.THEME
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Constants.ONBOARDING
@@ -38,6 +39,7 @@ import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_APPS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_BLACKLIST
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_WHITELIST
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_PERMS
+import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SCROBBLE_NEW_PLAYERS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SONGS_ON_DEVICE
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SUBMIT_LISTENS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SYSTEM_THEME
@@ -105,6 +107,7 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
             val THEME = stringPreferencesKey(PREFERENCE_SYSTEM_THEME)
             val LISTENING_APPS = stringPreferencesKey(PREFERENCE_LISTENING_APPS)
             val IS_SCROBBLING_ALLOWED = booleanPreferencesKey(PREFERENCE_SUBMIT_LISTENS)
+            val SHOULD_SCROBBLE_NEW_PLAYERS = booleanPreferencesKey(PREFERENCE_SCROBBLE_NEW_PLAYERS)
         }
         
         fun String?.asStringList(): List<String> {
@@ -170,6 +173,15 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
                     prefs[LISTENING_WHITELIST] = gson.toJson(value)
                 }
             }
+    
+            override suspend fun getAndUpdate(update: (List<String>) -> List<String>) {
+                context.dataStore.updateData {
+                    val updatedValue = update(it[LISTENING_WHITELIST].asStringList())
+                    val mutablePrefs = it.toMutablePreferences()
+                    mutablePrefs[LISTENING_WHITELIST] = gson.toJson(updatedValue)
+                    return@updateData mutablePrefs
+                }
+            }
         }
 
     override val isNotificationServiceAllowed: Boolean
@@ -188,6 +200,20 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
             override suspend fun set(value: Boolean) {
                 context.dataStore.edit { prefs ->
                     prefs[IS_SCROBBLING_ALLOWED] = value
+                }
+            }
+        }
+    
+    override val shouldScrobbleNewPlayers: DataStorePreference<Boolean>
+        get() = object : DataStorePreference<Boolean> {
+            override fun getFlow(): Flow<Boolean> =
+                datastore.map { prefs ->
+                    prefs[SHOULD_SCROBBLE_NEW_PLAYERS] ?: true
+                }
+    
+            override suspend fun set(value: Boolean) {
+                context.dataStore.edit { prefs ->
+                    prefs[SHOULD_SCROBBLE_NEW_PLAYERS] = value
                 }
             }
         }

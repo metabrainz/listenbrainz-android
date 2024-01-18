@@ -12,6 +12,7 @@ import android.service.notification.StatusBarNotification
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.scrobblemanager.ScrobbleManager
 import org.listenbrainz.android.util.Constants.Strings.CHANNEL_ID
@@ -29,17 +30,23 @@ class ListenScrobbleService : NotificationListenerService() {
     @Inject
     lateinit var scrobbleManager: ScrobbleManager
     
-    private var sessionManager: MediaSessionManager? = null
     private var sessionListener: ListenSessionListener? = null
     private var listenServiceComponent: ComponentName? = null
     private val scope = MainScope()
+    
     private val nm by lazy {
         ContextCompat.getSystemService(
             this,
             NotificationManager::class.java
         )!!
     }
-
+    private val sessionManager: MediaSessionManager by lazy {
+        ContextCompat.getSystemService(
+            this,
+            MediaSessionManager::class.java
+        )!!
+    }
+    
     override fun onCreate() {
         super.onCreate()
         initialize()
@@ -49,13 +56,12 @@ class ListenScrobbleService : NotificationListenerService() {
 
     private fun initialize() {
         d("Initializing Listener Service")
-        sessionManager = applicationContext.getSystemService(MEDIA_SESSION_SERVICE) as MediaSessionManager
         sessionListener = ListenSessionListener(appPreferences, scrobbleManager, scope)
         listenServiceComponent = ComponentName(this, this.javaClass)
         createNotificationChannel()
 
         try {
-            sessionManager?.addOnActiveSessionsChangedListener(sessionListener!!, listenServiceComponent)
+            sessionManager.addOnActiveSessionsChangedListener(sessionListener!!, listenServiceComponent)
         } catch (e: SecurityException) {
             e(message = "Could not add session listener due to security exception: ${e.message}")
         } catch (e: Exception) {
@@ -64,9 +70,12 @@ class ListenScrobbleService : NotificationListenerService() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
+        deleteNotificationChannel()
         sessionListener?.clearSessions()
-        sessionListener?.let { sessionManager?.removeOnActiveSessionsChangedListener(it) }
+        sessionListener?.let { sessionManager.removeOnActiveSessionsChangedListener(it) }
+        scope.cancel()
+        d("onDestroy: Listen Scrobble Service stopped.")
+        super.onDestroy()
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
@@ -97,6 +106,12 @@ class ListenScrobbleService : NotificationListenerService() {
                 description = CHANNEL_DESCRIPTION
             }
             nm.createNotificationChannel(channel)
+        }
+    }
+    
+    private fun deleteNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            nm.deleteNotificationChannel(CHANNEL_ID)
         }
     }
 }
