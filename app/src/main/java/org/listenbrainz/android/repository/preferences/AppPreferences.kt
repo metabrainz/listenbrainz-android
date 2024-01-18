@@ -47,10 +47,10 @@ interface AppPreferences {
     val refreshToken: String?
     
     var linkedServices: List<LinkedService>
+    
+    val isScrobblingAllowed: DataStorePreference<Boolean>
 
     val isNotificationServiceAllowed: Boolean
-
-    var submitListens: Boolean
     
     /* BrainzPlayer Preferences */
     

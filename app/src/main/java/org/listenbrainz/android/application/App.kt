@@ -8,21 +8,19 @@ import android.os.Build
 import android.os.StrictMode
 import androidx.core.content.ContextCompat
 import androidx.hilt.work.HiltWorkerFactory
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.work.Configuration
 import com.limurse.logger.Logger
 import com.limurse.logger.config.Config
 import dagger.hilt.android.HiltAndroidApp
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.ListenScrobbleService
 import org.listenbrainz.android.util.Constants
+import org.listenbrainz.android.util.Log
+import org.listenbrainz.android.util.Utils.isServiceRunning
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -56,7 +54,7 @@ class App : Application(), Configuration.Provider {
             if(
                 appPreferences.isNotificationServiceAllowed &&
                 appPreferences.lbAccessToken.get().isNotEmpty() &&
-                withContext(Dispatchers.IO) { appPreferences.submitListens }
+                appPreferences.isScrobblingAllowed.get()
             ) {
                 startListenService()
             }
@@ -147,8 +145,15 @@ class App : Application(), Configuration.Provider {
 
         fun startListenService() {
             val intent = Intent(context, ListenScrobbleService::class.java)
-            if (ProcessLifecycleOwner.get().lifecycle.currentState == Lifecycle.State.CREATED) {
-                context.startService(intent)
+            if (!context.isServiceRunning(ListenScrobbleService::class.java)) {
+                val component = context.startService(intent)
+                if (component == null) {
+                    Log.d("No running instances found, starting service.")
+                } else {
+                    Log.d("Service already running with name: $component")
+                }
+            } else {
+                Log.d("Service already running")
             }
         }
     }

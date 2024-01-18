@@ -9,4 +9,8 @@ interface DataStorePreference<T> {
     fun getFlow(): Flow<T>
     
     suspend fun set(value: T)
+    
+    /** Update the value of the preference in atomic read-modify-write manner.*/
+    suspend fun getAndUpdate(update: (T) -> T): Unit =
+        throw NotImplementedError("getAndUpdate has not been implemented for this preference.")
 }

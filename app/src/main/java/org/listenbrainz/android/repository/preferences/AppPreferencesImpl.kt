@@ -17,7 +17,6 @@ import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.model.PermissionStatus
@@ -35,7 +34,6 @@ import org.listenbrainz.android.util.Constants.Strings.CURRENT_PLAYABLE
 import org.listenbrainz.android.util.Constants.Strings.LB_ACCESS_TOKEN
 import org.listenbrainz.android.util.Constants.Strings.LINKED_SERVICES
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_ALBUMS_ON_DEVICE
-import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_IS_SCROBBLING_ALLOWED
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_APPS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_BLACKLIST
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_WHITELIST
@@ -106,13 +104,13 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
             val LISTENING_WHITELIST = stringPreferencesKey(PREFERENCE_LISTENING_WHITELIST)
             val THEME = stringPreferencesKey(PREFERENCE_SYSTEM_THEME)
             val LISTENING_APPS = stringPreferencesKey(PREFERENCE_LISTENING_APPS)
-            val IS_SCROBBLING_ALLOWED = booleanPreferencesKey(PREFERENCE_IS_SCROBBLING_ALLOWED)
+            val IS_SCROBBLING_ALLOWED = booleanPreferencesKey(PREFERENCE_SUBMIT_LISTENS)
         }
         
-        private fun String?.asStringList(): List<String> {
+        fun String?.asStringList(): List<String> {
             return gson.fromJson(
                 this,
-                object : TypeToken<List<String>>() {}.type
+                object: TypeToken<List<String>>() {}.type
             ) ?: emptyList()
         }
     }
@@ -180,20 +178,39 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
             return listeners != null && listeners.contains(context.packageName)
         }
     
-    override var submitListens: Boolean
-        get() = preferences.getBoolean(PREFERENCE_SUBMIT_LISTENS, true)
-        set(value) { setBoolean(PREFERENCE_SUBMIT_LISTENS, value) }
+    override val isScrobblingAllowed: DataStorePreference<Boolean>
+        get() = object: DataStorePreference<Boolean> {
+            override fun getFlow(): Flow<Boolean> =
+                datastore.map { prefs ->
+                    prefs[IS_SCROBBLING_ALLOWED] ?: true
+                }
+            
+            override suspend fun set(value: Boolean) {
+                context.dataStore.edit { prefs ->
+                    prefs[IS_SCROBBLING_ALLOWED] = value
+                }
+            }
+        }
     
     override val listeningApps: DataStorePreference<List<String>>
         get() = object: DataStorePreference<List<String>> {
             override fun getFlow(): Flow<List<String>> =
-                datastore.map {
-                    datastore.firstOrNull()?.get(LISTENING_APPS).asStringList()
+                datastore.map { prefs ->
+                    prefs[LISTENING_APPS].asStringList()
                 }
             
             override suspend fun set(value: List<String>) {
                 context.dataStore.edit { prefs ->
                     prefs[LISTENING_APPS] = gson.toJson(value)
+                }
+            }
+    
+            override suspend fun getAndUpdate(update: (List<String>) -> List<String>) {
+                context.dataStore.updateData {
+                    val updatedValue = update(it[LISTENING_APPS].asStringList())
+                    val mutablePrefs = it.toMutablePreferences()
+                    mutablePrefs[LISTENING_APPS] = gson.toJson(updatedValue)
+                    return@updateData mutablePrefs
                 }
             }
         }

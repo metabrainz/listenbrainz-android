@@ -20,7 +20,8 @@ import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractTitl
 import javax.inject.Inject
 
 /** The sole responsibility of this layer is to maintain mutual exclusion between [onMetadataChanged] and
- * [onNotificationPosted] and filter out repetitive submissions.
+ * [onNotificationPosted], filter out repetitive submissions and handle changes in settings which concern
+ * listen scrobbing.
  *
  * FUTURE: Call notification popups here as well.*/
 class ScrobbleManagerImpl @Inject constructor(
@@ -39,17 +40,34 @@ class ScrobbleManagerImpl @Inject constructor(
     /** Used to avoid repetitive submissions.*/
     private var lastNotificationPostTs = System.currentTimeMillis()
     private lateinit var whitelist: List<String>
+    private var isScrobblingAllowed: Boolean = true
     
     init {
-        scope.launch(Dispatchers.Default) {
-            appPreferences.listeningWhitelist.getFlow().collect {
-                whitelist = it
+        with(scope) {
+            launch(Dispatchers.Default) {
+                appPreferences.listeningWhitelist.getFlow().collect {
+                    whitelist = it
+                    // Discard current listen if the controller/package has been removed from whitelist.
+                    if (listenSubmissionState.playingTrack.pkgName !in whitelist) {
+                        listenSubmissionState.discardCurrentListen()
+                    }
+                }
+            }
+            launch(Dispatchers.Default) {
+                appPreferences.isScrobblingAllowed.getFlow().collect {
+                    isScrobblingAllowed = it
+                    // Immediately discard current listen if "Send Listens" option has been turned off.
+                    if (!isScrobblingAllowed) {
+                        listenSubmissionState.discardCurrentListen()
+                    }
+                }
             }
         }
     }
     
     override fun onMetadataChanged(metadata: MediaMetadata?, player: String) {
         handler.post {
+            if (!isScrobblingAllowed) return@post
             if (metadata == null) return@post
     
             val newTimestamp = System.currentTimeMillis()
@@ -85,6 +103,8 @@ class ScrobbleManagerImpl @Inject constructor(
      * means the track has been changed.*/
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         handler.post {
+            if (!isScrobblingAllowed) return@post
+            
             // Only CATEGORY_TRANSPORT contain media player metadata.
             if (sbn?.notification?.category != Notification.CATEGORY_TRANSPORT) return@post
     
@@ -118,6 +138,8 @@ class ScrobbleManagerImpl @Inject constructor(
     
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         scope.launch {
+            if (!isScrobblingAllowed) return@launch
+            
             if (sbn?.notification?.category == Notification.CATEGORY_TRANSPORT
                 && sbn.packageName in appPreferences.listeningWhitelist.get()
             ) {

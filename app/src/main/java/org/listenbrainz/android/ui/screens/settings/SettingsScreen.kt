@@ -49,7 +49,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import com.limurse.logger.Logger
 import com.limurse.logger.util.FileIntent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.UiMode
@@ -74,22 +76,24 @@ fun SettingsScreen(
     var showBlacklist by remember { mutableStateOf(false) }
     val darkTheme = onScreenUiModeIsDark()
     val scope = rememberCoroutineScope()
+    
     val darkThemeCheckedState = remember { mutableStateOf(darkTheme) }
-    val submitListensCheckedState = remember { mutableStateOf(viewModel.appPreferences.submitListens) }
-    val notificationsCheckedState = remember { mutableStateOf(viewModel.appPreferences.isNotificationServiceAllowed) }
-
+    val submitListensCheckedState by viewModel.appPreferences.isScrobblingAllowed
+        .getFlow().collectAsState(initial = true)
+    val notificationsCheckedState = remember {
+        mutableStateOf(viewModel.appPreferences.isNotificationServiceAllowed)
+    }
+    
     val lifecycleOwner = LocalLifecycleOwner.current
     val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
-
     LaunchedEffect(lifecycleState) {
         when (lifecycleState) {
-            Lifecycle.State.DESTROYED -> {}
-            Lifecycle.State.INITIALIZED -> {}
-            Lifecycle.State.CREATED -> {}
-            Lifecycle.State.STARTED -> {}
             Lifecycle.State.RESUMED -> {
-                notificationsCheckedState.value = viewModel.appPreferences.isNotificationServiceAllowed
+                notificationsCheckedState.value = withContext(Dispatchers.IO) {
+                    viewModel.appPreferences.isNotificationServiceAllowed
+                }
             }
+            else -> Unit
         }
     }
 
@@ -129,11 +133,18 @@ fun SettingsScreen(
             }
 
             Switch(
-                checked = submitListensCheckedState.value && viewModel.appPreferences.isNotificationServiceAllowed,
-                onCheckedChange = {
-                    if (viewModel.appPreferences.isNotificationServiceAllowed) {
-                        submitListensCheckedState.value = it
+                checked = submitListensCheckedState && viewModel.appPreferences.isNotificationServiceAllowed,
+                onCheckedChange = { checked ->
+                    scope.launch {
+                        val isNLSAllowed = withContext(Dispatchers.IO) {
+                            viewModel.appPreferences.isNotificationServiceAllowed
+                        }
+                        if (isNLSAllowed) {
+                            // Set preference
+                            viewModel.appPreferences.isScrobblingAllowed.set(checked)
+                        }
                     }
+                    
                 }
             )
         }
@@ -250,13 +261,13 @@ fun SettingsScreen(
                         false -> {
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
                             scope.launch {
-                                viewModel.appPreferences.setThemePreference(UiMode.DARK)
+                                viewModel.appPreferences.themePreference.set(UiMode.DARK)
                             }
                         }
                         true -> {
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
                             scope.launch {
-                                viewModel.appPreferences.setThemePreference(UiMode.LIGHT)
+                                viewModel.appPreferences.themePreference.set(UiMode.LIGHT)
                             }
                         }
                     }
