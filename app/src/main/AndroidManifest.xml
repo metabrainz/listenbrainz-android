@@ -57,7 +57,7 @@
             android:theme="@style/AppTheme" />
 
         <service
-            android:name=".service.ListenService"
+            android:name=".service.ListeningService"
             android:enabled="true"
             android:exported="true"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">

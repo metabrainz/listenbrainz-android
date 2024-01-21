@@ -13,8 +13,8 @@ import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
-import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.Constants.Strings.CHANNEL_ID
 import org.listenbrainz.android.util.ListenSessionListener
 import org.listenbrainz.android.util.Log.d
@@ -22,7 +22,7 @@ import org.listenbrainz.android.util.Log.e
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ListenService : NotificationListenerService() {
+class ListeningService : NotificationListenerService() {
 
     @Inject
     lateinit var appPreferences: AppPreferences
