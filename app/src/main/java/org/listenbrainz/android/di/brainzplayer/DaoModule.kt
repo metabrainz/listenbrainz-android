@@ -37,6 +37,6 @@ object DaoModule {
     
     @Provides
     fun providesPendingListensDao(
-        database: ListensDatabase
+        database: ListensSubmissionDatabase
     ): PendingListensDao = database.pendingListensDao()
 }

@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
 import org.listenbrainz.android.repository.preferences.AppPreferences
-import org.listenbrainz.android.service.ListeningService
+import org.listenbrainz.android.service.ListenSubmissionService
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Utils.isServiceRunning
@@ -144,8 +144,8 @@ class App : Application(), Configuration.Provider {
             private set
 
         fun startListenService() {
-            val intent = Intent(context, ListeningService::class.java)
-            if (!context.isServiceRunning(ListeningService::class.java)) {
+            val intent = Intent(context, ListenSubmissionService::class.java)
+            if (!context.isServiceRunning(ListenSubmissionService::class.java)) {
                 val component = context.startService(intent)
                 if (component == null) {
                     Log.d("No running instances found, starting service.")

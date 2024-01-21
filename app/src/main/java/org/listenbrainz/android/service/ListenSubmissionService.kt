@@ -22,7 +22,7 @@ import org.listenbrainz.android.util.Log.e
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ListeningService : NotificationListenerService() {
+class ListenSubmissionService : NotificationListenerService() {
 
     @Inject
     lateinit var appPreferences: AppPreferences

@@ -20,7 +20,7 @@ interface AppPreferences {
      * [PermissionStatus.DENIED_TWICE] -> permission is denied twice and cannot be asked again. User need to go to settings to enable the permission.*/
     var permissionsPreference: String?
 
-    /** Whitelist for ListeningService.*/
+    /** Whitelist for ListenSubmissionService.*/
     val listeningWhitelist: DataStorePreference<List<String>>
     
     /** Music Apps in users device registered by listenService.*/
