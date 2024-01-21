@@ -83,10 +83,10 @@ fun SettingsScreen(
     var isNotificationServiceAllowed by remember {
         mutableStateOf(viewModel.appPreferences.isNotificationServiceAllowed)
     }
-    val submitListensCheckedState by viewModel.appPreferences.isScrobblingAllowed
+    val submitListensCheckedState by viewModel.appPreferences.isListeningAllowed
         .getFlow().collectAsState(initial = true)
     val shouldScrobbleNewPlayers by viewModel.appPreferences
-        .shouldScrobbleNewPlayers.getFlow().collectAsState(initial = true)
+        .shouldListenNewPlayers.getFlow().collectAsState(initial = true)
     
     val lifecycleOwner = LocalLifecycleOwner.current
     val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
@@ -142,7 +142,7 @@ fun SettingsScreen(
                     scope.launch {
                         if (isNotificationServiceAllowed) {
                             // Set preference
-                            viewModel.appPreferences.isScrobblingAllowed.set(checked)
+                            viewModel.appPreferences.isListeningAllowed.set(checked)
                         }
                     }
                     
@@ -258,7 +258,7 @@ fun SettingsScreen(
                 checked = shouldScrobbleNewPlayers,
                 onCheckedChange = {
                     scope.launch {
-                        viewModel.appPreferences.shouldScrobbleNewPlayers.set(it)
+                        viewModel.appPreferences.shouldListenNewPlayers.set(it)
                     }
                 },
             )

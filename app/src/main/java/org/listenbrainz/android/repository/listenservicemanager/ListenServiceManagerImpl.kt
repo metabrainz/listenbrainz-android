@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository.scrobblemanager
+package org.listenbrainz.android.repository.listenservicemanager
 
 import android.app.Notification
 import android.content.Context
@@ -24,11 +24,11 @@ import javax.inject.Inject
  * listen scrobbing.
  *
  * FUTURE: Call notification popups here as well.*/
-class ScrobbleManagerImpl @Inject constructor(
+class ListenServiceManagerImpl @Inject constructor(
     workManager: WorkManager,
     private val appPreferences: AppPreferences,
     @ApplicationContext private val context: Context
-): ScrobbleManager {
+): ListenServiceManager {
     
     private val handler: Handler by lazy { Handler(Looper.getMainLooper()) }
     private val listenSubmissionState = ListenSubmissionState(workManager, context)
@@ -54,7 +54,7 @@ class ScrobbleManagerImpl @Inject constructor(
                 }
             }
             launch(Dispatchers.Default) {
-                appPreferences.isScrobblingAllowed.getFlow().collect {
+                appPreferences.isListeningAllowed.getFlow().collect {
                     isScrobblingAllowed = it
                     // Immediately discard current listen if "Send Listens" option has been turned off.
                     if (!isScrobblingAllowed) {

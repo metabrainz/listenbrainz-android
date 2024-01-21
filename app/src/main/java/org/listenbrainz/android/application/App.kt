@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
 import org.listenbrainz.android.repository.preferences.AppPreferences
-import org.listenbrainz.android.service.ListenScrobbleService
+import org.listenbrainz.android.service.ListenService
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Utils.isServiceRunning
@@ -54,7 +54,7 @@ class App : Application(), Configuration.Provider {
             if(
                 appPreferences.isNotificationServiceAllowed &&
                 appPreferences.lbAccessToken.get().isNotEmpty() &&
-                appPreferences.isScrobblingAllowed.get()
+                appPreferences.isListeningAllowed.get()
             ) {
                 startListenService()
             }
@@ -144,8 +144,8 @@ class App : Application(), Configuration.Provider {
             private set
 
         fun startListenService() {
-            val intent = Intent(context, ListenScrobbleService::class.java)
-            if (!context.isServiceRunning(ListenScrobbleService::class.java)) {
+            val intent = Intent(context, ListenService::class.java)
+            if (!context.isServiceRunning(ListenService::class.java)) {
                 val component = context.startService(intent)
                 if (component == null) {
                     Log.d("No running instances found, starting service.")

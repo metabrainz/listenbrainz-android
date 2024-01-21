@@ -152,7 +152,7 @@ object Utils {
     }
     
     
-    fun notifyScrobble(songTitle: String, artistName: String, albumArt: Bitmap?, nm: NotificationManager, context: Context) {
+    fun notifyListen(songTitle: String, artistName: String, albumArt: Bitmap?, nm: NotificationManager, context: Context) {
         val notificationBuilder = NotificationCompat.Builder(context,
             CHANNEL_ID
         )
@@ -193,7 +193,7 @@ object Utils {
         }
     }
 
-    fun scrobbleFromNotiExtractMeta(titleStr: String, formatStr: String): Pair<String, String>? {
+    fun listenFromNotiExtractMeta(titleStr: String, formatStr: String): Pair<String, String>? {
         val tpos = formatStr.indexOf("%1\$s")
         val apos = formatStr.indexOf("%2\$s")
         val regex = formatStr.replace("(", "\\(")

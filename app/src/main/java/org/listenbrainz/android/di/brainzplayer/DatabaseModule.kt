@@ -25,11 +25,11 @@ object DatabaseModule {
     
     @Provides
     @Singleton
-    fun providesListensScrobbleDatabase(
+    fun providesListensDatabase(
         @ApplicationContext context: Context
-    ): ListensScrobbleDatabase = Room.databaseBuilder(
+    ): ListensDatabase = Room.databaseBuilder(
         context,
-        ListensScrobbleDatabase::class.java,
+        ListensDatabase::class.java,
         "listens_scrobble_database"
     )
         .build()

@@ -21,7 +21,7 @@ object Constants {
         const val PREFERENCE_LISTENING_BLACKLIST = "listening_blacklist"
         const val PREFERENCE_LISTENING_WHITELIST = "listening_whitelist"
         const val PREFERENCE_SUBMIT_LISTENS = "submit_listens"
-        const val PREFERENCE_SCROBBLE_NEW_PLAYERS = "scrobble_new_players"
+        const val PREFERENCE_LISTEN_NEW_PLAYERS = "listen_new_players"
         const val PREFERENCE_LISTENING_APPS = "listening_apps"
         const val PREFERENCE_SYSTEM_THEME = "app_theme"
         const val PREFERENCE_PERMS = "perms_code"

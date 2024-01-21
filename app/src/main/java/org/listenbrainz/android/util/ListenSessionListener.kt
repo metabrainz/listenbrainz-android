@@ -11,13 +11,13 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.listenbrainz.android.repository.preferences.AppPreferences
-import org.listenbrainz.android.repository.scrobblemanager.ScrobbleManager
+import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
 import org.listenbrainz.android.util.Log.d
 import java.util.concurrent.ConcurrentHashMap
 
 class ListenSessionListener(
     val appPreferences: AppPreferences,
-    val scrobbleManager: ScrobbleManager,
+    val listenServiceManager: ListenServiceManager,
     private val serviceScope: CoroutineScope
 ) : OnActiveSessionsChangedListener {
     private val availableSessions: ConcurrentHashMap<MediaController, ListenCallback?> = ConcurrentHashMap()
@@ -70,12 +70,12 @@ class ListenSessionListener(
     private fun registerControllers(controllers: List<MediaController>) {
         val whitelist = runBlocking { appPreferences.listeningWhitelist.get() }
         
-        fun MediaController.shouldScrobble(): Boolean = packageName in whitelist
+        fun MediaController.shouldListen(): Boolean = packageName in whitelist
         
         for (controller in controllers) {
             availableSessions[controller] = ListenCallback(controller.packageName)
             // BlackList
-            if (!controller.shouldScrobble()){
+            if (!controller.shouldListen()){
                 continue
             }
             val callback = ListenCallback(controller.packageName)
@@ -92,7 +92,7 @@ class ListenSessionListener(
     private fun updateAppsList(controllers: List<MediaController>) {
         // Adding any new app packages found in the notification.
         serviceScope.launch(Dispatchers.Default) {
-            val shouldScrobbleNewPlayer = appPreferences.shouldScrobbleNewPlayers.get()
+            val shouldScrobbleNewPlayer = appPreferences.shouldListenNewPlayers.get()
             fun addToWhiteList(packageName: String) {
                 launch {
                     appPreferences.listeningWhitelist.getAndUpdate { whitelist ->
@@ -128,12 +128,12 @@ class ListenSessionListener(
         
         @Synchronized
         override fun onMetadataChanged(metadata: MediaMetadata?) {
-            scrobbleManager.onMetadataChanged(metadata, player)
+            listenServiceManager.onMetadataChanged(metadata, player)
         }
     
         @Synchronized
         override fun onPlaybackStateChanged(state: PlaybackState?) {
-            scrobbleManager.onPlaybackStateChanged(state)
+            listenServiceManager.onPlaybackStateChanged(state)
         }
         
     }

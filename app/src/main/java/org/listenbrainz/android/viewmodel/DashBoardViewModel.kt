@@ -124,7 +124,7 @@ class DashBoardViewModel @Inject constructor(
     suspend fun isNotificationListenerServiceAllowed(): Boolean {
         return withContext(ioDispatcher) {
             appPreferences.isNotificationServiceAllowed
-                && appPreferences.isScrobblingAllowed.get()
+                && appPreferences.isListeningAllowed.get()
         } && appPreferences.lbAccessToken.get().isNotEmpty()
     }
     

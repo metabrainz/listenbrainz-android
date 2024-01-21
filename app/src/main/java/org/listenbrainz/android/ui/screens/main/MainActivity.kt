@@ -26,7 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.PermissionStatus
-import org.listenbrainz.android.service.ListenScrobbleService
+import org.listenbrainz.android.service.ListenService
 import org.listenbrainz.android.ui.components.DialogLB
 import org.listenbrainz.android.ui.navigation.AppNavigation
 import org.listenbrainz.android.ui.navigation.BottomNavigationBar
@@ -202,7 +202,7 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         lifecycleScope.launch(Dispatchers.Main) {
             if (dashBoardViewModel.isNotificationListenerServiceAllowed()) {
-                if (!isServiceRunning(ListenScrobbleService::class.java)) {
+                if (!isServiceRunning(ListenService::class.java)) {
                     App.startListenService()
                 }
             }

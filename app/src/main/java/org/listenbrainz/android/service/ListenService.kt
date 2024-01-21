@@ -14,7 +14,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import org.listenbrainz.android.repository.preferences.AppPreferences
-import org.listenbrainz.android.repository.scrobblemanager.ScrobbleManager
+import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
 import org.listenbrainz.android.util.Constants.Strings.CHANNEL_ID
 import org.listenbrainz.android.util.ListenSessionListener
 import org.listenbrainz.android.util.Log.d
@@ -22,13 +22,13 @@ import org.listenbrainz.android.util.Log.e
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ListenScrobbleService : NotificationListenerService() {
+class ListenService : NotificationListenerService() {
 
     @Inject
     lateinit var appPreferences: AppPreferences
     
     @Inject
-    lateinit var scrobbleManager: ScrobbleManager
+    lateinit var serviceManager: ListenServiceManager
     
     private var sessionListener: ListenSessionListener? = null
     private var listenServiceComponent: ComponentName? = null
@@ -56,7 +56,7 @@ class ListenScrobbleService : NotificationListenerService() {
 
     private fun initialize() {
         d("Initializing Listener Service")
-        sessionListener = ListenSessionListener(appPreferences, scrobbleManager, scope)
+        sessionListener = ListenSessionListener(appPreferences, serviceManager, scope)
         listenServiceComponent = ComponentName(this, this.javaClass)
         createNotificationChannel()
 
@@ -79,7 +79,7 @@ class ListenScrobbleService : NotificationListenerService() {
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
-        scrobbleManager.onNotificationPosted(sbn)
+        serviceManager.onNotificationPosted(sbn)
     }
 
     override fun onNotificationRemoved(
@@ -90,7 +90,7 @@ class ListenScrobbleService : NotificationListenerService() {
         if (reason == REASON_APP_CANCEL || reason == REASON_APP_CANCEL_ALL ||
             reason == REASON_TIMEOUT || reason == REASON_ERROR
         ) {
-            scrobbleManager.onNotificationRemoved(sbn)
+            serviceManager.onNotificationRemoved(sbn)
         }
     }
 

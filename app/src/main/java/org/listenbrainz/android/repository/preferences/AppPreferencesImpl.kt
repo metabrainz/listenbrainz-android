@@ -23,11 +23,11 @@ import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.model.UiMode.Companion.asUiMode
-import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.IS_SCROBBLING_ALLOWED
+import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.IS_LISTENING_ALLOWED
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.LISTENING_APPS
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.LISTENING_BLACKLIST
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.LISTENING_WHITELIST
-import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.SHOULD_SCROBBLE_NEW_PLAYERS
+import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.SHOULD_LISTEN_NEW_PLAYERS
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.THEME
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Constants.ONBOARDING
@@ -38,8 +38,8 @@ import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_ALBUMS_ON_DEVI
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_APPS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_BLACKLIST
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_WHITELIST
+import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTEN_NEW_PLAYERS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_PERMS
-import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SCROBBLE_NEW_PLAYERS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SONGS_ON_DEVICE
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SUBMIT_LISTENS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SYSTEM_THEME
@@ -106,8 +106,8 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
             val LISTENING_WHITELIST = stringPreferencesKey(PREFERENCE_LISTENING_WHITELIST)
             val THEME = stringPreferencesKey(PREFERENCE_SYSTEM_THEME)
             val LISTENING_APPS = stringPreferencesKey(PREFERENCE_LISTENING_APPS)
-            val IS_SCROBBLING_ALLOWED = booleanPreferencesKey(PREFERENCE_SUBMIT_LISTENS)
-            val SHOULD_SCROBBLE_NEW_PLAYERS = booleanPreferencesKey(PREFERENCE_SCROBBLE_NEW_PLAYERS)
+            val IS_LISTENING_ALLOWED = booleanPreferencesKey(PREFERENCE_SUBMIT_LISTENS)
+            val SHOULD_LISTEN_NEW_PLAYERS = booleanPreferencesKey(PREFERENCE_LISTEN_NEW_PLAYERS)
         }
         
         fun String?.asStringList(): List<String> {
@@ -190,30 +190,30 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
             return listeners != null && listeners.contains(context.packageName)
         }
     
-    override val isScrobblingAllowed: DataStorePreference<Boolean>
+    override val isListeningAllowed: DataStorePreference<Boolean>
         get() = object: DataStorePreference<Boolean> {
             override fun getFlow(): Flow<Boolean> =
                 datastore.map { prefs ->
-                    prefs[IS_SCROBBLING_ALLOWED] ?: true
+                    prefs[IS_LISTENING_ALLOWED] ?: true
                 }
             
             override suspend fun set(value: Boolean) {
                 context.dataStore.edit { prefs ->
-                    prefs[IS_SCROBBLING_ALLOWED] = value
+                    prefs[IS_LISTENING_ALLOWED] = value
                 }
             }
         }
     
-    override val shouldScrobbleNewPlayers: DataStorePreference<Boolean>
+    override val shouldListenNewPlayers: DataStorePreference<Boolean>
         get() = object : DataStorePreference<Boolean> {
             override fun getFlow(): Flow<Boolean> =
                 datastore.map { prefs ->
-                    prefs[SHOULD_SCROBBLE_NEW_PLAYERS] ?: true
+                    prefs[SHOULD_LISTEN_NEW_PLAYERS] ?: true
                 }
     
             override suspend fun set(value: Boolean) {
                 context.dataStore.edit { prefs ->
-                    prefs[SHOULD_SCROBBLE_NEW_PLAYERS] = value
+                    prefs[SHOULD_LISTEN_NEW_PLAYERS] = value
                 }
             }
         }

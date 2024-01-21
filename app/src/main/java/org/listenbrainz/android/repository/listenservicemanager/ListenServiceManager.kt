@@ -1,10 +1,10 @@
-package org.listenbrainz.android.repository.scrobblemanager
+package org.listenbrainz.android.repository.listenservicemanager
 
 import android.media.MediaMetadata
 import android.media.session.PlaybackState
 import android.service.notification.StatusBarNotification
 
-interface ScrobbleManager {
+interface ListenServiceManager {
     
     fun onMetadataChanged(metadata: MediaMetadata?, player: String)
     
