@@ -58,11 +58,8 @@ import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.ui.components.Switch
 import org.listenbrainz.android.ui.screens.listens.ListeningAppsList
 import org.listenbrainz.android.ui.screens.main.DonateActivity
-import org.listenbrainz.android.ui.screens.main.MainActivity
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.util.Constants
-import org.listenbrainz.android.util.Utils.getActivity
 import org.listenbrainz.android.viewmodel.ListensViewModel
 import org.listenbrainz.android.viewmodel.SettingsViewModel
 
@@ -74,7 +71,7 @@ fun SettingsScreen(
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
     var showBlacklist by remember { mutableStateOf(false) }
-    val darkTheme = onScreenUiModeIsDark()
+    val darkTheme = ListenBrainzTheme.uiModeIsDark
     val scope = rememberCoroutineScope()
     
     val darkThemeCheckedState = remember { mutableStateOf(darkTheme) }
@@ -294,8 +291,6 @@ fun SettingsScreen(
             Switch(
                 checked = darkThemeCheckedState.value,
                 onCheckedChange = {
-                    val intent = Intent(context, MainActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     when (darkTheme) {
                         false -> {
                             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
@@ -310,7 +305,6 @@ fun SettingsScreen(
                             }
                         }
                     }
-                    context.getActivity()?.recreate() ?: context.startActivity(intent)
                     darkThemeCheckedState.value = it
                 },
             )

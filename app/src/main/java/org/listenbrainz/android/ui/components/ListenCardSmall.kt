@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.components
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -80,8 +81,8 @@ fun ListenCardSmall(
         
                 val (mainContentFraction, trailingContentFraction, dropDownButtonFraction) = remember(enableDropdownIcon, enableTrailingContent) {
                     when {
-                        enableDropdownIcon && enableTrailingContent -> Triple(0.60f, 0.80f, 0.20f)    // 0.20f for dropdown and 0.80f for trailing content
-                        enableDropdownIcon && !enableTrailingContent -> Triple(0.90f, 0f, 1f) // 0.10f for dropdown
+                        enableDropdownIcon && enableTrailingContent -> Triple(0.60f, 0.80f, 0.20f)    // 0.20f (0.08f in whole) for dropdown and 0.80f (0.32f in whole) for trailing content
+                        enableDropdownIcon && !enableTrailingContent -> Triple(0.92f, 0f, 1f) // 0.10f for dropdown
                         !enableDropdownIcon && enableTrailingContent -> Triple(0.70f, 1f, 0f)   // 0.30f for trailing content
                         else -> Triple(1f, 0f, 0f)
                     }
@@ -208,6 +209,7 @@ fun TitleAndSubtitle(
 }
 
 @Preview
+@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun ListenCardSmallPreview() {
     ListenBrainzTheme {
@@ -233,6 +235,7 @@ private fun ListenCardSmallPreview() {
 }
 
 @Preview
+@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun ListenCardSmallNoBlurbContentPreview() {
     ListenBrainzTheme {
@@ -248,6 +251,22 @@ private fun ListenCardSmallNoBlurbContentPreview() {
                     TitleAndSubtitle(title = "Userrrrrrrrrrrrrr", subtitle = "60%")
                 }
             }
+        ) {}
+    }
+}
+
+@Preview
+@Preview(uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun ListenCardSmallSimplePreview() {
+    ListenBrainzTheme {
+        ListenCardSmall(
+            trackName = "Title",
+            artistName = "Artist",
+            coverArtUrl = "",
+            enableTrailingContent = false,
+            enableBlurbContent = false,
+            enableDropdownIcon = true
         ) {}
     }
 }
