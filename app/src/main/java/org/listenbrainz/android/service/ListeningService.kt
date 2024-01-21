@@ -34,17 +34,17 @@ class ListeningService : NotificationListenerService() {
     private var listenServiceComponent: ComponentName? = null
     private val scope = MainScope()
     
-    private val nm by lazy {
-        ContextCompat.getSystemService(
-            this,
-            NotificationManager::class.java
-        )!!
+    private val nm: NotificationManager? by lazy {
+        val manager = ContextCompat.getSystemService(this, NotificationManager::class.java)
+        if (manager == null)
+            e("NotificationManager is not available in this context.")
+        manager
     }
-    private val sessionManager: MediaSessionManager by lazy {
-        ContextCompat.getSystemService(
-            this,
-            MediaSessionManager::class.java
-        )!!
+    private val sessionManager: MediaSessionManager? by lazy {
+        val manager = ContextCompat.getSystemService(this, MediaSessionManager::class.java)
+        if (manager == null)
+            e("MediaSessionManager is not available in this context.")
+        manager
     }
     
     override fun onCreate() {
@@ -61,7 +61,7 @@ class ListeningService : NotificationListenerService() {
         createNotificationChannel()
 
         try {
-            sessionManager.addOnActiveSessionsChangedListener(sessionListener!!, listenServiceComponent)
+            sessionManager?.addOnActiveSessionsChangedListener(sessionListener!!, listenServiceComponent)
         } catch (e: SecurityException) {
             e(message = "Could not add session listener due to security exception: ${e.message}")
         } catch (e: Exception) {
@@ -72,7 +72,7 @@ class ListeningService : NotificationListenerService() {
     override fun onDestroy() {
         deleteNotificationChannel()
         sessionListener?.clearSessions()
-        sessionListener?.let { sessionManager.removeOnActiveSessionsChangedListener(it) }
+        sessionListener?.let { sessionManager?.removeOnActiveSessionsChangedListener(it) }
         scope.cancel()
         d("onDestroy: Listen Scrobble Service stopped.")
         super.onDestroy()
@@ -105,13 +105,13 @@ class ListeningService : NotificationListenerService() {
             val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance).apply {
                 description = CHANNEL_DESCRIPTION
             }
-            nm.createNotificationChannel(channel)
+            nm?.createNotificationChannel(channel)
         }
     }
     
     private fun deleteNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            nm.deleteNotificationChannel(CHANNEL_ID)
+            nm?.deleteNotificationChannel(CHANNEL_ID)
         }
     }
 }
