@@ -37,7 +37,7 @@ class ListenSubmissionWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, workerParams) {
     
     override suspend fun doWork(): Result {
-        val token = appPreferences.getLbAccessToken()
+        val token = appPreferences.lbAccessToken.get()
         if (token.isEmpty()) {
             d("ListenBrainz User token has not been set!")
             return Result.failure()

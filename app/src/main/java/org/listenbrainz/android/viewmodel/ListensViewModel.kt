@@ -55,7 +55,7 @@ class ListensViewModel @Inject constructor(
     
     init {
         viewModelScope.launch {
-            val username = withContext(ioDispatcher) { appPreferences.getUsername() }
+            val username = withContext(ioDispatcher) { appPreferences.username.get() }
             if (username.isEmpty()) return@launch
             
             launch { fetchUserListens(username = username) }
@@ -116,12 +116,12 @@ class ListensViewModel @Inject constructor(
     private fun createPreferencesUiStateFlow(): StateFlow<PreferencesUiState> =
         combine(
             isSpotifyLinked,
-            appPreferences.getUsernameFlow(),
-            appPreferences.getLbAccessTokenFlow(),
+            appPreferences.username.getFlow(),
+            appPreferences.lbAccessToken.getFlow(),
             isNotificationServiceAllowed,
-            appPreferences.getListeningBlacklistFlow(),
-            appPreferences.getListeningAppsFlow(),
-            appPreferences.themePreferenceFlow()
+            appPreferences.listeningWhitelist.getFlow(),
+            appPreferences.listeningApps.getFlow(),
+            appPreferences.themePreference.getFlow()
         ) { array ->
             PreferencesUiState(
                 array[0] as Boolean,
@@ -141,9 +141,9 @@ class ListensViewModel @Inject constructor(
     fun getPackageIcon(packageName: String): Drawable? = repository.getPackageIcon(packageName)
     fun getPackageLabel(packageName: String): String = repository.getPackageLabel(packageName)
     
-    fun setBlacklist(list: List<String>) {
+    fun setWhitelist(list: List<String>) {
         viewModelScope.launch {
-            appPreferences.setListeningBlacklist(list)
+            appPreferences.listeningWhitelist.set(list)
         }
     }
     
@@ -153,15 +153,15 @@ class ListensViewModel @Inject constructor(
 
     fun setAccessToken(token:String) {
         viewModelScope.launch {
-            appPreferences.setLbAccessToken(token)
+            appPreferences.lbAccessToken.set(token)
         }
     }
     
     suspend fun saveUserDetails(token: String) {
         val result = repository.validateToken(token)
         if (result.status.isSuccessful() && result.data?.valid == true) {
-            appPreferences.setUsername( result.data.username )
-            appPreferences.setLbAccessToken(token)
+            appPreferences.username.set(result.data.username ?: "")
+            appPreferences.lbAccessToken.set(token)
         } else {
             errorFlow.emit(result.error)
         }
@@ -171,8 +171,8 @@ class ListensViewModel @Inject constructor(
         viewModelScope.launch {
             val result = withContext(ioDispatcher) {
                 repository.getLinkedServices(
-                    token = appPreferences.getLbAccessToken(),
-                    username = appPreferences.getUsername()
+                    token = appPreferences.lbAccessToken.get(),
+                    username = appPreferences.username.get()
                 )
             }
             if (result.status.isSuccessful()) {

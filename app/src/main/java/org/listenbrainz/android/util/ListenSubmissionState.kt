@@ -199,6 +199,12 @@ class ListenSubmissionState(
     
     private fun isMetadataFaulty(): Boolean = playingTrack.artist.isNullOrEmpty() || playingTrack.title.isNullOrEmpty()
     
+    /** Discard current listen.*/
+    fun discardCurrentListen() {
+        playingTrack = PlayingTrack()
+        timer.stop()
+    }
+    
     companion object {
         const val DEFAULT_DURATION: Long = 60_000L
         

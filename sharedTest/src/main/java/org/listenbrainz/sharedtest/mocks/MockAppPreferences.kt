@@ -1,12 +1,12 @@
 package org.listenbrainz.sharedtest.mocks
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.repository.preferences.DataStorePreference
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testAccessToken
@@ -27,67 +27,78 @@ class MockAppPreferences(
     override val isNotificationServiceAllowed: Boolean = true,
     override var linkedServices: List<LinkedService> = listOf()
 ) : AppPreferences {
-    override suspend fun themePreference(): UiMode {
-        TODO("Not yet implemented")
+    
+    override val themePreference: DataStorePreference<UiMode> =
+        object : DataStorePreference<UiMode> {
+            override fun getFlow(): Flow<UiMode> = flow { emit(UiMode.FOLLOW_SYSTEM) }
+            
+            override suspend fun set(value: UiMode) {
+                TODO("Not yet implemented")
+            }
+        }
+    
+    override val listeningWhitelist: DataStorePreference<List<String>> =
+        object : DataStorePreference<List<String>> {
+            override fun getFlow(): Flow<List<String>> = flow {}
+            
+            override suspend fun set(value: List<String>) {
+                TODO("Not yet implemented")
+            }
+        }
+    
+    override val listeningApps: DataStorePreference<List<String>> =
+        object : DataStorePreference<List<String>> {
+            override fun getFlow(): Flow<List<String>> = flow {}
+        
+            override suspend fun set(value: List<String>) {
+                TODO("Not yet implemented")
+            }
+        }
+    
+    override val lbAccessToken: DataStorePreference<String> =
+        object : DataStorePreference<String> {
+        override fun getFlow(): Flow<String> = flow {
+                emit(testAccessToken)
+            }
+    
+        override suspend fun set(value: String) {
+            TODO("Not yet implemented")
+        }
     }
     
-    override fun themePreferenceFlow(): Flow<UiMode> {
-        TODO("Not yet implemented")
-    }
+    override val username: DataStorePreference<String> =
+        object : DataStorePreference<String> {
+            override fun getFlow(): Flow<String> = flow {
+                emit(testUsername)
+            }
+        
+            override suspend fun set(value: String) {
+                TODO("Not yet implemented")
+            }
+        }
     
-    override suspend fun setThemePreference(value: UiMode) {
-        TODO("Not yet implemented")
-    }
+    override val isListeningAllowed: DataStorePreference<Boolean> =
+        object : DataStorePreference<Boolean> {
+            override fun getFlow(): Flow<Boolean> = flow {}
+        
+            override suspend fun set(value: Boolean) {
+                TODO("Not yet implemented")
+            }
+        }
     
-    override suspend fun getListeningBlacklist(): List<String> {
-        TODO("Not yet implemented")
-    }
+    override val shouldListenNewPlayers: DataStorePreference<Boolean> =
+        object : DataStorePreference<Boolean> {
+            override fun getFlow(): Flow<Boolean> = flow {}
+        
+            override suspend fun set(value: Boolean) {
+                TODO("Not yet implemented")
+            }
+        }
     
-    override fun getListeningBlacklistFlow(): Flow<List<String>> {
-        TODO("Not yet implemented")
-    }
-    
-    override suspend fun setListeningBlacklist(value: List<String>) {
-        TODO("Not yet implemented")
-    }
-    
-    override suspend fun getListeningApps(): List<String> {
-        TODO("Not yet implemented")
-    }
-    
-    override fun getListeningAppsFlow(): Flow<List<String>> {
-        TODO("Not yet implemented")
-    }
-    
-    override suspend fun setListeningApps(value: List<String>) {
-        TODO("Not yet implemented")
-    }
     
     override suspend fun logoutUser() {
         TODO("Not yet implemented")
     }
-    
-    override suspend fun getLbAccessToken(): String = testAccessToken
-    
-    override fun getLbAccessTokenFlow(): Flow<String> = flow {
-        emit(testAccessToken)
-    }
-    
-    override suspend fun setLbAccessToken(value: String) {
-        TODO("Not yet implemented")
-    }
-    
-    override fun getUsernameFlow(): Flow<String> = MutableStateFlow(testUsername)
-    
-    override suspend fun getUsername(): String = testUsername
-    
-    override suspend fun setUsername(value: String?) {
-        TODO("Not yet implemented")
-    }
-    
-    override var submitListens: Boolean
-        get() = TODO("Not yet implemented")
-        set(value) {}
 
     override fun getLoginStatusFlow(): Flow<Int> = flow {
         emit(STATUS_LOGGED_IN)

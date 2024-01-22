@@ -7,7 +7,7 @@ data class PreferencesUiState(
     val username: String = "",
     val accessToken: String = "",
     val isNotificationServiceAllowed: Boolean = false,
-    val listeningBlacklist: List<String> = emptyList(),
+    val listeningWhitelist: List<String> = emptyList(),
     val listeningApps: List<String> = emptyList(),
     val theme: UiMode = UiMode.FOLLOW_SYSTEM
 )

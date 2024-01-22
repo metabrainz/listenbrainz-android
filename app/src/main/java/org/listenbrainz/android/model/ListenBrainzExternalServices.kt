@@ -2,6 +2,7 @@ package org.listenbrainz.android.model
 
 import com.google.gson.annotations.SerializedName
 import org.listenbrainz.android.util.LinkedService
+import org.listenbrainz.android.util.LinkedService.Companion.toLinkedService
 
 data class ListenBrainzExternalServices(
     val services: List<String>,
@@ -9,7 +10,7 @@ data class ListenBrainzExternalServices(
 ) {
     fun toLinkedServicesList(): List<LinkedService> =
        services.map {
-            LinkedService.parseService(it)
+            it.toLinkedService()
        }
     
 }

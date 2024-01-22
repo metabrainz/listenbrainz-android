@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository.scrobblemanager
+package org.listenbrainz.android.repository.listenservicemanager
 
 import android.app.Notification
 import android.content.Context
@@ -20,14 +20,15 @@ import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractTitl
 import javax.inject.Inject
 
 /** The sole responsibility of this layer is to maintain mutual exclusion between [onMetadataChanged] and
- * [onNotificationPosted] and filter out repetitive submissions.
+ * [onNotificationPosted], filter out repetitive submissions and handle changes in settings which concern
+ * listen scrobbing.
  *
  * FUTURE: Call notification popups here as well.*/
-class ScrobbleManagerImpl @Inject constructor(
+class ListenServiceManagerImpl @Inject constructor(
     workManager: WorkManager,
     private val appPreferences: AppPreferences,
     @ApplicationContext private val context: Context
-): ScrobbleManager {
+): ListenServiceManager {
     
     private val handler: Handler by lazy { Handler(Looper.getMainLooper()) }
     private val listenSubmissionState = ListenSubmissionState(workManager, context)
@@ -38,18 +39,35 @@ class ScrobbleManagerImpl @Inject constructor(
     
     /** Used to avoid repetitive submissions.*/
     private var lastNotificationPostTs = System.currentTimeMillis()
-    private lateinit var blackList: List<String>
+    private lateinit var whitelist: List<String>
+    private var isScrobblingAllowed: Boolean = true
     
     init {
-        scope.launch(Dispatchers.Default) {
-            appPreferences.getListeningBlacklistFlow().collect {
-                blackList = it
+        with(scope) {
+            launch(Dispatchers.Default) {
+                appPreferences.listeningWhitelist.getFlow().collect {
+                    whitelist = it
+                    // Discard current listen if the controller/package has been removed from whitelist.
+                    if (listenSubmissionState.playingTrack.pkgName !in whitelist) {
+                        listenSubmissionState.discardCurrentListen()
+                    }
+                }
+            }
+            launch(Dispatchers.Default) {
+                appPreferences.isListeningAllowed.getFlow().collect {
+                    isScrobblingAllowed = it
+                    // Immediately discard current listen if "Send Listens" option has been turned off.
+                    if (!isScrobblingAllowed) {
+                        listenSubmissionState.discardCurrentListen()
+                    }
+                }
             }
         }
     }
     
     override fun onMetadataChanged(metadata: MediaMetadata?, player: String) {
         handler.post {
+            if (!isScrobblingAllowed) return@post
             if (metadata == null) return@post
     
             val newTimestamp = System.currentTimeMillis()
@@ -85,6 +103,8 @@ class ScrobbleManagerImpl @Inject constructor(
      * means the track has been changed.*/
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         handler.post {
+            if (!isScrobblingAllowed) return@post
+            
             // Only CATEGORY_TRANSPORT contain media player metadata.
             if (sbn?.notification?.category != Notification.CATEGORY_TRANSPORT) return@post
     
@@ -104,8 +124,8 @@ class ScrobbleManagerImpl @Inject constructor(
                     && newTrack.title == playingTrack.title
                 ) return@post
     
-                // Check for blacklisted apps
-                if (sbn.packageName in blackList) return@post
+                // Check for whitelisted apps
+                if (sbn.packageName !in whitelist) return@post
     
                 lastNotificationPostTs = newTrack.timestamp
     
@@ -118,8 +138,10 @@ class ScrobbleManagerImpl @Inject constructor(
     
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         scope.launch {
+            if (!isScrobblingAllowed) return@launch
+            
             if (sbn?.notification?.category == Notification.CATEGORY_TRANSPORT
-                && sbn.packageName !in appPreferences.getListeningBlacklist()
+                && sbn.packageName in appPreferences.listeningWhitelist.get()
             ) {
                 listenSubmissionState.alertMediaPlayerRemoved(sbn)
             }

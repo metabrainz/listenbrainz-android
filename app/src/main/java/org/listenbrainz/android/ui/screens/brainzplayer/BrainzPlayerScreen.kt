@@ -40,32 +40,29 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.*
 import org.listenbrainz.android.ui.components.forwardingPainter
 import org.listenbrainz.android.ui.screens.brainzplayer.navigation.Navigation
-import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BrainzPlayerScreen() {
-    ListenBrainzTheme {
-        // View models
-        val albumViewModel = hiltViewModel<AlbumViewModel>()
-        val songsViewModel = hiltViewModel<SongViewModel>()
-        val artistViewModel = hiltViewModel<ArtistViewModel>()
-        val playlistViewModel = hiltViewModel<PlaylistViewModel>()
-        
-        // Data streams
-        val albums = albumViewModel.albums.collectAsState(initial = listOf()).value     // TODO: Introduce initial values to avoid flicker.
-        val songs = songsViewModel.songs.collectAsState(initial = listOf()).value
-        val artists = artistViewModel.artists.collectAsState(initial = listOf()).value
-        val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
-        val recentlyPlayed = Playlist.recentlyPlayed
-        
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            Navigation(albums, artists, playlists, recentlyPlayed, songs)
-        }
+    // View models
+    val albumViewModel = hiltViewModel<AlbumViewModel>()
+    val songsViewModel = hiltViewModel<SongViewModel>()
+    val artistViewModel = hiltViewModel<ArtistViewModel>()
+    val playlistViewModel = hiltViewModel<PlaylistViewModel>()
+    
+    // Data streams
+    val albums = albumViewModel.albums.collectAsState(initial = listOf()).value     // TODO: Introduce initial values to avoid flicker.
+    val songs = songsViewModel.songs.collectAsState(initial = listOf()).value
+    val artists = artistViewModel.artists.collectAsState(initial = listOf()).value
+    val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
+    val recentlyPlayed = Playlist.recentlyPlayed
+    
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        Navigation(albums, artists, playlists, recentlyPlayed, songs)
     }
 }
 
