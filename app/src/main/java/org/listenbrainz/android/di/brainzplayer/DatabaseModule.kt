@@ -30,7 +30,7 @@ object DatabaseModule {
     ): ListensSubmissionDatabase = Room.databaseBuilder(
         context,
         ListensSubmissionDatabase::class.java,
-        "listens_scrobble_database"
+        "listens_scrobble_database"    // TODO: change this later
     )
         .build()
 }
