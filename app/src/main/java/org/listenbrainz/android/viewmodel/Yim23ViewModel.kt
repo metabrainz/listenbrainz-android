@@ -7,9 +7,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.text.toLowerCase
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.caverock.androidsvg.SVG
@@ -20,12 +17,9 @@ import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.yimdata.*
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.social.SocialRepository
-import org.listenbrainz.android.repository.yim.YimRepository
 import org.listenbrainz.android.repository.yim23.Yim23Repository
-import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.saveBitmap
-import retrofit2.Response
 import java.net.URL
 import javax.inject.Inject
 
@@ -63,11 +57,11 @@ class Yim23ViewModel @Inject constructor(
 
     // Username related functions
     suspend fun getUsername() : String {
-        return appPreferences.getUsername()
+        return appPreferences.username.get()
     }
 
     fun getUsernameFlow() : Flow<String> {
-        return appPreferences.getUsernameFlow()
+        return appPreferences.username.getFlow()
     }
 
     /** Get Data functions

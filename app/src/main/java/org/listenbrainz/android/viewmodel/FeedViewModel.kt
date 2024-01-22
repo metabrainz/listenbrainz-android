@@ -106,7 +106,7 @@ class FeedViewModel @Inject constructor(
             searchFollowerQuery.collectLatest { query ->
                 if (query.isEmpty()) return@collectLatest
                 
-                val result = socialRepository.getFollowers(appPreferences.getUsername())
+                val result = socialRepository.getFollowers(appPreferences.username.get())
                 if (result.status == Resource.Status.SUCCESS){
                     searchFollowerResult.emit(
                         result.data?.followers?.filter {
@@ -141,7 +141,7 @@ class FeedViewModel @Inject constructor(
     
     private fun createNewMyFeedPagingSource(): MyFeedPagingSource =
         MyFeedPagingSource(
-            username = { appPreferences.getUsername() },
+            username = { appPreferences.username.get() },
             addEntryToMap = { id, value ->
                 isHiddenMap[id] = value
             },
@@ -154,7 +154,7 @@ class FeedViewModel @Inject constructor(
     
     private fun createNewFollowListensPagingSource(): FollowListensPagingSource =
         FollowListensPagingSource(
-            username = { appPreferences.getUsername() } ,
+            username = { appPreferences.username.get() } ,
             onError =  { error ->
                 emitError(error)
             },
@@ -164,7 +164,7 @@ class FeedViewModel @Inject constructor(
     
     private fun createNewSimilarListensPagingSource(): SimilarListensPagingSource =
         SimilarListensPagingSource(
-            username = { appPreferences.getUsername() },
+            username = { appPreferences.username.get() },
             onError =  { error ->
                 emitError(error)
             },
@@ -219,8 +219,8 @@ class FeedViewModel @Inject constructor(
     
     suspend fun isCritiqueBrainzLinked(): Boolean? {
         val result = listensRepository.getLinkedServices(
-            appPreferences.getLbAccessToken(),
-            appPreferences.getUsername()
+            appPreferences.lbAccessToken.get(),
+            appPreferences.username.get()
         )
         if (!result.status.isSuccessful()) {
             emitError(result.error)
@@ -252,7 +252,10 @@ class FeedViewModel @Inject constructor(
             if (type == FeedEventType.RECORDING_PIN.type) {
                 socialRepository.deletePin(id)
             } else {
-                feedRepository.deleteEvent(appPreferences.getUsername(), FeedEventDeletionData(eventId = id.toString(), eventType = type))
+                feedRepository.deleteEvent(
+                    appPreferences.username.get(),
+                    FeedEventDeletionData(eventId = id.toString(), eventType = type)
+                )
             }
         }
     
@@ -274,7 +277,7 @@ class FeedViewModel @Inject constructor(
         toggleHiddenStatus(data)
         
         val result = withContext(ioDispatcher) {
-            feedRepository.hideEvent(appPreferences.getUsername(), data)
+            feedRepository.hideEvent(appPreferences.username.get(), data)
         }
         
         when (result.status) {
@@ -294,7 +297,7 @@ class FeedViewModel @Inject constructor(
         toggleHiddenStatus(data)
         
         val result = withContext(ioDispatcher) {
-            feedRepository.unhideEvent(appPreferences.getUsername(), data)
+            feedRepository.unhideEvent(appPreferences.username.get(), data)
         }
         
         when (result.status) {

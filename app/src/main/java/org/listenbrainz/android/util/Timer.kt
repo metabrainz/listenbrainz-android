@@ -72,6 +72,7 @@ class Timer {
         reset()
     }
     
+    /** Discard current listen post and stop timer.*/
     fun stop() {
         if (mState == TimerState.ENDED) {
             return

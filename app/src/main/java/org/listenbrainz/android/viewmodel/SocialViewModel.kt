@@ -1,22 +1,14 @@
 package org.listenbrainz.android.viewmodel
 
 import android.net.Uri
-import android.util.Log
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.Metadata
@@ -28,7 +20,6 @@ import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.feed.ReviewEntityType
-import org.listenbrainz.android.model.yimdata.Yim23Payload
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
@@ -97,7 +88,7 @@ class SocialViewModel @Inject constructor(
         
         viewModelScope.launch(ioDispatcher) {
             val result = repository.postRecommendationToAll(
-                username = appPreferences.getUsername(),
+                username = appPreferences.username.get(),
                 data = RecommendationData(
                     metadata = RecommendationMetadata(
                         trackName = metadata.trackMetadata?.trackName ?: return@launch,
@@ -119,7 +110,7 @@ class SocialViewModel @Inject constructor(
         
         viewModelScope.launch(ioDispatcher) {
             val result = repository.postPersonalRecommendation(
-                username = appPreferences.getUsername(),
+                username = appPreferences.username.get(),
                 data = RecommendationData(
                     metadata = RecommendationMetadata(
                         trackName = metadata.trackMetadata?.trackName ?: return@launch,
@@ -144,7 +135,7 @@ class SocialViewModel @Inject constructor(
         
         viewModelScope.launch(ioDispatcher) {
             val result = repository.postReview(
-                username = appPreferences.getUsername(),
+                username = appPreferences.username.get(),
                 data = Review(
                     metadata = ReviewMetadata(
                         entityName = metadata.trackMetadata?.trackName ?: return@launch,
@@ -179,7 +170,7 @@ class SocialViewModel @Inject constructor(
     }
 
     suspend fun getFollowers(): Resource<SocialData> {
-        val username = appPreferences.getUsername()
+        val username = appPreferences.username.get()
         return repository.getFollowers(username).also {
             if(it.status == Resource.Status.FAILED){
                 emitError(it.error)

@@ -7,11 +7,7 @@ import org.listenbrainz.android.util.LinkedService
 
 interface AppPreferences {
     
-    suspend fun themePreference(): UiMode
-    
-    fun themePreferenceFlow(): Flow<UiMode>
-    
-    suspend fun setThemePreference(value: UiMode)
+    val themePreference: DataStorePreference<UiMode>
     
     /**
      *
@@ -24,19 +20,11 @@ interface AppPreferences {
      * [PermissionStatus.DENIED_TWICE] -> permission is denied twice and cannot be asked again. User need to go to settings to enable the permission.*/
     var permissionsPreference: String?
 
-    /** Blacklist for ListenService.*/
-    suspend fun getListeningBlacklist(): List<String>
-    
-    fun getListeningBlacklistFlow(): Flow<List<String>>
-    
-    suspend fun setListeningBlacklist(value: List<String>)
+    /** Whitelist for ListenSubmissionService.*/
+    val listeningWhitelist: DataStorePreference<List<String>>
     
     /** Music Apps in users device registered by listenService.*/
-    suspend fun getListeningApps(): List<String>
-    
-    fun getListeningAppsFlow(): Flow<List<String>>
-    
-    suspend fun setListeningApps(value: List<String>)
+    val listeningApps: DataStorePreference<List<String>>
 
     var onboardingCompleted: Boolean
     
@@ -52,25 +40,21 @@ interface AppPreferences {
     suspend fun isUserLoggedIn() : Boolean
     
     /****ListenBrainz User Token:** User has to manually fill this token.*/
-    suspend fun getLbAccessToken(): String
+    val lbAccessToken: DataStorePreference<String>
     
-    fun getLbAccessTokenFlow(): Flow<String>
-    
-    suspend fun setLbAccessToken(value: String)
-    
-    fun getUsernameFlow(): Flow<String>
-    
-    suspend fun getUsername(): String
-    
-    suspend fun setUsername(value: String?)
+    val username: DataStorePreference<String>
     
     val refreshToken: String?
     
     var linkedServices: List<LinkedService>
+    
+    /** Default is true. */
+    val isListeningAllowed: DataStorePreference<Boolean>
+    
+    /** Default is true. */
+    val shouldListenNewPlayers: DataStorePreference<Boolean>
 
     val isNotificationServiceAllowed: Boolean
-
-    var submitListens: Boolean
     
     /* BrainzPlayer Preferences */
     

@@ -51,11 +51,11 @@ class YimViewModel @Inject constructor(
     
     // Username related functions
     suspend fun getUsername() : String {
-        return appPreferences.getUsername()
+        return appPreferences.username.get()
     }
     
     fun getUsernameFlow() : Flow<String> {
-        return appPreferences.getUsernameFlow()
+        return appPreferences.username.getFlow()
     }
     
     /** Get Data functions
