@@ -3,11 +3,13 @@ package org.listenbrainz.android.repository.preferences
 import kotlinx.coroutines.flow.Flow
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode
+import org.listenbrainz.android.repository.preferences.ProtoDataStore.DataStorePreference
+import org.listenbrainz.android.repository.preferences.ProtoDataStore.PrimitiveDataStorePreference
 import org.listenbrainz.android.util.LinkedService
 
 interface AppPreferences {
     
-    val themePreference: DataStorePreference<UiMode>
+    val themePreference: DataStorePreference<UiMode, String>
     
     /**
      *
@@ -21,10 +23,10 @@ interface AppPreferences {
     var permissionsPreference: String?
 
     /** Whitelist for ListenSubmissionService.*/
-    val listeningWhitelist: DataStorePreference<List<String>>
+    val listeningWhitelist: DataStorePreference<List<String>, String>
     
     /** Music Apps in users device registered by listenService.*/
-    val listeningApps: DataStorePreference<List<String>>
+    val listeningApps: DataStorePreference<List<String>,String>
 
     var onboardingCompleted: Boolean
     
@@ -40,19 +42,19 @@ interface AppPreferences {
     suspend fun isUserLoggedIn() : Boolean
     
     /****ListenBrainz User Token:** User has to manually fill this token.*/
-    val lbAccessToken: DataStorePreference<String>
+    val lbAccessToken: PrimitiveDataStorePreference<String>
     
-    val username: DataStorePreference<String>
+    val username: PrimitiveDataStorePreference<String>
     
     val refreshToken: String?
     
     var linkedServices: List<LinkedService>
     
     /** Default is true. */
-    val isListeningAllowed: DataStorePreference<Boolean>
+    val isListeningAllowed: PrimitiveDataStorePreference<Boolean>
     
     /** Default is true. */
-    val shouldListenNewPlayers: DataStorePreference<Boolean>
+    val shouldListenNewPlayers: PrimitiveDataStorePreference<Boolean>
 
     val isNotificationServiceAllowed: Boolean
     
