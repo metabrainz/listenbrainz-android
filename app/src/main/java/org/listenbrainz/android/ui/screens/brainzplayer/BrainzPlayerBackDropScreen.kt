@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.screens.brainzplayer
 
 
-import androidx.compose.animation.*
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -48,11 +47,10 @@ import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.PlayPauseIcon
 import org.listenbrainz.android.ui.components.SeekBar
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
-import org.listenbrainz.android.util.BrainzPlayerExtensions.duration
-import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
+import org.listenbrainz.android.util.brainzplayer.BrainzPlayerExtensions.duration
+import org.listenbrainz.android.util.brainzplayer.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.CacheService
 import org.listenbrainz.android.util.Constants.RECENTLY_PLAYED_KEY
-import org.listenbrainz.android.util.SongViewPager
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import kotlin.math.absoluteValue

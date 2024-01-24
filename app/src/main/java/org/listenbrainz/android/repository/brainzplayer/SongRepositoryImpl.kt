@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.model.dao.SongDao
-import org.listenbrainz.android.util.SongsData
+import org.listenbrainz.android.util.brainzplayer.SongsData
 import org.listenbrainz.android.util.Transformer.toSong
 import org.listenbrainz.android.util.Transformer.toSongEntity
 import javax.inject.Inject

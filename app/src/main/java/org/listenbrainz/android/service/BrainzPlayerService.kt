@@ -21,11 +21,11 @@ import org.listenbrainz.android.repository.brainzplayer.AlbumRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.brainzplayer.PlaylistRepository
 import org.listenbrainz.android.repository.brainzplayer.SongRepository
-import org.listenbrainz.android.util.BrainzPlayerExtensions.toMediaMetadataCompat
-import org.listenbrainz.android.util.BrainzPlayerNotificationManager
-import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID
-import org.listenbrainz.android.util.BrainzPlayerUtils.SERVICE_TAG
-import org.listenbrainz.android.util.LocalMusicSource
+import org.listenbrainz.android.util.brainzplayer.BrainzPlayerExtensions.toMediaMetadataCompat
+import org.listenbrainz.android.util.brainzplayer.BrainzPlayerNotificationManager
+import org.listenbrainz.android.util.brainzplayer.BrainzPlayerUtils.MEDIA_ROOT_ID
+import org.listenbrainz.android.util.brainzplayer.BrainzPlayerUtils.SERVICE_TAG
+import org.listenbrainz.android.util.brainzplayer.LocalMusicSource
 import javax.inject.Inject
 
 @AndroidEntryPoint

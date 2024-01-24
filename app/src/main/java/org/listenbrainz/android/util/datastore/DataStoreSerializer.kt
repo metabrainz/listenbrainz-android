@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository.preferences
+package org.listenbrainz.android.util.datastore
 
 /** @property T Object or higher type.
  *  @property R Primitive or serializable type.*/

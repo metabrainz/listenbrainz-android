@@ -10,8 +10,6 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.preference.PreferenceManager
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -43,11 +41,13 @@ import org.listenbrainz.android.util.Constants.Strings.REFRESH_TOKEN
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
 import org.listenbrainz.android.util.Constants.Strings.USERNAME
-import org.listenbrainz.android.util.DataStoreSerializers.stringListSerializer
-import org.listenbrainz.android.util.DataStoreSerializers.themeSerializer
+import org.listenbrainz.android.util.datastore.DataStoreSerializers.linkedServicesListSerializer
+import org.listenbrainz.android.util.datastore.DataStoreSerializers.stringListSerializer
+import org.listenbrainz.android.util.datastore.DataStoreSerializers.themeSerializer
 import org.listenbrainz.android.util.LinkedService
+import org.listenbrainz.android.util.datastore.ProtoDataStore
 import org.listenbrainz.android.util.TypeConverter
-import org.listenbrainz.android.util.migrations.blacklistMigration
+import org.listenbrainz.android.util.datastore.migrations.blacklistMigration
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
     name = "settings",
@@ -63,14 +63,13 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
                 PREFERENCE_SYSTEM_THEME,
                 PREFERENCE_LISTENING_APPS
             )
-        ), blacklistMigration)
+        ), blacklistMigration
+        )
     }
 )
 
 class AppPreferencesImpl(private val context: Context) : ProtoDataStore(context.dataStore), AppPreferences {
     companion object {
-        private val gson = Gson()
-    
         object PreferenceKeys {
             val LB_ACCESS_TOKEN = stringPreferencesKey(Constants.Strings.LB_ACCESS_TOKEN)
             val USERNAME = stringPreferencesKey(Constants.Strings.USERNAME)
@@ -207,12 +206,11 @@ class AppPreferencesImpl(private val context: Context) : ProtoDataStore(context.
     
     override var linkedServices: List<LinkedService>
         get() {
-            val jsonString = preferences.getString(LINKED_SERVICES, "")
-            val type = object : TypeToken<List<LinkedService>>() {}.type
-            return gson.fromJson(jsonString, type) ?: emptyList()
+            val jsonString = preferences.getString(LINKED_SERVICES, "") ?: ""
+            return linkedServicesListSerializer.from(jsonString)
         }
         set(value) {
-            val jsonString = gson.toJson(value)
+            val jsonString = linkedServicesListSerializer.to(value)
             setString(LINKED_SERVICES, jsonString)
         }
 

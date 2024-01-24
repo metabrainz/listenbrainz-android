@@ -10,10 +10,10 @@ import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys
-import org.listenbrainz.android.repository.preferences.ProtoDataStore
+import org.listenbrainz.android.util.datastore.ProtoDataStore
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
-import org.listenbrainz.android.util.DataStoreSerializers.stringListSerializer
-import org.listenbrainz.android.util.DataStoreSerializers.themeSerializer
+import org.listenbrainz.android.util.datastore.DataStoreSerializers.stringListSerializer
+import org.listenbrainz.android.util.datastore.DataStoreSerializers.themeSerializer
 import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testAccessToken
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername

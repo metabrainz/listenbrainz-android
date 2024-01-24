@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository.preferences
+package org.listenbrainz.android.util.datastore
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences

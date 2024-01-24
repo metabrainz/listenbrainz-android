@@ -1,11 +1,11 @@
-package org.listenbrainz.android.util.migrations
+package org.listenbrainz.android.util.datastore.migrations
 
 import androidx.datastore.core.DataMigration
 import androidx.datastore.preferences.core.Preferences
 import com.google.gson.Gson
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys
-import org.listenbrainz.android.util.DataStoreSerializers.stringListSerializer
+import org.listenbrainz.android.util.datastore.DataStoreSerializers.stringListSerializer
 
 val blacklistMigration: DataMigration<Preferences> =
     object: DataMigration<Preferences> {

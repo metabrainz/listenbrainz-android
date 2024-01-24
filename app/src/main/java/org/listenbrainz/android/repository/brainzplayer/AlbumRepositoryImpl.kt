@@ -12,8 +12,8 @@ import kotlinx.coroutines.withContext
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.model.dao.AlbumDao
-import org.listenbrainz.android.util.AlbumsData
-import org.listenbrainz.android.util.SongsData
+import org.listenbrainz.android.util.brainzplayer.AlbumsData
+import org.listenbrainz.android.util.brainzplayer.SongsData
 import org.listenbrainz.android.util.Transformer.toAlbum
 import org.listenbrainz.android.util.Transformer.toAlbumEntity
 

@@ -1,10 +1,10 @@
-package org.listenbrainz.android.util
+package org.listenbrainz.android.util.datastore
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.model.UiMode.Companion.asUiMode
-import org.listenbrainz.android.repository.preferences.DataStoreSerializer
+import org.listenbrainz.android.util.LinkedService
 
 object DataStoreSerializers {
     private val gson = Gson()
@@ -33,5 +33,8 @@ object DataStoreSerializers {
     
     
     val stringListSerializer: DataStoreSerializer<List<String>, String>
+        get() = gsonSerializer(emptyList())
+    
+    val linkedServicesListSerializer: DataStoreSerializer<List<LinkedService>, String>
         get() = gsonSerializer(emptyList())
 }

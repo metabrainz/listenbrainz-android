@@ -3,9 +3,9 @@ package org.listenbrainz.android.repository.preferences
 import kotlinx.coroutines.flow.Flow
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode
-import org.listenbrainz.android.repository.preferences.ProtoDataStore.DataStorePreference
-import org.listenbrainz.android.repository.preferences.ProtoDataStore.PrimitiveDataStorePreference
 import org.listenbrainz.android.util.LinkedService
+import org.listenbrainz.android.util.datastore.ProtoDataStore.DataStorePreference
+import org.listenbrainz.android.util.datastore.ProtoDataStore.PrimitiveDataStorePreference
 
 interface AppPreferences {
     
