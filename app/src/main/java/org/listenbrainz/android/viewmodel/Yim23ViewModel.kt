@@ -245,12 +245,12 @@ class Yim23ViewModel @Inject constructor(
         return yimData.value.data?.payload?.data?.topGenres!!.toList()
     }
 
-    fun getTopDiscoveries () : Yim23TopDiscoveries {
-        return yimData.value.data?.payload?.data?.topDiscoveriesPlaylist!!
+    fun getTopDiscoveries () : Yim23TopDiscoveriesPlaylist? {
+        return yimData.value.data?.payload?.data?.topDiscoveriesPlaylist
     }
 
-    fun getMissedSongs () : Yim23TopDiscoveries {
-        return yimData.value.data?.payload?.data?.topMissedRecordings!!
+    fun getMissedSongs () : Yim23TopDiscoveriesPlaylist? {
+        return yimData.value.data?.payload?.data?.topMissedRecordings
     }
 
     /** Shareable types : "stats", "artists", "albums", "tracks", "discovery-playlist", "missed-playlist".*/
