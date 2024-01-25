@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.util.Resource
+import org.listenbrainz.android.util.datastore.Preference.Companion.ComplexPreference
+import org.listenbrainz.android.util.datastore.Preference.Companion.PrimitivePreference
 import java.io.IOException
 
 abstract class ProtoDataStore(private val dataStore: DataStore<Preferences>) {
@@ -19,11 +21,19 @@ abstract class ProtoDataStore(private val dataStore: DataStore<Preferences>) {
             override fun default(): T = defaultValue
         }
     
+    
     /** [DataStorePreference]s which are primitive in nature can use this class.*/
     abstract inner class PrimitiveDataStorePreference<T>(
         key: Preferences.Key<T>,
         defaultValue: T
-    ): DataStorePreference<T, T>(key, defaultSerializer(defaultValue))
+    ): PrimitivePreference<T>, DataStorePreference<T, T>(key, defaultSerializer(defaultValue))
+    
+    
+    /** [DataStorePreference]s which are complex in nature can use this class.*/
+    abstract inner class ComplexDataStorePreference<T>(
+        key: Preferences.Key<String>,
+        serializer: DataStoreSerializer<T, String>
+    ): ComplexPreference<T>, DataStorePreference<T, String>(key, serializer)
     
     
     /** A [DataStore] preference can be declared type-safe by making an object of this class.
@@ -32,10 +42,10 @@ abstract class ProtoDataStore(private val dataStore: DataStore<Preferences>) {
     abstract inner class DataStorePreference<T, R>(
         private val key: Preferences.Key<R>,
         private val serializer: DataStoreSerializer<T, R>
-    ) {
-        open suspend fun get(): T = getFlow().firstOrNull() ?: serializer.default()
+    ): Preference<T, R> {
+        override suspend fun get(): T = getFlow().firstOrNull() ?: serializer.default()
         
-        open fun getFlow(): Flow<T> =
+        override fun getFlow(): Flow<T> =
             dataStore.data.map { prefs ->
                 prefs[key]?.let { serializer.from(it) } ?: serializer.default()
             }.catch {
@@ -46,7 +56,7 @@ abstract class ProtoDataStore(private val dataStore: DataStore<Preferences>) {
             }
         
         /** @return [Resource] If the value was updated or not.*/
-        open suspend fun set(value: T): Resource<T> =
+        override suspend fun set(value: T): Resource<T> =
             try {
                 dataStore.edit { it[key] = serializer.to(value) }
                 Resource.success(value)
@@ -55,12 +65,14 @@ abstract class ProtoDataStore(private val dataStore: DataStore<Preferences>) {
             }
         
         /** Update the value of the preference in an atomic read-modify-write manner.*/
-        open suspend fun getAndUpdate(update: (T) -> T) =
+        override suspend fun getAndUpdate(update: (T) -> T) {
             dataStore.updateData { prefs ->
                 val mutablePrefs = prefs.toMutablePreferences()
                 val currentValue = prefs[key]?.let { serializer.from(it) } ?: serializer.default()
                 mutablePrefs[key] = serializer.to(update(currentValue))
                 return@updateData mutablePrefs
             }
+        }
+        
     }
 }

@@ -4,12 +4,12 @@ import kotlinx.coroutines.flow.Flow
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.util.LinkedService
-import org.listenbrainz.android.util.datastore.ProtoDataStore.DataStorePreference
-import org.listenbrainz.android.util.datastore.ProtoDataStore.PrimitiveDataStorePreference
+import org.listenbrainz.android.util.datastore.Preference.Companion.ComplexPreference
+import org.listenbrainz.android.util.datastore.Preference.Companion.PrimitivePreference
 
 interface AppPreferences {
     
-    val themePreference: DataStorePreference<UiMode, String>
+    val themePreference: ComplexPreference<UiMode>
     
     /**
      *
@@ -23,10 +23,10 @@ interface AppPreferences {
     var permissionsPreference: String?
 
     /** Whitelist for ListenSubmissionService.*/
-    val listeningWhitelist: DataStorePreference<List<String>, String>
+    val listeningWhitelist: ComplexPreference<List<String>>
     
     /** Music Apps in users device registered by listenService.*/
-    val listeningApps: DataStorePreference<List<String>,String>
+    val listeningApps: ComplexPreference<List<String>>
 
     var onboardingCompleted: Boolean
     
@@ -42,19 +42,19 @@ interface AppPreferences {
     suspend fun isUserLoggedIn() : Boolean
     
     /****ListenBrainz User Token:** User has to manually fill this token.*/
-    val lbAccessToken: PrimitiveDataStorePreference<String>
+    val lbAccessToken: PrimitivePreference<String>
     
-    val username: PrimitiveDataStorePreference<String>
+    val username: PrimitivePreference<String>
     
     val refreshToken: String?
     
     var linkedServices: List<LinkedService>
     
     /** Default is true. */
-    val isListeningAllowed: PrimitiveDataStorePreference<Boolean>
+    val isListeningAllowed: PrimitivePreference<Boolean>
     
     /** Default is true. */
-    val shouldListenNewPlayers: PrimitiveDataStorePreference<Boolean>
+    val shouldListenNewPlayers: PrimitivePreference<Boolean>
 
     val isNotificationServiceAllowed: Boolean
     

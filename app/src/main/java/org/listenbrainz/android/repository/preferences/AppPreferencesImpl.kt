@@ -41,12 +41,14 @@ import org.listenbrainz.android.util.Constants.Strings.REFRESH_TOKEN
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
 import org.listenbrainz.android.util.Constants.Strings.USERNAME
+import org.listenbrainz.android.util.LinkedService
+import org.listenbrainz.android.util.TypeConverter
+import org.listenbrainz.android.util.datastore.Preference.Companion.ComplexPreference
 import org.listenbrainz.android.util.datastore.DataStoreSerializers.linkedServicesListSerializer
 import org.listenbrainz.android.util.datastore.DataStoreSerializers.stringListSerializer
 import org.listenbrainz.android.util.datastore.DataStoreSerializers.themeSerializer
-import org.listenbrainz.android.util.LinkedService
+import org.listenbrainz.android.util.datastore.Preference.Companion.PrimitivePreference
 import org.listenbrainz.android.util.datastore.ProtoDataStore
-import org.listenbrainz.android.util.TypeConverter
 import org.listenbrainz.android.util.datastore.migrations.blacklistMigration
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
@@ -108,8 +110,8 @@ class AppPreferencesImpl(private val context: Context) : ProtoDataStore(context.
     
     // Preferences Implementation
     
-    override val themePreference: DataStorePreference<UiMode, String>
-        get() = object : DataStorePreference<UiMode, String>(
+    override val themePreference: ComplexPreference<UiMode>
+        get() = object : ComplexDataStorePreference<UiMode>(
             key = THEME,
             serializer = themeSerializer
         ) {}
@@ -118,8 +120,8 @@ class AppPreferencesImpl(private val context: Context) : ProtoDataStore(context.
         get() = preferences.getString(PREFERENCE_PERMS, PermissionStatus.NOT_REQUESTED.name)
         set(value) = setString(PREFERENCE_PERMS, value)
     
-    override val listeningWhitelist: DataStorePreference<List<String>, String>
-        get() = object: DataStorePreference<List<String>, String>(
+    override val listeningWhitelist: ComplexPreference<List<String>>
+        get() = object: ComplexDataStorePreference<List<String>>(
             key = LISTENING_WHITELIST,
             serializer = stringListSerializer
         ) {}
@@ -130,20 +132,20 @@ class AppPreferencesImpl(private val context: Context) : ProtoDataStore(context.
             return listeners != null && listeners.contains(context.packageName)
         }
     
-    override val isListeningAllowed: PrimitiveDataStorePreference<Boolean>
+    override val isListeningAllowed: PrimitivePreference<Boolean>
         get() = object: PrimitiveDataStorePreference<Boolean>(
             key = IS_LISTENING_ALLOWED,
             defaultValue = true
         ) {}
     
-    override val shouldListenNewPlayers: PrimitiveDataStorePreference<Boolean>
+    override val shouldListenNewPlayers: PrimitivePreference<Boolean>
         get() = object: PrimitiveDataStorePreference<Boolean>(
         key = SHOULD_LISTEN_NEW_PLAYERS,
         defaultValue = true
     ) {}
     
-    override val listeningApps: DataStorePreference<List<String>, String>
-        get() = object: DataStorePreference<List<String>, String>(
+    override val listeningApps: ComplexPreference<List<String>>
+        get() = object: ComplexDataStorePreference<List<String>>(
             key = LISTENING_APPS,
             serializer = stringListSerializer
         ) {}
@@ -192,13 +194,13 @@ class AppPreferencesImpl(private val context: Context) : ProtoDataStore(context.
     override suspend fun isUserLoggedIn() : Boolean =
         lbAccessToken.get().isNotEmpty()
     
-    override val lbAccessToken: PrimitiveDataStorePreference<String>
+    override val lbAccessToken: PrimitivePreference<String>
         get() = object : PrimitiveDataStorePreference<String>(
             key = PreferenceKeys.LB_ACCESS_TOKEN,
             defaultValue = ""
         ) {}
     
-    override val username: PrimitiveDataStorePreference<String>
+    override val username: PrimitivePreference<String>
         get() = object : PrimitiveDataStorePreference<String>(
             key = PreferenceKeys.USERNAME,
             defaultValue = ""
