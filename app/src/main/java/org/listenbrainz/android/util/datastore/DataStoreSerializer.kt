@@ -6,7 +6,7 @@ interface DataStoreSerializer<T, R> {
     /** Convert from Primitive [R] to Object [T].*/
     fun from(value: R): T
     
-    /** Convert to Primitive [T] to Object [R].*/
+    /** Convert to Primitive [T] from Object [R].*/
     fun to(value: T): R
     
     /** Default value for errors and null values.*/
