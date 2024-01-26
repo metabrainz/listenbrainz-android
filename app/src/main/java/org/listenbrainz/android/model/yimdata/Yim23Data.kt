@@ -12,7 +12,6 @@ data class Yim23Data (
 
     // This map is null if user has no similar users, i.e., has less listen time.
     @SerializedName("similar_users"                    ) var similarUsers              : Map<String, Double>?               = null,
-
     @SerializedName("top_artists"                      ) var topArtists                : ArrayList<TopArtist>               = arrayListOf(),
     @SerializedName("top_genres"                      ) var topGenres                  : ArrayList<TopGenre>               = arrayListOf(),
     @SerializedName("top_recordings"                   ) var topRecordings             : ArrayList<TopRecording>            = arrayListOf(),
@@ -23,10 +22,8 @@ data class Yim23Data (
     @SerializedName("total_new_artists_discovered"     ) var totalNewArtistsDiscovered : Int                                = 0,
     @SerializedName("total_recordings_count"           ) var totalRecordingsCount      : Int                                = 0,
     @SerializedName("total_releases_count"             ) var totalReleasesCount        : Int                                = 0,
-
-    @SerializedName("top-discoveries"                ) var topDiscoveriesPlaylist         : Yim23TopDiscoveries = Yim23TopDiscoveries(),
-    @SerializedName("top-missed-recordings"                ) var topMissedRecordings         : Yim23TopDiscoveries = Yim23TopDiscoveries()
-
+    @SerializedName("playlist-top-discoveries-for-year") var topDiscoveriesPlaylist    : Yim23TopDiscoveriesPlaylist        = Yim23TopDiscoveriesPlaylist(),
+    @SerializedName("playlist-top-missed-recordings-for-year") var topMissedRecordings : Yim23TopDiscoveriesPlaylist        = Yim23TopDiscoveriesPlaylist()
 )
 
 /**
