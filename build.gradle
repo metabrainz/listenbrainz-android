@@ -7,7 +7,7 @@ buildscript {
         hilt_version = '2.50'
         compose_version = '1.5.4'
         room_version = '2.6.1'
-        accompanist_version = '0.32.0'
+        accompanist_version = '0.34.0'
         work_version = '2.9.0'
         exoplayer_version = '2.19.1'
         paging_version = "3.2.1"
