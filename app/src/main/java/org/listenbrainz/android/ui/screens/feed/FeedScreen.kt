@@ -154,20 +154,24 @@ fun FeedScreen(
     val similarListensListState = rememberLazyListState()
     
     val pagerState = rememberPagerState { 3 }
-    val isRefreshing =
+    val isRefreshing = remember(
+        pagerState.currentPage,
+        myFeedPagingData.loadState.refresh
+    ) {
         when (pagerState.currentPage) {
             0 -> myFeedPagingData.loadState.refresh is LoadState.Loading
             1 -> followListensPagingData.loadState.refresh is LoadState.Loading
             2 -> similarListensPagingData.loadState.refresh is LoadState.Loading
             else -> false
         }
+    }
     
     val dialogsState = rememberDialogsState()
     
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
         onRefresh = {
-            when (pagerState.currentPage){
+            when (pagerState.currentPage) {
                 0 -> myFeedPagingData.refresh()
                 1 -> followListensPagingData.refresh()
                 2 -> similarListensPagingData.refresh()
@@ -191,7 +195,6 @@ fun FeedScreen(
                     similarListensPagingData.refresh()
                 }
             }
-            
         }
     }
     
@@ -213,7 +216,10 @@ fun FeedScreen(
     
         HorizontalPager(
             state = pagerState,
-            pageNestedScrollConnection = PagerDefaults.pageNestedScrollConnection(Orientation.Horizontal)
+            beyondBoundsPageCount = 1,
+            pageNestedScrollConnection = remember(pagerState) {
+                PagerDefaults.pageNestedScrollConnection(Orientation.Horizontal)
+            }
         ) { position ->
             when (position) {
                 0 -> MyFeed(

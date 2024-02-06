@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
@@ -33,6 +34,7 @@ import org.listenbrainz.android.util.Utils.getArticle
  * @param icon Feed icon for the event, **must** be of width 19 dp.
  * @param isDeletable Can only delete our (user's) recommendations and pins.
  * @param isHideable Can only hide followed user's events and notifications.*/
+@Immutable
 enum class FeedEventType (
     val type: String,
     @DrawableRes val icon: Int,
