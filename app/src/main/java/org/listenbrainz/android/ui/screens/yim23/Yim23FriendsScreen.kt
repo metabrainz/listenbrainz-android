@@ -92,7 +92,7 @@ private fun Yim23Friends (viewModel: Yim23ViewModel) {
                     color = MaterialTheme.colorScheme.background
                 , onClick = {
                         try {
-                            uriHandler.openUri("https://beta.listenbrainz.org/user/${followers.value?.data?.followers!![page]}/year-in-music/2023/")
+                            uriHandler.openUri("https://listenbrainz.org/user/${followers.value?.data?.followers!![page]}/year-in-music/2023/")
                         }
                         catch (e : Error) {
                             Toast.makeText(context, "Error occured", Toast.LENGTH_SHORT)
