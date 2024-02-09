@@ -61,7 +61,7 @@ private fun Yim23Discoveries (viewModel: Yim23ViewModel) {
                         coverArtUrl = Utils.getCoverArtUrl(
                             caaId = it.extension.extensionData.additionalMetadata.caaId,
                             caaReleaseMbid = it.extension.extensionData.additionalMetadata.caaReleaseMbid ,
-                            size = 500
+                            size = 250
                         )
                     )
                 }

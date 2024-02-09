@@ -63,7 +63,7 @@ private fun Yim23MissedSongs (viewModel: Yim23ViewModel) {
                     Utils.getCoverArtUrl(
                         caaId = it.extension.extensionData.additionalMetadata.caaId.toLong(),
                         caaReleaseMbid = it.extension.extensionData.additionalMetadata.caaReleaseMbid,
-                        size = 500),)
+                        size = 250),)
                 }
             }
         }
