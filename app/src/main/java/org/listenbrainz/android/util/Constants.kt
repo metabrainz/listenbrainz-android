@@ -15,6 +15,7 @@ object Constants {
     const val LISTENBRAINZ_BETA_API_BASE_URL = "https://beta-api.listenbrainz.org/1/"
     const val ONBOARDING = "onboarding_lb"
     const val ABOUT_URL = "https://listenbrainz.org/about"
+    const val LB_BASE_URL = "https://listenbrainz.org/"
 
     object Strings {
         const val TIMESTAMP = "timestamp"

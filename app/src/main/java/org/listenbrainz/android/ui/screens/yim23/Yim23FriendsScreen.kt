@@ -46,6 +46,7 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.yimdata.Yim23Screens
+import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
@@ -92,7 +93,7 @@ private fun Yim23Friends (viewModel: Yim23ViewModel) {
                     color = MaterialTheme.colorScheme.background
                 , onClick = {
                         try {
-                            uriHandler.openUri("https://listenbrainz.org/user/${followers.value?.data?.followers!![page]}/year-in-music/2023/")
+                            uriHandler.openUri(Constants.LB_BASE_URL + "user/${followers.value?.data?.followers!![page]}/year-in-music/2023/")
                         }
                         catch (e : Error) {
                             Toast.makeText(context, "Error occured", Toast.LENGTH_SHORT)
