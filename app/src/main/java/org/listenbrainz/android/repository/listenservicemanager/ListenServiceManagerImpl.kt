@@ -40,7 +40,7 @@ class ListenServiceManagerImpl @Inject constructor(
     /** Used to avoid repetitive submissions.*/
     private var lastNotificationPostTs = System.currentTimeMillis()
     private lateinit var whitelist: List<String>
-    private var isScrobblingAllowed: Boolean = true
+    private var isListeningAllowed: Boolean = true
     
     init {
         with(scope) {
@@ -55,9 +55,9 @@ class ListenServiceManagerImpl @Inject constructor(
             }
             launch(Dispatchers.Default) {
                 appPreferences.isListeningAllowed.getFlow().collect {
-                    isScrobblingAllowed = it
+                    isListeningAllowed = it
                     // Immediately discard current listen if "Send Listens" option has been turned off.
-                    if (!isScrobblingAllowed) {
+                    if (!it) {
                         listenSubmissionState.discardCurrentListen()
                     }
                 }
@@ -67,7 +67,7 @@ class ListenServiceManagerImpl @Inject constructor(
     
     override fun onMetadataChanged(metadata: MediaMetadata?, player: String) {
         handler.post {
-            if (!isScrobblingAllowed) return@post
+            if (!isListeningAllowed) return@post
             if (metadata == null) return@post
     
             val newTimestamp = System.currentTimeMillis()
@@ -103,7 +103,7 @@ class ListenServiceManagerImpl @Inject constructor(
      * means the track has been changed.*/
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         handler.post {
-            if (!isScrobblingAllowed) return@post
+            if (!isListeningAllowed) return@post
             
             // Only CATEGORY_TRANSPORT contain media player metadata.
             if (sbn?.notification?.category != Notification.CATEGORY_TRANSPORT) return@post
@@ -138,7 +138,7 @@ class ListenServiceManagerImpl @Inject constructor(
     
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         scope.launch {
-            if (!isScrobblingAllowed) return@launch
+            if (!isListeningAllowed) return@launch
             
             if (sbn?.notification?.category == Notification.CATEGORY_TRANSPORT
                 && sbn.packageName in appPreferences.listeningWhitelist.get()

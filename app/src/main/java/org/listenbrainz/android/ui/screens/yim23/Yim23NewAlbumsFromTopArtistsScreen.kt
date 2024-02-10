@@ -61,7 +61,7 @@ private fun Yim23NewAlbumsFromTopArtists (viewModel: Yim23ViewModel) {
                 Utils.getCoverArtUrl(
                     caaId = it.caaId,
                     caaReleaseMbid = it.caaReleaseMbid ,
-                    size = 500),)
+                    size = 250),)
             }
         }
     }

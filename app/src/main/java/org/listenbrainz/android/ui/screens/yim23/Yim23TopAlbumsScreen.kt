@@ -84,7 +84,7 @@ private fun AlbumCoverPic (list: List<TopReleaseYim23>?) {
                         model = Utils.getCoverArtUrl(
                             caaReleaseMbid = list!![i-1].caaReleaseMbid,
                             caaId = list[i-1].caaId,
-                            size = 500,
+                            size = 250,
                         ),
                         modifier = Modifier
                             .size(80.dp),

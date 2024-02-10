@@ -39,8 +39,6 @@ import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
 
-
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Yim23HomeScreen(
     viewModel: Yim23ViewModel,
@@ -199,7 +197,7 @@ fun Yim23HomeScreen(
                                 viewModel = viewModel,
                                 typeOfImage = arrayOf(YimShareable.OVERVIEW)
                             )
-                            ListenBrainzProfileButton(navController = navController)
+                            ListenBrainzProfileButton(activity = activity)
                         }
                     }
                 } else {
@@ -288,7 +286,7 @@ fun Yim23HomeScreen(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.Center
                             ) {
-                                ListenBrainzProfileButton(navController = navController)
+                                ListenBrainzProfileButton(activity = activity)
                             }
                         }
                     }
@@ -309,15 +307,16 @@ fun ColorPicker(color: Color , onClick : () -> Unit ) {
 }
 
 @Composable
-fun ListenBrainzProfileButton(navController: NavHostController) {
+fun ListenBrainzProfileButton(activity: ComponentActivity) {
 
         val context = LocalContext.current
+
         Button(onClick = {
             try {
-                navController.navigate(route = AppNavigationItem.Profile.route)
+                activity.finish()
             }
             catch (e : Error){
-                Toast.makeText(context ,e.toString() , Toast.LENGTH_SHORT)
+                Toast.makeText(context ,e.toString() , Toast.LENGTH_SHORT).show()
             }
         } , colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.surface) , modifier = Modifier
             .padding(11.dp)
