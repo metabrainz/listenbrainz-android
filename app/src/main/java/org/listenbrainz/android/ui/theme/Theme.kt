@@ -92,7 +92,7 @@ private val colorSchemeLight = ColorScheme(
     hint = Color(0xFF707070)
 )
 
-private lateinit var LocalColorScheme: ProvidableCompositionLocal<ColorScheme>
+private var LocalColorScheme: ProvidableCompositionLocal<ColorScheme> = staticCompositionLocalOf { colorSchemeLight }
 
 private val DarkColorScheme = darkColorScheme(
     background = app_bg_dark,
