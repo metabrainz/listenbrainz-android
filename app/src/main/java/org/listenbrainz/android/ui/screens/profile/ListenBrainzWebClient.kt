@@ -36,7 +36,6 @@ class ListenBrainzWebClient(private val setLBAuthToken: (String) -> Unit) : WebV
                             "(function() { return document.getElementById('auth-token') ? document.getElementById('auth-token').value : 'not found'; })();"
                         ) { value ->
                             val token = value.removePrefix("\"").removeSuffix("\"")
-                            Logger.d("ListenBrainzWebClient", "Token extracted: $token")
                             when {
                                 token.isNotEmpty() && token != "not found" -> {
                                     setLBAuthToken(token)
