@@ -45,7 +45,7 @@ class ListenBrainzWebClient(private val setLBAuthToken: (String) -> Unit) : WebV
                                 }
                             }
                         }
-                    }, 5000)
+                    }, 2000)
                 }
             }
         }
