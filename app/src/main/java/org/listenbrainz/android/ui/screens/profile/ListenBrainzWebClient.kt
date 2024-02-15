@@ -1,57 +1,54 @@
 package org.listenbrainz.android.ui.screens.profile
 
 import android.net.Uri
-import android.webkit.CookieManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.Response
-import okio.IOException
-import org.jsoup.Jsoup
+import com.limurse.logger.Logger
 
-class ListenBrainzWebClient(private val setLBAuthToken: (String) -> Unit): WebViewClient() {
+class ListenBrainzWebClient(private val setLBAuthToken: (String) -> Unit) : WebViewClient() {
 
-    private val client: OkHttpClient = OkHttpClient().newBuilder().build()
+    private var attemptedSettingsNavigation = false
 
     override fun onPageFinished(view: WebView?, url: String?) {
         super.onPageFinished(view, url)
+        Logger.d("ListenBrainzWebClient", "onPageFinished URL: $url")
+
+        if (url == null) {
+            Logger.d("ListenBrainzWebClient", "URL is null")
+            return
+        }
+
         val uri = Uri.parse(url)
+
+        Logger.d("ListenBrainzWebClient", "Host: ${uri.host}, Path: ${uri.path}")
+
         if (uri.host == "listenbrainz.org") {
-            val cookie = CookieManager.getInstance().getCookie(url)
-            if (cookie != null) {
-                retrieveLBAuthToken(cookie)
+            when {
+                !attemptedSettingsNavigation -> {
+                    Logger.d("ListenBrainzWebClient", "Navigating to settings page")
+                    attemptedSettingsNavigation = true
+                    view?.loadUrl("https://listenbrainz.org/settings")
+                }
+                uri.path?.contains("/settings") == true -> {
+                    Logger.d("ListenBrainzWebClient", "On settings page, waiting to extract token...")
+                    view?.postDelayed({
+                        view.evaluateJavascript(
+                            "(function() { return document.getElementById('auth-token') ? document.getElementById('auth-token').value : 'not found'; })();"
+                        ) { value ->
+                            val token = value.removePrefix("\"").removeSuffix("\"")
+                            Logger.d("ListenBrainzWebClient", "Token extracted: $token")
+                            when {
+                                token.isNotEmpty() && token != "not found" -> {
+                                    setLBAuthToken(token)
+                                }
+                                else -> {
+                                    Logger.d("ListenBrainzWebClient", "Token not found or empty")
+                                }
+                            }
+                        }
+                    }, 5000)
+                }
             }
         }
     }
-
-    private fun retrieveLBAuthToken(cookie: String) {
-        val request = Request
-            .Builder()
-            .addHeader("Cookie", cookie)
-            .url("https://listenbrainz.org/profile")
-            .build()
-
-        client.newCall(request).enqueue(object: Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                response.use {
-                    if (response.isSuccessful) {
-                        val document = Jsoup.parse(response.body.string())
-                        val element = document.getElementById("auth-token")
-                        val token = element?.attr("value")
-                        if (!token.isNullOrEmpty()) {
-                            setLBAuthToken(token)
-                        }
-                    }
-                }
-            }
-        })
-    }
-
 }
