@@ -201,10 +201,10 @@ fun ListensScreen(
                             onRecommend = {
                                 try {
                                     socialViewModel.recommend(metadata)
-                                    Toast.makeText(context , "Song recommended successfully!" , Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context , Constants.Strings.RECOMMENDATION_GREETING , Toast.LENGTH_SHORT).show()
                                 }
                                 catch (e : Error) {
-                                    Toast.makeText(context , "Error Occoured!" , Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context , Constants.Strings.ERROR_MESSAGE , Toast.LENGTH_SHORT).show()
                                 }
                                 dropdownItemIndex.value = null
                             },
