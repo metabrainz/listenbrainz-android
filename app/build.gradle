@@ -225,9 +225,6 @@ dependencies {
     testImplementation project(path: ':sharedTest')
     androidTestImplementation project(path: ':sharedTest')
 
-    //ViewPager
-    implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
-
     //Exoplayer
     api "com.google.android.exoplayer:exoplayer-core:$exoplayer_version"
     api "com.google.android.exoplayer:exoplayer-ui:$exoplayer_version"
