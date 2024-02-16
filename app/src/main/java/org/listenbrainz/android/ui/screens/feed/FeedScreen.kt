@@ -217,9 +217,7 @@ fun FeedScreen(
         HorizontalPager(
             state = pagerState,
             beyondBoundsPageCount = 1,
-            pageNestedScrollConnection = remember(pagerState) {
-                PagerDefaults.pageNestedScrollConnection(Orientation.Horizontal)
-            }
+            pageNestedScrollConnection = PagerDefaults.pageNestedScrollConnection(Orientation.Horizontal)
         ) { position ->
             when (position) {
                 0 -> MyFeed(
