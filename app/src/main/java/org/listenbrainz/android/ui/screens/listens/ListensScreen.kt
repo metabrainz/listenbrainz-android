@@ -23,6 +23,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -384,8 +385,25 @@ private fun Dialogs(
 @Composable
 fun ListensScreenPreview() {
     ListensScreen(
-        scrollRequestState = false,
         onScrollToTop = {},
-        snackbarState = SnackbarHostState(),
+        scrollRequestState = false,
+        updateNotificationServicePermissionStatus = {},
+        uiState = ListensUiState(),
+        feedUiState = FeedUiState(),
+        preferencesUiState = PreferencesUiState(),
+        validateUserToken = { true },
+        setToken = {},
+        playListen = {},
+        socialUiState = SocialUiState(),
+        onRecommend = {},
+        onErrorShown = {},
+        onMessageShown = {},
+        onPin = {_,_ ->},
+        searchUsers = {_ ->},
+        isCritiqueBrainzLinked = { true },
+        onReview = {_,_,_,_,_ ->},
+        onPersonallyRecommend = {_,_,_ ->},
+        dropdownItemIndex = remember { mutableStateOf(null) },
+        snackbarState = remember { SnackbarHostState() }
     )
 }
