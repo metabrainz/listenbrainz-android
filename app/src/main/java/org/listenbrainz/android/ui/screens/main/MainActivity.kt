@@ -138,7 +138,7 @@ class MainActivity : ComponentActivity() {
                 val backdropScaffoldState =
                     rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
                 var scrollToTopState by remember { mutableStateOf(false) }
-                val snackbarState = SnackbarHostState()
+                val snackbarState = remember { SnackbarHostState() }
                 val searchBarState = rememberSearchBarState()
                 val scope = rememberCoroutineScope()
                 
@@ -183,7 +183,8 @@ class MainActivity : ComponentActivity() {
                                             scrollToTopState = false
                                         }
                                     }
-                                }
+                                },
+                                snackbarState = snackbarState
                             )
                         }
                     }

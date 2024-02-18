@@ -16,6 +16,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,7 +45,8 @@ fun ProfileScreen(
     context: Context = LocalContext.current,
     viewModel: ProfileViewModel = hiltViewModel(),
     scrollRequestState: Boolean,
-    onScrollToTop: (suspend () -> Unit) -> Unit
+    onScrollToTop: (suspend () -> Unit) -> Unit,
+    snackbarState : SnackbarHostState
 ) {
     val scrollState = rememberScrollState()
 
@@ -61,7 +63,8 @@ fun ProfileScreen(
         STATUS_LOGGED_IN -> {
             ListensScreen(
                 onScrollToTop = onScrollToTop,
-                scrollRequestState = scrollRequestState
+                scrollRequestState = scrollRequestState,
+                snackbarState = snackbarState
             )
         }
         else -> {

@@ -17,12 +17,14 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +33,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.TrackMetadata
@@ -59,6 +62,7 @@ fun ListensScreen(
     socialViewModel: SocialViewModel = hiltViewModel(),
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
+    snackbarState : SnackbarHostState
 ) {
     
     val uiState by viewModel.uiState.collectAsState()
@@ -80,7 +84,8 @@ fun ListensScreen(
         },
         playListen = {
             socialViewModel.playListen(it)
-        }
+        },
+        snackbarState = snackbarState
     )
 }
 
@@ -112,7 +117,8 @@ fun ListensScreen(
     validateUserToken: suspend (String) -> Boolean,
     setToken: (String) -> Unit,
     playListen: (TrackMetadata) -> Unit,
-    uriHandler: UriHandler = LocalUriHandler.current
+    uriHandler: UriHandler = LocalUriHandler.current,
+    snackbarState: SnackbarHostState
 ) {
     val listState = rememberLazyListState()
     val dropdownItemIndex: MutableState<Int?> = rememberSaveable {
@@ -120,7 +126,7 @@ fun ListensScreen(
     }
     val dialogsState = rememberDialogsState()
     val feedUiState by feedViewModel.uiState.collectAsState()
-    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     
     // Scroll to the top when shouldScrollToTop becomes true
@@ -201,10 +207,14 @@ fun ListensScreen(
                             onRecommend = {
                                 try {
                                     socialViewModel.recommend(metadata)
-                                    Toast.makeText(context , Constants.Strings.RECOMMENDATION_GREETING , Toast.LENGTH_SHORT).show()
+                                    scope.launch {
+                                        snackbarState.showSnackbar(Constants.Strings.RECOMMENDATION_GREETING)
+                                    }
                                 }
                                 catch (e : Error) {
-                                    Toast.makeText(context , Constants.Strings.ERROR_MESSAGE , Toast.LENGTH_SHORT).show()
+                                    scope.launch {
+                                        snackbarState.showSnackbar(Constants.Strings.ERROR_MESSAGE)
+                                    }
                                 }
                                 dropdownItemIndex.value = null
                             },
@@ -225,7 +235,9 @@ fun ListensScreen(
                                     uriHandler.openUri("https://musicbrainz.org/recording/${metadata.trackMetadata?.mbidMapping?.recordingMbid}")
                                 }
                                 catch(e : Error) {
-                                    Toast.makeText(context , Constants.Strings.ERROR_MESSAGE , Toast.LENGTH_SHORT).show()
+                                    scope.launch {
+                                        snackbarState.showSnackbar(Constants.Strings.ERROR_MESSAGE)
+                                    }
                                 }
                                 dropdownItemIndex.value = null
                             }
@@ -255,7 +267,8 @@ fun ListensScreen(
             feedUiState = feedUiState,
             isCritiqueBrainzLinked = { feedViewModel.isCritiqueBrainzLinked() },
             onReview = {type, blurbContent, rating, locale, metadata -> socialViewModel.review(metadata , type , blurbContent , rating , locale) },
-            onPersonallyRecommend = {metadata, users, blurbContent -> socialViewModel.personallyRecommend(metadata, users, blurbContent)}
+            onPersonallyRecommend = {metadata, users, blurbContent -> socialViewModel.personallyRecommend(metadata, users, blurbContent)},
+            snackbarState = snackbarState
         )
         
         // Loading Animation
@@ -281,19 +294,23 @@ private fun Dialogs(
     searchUsers : (String) -> Unit,
     isCritiqueBrainzLinked: suspend () -> Boolean?,
     onReview : (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String , metadata : Metadata) -> Unit,
-    onPersonallyRecommend : (metadata : Metadata , users : List<String> , blurbContent : String) -> Unit
-
+    onPersonallyRecommend : (metadata : Metadata , users : List<String> , blurbContent : String) -> Unit,
+    snackbarState: SnackbarHostState
 ) {
-    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     when (currentDialog) {
         Dialog.NONE -> Unit
         Dialog.PIN -> {
             PinDialog(trackName = listens[currentIndex!!].trackMetadata.trackName, artistName = listens[currentIndex].trackMetadata.artistName, onDismiss = deactivateDialog, onSubmit = {
                 blurbContent -> try {
                 onPin(Metadata(trackMetadata = listens[currentIndex].trackMetadata) , blurbContent)
-                Toast.makeText(context , Constants.Strings.PIN_GREETING , Toast.LENGTH_SHORT).show()
+                scope.launch {
+                    snackbarState.showSnackbar(Constants.Strings.PIN_GREETING)
+                }
                 } catch (e : Error) {
-                Toast.makeText(context , Constants.Strings.ERROR_MESSAGE , Toast.LENGTH_SHORT).show()
+                scope.launch {
+                    snackbarState.showSnackbar(Constants.Strings.ERROR_MESSAGE)
+                    }
                 }
             })
         }
@@ -310,10 +327,14 @@ private fun Dialogs(
                         users,
                         blurbContent
                     )
-                    Toast.makeText(context , Constants.Strings.PERSONAL_RECOMMENDATION_GREETING , Toast.LENGTH_SHORT).show()
+                    scope.launch {
+                        snackbarState.showSnackbar(Constants.Strings.PERSONAL_RECOMMENDATION_GREETING)
+                    }
                 }
                 catch (e : Error) {
-                    Toast.makeText(context , Constants.Strings.ERROR_MESSAGE , Toast.LENGTH_SHORT).show()
+                    scope.launch {
+                        snackbarState.showSnackbar(Constants.Strings.ERROR_MESSAGE)
+                    }
                 }
                 }
             )
@@ -328,11 +349,15 @@ private fun Dialogs(
                 onSubmit  = {
                     type, blurbContent, rating, locale  -> try {
                     onReview(type, blurbContent, rating, locale , Metadata(trackMetadata = listens[currentIndex].trackMetadata))
-                    Toast.makeText(context , Constants.Strings.REVIEW_GREETING , Toast.LENGTH_SHORT).show()
+                    scope.launch {
+                        snackbarState.showSnackbar(Constants.Strings.REVIEW_GREETING)
+                        }
                     }
                 catch (e : Error) {
-                    Toast.makeText(context , Constants.Strings.ERROR_MESSAGE , Toast.LENGTH_SHORT).show()
-                }
+                    scope.launch {
+                        snackbarState.showSnackbar(Constants.Strings.ERROR_MESSAGE)
+                    }
+                    }
                 }
             )
         }
@@ -350,6 +375,7 @@ fun ListensScreenPreview() {
         preferencesUiState = PreferencesUiState(),
         validateUserToken = { true },
         setToken = {},
-        playListen = {}
+        playListen = {},
+        snackbarState = SnackbarHostState()
     )
 }
