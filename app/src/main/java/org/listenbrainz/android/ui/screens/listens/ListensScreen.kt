@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.screens.listens
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -28,7 +27,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,10 +34,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.Metadata
+import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.feed.ReviewEntityType
+import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.LoadingAnimation
+import org.listenbrainz.android.ui.components.SuccessBar
 import org.listenbrainz.android.ui.components.dialogs.Dialog
 import org.listenbrainz.android.ui.components.dialogs.PersonalRecommendationDialog
 import org.listenbrainz.android.ui.components.dialogs.PinDialog
@@ -67,6 +68,7 @@ fun ListensScreen(
     
     val uiState by viewModel.uiState.collectAsState()
     val preferencesUiState by viewModel.preferencesUiState.collectAsState()
+    val socialUiState by socialViewModel.uiState.collectAsState()
     
     ListensScreen(
         scrollRequestState = scrollRequestState,
@@ -85,7 +87,8 @@ fun ListensScreen(
         playListen = {
             socialViewModel.playListen(it)
         },
-        snackbarState = snackbarState
+        snackbarState = snackbarState,
+        socialUiState = socialUiState
     )
 }
 
@@ -118,7 +121,8 @@ fun ListensScreen(
     setToken: (String) -> Unit,
     playListen: (TrackMetadata) -> Unit,
     uriHandler: UriHandler = LocalUriHandler.current,
-    snackbarState: SnackbarHostState
+    snackbarState: SnackbarHostState,
+    socialUiState: SocialUiState
 ) {
     val listState = rememberLazyListState()
     val dropdownItemIndex: MutableState<Int?> = rememberSaveable {
@@ -127,7 +131,6 @@ fun ListensScreen(
     val dialogsState = rememberDialogsState()
     val feedUiState by feedViewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
-
     
     // Scroll to the top when shouldScrollToTop becomes true
     LaunchedEffect(scrollRequestState) {
@@ -205,17 +208,7 @@ fun ListensScreen(
                             },
                             metadata = metadata,
                             onRecommend = {
-                                try {
-                                    socialViewModel.recommend(metadata)
-                                    scope.launch {
-                                        snackbarState.showSnackbar(Constants.Strings.RECOMMENDATION_GREETING)
-                                    }
-                                }
-                                catch (e : Error) {
-                                    scope.launch {
-                                        snackbarState.showSnackbar(Constants.Strings.ERROR_MESSAGE)
-                                    }
-                                }
+                                socialViewModel.recommend(metadata)
                                 dropdownItemIndex.value = null
                             },
                             onPersonallyRecommend = {
@@ -253,6 +246,10 @@ fun ListensScreen(
                 }
             }
         }
+
+        ErrorBar(error = socialUiState.error, onErrorShown = { socialViewModel.clearErrorFlow() })
+        SuccessBar(message = socialUiState.successMsg, onMessageShown = { socialViewModel.clearMsgFlow() }, snackbarState = snackbarState)
+
         Dialogs(
             deactivateDialog = {
                 dialogsState.deactivateDialog()
@@ -268,7 +265,8 @@ fun ListensScreen(
             isCritiqueBrainzLinked = { feedViewModel.isCritiqueBrainzLinked() },
             onReview = {type, blurbContent, rating, locale, metadata -> socialViewModel.review(metadata , type , blurbContent , rating , locale) },
             onPersonallyRecommend = {metadata, users, blurbContent -> socialViewModel.personallyRecommend(metadata, users, blurbContent)},
-            snackbarState = snackbarState
+            snackbarState = snackbarState,
+            socialUiState = socialUiState
         )
         
         // Loading Animation
@@ -295,24 +293,22 @@ private fun Dialogs(
     isCritiqueBrainzLinked: suspend () -> Boolean?,
     onReview : (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String , metadata : Metadata) -> Unit,
     onPersonallyRecommend : (metadata : Metadata , users : List<String> , blurbContent : String) -> Unit,
-    snackbarState: SnackbarHostState
+    snackbarState: SnackbarHostState,
+    socialUiState: SocialUiState
 ) {
     val scope = rememberCoroutineScope()
     when (currentDialog) {
         Dialog.NONE -> Unit
         Dialog.PIN -> {
             PinDialog(trackName = listens[currentIndex!!].trackMetadata.trackName, artistName = listens[currentIndex].trackMetadata.artistName, onDismiss = deactivateDialog, onSubmit = {
-                blurbContent -> try {
+                blurbContent ->
                 onPin(Metadata(trackMetadata = listens[currentIndex].trackMetadata) , blurbContent)
-                scope.launch {
+            })
+            LaunchedEffect(socialUiState.error){
+                if(socialUiState.error == null){
                     snackbarState.showSnackbar(Constants.Strings.PIN_GREETING)
                 }
-                } catch (e : Error) {
-                scope.launch {
-                    snackbarState.showSnackbar(Constants.Strings.ERROR_MESSAGE)
-                    }
-                }
-            })
+            }
         }
         Dialog.PERSONAL_RECOMMENDATION -> {
             PersonalRecommendationDialog(
@@ -321,21 +317,17 @@ private fun Dialogs(
                 searchResult = feedUiState.searchResult,
                 searchUsers = searchUsers,
                 onSubmit = {
-                    users, blurbContent -> try {
+                    users, blurbContent ->
                     onPersonallyRecommend(
                         Metadata(trackMetadata = listens[currentIndex].trackMetadata),
                         users,
                         blurbContent
                     )
-                    scope.launch {
-                        snackbarState.showSnackbar(Constants.Strings.PERSONAL_RECOMMENDATION_GREETING)
+                    if(socialUiState.error == null){
+                        scope.launch {
+                            snackbarState.showSnackbar(Constants.Strings.PERSONAL_RECOMMENDATION_GREETING)
+                        }
                     }
-                }
-                catch (e : Error) {
-                    scope.launch {
-                        snackbarState.showSnackbar(Constants.Strings.ERROR_MESSAGE)
-                    }
-                }
                 }
             )
         }
@@ -346,17 +338,18 @@ private fun Dialogs(
                 releaseName = listens[currentIndex].trackMetadata.releaseName,
                 onDismiss = deactivateDialog,
                 isCritiqueBrainzLinked = isCritiqueBrainzLinked,
-                onSubmit  = {
-                    type, blurbContent, rating, locale  -> try {
-                    onReview(type, blurbContent, rating, locale , Metadata(trackMetadata = listens[currentIndex].trackMetadata))
-                    scope.launch {
-                        snackbarState.showSnackbar(Constants.Strings.REVIEW_GREETING)
+                onSubmit  = { type, blurbContent, rating, locale ->
+                    onReview(
+                        type,
+                        blurbContent,
+                        rating,
+                        locale,
+                        Metadata(trackMetadata = listens[currentIndex].trackMetadata)
+                    )
+                    if (socialUiState.error == null) {
+                        scope.launch {
+                            snackbarState.showSnackbar(Constants.Strings.REVIEW_GREETING)
                         }
-                    }
-                catch (e : Error) {
-                    scope.launch {
-                        snackbarState.showSnackbar(Constants.Strings.ERROR_MESSAGE)
-                    }
                     }
                 }
             )
@@ -376,6 +369,7 @@ fun ListensScreenPreview() {
         validateUserToken = { true },
         setToken = {},
         playListen = {},
-        snackbarState = SnackbarHostState()
+        snackbarState = SnackbarHostState(),
+        socialUiState = SocialUiState()
     )
 }

@@ -6,7 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -23,6 +23,7 @@ import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
+import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
 
@@ -39,8 +40,11 @@ class SocialViewModel @Inject constructor(
     
     override val uiState: StateFlow<SocialUiState> = createUiStateFlow()
     override fun createUiStateFlow(): StateFlow<SocialUiState> =
-        errorFlow.map {
-            SocialUiState(it)
+        combine(
+            errorFlow,
+            successMsgFlow
+        ){
+            error , message -> SocialUiState(error , message)
         }.stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
@@ -103,6 +107,9 @@ class SocialViewModel @Inject constructor(
             if (result.status == Resource.Status.FAILED){
                 emitError(result.error)
             }
+            else if(result.status == Resource.Status.SUCCESS){
+                emitMsg(Constants.Strings.RECOMMENDATION_GREETING)
+            }
         }
     }
     
@@ -126,6 +133,9 @@ class SocialViewModel @Inject constructor(
             
             if (result.status == Resource.Status.FAILED){
                 emitError(result.error)
+            }
+            else if(result.status == Resource.Status.SUCCESS){
+                emitMsg(Constants.Strings.PERSONAL_RECOMMENDATION_GREETING)
             }
         }
         
@@ -151,6 +161,9 @@ class SocialViewModel @Inject constructor(
             if (result.status == Resource.Status.FAILED){
                 emitError(result.error)
             }
+            else if(result.status == Resource.Status.SUCCESS){
+                emitMsg(Constants.Strings.REVIEW_GREETING)
+            }
         }
     }
     
@@ -165,6 +178,9 @@ class SocialViewModel @Inject constructor(
             
             if (result.status == Resource.Status.FAILED){
                 emitError(result.error)
+            }
+            else if(result.status == Resource.Status.SUCCESS){
+                emitMsg(Constants.Strings.PIN_GREETING)
             }
         }
     }
