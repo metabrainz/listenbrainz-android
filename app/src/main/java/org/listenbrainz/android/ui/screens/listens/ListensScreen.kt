@@ -61,6 +61,7 @@ import org.listenbrainz.android.viewmodel.SocialViewModel
 fun ListensScreen(
     viewModel: ListensViewModel = hiltViewModel(),
     socialViewModel: SocialViewModel = hiltViewModel(),
+    feedViewModel : FeedViewModel = hiltViewModel(),
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
     snackbarState : SnackbarHostState
@@ -69,15 +70,21 @@ fun ListensScreen(
     val uiState by viewModel.uiState.collectAsState()
     val preferencesUiState by viewModel.preferencesUiState.collectAsState()
     val socialUiState by socialViewModel.uiState.collectAsState()
-    
+    val feedUiState by feedViewModel.uiState.collectAsState()
+    val dropdownItemIndex: MutableState<Int?> = rememberSaveable {
+        mutableStateOf(null)
+    }
+
     ListensScreen(
         scrollRequestState = scrollRequestState,
         onScrollToTop = onScrollToTop,
         uiState = uiState,
+        feedUiState = feedUiState,
         preferencesUiState = preferencesUiState,
         updateNotificationServicePermissionStatus = {
             viewModel.updateNotificationServicePermissionStatus()
         },
+        dropdownItemIndex = dropdownItemIndex,
         validateUserToken = { token ->
             viewModel.validateUserToken(token)
         },
@@ -88,7 +95,33 @@ fun ListensScreen(
             socialViewModel.playListen(it)
         },
         snackbarState = snackbarState,
-        socialUiState = socialUiState
+        socialUiState = socialUiState,
+        onRecommend = {metadata ->
+            socialViewModel.recommend(metadata)
+            dropdownItemIndex.value = null
+        },
+        onErrorShown = {
+            socialViewModel.clearErrorFlow()
+        },
+        onMessageShown = {
+            socialViewModel.clearMsgFlow()
+        },
+        onPin = {
+            metadata, blurbContent -> socialViewModel.pin(metadata , blurbContent)
+            dropdownItemIndex.value = null
+        },
+        searchUsers = {
+            query -> feedViewModel.searchUser(query)
+        },
+        isCritiqueBrainzLinked = {
+             feedViewModel.isCritiqueBrainzLinked()
+        },
+        onReview = {
+            type, blurbContent, rating, locale, metadata ->  socialViewModel.review(metadata , type , blurbContent , rating , locale)
+        },
+        onPersonallyRecommend = {
+            metadata, users, blurbContent ->  socialViewModel.personallyRecommend(metadata, users, blurbContent)
+        }
     )
 }
 
@@ -112,24 +145,30 @@ private enum class ListenDialogBundleKeys {
 fun ListensScreen(
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
-    socialViewModel: SocialViewModel = hiltViewModel(),
-    feedViewModel: FeedViewModel = hiltViewModel(),
     uiState: ListensUiState,
+    feedUiState: FeedUiState,
     preferencesUiState: PreferencesUiState,
     updateNotificationServicePermissionStatus: () -> Unit,
+    dropdownItemIndex : MutableState<Int?>,
     validateUserToken: suspend (String) -> Boolean,
     setToken: (String) -> Unit,
     playListen: (TrackMetadata) -> Unit,
     uriHandler: UriHandler = LocalUriHandler.current,
     snackbarState: SnackbarHostState,
-    socialUiState: SocialUiState
+    socialUiState: SocialUiState,
+    onRecommend : (metadata : Metadata) -> Unit,
+    onErrorShown : () -> Unit,
+    onMessageShown : () -> Unit,
+    onPin : (metadata : Metadata , blurbContent : String) -> Unit,
+    searchUsers: (String) -> Unit,
+    isCritiqueBrainzLinked: suspend () -> Boolean?,
+    onReview: (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String, metadata: Metadata) -> Unit,
+    onPersonallyRecommend: (metadata: Metadata, users: List<String>, blurbContent: String) -> Unit
 ) {
     val listState = rememberLazyListState()
-    val dropdownItemIndex: MutableState<Int?> = rememberSaveable {
-        mutableStateOf(null)
-    }
+
     val dialogsState = rememberDialogsState()
-    val feedUiState by feedViewModel.uiState.collectAsState()
+
     val scope = rememberCoroutineScope()
     
     // Scroll to the top when shouldScrollToTop becomes true
@@ -207,10 +246,7 @@ fun ListensScreen(
                                 dropdownItemIndex.value = null
                             },
                             metadata = metadata,
-                            onRecommend = {
-                                socialViewModel.recommend(metadata)
-                                dropdownItemIndex.value = null
-                            },
+                            onRecommend = { onRecommend(metadata) },
                             onPersonallyRecommend = {
                                 dialogsState.activateDialog(Dialog.PERSONAL_RECOMMENDATION , ListenDialogBundleKeys.listenDialogBundle(0, index))
                                 dropdownItemIndex.value = null
@@ -247,8 +283,8 @@ fun ListensScreen(
             }
         }
 
-        ErrorBar(error = socialUiState.error, onErrorShown = { socialViewModel.clearErrorFlow() })
-        SuccessBar(message = socialUiState.successMsg, onMessageShown = { socialViewModel.clearMsgFlow() }, snackbarState = snackbarState)
+        ErrorBar(error = socialUiState.error, onErrorShown = onErrorShown )
+        SuccessBar(message = socialUiState.successMsg, onMessageShown = onMessageShown, snackbarState = snackbarState)
 
         Dialogs(
             deactivateDialog = {
@@ -257,14 +293,12 @@ fun ListensScreen(
             currentDialog = dialogsState.currentDialog,
             currentIndex = dialogsState.metadata?.getInt(ListenDialogBundleKeys.EVENT_INDEX.name),
             listens = uiState.listens,
-            onPin = {metadata, blurbContent ->  socialViewModel.pin(metadata , blurbContent)},
-            searchUsers = {
-                query -> feedViewModel.searchUser(query)
-            },
+            onPin = {metadata, blurbContent ->  onPin(metadata, blurbContent)},
+            searchUsers = { query -> searchUsers(query) },
             feedUiState = feedUiState,
-            isCritiqueBrainzLinked = { feedViewModel.isCritiqueBrainzLinked() },
-            onReview = {type, blurbContent, rating, locale, metadata -> socialViewModel.review(metadata , type , blurbContent , rating , locale) },
-            onPersonallyRecommend = {metadata, users, blurbContent -> socialViewModel.personallyRecommend(metadata, users, blurbContent)},
+            isCritiqueBrainzLinked = isCritiqueBrainzLinked,
+            onReview = {type, blurbContent, rating, locale, metadata -> onReview(type, blurbContent, rating, locale, metadata) },
+            onPersonallyRecommend = {metadata, users, blurbContent -> onPersonallyRecommend(metadata, users, blurbContent)},
             snackbarState = snackbarState,
             socialUiState = socialUiState
         )
@@ -296,7 +330,6 @@ private fun Dialogs(
     snackbarState: SnackbarHostState,
     socialUiState: SocialUiState
 ) {
-    val scope = rememberCoroutineScope()
     when (currentDialog) {
         Dialog.NONE -> Unit
         Dialog.PIN -> {
@@ -323,11 +356,6 @@ private fun Dialogs(
                         users,
                         blurbContent
                     )
-                    if(socialUiState.error == null){
-                        scope.launch {
-                            snackbarState.showSnackbar(Constants.Strings.PERSONAL_RECOMMENDATION_GREETING)
-                        }
-                    }
                 }
             )
         }
@@ -346,11 +374,6 @@ private fun Dialogs(
                         locale,
                         Metadata(trackMetadata = listens[currentIndex].trackMetadata)
                     )
-                    if (socialUiState.error == null) {
-                        scope.launch {
-                            snackbarState.showSnackbar(Constants.Strings.REVIEW_GREETING)
-                        }
-                    }
                 }
             )
         }
@@ -361,15 +384,8 @@ private fun Dialogs(
 @Composable
 fun ListensScreenPreview() {
     ListensScreen(
-        onScrollToTop = {},
         scrollRequestState = false,
-        updateNotificationServicePermissionStatus = {},
-        uiState = ListensUiState(),
-        preferencesUiState = PreferencesUiState(),
-        validateUserToken = { true },
-        setToken = {},
-        playListen = {},
+        onScrollToTop = {},
         snackbarState = SnackbarHostState(),
-        socialUiState = SocialUiState()
     )
 }
