@@ -42,7 +42,7 @@ dependencies {
     implementation 'junit:junit:4.13.2'
     implementation 'com.squareup.okhttp3:mockwebserver:5.0.0-alpha.12'
     implementation 'androidx.arch.core:core-testing:2.2.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0'
     implementation 'androidx.room:room-testing:2.6.1'
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
 
