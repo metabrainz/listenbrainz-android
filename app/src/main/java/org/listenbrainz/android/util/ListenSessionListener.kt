@@ -72,13 +72,13 @@ class ListenSessionListener(
         fun MediaController.shouldListen(): Boolean = packageName in whitelist
         
         for (controller in controllers) {
-            availableSessions[controller] = ListenCallback(controller.packageName)
             // BlackList
             if (!controller.shouldListen()){
                 continue
             }
             val callback = ListenCallback(controller.packageName)
             activeSessions[controller] = callback
+            availableSessions[controller] = callback
             controller.registerCallback(callback)
             Log.d("### REGISTERED MediaController callback for ${controller.packageName}.")
         }
