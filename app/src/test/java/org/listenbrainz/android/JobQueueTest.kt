@@ -1,11 +1,8 @@
 package org.listenbrainz.android
 
-import junit.framework.TestCase.assertEquals
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestScope
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -45,7 +42,7 @@ class JobQueueTest: BaseUnitTest() {
         }
         list.add(3)
         list.add(4)
-        assertEquals(list.toList(), listOf(1,2,3,4))
+        list shouldBe listOf(1,2,3,4)
     }
     
     @Test
@@ -55,9 +52,9 @@ class JobQueueTest: BaseUnitTest() {
         jobQueue.postDelayed(delayMillis = 5, token = token1) { list.add(0) }
         
         delay(4)
-        assertEquals(listOf<Int>(), list)
+        list shouldBe emptyList()
         delay(1)
-        assertEquals(listOf(0), list)
+        list shouldBe listOf(0)
     }
     
     @Test
@@ -67,26 +64,26 @@ class JobQueueTest: BaseUnitTest() {
         jobQueue.postDelayed(delayMillis = 50, token = token1) { list.add(0) }
         
         delay(20)
-        assertEquals(emptyList<Int>(), list)
+        list shouldBe emptyList()
         
         delay(30)
-        assertEquals(listOf(0), list)
+        list shouldBe listOf(0)
     }
     
     @Test
-    fun `test delayed post cancelled`() = test {
+    fun `test remove post`() = test {
         val list = mutableListOf<Int>()
         val token1 = "token1"
         jobQueue.postDelayed(delayMillis = 50, token = token1) { list.add(0) }
         
         delay(20)
-        assertEquals(emptyList<Int>(), list)
+        list shouldBe emptyList()
         
         delay(29)
         // Remove job from queue.
-        jobQueue.removeDelayedPosts(token1)
+        jobQueue.removePosts(token1)
         
-        assertEquals(emptyList<Int>(), list)
+        list shouldBe emptyList()
     }
     
     @Test
@@ -106,28 +103,26 @@ class JobQueueTest: BaseUnitTest() {
         
         tokens.forEach {
             if (it == 20) {
-                jobQueue.postDelayed(delayMillis = 5, token = it) { list.add(it) }
-                jobQueue.removeDelayedPosts(it)
+                jobQueue.postDelayed(delayMillis = 50, token = it) { list.add(it) }
+                jobQueue.removePosts(it)
             } else
                 jobQueue.postDelayed(delayMillis = 0, token = it) { list.add(it) }
         }
         
         delay(20)
         
-        assertEquals(expected, list)
+        list shouldBe expected
     }
     
     @Test
-    fun test() = test {
+    fun `test remove posts long delay`() = test {
         val list = mutableListOf<Int>()
-        val handler = CoroutineExceptionHandler { _, e ->
-            list.add(0)
+        jobQueue.postDelayed(60000, 69) {
+            list.add(50)
         }
-        
-        val job = TestScope().launch(handler) {
-            throw IllegalStateException()
-        }
-        
-        list.isEmpty() assert false
+        delay(59000)
+        jobQueue.removePosts(69)
+        delay(1000)
+        list shouldBe emptyList()
     }
 }
