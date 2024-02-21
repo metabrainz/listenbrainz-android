@@ -4,8 +4,6 @@ import android.app.Notification
 import android.content.Context
 import android.media.MediaMetadata
 import android.media.session.PlaybackState
-import android.os.Handler
-import android.os.Looper
 import android.service.notification.StatusBarNotification
 import androidx.work.WorkManager
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -17,6 +15,7 @@ import org.listenbrainz.android.di.DefaultDispatcher
 import org.listenbrainz.android.model.PlayingTrack
 import org.listenbrainz.android.model.PlayingTrack.Companion.toPlayingTrack
 import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.util.JobQueue
 import org.listenbrainz.android.util.ListenSubmissionState
 import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractTitle
 import org.listenbrainz.android.util.Log
@@ -34,8 +33,9 @@ class ListenServiceManagerImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ): ListenServiceManager {
     
-    private val handler: Handler by lazy { Handler(Looper.getMainLooper()) }
-    private val listenSubmissionState = ListenSubmissionState(handler, workManager, context)
+    //private val handler: Handler by lazy { Handler(Looper.getMainLooper()) }
+    private val jobQueue: JobQueue by lazy { JobQueue(defaultDispatcher) }
+    private val listenSubmissionState = ListenSubmissionState(jobQueue, workManager, context)
     private val scope = MainScope()
     
     /** Used to avoid repetitive submissions.*/
@@ -70,7 +70,7 @@ class ListenServiceManagerImpl @Inject constructor(
     }
     
     override fun onMetadataChanged(metadata: MediaMetadata?, player: String) {
-        handler.post {
+        jobQueue.post {
             if (!isListeningAllowed) return@post
             if (metadata == null) return@post
     
@@ -106,7 +106,7 @@ class ListenServiceManagerImpl @Inject constructor(
     /** NOTE FOR FUTURE USE: When onNotificationPosted is called twice within 300..600ms delay, it usually
      * means the track has been changed.*/
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
-        handler.post {
+        jobQueue.post {
             if (!isListeningAllowed) return@post
             
             // Only CATEGORY_TRANSPORT contain media player metadata.

@@ -3,8 +3,6 @@ package org.listenbrainz.android.util
 import android.content.Context
 import android.media.AudioManager
 import android.media.MediaMetadata
-import android.os.Handler
-import android.os.Looper
 import android.service.notification.StatusBarNotification
 import androidx.core.content.ContextCompat
 import androidx.work.WorkManager
@@ -15,7 +13,7 @@ import org.listenbrainz.android.model.PlayingTrack
 import org.listenbrainz.android.service.ListenSubmissionWorker.Companion.buildWorkRequest
 
 class ListenSubmissionState(
-    handler: Handler = Handler(Looper.getMainLooper()),
+    jobQueue: JobQueue = JobQueue(Dispatchers.Default),
     private val workManager: WorkManager,
     private val context: Context
 ) {
@@ -27,7 +25,7 @@ class ListenSubmissionState(
             AudioManager::class.java
         )!!
     }
-    private val timer: Timer = Timer(JobQueue(Dispatchers.Default))
+    private val timer: Timer = Timer(jobQueue)
     
     init {
         // Setting listener
