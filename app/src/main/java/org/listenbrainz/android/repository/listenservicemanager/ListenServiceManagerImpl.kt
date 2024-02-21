@@ -9,14 +9,17 @@ import android.os.Looper
 import android.service.notification.StatusBarNotification
 import androidx.work.WorkManager
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import org.listenbrainz.android.di.DefaultDispatcher
 import org.listenbrainz.android.model.PlayingTrack
 import org.listenbrainz.android.model.PlayingTrack.Companion.toPlayingTrack
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.ListenSubmissionState
 import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractTitle
+import org.listenbrainz.android.util.Log
 import javax.inject.Inject
 
 /** The sole responsibility of this layer is to maintain mutual exclusion between [onMetadataChanged] and
@@ -27,11 +30,12 @@ import javax.inject.Inject
 class ListenServiceManagerImpl @Inject constructor(
     workManager: WorkManager,
     private val appPreferences: AppPreferences,
+    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
     @ApplicationContext private val context: Context
 ): ListenServiceManager {
     
     private val handler: Handler by lazy { Handler(Looper.getMainLooper()) }
-    private val listenSubmissionState = ListenSubmissionState(workManager, context)
+    private val listenSubmissionState = ListenSubmissionState(handler, workManager, context)
     private val scope = MainScope()
     
     /** Used to avoid repetitive submissions.*/
@@ -44,7 +48,7 @@ class ListenServiceManagerImpl @Inject constructor(
     
     init {
         with(scope) {
-            launch(Dispatchers.Default) {
+            launch(defaultDispatcher) {
                 appPreferences.listeningWhitelist.getFlow().collect {
                     whitelist = it
                     // Discard current listen if the controller/package has been removed from whitelist.
@@ -53,7 +57,7 @@ class ListenServiceManagerImpl @Inject constructor(
                     }
                 }
             }
-            launch(Dispatchers.Default) {
+            launch(defaultDispatcher) {
                 appPreferences.isListeningAllowed.getFlow().collect {
                     isListeningAllowed = it
                     // Immediately discard current listen if "Send Listens" option has been turned off.
@@ -74,8 +78,8 @@ class ListenServiceManagerImpl @Inject constructor(
             with(listenSubmissionState) {
         
                 // Repetitive submissions blocker
-                if (playingTrack.isCallbackTrack() &&
-                    newTimestamp in lastCallbackTs..lastCallbackTs + CALLBACK_SUBMISSION_TIMEOUT_INTERVAL
+                if (playingTrack.isCallbackTrack()
+                    && newTimestamp in lastCallbackTs..lastCallbackTs + CALLBACK_SUBMISSION_TIMEOUT_INTERVAL
                     && metadata.extractTitle() == playingTrack.title
                 ) return@post
         
@@ -86,7 +90,7 @@ class ListenServiceManagerImpl @Inject constructor(
                 
                 onControllerCallback(newTrack)
             }
-            // Log.e("META")
+            Log.e("META")
         }
     }
     
@@ -119,8 +123,9 @@ class ListenServiceManagerImpl @Inject constructor(
     
             // Avoid repetitive submissions
             with(listenSubmissionState) {
-                if (newTrack.timestamp in lastNotificationPostTs..lastNotificationPostTs + NOTI_SUBMISSION_TIMEOUT_INTERVAL
-                    && newTrack.pkgName == playingTrack.pkgName
+                if (
+                    newTrack.pkgName == playingTrack.pkgName
+                    && newTrack.timestamp in lastNotificationPostTs..lastNotificationPostTs + NOTI_SUBMISSION_TIMEOUT_INTERVAL
                     && newTrack.title == playingTrack.title
                 ) return@post
     
@@ -132,7 +137,7 @@ class ListenServiceManagerImpl @Inject constructor(
                 // Alert submission state
                 alertMediaNotificationUpdate(newTrack)
             }
-            // Log.e("NOTI")
+            Log.e("NOTI")
         }
     }
     
@@ -146,6 +151,11 @@ class ListenServiceManagerImpl @Inject constructor(
                 listenSubmissionState.alertMediaPlayerRemoved(sbn)
             }
         }
+    }
+    
+    override fun close() {
+        //handler.cancel()
+        scope.cancel()
     }
     
     companion object {

@@ -25,8 +25,7 @@ import org.listenbrainz.android.ui.screens.feed.events.RecordingRecommendationFe
 import org.listenbrainz.android.ui.screens.feed.events.ReviewFeedLayout
 import org.listenbrainz.android.ui.screens.feed.events.UnknownFeedLayout
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.Log.d
-import org.listenbrainz.android.util.Log.w
+import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.TypeConverter
 import org.listenbrainz.android.util.Utils.getArticle
 
@@ -283,11 +282,11 @@ enum class FeedEventType (
                         annotatedLinkString
                             .getStringAnnotations(charOffset, charOffset)
                             .firstOrNull()?.let { stringAnnotation ->
-                                d(stringAnnotation.item)
+                                Log.d(stringAnnotation.item)
                                 uriHandler.openUri(stringAnnotation.item)
                             }
                     } catch (e: ActivityNotFoundException) {
-                        w("MyFeed: Notification link invalid.")
+                        Log.w("MyFeed: Notification link invalid.")
                         e.printStackTrace()
                     }
                     

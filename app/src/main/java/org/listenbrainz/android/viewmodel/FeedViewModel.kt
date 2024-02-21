@@ -45,7 +45,7 @@ import org.listenbrainz.android.ui.screens.feed.FollowListensPagingSource
 import org.listenbrainz.android.ui.screens.feed.MyFeedPagingSource
 import org.listenbrainz.android.ui.screens.feed.SimilarListensPagingSource
 import org.listenbrainz.android.util.LinkedService
-import org.listenbrainz.android.util.Log.d
+import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
 
@@ -199,7 +199,7 @@ class FeedViewModel @Inject constructor(
                     }
                     
                     if (result.status == Resource.Status.SUCCESS){
-                        d("Play on youtube music successful")
+                        Log.d("Play on youtube music successful")
                     } else {
                         emitError(ResponseError.REMOTE_PLAYER_ERROR.apply { actualResponse = "Could not play the requested track." })
                     }
