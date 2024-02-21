@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.navigation
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -20,6 +21,7 @@ fun AppNavigation(
     navController: NavController = rememberNavController(),
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
+    snackbarState : SnackbarHostState
 ) {
     NavHost(
         navController = navController as NavHostController,
@@ -38,7 +40,8 @@ fun AppNavigation(
         composable(route = AppNavigationItem.Profile.route){
             ProfileScreen(
                 onScrollToTop = onScrollToTop,
-                scrollRequestState = scrollRequestState
+                scrollRequestState = scrollRequestState,
+                snackbarState = snackbarState
             )
         }
         composable(route = AppNavigationItem.Settings.route){

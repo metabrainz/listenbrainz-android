@@ -93,6 +93,11 @@
     <string name="toast_search_err">Add some text to search</string>
     <string name="toast_feedback_fail">No email client found</string>
     <string name="toast_search_cleared">Search history deleted</string>
+    <string name="recommendation_greeting">Song recommended successfully!</string>
+    <string name="personal_recommendation_greeting">Song recommendation sent successfully!</string>
+    <string name="review_greeting">Song review submitted successfully!</string>
+    <string name="pin_greeting">Song pinned successfully!</string>
+    <string name="error_message">Error occurred! Please try again later!</string>
 
 
     <string name="login_required">You need to login in order to view your collections.</string>
