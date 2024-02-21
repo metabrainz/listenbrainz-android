@@ -29,5 +29,5 @@ abstract class BaseUnitTest(testDispatcher: TestDispatcher = UnconfinedTestDispa
     
     protected fun test(block: suspend TestScope.() -> Unit) = runTest(testDispatcher()) { block() }
     
-    protected infix fun Any?.assert(expected: Any?) = TestCase.assertEquals(expected, this)
+    protected infix fun <T> T?.shouldBe(expected: T?) = TestCase.assertEquals(expected, this)
 }
