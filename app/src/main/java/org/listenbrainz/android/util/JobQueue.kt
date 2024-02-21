@@ -7,17 +7,18 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
-import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.LinkedList
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.cancellation.CancellationException
 
 class JobQueue(
     private val dispatcher: CoroutineDispatcher,
@@ -26,26 +27,42 @@ class JobQueue(
     private val exceptionHandler = CoroutineExceptionHandler { _, e ->
         log.e("JobQueue Exception: ${e.message}")
     }
-    
     private val scope = CoroutineScope(SupervisorJob() + dispatcher)
-    private val delayedQueue: ConcurrentLinkedQueue<QueueJob> = ConcurrentLinkedQueue()
+    
+    /** `Token: List<QueueJob>` map. To support jobs with same token, we are creating list for
+    * a specified token. */
+    private val jobsMap = HashMap<Any?, LinkedList<QueueJob>>()
     private val queue = Channel<QueueJob>(Channel.UNLIMITED)
+    
+    // Locks.
     private val syncLock = Mutex()
-    private val delayedQueueLock = Mutex()
-    private var tokenCounter = Int.MIN_VALUE
+    private val mapLock = Mutex()
     
     init {
         with(scope) {
             // Execution queue
             launch(exceptionHandler) {
                 queue.receiveAsFlow().collect { queueJob ->
-                    runCancellationCatching {
-                        // If a job is being cancelled, in the delayedQueue, we must wait for
-                        // the current selected job's cancellation status.
-                        delayedQueueLock.withLock {
-                            queueJob.job.join()
+                    ensureActive()
+                    
+                    if (!queueJob.cancelled.get()) {
+                        queueJob.job.join()
+                        log.d("Job with token: ${queueJob.token} completed.")
+                    } else {
+                        queueJob.job.cancelAndJoin()
+                        log.d("Job with token: ${queueJob.token} was cancelled.")
+                    }
+                    
+                    // Remove the job from jobMap
+                    mapLock.withLock {
+                        jobsMap[queueJob.token]?.let { jobList ->
+                            // Remove reference to the QueueJob
+                            jobList.remove(queueJob)
+                            // Remove token from map if empty.
+                            if (jobList.isEmpty()) {
+                                jobsMap.remove(queueJob.token)
+                            }
                         }
-                        log.d("Job with token ${queueJob.token} completed.")
                     }
                 }
             }
@@ -58,10 +75,9 @@ class JobQueue(
         block: suspend CoroutineScope.() -> Unit
     ) {
         scope.launch {
-            syncLock.withLock {
-                val job = scope.launch(context, CoroutineStart.LAZY, block)
-                queue.send(QueueJob(token, job))
-            }
+            val queueJob = createQueueJob(token, context, block)
+            addJobToMap(queueJob)
+            sendJobToQueue(queueJob)
         }
     }
     
@@ -71,70 +87,69 @@ class JobQueue(
         context: CoroutineContext = dispatcher,
         block: suspend CoroutineScope.() -> Unit
     ) {
-        val delayToken: String = token.toString() + tokenCounter++
-
-        val job = scope.launch {
-            runCancellationCatching {
-                delay(delayMillis)
-                // We do not want job to be executed while the
-                // user just briefly ordered to remove the job.
-                delayedQueueLock.lock()
-            }.onFailure { return@launch }
-            
-            post(token, context) {
-                ensureActive()
-                block()
-            }
-            
-            // Remove after completion.
-            withContext(dispatcher) {
-                // Find and remove job from delayed queue.
-                delayedQueue.removeJobIf { it.token == delayToken }
-            }
-            delayedQueueLock.unlock()
+        scope.launch {
+            val queueJob = createQueueJob(token, context, block)
+            addJobToMap(queueJob)
+            delay(delayMillis)
+            sendJobToQueue(queueJob)
         }
-        delayedQueue.add(QueueJob(delayToken, job))
     }
     
     /** Removes all the delayed posts with [token] identifier.
      * @param token if null, all jobs will be cancelled.*/
-    fun removeDelayedPosts(token: Any?) {
-        with(scope) {
+    fun removePosts(token: Any?) {
+        scope.launch(dispatcher) {
             if (token == null) {
-                // We won't be removing jobs from the channel since we
-                // don't expect any job to be in channel when this is called.
-                /** Remove all delayed posts*/
-                launch(dispatcher) {
-                    delayedQueueLock.withLock {
-                        delayedQueue.removeJobIf { true }
+                /** Mark all jobs as cancelled. */
+                mapLock.withLock {
+                    jobsMap.forEach {
+                        val jobList = it.value
+                        jobList.forEach { queueJob ->
+                            queueJob.cancelled.set(true)
+                        }
                     }
                 }
             } else {
-                /** Remove from delayed queue */
-                scope.launch(dispatcher) {
-                    delayedQueueLock.withLock {
-                        delayedQueue.removeJobIf {
-                            // Since we are appending a counter as well,
-                            val tokenLength = token.toString().length
-                            val delayToken = it.token.toString()
-                            val userAssignedToken = delayToken.substring(0..<tokenLength)
-                            return@removeJobIf userAssignedToken == token
-                        }
+                /** Mark job with unique token as cancelled. */
+                mapLock.withLock {
+                    val jobList = jobsMap[token]
+                    jobList?.forEach { queueJob ->
+                        queueJob.cancelled.set(true)
                     }
                 }
             }
         }
     }
     
-    /** Removes and cancels all the jobs that match the filter predicate.*/
-    private fun ConcurrentLinkedQueue<QueueJob>.removeJobIf(filter: (QueueJob) -> Boolean) {
-        val iterator = this.iterator()
-        while (iterator.hasNext()) {
-            val queueJob = iterator.next()
-            if (filter(queueJob)) {
-                queueJob.job.cancel("Post delayed cancelled for token ${queueJob.token}.")
-                iterator.remove()
+    private fun createQueueJob(
+        token: Any?,
+        context: CoroutineContext,
+        block: suspend CoroutineScope.() -> Unit
+    ): QueueJob {
+        val job = scope.launch(context, CoroutineStart.LAZY) {
+            if (isActive) {
+                block()
             }
+        }
+        
+        return QueueJob(token, job, AtomicBoolean(false))
+    }
+    
+    private suspend fun addJobToMap(queueJob: QueueJob) {
+        mapLock.withLock {
+            if (jobsMap.containsKey(queueJob.token)) {
+                // We should not need to do null checks since we are using locks but still
+                // are for safety.
+                jobsMap[queueJob.token]?.add(queueJob)
+            } else {
+                jobsMap[queueJob.token] = LinkedList<QueueJob>().apply { add(queueJob) }
+            }
+        }
+    }
+    
+    private suspend fun sendJobToQueue(queueJob: QueueJob) {
+        syncLock.withLock {
+            queue.send(queueJob)
         }
     }
     
@@ -143,24 +158,12 @@ class JobQueue(
         scope.cancel()
     }
     
-    private suspend inline fun <T> T.runCancellationCatching(
-        crossinline block: suspend T.() -> Unit
-    ): Result<Unit> {
-        try {
-            block()
-        } catch (e: CancellationException) {
-            // If the job is cancelled, we should log but not throw exception.
-            log.d(e.message.toString())
-            return Result.failure(e)
-        }
-        return Result.success(Unit)
-    }
-    
     companion object {
         /** A class containing reference to a scheduled job and its token.*/
         private data class QueueJob(
             val token: Any?,
-            val job: Job
+            val job: Job,
+            val cancelled: AtomicBoolean
         )
     }
 }
