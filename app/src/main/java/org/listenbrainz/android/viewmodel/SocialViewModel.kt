@@ -23,9 +23,9 @@ import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
-import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
+import org.listenbrainz.android.R
 
 @HiltViewModel
 class SocialViewModel @Inject constructor(
@@ -108,7 +108,7 @@ class SocialViewModel @Inject constructor(
                 emitError(result.error)
             }
             else if(result.status == Resource.Status.SUCCESS){
-                emitMsg(Constants.Strings.RECOMMENDATION_GREETING)
+                emitMsg(R.string.recommendation_greeting)
             }
         }
     }
@@ -135,7 +135,7 @@ class SocialViewModel @Inject constructor(
                 emitError(result.error)
             }
             else if(result.status == Resource.Status.SUCCESS){
-                emitMsg(Constants.Strings.PERSONAL_RECOMMENDATION_GREETING)
+                emitMsg(R.string.personal_recommendation_greeting)
             }
         }
         
@@ -162,7 +162,7 @@ class SocialViewModel @Inject constructor(
                 emitError(result.error)
             }
             else if(result.status == Resource.Status.SUCCESS){
-                emitMsg(Constants.Strings.REVIEW_GREETING)
+                emitMsg(R.string.review_greeting)
             }
         }
     }
@@ -180,7 +180,7 @@ class SocialViewModel @Inject constructor(
                 emitError(result.error)
             }
             else if(result.status == Resource.Status.SUCCESS){
-                emitMsg(Constants.Strings.PIN_GREETING)
+                emitMsg(R.string.pin_greeting)
             }
         }
     }

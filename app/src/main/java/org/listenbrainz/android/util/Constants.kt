@@ -35,11 +35,6 @@ object Constants {
         const val REFRESH_TOKEN = "refresh_token"
         const val STATUS_LOGGED_IN = 1
         const val STATUS_LOGGED_OUT = 0
-        const val RECOMMENDATION_GREETING = "Song recommended successfully!"
-        const val PERSONAL_RECOMMENDATION_GREETING = "Song recommendation sent successfully!"
-        const val REVIEW_GREETING = "Song review submitted successfully!"
-        const val PIN_GREETING = "Song pinned successfully!"
-        const val ERROR_MESSAGE = "Error occurred! Please try again later!"
 
         const val CHANNEL_NOTI_SCROBBLING = "noti_scrobbling"
         const val CHANNEL_NOTI_SCR_ERR = "noti_scrobble_errors"

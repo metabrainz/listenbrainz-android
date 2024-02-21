@@ -10,7 +10,7 @@ import org.listenbrainz.android.model.ResponseError
 abstract class BaseViewModel<UiState>: ViewModel() {
     
     protected val errorFlow = MutableStateFlow<ResponseError?>(null)
-    protected val successMsgFlow = MutableStateFlow<String?>(null)
+    protected val successMsgFlow = MutableStateFlow<Int?>(null)
     /** Visible Ui-State for UI to consume.*/
     abstract val uiState: StateFlow<UiState>
     
@@ -23,9 +23,9 @@ abstract class BaseViewModel<UiState>: ViewModel() {
         }
     }
 
-    protected fun emitMsg(message : String?){
+    protected fun emitMsg(messageId : Int?){
         viewModelScope.launch {
-            successMsgFlow.emit(message)
+            successMsgFlow.emit(messageId)
         }
     }
     

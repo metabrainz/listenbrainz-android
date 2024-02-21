@@ -28,11 +28,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
+import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.SocialUiState
@@ -52,7 +54,6 @@ import org.listenbrainz.android.ui.screens.feed.SocialDropdown
 import org.listenbrainz.android.ui.screens.profile.UserData
 import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
@@ -171,6 +172,8 @@ fun ListensScreen(
     val dialogsState = rememberDialogsState()
 
     val scope = rememberCoroutineScope()
+
+    val context = LocalContext.current
     
     // Scroll to the top when shouldScrollToTop becomes true
     LaunchedEffect(scrollRequestState) {
@@ -266,7 +269,7 @@ fun ListensScreen(
                                 }
                                 catch(e : Error) {
                                     scope.launch {
-                                        snackbarState.showSnackbar(Constants.Strings.ERROR_MESSAGE)
+                                        snackbarState.showSnackbar(context.getString(R.string.err_generic_toast))
                                     }
                                 }
                                 dropdownItemIndex.value = null
@@ -285,7 +288,7 @@ fun ListensScreen(
         }
 
         ErrorBar(error = socialUiState.error, onErrorShown = onErrorShown )
-        SuccessBar(message = socialUiState.successMsg, onMessageShown = onMessageShown, snackbarState = snackbarState)
+        SuccessBar(resId = socialUiState.successMsgId, onMessageShown = onMessageShown, snackbarState = snackbarState)
 
         Dialogs(
             deactivateDialog = {
@@ -331,6 +334,7 @@ private fun Dialogs(
     snackbarState: SnackbarHostState,
     socialUiState: SocialUiState
 ) {
+    val context = LocalContext.current
     when (currentDialog) {
         Dialog.NONE -> Unit
         Dialog.PIN -> {
@@ -340,7 +344,7 @@ private fun Dialogs(
             })
             LaunchedEffect(socialUiState.error){
                 if(socialUiState.error == null){
-                    snackbarState.showSnackbar(Constants.Strings.PIN_GREETING)
+                    snackbarState.showSnackbar(context.getString(R.string.pin_greeting))
                 }
             }
         }
