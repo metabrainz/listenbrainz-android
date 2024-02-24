@@ -34,8 +34,7 @@ class JobQueue(
     private val jobsMap = HashMap<Any?, LinkedList<QueueJob>>()
     private val queue = Channel<QueueJob>(Channel.UNLIMITED)
     
-    // Locks.
-    private val syncLock = Mutex()
+    /** Lock for [jobsMap].*/
     private val mapLock = Mutex()
     
     init {
@@ -148,9 +147,7 @@ class JobQueue(
     }
     
     private suspend fun sendJobToQueue(queueJob: QueueJob) {
-        syncLock.withLock {
-            queue.send(queueJob)
-        }
+        queue.trySend(queueJob)
     }
     
     fun cancel() {
