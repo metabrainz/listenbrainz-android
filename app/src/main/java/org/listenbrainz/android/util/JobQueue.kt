@@ -38,29 +38,27 @@ class JobQueue(
     private val mapLock = Mutex()
     
     init {
-        with(scope) {
-            // Execution queue
-            launch(exceptionHandler) {
-                queue.receiveAsFlow().collect { queueJob ->
-                    ensureActive()
-                    
-                    if (!queueJob.cancelled.get()) {
-                        queueJob.job.join()
-                        log.d("Job with token: ${queueJob.token} completed.")
-                    } else {
-                        queueJob.job.cancelAndJoin()
-                        log.d("Job with token: ${queueJob.token} was cancelled.")
-                    }
-                    
-                    // Remove the job from jobMap
-                    mapLock.withLock {
-                        jobsMap[queueJob.token]?.let { jobList ->
-                            // Remove reference to the QueueJob
-                            jobList.remove(queueJob)
-                            // Remove token from map if empty.
-                            if (jobList.isEmpty()) {
-                                jobsMap.remove(queueJob.token)
-                            }
+        // Execution queue
+        scope.launch(exceptionHandler) {
+            queue.receiveAsFlow().collect { queueJob ->
+                ensureActive()
+                
+                if (!queueJob.cancelled.get()) {
+                    queueJob.job.join()
+                    log.d("Job with token: ${queueJob.token} completed.")
+                } else {
+                    queueJob.job.cancelAndJoin()
+                    log.d("Job with token: ${queueJob.token} was cancelled.")
+                }
+                
+                // Remove the job from jobMap
+                mapLock.withLock {
+                    jobsMap[queueJob.token]?.let { jobList ->
+                        // Remove reference to the QueueJob
+                        jobList.remove(queueJob)
+                        // Remove token from map if empty.
+                        if (jobList.isEmpty()) {
+                            jobsMap.remove(queueJob.token)
                         }
                     }
                 }
