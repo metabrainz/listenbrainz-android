@@ -12,10 +12,10 @@ interface ArtistDao {
     @Query(value = "SELECT * FROM ARTISTS WHERE artistID = :artistID")
     fun getArtistEntity(artistID: String) : Flow<ArtistEntity>
     
-    @Query(value = "SELECT * FROM ARTISTS")
+    @Query(value = "SELECT * FROM ARTISTS ORDER BY `name`")
     fun getArtistEntities() : Flow<List<ArtistEntity>>
     
-    @Query(value = "SELECT * FROM ARTISTS")
+    @Query(value = "SELECT * FROM ARTISTS ORDER BY `name`")
     fun getArtistEntitiesAsList() : List<ArtistEntity>
     
     @Insert(onConflict = OnConflictStrategy.NONE)

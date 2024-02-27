@@ -10,10 +10,10 @@ interface AlbumDao {
     @Query(value = "SELECT * FROM ALBUMS WHERE albumId = :albumId")
     fun getAlbumEntity(albumId: Long): Flow<AlbumEntity>
     
-    @Query(value = "SELECT * FROM ALBUMS")
+    @Query(value = "SELECT * FROM ALBUMS ORDER BY `title`")
     fun getAlbumEntities(): Flow<List<AlbumEntity>>
     
-    @Query(value = "SELECT * FROM ALBUMS")
+    @Query(value = "SELECT * FROM ALBUMS ORDER BY `title`")
     fun getAlbumEntitiesAsList(): List<AlbumEntity>
     
     @Insert(onConflict = OnConflictStrategy.IGNORE)
