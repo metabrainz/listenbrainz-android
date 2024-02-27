@@ -74,7 +74,7 @@ class JobQueue(
         scope.launch {
             val queueJob = createQueueJob(token, context, block)
             addJobToMap(queueJob)
-            sendJobToQueue(queueJob)
+            queue.trySend(queueJob)
         }
     }
     
@@ -88,7 +88,7 @@ class JobQueue(
             val queueJob = createQueueJob(token, context, block)
             addJobToMap(queueJob)
             delay(delayMillis)
-            sendJobToQueue(queueJob)
+            queue.trySend(queueJob)
         }
     }
     
@@ -142,10 +142,6 @@ class JobQueue(
                 jobsMap[queueJob.token] = LinkedList<QueueJob>().apply { add(queueJob) }
             }
         }
-    }
-    
-    private suspend fun sendJobToQueue(queueJob: QueueJob) {
-        queue.trySend(queueJob)
     }
     
     fun cancel() {
