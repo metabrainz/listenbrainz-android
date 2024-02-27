@@ -10,8 +10,7 @@ import com.aemerse.share.SharableItem
 import com.aemerse.share.Share
 import dagger.hilt.android.AndroidEntryPoint
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.Log.d
-import org.listenbrainz.android.util.Log.e
+import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.viewmodel.NewsListViewModel
 
 @AndroidEntryPoint
@@ -40,14 +39,14 @@ class NewsBrainzActivity : ComponentActivity() {
                                 shareAppLink = true,
                                 downloadOurAppMessage = "Download our app"
                             ),
-                                onStart = { d("onStart Sharing") },
+                                onStart = { Log.d("onStart Sharing") },
                                 onFinish = { isSuccessful: Boolean, errorMessage: String ->
                                     when {
                                         isSuccessful -> {
-                                            d("Successfully shared")
+                                            Log.d("Successfully shared")
                                         }
                                         else -> {
-                                            e("error happened : $errorMessage")
+                                            Log.e("error happened : $errorMessage")
                                         }
                                     }
                                 }

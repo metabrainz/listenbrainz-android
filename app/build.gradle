@@ -4,7 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id 'com.google.devtools.ksp'
     id 'dagger.hilt.android.plugin'
-    id "io.sentry.android.gradle" version "4.2.0"
+    id "io.sentry.android.gradle" version "4.3.0"
 }
 
 def keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -31,8 +31,8 @@ android {
         applicationId 'org.listenbrainz.android'
         minSdk 21
         targetSdk 34
-        versionCode 50
-        versionName "2.6.0"
+        versionCode 51
+        versionName "2.6.1"
         multiDexEnabled true
         testInstrumentationRunner "org.listenbrainz.android.di.CustomTestRunner" // "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -203,7 +203,7 @@ dependencies {
     implementation 'app.cash.turbine:turbine:1.0.0'
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'com.squareup.okhttp3:mockwebserver:5.0.0-alpha.12'
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0'
     testImplementation 'androidx.arch.core:core-testing:2.2.0'
 
     // Mockito framework
@@ -224,9 +224,6 @@ dependencies {
 
     testImplementation project(path: ':sharedTest')
     androidTestImplementation project(path: ':sharedTest')
-
-    //ViewPager
-    implementation "com.google.accompanist:accompanist-pager:$accompanist_version"
 
     //Exoplayer
     api "com.google.android.exoplayer:exoplayer-core:$exoplayer_version"
@@ -252,5 +249,5 @@ dependencies {
     implementation 'com.github.akshaaatt:Logger-Android:1.0.0'
 
     //Charting Library (Vico)
-    implementation("com.patrykandpatrick.vico:compose:1.13.1")
+    implementation("com.patrykandpatrick.vico:compose:1.14.0")
 }

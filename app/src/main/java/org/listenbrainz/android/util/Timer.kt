@@ -1,18 +1,16 @@
 package org.listenbrainz.android.util
 
-import android.os.Handler
-import android.os.Looper
 import android.os.SystemClock
+import android.util.Log
 import org.listenbrainz.android.model.OnTimerListener
 import org.listenbrainz.android.model.TimerState
 
-class Timer {
+/** **NOT** thread safe.*/
+class Timer(private val jobQueue: JobQueue) {
     companion object {
         private const val MESSAGE_TOKEN = 69
         private const val TAG = "Timer"
     }
-    
-    private val mHandler: Handler by lazy { Handler(Looper.getMainLooper()) }
     
     private var mState: TimerState = TimerState.ENDED
     private var mListener: OnTimerListener? = null
@@ -23,12 +21,12 @@ class Timer {
     
     fun setDuration(duration: Long) {
         mInitialDuration = duration
-        this.mDurationLeft = duration
+        mDurationLeft = duration
     }
     
     fun setOnTimerListener(listener: OnTimerListener) {
-        this.mListener = listener
-        android.util.Log.d(TAG, "setOnTimerListener: ")
+        mListener = listener
+        Log.d(TAG, "setOnTimerListener: ")
     }
     
     fun startOrResume(delay: Long = 0L) {
@@ -37,25 +35,24 @@ class Timer {
             TimerState.PAUSED -> {
                 mResumeTs = SystemClock.uptimeMillis()
                 
-                mHandler.postAtTime(
-                    { end() },
+                jobQueue.postDelayed(
+                    mDurationLeft,
                     MESSAGE_TOKEN,
-                    mResumeTs + mDurationLeft
-                )
-                Log.d("Timer resumed")
+                ) { end() }
+                Log.d(TAG,"Timer resumed")
                 
                 mListener?.onTimerResumed()
                 mState = TimerState.RUNNING
             }
             TimerState.ENDED -> {
                 mResumeTs = SystemClock.uptimeMillis()
+                mDurationLeft += delay
                 
-                mHandler.postAtTime(
-                    { end() },
+                jobQueue.postDelayed(
+                    mDurationLeft,
                     MESSAGE_TOKEN,
-                    mResumeTs + mDurationLeft + delay
-                )
-                Log.d("Timer started")
+                ) { end() }
+                Log.d(TAG,"Timer started")
     
                 mListener?.onTimerStarted()
                 mState = TimerState.RUNNING
@@ -78,27 +75,27 @@ class Timer {
             return
         }
         mState = TimerState.ENDED
-        mHandler.removeCallbacksAndMessages(MESSAGE_TOKEN)
+        jobQueue.removePosts(MESSAGE_TOKEN)
         reset()
     }
     
     fun extendDuration(extensionSeconds: (passedSeconds: Long) -> Long) {
         pause()
-        mDurationLeft += extensionSeconds(/*passedSeconds =*/mInitialDuration - mDurationLeft)
+        mDurationLeft = extensionSeconds(/*passedSeconds =*/mInitialDuration - mDurationLeft)
         startOrResume()
     }
     
     fun pause() {
-        Log.d("Timer paused")
+        Log.d(TAG,"Timer paused")
         if (mState == TimerState.PAUSED || mState == TimerState.ENDED) {
             return
         }
         mState = TimerState.PAUSED
-        mHandler.removeCallbacksAndMessages(MESSAGE_TOKEN)
+        jobQueue.removePosts(MESSAGE_TOKEN)
         
         val durationLeft = mDurationLeft - (SystemClock.uptimeMillis() - mResumeTs)
         mListener?.onTimerPaused(durationLeft)
-        this.mDurationLeft = durationLeft
+        mDurationLeft = durationLeft
     }
     
     private fun reset() {

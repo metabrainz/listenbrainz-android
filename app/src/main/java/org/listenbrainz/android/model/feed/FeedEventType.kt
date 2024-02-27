@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
@@ -24,8 +25,7 @@ import org.listenbrainz.android.ui.screens.feed.events.RecordingRecommendationFe
 import org.listenbrainz.android.ui.screens.feed.events.ReviewFeedLayout
 import org.listenbrainz.android.ui.screens.feed.events.UnknownFeedLayout
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.Log.d
-import org.listenbrainz.android.util.Log.w
+import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.TypeConverter
 import org.listenbrainz.android.util.Utils.getArticle
 
@@ -33,6 +33,7 @@ import org.listenbrainz.android.util.Utils.getArticle
  * @param icon Feed icon for the event, **must** be of width 19 dp.
  * @param isDeletable Can only delete our (user's) recommendations and pins.
  * @param isHideable Can only hide followed user's events and notifications.*/
+@Immutable
 enum class FeedEventType (
     val type: String,
     @DrawableRes val icon: Int,
@@ -281,11 +282,11 @@ enum class FeedEventType (
                         annotatedLinkString
                             .getStringAnnotations(charOffset, charOffset)
                             .firstOrNull()?.let { stringAnnotation ->
-                                d(stringAnnotation.item)
+                                Log.d(stringAnnotation.item)
                                 uriHandler.openUri(stringAnnotation.item)
                             }
                     } catch (e: ActivityNotFoundException) {
-                        w("MyFeed: Notification link invalid.")
+                        Log.w("MyFeed: Notification link invalid.")
                         e.printStackTrace()
                     }
                     

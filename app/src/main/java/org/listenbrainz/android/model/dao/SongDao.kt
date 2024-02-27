@@ -14,10 +14,10 @@ interface SongDao {
         value = "SELECT * FROM SONGS WHERE mediaID = :mediaId ")
     fun getSongEntity(mediaId: String) : Flow<SongEntity>
 
-    @Query(value = "SELECT * FROM SONGS")
+    @Query(value = "SELECT * FROM SONGS ORDER BY `title`")
     fun getSongEntities() : Flow<List<SongEntity>>
 
-    @Query(value = "SELECT * FROM SONGS")
+    @Query(value = "SELECT * FROM SONGS ORDER BY `title`")
     fun getSongEntitiesAsList() : List<SongEntity>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)

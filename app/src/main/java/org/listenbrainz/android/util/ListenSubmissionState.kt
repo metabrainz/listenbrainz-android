@@ -6,14 +6,14 @@ import android.media.MediaMetadata
 import android.service.notification.StatusBarNotification
 import androidx.core.content.ContextCompat
 import androidx.work.WorkManager
+import kotlinx.coroutines.Dispatchers
 import org.listenbrainz.android.model.ListenType
 import org.listenbrainz.android.model.OnTimerListener
 import org.listenbrainz.android.model.PlayingTrack
 import org.listenbrainz.android.service.ListenSubmissionWorker.Companion.buildWorkRequest
-import org.listenbrainz.android.util.Log.d
-import org.listenbrainz.android.util.Log.w
 
 class ListenSubmissionState(
+    jobQueue: JobQueue = JobQueue(Dispatchers.Default),
     private val workManager: WorkManager,
     private val context: Context
 ) {
@@ -25,7 +25,28 @@ class ListenSubmissionState(
             AudioManager::class.java
         )!!
     }
-    private val timer: Timer = Timer()
+    private val timer: Timer = Timer(jobQueue)
+    
+    init {
+        // Setting listener
+        timer.setOnTimerListener(listener = object : OnTimerListener {
+            override fun onTimerEnded() {
+                submitListen(ListenType.SINGLE)
+                playingTrack.submitted = true
+            }
+            
+            override fun onTimerPaused(remainingMillis: Long) {
+                Log.d("${remainingMillis / 1000} seconds left to submit listen.")
+            }
+            
+            override fun onTimerStarted() {
+                if (!playingTrack.playingNowSubmitted) {
+                    submitListen(ListenType.PLAYING_NOW)
+                    playingTrack.playingNowSubmitted = true
+                }
+            }
+        })
+    }
     
     /** Update current [playingTrack] with [this] given some conditions.
      * @param newTrack
@@ -64,7 +85,7 @@ class ListenSubmissionState(
     private fun afterMetadataSet() {
         // After metadata set
         if (isMetadataFaulty()) {
-            w("${if (playingTrack.artist == null) "Artist" else "Title"} is null, listen cancelled.")
+            Log.w("${if (playingTrack.artist == null) "Artist" else "Title"} is null, listen cancelled.")
             playingTrack.reset()
             return
         }
@@ -122,6 +143,7 @@ class ListenSubmissionState(
                 }
                 
                 afterMetadataSet()
+                alertPlaybackStateChanged()
             },
             onTrackIsSimilarCallbackTrack = { track ->
                 // We definitely know that whenever the notification bar changes a bit, we will get a state
@@ -133,15 +155,13 @@ class ListenSubmissionState(
                 alertPlaybackStateChanged()
             }
         )
-        alertPlaybackStateChanged()
     }
     
     fun alertMediaPlayerRemoved(notification: StatusBarNotification) {
-        d("Removed " + notification.notification.extras)
+        Log.d("Removed " + notification.notification.extras)
     }
     
     /** Toggle timer based on state. */
-    @Synchronized
     fun alertPlaybackStateChanged() {
         if (playingTrack.isSubmitted()) return
         
@@ -162,30 +182,10 @@ class ListenSubmissionState(
             )
         } else {
             timer.setDuration(
-                roundDuration(duration = DEFAULT_DURATION)     // Since maximum time required to validate a listen as submittable listen is 4 minutes.
+                roundDuration(duration = DEFAULT_DURATION)
             )
         }
-        
-        // Setting listener
-        timer.setOnTimerListener(listener = object : OnTimerListener {
-            override fun onTimerEnded() {
-                submitListen(ListenType.SINGLE)
-                playingTrack.submitted = true
-            }
-            
-            override fun onTimerPaused(remainingMillis: Long) {
-                d("${remainingMillis / 1000} seconds left to submit listen.")
-            }
-            
-            override fun onTimerStarted() {
-                if (!playingTrack.playingNowSubmitted) {
-                    submitListen(ListenType.PLAYING_NOW)
-                    playingTrack.playingNowSubmitted = true
-                }
-            }
-        })
-        d("Timer Set")
-        alertPlaybackStateChanged()
+        Log.d("Timer Set")
     }
     
     // Utility functions
@@ -201,8 +201,8 @@ class ListenSubmissionState(
     
     /** Discard current listen.*/
     fun discardCurrentListen() {
-        playingTrack = PlayingTrack()
         timer.stop()
+        playingTrack = PlayingTrack()
     }
     
     companion object {

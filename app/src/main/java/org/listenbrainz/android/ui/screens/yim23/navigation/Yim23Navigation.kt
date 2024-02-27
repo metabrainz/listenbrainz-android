@@ -61,13 +61,10 @@ private const val screenTransitionDuration = 900
 @Composable
 fun Yim23Navigation(
     yimViewModel: Yim23ViewModel,
-    socialViewModel: SocialViewModel,
     activity: ComponentActivity,
     networkConnectivityViewModel: NetworkConnectivityViewModel,
 ) {
     val navController = rememberNavController()
-    var scrollToTopState by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
     NavHost(
         navController = navController,
         modifier = Modifier.fillMaxSize(),
@@ -92,22 +89,6 @@ fun Yim23Navigation(
             }
         ) {
             Yim23HomeScreen(viewModel = yimViewModel, networkConnectivityViewModel = networkConnectivityViewModel,navController = navController, activity = activity)
-        }
-
-        composable(route = AppNavigationItem.Profile.route){
-            Surface (color = ListenBrainzTheme.colorScheme.background) {
-                ProfileScreen(
-                    onScrollToTop = { scrollToTop ->
-                        scope.launch {
-                            if (scrollToTopState){
-                                scrollToTop()
-                                scrollToTopState = false
-                            }
-                        }
-                    },
-                    scrollRequestState = false
-                )
-            }
         }
 
 
