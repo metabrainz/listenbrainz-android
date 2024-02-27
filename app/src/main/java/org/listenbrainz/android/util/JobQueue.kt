@@ -27,7 +27,7 @@ class JobQueue(
     private val exceptionHandler = CoroutineExceptionHandler { _, e ->
         log.e("JobQueue Exception: ${e.message}")
     }
-    private val scope = CoroutineScope(SupervisorJob() + dispatcher)
+    private val scope = CoroutineScope(SupervisorJob() + dispatcher + exceptionHandler)
     
     /** `Token: List<QueueJob>` map. To support jobs with same token, we are creating list for
     * a specified token. */
