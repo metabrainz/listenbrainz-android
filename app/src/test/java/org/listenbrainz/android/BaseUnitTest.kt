@@ -1,6 +1,7 @@
 package org.listenbrainz.android
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import junit.framework.TestCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -28,4 +29,5 @@ abstract class BaseUnitTest(testDispatcher: TestDispatcher = UnconfinedTestDispa
     
     protected fun test(block: suspend TestScope.() -> Unit) = runTest(testDispatcher()) { block() }
     
+    protected infix fun <T> T?.shouldBe(expected: T?) = TestCase.assertEquals(expected, this)
 }

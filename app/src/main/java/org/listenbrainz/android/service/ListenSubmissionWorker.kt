@@ -23,8 +23,7 @@ import org.listenbrainz.android.model.dao.PendingListensDao
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.Constants
-import org.listenbrainz.android.util.Log.d
-import org.listenbrainz.android.util.Log.w
+import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource
 
 @HiltWorker
@@ -39,12 +38,12 @@ class ListenSubmissionWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         val token = appPreferences.lbAccessToken.get()
         if (token.isEmpty()) {
-            d("ListenBrainz User token has not been set!")
+            Log.d("ListenBrainz User token has not been set!")
             return Result.failure()
         }
         val duration = inputData.getInt(MediaMetadata.METADATA_KEY_DURATION, 0)
         if(duration in 1..30_000) {
-            d("Track is too short to submit")
+            Log.d("Track is too short to submit")
             return Result.failure()
         }
         val metadata = ListenTrackMetadata(
@@ -81,9 +80,9 @@ class ListenSubmissionWorker @AssistedInject constructor(
         return when (response.status) {
             Resource.Status.SUCCESS -> {
                 if (body.listenType == ListenType.PLAYING_NOW.code) {
-                    d("Playing Now submitted")
+                    Log.d("Playing Now submitted")
                 } else {
-                    d("Listen submitted")
+                    Log.d("Listen submitted")
                 }
 
                 // Means conditions are met. Work manager automatically manages internet state.
@@ -105,11 +104,11 @@ class ListenSubmissionWorker @AssistedInject constructor(
                     when (submission.status) {
                         Resource.Status.SUCCESS -> {
                             // Empty all pending listens.
-                            d("Pending listens submitted.")
+                            Log.d("Pending listens submitted.")
                             pendingListensDao.deleteAllPendingListens()
                         }
                         else -> {
-                            w("Could not submit pending listens.")
+                            Log.w("Could not submit pending listens.")
                         }
                     }
                 }
@@ -120,11 +119,11 @@ class ListenSubmissionWorker @AssistedInject constructor(
             else -> {
                 // In case of failure, we add this listen to pending list.
                 if (inputData.getString("TYPE") == "single"){
+                    // We don't want to submit playing nows later.
                     if (response.error?.ordinal == ResponseError.BAD_REQUEST.ordinal) {
-                        d("Submission failed, not saving listen because metadata is faulty.")
+                        Log.d("Submission failed, not saving listen because metadata is faulty.")
                     } else {
-                        // We don't want to submit playing nows later.
-                        d("Submission failed, listen saved.")
+                        Log.d("Submission failed, listen saved.")
                         pendingListensDao.addListen(listen)
                     }
                 }

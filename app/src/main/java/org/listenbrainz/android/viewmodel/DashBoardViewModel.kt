@@ -20,7 +20,7 @@ import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.ui.screens.onboarding.FeaturesActivity
-import org.listenbrainz.android.util.Log.d
+import org.listenbrainz.android.util.Log
 import javax.inject.Inject
 
 @HiltViewModel
@@ -61,7 +61,7 @@ class DashBoardViewModel @Inject constructor(
     
     
     fun beginOnboarding(activity: ComponentActivity) {
-        d("Onboarding status: ${appPreferences.onboardingCompleted}")
+        Log.d("Onboarding status: ${appPreferences.onboardingCompleted}")
         if (!appPreferences.onboardingCompleted){
             // TODO: Convert onboarding to a nav component.
             activity.startActivity(Intent(activity, FeaturesActivity::class.java))

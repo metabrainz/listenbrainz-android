@@ -13,4 +13,6 @@ interface ListenServiceManager {
     fun onNotificationPosted(sbn: StatusBarNotification?)
     
     fun onNotificationRemoved(sbn: StatusBarNotification?)
+    
+    fun close()
 }

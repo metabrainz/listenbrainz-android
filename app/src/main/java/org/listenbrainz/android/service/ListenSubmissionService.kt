@@ -17,8 +17,7 @@ import org.listenbrainz.android.repository.listenservicemanager.ListenServiceMan
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.Constants.Strings.CHANNEL_ID
 import org.listenbrainz.android.util.ListenSessionListener
-import org.listenbrainz.android.util.Log.d
-import org.listenbrainz.android.util.Log.e
+import org.listenbrainz.android.util.Log
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -37,13 +36,13 @@ class ListenSubmissionService : NotificationListenerService() {
     private val nm: NotificationManager? by lazy {
         val manager = ContextCompat.getSystemService(this, NotificationManager::class.java)
         if (manager == null)
-            e("NotificationManager is not available in this context.")
+            Log.e("NotificationManager is not available in this context.")
         manager
     }
     private val sessionManager: MediaSessionManager? by lazy {
         val manager = ContextCompat.getSystemService(this, MediaSessionManager::class.java)
         if (manager == null)
-            e("MediaSessionManager is not available in this context.")
+            Log.e("MediaSessionManager is not available in this context.")
         manager
     }
     
@@ -55,7 +54,7 @@ class ListenSubmissionService : NotificationListenerService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) = Service.START_STICKY
 
     private fun initialize() {
-        d("Initializing Listener Service")
+        Log.d("Initializing Listener Service")
         sessionListener = ListenSessionListener(appPreferences, serviceManager, scope)
         listenServiceComponent = ComponentName(this, this.javaClass)
         createNotificationChannel()
@@ -63,9 +62,9 @@ class ListenSubmissionService : NotificationListenerService() {
         try {
             sessionManager?.addOnActiveSessionsChangedListener(sessionListener!!, listenServiceComponent)
         } catch (e: SecurityException) {
-            e(message = "Could not add session listener due to security exception: ${e.message}")
+            Log.e(message = "Could not add session listener due to security exception: ${e.message}")
         } catch (e: Exception) {
-            e(message = "Could not add session listener: ${e.message}")
+            Log.e(message = "Could not add session listener: ${e.message}")
         }
     }
 
@@ -73,8 +72,9 @@ class ListenSubmissionService : NotificationListenerService() {
         deleteNotificationChannel()
         sessionListener?.clearSessions()
         sessionListener?.let { sessionManager?.removeOnActiveSessionsChangedListener(it) }
+        serviceManager.close()
         scope.cancel()
-        d("onDestroy: Listen Scrobble Service stopped.")
+        Log.d("onDestroy: Listen Scrobble Service stopped.")
         super.onDestroy()
     }
 

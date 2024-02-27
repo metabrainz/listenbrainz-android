@@ -31,5 +31,22 @@ data class Song (
             albumArt = "",
             discNumber = 0L
         )
+        
+        fun preview(): Song =
+            Song(
+                mediaID = 0L,
+                title = "Title",
+                trackNumber = 0,
+                year = 2024,
+                duration = 30000L,
+                dateModified = 0L,
+                artistId = 0L,
+                artist = "Artist",
+                uri = "",
+                albumID = 0L,
+                album = "Album",
+                albumArt = "",
+                discNumber = 0L
+            )
     }
 }
