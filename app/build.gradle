@@ -115,6 +115,14 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+    dependenciesInfo {
+        // Disables dependency metadata when building APKs.
+        // This is for the signed .apk that we post to GitHub, so the dependency metadata isn't relevant.
+        includeInApk = false
+        // Disables dependency metadata when building Android App Bundles.
+        // This is for the Google Play Store, so we'll want the metadata.
+        includeInBundle = true
+    }
 }
 
 dependencies {
