@@ -29,7 +29,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 fun TopBar(
     navController: NavController = rememberNavController(),
     searchBarState: SearchBarState,
-    context: Context = LocalContext.current
+    context: Context = LocalContext.current,
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
