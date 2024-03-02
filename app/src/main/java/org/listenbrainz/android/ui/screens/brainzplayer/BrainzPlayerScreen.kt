@@ -91,17 +91,6 @@ fun BrainzPlayerHomeScreen(
         .padding(horizontal = 8.dp)
         .verticalScroll(rememberScrollState())
     ) {
-        // Search Bar
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-//            SearchView(state = searchTextState, brainzPlayerViewModel)
-        }
-
         // Recently Played
         Text(
             text = "Recently Played",
@@ -302,109 +291,6 @@ fun BrainzPlayerHomeScreen(
         
     }
 }
-
-//@Composable
-//fun SearchView(state: MutableState<TextFieldValue>, brainzPlayerViewModel: BrainzPlayerViewModel) {
-//    var searchStarted by remember {
-//        mutableStateOf(false)
-//    }
-//    var searchItems by remember {
-//        mutableStateOf(mutableListOf<Song>())
-//    }
-//    val itemHeights = remember { mutableStateMapOf<Int, Int>() }
-//    val baseHeight = 330.dp
-//    val density = LocalDensity.current
-//    val maxHeight = remember(itemHeights.toMap()) {
-//        if (itemHeights.keys.toSet() != searchItems.indices.toSet ()) {
-//            // if we don't have all heights calculated yet, return default value
-//            return@remember baseHeight
-//        }
-//        val baseHeightInt = with(density) { baseHeight.toPx().toInt() }
-//        var sum = with(density) { 8.dp.toPx().toInt() } * 2
-//        for ((_, itemSize) in itemHeights.toSortedMap()) {
-//            sum += itemSize
-//            if (sum >= baseHeightInt) {
-//                return@remember with(density) { (sum - itemSize / 2).toDp() }
-//            }
-//        }
-//        // all items fit into base height
-//        baseHeight
-//    }
-//
-//    Box {
-//        TextField(
-//            modifier = Modifier
-//                .fillMaxWidth(0.9f)
-//                .padding(2.dp),
-//            value = state.value,
-//            onValueChange = { value ->
-//                state.value = value
-//                searchItems = brainzPlayerViewModel.searchSongs(value.text)!!.toMutableList()
-//                searchStarted = true
-//
-//            },
-//            textStyle = TextStyle(MaterialTheme.colorScheme.onSurface, fontSize = 15.sp),
-//            leadingIcon = {
-//                Icon(
-//                    Icons.Default.Search,
-//                    contentDescription = "",
-//                    modifier = Modifier
-//                        .padding(15.dp)
-//                        .size(24.dp)
-//
-//                )
-//            },
-//            trailingIcon = {
-//                if (state.value != TextFieldValue("")) {
-//                    IconButton(onClick = {
-//                        state.value = TextFieldValue("")
-//                    }
-//                    ) {
-//                        Icon(
-//                            Icons.Default.Close,
-//                            contentDescription = "",
-//                            modifier = Modifier
-//                                .padding(15.dp)
-//                                .size(24.dp)
-//                        )
-//                    }
-//                }
-//            },
-//            singleLine = true,
-//            shape = RoundedCornerShape(25.dp),
-//            colors = TextFieldDefaults.textFieldColors(
-//
-//                textColor = Color.Black,
-//                disabledTextColor = Color.Transparent,
-//                backgroundColor = Color.Gray,
-//                focusedIndicatorColor = Color.Transparent,
-//                unfocusedIndicatorColor = Color.Transparent,
-//                disabledIndicatorColor = Color.Transparent
-//            )
-//        )
-//    }
-//    DropdownMenu(
-//        modifier = Modifier.requiredSizeIn(maxHeight = maxHeight),
-//        properties = PopupProperties(focusable = false ),
-//        expanded = searchStarted,
-//        onDismissRequest = { searchStarted = false }) {
-//        searchItems.forEachIndexed { index, song ->
-//
-//            DropdownMenuItem(
-//                modifier = Modifier.onSizeChanged {
-//                        itemHeights[index] = it.height
-//
-//                },
-//                onClick = {
-//                    brainzPlayerViewModel.changePlayable(listOf(song), PlayableType.SONG, song.mediaID,0)
-//                    brainzPlayerViewModel.playOrToggleSong(song, true)
-//                searchStarted = false
-//                state.value.text.removeRange(0, state.value.text.length-1.coerceAtLeast(0))}) {
-//                androidx.compose.material3.Text(text = song.title )
-//            }
-//        }
-//    }
-//}
 
 @Composable
 fun BrainzPlayerActivityCards(icon: String, errorIcon : Int, title: String, modifier : Modifier = Modifier) {
