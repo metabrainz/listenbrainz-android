@@ -18,6 +18,7 @@ import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerHomeScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.OnAlbumClickScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.OnArtistClickScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.OnPlaylistClickScreen
+import org.listenbrainz.android.ui.screens.brainzplayer.OverviewScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.PlaylistScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.SongScreen
 
@@ -28,7 +29,7 @@ fun Navigation(
     albums: List<Album>,
     artists: List<Artist>,
     playlists: List<Playlist>,
-    recentlyPlayedSongs: Playlist,
+    recentlyPlayedSongs: List<Song>,
     songs: List<Song>,
     navHostController: NavHostController = rememberNavController()
 ) {

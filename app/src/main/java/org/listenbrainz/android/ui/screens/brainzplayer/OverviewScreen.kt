@@ -10,7 +10,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -19,18 +19,20 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.Artist
 import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.Playlist
+import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
 @Composable
 fun OverviewScreen (
-    recentlyPlayedSongs: Playlist,
-    brainzPlayerViewModel : BrainzPlayerViewModel,
+    recentlyPlayedSongs: List<Song>,
+    brainzPlayerViewModel : BrainzPlayerViewModel = hiltViewModel(),
     artists : List<Artist>,
     albums: List<Album>
 ) {
@@ -45,7 +47,7 @@ fun OverviewScreen (
 
 @Composable
 private fun RecentlyPlayedOverview(
-    recentlyPlayedSongs: Playlist,
+    recentlyPlayedSongs: List<Song>,
     brainzPlayerViewModel : BrainzPlayerViewModel
 ) {
     Text("Recently Played" , style = TextStyle(
@@ -61,7 +63,7 @@ private fun RecentlyPlayedOverview(
                 )
             )
             .height(250.dp)){
-        items(items = recentlyPlayedSongs.items) {
+        items(items = recentlyPlayedSongs) {
                 song ->
             BrainzPlayerActivityCards(icon = song.albumArt,
                 errorIcon = R.drawable.ic_artist,
@@ -69,7 +71,7 @@ private fun RecentlyPlayedOverview(
                 artist = song.artist,
                 modifier = Modifier
                     .clickable {
-                        brainzPlayerViewModel.changePlayable(recentlyPlayedSongs.items, PlayableType.ALL_SONGS, song.mediaID,recentlyPlayedSongs.items.sortedBy { it.discNumber }.indexOf(song),0L)
+                        brainzPlayerViewModel.changePlayable(recentlyPlayedSongs, PlayableType.ALL_SONGS, song.mediaID,recentlyPlayedSongs.sortedBy { it.discNumber }.indexOf(song),0L)
                         brainzPlayerViewModel.playOrToggleSong(song, true)
                     }
             )

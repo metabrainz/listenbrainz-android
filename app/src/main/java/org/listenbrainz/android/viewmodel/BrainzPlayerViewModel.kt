@@ -1,17 +1,22 @@
 package org.listenbrainz.android.viewmodel
 
+import android.os.Build
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ALL
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_NONE
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ONE
 import android.support.v4.media.session.PlaybackStateCompat.SHUFFLE_MODE_ALL
 import android.support.v4.media.session.PlaybackStateCompat.SHUFFLE_MODE_NONE
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,6 +39,8 @@ import org.listenbrainz.android.util.BrainzPlayerExtensions.isPrepared
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID
 import org.listenbrainz.android.util.Resource
+import org.listenbrainz.android.util.Transformer.toSongEntity
+import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
@@ -50,6 +57,7 @@ class BrainzPlayerViewModel @Inject constructor(
     val progress = _progress.asStateFlow()
     val songCurrentPosition = _songCurrentPosition.asStateFlow()
     val songs = songRepository.getSongsStream()
+    val recentlyPlayed = songRepository.getRecentlyPlayedSongs()
     private val playbackState = brainzPlayerServiceConnection.playbackState
     val isShuffled = brainzPlayerServiceConnection.shuffleState
     val currentlyPlayingSong = brainzPlayerServiceConnection.currentPlayingSong
@@ -103,6 +111,7 @@ class BrainzPlayerViewModel @Inject constructor(
             )
     }
 
+
     fun onSeek(seekTo: Float) {
         viewModelScope.launch { _progress.emit(seekTo) }
     }
@@ -143,17 +152,24 @@ class BrainzPlayerViewModel @Inject constructor(
         return result
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun playOrToggleSong(mediaItem: Song, toggle: Boolean = false) {
         val isPrepared = playbackState.value.isPrepared
         if (isPrepared && mediaItem.mediaID == currentlyPlayingSong.value.toSong.mediaID) {
             playbackState.value.let { playbackState ->
                 when {
                     playbackState.isPlaying -> if (toggle) brainzPlayerServiceConnection.transportControls.pause()
-                    playbackState.isPlayEnabled -> brainzPlayerServiceConnection.transportControls.play()
+                    playbackState.isPlayEnabled -> {
+                        mediaItem.lastListenedTo = Instant.now().epochSecond
+                        viewModelScope.launch { songRepository.updateSong(mediaItem) }
+                        brainzPlayerServiceConnection.transportControls.play()
+                    }
                     else -> Unit
                 }
             }
         } else {
+            mediaItem.lastListenedTo = Instant.now().epochSecond
+            viewModelScope.launch { songRepository.updateSong(mediaItem) }
             brainzPlayerServiceConnection.transportControls.playFromMediaId(mediaItem.mediaID.toString(), null)
         }
     }
