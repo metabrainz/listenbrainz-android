@@ -7,7 +7,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
@@ -63,13 +63,17 @@ fun BrainzPlayerScreen() {
     val songs = songsViewModel.songs.collectAsState(initial = listOf()).value
     val artists = artistViewModel.artists.collectAsState(initial = listOf()).value
     val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
-    val recentlyPlayed = brainzPlayerViewModel.recentlyPlayed.collectAsState(initial = listOf()).value
+    val songsPlayedToday = brainzPlayerViewModel.songsPlayedToday.collectAsState(initial = listOf()).value
+    val recentlyPlayed = brainzPlayerViewModel.recentlyPlayed.collectAsState(initial = mutableListOf()).value
+    val topRecents = recentlyPlayed.subList(0, minOf(recentlyPlayed.size , 5)).toMutableList()
+    val songsPlayedThisWeek = brainzPlayerViewModel.songsPlayedThisWeek.collectAsState(initial = listOf()).value
+    topRecents.add(Song())
     
     Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Navigation(albums, artists, playlists, recentlyPlayed, songs)
+        Navigation(albums, artists, playlists, songsPlayedToday, songsPlayedThisWeek ,topRecents ,songs)
     }
 }
 
@@ -80,6 +84,8 @@ fun BrainzPlayerHomeScreen(
     albums: List<Album>,
     artists: List<Artist>,
     playlists: List<Playlist>,
+    songsPlayedToday: List<Song>,
+    songsPlayedThisWeek: List<Song>,
     recentlyPlayedSongs: List<Song>,
     brainzPlayerViewModel: BrainzPlayerViewModel = hiltViewModel(),
     navigateToSongsScreen: () -> Unit,
@@ -137,12 +143,17 @@ fun BrainzPlayerHomeScreen(
         }
         when (currentTab.value) {
             0 -> OverviewScreen(
+                songsPlayedToday = songsPlayedToday,
                 recentlyPlayedSongs = recentlyPlayedSongs,
+                goToRecentScreen = {currentTab.value = 1},
                 brainzPlayerViewModel = brainzPlayerViewModel,
                 artists = artists,
                 albums = albums
             )
-            1 -> RecentPlaysScreen()
+            1 -> RecentPlaysScreen(
+                songsPlayedToday = songsPlayedToday,
+                songsPlayedThisWeek = songsPlayedThisWeek
+            )
             2 -> ArtistScreen(navigateToArtistScreen = {id -> navigateToArtistsScreen()})
         }
     }
@@ -361,73 +372,3 @@ fun BrainzPlayerHomeScreen(
 //    }
 }
 
-@Composable
-fun BrainzPlayerActivityCards(icon: String, errorIcon : Int, title: String, artist : String,modifier : Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .padding(4.dp)
-            .height(250.dp)
-            .width(180.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .clickable { },
-        contentAlignment = Alignment.TopCenter
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Box(
-                modifier = modifier
-                    .padding(10.dp)
-                    .clip(RoundedCornerShape(15.dp))
-                    .background(color = colorResource(id = R.color.bp_bottom_song_viewpager))
-                    .size(150.dp)
-            ) {
-                AsyncImage(
-                    modifier = modifier
-                        .fillMaxSize()
-                        .align(Alignment.TopCenter),
-                    model = icon,
-                    contentDescription = "",
-                    error = forwardingPainter(
-                        painter = painterResource(id = errorIcon)
-                    ) { info ->
-                        inset(25f, 25f) {
-                            with(info.painter) {
-                                draw(size, info.alpha, info.colorFilter)
-                            }
-                        }
-                    },
-                    contentScale = ContentScale.Crop
-                )
-            }
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 15.dp)){
-                Text(
-                    text = artist,
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Left,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 15.dp)){
-                Text(
-                    text = title,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Normal,
-                    textAlign = TextAlign.Left,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
-
-
-        }
-    }
-}

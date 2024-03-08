@@ -58,6 +58,8 @@ class BrainzPlayerViewModel @Inject constructor(
     val songCurrentPosition = _songCurrentPosition.asStateFlow()
     val songs = songRepository.getSongsStream()
     val recentlyPlayed = songRepository.getRecentlyPlayedSongs()
+    val songsPlayedToday = songRepository.getSongsPlayedToday()
+    val songsPlayedThisWeek = songRepository.getSongsPlayedThisWeek()
     private val playbackState = brainzPlayerServiceConnection.playbackState
     val isShuffled = brainzPlayerServiceConnection.shuffleState
     val currentlyPlayingSong = brainzPlayerServiceConnection.currentPlayingSong
@@ -160,7 +162,7 @@ class BrainzPlayerViewModel @Inject constructor(
                 when {
                     playbackState.isPlaying -> if (toggle) brainzPlayerServiceConnection.transportControls.pause()
                     playbackState.isPlayEnabled -> {
-                        mediaItem.lastListenedTo = Instant.now().epochSecond
+                        mediaItem.lastListenedTo = Instant.now().epochSecond * 1000
                         viewModelScope.launch { songRepository.updateSong(mediaItem) }
                         brainzPlayerServiceConnection.transportControls.play()
                     }
@@ -168,7 +170,7 @@ class BrainzPlayerViewModel @Inject constructor(
                 }
             }
         } else {
-            mediaItem.lastListenedTo = Instant.now().epochSecond
+            mediaItem.lastListenedTo = Instant.now().epochSecond * 1000
             viewModelScope.launch { songRepository.updateSong(mediaItem) }
             brainzPlayerServiceConnection.transportControls.playFromMediaId(mediaItem.mediaID.toString(), null)
         }

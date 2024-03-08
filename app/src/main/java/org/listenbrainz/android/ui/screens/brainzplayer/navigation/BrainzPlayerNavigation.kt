@@ -29,7 +29,9 @@ fun Navigation(
     albums: List<Album>,
     artists: List<Artist>,
     playlists: List<Playlist>,
-    recentlyPlayedSongs: List<Song>,
+    songsPlayedToday: List<Song>,
+    songsPlayedThisWeek: List<Song>,
+    recentlyPlayedSongs : List<Song>,
     songs: List<Song>,
     navHostController: NavHostController = rememberNavController()
 ) {
@@ -44,6 +46,8 @@ fun Navigation(
                 albums = albums,
                 artists = artists,
                 playlists = playlists,
+                songsPlayedToday = songsPlayedToday,
+                songsPlayedThisWeek = songsPlayedThisWeek,
                 recentlyPlayedSongs = recentlyPlayedSongs,
                 navigateToSongsScreen = { goTo(BrainzPlayerNavigationItem.Songs) },
                 navigateToArtist = { id -> navHostController.navigate("onArtistClick/$id")},
