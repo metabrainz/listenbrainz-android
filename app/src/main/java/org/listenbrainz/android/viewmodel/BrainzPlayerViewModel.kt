@@ -42,7 +42,6 @@ class BrainzPlayerViewModel @Inject constructor(
     private val songRepository: SongRepository,
     val appPreferences: AppPreferences,
 ) : ViewModel() {
-    val pagerState = MutableStateFlow(0)
     private val _mediaItems = MutableStateFlow<Resource<List<Song>>>(Resource.loading())
     private val _songDuration = MutableStateFlow(0L)
     private val _songCurrentPosition = MutableStateFlow(0L)
@@ -88,7 +87,6 @@ class BrainzPlayerViewModel @Inject constructor(
 
     fun skipToNextSong() {
         brainzPlayerServiceConnection.transportControls.skipToNext()
-        pagerState.value++
         // Updating currently playing song.
         appPreferences.currentPlayable = appPreferences.currentPlayable
             ?.copy(currentSongIndex = ( appPreferences.currentPlayable?.currentSongIndex!! + 1)   // Since BP won't be visible to users with no songs, we don't need to worry.
@@ -98,7 +96,6 @@ class BrainzPlayerViewModel @Inject constructor(
 
     fun skipToPreviousSong() {
         brainzPlayerServiceConnection.transportControls.skipToPrevious()
-        pagerState.value--.coerceAtLeast(0)
         // Updating currently playing song.
         appPreferences.currentPlayable = appPreferences.currentPlayable
             ?.copy(currentSongIndex = ( appPreferences.currentPlayable?.currentSongIndex!! - 1)   // Since BP won't be visible to users with no songs, we don't need to worry.

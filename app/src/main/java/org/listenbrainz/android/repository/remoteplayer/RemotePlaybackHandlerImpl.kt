@@ -36,6 +36,7 @@ import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.Continuation
@@ -54,7 +55,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
     
     /** This variable is used to maintain concurrency because spotify async tasks can cause
      * continuations to resume twice.*/
-    private var isResumed: Boolean = false
+    private var isResumed: AtomicBoolean = AtomicBoolean(false)
     
     init {
         SpotifyAppRemote.setDebugMode(BuildConfig.DEBUG)
@@ -144,9 +145,9 @@ class RemotePlaybackHandlerImpl @Inject constructor(
     override suspend fun connectToSpotify(onError: (ResponseError) -> Unit) {
         try {
             mutex.withLock {
-                println("CONNECT")
+                Log.d("Init connection to spotify.")
                 SpotifyAppRemote.disconnect(spotifyAppRemote)
-                isResumed = false
+                isResumed.set(false)
                 spotifyAppRemote = connectToAppRemote(
                     true,
                     spotifyClientId = appContext.getString(R.string.spotifyClientId),
@@ -175,9 +176,9 @@ class RemotePlaybackHandlerImpl @Inject constructor(
                     
                     override fun onConnected(spotifyAppRemote: SpotifyAppRemote) {
                         Log.d("App remote Connected!")
-                        if (!isResumed){
+                        if (!isResumed.get()){
                             cont.resume(spotifyAppRemote)
-                            isResumed = true
+                            isResumed.set(true)
                         }
                     }
                     
@@ -211,10 +212,10 @@ class RemotePlaybackHandlerImpl @Inject constructor(
                         }
                         
                         // Throw exception
-                        if (!isResumed){
+                        if (!isResumed.get()){
                             logError(error)
                             cont.resumeWithException(error)
-                            isResumed = true
+                            isResumed.set(true)
                         }
                         
                     }

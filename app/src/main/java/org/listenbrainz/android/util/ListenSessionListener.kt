@@ -10,9 +10,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
-import org.listenbrainz.android.util.Log.d
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import java.util.concurrent.ConcurrentHashMap
 
 class ListenSessionListener(
@@ -46,7 +45,7 @@ class ListenSessionListener(
             
                                 // remove the active session.
                                 activeSessions.remove(entry.key)
-                                d("### UNREGISTERED MediaController Callback for ${entry.key.packageName}.")
+                                Log.d("### UNREGISTERED MediaController Callback for ${entry.key.packageName}.")
                             }
                         }
                     }
@@ -59,7 +58,7 @@ class ListenSessionListener(
                             
                             // add to active sessions.
                             activeSessions[entry.key] = entry.value!!
-                            d("### REGISTERED MediaController Callback for ${entry.key.packageName}.")
+                            Log.d("### REGISTERED MediaController Callback for ${entry.key.packageName}.")
                             break
                         }
                     }
@@ -73,20 +72,18 @@ class ListenSessionListener(
         fun MediaController.shouldListen(): Boolean = packageName in whitelist
         
         for (controller in controllers) {
-            availableSessions[controller] = ListenCallback(controller.packageName)
             // BlackList
             if (!controller.shouldListen()){
                 continue
             }
             val callback = ListenCallback(controller.packageName)
             activeSessions[controller] = callback
+            availableSessions[controller] = callback
             controller.registerCallback(callback)
-            d("### REGISTERED MediaController callback for ${controller.packageName}.")
+            Log.d("### REGISTERED MediaController callback for ${controller.packageName}.")
         }
 
         updateAppsList(controllers)
-        
-        // println(appPreferences.listeningApps)
     }
     
     private fun updateAppsList(controllers: List<MediaController>) {
@@ -118,7 +115,7 @@ class ListenSessionListener(
     fun clearSessions() {
         for ((controller, callback) in activeSessions) {
             controller.unregisterCallback(callback!!)
-            d("### UNREGISTERED MediaController Callback for ${controller.packageName}.")
+            Log.d("### UNREGISTERED MediaController Callback for ${controller.packageName}.")
         }
         activeSessions.clear()
         availableSessions.clear()

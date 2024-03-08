@@ -25,7 +25,6 @@ class YearInMusic23Activity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val yim23ViewModel : Yim23ViewModel by viewModels()
-        val socialViewModel : SocialViewModel by viewModels()
         val networkConnectivityViewModel: NetworkConnectivityViewModel =
             ViewModelProvider(this)[NetworkConnectivityViewModelImpl::class.java]
 
@@ -37,8 +36,7 @@ class YearInMusic23Activity : ComponentActivity() {
                     Toast.LENGTH_LONG).show()
                 finish()
             }
-            Yim23Navigation(yimViewModel = yim23ViewModel, socialViewModel = socialViewModel
-                , networkConnectivityViewModel = networkConnectivityViewModel, activity = this)
+            Yim23Navigation(yimViewModel = yim23ViewModel ,networkConnectivityViewModel = networkConnectivityViewModel, activity = this)
         }
     }
 }

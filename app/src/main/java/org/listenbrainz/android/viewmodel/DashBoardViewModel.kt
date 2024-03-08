@@ -20,7 +20,7 @@ import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.ui.screens.onboarding.FeaturesActivity
-import org.listenbrainz.android.util.Log.d
+import org.listenbrainz.android.util.Log
 import javax.inject.Inject
 
 @HiltViewModel
@@ -61,7 +61,7 @@ class DashBoardViewModel @Inject constructor(
     
     
     fun beginOnboarding(activity: ComponentActivity) {
-        d("Onboarding status: ${appPreferences.onboardingCompleted}")
+        Log.d("Onboarding status: ${appPreferences.onboardingCompleted}")
         if (!appPreferences.onboardingCompleted){
             // TODO: Convert onboarding to a nav component.
             activity.startActivity(Intent(activity, FeaturesActivity::class.java))
@@ -73,10 +73,7 @@ class DashBoardViewModel @Inject constructor(
     // TODO: Rework permissions
     val neededPermissions = when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
-            arrayOf(
-                Manifest.permission.READ_MEDIA_IMAGES,
-                Manifest.permission.READ_MEDIA_AUDIO
-            )
+            arrayOf(Manifest.permission.READ_MEDIA_AUDIO)
         }
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
             arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -92,7 +89,6 @@ class DashBoardViewModel @Inject constructor(
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
                 if (
-                    checkSelfPermission(application.applicationContext, Manifest.permission.READ_MEDIA_IMAGES) == PermissionChecker.PERMISSION_GRANTED &&
                     checkSelfPermission(application.applicationContext, Manifest.permission.READ_MEDIA_AUDIO) == PermissionChecker.PERMISSION_GRANTED
                 ){
                     setPermissionsPreference(PermissionStatus.GRANTED.name)

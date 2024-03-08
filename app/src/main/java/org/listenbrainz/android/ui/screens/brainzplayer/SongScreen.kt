@@ -202,7 +202,7 @@ fun SongScreen() {
             BPLibraryEmptyMessage(modifier = Modifier.align(Alignment.Center))
         } else {
             LazyVerticalGrid(columns = GridCells.Fixed(2)) {
-                items(songs.value.sortedBy { it.discNumber }) {
+                items(songs.value) {
                     Box(modifier = Modifier
                         .padding(2.dp)
                         .height(240.dp)

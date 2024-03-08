@@ -13,6 +13,7 @@ import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.work.WorkManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.runBlocking
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.PlayingTrack.Companion.toPlayingTrack
 import org.listenbrainz.android.model.RepeatMode
@@ -97,7 +98,9 @@ class BrainzPlayerServiceConnection(
         }
     }
     private inner class MediaControllerCallback(context: Context) : MediaControllerCompat.Callback() {
-        val listenSubmissionState: ListenSubmissionState = ListenSubmissionState(workManager, context)
+        val listenSubmissionState: ListenSubmissionState by lazy {
+            ListenSubmissionState(workManager = workManager, context = context)
+        }
     
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             _playbackState.value = state ?: EMPTY_PLAYBACK_STATE
@@ -112,7 +115,10 @@ class BrainzPlayerServiceConnection(
             previousPlaybackState = state?.isPlaying == true
         
             // Cutout point for normal bp and bp submitter
-            if (appPreferences.isNotificationServiceAllowed) return
+            if (
+                appPreferences.isNotificationServiceAllowed &&
+                runBlocking { appPreferences.isListeningAllowed.get() }
+            ) return
         
             listenSubmissionState.alertPlaybackStateChanged()
         

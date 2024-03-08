@@ -19,7 +19,7 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.ui.screens.main.MainActivity
 import org.listenbrainz.android.ui.screens.profile.LoginActivity
-import org.listenbrainz.android.util.Log.d
+import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.viewmodel.FeaturesViewModel
 import javax.inject.Inject
 
@@ -105,7 +105,7 @@ class FeaturesActivity : OnboardAdvanced() {
 
     override fun onDonePressed(currentFragment: Fragment?) {
         super.onDonePressed(currentFragment)
-        d("Onboarding completed")
+        Log.d("Onboarding completed")
         appPreferences.onboardingCompleted = true
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)

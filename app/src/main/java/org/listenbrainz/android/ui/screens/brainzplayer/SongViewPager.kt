@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,22 +47,25 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.ui.components.PlayPauseIcon
 import org.listenbrainz.android.ui.components.SeekBar
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
-import org.listenbrainz.android.util.brainzplayer.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun SongViewPager(modifier: Modifier = Modifier, backdropScaffoldState: BackdropScaffoldState, viewModel: BrainzPlayerViewModel = hiltViewModel()) {
-    val songList = viewModel.mediaItem.collectAsState().value.data ?: listOf()
-    val currentlyPlayingSong = viewModel.currentlyPlayingSong.collectAsState().value.toSong
-    val pagerState = viewModel.pagerState.collectAsState().value
-    val pageState = rememberPagerState { songList.size }
+fun SongViewPager(
+    modifier: Modifier = Modifier,
+    backdropScaffoldState: BackdropScaffoldState,
+    currentlyPlayingSong: Song,
+    songList: List<Song>,
+    viewModel: BrainzPlayerViewModel = hiltViewModel()
+) {
     val coroutineScope = rememberCoroutineScope()
+    val pagerState: PagerState = rememberPagerState { songList.size }
     
-    HorizontalPager(state = pageState, modifier = modifier
+    HorizontalPager(state = pagerState, modifier = modifier
         .fillMaxWidth()
         .background(MaterialTheme.colorScheme.tertiaryContainer)
     ) {
@@ -131,7 +135,14 @@ fun SongViewPager(modifier: Modifier = Modifier, backdropScaffoldState: Backdrop
                                 contentDescription = "",
                                 Modifier
                                     .size(35.dp)
-                                    .clickable { viewModel.skipToPreviousSong() },
+                                    .clickable {
+                                        coroutineScope.launch {
+                                            pagerState.animateScrollToPage(
+                                                (pagerState.currentPage - 1).coerceAtLeast(0)
+                                            )
+                                        }
+                                        viewModel.skipToPreviousSong()
+                                    },
                                 tint = MaterialTheme.colorScheme.onTertiary
                             )
                             Box(
@@ -181,5 +192,9 @@ fun SongViewPager(modifier: Modifier = Modifier, backdropScaffoldState: Backdrop
 @Preview
 @Composable
 fun SongViewPagerPreview() {
-    SongViewPager(backdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed))
+    SongViewPager(
+        songList = listOf(),
+        currentlyPlayingSong = Song.preview(),
+        backdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
+    )
 }
