@@ -11,9 +11,6 @@ import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.LinkedService
-import org.listenbrainz.android.util.datastore.Preference.Companion.ComplexPreference
-import org.listenbrainz.android.util.datastore.Preference.Companion.PrimitivePreference
-import org.listenbrainz.android.util.datastore.ProtoDataStore
 import org.listenbrainz.sharedtest.mocks.MockPreferences.mockComplexPreference
 import org.listenbrainz.sharedtest.mocks.MockPreferences.mockPrimitivePreference
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testAccessToken

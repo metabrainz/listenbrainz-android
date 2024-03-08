@@ -1,11 +1,11 @@
 package org.listenbrainz.android.repository.preferences
 
+import com.jasjeet.typesafe_datastore.preferences.ComplexPreference
+import com.jasjeet.typesafe_datastore.preferences.PrimitivePreference
 import kotlinx.coroutines.flow.Flow
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.util.LinkedService
-import org.listenbrainz.android.util.datastore.Preference.Companion.ComplexPreference
-import org.listenbrainz.android.util.datastore.Preference.Companion.PrimitivePreference
 
 interface AppPreferences {
     

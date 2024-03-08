@@ -1,11 +1,10 @@
-package org.listenbrainz.android.util.datastore.migrations
+package org.listenbrainz.android.util.migrations
 
 import androidx.datastore.core.DataMigration
 import androidx.datastore.preferences.core.Preferences
 import com.google.gson.Gson
-import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
+import com.jasjeet.typesafe_datastore_gson.AutoTypedDataStore.Companion.listSerializer
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys
-import org.listenbrainz.android.util.datastore.DataStoreSerializers.stringListSerializer
 
 val blacklistMigration: DataMigration<Preferences> =
     object: DataMigration<Preferences> {
@@ -13,14 +12,15 @@ val blacklistMigration: DataMigration<Preferences> =
         
         override suspend fun shouldMigrate(currentData: Preferences): Boolean {
             // If blacklist is deleted, then we are sure that migration took place.
-            return currentData.contains(AppPreferencesImpl.Companion.PreferenceKeys.LISTENING_BLACKLIST)
+            return currentData.contains(PreferenceKeys.LISTENING_BLACKLIST)
         }
         
         override suspend fun migrate(currentData: Preferences): Preferences {
-            val blacklist = stringListSerializer.from(currentData[PreferenceKeys.LISTENING_BLACKLIST] ?: "")
-            val appList = stringListSerializer.from(currentData[PreferenceKeys.LISTENING_APPS] ?: "")
+            val serializer = listSerializer<String>()
+            val blacklist = serializer.from(currentData[PreferenceKeys.LISTENING_BLACKLIST] ?: "")
+            val appList = serializer.from(currentData[PreferenceKeys.LISTENING_APPS] ?: "")
             
-            val whitelist = stringListSerializer.from(currentData[PreferenceKeys.LISTENING_WHITELIST] ?: "").toMutableSet()
+            val whitelist = serializer.from(currentData[PreferenceKeys.LISTENING_WHITELIST] ?: "").toMutableSet()
             appList.forEach { pkg ->
                 if (!blacklist.contains(pkg)) {
                     whitelist.add(pkg)

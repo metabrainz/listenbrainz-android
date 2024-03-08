@@ -3,9 +3,6 @@ package org.listenbrainz.sharedtest.mocks
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.datastore.Preference
-import org.listenbrainz.android.util.datastore.Preference.Companion.ComplexPreference
-import org.listenbrainz.android.util.datastore.Preference.Companion.PrimitivePreference
 
 object MockPreferences {
     fun <T> mockPrimitivePreference(mockValue: T): PrimitivePreference<T> =

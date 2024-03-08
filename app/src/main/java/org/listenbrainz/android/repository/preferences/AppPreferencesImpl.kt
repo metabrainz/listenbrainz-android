@@ -10,6 +10,9 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.preference.PreferenceManager
+import com.jasjeet.typesafe_datastore.preferences.ComplexPreference
+import com.jasjeet.typesafe_datastore.preferences.PrimitivePreference
+import com.jasjeet.typesafe_datastore_gson.AutoTypedDataStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -43,13 +46,8 @@ import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
 import org.listenbrainz.android.util.Constants.Strings.USERNAME
 import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.android.util.TypeConverter
-import org.listenbrainz.android.util.datastore.Preference.Companion.ComplexPreference
-import org.listenbrainz.android.util.datastore.DataStoreSerializers.linkedServicesListSerializer
-import org.listenbrainz.android.util.datastore.DataStoreSerializers.stringListSerializer
 import org.listenbrainz.android.util.datastore.DataStoreSerializers.themeSerializer
-import org.listenbrainz.android.util.datastore.Preference.Companion.PrimitivePreference
-import org.listenbrainz.android.util.datastore.ProtoDataStore
-import org.listenbrainz.android.util.datastore.migrations.blacklistMigration
+import org.listenbrainz.android.util.migrations.blacklistMigration
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
     name = "settings",
@@ -70,7 +68,7 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
     }
 )
 
-class AppPreferencesImpl(private val context: Context) : ProtoDataStore(context.dataStore), AppPreferences {
+class AppPreferencesImpl(private val context: Context): AutoTypedDataStore(context.dataStore), AppPreferences {
     companion object {
         object PreferenceKeys {
             val LB_ACCESS_TOKEN = stringPreferencesKey(Constants.Strings.LB_ACCESS_TOKEN)
@@ -111,20 +109,14 @@ class AppPreferencesImpl(private val context: Context) : ProtoDataStore(context.
     // Preferences Implementation
     
     override val themePreference: ComplexPreference<UiMode>
-        get() = object : ComplexDataStorePreference<UiMode>(
-            key = THEME,
-            serializer = themeSerializer
-        ) {}
+        get() = createComplexPreference(THEME, themeSerializer)
     
     override var permissionsPreference: String?
         get() = preferences.getString(PREFERENCE_PERMS, PermissionStatus.NOT_REQUESTED.name)
         set(value) = setString(PREFERENCE_PERMS, value)
     
     override val listeningWhitelist: ComplexPreference<List<String>>
-        get() = object: ComplexDataStorePreference<List<String>>(
-            key = LISTENING_WHITELIST,
-            serializer = stringListSerializer
-        ) {}
+        get() = listPreference(LISTENING_WHITELIST)
 
     override val isNotificationServiceAllowed: Boolean
         get() {
@@ -133,22 +125,13 @@ class AppPreferencesImpl(private val context: Context) : ProtoDataStore(context.
         }
     
     override val isListeningAllowed: PrimitivePreference<Boolean>
-        get() = object: PrimitiveDataStorePreference<Boolean>(
-            key = IS_LISTENING_ALLOWED,
-            defaultValue = true
-        ) {}
+        get() = booleanPreference(IS_LISTENING_ALLOWED, true)
     
     override val shouldListenNewPlayers: PrimitivePreference<Boolean>
-        get() = object: PrimitiveDataStorePreference<Boolean>(
-        key = SHOULD_LISTEN_NEW_PLAYERS,
-        defaultValue = true
-    ) {}
+        get() = booleanPreference(SHOULD_LISTEN_NEW_PLAYERS, true)
     
     override val listeningApps: ComplexPreference<List<String>>
-        get() = object: ComplexDataStorePreference<List<String>>(
-            key = LISTENING_APPS,
-            serializer = stringListSerializer
-        ) {}
+        get() = listPreference(LISTENING_APPS)
 
     override val version: String
         get() = try {
@@ -195,24 +178,18 @@ class AppPreferencesImpl(private val context: Context) : ProtoDataStore(context.
         lbAccessToken.get().isNotEmpty()
     
     override val lbAccessToken: PrimitivePreference<String>
-        get() = object : PrimitiveDataStorePreference<String>(
-            key = PreferenceKeys.LB_ACCESS_TOKEN,
-            defaultValue = ""
-        ) {}
+        get() = stringPreference(PreferenceKeys.LB_ACCESS_TOKEN)
     
     override val username: PrimitivePreference<String>
-        get() = object : PrimitiveDataStorePreference<String>(
-            key = PreferenceKeys.USERNAME,
-            defaultValue = ""
-        ) {}
+        get() = stringPreference(PreferenceKeys.USERNAME)
     
     override var linkedServices: List<LinkedService>
         get() {
             val jsonString = preferences.getString(LINKED_SERVICES, "") ?: ""
-            return linkedServicesListSerializer.from(jsonString)
+            return listSerializer<LinkedService>().from(jsonString)
         }
         set(value) {
-            val jsonString = linkedServicesListSerializer.to(value)
+            val jsonString = listSerializer<LinkedService>().to(value)
             setString(LINKED_SERVICES, jsonString)
         }
 
