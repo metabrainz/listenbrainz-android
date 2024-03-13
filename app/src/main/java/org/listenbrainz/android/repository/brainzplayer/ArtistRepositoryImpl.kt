@@ -10,8 +10,8 @@ import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.Artist
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.model.dao.ArtistDao
-import org.listenbrainz.android.util.AlbumsData
-import org.listenbrainz.android.util.SongsData
+import org.listenbrainz.android.util.brainzplayer.AlbumsData
+import org.listenbrainz.android.util.brainzplayer.SongsData
 import org.listenbrainz.android.util.Transformer.toAlbumEntity
 import org.listenbrainz.android.util.Transformer.toArtist
 import org.listenbrainz.android.util.Transformer.toArtistEntity

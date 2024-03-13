@@ -201,7 +201,7 @@ fun ListenBrainzTheme(
     systemTheme: Boolean = isSystemInDarkTheme(),
     systemUiController: SystemUiController = rememberSystemUiController(),
     context: Context = LocalContext.current,
-    appPreferences: AppPreferences = AppPreferencesImpl(context),
+    appPreferences: AppPreferences = remember { AppPreferencesImpl(context) },
     // Dynamic color is available on Android 12+
     //dynamicColor: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,
     // dynamicColor: Boolean = false,//Build.VERSION.SDK_INT >= Build.VERSION_CODES.S,

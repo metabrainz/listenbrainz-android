@@ -54,7 +54,9 @@ Got **something interesting** you'd like to **ask or share**? Start a discussion
 
 ## Roadmap
 
-Proposed future plans for the app are discussed [here](https://docs.google.com/document/d/1hY5oloIiANeXg1R9oSBIr2ZUHSlm7LU8qy6tW1VJMQg/edit?usp=sharing).
+- Proposed future plans for the app are discussed [here](https://docs.google.com/document/d/1hY5oloIiANeXg1R9oSBIr2ZUHSlm7LU8qy6tW1VJMQg/edit?usp=sharing).
+- Official Release Plan is [here](https://docs.google.com/document/d/1LSDXWciL4LMS_LJJ0Y47BZtU6jEI-8hiliWbzEOYKsA/edit?usp=sharing)
+- Future features are discussed [here](https://docs.google.com/document/d/1fmsgFVvxAN39nUyaMsEdyePBaDyDwxelJXeLhaDylhs/edit?usp=sharing) 
 	    
 ## Issues
 	  

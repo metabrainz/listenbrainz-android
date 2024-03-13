@@ -1,4 +1,4 @@
-package org.listenbrainz.android.util
+package org.listenbrainz.android.util.brainzplayer
 
 object BrainzPlayerUtils {
     const val SONG_COLLECTION = "songs"

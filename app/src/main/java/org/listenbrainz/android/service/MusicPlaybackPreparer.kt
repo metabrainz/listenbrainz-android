@@ -7,7 +7,7 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
-import org.listenbrainz.android.util.LocalMusicSource
+import org.listenbrainz.android.util.brainzplayer.LocalMusicSource
 
 class MusicPlaybackPreparer(private val localMusicSource: LocalMusicSource, private val playerPrepared: (MediaMetadataCompat?) -> Unit) :
 MediaSessionConnector.PlaybackPreparer {

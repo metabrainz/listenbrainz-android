@@ -1,4 +1,4 @@
-package org.listenbrainz.android.util
+package org.listenbrainz.android.ui.screens.brainzplayer
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background

@@ -1,4 +1,4 @@
-package org.listenbrainz.android.util
+package org.listenbrainz.android.util.brainzplayer
 
 import android.content.ContentUris
 import android.os.Build

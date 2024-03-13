@@ -87,11 +87,10 @@ import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.PlayPauseIcon
 import org.listenbrainz.android.ui.components.SeekBar
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
+import org.listenbrainz.android.util.brainzplayer.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.CacheService
 import org.listenbrainz.android.util.Constants.RECENTLY_PLAYED_KEY
-import org.listenbrainz.android.util.SongViewPager
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import kotlin.math.absoluteValue
@@ -115,7 +114,9 @@ fun BrainzPlayerBackDropScreen(
     val repeatMode by brainzPlayerViewModel.repeatMode.collectAsState()
 
     /** 56.dp is default bottom navigation height. 80.dp is our mini player's height. */
-    val headerHeight by animateDpAsState(targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null") 56.dp else 136.dp)
+    val headerHeight by animateDpAsState(targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null") 56.dp else 136.dp,
+        label = "header"
+    )
     val isPlaying = brainzPlayerViewModel.isPlaying.collectAsState().value
 
     BackdropScaffold(

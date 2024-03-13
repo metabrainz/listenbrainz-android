@@ -14,8 +14,8 @@ import dagger.hilt.android.scopes.ServiceScoped
 import org.listenbrainz.android.repository.brainzplayer.AlbumRepository
 import org.listenbrainz.android.repository.brainzplayer.PlaylistRepository
 import org.listenbrainz.android.repository.brainzplayer.SongRepository
-import org.listenbrainz.android.util.LocalMusicSource
-import org.listenbrainz.android.util.MusicSource
+import org.listenbrainz.android.util.brainzplayer.LocalMusicSource
+import org.listenbrainz.android.util.brainzplayer.MusicSource
 
 @Module
 @InstallIn(ServiceComponent::class)
