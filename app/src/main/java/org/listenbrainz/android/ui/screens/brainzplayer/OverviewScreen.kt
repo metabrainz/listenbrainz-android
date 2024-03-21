@@ -41,6 +41,8 @@ import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 fun OverviewScreen (
     songsPlayedToday: List<Song>,
     goToRecentScreen: () -> Unit,
+    goToArtistScreen: () -> Unit,
+    goToAlbumScreen: () -> Unit,
     recentlyPlayedSongs: List<Song>,
     brainzPlayerViewModel: BrainzPlayerViewModel = hiltViewModel(),
     artists : List<Artist>,
@@ -48,8 +50,8 @@ fun OverviewScreen (
 ) {
     Column (modifier = Modifier.verticalScroll(rememberScrollState())) {
        RecentlyPlayedOverview(recentlyPlayedSongs = recentlyPlayedSongs, goToRecentScreen = goToRecentScreen ,brainzPlayerViewModel = brainzPlayerViewModel)
-        ArtistsOverview(artists = artists)
-        AlbumsOverview(albums = albums)
+        ArtistsOverview(artists = artists, goToArtistScreen = goToArtistScreen)
+        AlbumsOverview(albums = albums, goToAlbumScreen = goToAlbumScreen)
     }
 
 
@@ -76,7 +78,19 @@ private fun RecentlyPlayedOverview(
             .height(250.dp)){
         items(items = recentlyPlayedSongs) {
                 song ->
-            if(song.title == ""){
+            if(song.title != ""){
+                BrainzPlayerActivityCards(icon = song.albumArt,
+                    errorIcon = R.drawable.ic_artist,
+                    title = song.title,
+                    artist = song.artist,
+                    modifier = Modifier
+                        .clickable {
+                            brainzPlayerViewModel.changePlayable(recentlyPlayedSongs, PlayableType.ALL_SONGS, song.mediaID,recentlyPlayedSongs.sortedBy { it.discNumber }.indexOf(song),0L)
+                            brainzPlayerViewModel.playOrToggleSong(song, true)
+                        }
+                )
+            }
+            else{
                 Box(
                     modifier = Modifier
                         .padding(10.dp)
@@ -92,26 +106,14 @@ private fun RecentlyPlayedOverview(
                     }
                 }
             }
-            else{
-                Log.v("pranav" , (song.lastListenedTo).toString())
-                BrainzPlayerActivityCards(icon = song.albumArt,
-                    errorIcon = R.drawable.ic_artist,
-                    title = song.title,
-                    artist = song.artist,
-                    modifier = Modifier
-                        .clickable {
-                            brainzPlayerViewModel.changePlayable(recentlyPlayedSongs, PlayableType.ALL_SONGS, song.mediaID,recentlyPlayedSongs.sortedBy { it.discNumber }.indexOf(song),0L)
-                            brainzPlayerViewModel.playOrToggleSong(song, true)
-                        }
-                )
-            }
         }
     }
 }
 
 @Composable
 private fun ArtistsOverview(
-    artists : List<Artist>
+    artists : List<Artist>,
+    goToArtistScreen : () -> Unit
 ) {
     Text("Artists" , style = TextStyle(
         fontSize = 24.sp,
@@ -128,11 +130,30 @@ private fun ArtistsOverview(
             .height(250.dp)){
         items(items = artists) {
                 artist ->
-            BrainzPlayerActivityCards(icon = "",
-                errorIcon = R.drawable.ic_artist,
-                title = "",
-                artist = artist.name,
-            )
+            if(artist.name != ""){
+                BrainzPlayerActivityCards(icon = "",
+                    errorIcon = R.drawable.ic_artist,
+                    title = "",
+                    artist = artist.name,
+                )
+            }
+            else{
+                Box(
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .clip(RoundedCornerShape(15.dp))
+                        .background(color = colorResource(id = R.color.bp_bottom_song_viewpager))
+                        .size(150.dp)
+                        .clickable {
+                            goToArtistScreen()
+                        }
+                ){
+                    Column (modifier = Modifier.fillMaxSize().background(Color(0xFF1E1E1E)).padding(start = 5.dp , bottom = 20.dp) , verticalArrangement = Arrangement.Bottom) {
+                        Text(" All \n Artists" , style = TextStyle(fontSize = 20.sp) , color = ListenBrainzTheme.colorScheme.lbSignature)
+                    }
+                }
+            }
+
         }
     }
 }
@@ -140,6 +161,7 @@ private fun ArtistsOverview(
 @Composable
 private fun AlbumsOverview(
     albums: List<Album>,
+    goToAlbumScreen: () -> Unit
 ){
     Text("Albums" , style = TextStyle(
         fontSize = 24.sp,
@@ -156,11 +178,30 @@ private fun AlbumsOverview(
             .height(250.dp)){
         items(items = albums) {
                 album ->
-            BrainzPlayerActivityCards(icon = album.albumArt,
-                errorIcon = R.drawable.ic_artist,
-                title = album.title,
-                artist = album.artist,
-            )
+            if(album.title != ""){
+                BrainzPlayerActivityCards(icon = album.albumArt,
+                    errorIcon = R.drawable.ic_artist,
+                    title = album.title,
+                    artist = album.artist,
+                )
+            }
+            else{
+                Box(
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .clip(RoundedCornerShape(15.dp))
+                        .background(color = colorResource(id = R.color.bp_bottom_song_viewpager))
+                        .size(150.dp)
+                        .clickable {
+                            goToAlbumScreen()
+                        }
+                ){
+                    Column (modifier = Modifier.fillMaxSize().background(Color(0xFF1E1E1E)).padding(start = 5.dp , bottom = 20.dp) , verticalArrangement = Arrangement.Bottom) {
+                        Text(" All \n Albums" , style = TextStyle(fontSize = 20.sp) , color = ListenBrainzTheme.colorScheme.lbSignature)
+                    }
+                }
+            }
+
         }
     }
 }

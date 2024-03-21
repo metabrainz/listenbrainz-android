@@ -27,7 +27,9 @@ import org.listenbrainz.android.ui.screens.brainzplayer.SongScreen
 @Composable
 fun Navigation(
     albums: List<Album>,
+    previewAlbums: List<Album>,
     artists: List<Artist>,
+    previewArtists: List<Artist>,
     playlists: List<Playlist>,
     songsPlayedToday: List<Song>,
     songsPlayedThisWeek: List<Song>,
@@ -44,7 +46,9 @@ fun Navigation(
             BrainzPlayerHomeScreen(
                 songs = songs,
                 albums = albums,
+                previewAlbums = previewAlbums,
                 artists = artists,
+                previewArtists = previewArtists,
                 playlists = playlists,
                 songsPlayedToday = songsPlayedToday,
                 songsPlayedThisWeek = songsPlayedThisWeek,

@@ -67,14 +67,18 @@ fun BrainzPlayerScreen() {
     val songsPlayedToday = brainzPlayerViewModel.songsPlayedToday.collectAsState(initial = listOf()).value
     val recentlyPlayed = brainzPlayerViewModel.recentlyPlayed.collectAsState(initial = mutableListOf()).value
     val topRecents = recentlyPlayed.subList(0, minOf(recentlyPlayed.size , 5)).toMutableList()
+    val topArtists = artists.subList(0, minOf(artists.size,5)).toMutableList()
+    val topAlbums = albums.subList(0, minOf(songs.size,5)).toMutableList()
     val songsPlayedThisWeek = brainzPlayerViewModel.songsPlayedThisWeek.collectAsState(initial = listOf()).value
     topRecents.add(Song())
+    topArtists.add(Artist())
+    topAlbums.add(Album())
     
     Column(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Navigation(albums, artists, playlists, songsPlayedToday, songsPlayedThisWeek ,topRecents ,songs)
+        Navigation(albums = albums, previewAlbums = topAlbums, artists = artists, previewArtists = topArtists, playlists, songsPlayedToday, songsPlayedThisWeek ,topRecents ,songs)
     }
 }
 
@@ -83,7 +87,9 @@ fun BrainzPlayerScreen() {
 fun BrainzPlayerHomeScreen(
     songs : List<Song>,
     albums: List<Album>,
+    previewAlbums: List<Album>,
     artists: List<Artist>,
+    previewArtists: List<Artist>,
     playlists: List<Playlist>,
     songsPlayedToday: List<Song>,
     songsPlayedThisWeek: List<Song>,
@@ -147,17 +153,21 @@ fun BrainzPlayerHomeScreen(
                 songsPlayedToday = songsPlayedToday,
                 recentlyPlayedSongs = recentlyPlayedSongs,
                 goToRecentScreen = {currentTab.value = 1},
+                goToArtistScreen = {currentTab.value = 2},
+                goToAlbumScreen = {currentTab.value = 3},
                 brainzPlayerViewModel = brainzPlayerViewModel,
-                artists = artists,
-                albums = albums
+                artists = previewArtists,
+                albums = previewAlbums
             )
             1 -> RecentPlaysScreen(
                 songsPlayedToday = songsPlayedToday,
                 songsPlayedThisWeek = songsPlayedThisWeek
             )
-            2 -> ArtistsScreenOverview(
+            2 -> ArtistsOverviewScreen(
                 artists = artists
             )
+            3 -> AlbumsOverViewScreen(albums = albums)
+            4 -> SongsOverviewScreen(songs = songs)
         }
     }
 
