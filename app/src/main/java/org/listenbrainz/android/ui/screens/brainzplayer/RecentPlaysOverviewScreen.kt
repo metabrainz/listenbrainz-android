@@ -31,7 +31,8 @@ fun RecentPlaysScreen(
             PlayedToday(songsPlayedToday = songsPlayedToday)
         }
         if(songsPlayedThisWeek.isNotEmpty()) {
-            Text("Played This Week")
+            Text("Played This Week" , color = ListenBrainzTheme.colorScheme.lbSignature , fontSize = 25.sp)
+            Spacer(modifier = Modifier.height(10.dp))
             PlayedThisWeek(songsPlayedThisWeek = songsPlayedThisWeek)
         }
     }
@@ -40,7 +41,11 @@ fun RecentPlaysScreen(
 private fun PlayedToday(
     songsPlayedToday: List<Song>
 ){
-    LazyColumn (modifier = Modifier.height(250.dp)) {
+    var heightConstraint = ListenBrainzTheme.sizes.listenCardHeight * songsPlayedToday.size + 20.dp
+    if(songsPlayedToday.size > 4) heightConstraint = 250.dp
+    LazyColumn (modifier = Modifier.height(
+       heightConstraint
+    )) {
         items(songsPlayedToday){
             ListenCardSmall(trackName = it.title, artistName = it.artist, coverArtUrl = it.albumArt, enableDropdownIcon = true) {
                 Unit
@@ -54,11 +59,16 @@ private fun PlayedToday(
 private fun PlayedThisWeek(
     songsPlayedThisWeek: List<Song>
 ){
-    LazyColumn (modifier = Modifier.height(250.dp)) {
+    var heightConstraint = ListenBrainzTheme.sizes.listenCardHeight * songsPlayedThisWeek.size + 20.dp
+    if(songsPlayedThisWeek.size > 4) heightConstraint = 250.dp
+    LazyColumn (modifier = Modifier.height(
+        heightConstraint
+    )) {
         items(songsPlayedThisWeek){
             ListenCardSmall(trackName = it.title, artistName = it.artist, coverArtUrl = it.albumArt, enableDropdownIcon = true) {
-
+                Unit
             }
+            Spacer(modifier = Modifier.height(5.dp))
         }
     }
 }

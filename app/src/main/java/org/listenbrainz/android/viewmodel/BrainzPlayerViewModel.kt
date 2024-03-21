@@ -7,7 +7,6 @@ import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_NONE
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ONE
 import android.support.v4.media.session.PlaybackStateCompat.SHUFFLE_MODE_ALL
 import android.support.v4.media.session.PlaybackStateCompat.SHUFFLE_MODE_NONE
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -162,7 +161,7 @@ class BrainzPlayerViewModel @Inject constructor(
                 when {
                     playbackState.isPlaying -> if (toggle) brainzPlayerServiceConnection.transportControls.pause()
                     playbackState.isPlayEnabled -> {
-                        mediaItem.lastListenedTo = Instant.now().epochSecond * 1000
+                        mediaItem.lastListenedTo = System.currentTimeMillis()
                         viewModelScope.launch { songRepository.updateSong(mediaItem) }
                         brainzPlayerServiceConnection.transportControls.play()
                     }
@@ -170,7 +169,7 @@ class BrainzPlayerViewModel @Inject constructor(
                 }
             }
         } else {
-            mediaItem.lastListenedTo = Instant.now().epochSecond * 1000
+            mediaItem.lastListenedTo = System.currentTimeMillis()
             viewModelScope.launch { songRepository.updateSong(mediaItem) }
             brainzPlayerServiceConnection.transportControls.playFromMediaId(mediaItem.mediaID.toString(), null)
         }

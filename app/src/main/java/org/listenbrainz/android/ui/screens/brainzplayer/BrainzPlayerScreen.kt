@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.screens.brainzplayer
 
 
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -154,7 +155,9 @@ fun BrainzPlayerHomeScreen(
                 songsPlayedToday = songsPlayedToday,
                 songsPlayedThisWeek = songsPlayedThisWeek
             )
-            2 -> ArtistScreen(navigateToArtistScreen = {id -> navigateToArtistsScreen()})
+            2 -> ArtistsScreenOverview(
+                artists = artists
+            )
         }
     }
 

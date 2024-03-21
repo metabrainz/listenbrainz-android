@@ -55,18 +55,23 @@ class ArtistRepositoryImpl @Inject constructor(
             // Both jobs are being executed simultaneously.
             songsJob = async {
                 for (artist in artists) {
+                    val mutableSongs = artist.songs.toMutableList()
                     // Here, if userRequestedRefresh is true, it will refresh songs cache which is what we expect from refreshing
-                    artist.songs.toMutableList().addAll(addAllSongsOfArtist(artist.toArtist(), userRequestedRefresh).map {
+                    mutableSongs.addAll(addAllSongsOfArtist(artist.toArtist(), userRequestedRefresh).map {
                         it.toSongEntity()
                     })
+
+                    artist.songs = mutableSongs.toList()
                 }
             }
             albumsJob = async {
                 for (artist in artists) {
+                    val mutableAlbums = artist.albums.toMutableList()
                     // We do not need to refresh cache (songsListCache) here as it already got refreshed above when we created list of albums.
-                    artist.albums.toMutableList().addAll(addAllAlbumsOfArtist(artist.toArtist()).map {
+                    mutableAlbums.addAll(addAllAlbumsOfArtist(artist.toArtist()).map {
                         it.toAlbumEntity()
                     })
+                    artist.albums = mutableAlbums.toList()
                 }
             }
         }
