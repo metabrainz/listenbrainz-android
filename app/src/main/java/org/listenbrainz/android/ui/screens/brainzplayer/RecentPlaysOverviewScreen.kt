@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.screens.brainzplayer
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +11,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,14 +29,52 @@ fun RecentPlaysScreen(
         .fillMaxSize()
         .padding(start = 17.dp, end = 17.dp)) {
         if(songsPlayedToday.isNotEmpty()){
-            Text("Played Today" , color = ListenBrainzTheme.colorScheme.lbSignature , fontSize = 25.sp)
-            Spacer(modifier = Modifier.height(10.dp))
-            PlayedToday(songsPlayedToday = songsPlayedToday)
+            Column(modifier = Modifier.background(
+                brush = Brush.linearGradient(
+                    start = Offset.Zero,
+                    end = Offset(0f, Float.POSITIVE_INFINITY),
+                    colors = listOf(
+                        Color(0xFF111111),
+                        Color(0xFF131313),
+                        Color(0xFF151515),
+                        Color(0xFF171717),
+                        Color(0xFF272727),
+                        Color(0xFF272E27)
+                    )
+                )
+            ).padding(top = 15.dp, bottom = 15.dp)) {
+                Text(
+                    "Played Today",
+                    color = ListenBrainzTheme.colorScheme.lbSignature,
+                    fontSize = 25.sp
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                PlayedToday(songsPlayedToday = songsPlayedToday)
+            }
         }
         if(songsPlayedThisWeek.isNotEmpty()) {
-            Text("Played This Week" , color = ListenBrainzTheme.colorScheme.lbSignature , fontSize = 25.sp)
-            Spacer(modifier = Modifier.height(10.dp))
-            PlayedThisWeek(songsPlayedThisWeek = songsPlayedThisWeek)
+            Column(modifier = Modifier.background(
+                brush = Brush.linearGradient(
+                    start = Offset.Zero,
+                    end = Offset(0f, Float.POSITIVE_INFINITY),
+                    colors = listOf(
+                        Color(0xFF111111),
+                        Color(0xFF131313),
+                        Color(0xFF151515),
+                        Color(0xFF171717),
+                        Color(0xFF272727),
+                        Color(0xFF272E27)
+                    )
+                )
+            ).padding(top = 15.dp, bottom = 15.dp)) {
+                Text(
+                    "Played This Week",
+                    color = ListenBrainzTheme.colorScheme.lbSignature,
+                    fontSize = 25.sp
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                PlayedThisWeek(songsPlayedThisWeek = songsPlayedThisWeek)
+            }
         }
     }
 }

@@ -49,17 +49,9 @@ fun Navigation(
                 previewAlbums = previewAlbums,
                 artists = artists,
                 previewArtists = previewArtists,
-                playlists = playlists,
                 songsPlayedToday = songsPlayedToday,
                 songsPlayedThisWeek = songsPlayedThisWeek,
                 recentlyPlayedSongs = recentlyPlayedSongs,
-                navigateToSongsScreen = { goTo(BrainzPlayerNavigationItem.Songs) },
-                navigateToArtist = { id -> navHostController.navigate("onArtistClick/$id")},
-                navigateToAlbumsScreen = { goTo(BrainzPlayerNavigationItem.Albums) },
-                navigateToArtistsScreen = { goTo(BrainzPlayerNavigationItem.Artists) },
-                navigateToPlaylistsScreen = { goTo(BrainzPlayerNavigationItem.Playlists) },
-                navigateToAlbum = { id -> navHostController.navigate("onAlbumClick/$id")},
-                navigateToPlaylist = { id -> navHostController.navigate("onPlaylistClick/$id")}
             )
         }
         composable(route = BrainzPlayerNavigationItem.Songs.route) {
