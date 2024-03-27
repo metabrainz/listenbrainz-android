@@ -65,18 +65,7 @@ private fun RecentlyPlayedOverview(
     goToRecentScreen : () -> Unit
 ) {
     Column(modifier = Modifier.background(
-        brush = Brush.linearGradient(
-            start = Offset.Zero,
-            end = Offset(0f, Float.POSITIVE_INFINITY),
-            colors = listOf(
-                Color(0xFF111111),
-                Color(0xFF131313),
-                Color(0xFF151515),
-                Color(0xFF171717),
-                Color(0xFF272727),
-                Color(0xFF272E27)
-            )
-        )
+        brush = ListenBrainzTheme.colorScheme.gradientBrush
     ).padding(top = 15.dp, bottom = 15.dp)) {
         Text(
             "Recently Played", style = TextStyle(
@@ -87,11 +76,6 @@ private fun RecentlyPlayedOverview(
         )
         LazyRow(
             modifier = Modifier
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(Color(1010), Color(1010))
-                    )
-                )
                 .height(250.dp)
         ) {
             items(items = recentlyPlayedSongs) { song ->
@@ -117,14 +101,13 @@ private fun RecentlyPlayedOverview(
                         modifier = Modifier
                             .padding(10.dp)
                             .clip(RoundedCornerShape(15.dp))
-                            .background(color = colorResource(id = R.color.bp_bottom_song_viewpager))
                             .size(150.dp)
                             .clickable {
                                 goToRecentScreen()
                             }
                     ) {
                         Column(
-                            modifier = Modifier.fillMaxSize().background(Color(0xFF1E1E1E))
+                            modifier = Modifier.fillMaxSize().background(ListenBrainzTheme.colorScheme.placeHolderColor)
                                 .padding(start = 5.dp, bottom = 20.dp),
                             verticalArrangement = Arrangement.Bottom
                         ) {
@@ -147,18 +130,7 @@ private fun ArtistsOverview(
     goToArtistScreen : () -> Unit
 ) {
     Column(modifier = Modifier.background(
-        brush = Brush.linearGradient(
-            start = Offset.Zero,
-            end = Offset(0f, Float.POSITIVE_INFINITY),
-            colors = listOf(
-                Color(0xFF111111),
-                Color(0xFF131313),
-                Color(0xFF151515),
-                Color(0xFF171717),
-                Color(0xFF272727),
-                Color(0xFF272E27)
-            )
-        )
+        brush = ListenBrainzTheme.colorScheme.gradientBrush
     ).padding(top = 15.dp, bottom = 15.dp)) {
         Text(
             "Artists", style = TextStyle(
@@ -169,11 +141,6 @@ private fun ArtistsOverview(
         )
         LazyRow(
             modifier = Modifier
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(Color(1010), Color(1010))
-                    )
-                )
                 .height(250.dp)
         ) {
             items(items = artists) { artist ->
@@ -189,14 +156,13 @@ private fun ArtistsOverview(
                         modifier = Modifier
                             .padding(10.dp)
                             .clip(RoundedCornerShape(15.dp))
-                            .background(color = colorResource(id = R.color.bp_bottom_song_viewpager))
                             .size(150.dp)
                             .clickable {
                                 goToArtistScreen()
                             }
                     ) {
                         Column(
-                            modifier = Modifier.fillMaxSize().background(Color(0xFF1E1E1E))
+                            modifier = Modifier.fillMaxSize().background(ListenBrainzTheme.colorScheme.placeHolderColor)
                                 .padding(start = 5.dp, bottom = 20.dp),
                             verticalArrangement = Arrangement.Bottom
                         ) {
@@ -220,18 +186,7 @@ private fun AlbumsOverview(
     goToAlbumScreen: () -> Unit
 ){
    Column(modifier = Modifier.background(
-        brush = Brush.linearGradient(
-            start = Offset.Zero,
-            end = Offset(0f, Float.POSITIVE_INFINITY),
-            colors = listOf(
-                Color(0xFF111111),
-                Color(0xFF131313),
-                Color(0xFF151515),
-                Color(0xFF171717),
-                Color(0xFF272727),
-                Color(0xFF272E27)
-            )
-        )
+        brush = ListenBrainzTheme.colorScheme.gradientBrush
     ).padding(top = 15.dp, bottom = 15.dp)){
         Text("Albums" , style = TextStyle(
             fontSize = 24.sp,
@@ -255,13 +210,12 @@ private fun AlbumsOverview(
                         modifier = Modifier
                             .padding(10.dp)
                             .clip(RoundedCornerShape(15.dp))
-                            .background(color = colorResource(id = R.color.bp_bottom_song_viewpager))
                             .size(150.dp)
                             .clickable {
                                 goToAlbumScreen()
                             }
                     ){
-                        Column (modifier = Modifier.fillMaxSize().background(Color(0xFF1E1E1E)).padding(start = 5.dp , bottom = 20.dp) , verticalArrangement = Arrangement.Bottom) {
+                        Column (modifier = Modifier.fillMaxSize().background(ListenBrainzTheme.colorScheme.placeHolderColor).padding(start = 5.dp , bottom = 20.dp) , verticalArrangement = Arrangement.Bottom) {
                             Text(" All \n Albums" , style = TextStyle(fontSize = 20.sp) , color = ListenBrainzTheme.colorScheme.lbSignature)
                         }
                     }

@@ -48,18 +48,7 @@ fun AlbumsOverViewScreen(
             val startingLetter: Char = ('A' + i)
             if (albumsStarting[startingLetter]!!.size > 0) {
                 Column(modifier = Modifier.background(
-                    brush = Brush.linearGradient(
-                        start = Offset.Zero,
-                        end = Offset(0f, Float.POSITIVE_INFINITY),
-                        colors = listOf(
-                            Color(0xFF111111),
-                            Color(0xFF131313),
-                            Color(0xFF151515),
-                            Color(0xFF171717),
-                            Color(0xFF272727),
-                            Color(0xFF272E27)
-                        )
-                    )
+                    brush = ListenBrainzTheme.colorScheme.gradientBrush
                 ).padding(top = 15.dp, bottom = 15.dp)) {
                     Text(
                         startingLetter.toString(),

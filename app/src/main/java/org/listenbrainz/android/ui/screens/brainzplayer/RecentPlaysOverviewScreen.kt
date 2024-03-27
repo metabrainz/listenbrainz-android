@@ -30,18 +30,7 @@ fun RecentPlaysScreen(
         .padding(start = 17.dp, end = 17.dp)) {
         if(songsPlayedToday.isNotEmpty()){
             Column(modifier = Modifier.background(
-                brush = Brush.linearGradient(
-                    start = Offset.Zero,
-                    end = Offset(0f, Float.POSITIVE_INFINITY),
-                    colors = listOf(
-                        Color(0xFF111111),
-                        Color(0xFF131313),
-                        Color(0xFF151515),
-                        Color(0xFF171717),
-                        Color(0xFF272727),
-                        Color(0xFF272E27)
-                    )
-                )
+                brush = ListenBrainzTheme.colorScheme.gradientBrush
             ).padding(top = 15.dp, bottom = 15.dp)) {
                 Text(
                     "Played Today",
@@ -54,18 +43,7 @@ fun RecentPlaysScreen(
         }
         if(songsPlayedThisWeek.isNotEmpty()) {
             Column(modifier = Modifier.background(
-                brush = Brush.linearGradient(
-                    start = Offset.Zero,
-                    end = Offset(0f, Float.POSITIVE_INFINITY),
-                    colors = listOf(
-                        Color(0xFF111111),
-                        Color(0xFF131313),
-                        Color(0xFF151515),
-                        Color(0xFF171717),
-                        Color(0xFF272727),
-                        Color(0xFF272E27)
-                    )
-                )
+                brush = ListenBrainzTheme.colorScheme.gradientBrush
             ).padding(top = 15.dp, bottom = 15.dp)) {
                 Text(
                     "Played This Week",
