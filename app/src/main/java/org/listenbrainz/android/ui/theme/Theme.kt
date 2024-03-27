@@ -17,6 +17,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.toArgb
@@ -55,7 +57,36 @@ data class ColorScheme(
     val listenText: Color,
     /** Used for stars.*/
     val golden: Color = Color(0xFFF9A825),
-    val hint: Color
+    val hint: Color,
+    /** Used for BP **/
+    val gradientBrush: Brush,
+    val placeHolderColor: Color
+)
+
+
+private val brainzPlayerLightGradientsBrush = Brush.linearGradient(
+    start = Offset.Zero,
+    end = Offset(0f, Float.POSITIVE_INFINITY),
+    colors = listOf(
+        Color(0xFFF5F5F5),
+        Color(0xFFF7F7F7),
+        Color(0xFFF9F9F9),
+        Color(0xFFFBFBFB),
+        Color(0xFFFDFDFD)
+    )
+)
+
+private val brainzPlayerDarkGradientsBrush = Brush.linearGradient(
+    start = Offset.Zero,
+    end = Offset(0f, Float.POSITIVE_INFINITY),
+    colors = listOf(
+        Color(0xFF111111),
+        Color(0xFF131313),
+        Color(0xFF151515),
+        Color(0xFF171717),
+        Color(0xFF272727),
+        Color(0xFF272E27)
+    )
 )
 
 private val colorSchemeDark = ColorScheme(
@@ -72,7 +103,9 @@ private val colorSchemeDark = ColorScheme(
     chipSelected = Color.Black,
     text = Color.White,
     listenText = Color.White,
-    hint = Color(0xFF8C8C8C)
+    hint = Color(0xFF8C8C8C),
+    gradientBrush = brainzPlayerDarkGradientsBrush,
+    placeHolderColor = Color(0xFF1E1E1E)
 )
 
 private val colorSchemeLight = ColorScheme(
@@ -89,10 +122,15 @@ private val colorSchemeLight = ColorScheme(
     chipSelected = Color(0xFFB6B6B6),
     text = Color.Black,
     listenText = lb_purple,
-    hint = Color(0xFF707070)
+    hint = Color(0xFF707070),
+    gradientBrush = brainzPlayerLightGradientsBrush,
+    placeHolderColor = Color(0xFFEBEBEB)
 )
 
+
 private var LocalColorScheme: ProvidableCompositionLocal<ColorScheme> = staticCompositionLocalOf { colorSchemeLight }
+
+
 
 private val DarkColorScheme = darkColorScheme(
     background = app_bg_dark,

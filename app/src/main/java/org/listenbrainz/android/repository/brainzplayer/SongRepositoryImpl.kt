@@ -1,8 +1,10 @@
 package org.listenbrainz.android.repository.brainzplayer
 
+import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.model.SongEntity
 import org.listenbrainz.android.model.dao.SongDao
 import org.listenbrainz.android.util.SongsData
 import org.listenbrainz.android.util.Transformer.toSong
@@ -38,4 +40,34 @@ class SongRepositoryImpl @Inject constructor(
         
         return songs.isNotEmpty()
     }
+
+    override suspend fun updateSong(song : Song) {
+        songDao.updateSong(song.toSongEntity())
+        Log.v("pranav" , "Song updated!")
+    }
+
+    override fun getRecentlyPlayedSongs(): Flow<List<Song>> =
+        songDao.getRecentlyPlayedSongs()
+            .map { it ->
+                it.map{
+                    it.toSong()
+                }
+            }
+
+    override fun getSongsPlayedToday(): Flow<List<Song>>  =
+        songDao.getSongsPlayedToday()
+            .map { it ->
+                it.map {
+                    it.toSong()
+                }
+            }
+
+    override fun getSongsPlayedThisWeek(): Flow<List<Song>> =
+        songDao.getSongsPlayedThisWeek()
+            .map {
+                it ->
+                it.map {
+                    it.toSong()
+                }
+            }
 }

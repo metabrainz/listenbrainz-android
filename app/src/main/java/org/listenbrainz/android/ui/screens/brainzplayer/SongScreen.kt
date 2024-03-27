@@ -218,7 +218,10 @@ fun SongScreen() {
                                     .indexOf(it),
                                 0L
                             )
-                            brainzPlayerViewModel.playOrToggleSong(it, true)
+                            brainzPlayerViewModel.playOrToggleSong(
+                                it,
+                                true,
+                            )
                         }
                     ) {
                         DropdownMenu(
@@ -308,7 +311,8 @@ fun SongScreen() {
                                     .clip(CircleShape)
                                     .background(Color.LightGray)
                                     .clickable {
-                                        songCardMoreOptionsDropMenuExpanded = songs.value.indexOf(it)
+                                        songCardMoreOptionsDropMenuExpanded =
+                                            songs.value.indexOf(it)
                                     }
                                     .align(Alignment.BottomEnd),
                                     contentAlignment = Alignment.Center

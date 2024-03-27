@@ -20,7 +20,7 @@ import org.listenbrainz.android.util.TypeConverter
         ArtistEntity::class,
         PlaylistEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(TypeConverter::class)

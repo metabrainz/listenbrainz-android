@@ -18,5 +18,6 @@ data class SongEntity(
     val duration : Long,
     val dateModified : Long,
     val artistId : Long,
-    val discNumber : Long
+    val discNumber : Long,
+    val lastListenedTo : Long
 )
