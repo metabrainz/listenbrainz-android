@@ -26,6 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.Artist
+import org.listenbrainz.android.ui.components.BrainzPlayerListenCard
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.ArtistViewModel
@@ -47,9 +48,11 @@ fun AlbumsOverViewScreen(
         for (i in 0..25) {
             val startingLetter: Char = ('A' + i)
             if (albumsStarting[startingLetter]!!.size > 0) {
-                Column(modifier = Modifier.background(
-                    brush = ListenBrainzTheme.colorScheme.gradientBrush
-                ).padding(top = 15.dp, bottom = 15.dp)) {
+                Column(modifier = Modifier
+                    .background(
+                        brush = ListenBrainzTheme.colorScheme.gradientBrush
+                    )
+                    .padding(top = 15.dp, bottom = 15.dp)) {
                     Text(
                         startingLetter.toString(),
                         modifier = Modifier.padding(start = 10.dp, top = 10.dp, bottom = 5.dp),
@@ -62,17 +65,12 @@ fun AlbumsOverViewScreen(
                     for (j in 1..albumsStarting[startingLetter]!!.size) {
                         var coverArt: String? = null
                         coverArt = albumsStarting[startingLetter]!![j - 1].albumArt
-                        ListenCardSmall(
-                            trackName = albumsStarting[startingLetter]!![j - 1].title,
-                            artistName = albumsStarting[startingLetter]!![j - 1].artist,
-                            coverArtUrl = coverArt,
-                            modifier = Modifier.padding(
-                                start = 10.dp,
-                                end = 10.dp,
-                                top = 3.dp,
-                                bottom = 3.dp
-                            )
-                        ) {
+                        BrainzPlayerListenCard(title = albumsStarting[startingLetter]!![j - 1].title, subTitle = albumsStarting[startingLetter]!![j - 1].artist, coverArtUrl = coverArt,modifier = Modifier.padding(
+                            start = 10.dp,
+                            end = 10.dp,
+                            top = 3.dp,
+                            bottom = 3.dp
+                        )){
 
                         }
                     }

@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.ui.components.BrainzPlayerListenCard
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
@@ -24,41 +25,47 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 fun RecentPlaysScreen(
     songsPlayedToday: List<Song>,
     songsPlayedThisWeek: List<Song>,
+    onPlayIconClick: (Song, List<Song>) -> Unit
 ) {
     Column (modifier = Modifier
         .fillMaxSize()
         .padding(start = 17.dp, end = 17.dp)) {
         if(songsPlayedToday.isNotEmpty()){
-            Column(modifier = Modifier.background(
-                brush = ListenBrainzTheme.colorScheme.gradientBrush
-            ).padding(top = 15.dp, bottom = 15.dp)) {
+            Column(modifier = Modifier
+                .background(
+                    brush = ListenBrainzTheme.colorScheme.gradientBrush
+                )
+                .padding(top = 15.dp, bottom = 15.dp)) {
                 Text(
                     "Played Today",
                     color = ListenBrainzTheme.colorScheme.lbSignature,
                     fontSize = 25.sp
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-                PlayedToday(songsPlayedToday = songsPlayedToday)
+                PlayedToday(songsPlayedToday = songsPlayedToday, onPlayIconClick = onPlayIconClick)
             }
         }
         if(songsPlayedThisWeek.isNotEmpty()) {
-            Column(modifier = Modifier.background(
-                brush = ListenBrainzTheme.colorScheme.gradientBrush
-            ).padding(top = 15.dp, bottom = 15.dp)) {
+            Column(modifier = Modifier
+                .background(
+                    brush = ListenBrainzTheme.colorScheme.gradientBrush
+                )
+                .padding(top = 15.dp, bottom = 15.dp)) {
                 Text(
                     "Played This Week",
                     color = ListenBrainzTheme.colorScheme.lbSignature,
                     fontSize = 25.sp
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-                PlayedThisWeek(songsPlayedThisWeek = songsPlayedThisWeek)
+                PlayedThisWeek(songsPlayedThisWeek = songsPlayedThisWeek, onPlayIconClick = onPlayIconClick)
             }
         }
     }
 }
 @Composable
 private fun PlayedToday(
-    songsPlayedToday: List<Song>
+    songsPlayedToday: List<Song>,
+    onPlayIconClick: (Song, List<Song>) -> Unit
 ){
     var heightConstraint = ListenBrainzTheme.sizes.listenCardHeight * songsPlayedToday.size + 20.dp
     if(songsPlayedToday.size > 4) heightConstraint = 250.dp
@@ -66,9 +73,7 @@ private fun PlayedToday(
        heightConstraint
     )) {
         items(songsPlayedToday){
-            ListenCardSmall(trackName = it.title, artistName = it.artist, coverArtUrl = it.albumArt, enableDropdownIcon = true) {
-                Unit
-            }
+            BrainzPlayerListenCard(title = it.title, subTitle = it.artist, coverArtUrl = it.albumArt, onPlayIconClick = {onPlayIconClick(it,songsPlayedToday)})
             Spacer(modifier = Modifier.height(5.dp))
         }
     }
@@ -76,7 +81,8 @@ private fun PlayedToday(
 
 @Composable
 private fun PlayedThisWeek(
-    songsPlayedThisWeek: List<Song>
+    songsPlayedThisWeek: List<Song>,
+    onPlayIconClick: (Song, List<Song>) -> Unit
 ){
     var heightConstraint = ListenBrainzTheme.sizes.listenCardHeight * songsPlayedThisWeek.size + 20.dp
     if(songsPlayedThisWeek.size > 4) heightConstraint = 250.dp
@@ -84,9 +90,7 @@ private fun PlayedThisWeek(
         heightConstraint
     )) {
         items(songsPlayedThisWeek){
-            ListenCardSmall(trackName = it.title, artistName = it.artist, coverArtUrl = it.albumArt, enableDropdownIcon = true) {
-                Unit
-            }
+            BrainzPlayerListenCard(title = it.title, subTitle = it.artist, coverArtUrl = it.albumArt, onPlayIconClick = {onPlayIconClick(it,songsPlayedThisWeek)})
             Spacer(modifier = Modifier.height(5.dp))
         }
     }

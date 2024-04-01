@@ -27,13 +27,15 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.Artist
 import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.ui.components.BrainzPlayerListenCard
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.ArtistViewModel
 
 @Composable
 fun SongsOverviewScreen(
-    songs: List<Song>
+    songs: List<Song>,
+    onPlayIconClick: (Song, List<Song>) -> Unit,
 ) {
     val songsStarting : MutableMap<Char, MutableList<Song>> = mutableMapOf()
     for (i in 0..25) {
@@ -63,20 +65,12 @@ fun SongsOverviewScreen(
                         )
                     )
                     for (j in 1..songsStarting[startingLetter]!!.size) {
+                        val song: Song = songsStarting[startingLetter]!![j-1]
                         var coverArt: String? = null
                         coverArt = songsStarting[startingLetter]!![j - 1].albumArt
-                        ListenCardSmall(
-                            trackName = songsStarting[startingLetter]!![j - 1].title,
-                            artistName = songsStarting[startingLetter]!![j - 1].artist,
-                            coverArtUrl = coverArt,
-                            modifier = Modifier.padding(
-                                start = 10.dp,
-                                end = 10.dp,
-                                top = 3.dp,
-                                bottom = 3.dp
-                            )
-                        ) {
-
+                        BrainzPlayerListenCard(title = songsStarting[startingLetter]!![j - 1].title, subTitle = songsStarting[startingLetter]!![j - 1].artist, coverArtUrl = coverArt){
+                            Log.v("pranav", song.title)
+                            onPlayIconClick(song,songsStarting[startingLetter]!!)
                         }
                     }
                 }

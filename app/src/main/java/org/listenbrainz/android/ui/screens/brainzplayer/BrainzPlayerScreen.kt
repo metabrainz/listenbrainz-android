@@ -153,13 +153,35 @@ fun BrainzPlayerHomeScreen(
             )
             1 -> RecentPlaysScreen(
                 songsPlayedToday = songsPlayedToday,
-                songsPlayedThisWeek = songsPlayedThisWeek
+                songsPlayedThisWeek = songsPlayedThisWeek,
+                onPlayIconClick = {
+                    song, newPlayables ->
+//                    brainzPlayerViewModel.changePlayable(
+//                        newPlayables,
+//                        PlayableType.ALL_SONGS,
+//                        song.mediaID,
+//                        newPlayables.sortedBy { it.discNumber }.indexOf(song),
+//                        0L
+//                    )
+//                    brainzPlayerViewModel.playOrToggleSong(song,true)
+//                    Log.v("pranav",song.title)
+                }
             )
             2 -> ArtistsOverviewScreen(
                 artists = artists
             )
             3 -> AlbumsOverViewScreen(albums = albums)
-            4 -> SongsOverviewScreen(songs = songs)
+            4 -> SongsOverviewScreen(songs = songs, onPlayIconClick = {
+                    song , newPlayables ->
+                brainzPlayerViewModel.changePlayable(
+                    newPlayables,
+                    PlayableType.ALL_SONGS,
+                    song.mediaID,
+                    newPlayables.sortedBy { it.discNumber }.indexOf(song),
+                    0L
+                )
+                brainzPlayerViewModel.playOrToggleSong(song,true)
+            })
         }
     }
 }

@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Artist
+import org.listenbrainz.android.ui.components.BrainzPlayerListenCard
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
@@ -39,9 +40,11 @@ fun ArtistsOverviewScreen(
             val startingLetter: Char = ('A' + i)
             if (artistsStarting[startingLetter]!!.size > 0) {
                 Column(
-                    modifier = Modifier.background(
-                        brush = ListenBrainzTheme.colorScheme.gradientBrush
-                    ).padding(top = 15.dp, bottom = 15.dp)
+                    modifier = Modifier
+                        .background(
+                            brush = ListenBrainzTheme.colorScheme.gradientBrush
+                        )
+                        .padding(top = 15.dp, bottom = 15.dp)
                 ) {
                     Text(
                         startingLetter.toString(),
@@ -56,22 +59,10 @@ fun ArtistsOverviewScreen(
                         var coverArt: String? = null
                         if (artistsStarting[startingLetter]!![j - 1].albums.isNotEmpty())
                             coverArt = artistsStarting[startingLetter]!![j - 1].albums[0].albumArt
-                        ListenCardSmall(
-                            trackName = artistsStarting[startingLetter]!![j - 1].name,
-                            artistName = when (artistsStarting[startingLetter]!![j - 1].songs.size) {
-                                1 -> "1 track"
-                                else -> "${artistsStarting[startingLetter]!![j - 1].songs.size} tracks"
-                            },
-                            coverArtUrl = coverArt,
-                            modifier = Modifier.padding(
-                                start = 10.dp,
-                                end = 10.dp,
-                                top = 3.dp,
-                                bottom = 3.dp
-                            )
-                        ) {
-
-                        }
+                        BrainzPlayerListenCard(title = artistsStarting[startingLetter]!![j - 1].name, subTitle = when (artistsStarting[startingLetter]!![j - 1].songs.size) {
+                            1 -> "1 track"
+                            else -> "${artistsStarting[startingLetter]!![j - 1].songs.size} tracks"
+                        }, coverArtUrl = coverArt, onPlayIconClick = {})
                     }
                 }
             }
