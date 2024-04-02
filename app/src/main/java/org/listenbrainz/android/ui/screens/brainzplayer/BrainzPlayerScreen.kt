@@ -66,9 +66,9 @@ fun BrainzPlayerScreen() {
     val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
     val songsPlayedToday = brainzPlayerViewModel.songsPlayedToday.collectAsState(initial = listOf()).value
     val recentlyPlayed = brainzPlayerViewModel.recentlyPlayed.collectAsState(initial = mutableListOf()).value
-    val topRecents = recentlyPlayed.subList(0, minOf(recentlyPlayed.size , 5)).toMutableList()
-    val topArtists = artists.subList(0, minOf(artists.size,5)).toMutableList()
-    val topAlbums = albums.subList(0, minOf(songs.size,5)).toMutableList()
+    val topRecents = recentlyPlayed.subList(0, minOf(recentlyPlayed.size-1 , 4)).toMutableList()
+    val topArtists = artists.subList(0, minOf(artists.size-1,4)).toMutableList()
+    val topAlbums = albums.subList(0, minOf(songs.size-1,4)).toMutableList()
     val songsPlayedThisWeek = brainzPlayerViewModel.songsPlayedThisWeek.collectAsState(initial = listOf()).value
     topRecents.add(Song())
     topArtists.add(Artist())
