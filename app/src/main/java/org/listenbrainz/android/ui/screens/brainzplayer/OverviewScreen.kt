@@ -82,8 +82,8 @@ private fun RecentlyPlayedOverview(
                 if (song.title != "") {
                     BrainzPlayerActivityCards(icon = song.albumArt,
                         errorIcon = R.drawable.ic_artist,
-                        title = song.title,
-                        artist = song.artist,
+                        title = song.artist,
+                        artist = song.title,
                         modifier = Modifier
                             .clickable {
                                 brainzPlayerViewModel.changePlayable(
@@ -201,8 +201,8 @@ private fun AlbumsOverview(
                 if(album.title != ""){
                     BrainzPlayerActivityCards(icon = album.albumArt,
                         errorIcon = R.drawable.ic_artist,
-                        title = album.title,
-                        artist = album.artist,
+                        title = album.artist,
+                        artist = album.title,
                     )
                 }
                 else{
