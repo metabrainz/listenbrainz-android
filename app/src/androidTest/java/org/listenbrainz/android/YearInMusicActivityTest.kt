@@ -2,23 +2,28 @@ package org.listenbrainz.android
 
 import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
-import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTouchInput
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.ui.screens.yim.navigation.YimNavigation
 import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 import org.listenbrainz.android.viewmodel.YimViewModel
-import org.listenbrainz.sharedtest.mocks.MockAppPreferences
 import org.listenbrainz.sharedtest.mocks.MockNetworkConnectivityViewModel
 import org.listenbrainz.sharedtest.mocks.MockYimRepository
+import org.mockito.Mock
+import org.mockito.junit.MockitoJUnitRunner
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(MockitoJUnitRunner::class)
 //@LargeTest
 @HiltAndroidTest
 class YearInMusicActivityTest {
@@ -29,14 +34,16 @@ class YearInMusicActivityTest {
     @get:Rule(order = 1)
     val rule = createAndroidComposeRule<ComponentActivity>()
 
+    @Mock
+    private lateinit var mockAppPreferences: AppPreferences
+    
     private lateinit var activity : ComponentActivity
 
     @Before
     fun setup(){
         activity = rule.activity
         val yimViewModel = YimViewModel(
-            MockYimRepository(),
-            MockAppPreferences()
+            MockYimRepository(), mockAppPreferences
         )
         val networkViewModel = MockNetworkConnectivityViewModel(ConnectivityObserver.NetworkStatus.AVAILABLE)
 
@@ -85,5 +92,9 @@ class YearInMusicActivityTest {
             }
             performClick()
         }
+    }
+    
+    private fun initMocks() {
+        
     }
 }
