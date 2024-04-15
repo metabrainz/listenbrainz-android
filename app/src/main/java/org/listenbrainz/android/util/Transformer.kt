@@ -23,7 +23,8 @@ object Transformer {
         trackNumber = trackNumber,
         duration = duration,
         discNumber = discNumber,
-        year = year
+        year = year,
+        lastListenedTo = lastListenedTo
     )
 
     fun Song.toSongEntity() = SongEntity(
@@ -39,7 +40,8 @@ object Transformer {
         trackNumber = trackNumber,
         duration = duration,
         discNumber = discNumber,
-        year = year
+        year = year,
+        lastListenedTo = lastListenedTo
     )
 
     fun AlbumEntity.toAlbum() = Album(

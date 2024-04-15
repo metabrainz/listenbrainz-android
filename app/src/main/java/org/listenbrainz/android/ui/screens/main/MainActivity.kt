@@ -20,11 +20,13 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.application.App
+import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.service.ListenSubmissionService
 import org.listenbrainz.android.ui.components.DialogLB
@@ -32,6 +34,7 @@ import org.listenbrainz.android.ui.navigation.AppNavigation
 import org.listenbrainz.android.ui.navigation.BottomNavigationBar
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
+import org.listenbrainz.android.ui.screens.search.BrainzPlayerSearchScreen
 import org.listenbrainz.android.ui.screens.search.SearchScreen
 import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -140,10 +143,16 @@ class MainActivity : ComponentActivity() {
                 var scrollToTopState by remember { mutableStateOf(false) }
                 val snackbarState = remember { SnackbarHostState() }
                 val searchBarState = rememberSearchBarState()
+                val brainzplayerSearchBarState = rememberSearchBarState()
                 val scope = rememberCoroutineScope()
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentDestination = navBackStackEntry?.destination
                 
                 Scaffold(
-                    topBar = { TopBar(navController = navController, searchBarState = searchBarState) },
+                    topBar = { TopBar(navController = navController, searchBarState = when (currentDestination?.route) {
+                        AppNavigationItem.BrainzPlayer.route -> brainzplayerSearchBarState
+                        else -> searchBarState
+                    }) },
                     bottomBar = {
                         BottomNavigationBar(
                             navController = navController,
@@ -189,11 +198,18 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
-                
-                SearchScreen(
-                    isActive = searchBarState.isActive,
-                    deactivate = {searchBarState.deactivate()}
-                )
+
+                val brainzplayerSearchTextState = remember {
+                    mutableStateOf("")
+                }
+                when(currentDestination?.route) {
+                    AppNavigationItem.BrainzPlayer.route -> BrainzPlayerSearchScreen(isActive = brainzplayerSearchBarState.isActive , deactivate = {brainzplayerSearchBarState.deactivate()} , brainzplayerQueryState = brainzplayerSearchTextState)
+                    else -> SearchScreen(
+                        isActive = searchBarState.isActive,
+                        deactivate = {searchBarState.deactivate()}
+                    )
+                }
+
                 
             }
         }

@@ -18,6 +18,7 @@ import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerHomeScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.OnAlbumClickScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.OnArtistClickScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.OnPlaylistClickScreen
+import org.listenbrainz.android.ui.screens.brainzplayer.OverviewScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.PlaylistScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.SongScreen
 
@@ -26,9 +27,13 @@ import org.listenbrainz.android.ui.screens.brainzplayer.SongScreen
 @Composable
 fun Navigation(
     albums: List<Album>,
+    previewAlbums: List<Album>,
     artists: List<Artist>,
+    previewArtists: List<Artist>,
     playlists: List<Playlist>,
-    recentlyPlayedSongs: Playlist,
+    songsPlayedToday: List<Song>,
+    songsPlayedThisWeek: List<Song>,
+    recentlyPlayedSongs : List<Song>,
     songs: List<Song>,
     navHostController: NavHostController = rememberNavController()
 ) {
@@ -41,16 +46,12 @@ fun Navigation(
             BrainzPlayerHomeScreen(
                 songs = songs,
                 albums = albums,
+                previewAlbums = previewAlbums,
                 artists = artists,
-                playlists = playlists,
+                previewArtists = previewArtists,
+                songsPlayedToday = songsPlayedToday,
+                songsPlayedThisWeek = songsPlayedThisWeek,
                 recentlyPlayedSongs = recentlyPlayedSongs,
-                navigateToSongsScreen = { goTo(BrainzPlayerNavigationItem.Songs) },
-                navigateToArtist = { id -> navHostController.navigate("onArtistClick/$id")},
-                navigateToAlbumsScreen = { goTo(BrainzPlayerNavigationItem.Albums) },
-                navigateToArtistsScreen = { goTo(BrainzPlayerNavigationItem.Artists) },
-                navigateToPlaylistsScreen = { goTo(BrainzPlayerNavigationItem.Playlists) },
-                navigateToAlbum = { id -> navHostController.navigate("onAlbumClick/$id")},
-                navigateToPlaylist = { id -> navHostController.navigate("onPlaylistClick/$id")}
             )
         }
         composable(route = BrainzPlayerNavigationItem.Songs.route) {
