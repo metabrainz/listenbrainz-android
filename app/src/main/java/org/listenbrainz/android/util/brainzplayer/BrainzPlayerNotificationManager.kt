@@ -1,4 +1,4 @@
-package org.listenbrainz.android.util
+package org.listenbrainz.android.util.brainzplayer
 
 import android.app.PendingIntent
 import android.content.Context
@@ -10,9 +10,9 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
 import kotlinx.coroutines.*
 import org.listenbrainz.android.R
-import org.listenbrainz.android.util.BrainzPlayerExtensions.bitmap
-import org.listenbrainz.android.util.BrainzPlayerUtils.NOTIFICATION_CHANNEL_ID
-import org.listenbrainz.android.util.BrainzPlayerUtils.NOTIFICATION_ID
+import org.listenbrainz.android.util.brainzplayer.BrainzPlayerExtensions.bitmap
+import org.listenbrainz.android.util.brainzplayer.BrainzPlayerUtils.NOTIFICATION_CHANNEL_ID
+import org.listenbrainz.android.util.brainzplayer.BrainzPlayerUtils.NOTIFICATION_ID
 
 class BrainzPlayerNotificationManager(
     private val context : Context,

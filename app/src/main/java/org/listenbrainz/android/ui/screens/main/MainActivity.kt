@@ -15,7 +15,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.LifecycleStartEffect
@@ -54,7 +59,7 @@ class MainActivity : ComponentActivity() {
         dashBoardViewModel = ViewModelProvider(this)[DashBoardViewModel::class.java]
 
         setContent {
-            ListenBrainzTheme {
+            ListenBrainzTheme(appPreferences = remember { dashBoardViewModel.appPreferences }) {
                 // TODO: Since this view-model will remain throughout the lifecycle of the app,
                 //  we can have tasks which require such lifecycle access or longevity. We can get this view-model's
                 //  instance anywhere when we initialize it as a hilt view-model.

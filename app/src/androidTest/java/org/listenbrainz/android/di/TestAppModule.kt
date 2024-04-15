@@ -1,7 +1,6 @@
 package org.listenbrainz.android.di
 
 import android.content.Context
-
 import android.util.Log
 import androidx.work.Configuration
 import androidx.work.WorkManager
@@ -14,7 +13,6 @@ import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
-import org.listenbrainz.sharedtest.mocks.MockAppPreferences
 import javax.inject.Singleton
 
 @Module
@@ -47,8 +45,8 @@ class TestAppModule {
     @Provides
     fun providesContext(@ApplicationContext context: Context): Context = context
 
-    @Singleton
+    /*@Singleton
     @Provides
-    fun providesAppPreferences() : AppPreferences = MockAppPreferences()
+    fun providesAppPreferences() : AppPreferences = MockAppPreferences()*/
     
 }

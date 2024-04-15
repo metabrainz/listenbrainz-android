@@ -149,6 +149,10 @@ dependencies {
     implementation 'androidx.paging:paging-runtime-ktx:3.2.1'
     implementation "androidx.paging:paging-compose:3.2.1"
 
+    // Typesafe-datastore
+    implementation "com.github.07jasjeet.typesafe-datastore:typesafe-datastore:$typesafe_datastore_version"
+    implementation "com.github.07jasjeet.typesafe-datastore:typesafe-datastore-gson:$typesafe_datastore_version"
+    testImplementation "com.github.07jasjeet.typesafe-datastore:typesafe-datastore-test:$typesafe_datastore_version"
 
     //Image downloading and Caching library
     implementation 'com.github.bumptech.glide:glide:4.16.0'
@@ -217,6 +221,7 @@ dependencies {
     // Mockito framework
     testImplementation 'org.mockito:mockito-core:5.10.0'
     testImplementation 'org.mockito.kotlin:mockito-kotlin:5.2.1'
+    androidTestImplementation "org.mockito:mockito-android:5.2.1"
 
     debugImplementation "androidx.test:monitor:1.6.1"       // Solves "class PlatformTestStorageRegistery not found" error for ui tests.
     debugImplementation 'androidx.compose.ui:ui-test-manifest:1.6.1'

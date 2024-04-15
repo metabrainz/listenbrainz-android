@@ -6,7 +6,7 @@ import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
 import android.os.Build
 import androidx.core.content.ContextCompat
 import com.google.android.exoplayer2.ui.PlayerNotificationManager
-import org.listenbrainz.android.util.BrainzPlayerUtils.NOTIFICATION_ID
+import org.listenbrainz.android.util.brainzplayer.BrainzPlayerUtils.NOTIFICATION_ID
 
 class BrainzPlayerNotificationListener(private val brainzPlayerService: BrainzPlayerService) :
     PlayerNotificationManager.NotificationListener {

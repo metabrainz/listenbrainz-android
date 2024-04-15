@@ -31,6 +31,7 @@ android {
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
+    implementation "androidx.datastore:datastore-preferences:1.0.0"
 
     //Web Service Setup
     implementation 'com.google.code.gson:gson:2.10.1'
@@ -45,6 +46,7 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0'
     implementation 'androidx.room:room-testing:2.6.1'
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+    implementation "com.github.07jasjeet.typesafe-datastore:typesafe-datastore-test:$typesafe_datastore_version"
 
     implementation 'androidx.test:runner:1.5.2'
     implementation 'androidx.test.ext:junit:1.1.5'
