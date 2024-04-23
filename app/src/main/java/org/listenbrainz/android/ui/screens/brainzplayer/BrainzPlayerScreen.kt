@@ -1,50 +1,18 @@
 package org.listenbrainz.android.ui.screens.brainzplayer
 
 
-import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.rounded.ArrowForwardIos
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.inset
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.PopupProperties
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
-import kotlinx.coroutines.launch
-import org.listenbrainz.android.R
 import org.listenbrainz.android.model.*
-import org.listenbrainz.android.ui.components.forwardingPainter
 import org.listenbrainz.android.ui.screens.brainzplayer.navigation.Navigation
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.*
@@ -156,15 +124,14 @@ fun BrainzPlayerHomeScreen(
                 songsPlayedThisWeek = songsPlayedThisWeek,
                 onPlayIconClick = {
                     song, newPlayables ->
-//                    brainzPlayerViewModel.changePlayable(
-//                        newPlayables,
-//                        PlayableType.ALL_SONGS,
-//                        song.mediaID,
-//                        newPlayables.sortedBy { it.discNumber }.indexOf(song),
-//                        0L
-//                    )
-//                    brainzPlayerViewModel.playOrToggleSong(song,true)
-//                    Log.v("pranav",song.title)
+                    brainzPlayerViewModel.changePlayable(
+                        newPlayables,
+                        PlayableType.ALL_SONGS,
+                        song.mediaID,
+                        newPlayables.indexOf(song),
+                        0L
+                    )
+                    brainzPlayerViewModel.playOrToggleSong(song,true)
                 }
             )
             2 -> ArtistsOverviewScreen(

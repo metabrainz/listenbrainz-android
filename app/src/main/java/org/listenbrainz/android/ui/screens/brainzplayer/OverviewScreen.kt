@@ -1,6 +1,5 @@
 package org.listenbrainz.android.ui.screens.brainzplayer
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,10 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -32,7 +27,6 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.Artist
 import org.listenbrainz.android.model.PlayableType
-import org.listenbrainz.android.model.Playlist
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.ui.components.BrainzPlayerActivityCards
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -90,7 +84,7 @@ private fun RecentlyPlayedOverview(
                                     recentlyPlayedSongs,
                                     PlayableType.ALL_SONGS,
                                     song.mediaID,
-                                    recentlyPlayedSongs.sortedBy { it.discNumber }.indexOf(song),
+                                    recentlyPlayedSongs.indexOf(song),
                                     0L
                                 )
                                 brainzPlayerViewModel.playOrToggleSong(song, true)
