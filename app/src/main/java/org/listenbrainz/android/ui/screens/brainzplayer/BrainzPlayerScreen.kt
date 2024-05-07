@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.screens.brainzplayer
 
 
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.ElevatedSuggestionChip
@@ -37,6 +38,13 @@ fun BrainzPlayerScreen() {
     val topRecents = recentlyPlayed.take(5).toMutableList()
     val topArtists = artists.take(5).toMutableList()
     val topAlbums = albums.take(5).toMutableList()
+    val albumSongsMap : MutableMap<Long,List<Song>> = mutableMapOf()
+    for(i in 1..albums.size){
+        val albumSongs : List<Song> = albumViewModel.getAllSongsOfAlbum(albums[i-1].albumId).collectAsState(
+            initial = listOf()
+        ).value
+        albumSongsMap[albums[i-1].albumId] = albumSongs
+    }
     val songsPlayedThisWeek = brainzPlayerViewModel.songsPlayedThisWeek.collectAsState(initial = listOf()).value
     topRecents.add(Song())
     topArtists.add(Artist())
@@ -46,7 +54,7 @@ fun BrainzPlayerScreen() {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Navigation(albums = albums, previewAlbums = topAlbums, artists = artists, previewArtists = topArtists, playlists, songsPlayedToday, songsPlayedThisWeek ,topRecents ,songs)
+        Navigation(albums = albums, previewAlbums = topAlbums, artists = artists, previewArtists = topArtists, playlists, songsPlayedToday, songsPlayedThisWeek ,topRecents ,songs, albumSongsMap)
     }
 }
 
@@ -61,6 +69,7 @@ fun BrainzPlayerHomeScreen(
     songsPlayedToday: List<Song>,
     songsPlayedThisWeek: List<Song>,
     recentlyPlayedSongs: List<Song>,
+    albumSongsMap: MutableMap<Long,List<Song>>,
     brainzPlayerViewModel: BrainzPlayerViewModel = hiltViewModel(),
 ) {
 
@@ -137,7 +146,23 @@ fun BrainzPlayerHomeScreen(
             2 -> ArtistsOverviewScreen(
                 artists = artists
             )
-            3 -> AlbumsOverViewScreen(albums = albums)
+            3 -> AlbumsOverViewScreen(albums = albums, onPlayIconClick = {
+                album ->
+                val albumSongs = albumSongsMap[album.albumId]!!
+                Log.v("pranav",album.albumId.toString())
+                brainzPlayerViewModel.changePlayable(
+                    albumSongs.sortedBy { it.trackNumber },
+                    PlayableType.ALBUM,
+                    album.albumId,
+                    albumSongs
+                        .sortedBy { it.trackNumber }
+                        .indexOf (albumSongs[0]),
+                    0L
+                )
+                brainzPlayerViewModel.playOrToggleSong(albumSongs[0],true)
+
+
+            })
             4 -> SongsOverviewScreen(songs = songs, onPlayIconClick = {
                     song , newPlayables ->
                 brainzPlayerViewModel.changePlayable(
@@ -152,4 +177,3 @@ fun BrainzPlayerHomeScreen(
         }
     }
 }
-

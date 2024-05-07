@@ -26,6 +26,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.Artist
+import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.ui.components.BrainzPlayerListenCard
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -33,7 +34,8 @@ import org.listenbrainz.android.viewmodel.ArtistViewModel
 
 @Composable
 fun AlbumsOverViewScreen(
-    albums : List<Album>
+    albums : List<Album>,
+    onPlayIconClick: (Album) -> Unit
 ) {
     val albumsStarting: MutableMap<Char, MutableList<Album>> = mutableMapOf()
     for (i in 0..25) {
@@ -70,9 +72,9 @@ fun AlbumsOverViewScreen(
                             end = 10.dp,
                             top = 3.dp,
                             bottom = 3.dp
-                        )){
-
-                        }
+                        ), onPlayIconClick = {
+                            onPlayIconClick(albumsStarting[startingLetter]!![j-1])
+                        })
                     }
                 }
             }
