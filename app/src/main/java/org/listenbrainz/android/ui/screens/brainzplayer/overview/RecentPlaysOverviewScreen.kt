@@ -28,14 +28,13 @@ fun RecentPlaysScreen(
     onPlayIconClick: (Song, List<Song>) -> Unit
 ) {
     Column (modifier = Modifier
-        .fillMaxSize()
-        .padding(start = 17.dp, end = 17.dp)) {
+        .fillMaxSize()) {
         if(songsPlayedToday.isNotEmpty()){
             Column(modifier = Modifier
                 .background(
                     brush = ListenBrainzTheme.colorScheme.gradientBrush
                 )
-                .padding(top = 15.dp, bottom = 15.dp)) {
+                .padding(top = 15.dp, bottom = 15.dp, start = 10.dp)) {
                 Text(
                     "Played Today",
                     color = ListenBrainzTheme.colorScheme.lbSignature,
@@ -50,7 +49,7 @@ fun RecentPlaysScreen(
                 .background(
                     brush = ListenBrainzTheme.colorScheme.gradientBrush
                 )
-                .padding(top = 15.dp, bottom = 15.dp)) {
+                .padding(top = 15.dp, bottom = 15.dp , start = 10.dp)) {
                 Text(
                     "Played This Week",
                     color = ListenBrainzTheme.colorScheme.lbSignature,

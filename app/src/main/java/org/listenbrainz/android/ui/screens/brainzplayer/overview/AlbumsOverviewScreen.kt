@@ -3,6 +3,8 @@ package org.listenbrainz.android.ui.screens.brainzplayer
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -75,6 +77,7 @@ fun AlbumsOverViewScreen(
                         ), onPlayIconClick = {
                             onPlayIconClick(albumsStarting[startingLetter]!![j-1])
                         })
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
                 }
             }

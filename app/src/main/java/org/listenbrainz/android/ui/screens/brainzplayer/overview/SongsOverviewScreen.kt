@@ -2,6 +2,8 @@ package org.listenbrainz.android.ui.screens.brainzplayer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -54,9 +56,10 @@ fun SongsOverviewScreen(
                         val song: Song = songsStarting[startingLetter]!![j-1]
                         var coverArt: String? = null
                         coverArt = songsStarting[startingLetter]!![j - 1].albumArt
-                        BrainzPlayerListenCard(title = songsStarting[startingLetter]!![j - 1].title, subTitle = songsStarting[startingLetter]!![j - 1].artist, coverArtUrl = coverArt){
+                        BrainzPlayerListenCard(modifier = Modifier.padding(start= 10.dp, end = 10.dp),title = songsStarting[startingLetter]!![j - 1].title, subTitle = songsStarting[startingLetter]!![j - 1].artist, coverArtUrl = coverArt){
                             onPlayIconClick(song,songsStarting[startingLetter]!!)
                         }
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
                 }
             }
