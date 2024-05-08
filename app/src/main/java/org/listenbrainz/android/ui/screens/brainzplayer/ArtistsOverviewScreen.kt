@@ -2,6 +2,8 @@ package org.listenbrainz.android.ui.screens.brainzplayer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -24,7 +26,8 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @Composable
 fun ArtistsOverviewScreen(
-    artists: List<Artist>
+    artists: List<Artist>,
+    onPlayClick : (Artist) -> Unit
 ) {
     val artistsStarting: MutableMap<Char, MutableList<Artist>> = mutableMapOf()
     for (i in 0..25) {
@@ -62,7 +65,10 @@ fun ArtistsOverviewScreen(
                         BrainzPlayerListenCard(title = artistsStarting[startingLetter]!![j - 1].name, subTitle = when (artistsStarting[startingLetter]!![j - 1].songs.size) {
                             1 -> "1 track"
                             else -> "${artistsStarting[startingLetter]!![j - 1].songs.size} tracks"
-                        }, coverArtUrl = coverArt, onPlayIconClick = {})
+                        }, coverArtUrl = coverArt, onPlayIconClick = {
+                            onPlayClick(artistsStarting[startingLetter]!![j-1])
+                        }, modifier = Modifier.padding(start = 10.dp, end = 10.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
                 }
             }
