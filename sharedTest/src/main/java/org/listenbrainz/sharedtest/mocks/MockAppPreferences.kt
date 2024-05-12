@@ -96,7 +96,7 @@ class MockAppPreferences(
         }
     
     
-    override suspend fun logoutUser() {
+    override suspend fun logoutUser(): Boolean {
         TODO("Not yet implemented")
     }
 
