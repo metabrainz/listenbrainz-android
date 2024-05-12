@@ -253,12 +253,13 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
         get() = preferences.getBoolean(ONBOARDING, false)
         set(value) = setBoolean(ONBOARDING, value)
     
-    override suspend fun logoutUser() = withContext(Dispatchers.IO) {
+    override suspend fun logoutUser(): Boolean = withContext(Dispatchers.IO) {
         val editor = preferences.edit()
         editor.remove(REFRESH_TOKEN)
         editor.remove(USERNAME)
         editor.apply()
         lbAccessToken.set("")
+        return@withContext true
     }
     
     override var currentPlayable : Playable?

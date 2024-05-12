@@ -28,7 +28,7 @@ interface AppPreferences {
 
     var onboardingCompleted: Boolean
     
-    suspend fun logoutUser()
+    suspend fun logoutUser(): Boolean
 
     val version: String
     
