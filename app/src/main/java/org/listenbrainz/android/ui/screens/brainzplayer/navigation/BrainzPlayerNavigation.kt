@@ -36,7 +36,6 @@ fun Navigation(
     recentlyPlayedSongs : List<Song>,
     songs: List<Song>,
     albumSongsMap: MutableMap<Album,List<Song>>,
-    artistSongsMap: MutableMap<Artist, List<Song>>,
     navHostController: NavHostController = rememberNavController()
 ) {
     
@@ -55,7 +54,6 @@ fun Navigation(
                 songsPlayedThisWeek = songsPlayedThisWeek,
                 recentlyPlayedSongs = recentlyPlayedSongs,
                 albumSongsMap = albumSongsMap,
-                artistSongsMap = artistSongsMap
             )
         }
         composable(route = BrainzPlayerNavigationItem.Songs.route) {

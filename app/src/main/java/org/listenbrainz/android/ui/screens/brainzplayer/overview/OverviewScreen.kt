@@ -77,7 +77,7 @@ private fun RecentlyPlayedOverview(
                     BrainzPlayerActivityCards(icon = song.albumArt,
                         errorIcon = R.drawable.ic_artist,
                         title = song.artist,
-                        artist = song.title,
+                        subtitle = song.title,
                         modifier = Modifier
                             .clickable {
                                 brainzPlayerViewModel.changePlayable(
@@ -143,7 +143,7 @@ private fun ArtistsOverview(
                         icon = "",
                         errorIcon = R.drawable.ic_artist,
                         title = "",
-                        artist = artist.name,
+                        subtitle = artist.name,
                     )
                 } else {
                     Box(
@@ -196,7 +196,7 @@ private fun AlbumsOverview(
                     BrainzPlayerActivityCards(icon = album.albumArt,
                         errorIcon = R.drawable.ic_artist,
                         title = album.artist,
-                        artist = album.title,
+                        subtitle = album.title,
                     )
                 }
                 else{

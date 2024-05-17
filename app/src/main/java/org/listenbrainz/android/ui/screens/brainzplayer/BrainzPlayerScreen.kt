@@ -1,22 +1,45 @@
 package org.listenbrainz.android.ui.screens.brainzplayer
 
 
+import android.os.Build
 import android.util.Log
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SuggestionChipDefaults
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import org.listenbrainz.android.model.*
+import org.listenbrainz.android.model.Album
+import org.listenbrainz.android.model.Artist
+import org.listenbrainz.android.model.PlayableType
+import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.ui.screens.brainzplayer.navigation.Navigation
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.viewmodel.*
+import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
+import org.listenbrainz.android.viewmodel.AlbumViewModel
+import org.listenbrainz.android.viewmodel.ArtistViewModel
+import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
+import org.listenbrainz.android.viewmodel.PlaylistViewModel
+import org.listenbrainz.android.viewmodel.SongViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,17 +62,14 @@ fun BrainzPlayerScreen() {
     val topArtists = artists.take(5).toMutableList()
     val topAlbums = albums.take(5).toMutableList()
     val albumSongsMap : MutableMap<Album,List<Song>> = mutableMapOf()
-    val artistSongsMap : MutableMap<Artist, List<Song>> = mutableMapOf()
+
     for(i in 1..albums.size){
         val albumSongs : List<Song> = albumViewModel.getAllSongsOfAlbum(albums[i-1].albumId).collectAsState(
             initial = listOf()
         ).value
         albumSongsMap[albums[i-1]] = albumSongs
     }
-    for(i in 1..artists.size){
-        val artistSongs : List<Song> = artistViewModel.getAllSongsOfArtist(artists[i-1]).collectAsState(initial = listOf()).value.distinctBy { it.mediaID }
-        artistSongsMap[artists[i-1]] = artistSongs
-    }
+
     val songsPlayedThisWeek = brainzPlayerViewModel.songsPlayedThisWeek.collectAsState(initial = listOf()).value
     topRecents.add(Song())
     topArtists.add(Artist())
@@ -59,11 +79,12 @@ fun BrainzPlayerScreen() {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Navigation(albums = albums, previewAlbums = topAlbums, artists = artists, previewArtists = topArtists, playlists, songsPlayedToday, songsPlayedThisWeek ,topRecents ,songs, albumSongsMap, artistSongsMap)
+        Navigation(albums = albums, previewAlbums = topAlbums, artists = artists, previewArtists = topArtists, playlists, songsPlayedToday, songsPlayedThisWeek ,topRecents ,songs, albumSongsMap)
     }
 }
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun BrainzPlayerHomeScreen(
     songs : List<Song>,
@@ -75,11 +96,14 @@ fun BrainzPlayerHomeScreen(
     songsPlayedThisWeek: List<Song>,
     recentlyPlayedSongs: List<Song>,
     albumSongsMap: MutableMap<Album,List<Song>>,
-    artistSongsMap: MutableMap<Artist, List<Song>>,
     brainzPlayerViewModel: BrainzPlayerViewModel = hiltViewModel(),
 ) {
 
     val currentTab : MutableState<Int> = remember {mutableStateOf(0)}
+    val currentlyPlayingSong =
+        brainzPlayerViewModel.currentlyPlayingSong.collectAsState().value.toSong
+    val isPlaying = brainzPlayerViewModel.isPlaying
+    Log.v("pranav" , currentlyPlayingSong.title)
     Column {
         Row(modifier = Modifier
             .fillMaxWidth()
@@ -153,15 +177,49 @@ fun BrainzPlayerHomeScreen(
                 artists = artists,
                 onPlayClick = {
                     artist ->
-                    val artistSongs = artistSongsMap[artist]!!
                     brainzPlayerViewModel.changePlayable(
-                        artistSongs,
+                        artist.songs,
                         PlayableType.ARTIST,
                         artist.id,
                         0,
                         0L
                     )
-                    brainzPlayerViewModel.playOrToggleSong(artistSongs[0], true)
+                    brainzPlayerViewModel.playOrToggleSong(artist.songs[0], true)
+                },
+                onPlayNext = {
+                    artist ->
+                    val currentSongIndex =
+                        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID==currentlyPlayingSong.mediaID   }
+                            ?.plus(1)
+                    if (isPlaying.value && currentSongIndex != null) {
+                        val currentSongs = brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()
+                        currentSongs?.addAll(currentSongIndex, artist.songs)
+                        brainzPlayerViewModel.appPreferences.currentPlayable = brainzPlayerViewModel.appPreferences.currentPlayable?.copy(songs = currentSongs ?: emptyList())
+                        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let {
+                            brainzPlayerViewModel.changePlayable(
+                                it,
+                                PlayableType.ALL_SONGS,
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0,
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID==currentlyPlayingSong.mediaID   } ?: 0,brainzPlayerViewModel.songCurrentPosition.value
+                            )
+                        }
+                        brainzPlayerViewModel.queueChanged(
+                            currentlyPlayingSong,
+                            brainzPlayerViewModel.isPlaying.value
+                        )
+                    }
+                    else{
+                        brainzPlayerViewModel.changePlayable(
+                            artist.songs,
+                            PlayableType.ARTIST,
+                            artist.id,
+                            0,
+                            0L
+                        )
+                        brainzPlayerViewModel.playOrToggleSong(artist.songs[0], true)
+                    }
+
+
                 }
             )
             3 -> AlbumsOverViewScreen(albums = albums, onPlayIconClick = {

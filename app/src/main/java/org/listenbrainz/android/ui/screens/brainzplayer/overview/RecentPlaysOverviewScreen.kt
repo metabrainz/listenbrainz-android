@@ -11,14 +11,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.ui.components.BrainzPlayerListenCard
-import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @Composable
@@ -49,7 +45,7 @@ fun RecentPlaysScreen(
                 .background(
                     brush = ListenBrainzTheme.colorScheme.gradientBrush
                 )
-                .padding(top = 15.dp, bottom = 15.dp , start = 10.dp)) {
+                .padding(top = 15.dp, bottom = 15.dp, start = 10.dp)) {
                 Text(
                     "Played This Week",
                     color = ListenBrainzTheme.colorScheme.lbSignature,
@@ -72,7 +68,7 @@ private fun PlayedToday(
        heightConstraint
     )) {
         items(songsPlayedToday){
-            BrainzPlayerListenCard(title = it.title, subTitle = it.artist, coverArtUrl = it.albumArt, onPlayIconClick = {onPlayIconClick(it,songsPlayedToday)})
+            BrainzPlayerListenCard(title = it.title, subTitle = it.artist, coverArtUrl = it.albumArt, onPlayIconClick = {onPlayIconClick(it,songsPlayedToday)}, onDropdownIconClick = {})
             Spacer(modifier = Modifier.height(5.dp))
         }
     }
