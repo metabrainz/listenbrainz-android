@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.brainzplayer
+package org.listenbrainz.android.ui.screens.brainzplayer.overview
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

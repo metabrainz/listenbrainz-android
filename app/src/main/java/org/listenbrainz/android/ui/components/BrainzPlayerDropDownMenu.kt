@@ -16,13 +16,22 @@ fun BrainzPlayerDropDownMenu(
     onAddToQueue : () -> Unit = {},
 ){
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
-        DropdownMenuItem(onClick = onAddToNewPlaylist, text = {Text(text = "Add to new playlist")})
-        DropdownMenuItem(onClick = onAddToExistingPlaylist, text = {Text(text = "Add to existing playlist")})
+        DropdownMenuItem(onClick = {
+            onAddToNewPlaylist()
+            onDismiss()
+        }, text = {Text(text = "Add to new playlist")})
+        DropdownMenuItem(onClick = {
+            onAddToExistingPlaylist()
+            onDismiss()
+        }, text = {Text(text = "Add to existing playlist")})
         DropdownMenuItem(onClick = {
             onPlayNext()
             onDismiss()
         }, text = {Text(text = "Play next")})
-        DropdownMenuItem(onClick = onAddToQueue, text = {Text(text = "Add to queue")})
+        DropdownMenuItem(onClick = {
+            onAddToQueue()
+            onDismiss()
+        }, text = {Text(text = "Add to queue")})
     }
 
 }

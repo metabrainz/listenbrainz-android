@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.brainzplayer
+package org.listenbrainz.android.ui.screens.brainzplayer.overview
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -30,6 +30,9 @@ fun ArtistsOverviewScreen(
     artists: List<Artist>,
     onPlayClick : (Artist) -> Unit,
     onPlayNext : (Artist) -> Unit,
+    onAddToQueue : (Artist) -> Unit,
+    onAddToExistingPlaylist : (Artist) -> Unit,
+    onAddToNewPlaylist : (Artist) -> Unit,
 ) {
     val artistsStarting: MutableMap<Char, MutableList<Artist>> = mutableMapOf()
     var dropdownState by remember {
@@ -65,6 +68,7 @@ fun ArtistsOverviewScreen(
                     )
                     for (j in 1..artistsStarting[startingLetter]!!.size) {
                         var coverArt: String? = null
+                        val artist = artistsStarting[startingLetter]!![j-1]
                         if (artistsStarting[startingLetter]!![j - 1].albums.isNotEmpty())
                             coverArt = artistsStarting[startingLetter]!![j - 1].albums[0].albumArt
                         BrainzPlayerListenCard(title = artistsStarting[startingLetter]!![j - 1].name, subTitle = when (artistsStarting[startingLetter]!![j - 1].songs.size) {
@@ -72,7 +76,7 @@ fun ArtistsOverviewScreen(
                             else -> "${artistsStarting[startingLetter]!![j - 1].songs.size} tracks"
                         }, coverArtUrl = coverArt, onPlayIconClick = {
                             onPlayClick(artistsStarting[startingLetter]!![j-1])
-                        }, modifier = Modifier.padding(start = 10.dp, end = 10.dp), dropDown = { BrainzPlayerDropDownMenu(onPlayNext = {onPlayNext(artistsStarting[startingLetter]!![j - 1])},expanded = dropdownState == Pair(i,j-1), onDismiss = {dropdownState = Pair(-1,-1)})}, onDropdownIconClick = {dropdownState = Pair(i,j-1)}, dropDownState = dropdownState == Pair(i,j-1))
+                        }, modifier = Modifier.padding(start = 10.dp, end = 10.dp), dropDown = { BrainzPlayerDropDownMenu(onAddToNewPlaylist = {onAddToNewPlaylist(artist)}, onAddToExistingPlaylist = {onAddToExistingPlaylist(artist)},onAddToQueue = {onAddToQueue(artist)}, onPlayNext = {onPlayNext(artist)},expanded = dropdownState == Pair(i,j-1), onDismiss = {dropdownState = Pair(-1,-1)})}, onDropdownIconClick = {dropdownState = Pair(i,j-1)}, dropDownState = dropdownState == Pair(i,j-1))
                         Spacer(modifier = Modifier.height(10.dp))
                     }
                 }

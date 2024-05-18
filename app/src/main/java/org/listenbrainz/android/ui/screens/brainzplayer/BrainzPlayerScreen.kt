@@ -2,7 +2,6 @@ package org.listenbrainz.android.ui.screens.brainzplayer
 
 
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -33,6 +32,11 @@ import org.listenbrainz.android.model.Artist
 import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.ui.screens.brainzplayer.navigation.Navigation
+import org.listenbrainz.android.ui.screens.brainzplayer.overview.AlbumsOverViewScreen
+import org.listenbrainz.android.ui.screens.brainzplayer.overview.ArtistsOverviewScreen
+import org.listenbrainz.android.ui.screens.brainzplayer.overview.OverviewScreen
+import org.listenbrainz.android.ui.screens.brainzplayer.overview.RecentPlaysScreen
+import org.listenbrainz.android.ui.screens.brainzplayer.overview.SongsOverviewScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.viewmodel.AlbumViewModel
@@ -103,7 +107,6 @@ fun BrainzPlayerHomeScreen(
     val currentlyPlayingSong =
         brainzPlayerViewModel.currentlyPlayingSong.collectAsState().value.toSong
     val isPlaying = brainzPlayerViewModel.isPlaying
-    Log.v("pranav" , currentlyPlayingSong.title)
     Column {
         Row(modifier = Modifier
             .fillMaxWidth()
@@ -162,15 +165,74 @@ fun BrainzPlayerHomeScreen(
                 songsPlayedToday = songsPlayedToday,
                 songsPlayedThisWeek = songsPlayedThisWeek,
                 onPlayIconClick = {
-                    song, newPlayables ->
+                    song ->
                     brainzPlayerViewModel.changePlayable(
-                        newPlayables,
+                        listOf(song),
                         PlayableType.ALL_SONGS,
                         song.mediaID,
-                        newPlayables.indexOf(song),
+                        0,
                         0L
                     )
                     brainzPlayerViewModel.playOrToggleSong(song,true)
+                },
+                onAddToQueue = {
+                    song ->
+                    val currentSongs = brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()
+                    currentSongs?.add(currentSongs.size, song)
+                    brainzPlayerViewModel.appPreferences.currentPlayable = brainzPlayerViewModel.appPreferences.currentPlayable?.copy(songs = currentSongs ?: emptyList())
+                    brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let {
+                        brainzPlayerViewModel.changePlayable(
+                            it,
+                            PlayableType.ALL_SONGS,
+                            brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0,
+                            brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID==currentlyPlayingSong.mediaID   } ?: 0,brainzPlayerViewModel.songCurrentPosition.value
+                        )
+                    }
+                    brainzPlayerViewModel.queueChanged(
+                        currentlyPlayingSong,
+                        brainzPlayerViewModel.isPlaying.value
+                    )
+                },
+                onPlayNext = {
+                    song ->
+                    val currentSongIndex =
+                        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID==currentlyPlayingSong.mediaID   }
+                            ?.plus(1)
+                    if (isPlaying.value && currentSongIndex != null) {
+                        val currentSongs = brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()
+                        currentSongs?.add(currentSongIndex, song)
+                        brainzPlayerViewModel.appPreferences.currentPlayable = brainzPlayerViewModel.appPreferences.currentPlayable?.copy(songs = currentSongs ?: emptyList())
+                        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let {
+                            brainzPlayerViewModel.changePlayable(
+                                it,
+                                PlayableType.ALL_SONGS,
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0,
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID==currentlyPlayingSong.mediaID   } ?: 0,brainzPlayerViewModel.songCurrentPosition.value
+                            )
+                        }
+                        brainzPlayerViewModel.queueChanged(
+                            currentlyPlayingSong,
+                            brainzPlayerViewModel.isPlaying.value
+                        )
+                    }
+                    else{
+                        // No song is playing, so start playing the selected song
+                        brainzPlayerViewModel.changePlayable(
+                            listOf(song),
+                            PlayableType.SONG,
+                            song.mediaID,
+                            0,
+                            0L
+                        )
+                        brainzPlayerViewModel.playOrToggleSong(song, true)
+                    }
+
+                },
+                onAddToExistingPlaylist = {
+                    song ->
+                },
+                onAddToNewPlaylist = {
+                    song ->
                 }
             )
             2 -> ArtistsOverviewScreen(
@@ -218,8 +280,30 @@ fun BrainzPlayerHomeScreen(
                         )
                         brainzPlayerViewModel.playOrToggleSong(artist.songs[0], true)
                     }
-
-
+                },
+                onAddToQueue = {
+                    artist ->
+                    val currentSongs = brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()
+                    currentSongs?.addAll(currentSongs.size, artist.songs)
+                    brainzPlayerViewModel.appPreferences.currentPlayable = brainzPlayerViewModel.appPreferences.currentPlayable?.copy(songs = currentSongs ?: emptyList())
+                    brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let {
+                        brainzPlayerViewModel.changePlayable(
+                            it,
+                            PlayableType.ALL_SONGS,
+                            brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0,
+                            brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID==currentlyPlayingSong.mediaID   } ?: 0,brainzPlayerViewModel.songCurrentPosition.value
+                        )
+                    }
+                    brainzPlayerViewModel.queueChanged(
+                        currentlyPlayingSong,
+                        brainzPlayerViewModel.isPlaying.value
+                    )
+                },
+                onAddToNewPlaylist = {
+                    artist ->  
+                },
+                onAddToExistingPlaylist = {
+                    artist ->  
                 }
             )
             3 -> AlbumsOverViewScreen(albums = albums, onPlayIconClick = {
