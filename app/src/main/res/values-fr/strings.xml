@@ -86,7 +86,6 @@
     <string name="connecting">Connexion en cours</string>
     <string name="connected">Connecté</string>
     <string name="disconnect">Déconnecter</string>
-    <string name="command_feedback"></string>
     <string name="play_podcast_button_label">Lire le balado</string>
     <string name="play_album_button_label">Lire l\'album</string>
     <string name="play_artist_button_label">Lire l\'artiste</string>
@@ -100,7 +99,6 @@
     <string name="icon_button">Icône bouton</string>
     <string name="title_tracks">Pistes</string>
     <string name="dash_donate">Faire un don</string>
-    <string name="dash_collections"></string>
     <string name="dash_about">À propos</string>
     <string name="donate_title">Faire un don</string>
     <string name="about_title">À propos</string>
