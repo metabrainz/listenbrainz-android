@@ -1,5 +1,7 @@
 package org.listenbrainz.android.ui.screens.brainzplayer.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -18,11 +20,12 @@ import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerHomeScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.OnAlbumClickScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.OnArtistClickScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.OnPlaylistClickScreen
-import org.listenbrainz.android.ui.screens.brainzplayer.OverviewScreen
+import org.listenbrainz.android.ui.screens.brainzplayer.overview.OverviewScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.PlaylistScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.SongScreen
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalMaterial3Api
 @Composable
 fun Navigation(
@@ -35,6 +38,7 @@ fun Navigation(
     songsPlayedThisWeek: List<Song>,
     recentlyPlayedSongs : List<Song>,
     songs: List<Song>,
+    albumSongsMap: MutableMap<Album,List<Song>>,
     navHostController: NavHostController = rememberNavController()
 ) {
     
@@ -52,6 +56,7 @@ fun Navigation(
                 songsPlayedToday = songsPlayedToday,
                 songsPlayedThisWeek = songsPlayedThisWeek,
                 recentlyPlayedSongs = recentlyPlayedSongs,
+                albumSongsMap = albumSongsMap,
             )
         }
         composable(route = BrainzPlayerNavigationItem.Songs.route) {

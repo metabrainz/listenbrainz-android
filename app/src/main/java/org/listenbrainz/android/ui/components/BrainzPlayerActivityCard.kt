@@ -32,7 +32,7 @@ import coil.compose.AsyncImage
 import org.listenbrainz.android.R
 
 @Composable
-fun BrainzPlayerActivityCards(icon: String, errorIcon : Int, title: String, artist : String,modifier : Modifier = Modifier) {
+fun BrainzPlayerActivityCards(icon: String, errorIcon : Int, title: String, subtitle : String,modifier : Modifier = Modifier) {
     Box(
         modifier = modifier
             .padding(4.dp)
@@ -74,7 +74,7 @@ fun BrainzPlayerActivityCards(icon: String, errorIcon : Int, title: String, arti
                     .padding(start = 15.dp)
             ) {
                 Text(
-                    text = artist,
+                    text = subtitle,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Left,
