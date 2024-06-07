@@ -36,7 +36,6 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import org.listenbrainz.android.R
-import org.listenbrainz.android.ui.screens.listens.ListensScreen
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.viewmodel.ProfileViewModel
 
@@ -49,7 +48,7 @@ fun ProfileScreen(
     snackbarState : SnackbarHostState
 ) {
     val scrollState = rememberScrollState()
-
+    val uiState = viewModel.uiState.collectAsState()
     // Scroll to the top when shouldScrollToTop becomes true
     LaunchedEffect(scrollRequestState) {
         onScrollToTop {
@@ -61,11 +60,11 @@ fun ProfileScreen(
 
     when(loginStatus) {
         STATUS_LOGGED_IN -> {
-            ListensScreen(
-                onScrollToTop = onScrollToTop,
-                scrollRequestState = scrollRequestState,
-                snackbarState = snackbarState
-            )
+            Column {
+                Text(uiState.value.listensTabUiState?.listenCount.toString() , color = Color.White)
+                Text(uiState.value.listensTabUiState?.followersCount.toString() , color = Color.White)
+            }
+
         }
         else -> {
             Column(

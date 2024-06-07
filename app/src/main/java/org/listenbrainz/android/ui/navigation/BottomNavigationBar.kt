@@ -2,7 +2,14 @@ package org.listenbrainz.android.ui.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.*
+import androidx.compose.material.BackdropScaffoldState
+import androidx.compose.material.BackdropValue
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
+import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,7 +33,8 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 fun BottomNavigationBar(
     navController: NavController = rememberNavController(),
     backdropScaffoldState: BackdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed),
-    scrollToTop: () -> Unit
+    scrollToTop: () -> Unit,
+    username : String?,
 ) {
     val items = listOf(
         AppNavigationItem.Feed,
@@ -43,7 +51,6 @@ fun BottomNavigationBar(
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
             val selected = currentDestination?.hierarchy?.any { it.route == item.route } == true
-
             BottomNavigationItem(
                 icon = {
                     Icon(
@@ -75,17 +82,30 @@ fun BottomNavigationBar(
 
                         // A quick way to navigate to back layer content.
                         backdropScaffoldState.reveal()
-                        
-                        navController.navigate(item.route){
-                            // Avoid building large backstack
-                            popUpTo(AppNavigationItem.Feed.route){
-                                saveState = true
+
+                        when (item.route) {
+                            AppNavigationItem.Profile.route -> navController.navigate("profile/${username}"){
+                                // Avoid building large backstack
+                                popUpTo(AppNavigationItem.Feed.route){
+                                    saveState = true
+                                }
+                                // Avoid copies
+                                launchSingleTop = true
+                                // Restore previous state
+                                restoreState = true
                             }
-                            // Avoid copies
-                            launchSingleTop = true
-                            // Restore previous state
-                            restoreState = true
+                                else -> navController.navigate(item.route){
+                                    // Avoid building large backstack
+                                    popUpTo(AppNavigationItem.Feed.route){
+                                        saveState = true
+                                    }
+                                    // Avoid copies
+                                    launchSingleTop = true
+                                    // Restore previous state
+                                    restoreState = true
+                                }
                         }
+
                     }
                     
                 }
@@ -99,7 +119,5 @@ fun BottomNavigationBar(
 @Preview
 @Composable
 fun BottomNavigationBarPreview() {
-    BottomNavigationBar(navController = rememberNavController()){
-    
-    }
+    BottomNavigationBar(navController = rememberNavController() , scrollToTop = {} ,username = "pranavkonidena")
 }

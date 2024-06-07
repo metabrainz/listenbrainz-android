@@ -15,7 +15,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.*
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.LifecycleStartEffect
@@ -147,7 +152,7 @@ class MainActivity : ComponentActivity() {
                 val scope = rememberCoroutineScope()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
-                
+                val username = dashBoardViewModel.username
                 Scaffold(
                     topBar = { TopBar(navController = navController, searchBarState = when (currentDestination?.route) {
                         AppNavigationItem.BrainzPlayer.route -> brainzplayerSearchBarState
@@ -157,7 +162,8 @@ class MainActivity : ComponentActivity() {
                         BottomNavigationBar(
                             navController = navController,
                             backdropScaffoldState = backdropScaffoldState,
-                            scrollToTop = { scrollToTopState = true }
+                            scrollToTop = { scrollToTopState = true },
+                            username = username
                         )
                     },
                     snackbarHost = {
