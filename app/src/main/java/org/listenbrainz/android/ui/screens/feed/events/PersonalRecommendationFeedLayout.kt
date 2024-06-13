@@ -39,13 +39,15 @@ fun PersonalRecommendationFeedLayout(
     onPin: () -> Unit,
     onRecommend: () -> Unit,
     onPersonallyRecommend: () -> Unit,
-    onReview: () -> Unit
+    onReview: () -> Unit,
+    goToUserPage: (String?) -> Unit,
 ) {
     BaseFeedLayout(
         eventType = FeedEventType.PERSONAL_RECORDING_RECOMMENDATION,
         event = event,
         parentUser = parentUser,
-        onDeleteOrHide = onDeleteOrHide
+        onDeleteOrHide = onDeleteOrHide,
+        goToUserPage = goToUserPage
     ) {
         ListenCardSmall(
             trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
@@ -142,7 +144,8 @@ private fun PersonalRecommendationFeedLayoutPreview() {
                 onPin = {},
                 onRecommend = {},
                 onPersonallyRecommend = {},
-                onReview = {}
+                onReview = {},
+                goToUserPage = {}
             )
         }
     }

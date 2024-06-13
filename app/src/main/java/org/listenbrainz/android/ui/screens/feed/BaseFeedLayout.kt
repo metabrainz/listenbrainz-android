@@ -3,7 +3,6 @@ package org.listenbrainz.android.ui.screens.feed
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Canvas
@@ -60,7 +59,8 @@ fun BaseFeedLayout(
     parentUser: String,
     onDeleteOrHide: () -> Unit,
     isHidden: Boolean = event.hidden == true,
-    content: @Composable () -> Unit
+    goToUserPage: (String?) -> Unit,
+    content: @Composable () -> Unit,
 ) {
     
     // Content that is to be measured for horizontal line.
@@ -120,7 +120,10 @@ fun BaseFeedLayout(
                 if (!isHidden){
                     eventType.Tagline(
                         event = event,
-                        parentUser = parentUser
+                        parentUser = parentUser,
+                        goToUserPage = {
+                            username -> goToUserPage(username)
+                        }
                     )
                 } else {
                     Text(
@@ -300,7 +303,8 @@ private fun BaseFeedLayoutPreview() {
                     hidden = false, metadata = Metadata(user1 = "JasjeetTest"),
                     username = "Jasjeet"
                 ),
-                onDeleteOrHide = {}
+                goToUserPage = {},
+                onDeleteOrHide = {},
             ) {
                 Card(modifier = Modifier
                     .fillMaxWidth()

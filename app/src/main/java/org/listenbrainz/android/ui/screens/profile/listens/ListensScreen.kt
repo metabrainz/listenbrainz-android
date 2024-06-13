@@ -1,22 +1,27 @@
-package org.listenbrainz.android.ui.screens.listens
+package org.listenbrainz.android.ui.screens.profile.listens
 
 import android.os.Bundle
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Text
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -28,10 +33,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
@@ -42,7 +51,6 @@ import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
-import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.components.SuccessBar
 import org.listenbrainz.android.ui.components.dialogs.Dialog
 import org.listenbrainz.android.ui.components.dialogs.PersonalRecommendationDialog
@@ -51,25 +59,30 @@ import org.listenbrainz.android.ui.components.dialogs.ReviewDialog
 import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
 import org.listenbrainz.android.ui.screens.feed.FeedUiState
 import org.listenbrainz.android.ui.screens.feed.SocialDropdown
-import org.listenbrainz.android.ui.screens.profile.UserData
+import org.listenbrainz.android.ui.screens.profile.ListensTabUiState
 import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.Utils
+import org.listenbrainz.android.ui.theme.app_bg_dark
+import org.listenbrainz.android.ui.theme.app_bg_mid
+import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
+import org.listenbrainz.android.viewmodel.ProfileViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 
 @Composable
 fun ListensScreen(
     viewModel: ListensViewModel = hiltViewModel(),
+    profileViewModel: ProfileViewModel = hiltViewModel(),
     socialViewModel: SocialViewModel = hiltViewModel(),
     feedViewModel : FeedViewModel = hiltViewModel(),
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
-    snackbarState : SnackbarHostState
+    snackbarState : SnackbarHostState,
+    username: String?,
 ) {
     
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by profileViewModel.uiState.collectAsState()
     val preferencesUiState by viewModel.preferencesUiState.collectAsState()
     val socialUiState by socialViewModel.uiState.collectAsState()
     val feedUiState by feedViewModel.uiState.collectAsState()
@@ -80,7 +93,8 @@ fun ListensScreen(
     ListensScreen(
         scrollRequestState = scrollRequestState,
         onScrollToTop = onScrollToTop,
-        uiState = uiState,
+        username= username,
+        uiState = uiState.listensTabUiState,
         feedUiState = feedUiState,
         preferencesUiState = preferencesUiState,
         updateNotificationServicePermissionStatus = {
@@ -147,7 +161,8 @@ private enum class ListenDialogBundleKeys {
 fun ListensScreen(
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
-    uiState: ListensUiState,
+    username: String?,
+    uiState: ListensTabUiState,
     feedUiState: FeedUiState,
     preferencesUiState: PreferencesUiState,
     updateNotificationServicePermissionStatus: () -> Unit,
@@ -174,6 +189,10 @@ fun ListensScreen(
     val scope = rememberCoroutineScope()
 
     val context = LocalContext.current
+
+    val recentListensCollapsibleState: MutableState<Boolean> = remember {
+        mutableStateOf(true)
+    }
     
     // Scroll to the top when shouldScrollToTop becomes true
     LaunchedEffect(scrollRequestState) {
@@ -181,111 +200,108 @@ fun ListensScreen(
             listState.scrollToItem(0)
         }
     }
-    
-    Box(modifier = Modifier.fillMaxSize()) {
-        
-        LazyColumn(state = listState) {
-            item {
-                UserData(
-                    preferencesUiState,
-                    updateNotificationServicePermissionStatus,
-                    validateUserToken,
-                    setToken
-                )
-            }
-            
-            item {
-                val pagerState = rememberPagerState { 1 }
-                
-                // TODO: Figure out the use of ListeningNowOnSpotify. It is hidden for now
-                HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
-                    when (page) {
-                        0 -> {
-                            uiState.listeningNowUiState.listeningNow.let { listeningNow ->
-                                ListeningNowCard(
-                                    listeningNow,
-                                    Utils.getCoverArtUrl(
-                                        caaReleaseMbid = listeningNow?.trackMetadata?.mbidMapping?.caaReleaseMbid,
-                                        caaId = listeningNow?.trackMetadata?.mbidMapping?.caaId
-                                    )
-                                ) {
-                                    listeningNow?.let { listen -> playListen(listen.trackMetadata) }
-                                }
-                            }
-                        }
-                        
-                        1 -> {
-                            AnimatedVisibility(
-                                visible = uiState.listeningNowUiState.playerState?.track?.name != null,
-                                enter = slideInVertically(),
-                                exit = slideOutVertically()
-                            ) {
-                                ListeningNowOnSpotify(
-                                    playerState = uiState.listeningNowUiState.playerState,
-                                    bitmap = uiState.listeningNowUiState.listeningNowBitmap
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-            
-            itemsIndexed(items = uiState.listens) { index , listen  ->
-                val metadata = Metadata(trackMetadata = listen.trackMetadata)
-                ListenCardSmall(
-                    modifier = Modifier.padding(
-                        horizontal = ListenBrainzTheme.paddings.horizontal,
-                        vertical = ListenBrainzTheme.paddings.lazyListAdjacent
-                    ),
-                    trackName = listen.trackMetadata.trackName,
-                    artistName = listen.trackMetadata.artistName,
-                    coverArtUrl = Utils.getCoverArtUrl(
-                        caaReleaseMbid = listen.trackMetadata.mbidMapping?.caaReleaseMbid,
-                        caaId = listen.trackMetadata.mbidMapping?.caaId
-                    ),
-                    dropDown = {
-                        SocialDropdown(
-                            isExpanded = dropdownItemIndex.value == index,
-                            onDismiss = {
-                                dropdownItemIndex.value = null
-                            },
-                            metadata = metadata,
-                            onRecommend = { onRecommend(metadata) },
-                            onPersonallyRecommend = {
-                                dialogsState.activateDialog(Dialog.PERSONAL_RECOMMENDATION , ListenDialogBundleKeys.listenDialogBundle(0, index))
-                                dropdownItemIndex.value = null
-                            },
-                            onReview = {
-                                dialogsState.activateDialog(Dialog.REVIEW , ListenDialogBundleKeys.listenDialogBundle(0, index))
-                                dropdownItemIndex.value = null
-                            },
-                            onPin = {
-                                dialogsState.activateDialog(Dialog.PIN , ListenDialogBundleKeys.listenDialogBundle(0, index))
-                                dropdownItemIndex.value = null
-                            },
-                            onOpenInMusicBrainz = {
-                                try {
-                                    uriHandler.openUri("https://musicbrainz.org/recording/${metadata.trackMetadata?.mbidMapping?.recordingMbid}")
-                                }
-                                catch(e : Error) {
-                                    scope.launch {
-                                        snackbarState.showSnackbar(context.getString(R.string.err_generic_toast))
-                                    }
-                                }
-                                dropdownItemIndex.value = null
-                            }
 
-                        )
-                    },
-                    enableDropdownIcon = true,
-                    onDropdownIconClick = {
-                        dropdownItemIndex.value = index
-                    }
-                ) {
-                    playListen(listen.trackMetadata)
+        AnimatedVisibility(visible = !uiState.isLoading) {
+            LazyColumn(state = listState) {
+                item {
+                    SongsListened(username = username, listenCount = uiState.listenCount)
                 }
+                item{
+                    FollowersInformation(followersCount = uiState.followersCount, followingCount = uiState.followingCount)
+                }
+                item{
+                    Spacer(modifier = Modifier.height(30.dp))
+                    Text("Recent Listens", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(start = 16.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
+                itemsIndexed(items = (when(recentListensCollapsibleState.value){
+                    true -> uiState.recentListens?.take(5) ?: listOf()
+                    false -> uiState.recentListens?.take(10) ?: listOf()
+                })) { index, listen  ->
+                    val metadata = Metadata(trackMetadata = listen.trackMetadata)
+                    ListenCardSmall(
+                        modifier = Modifier.padding(
+                            horizontal = 16.dp,
+                            vertical = ListenBrainzTheme.paddings.lazyListAdjacent
+                        ),
+                        trackName = listen.trackMetadata.trackName,
+                        artistName = listen.trackMetadata.artistName,
+                        coverArtUrl = getCoverArtUrl(
+                            caaReleaseMbid = listen.trackMetadata.mbidMapping?.caaReleaseMbid,
+                            caaId = listen.trackMetadata.mbidMapping?.caaId
+                        ),
+                        dropDown = {
+                            SocialDropdown(
+                                isExpanded = dropdownItemIndex.value == index,
+                                onDismiss = {
+                                    dropdownItemIndex.value = null
+                                },
+                                metadata = metadata,
+                                onRecommend = { onRecommend(metadata) },
+                                onPersonallyRecommend = {
+                                    dialogsState.activateDialog(Dialog.PERSONAL_RECOMMENDATION , ListenDialogBundleKeys.listenDialogBundle(0, index))
+                                    dropdownItemIndex.value = null
+                                },
+                                onReview = {
+                                    dialogsState.activateDialog(Dialog.REVIEW , ListenDialogBundleKeys.listenDialogBundle(0, index))
+                                    dropdownItemIndex.value = null
+                                },
+                                onPin = {
+                                    dialogsState.activateDialog(Dialog.PIN , ListenDialogBundleKeys.listenDialogBundle(0, index))
+                                    dropdownItemIndex.value = null
+                                },
+                                onOpenInMusicBrainz = {
+                                    try {
+                                        uriHandler.openUri("https://musicbrainz.org/recording/${metadata.trackMetadata?.mbidMapping?.recordingMbid}")
+                                    }
+                                    catch(e : Error) {
+                                        scope.launch {
+                                            snackbarState.showSnackbar(context.getString(R.string.err_generic_toast))
+                                        }
+                                    }
+                                    dropdownItemIndex.value = null
+                                }
+
+                            )
+                        },
+                        enableDropdownIcon = true,
+                        onDropdownIconClick = {
+                            dropdownItemIndex.value = index
+                        }
+                    ) {
+                        playListen(listen.trackMetadata)
+                    }
+                }
+                item {
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                        TextButton(onClick = {
+                                             recentListensCollapsibleState.value = !recentListensCollapsibleState.value
+                        }, modifier = Modifier.border(border = BorderStroke(1.dp,
+                            app_bg_mid), shape = RoundedCornerShape(7.dp)
+                        )) {
+                            Text(when(recentListensCollapsibleState.value){
+                                                                          true -> "Load More"
+                                false -> "Load Less"
+                                                                          }, color = app_bg_mid, style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+
+                }
+                if(!uiState.isSelf){
+                    item {
+                        Spacer(modifier = Modifier.height(30.dp))
+                        Text("Your Compatibility", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(start = 16.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
+                        CompatibilityCard(compatibility = uiState.compatibility ?: 0f)
+                    }   
+                }
+
+
             }
         }
+
+
 
         ErrorBar(error = socialUiState.error, onErrorShown = onErrorShown )
         SuccessBar(resId = socialUiState.successMsgId, onMessageShown = onMessageShown, snackbarState = snackbarState)
@@ -296,7 +312,7 @@ fun ListensScreen(
             },
             currentDialog = dialogsState.currentDialog,
             currentIndex = dialogsState.metadata?.getInt(ListenDialogBundleKeys.EVENT_INDEX.name),
-            listens = uiState.listens,
+            listens = uiState.recentListens ?: listOf(),
             onPin = {metadata, blurbContent ->  onPin(metadata, blurbContent)},
             searchUsers = { query -> searchUsers(query) },
             feedUiState = feedUiState,
@@ -304,19 +320,7 @@ fun ListensScreen(
             onReview = {type, blurbContent, rating, locale, metadata -> onReview(type, blurbContent, rating, locale, metadata) },
             onPersonallyRecommend = {metadata, users, blurbContent -> onPersonallyRecommend(metadata, users, blurbContent)},
             snackbarState = snackbarState,
-            socialUiState = socialUiState
-        )
-        
-        // Loading Animation
-        AnimatedVisibility(
-            visible = uiState.isLoading,
-            modifier = Modifier.align(Alignment.Center),
-            enter = fadeIn(initialAlpha = 0.4f),
-            exit = fadeOut(animationSpec = tween(durationMillis = 250))
-        ) {
-            LoadingAnimation()
-        }
-    }
+            socialUiState = socialUiState)
 }
 
 @Composable
@@ -385,6 +389,43 @@ private fun Dialogs(
     }
 }
 
+@Composable
+private fun SongsListened(username: String? , listenCount: Int?){
+    Column (horizontalAlignment = Alignment.CenterHorizontally) {
+        Spacer(modifier = Modifier.height(30.dp))
+        Text("$username has listened to", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+        Spacer(modifier = Modifier.height(10.dp))
+        HorizontalDivider(color = app_bg_dark, modifier = Modifier.padding(start = 60.dp, end = 60.dp))
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(listenCount.toString(), color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),  textAlign = TextAlign.Center)
+        Text("songs so far", color = app_bg_mid, style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
+    }
+
+}
+
+@Composable
+private fun FollowersInformation(followersCount: Int?, followingCount: Int?){
+    Spacer(modifier = Modifier.height(30.dp))
+    Row (horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
+        Column (horizontalAlignment = Alignment.CenterHorizontally) {
+            Text((followersCount ?:0).toString(), style = MaterialTheme.typography.bodyLarge, color = Color.White)
+            Text("Followers", style = MaterialTheme.typography.bodyLarge, color = Color.White)
+        }
+        Column (horizontalAlignment = Alignment.CenterHorizontally) {
+            Text((followingCount ?: 0).toString(), style = MaterialTheme.typography.bodyLarge, color = Color.White)
+            Text("Following", style = MaterialTheme.typography.bodyLarge, color = Color.White)
+        }
+    }
+}
+
+@Composable
+fun CompatibilityCard(compatibility: Float){
+    LinearProgressIndicator(progress = {
+        compatibility
+    })
+}
+
+
 @Preview
 @Composable
 fun ListensScreenPreview() {
@@ -392,7 +433,7 @@ fun ListensScreenPreview() {
         onScrollToTop = {},
         scrollRequestState = false,
         updateNotificationServicePermissionStatus = {},
-        uiState = ListensUiState(),
+        uiState = ListensTabUiState(),
         feedUiState = FeedUiState(),
         preferencesUiState = PreferencesUiState(),
         validateUserToken = { true },
@@ -408,6 +449,7 @@ fun ListensScreenPreview() {
         onReview = {_,_,_,_,_ ->},
         onPersonallyRecommend = {_,_,_ ->},
         dropdownItemIndex = remember { mutableStateOf(null) },
-        snackbarState = remember { SnackbarHostState() }
+        snackbarState = remember { SnackbarHostState() },
+        username = "pranavkonidena"
     )
 }

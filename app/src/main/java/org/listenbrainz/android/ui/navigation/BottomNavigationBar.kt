@@ -84,23 +84,28 @@ fun BottomNavigationBar(
                         backdropScaffoldState.reveal()
 
                         when (item.route) {
-                            AppNavigationItem.Profile.route -> navController.navigate("profile/${username}"){
-                                // Avoid building large backstack
-                                popUpTo(AppNavigationItem.Feed.route){
-                                    saveState = true
-                                }
-                                // Avoid copies
-                                launchSingleTop = true
-                                // Restore previous state
-                                restoreState = true
-                            }
-                                else -> navController.navigate(item.route){
+                            AppNavigationItem.Profile.route -> {
+                                navController.navigate("profile/${username}"){
                                     // Avoid building large backstack
                                     popUpTo(AppNavigationItem.Feed.route){
                                         saveState = true
                                     }
                                     // Avoid copies
                                     launchSingleTop = true
+                                    // Restore previous state
+                                    restoreState = true
+                                }
+                            }
+                            AppNavigationItem.Feed.route -> {
+                                navController.navigate(AppNavigationItem.Feed.route)
+                            }
+                            else -> navController.navigate(item.route){
+                                    // Avoid building large backstack
+                                    popUpTo(AppNavigationItem.Feed.route){
+                                        saveState = true
+                                    }
+                                    // Avoid copies
+                                    launchSingleTop = false
                                     // Restore previous state
                                     restoreState = true
                                 }

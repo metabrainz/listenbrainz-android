@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.di.IoDispatcher
+import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.social.SocialRepository
@@ -26,10 +27,10 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     val appPreferences: AppPreferences,
-    val userRepository: UserRepository,
+    private val userRepository: UserRepository,
     val listensRepository: ListensRepository,
     val socketRepository: SocketRepository,
-    val socialRepository: SocialRepository,
+    private val socialRepository: SocialRepository,
     private val savedStateHandle: SavedStateHandle,
     @IoDispatcher ioDispatcher: CoroutineDispatcher
 ) : BaseViewModel<ProfileUiState>() {
@@ -37,7 +38,6 @@ class ProfileViewModel @Inject constructor(
     private val _loginStatusFlow: MutableStateFlow<Int> = MutableStateFlow(STATUS_LOGGED_OUT)
     val loginStatusFlow: StateFlow<Int> = _loginStatusFlow.asStateFlow()
     private val listenStateFlow : MutableStateFlow<ListensTabUiState> = MutableStateFlow(ListensTabUiState())
-    private var username : String? = savedStateHandle.get<String>("username")
     init {
         viewModelScope.launch(ioDispatcher) {
             appPreferences.getLoginStatusFlow()
@@ -46,25 +46,39 @@ class ProfileViewModel @Inject constructor(
                     _loginStatusFlow.emit(it)
                 }
         }
-        viewModelScope.launch {
-            getUserListensData()
-        }
     }
 
 
-    private suspend fun getUserListensData() {
-        if(username == null){
-            username = appPreferences.username.get()
+    suspend fun getUserListensData(inputUsername: String?) {
+        val username = inputUsername ?: appPreferences.username.get()
+        var isLoggedInUser = false
+        if(inputUsername != null){
+            isLoggedInUser = inputUsername == appPreferences.username.get()
         }
         val listenCount = userRepository.fetchUserListenCount(username).data?.payload?.count
+        val listens: List<Listen>? = listensRepository.fetchUserListens(username).data?.payload?.listens
         val followers = socialRepository.getFollowers(username).data?.followers
         val followersCount = followers?.size
-
+        val similarUsers = socialRepository.getSimilarUsers(username).data?.payload
+        val currentPins = userRepository.fetchUserCurrentPins(username).data
+        val compatibility = if (username != appPreferences.username.get())
+            userRepository.fetchUserSimilarity(
+                appPreferences.username.get(),
+                username
+            ).data?.userSimilarity?.similarity
+        else 0f
         val listensTabState = ListensTabUiState(
+            isLoading = false,
+            isSelf = isLoggedInUser,
             listenCount = listenCount,
             followersCount = followersCount,
-            followers = followers
+            followers = followers,
+            recentListens = listens,
+            compatibility = compatibility,
+            similarUsers = similarUsers,
+            pinnedSong = currentPins
         )
+
         listenStateFlow.emit(listensTabState)
 
     }

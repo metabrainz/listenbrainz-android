@@ -45,7 +45,8 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
-    snackbarState : SnackbarHostState
+    username: String?,
+    snackbarState: SnackbarHostState
 ) {
     val scrollState = rememberScrollState()
     val uiState = viewModel.uiState.collectAsState()
@@ -60,10 +61,15 @@ fun ProfileScreen(
 
     when(loginStatus) {
         STATUS_LOGGED_IN -> {
-            Column {
-                Text(uiState.value.listensTabUiState?.listenCount.toString() , color = Color.White)
-                Text(uiState.value.listensTabUiState?.followersCount.toString() , color = Color.White)
+            LaunchedEffect(Unit) {
+                viewModel.getUserListensData(username)
             }
+
+            BaseProfileScreen(
+                username = username,
+                snackbarState = snackbarState,
+                uiState = uiState.value
+            )
 
         }
         else -> {

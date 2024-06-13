@@ -22,8 +22,8 @@ import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.socket.SocketRepository
-import org.listenbrainz.android.ui.screens.listens.ListeningNowUiState
-import org.listenbrainz.android.ui.screens.listens.ListensUiState
+import org.listenbrainz.android.ui.screens.profile.listens.ListeningNowUiState
+import org.listenbrainz.android.ui.screens.profile.listens.ListensUiState
 import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.android.util.Resource.Status.FAILED

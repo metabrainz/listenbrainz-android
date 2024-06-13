@@ -164,7 +164,6 @@ fun BrainzPlayerHomeScreen(
 //                        0L
 //                    )
 //                    brainzPlayerViewModel.playOrToggleSong(song,true)
-//                    Log.v("pranav",song.title)
                 }
             )
             2 -> ArtistsOverviewScreen(

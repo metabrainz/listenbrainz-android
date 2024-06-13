@@ -27,13 +27,15 @@ fun ListenLikeFeedLayout(
     onPin: () -> Unit,
     onRecommend: () -> Unit,
     onPersonallyRecommend: () -> Unit,
-    onReview: () -> Unit
+    onReview: () -> Unit,
+    goToUserPage: (String?) -> Unit
 ) {
     BaseFeedLayout(
         eventType = FeedEventType.LIKE,
         event = event,
         parentUser = parentUser,
         onDeleteOrHide = onDeleteOrHide,
+        goToUserPage = goToUserPage
     ) {
         ListenCardSmall(
             trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
@@ -87,7 +89,8 @@ private fun ListenLikeFeedLayoutPreview() {
                 onPin = {},
                 onRecommend = {},
                 onPersonallyRecommend = {},
-                onReview = {}
+                onReview = {},
+                goToUserPage = {}
             )
         }
     }

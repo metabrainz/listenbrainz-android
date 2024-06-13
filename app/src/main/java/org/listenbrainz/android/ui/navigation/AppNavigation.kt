@@ -31,7 +31,19 @@ fun AppNavigation(
         startDestination = AppNavigationItem.Feed.route
     ){
         composable(route = AppNavigationItem.Feed.route){
-            FeedScreen(scrollToTopState = scrollRequestState, onScrollToTop = onScrollToTop)
+            FeedScreen(scrollToTopState = scrollRequestState, onScrollToTop = onScrollToTop, goToUserPage = {username : String? ->
+                if(username != null) {
+                navController.navigate("${AppNavigationItem.Profile.route}/$username"){
+                    // Avoid building large backstack
+                    popUpTo(AppNavigationItem.Feed.route){
+                        saveState = true
+                    }
+                    // Avoid copies
+                    launchSingleTop = true
+                    // Restore previous state
+                    restoreState = true
+                }
+            } })
         }
         composable(route = AppNavigationItem.BrainzPlayer.route){
             BrainzPlayerScreen()
@@ -39,15 +51,17 @@ fun AppNavigation(
         composable(route = AppNavigationItem.Explore.route){
             ExploreScreen()
         }
-        composable(route = "${AppNavigationItem.Profile.route}/{username}" , arguments = listOf(
+        composable(route = "${AppNavigationItem.Profile.route}/{username}", arguments = listOf(
             navArgument("username"){
                 type = NavType.StringType
             }
-        )
-        ){
+        ))
+        {
+            val username = it.arguments?.getString("username")
             ProfileScreen(
                 onScrollToTop = onScrollToTop,
                 scrollRequestState = scrollRequestState,
+                username = username,
                 snackbarState = snackbarState
             )
         }

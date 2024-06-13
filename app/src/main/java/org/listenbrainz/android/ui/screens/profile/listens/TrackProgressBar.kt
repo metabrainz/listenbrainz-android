@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.listens
+package org.listenbrainz.android.ui.screens.profile.listens
 
 import android.os.Handler
 import android.widget.SeekBar

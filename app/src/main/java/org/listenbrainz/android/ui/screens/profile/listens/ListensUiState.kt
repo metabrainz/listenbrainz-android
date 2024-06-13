@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.listens
+package org.listenbrainz.android.ui.screens.profile.listens
 
 import com.spotify.protocol.types.PlayerState
 import org.listenbrainz.android.model.Listen

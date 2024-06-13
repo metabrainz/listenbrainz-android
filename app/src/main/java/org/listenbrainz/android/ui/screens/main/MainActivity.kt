@@ -212,7 +212,12 @@ class MainActivity : ComponentActivity() {
                     AppNavigationItem.BrainzPlayer.route -> BrainzPlayerSearchScreen(isActive = brainzplayerSearchBarState.isActive , deactivate = {brainzplayerSearchBarState.deactivate()} , brainzplayerQueryState = brainzplayerSearchTextState)
                     else -> SearchScreen(
                         isActive = searchBarState.isActive,
-                        deactivate = {searchBarState.deactivate()}
+                        deactivate = {searchBarState.deactivate()},
+                        goToUserPage = {
+                            username ->
+                            searchBarState.deactivate()
+                            navController.navigate("${AppNavigationItem.Profile.route}/$username")
+                        }
                     )
                 }
 

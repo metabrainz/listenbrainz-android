@@ -4,9 +4,9 @@ import android.content.res.Configuration
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventType
-import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
@@ -16,13 +16,15 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 fun NotificationFeedLayout(
     event: FeedEvent,
     onDeleteOrHide: () -> Unit,
+    goToUserPage: (String?) -> Unit,
 ) {
     BaseFeedLayout(
         eventType = FeedEventType.NOTIFICATION,
         event = event,
         parentUser = "",
         onDeleteOrHide = onDeleteOrHide,
-        content = {}
+        content = {},
+        goToUserPage = goToUserPage
     )
 }
 
@@ -41,7 +43,8 @@ private fun NotificationFeedLayoutPreview() {
                     metadata = Metadata(),
                     username = "Jasjeet"
                 ),
-                onDeleteOrHide = {}
+                onDeleteOrHide = {},
+                goToUserPage = {}
             )
         }
     }
