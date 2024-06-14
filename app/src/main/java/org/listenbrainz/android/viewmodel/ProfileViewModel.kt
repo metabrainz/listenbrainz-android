@@ -48,6 +48,23 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    suspend fun getSimilarArtists(username: String?) : List<String> {
+        val currentUsername = appPreferences.username.get()
+        val currentUserTopArtists = userRepository.getTopArtists(currentUsername)
+        val userTopArtists = userRepository.getTopArtists(username)
+        val similarArtists = mutableListOf<String>()
+        currentUserTopArtists.data?.payload?.artists?.map {
+            currentUserTopArtist ->
+            userTopArtists.data?.payload?.artists?.map{
+                userTopArtist ->
+                if(currentUserTopArtist.artist_name == userTopArtist.artist_name){
+                    similarArtists.add(currentUserTopArtist.artist_name)
+                }
+            }
+        }
+        return similarArtists.distinct()
+    }
+
 
     suspend fun getUserListensData(inputUsername: String?) {
         val username = inputUsername ?: appPreferences.username.get()
@@ -67,6 +84,7 @@ class ProfileViewModel @Inject constructor(
                 username
             ).data?.userSimilarity?.similarity
         else 0f
+        val similarArtists = getSimilarArtists(username)
         val listensTabState = ListensTabUiState(
             isLoading = false,
             isSelf = isLoggedInUser,
@@ -76,7 +94,8 @@ class ProfileViewModel @Inject constructor(
             recentListens = listens,
             compatibility = compatibility,
             similarUsers = similarUsers,
-            pinnedSong = currentPins
+            pinnedSong = currentPins,
+            similarArtists = similarArtists
         )
 
         listenStateFlow.emit(listensTabState)

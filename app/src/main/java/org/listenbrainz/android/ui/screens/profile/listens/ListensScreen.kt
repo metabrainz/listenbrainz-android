@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -34,10 +35,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -64,6 +69,8 @@ import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.app_bg_dark
 import org.listenbrainz.android.ui.theme.app_bg_mid
+import org.listenbrainz.android.ui.theme.compatibilityMeterColor
+import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
@@ -293,10 +300,19 @@ fun ListensScreen(
                         Spacer(modifier = Modifier.height(30.dp))
                         Text("Your Compatibility", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(start = 16.dp))
                         Spacer(modifier = Modifier.height(10.dp))
-                        CompatibilityCard(compatibility = uiState.compatibility ?: 0f)
+                        CompatibilityCard(compatibility = uiState.compatibility ?: 0f, uiState.similarArtists)
                     }   
                 }
 
+                item {
+                    Spacer(modifier = Modifier.height(30.dp))
+                    FollowersCard(
+                        followersCount = uiState.followersCount,
+                        followingCount = uiState.followingCount,
+                        followers = uiState.followers ?: emptyList(),
+                        following = uiState.following ?: emptyList()
+                    )
+                }
 
             }
         }
@@ -321,6 +337,45 @@ fun ListensScreen(
             onPersonallyRecommend = {metadata, users, blurbContent -> onPersonallyRecommend(metadata, users, blurbContent)},
             snackbarState = snackbarState,
             socialUiState = socialUiState)
+}
+
+@Composable
+private fun buildSimilarArtists(similarArtists: List<String>) {
+    val white = Color.White
+
+    when {
+        similarArtists.size > 5 -> {
+            val topSimilarArtists = similarArtists.take(5)
+            val artists = topSimilarArtists.joinToString(", ")
+            val text = buildAnnotatedString {
+                withStyle(style = SpanStyle(color = white)) {
+                    append("You both listen to ")
+                }
+                withStyle(style = SpanStyle(color = lb_purple_night)) {
+                    append(artists)
+                }
+                withStyle(style = SpanStyle(color = white)) {
+                    append(" and more.")
+                }
+            }
+            Text(text = text, modifier = Modifier.padding(start=16.dp))
+        }
+        similarArtists.isEmpty() -> {
+            Text("You have no common artists", color = white, modifier = Modifier.padding(start=16.dp))
+        }
+        else -> {
+            val artists = similarArtists.joinToString(", ")
+            val text = buildAnnotatedString {
+                withStyle(style = SpanStyle(color = white)) {
+                    append("You both listen to ")
+                }
+                withStyle(style = SpanStyle(color = lb_purple_night)) {
+                    append(artists)
+                }
+            }
+            Text(text = text, modifier = Modifier.padding(start=16.dp))
+        }
+    }
 }
 
 @Composable
@@ -419,10 +474,29 @@ private fun FollowersInformation(followersCount: Int?, followingCount: Int?){
 }
 
 @Composable
-fun CompatibilityCard(compatibility: Float){
-    LinearProgressIndicator(progress = {
-        compatibility
-    })
+fun CompatibilityCard(compatibility: Float, similarArtists: List<String>){
+    Row (modifier = Modifier.padding(start = 16.dp)) {
+        LinearProgressIndicator(progress = {
+            compatibility
+        }, color = compatibilityMeterColor, modifier = Modifier
+            .height(17.dp)
+            .fillMaxWidth(0.7f), strokeCap = StrokeCap.Round, trackColor = Color(0xFF1C1C1C))
+        Spacer(modifier = Modifier.width(9.dp))
+        Text("${(compatibility*100).toInt()} %", color = app_bg_mid, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+    }
+    Spacer(modifier = Modifier.height(10.dp))
+    buildSimilarArtists(similarArtists = similarArtists)
+}
+
+@Composable
+private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers: List<String>, following: List<String>){
+    Column (modifier = Modifier.padding(start=16.dp)) {
+        Text("Followers", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+        Row {
+
+        }
+    }
+
 }
 
 

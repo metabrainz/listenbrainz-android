@@ -2,6 +2,7 @@ package org.listenbrainz.android.service
 
 import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.PinnedRecording
+import org.listenbrainz.android.model.user.TopArtists
 import org.listenbrainz.android.model.user.UserSimilarityPayload
 import retrofit2.Response
 import retrofit2.http.GET
@@ -16,4 +17,7 @@ interface UserService {
 
     @GET("{user_name}/pins/current")
     suspend fun getUserCurrentPins(@Path("user_name") username: String?) : Response<PinnedRecording?>
+
+    @GET("stats/user/{user_name}/artists?count=100")
+    suspend fun getTopArtistsOfUser(@Path("user_name") username: String?) : Response<TopArtists>
 }

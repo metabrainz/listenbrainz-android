@@ -27,6 +27,7 @@ val app_bottom_nav_day = Color(0xFFFFFFFF)
 val lb_orange = Color(0xFFEA743B)
 val lb_purple = Color(0xFF353070)
 val lb_yellow = Color(0xFFE59B2E)
+val lb_purple_night = Color(0xFF9AABD1)
 
 val yimYellow = Color(0xFFFECB49)
 val yimRed = Color(0xFFFE0E25)
@@ -42,3 +43,6 @@ val yim23DarkGray = Color(0xFF282423)
 val yim23Red = Color(0xFFBE4A55)
 val yim23Blue = Color(0xFF567276)
 val yim23Grey = Color(0xFF4C4442)
+
+/* User Page Colors */
+val compatibilityMeterColor = Color(0xFFDB7544)

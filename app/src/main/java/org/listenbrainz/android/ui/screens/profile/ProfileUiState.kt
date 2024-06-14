@@ -23,7 +23,8 @@ data class ListensTabUiState (
     val recentListens: List<Listen>? = emptyList(),
     val followers: List<String>? = emptyList(),
     val following: List<String>? = emptyList(),
-    val similarUsers: List<SimilarUser>? = emptyList()
+    val similarUsers: List<SimilarUser>? = emptyList(),
+    val similarArtists: List<String> = emptyList()
 )
 
 data class ListeningNowUiState(
