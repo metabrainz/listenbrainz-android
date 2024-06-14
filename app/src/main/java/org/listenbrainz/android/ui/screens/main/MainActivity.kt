@@ -15,6 +15,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,7 +24,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -49,7 +49,7 @@ import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    
+
     private lateinit var dashBoardViewModel: DashBoardViewModel
 
     @OptIn(ExperimentalMaterialApi::class)
@@ -63,22 +63,22 @@ class MainActivity : ComponentActivity() {
                 // TODO: Since this view-model will remain throughout the lifecycle of the app,
                 //  we can have tasks which require such lifecycle access or longevity. We can get this view-model's
                 //  instance anywhere when we initialize it as a hilt view-model.
-    
+
                 dashBoardViewModel.setUiMode()
                 dashBoardViewModel.beginOnboarding(this)
                 dashBoardViewModel.updatePermissionPreference()
-                
-                LifecycleStartEffect {
+
+                DisposableEffect(Unit) {
                     dashBoardViewModel.connectToSpotify()
-                    onStopOrDispose {
+                    onDispose {
                         dashBoardViewModel.disconnectSpotify()
                     }
                 }
-                
+
                 var isGrantedPerms: String? by remember {
                     mutableStateOf(null)
                 }
-                
+
                 LaunchedEffect(Unit) {
                     isGrantedPerms = dashBoardViewModel.getPermissionsPreference()
                 }
@@ -107,7 +107,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                LaunchedEffect(Unit) {
+                LaunchedEffect(isGrantedPerms) {
                     if (isGrantedPerms == PermissionStatus.NOT_REQUESTED.name) {
                         launcher.launch(dashBoardViewModel.neededPermissions)
                     }
@@ -141,7 +141,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
- 
+
                 val navController = rememberNavController()
                 val backdropScaffoldState =
                     rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
@@ -179,11 +179,11 @@ class MainActivity : ComponentActivity() {
                     },
                     containerColor = MaterialTheme.colorScheme.background,
                     contentWindowInsets = WindowInsets.captionBar
-                
+
                 ) {
-                    
+
                     if (isGrantedPerms == PermissionStatus.GRANTED.name) {
-                        
+
                         BrainzPlayerBackDropScreen(
                             backdropScaffoldState = backdropScaffoldState,
                             paddingValues = it,
@@ -221,7 +221,7 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
-                
+
             }
         }
     }

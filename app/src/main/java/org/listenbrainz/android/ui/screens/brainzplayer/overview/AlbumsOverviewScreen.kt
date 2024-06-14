@@ -1,7 +1,9 @@
-package org.listenbrainz.android.ui.screens.brainzplayer
+package org.listenbrainz.android.ui.screens.brainzplayer.overview
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -14,33 +16,33 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.ui.components.BrainzPlayerListenCard
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @Composable
-fun SongsOverviewScreen(
-    songs: List<Song>,
-    onPlayIconClick: (Song, List<Song>) -> Unit,
+fun AlbumsOverViewScreen(
+    albums : List<Album>,
+    onPlayIconClick: (Album) -> Unit
 ) {
-    val songsStarting : MutableMap<Char, MutableList<Song>> = mutableMapOf()
+    val albumsStarting: MutableMap<Char, MutableList<Album>> = mutableMapOf()
     for (i in 0..25) {
-        songsStarting['A' + i] = mutableListOf()
+        albumsStarting['A' + i] = mutableListOf()
     }
 
-    for (i in 1..songs.size) {
-        songsStarting[songs[i - 1].title[0]]?.add(songs[i-1])
+    for (i in 1..albums.size) {
+        albumsStarting[albums[i - 1].title[0]]?.add(albums[i-1])
     }
 
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         for (i in 0..25) {
             val startingLetter: Char = ('A' + i)
-            if (songsStarting[startingLetter]!!.size > 0) {
-                Column(
-                    modifier = Modifier.background(
+            if (albumsStarting[startingLetter]!!.size > 0) {
+                Column(modifier = Modifier
+                    .background(
                         brush = ListenBrainzTheme.colorScheme.gradientBrush
-                    ).padding(top = 15.dp, bottom = 15.dp)
-                ) {
+                    )
+                    .padding(top = 15.dp, bottom = 15.dp)) {
                     Text(
                         startingLetter.toString(),
                         modifier = Modifier.padding(start = 10.dp, top = 10.dp, bottom = 5.dp),
@@ -50,13 +52,17 @@ fun SongsOverviewScreen(
                             fontFamily = FontFamily(Font(R.font.roboto_bold)),
                         )
                     )
-                    for (j in 1..songsStarting[startingLetter]!!.size) {
-                        val song: Song = songsStarting[startingLetter]!![j-1]
-                        var coverArt: String? = null
-                        coverArt = songsStarting[startingLetter]!![j - 1].albumArt
-                        BrainzPlayerListenCard(title = songsStarting[startingLetter]!![j - 1].title, subTitle = songsStarting[startingLetter]!![j - 1].artist, coverArtUrl = coverArt){
-                            onPlayIconClick(song,songsStarting[startingLetter]!!)
-                        }
+                    for (j in 1..albumsStarting[startingLetter]!!.size) {
+                        val coverArt = albumsStarting[startingLetter]!![j - 1].albumArt
+                        BrainzPlayerListenCard(title = albumsStarting[startingLetter]!![j - 1].title, subTitle = albumsStarting[startingLetter]!![j - 1].artist, coverArtUrl = coverArt,modifier = Modifier.padding(
+                            start = 10.dp,
+                            end = 10.dp,
+                            top = 3.dp,
+                            bottom = 3.dp
+                        ), onPlayIconClick = {
+                            onPlayIconClick(albumsStarting[startingLetter]!![j-1])
+                        })
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
                 }
             }
