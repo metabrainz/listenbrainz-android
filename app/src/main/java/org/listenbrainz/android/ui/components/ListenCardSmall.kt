@@ -55,11 +55,10 @@ fun ListenCardSmall(
     enableDropdownIcon: Boolean = false,
     onDropdownIconClick: () -> Unit = {},
     dropDown: @Composable () -> Unit = {},
-    dropDownState: Boolean = false,
     enableTrailingContent: Boolean = false,
     trailingContent: @Composable (modifier: Modifier) -> Unit = {},
     enableBlurbContent: Boolean = false,
-    blurbContent: @Composable ColumnScope.(modifier: Modifier) -> Unit = {},
+    blurbContent: @Composable (ColumnScope.(modifier: Modifier) -> Unit) = {},
     onClick: () -> Unit,
 ) {
     Surface(
@@ -111,7 +110,7 @@ fun ListenCardSmall(
                     // Trailing content
                     if (enableTrailingContent) {
                         trailingContent(
-                            modifier = Modifier
+                            Modifier
                                 .fillMaxWidth(trailingContentFraction)
                                 .align(Alignment.CenterStart)
                                 .padding(end = 6.dp)
@@ -137,7 +136,7 @@ fun ListenCardSmall(
             
             if (enableBlurbContent) {
                 Divider()
-                blurbContent(modifier = Modifier.padding(ListenBrainzTheme.paddings.insideCard))
+                blurbContent(Modifier.padding(ListenBrainzTheme.paddings.insideCard))
             }
         }
     }
@@ -217,14 +216,14 @@ private fun ListenCardSmallPreview() {
             trackName = "Title",
             artistName = "Artist",
             coverArtUrl = "",
-            enableTrailingContent = true,
-            enableBlurbContent = true,
             enableDropdownIcon = true,
+            enableTrailingContent = true,
             trailingContent = { modifier ->
                 Column(modifier = modifier) {
                     TitleAndSubtitle(title = "Userrrrrrrrrrrrrr", subtitle = "60%")
                 }
             },
+            enableBlurbContent = true,
             blurbContent = {
                 Column(modifier = it) {
                     Text(text = "Blurb Content", color = ListenBrainzTheme.colorScheme.text)
@@ -243,14 +242,14 @@ private fun ListenCardSmallNoBlurbContentPreview() {
             trackName = "Title",
             artistName = "Artist",
             coverArtUrl = "",
-            enableTrailingContent = true,
-            enableBlurbContent = false,
             enableDropdownIcon = true,
+            enableTrailingContent = true,
             trailingContent = { modifier ->
                 Column(modifier = modifier) {
                     TitleAndSubtitle(title = "Userrrrrrrrrrrrrr", subtitle = "60%")
                 }
-            }
+            },
+            enableBlurbContent = false
         ) {}
     }
 }
@@ -264,9 +263,9 @@ private fun ListenCardSmallSimplePreview() {
             trackName = "Title",
             artistName = "Artist",
             coverArtUrl = "",
+            enableDropdownIcon = true,
             enableTrailingContent = false,
-            enableBlurbContent = false,
-            enableDropdownIcon = true
+            enableBlurbContent = false
         ) {}
     }
 }

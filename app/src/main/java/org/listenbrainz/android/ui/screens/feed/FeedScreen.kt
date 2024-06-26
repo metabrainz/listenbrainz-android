@@ -534,20 +534,6 @@ fun FollowListens(
                             caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
                         ),
                     enableDropdownIcon = true,
-                    enableTrailingContent = true,
-                    trailingContent = { modifier ->
-                        Column(modifier, horizontalAlignment = Alignment.End) {
-                            TitleAndSubtitle(
-                                title = event.username ?: "Unknown",
-                                titleColor = ListenBrainzTheme.colorScheme.lbSignature
-                            )
-                            Date(
-                                event = event,
-                                parentUser = parentUser,
-                                eventType = eventType
-                            )
-                        }
-                    },
                     onDropdownIconClick = {
                         dropdownItemIndex.value = if (dropdownItemIndex.value == null) index else null
                     },
@@ -578,6 +564,20 @@ fun FollowListens(
                                 uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@SocialDropdown}")
                             }
                         )
+                    },
+                    enableTrailingContent = true,
+                    trailingContent = { modifier ->
+                        Column(modifier, horizontalAlignment = Alignment.End) {
+                            TitleAndSubtitle(
+                                title = event.username ?: "Unknown",
+                                titleColor = ListenBrainzTheme.colorScheme.lbSignature
+                            )
+                            Date(
+                                event = event,
+                                parentUser = parentUser,
+                                eventType = eventType
+                            )
+                        }
                     }
                 ) {
                     onPlay(event)
@@ -634,28 +634,6 @@ fun SimilarListens(
                             caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
                         ),
                     enableDropdownIcon = true,
-                    enableTrailingContent = true,
-                    trailingContent = { modifier ->
-                        /*TitleAndSubtitle(
-                            modifier = modifier,
-                            title = event.username ?: "Unknown",
-                            subtitle = similarityToPercent(event.similarity),
-                            alignment = Alignment.End,
-                            titleColor = ListenBrainzTheme.colorScheme.lbSignature,
-                            subtitleColor = ListenBrainzTheme.colorScheme.lbSignatureInverse
-                        )*/
-                        Column(modifier, horizontalAlignment = Alignment.End) {
-                            TitleAndSubtitle(
-                                title = event.username ?: "Unknown",
-                                titleColor = ListenBrainzTheme.colorScheme.lbSignature
-                            )
-                            Date(
-                                event = event,
-                                parentUser = parentUser,
-                                eventType = eventType
-                            )
-                        }
-                    },
                     onDropdownIconClick = {
                         dropdownItemIndex.value = if (dropdownItemIndex.value == null){
                              index
@@ -688,6 +666,28 @@ fun SimilarListens(
                                 uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@SocialDropdown}")
                             }
                         )
+                    },
+                    enableTrailingContent = true,
+                    trailingContent = { modifier ->
+                        /*TitleAndSubtitle(
+                            modifier = modifier,
+                            title = event.username ?: "Unknown",
+                            subtitle = similarityToPercent(event.similarity),
+                            alignment = Alignment.End,
+                            titleColor = ListenBrainzTheme.colorScheme.lbSignature,
+                            subtitleColor = ListenBrainzTheme.colorScheme.lbSignatureInverse
+                        )*/
+                        Column(modifier, horizontalAlignment = Alignment.End) {
+                            TitleAndSubtitle(
+                                title = event.username ?: "Unknown",
+                                titleColor = ListenBrainzTheme.colorScheme.lbSignature
+                            )
+                            Date(
+                                event = event,
+                                parentUser = parentUser,
+                                eventType = eventType
+                            )
+                        }
                     }
                 ) {
                     onPlay(event)

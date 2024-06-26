@@ -73,35 +73,34 @@ fun PersonalRecommendationFeedLayout(
                 )
             },
             enableBlurbContent = true,
-            onClick = onClick,
             blurbContent = { modifier ->
                 Column(modifier = modifier) {
-                    
+
                     // Only show "Sent to:" text if user is the one who personally recommended.
                     if (FeedEventType.isUserSelf(event, parentUser)){
-                        
+
                         Row(
                             modifier = Modifier.padding(bottom = 6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            
+
                             Text(
                                 text = "Sent to:",
                                 style = ListenBrainzTheme.textStyles.feedBlurbContent,
                                 color = ListenBrainzTheme.colorScheme.text
                             )
-                            
+
                             LazyRow {
-                                
+
                                 items(items = event.metadata.usersList ?: emptyList()) { user ->
                                     Spacer(modifier = Modifier.width(6.dp))
-    
+
                                     UserTag(user)
                                 }
                             }
                         }
                     }
-    
+
                     event.blurbContent?.let {
                         Text(
                             text = it,
@@ -110,7 +109,8 @@ fun PersonalRecommendationFeedLayout(
                         )
                     }
                 }
-            }
+            },
+            onClick = onClick
         )
         
     }

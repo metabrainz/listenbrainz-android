@@ -265,6 +265,10 @@ fun ListensScreen(
                             caaReleaseMbid = listen.trackMetadata.mbidMapping?.caaReleaseMbid,
                             caaId = listen.trackMetadata.mbidMapping?.caaId
                         ),
+                        enableDropdownIcon = true,
+                        onDropdownIconClick = {
+                            dropdownItemIndex.value = index
+                        },
                         dropDown = {
                             SocialDropdown(
                                 isExpanded = dropdownItemIndex.value == index,
@@ -298,10 +302,6 @@ fun ListensScreen(
                                 }
 
                             )
-                        },
-                        enableDropdownIcon = true,
-                        onDropdownIconClick = {
-                            dropdownItemIndex.value = index
                         }
                     ) {
                         playListen(listen.trackMetadata)

@@ -192,11 +192,11 @@ fun ListeningAppsListPreview(){
                 override fun setColorFilter(colorFilter: ColorFilter?) {
                     TODO("Not yet implemented")
                 }
-    
+
                 override fun getOpacity(): Int {
                     TODO("Not yet implemented")
                 }
-    
+
             } },
         { "Package Label" },
         {}
