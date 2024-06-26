@@ -38,7 +38,7 @@ fun TopBar(
             AppNavigationItem.Feed.route -> AppNavigationItem.Feed.title
             AppNavigationItem.BrainzPlayer.route -> AppNavigationItem.BrainzPlayer.title
             AppNavigationItem.Explore.route -> AppNavigationItem.Explore.title
-            AppNavigationItem.Profile.route -> AppNavigationItem.Profile.title
+            "${AppNavigationItem.Profile.route}/{username}" -> AppNavigationItem.Profile.title
             AppNavigationItem.Settings.route -> AppNavigationItem.Settings.title
             AppNavigationItem.About.route -> AppNavigationItem.About.title
             else -> ""

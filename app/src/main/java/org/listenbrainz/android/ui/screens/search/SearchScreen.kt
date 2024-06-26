@@ -64,6 +64,7 @@ import org.listenbrainz.android.viewmodel.SearchViewModel
 fun SearchScreen(
     isActive: Boolean,
     viewModel: SearchViewModel = hiltViewModel(),
+    goToUserPage: (String) -> Unit,
     deactivate: () -> Unit
 ) {
     AnimatedVisibility(
@@ -85,6 +86,7 @@ fun SearchScreen(
             },
             onClear = { viewModel.clearUi() },
             onErrorShown = { viewModel.clearErrorFlow() },
+            goToUserPage = goToUserPage
         )
         
     }
@@ -105,6 +107,7 @@ private fun SearchScreen(
     },
     onErrorShown: () -> Unit,
     focusRequester: FocusRequester = remember { FocusRequester() },
+    goToUserPage: (String) -> Unit,
     window: WindowInfo = LocalWindowInfo.current
 ) {
     // Used for initial window focus.
@@ -180,7 +183,7 @@ private fun SearchScreen(
             ErrorBar(uiState.error, onErrorShown)
             
             // Main Content
-            UserList(uiState, onFollowClick)
+            UserList(uiState, onFollowClick, goToUserPage)
         }
     }
 }
@@ -188,7 +191,8 @@ private fun SearchScreen(
 @Composable
 private fun UserList(
     uiState: SearchUiState,
-    onFollowClick: (User, Int) -> Unit
+    onFollowClick: (User, Int) -> Unit,
+    goToUserPage: (String) -> Unit,
 ) {
     
     LazyColumn(contentPadding = PaddingValues(ListenBrainzTheme.paddings.lazyListAdjacent)) {
@@ -215,7 +219,10 @@ private fun UserList(
                         Text(
                             text = user.username,
                             color = ListenBrainzTheme.colorScheme.text,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.clickable {
+                                goToUserPage(user.username)
+                            }
                         )
                     }
                     
@@ -255,7 +262,8 @@ private fun SearchScreenPreview() {
             onQueryChange = {},
             onFollowClick = { _, _ -> flow { emit(true) }},
             onClear = {},
-            onErrorShown = {}
+            onErrorShown = {},
+            goToUserPage = {}
         )
     }
 }

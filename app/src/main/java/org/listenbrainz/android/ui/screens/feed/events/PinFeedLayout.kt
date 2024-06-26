@@ -30,14 +30,16 @@ fun PinFeedLayout(
     onPin: () -> Unit,
     onRecommend: () -> Unit,
     onPersonallyRecommend: () -> Unit,
-    onReview: () -> Unit
+    onReview: () -> Unit,
+    goToUserPage: (String?) -> Unit,
 ) {
     BaseFeedLayout(
         eventType = FeedEventType.RECORDING_PIN,
         event = event,
         isHidden = isHidden,
         parentUser = parentUser,
-        onDeleteOrHide = onDeleteOrHide
+        onDeleteOrHide = onDeleteOrHide,
+        goToUserPage = goToUserPage,
     ) {
         
         ListenCardSmall(
@@ -106,7 +108,8 @@ fun PinFeedLayoutPreview() {
                 onPin = {},
                 onRecommend = {},
                 onPersonallyRecommend = {},
-                onReview = {}
+                onReview = {},
+                goToUserPage = {},
             )
         }
     }

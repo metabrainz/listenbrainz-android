@@ -4,9 +4,9 @@ import android.content.res.Configuration
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventType
-import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
@@ -19,7 +19,8 @@ fun UnknownFeedLayout(
         event = event,
         parentUser = "",
         onDeleteOrHide = {},
-        content = {}
+        content = {},
+        goToUserPage = {}
     )
 }
 

@@ -27,13 +27,15 @@ fun ListenFeedLayout (
     onPin: () -> Unit,
     onRecommend: () -> Unit,
     onPersonallyRecommend: () -> Unit,
-    onReview: () -> Unit
+    onReview: () -> Unit,
+    goToUserPage: (String?) -> Unit,
 ) {
     BaseFeedLayout(
         eventType = FeedEventType.LISTEN,
         event = event,
         parentUser = parentUser,
-        onDeleteOrHide = onDeleteOrHide
+        onDeleteOrHide = onDeleteOrHide,
+        goToUserPage = goToUserPage
     ) {
         
         ListenCardSmall(
@@ -88,7 +90,8 @@ private fun ListenFeedLayoutPreview() {
                 onPin = {},
                 onRecommend = {},
                 onPersonallyRecommend = {},
-                onReview = {}
+                onReview = {},
+                goToUserPage = {}
             )
         }
     }

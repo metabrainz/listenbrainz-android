@@ -18,6 +18,7 @@ import org.listenbrainz.android.service.BlogService
 import org.listenbrainz.android.service.FeedService
 import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.service.SocialService
+import org.listenbrainz.android.service.UserService
 import org.listenbrainz.android.service.Yim23Service
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.service.YouTubeApiService
@@ -77,6 +78,12 @@ class ServiceModule {
     fun providesFeedService(appPreferences: AppPreferences): FeedService =
         constructRetrofit(appPreferences)
             .create(FeedService::class.java)
+
+    @Singleton
+    @Provides
+    fun providesUserService(appPreferences: AppPreferences) : UserService =
+        constructRetrofit(appPreferences)
+        .create(UserService::class.java)
     
     
     @Singleton

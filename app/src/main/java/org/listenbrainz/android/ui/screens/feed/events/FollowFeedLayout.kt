@@ -4,9 +4,9 @@ import android.content.res.Configuration
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventType
-import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
@@ -14,13 +14,15 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 fun FollowFeedLayout(
     event: FeedEvent,
     parentUser: String,
+    goToUserPage: (String?) -> Unit,
 ) {
     BaseFeedLayout(
         eventType = FeedEventType.FOLLOW,
         event = event,
         parentUser = parentUser,
         onDeleteOrHide = {},
-        content = {}
+        content = {},
+        goToUserPage = goToUserPage
     )
 }
 
@@ -42,7 +44,8 @@ private fun FollowFeedLayoutPreview() {
                     ),
                     username = "Jasjeet"
                 ),
-                parentUser = "Jasjeet"
+                parentUser = "Jasjeet",
+                goToUserPage = {}
             )
         }
     }

@@ -49,13 +49,15 @@ fun ReviewFeedLayout(
     onRecommend: () -> Unit,
     onPersonallyRecommend: () -> Unit,
     onReview: () -> Unit,
+    goToUserPage: (String?) -> Unit,
     uriHandler: UriHandler = LocalUriHandler.current
 ) {
     BaseFeedLayout(
         eventType = FeedEventType.REVIEW,
         event = event,
         parentUser = parentUser,
-        onDeleteOrHide = onDeleteOrHide
+        onDeleteOrHide = onDeleteOrHide,
+        goToUserPage = goToUserPage
     ) {
         
         ListenCardSmall(
@@ -173,7 +175,8 @@ private fun ReviewFeedLayoutPreview() {
                 onPin = {},
                 onRecommend = {},
                 onPersonallyRecommend = {},
-                onReview = {}
+                onReview = {},
+                goToUserPage = {}
             )
         }
     }

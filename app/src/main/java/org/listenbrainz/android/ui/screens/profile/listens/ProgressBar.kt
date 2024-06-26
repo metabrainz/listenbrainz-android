@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.listens
+package org.listenbrainz.android.ui.screens.profile.listens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

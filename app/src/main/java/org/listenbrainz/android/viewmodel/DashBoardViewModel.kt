@@ -12,6 +12,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.di.IoDispatcher
@@ -31,6 +32,8 @@ class DashBoardViewModel @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : AndroidViewModel(application) {
 
+    var username = ""
+    val job =  viewModelScope.launch { username = async {appPreferences.username.get() }.await() }
     // Sets Ui mode for XML layouts.
     fun setUiMode(){
         viewModelScope.launch {
@@ -123,7 +126,8 @@ class DashBoardViewModel @Inject constructor(
                 && appPreferences.isListeningAllowed.get()
         } && appPreferences.lbAccessToken.get().isNotEmpty()
     }
-    
+
+
     fun connectToSpotify() {
         viewModelScope.launch {
             remotePlaybackHandler.connectToSpotify {

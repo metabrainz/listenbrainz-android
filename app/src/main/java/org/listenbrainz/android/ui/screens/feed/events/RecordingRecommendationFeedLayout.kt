@@ -28,14 +28,15 @@ fun RecordingRecommendationFeedLayout(
     onPin: () -> Unit,
     onRecommend: () -> Unit,
     onPersonallyRecommend: () -> Unit,
-    onReview: () -> Unit
+    onReview: () -> Unit,
+    goToUserPage: (String?) -> Unit,
 ) {
     BaseFeedLayout(
         eventType = FeedEventType.RECORDING_RECOMMENDATION,
         event = event,
         isHidden = isHidden,
         parentUser = parentUser,
-        onDeleteOrHide = onDeleteOrHide,) {
+        onDeleteOrHide = onDeleteOrHide, goToUserPage = goToUserPage) {
         ListenCardSmall(
             trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
             artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
@@ -89,7 +90,8 @@ private fun RecordingRecommendationFeedCardPreview() {
                 onPin = {},
                 onRecommend = {},
                 onPersonallyRecommend = {},
-                onReview = {}
+                onReview = {},
+                goToUserPage = {}
             )
         }
     }

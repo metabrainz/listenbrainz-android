@@ -90,7 +90,8 @@ fun FeedScreen(
     viewModel: FeedViewModel = hiltViewModel(),
     socialViewModel: SocialViewModel = hiltViewModel(),
     scrollToTopState: Boolean,
-    onScrollToTop: (suspend () -> Unit) -> Unit
+    onScrollToTop: (suspend () -> Unit) -> Unit,
+    goToUserPage: (String?) -> Unit
 ) {
     
     val uiState by viewModel.uiState.collectAsState()
@@ -121,7 +122,8 @@ fun FeedScreen(
         isCritiqueBrainzLinked = { viewModel.isCritiqueBrainzLinked() },
         onPlay = { event ->
             viewModel.play(event)
-        }
+        },
+        goToUserPage =  goToUserPage
     )
 }
 
@@ -141,6 +143,7 @@ fun FeedScreen(
     searchFollower: (String) -> Unit,
     isCritiqueBrainzLinked: suspend () -> Boolean?,
     onPlay: (event: FeedEvent) -> Unit,
+    goToUserPage: (String?) -> Unit
 ) {
     val myFeedPagingData = uiState.myFeedState.eventList.collectAsLazyPagingItems()
     val myFeedListState = rememberLazyListState()
@@ -241,7 +244,8 @@ fun FeedScreen(
                             FeedDialogBundleKeys.feedDialogBundle(0, index)
                         )
                     },
-                    onPlay = onPlay
+                    onPlay = onPlay,
+                    goToUserPage = goToUserPage
                 )
             
                 1 -> FollowListens(
@@ -405,6 +409,7 @@ private fun MyFeed(
     review: (index: Int) -> Unit,
     pin: (index: Int) -> Unit,
     onPlay: (FeedEvent) -> Unit,
+    goToUserPage: (String?) -> Unit,
     uriHandler: UriHandler = LocalUriHandler.current
 ) {
     // Since, at most one drop down will be active at a time, then we only need to maintain one state variable.
@@ -472,7 +477,8 @@ private fun MyFeed(
                         onClick = {
                             onPlay(event)
                             dropdownItemIndex.value = null
-                        }
+                        },
+                        goToUserPage = goToUserPage
                     )
                     
                 }
@@ -883,7 +889,8 @@ private fun FeedScreenPreview() {
                 pin = {_,_ ->},
                 searchFollower = {},
                 isCritiqueBrainzLinked = {true},
-                onPlay = {}
+                onPlay = {},
+                goToUserPage = {}
             )
         }
         
