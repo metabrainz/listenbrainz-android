@@ -68,7 +68,13 @@ fun ProfileScreen(
             BaseProfileScreen(
                 username = username,
                 snackbarState = snackbarState,
-                uiState = uiState.value
+                uiState = uiState.value,
+                onFollowClick = {
+                    viewModel.followUser(it)
+                },
+                onUnfollowClick = {
+                    viewModel.unfollowUser(it)
+                }
             )
 
         }

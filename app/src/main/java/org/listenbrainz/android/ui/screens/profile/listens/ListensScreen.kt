@@ -4,11 +4,15 @@ import android.os.Bundle
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,11 +21,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,6 +41,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
@@ -51,11 +60,13 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.Metadata
+import org.listenbrainz.android.model.SimilarUser
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
+import org.listenbrainz.android.ui.components.SimilarUserCard
 import org.listenbrainz.android.ui.components.SuccessBar
 import org.listenbrainz.android.ui.components.dialogs.Dialog
 import org.listenbrainz.android.ui.components.dialogs.PersonalRecommendationDialog
@@ -69,8 +80,11 @@ import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.app_bg_dark
 import org.listenbrainz.android.ui.theme.app_bg_mid
+import org.listenbrainz.android.ui.theme.app_bg_secondary_dark
 import org.listenbrainz.android.ui.theme.compatibilityMeterColor
+import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
+import org.listenbrainz.android.ui.theme.on_app_bg_dark
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
@@ -200,6 +214,18 @@ fun ListensScreen(
     val recentListensCollapsibleState: MutableState<Boolean> = remember {
         mutableStateOf(true)
     }
+
+    val similarUsersCollapsibleState: MutableState<Boolean> = remember {
+        mutableStateOf(true)
+    }
+
+    val followersMenuState: MutableState<Boolean> = remember {
+        mutableStateOf(true)
+    }
+
+    val followersMenuCollapsibleState: MutableState<Boolean> = remember {
+        mutableStateOf(true)
+    }
     
     // Scroll to the top when shouldScrollToTop becomes true
     LaunchedEffect(scrollRequestState) {
@@ -227,10 +253,12 @@ fun ListensScreen(
                 })) { index, listen  ->
                     val metadata = Metadata(trackMetadata = listen.trackMetadata)
                     ListenCardSmall(
-                        modifier = Modifier.padding(
-                            horizontal = 16.dp,
-                            vertical = ListenBrainzTheme.paddings.lazyListAdjacent
-                        ),
+                        modifier = Modifier
+                            .padding(
+                                horizontal = 16.dp,
+                                vertical = ListenBrainzTheme.paddings.lazyListAdjacent
+                            )
+                            .background(app_bg_secondary_dark),
                         trackName = listen.trackMetadata.trackName,
                         artistName = listen.trackMetadata.artistName,
                         coverArtUrl = getCoverArtUrl(
@@ -282,36 +310,125 @@ fun ListensScreen(
                 item {
                     Spacer(modifier = Modifier.height(10.dp))
                     Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                        TextButton(onClick = {
-                                             recentListensCollapsibleState.value = !recentListensCollapsibleState.value
-                        }, modifier = Modifier.border(border = BorderStroke(1.dp,
-                            app_bg_mid), shape = RoundedCornerShape(7.dp)
-                        )) {
-                            Text(when(recentListensCollapsibleState.value){
-                                                                          true -> "Load More"
-                                false -> "Load Less"
-                                                                          }, color = app_bg_mid, style = MaterialTheme.typography.bodyMedium)
-                        }
+                        LoadMoreButton(
+                            state = recentListensCollapsibleState.value,
+                            onClick = {
+                                recentListensCollapsibleState.value = !recentListensCollapsibleState.value
+                            }
+                        )
                     }
 
                 }
                 if(!uiState.isSelf){
                     item {
-                        Spacer(modifier = Modifier.height(30.dp))
-                        Text("Your Compatibility", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(start = 16.dp))
-                        Spacer(modifier = Modifier.height(10.dp))
-                        CompatibilityCard(compatibility = uiState.compatibility ?: 0f, uiState.similarArtists)
+                        Box(modifier = Modifier
+                            .padding(top = 30.dp)
+                            .clip(shape = RoundedCornerShape(20.dp))
+                            .background(
+                                Brush.verticalGradient(
+                                    listOf(
+                                        Color(0xFF161616),
+                                        Color(0xFF1A1A1A),
+                                        Color(0xFF202020),
+                                        Color(0xFF242424),
+                                        Color.Transparent
+                                    )
+                                )
+                            )){
+                            Column {
+                                Spacer(modifier = Modifier.height(30.dp))
+                                Text("Your Compatibility", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(start = 16.dp))
+                                Spacer(modifier = Modifier.height(10.dp))
+                                CompatibilityCard(compatibility = uiState.compatibility ?: 0f, uiState.similarArtists)
+                            }
+                        }
+
                     }   
                 }
 
                 item {
-                    Spacer(modifier = Modifier.height(30.dp))
-                    FollowersCard(
-                        followersCount = uiState.followersCount,
-                        followingCount = uiState.followingCount,
-                        followers = uiState.followers ?: emptyList(),
-                        following = uiState.following ?: emptyList()
-                    )
+                    Box(modifier = Modifier
+                        .padding(top = 30.dp)
+                        .clip(shape = RoundedCornerShape(20.dp))
+                        .background(
+                            Brush.verticalGradient(
+                                listOf(
+                                    Color(0xFF161616),
+                                    Color(0xFF1A1A1A),
+                                    Color(0xFF202020),
+                                    Color(0xFF242424),
+                                    Color.Transparent
+                                )
+                            )
+                        )){
+                        Column {
+                            FollowersCard(
+                                followersCount = uiState.followersCount,
+                                followingCount = uiState.followingCount,
+                                followers = when(followersMenuCollapsibleState.value){
+                                    true -> uiState.followers?.take(5) ?: emptyList()
+                                    false -> uiState.followers ?: emptyList()
+                                },
+                                following = when(followersMenuCollapsibleState.value){
+                                    true -> uiState.following?.take(5) ?: emptyList()
+                                    false -> uiState.following ?: emptyList()
+                                },
+                                followersState = followersMenuState.value,
+                                onStateChange = {
+                                        newMenuState->
+                                    followersMenuState.value = !newMenuState
+                                }
+                            )
+                            if((uiState.followersCount ?: 0) > 5 || ((uiState.followingCount ?: 0) > 5)){
+                                Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                                    LoadMoreButton(
+                                        state = followersMenuCollapsibleState.value,
+                                        onClick = {
+                                            followersMenuCollapsibleState.value = !followersMenuCollapsibleState.value
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                    }
+
+                }
+
+                item {
+                    Box(modifier = Modifier
+                        .padding(top = 30.dp)
+                        .clip(shape = RoundedCornerShape(20.dp))
+                        .background(
+                            Brush.verticalGradient(
+                                listOf(
+
+                                    Color(0xFF202020),
+                                    Color(0xFF242424),
+                                    Color.Transparent
+                                )
+                            )
+                        )){
+                        Column {
+                            SimilarUsersCard(similarUsers = when(similarUsersCollapsibleState.value){
+                                true -> uiState.similarUsers?.take(5) ?: emptyList()
+                                false -> uiState.similarUsers ?: emptyList()
+                            })
+
+                            if((uiState.similarUsers?.size ?: 0) > 5){
+                                Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                                    LoadMoreButton(
+                                        state = similarUsersCollapsibleState.value,
+                                        onClick = {
+                                            similarUsersCollapsibleState.value = !similarUsersCollapsibleState.value
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                    }
+
                 }
 
             }
@@ -340,7 +457,7 @@ fun ListensScreen(
 }
 
 @Composable
-private fun buildSimilarArtists(similarArtists: List<String>) {
+private fun BuildSimilarArtists(similarArtists: List<String>) {
     val white = Color.White
 
     when {
@@ -358,10 +475,10 @@ private fun buildSimilarArtists(similarArtists: List<String>) {
                     append(" and more.")
                 }
             }
-            Text(text = text, modifier = Modifier.padding(start=16.dp))
+            Text(text = text, modifier = Modifier.padding(horizontal = 16.dp))
         }
         similarArtists.isEmpty() -> {
-            Text("You have no common artists", color = white, modifier = Modifier.padding(start=16.dp))
+            Text("You have no common artists", color = white, modifier = Modifier.padding(horizontal = 16.dp), style = MaterialTheme.typography.bodyMedium)
         }
         else -> {
             val artists = similarArtists.joinToString(", ")
@@ -373,7 +490,7 @@ private fun buildSimilarArtists(similarArtists: List<String>) {
                     append(artists)
                 }
             }
-            Text(text = text, modifier = Modifier.padding(start=16.dp))
+            Text(text = text, modifier = Modifier.padding(horizontal = 16.dp), style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
@@ -445,32 +562,71 @@ private fun Dialogs(
 }
 
 @Composable
+private fun LoadMoreButton(
+    state: Boolean,
+    onClick : () -> Unit,
+){
+    TextButton(onClick, modifier = Modifier.border(border = BorderStroke(1.dp,
+        app_bg_mid), shape = RoundedCornerShape(7.dp)
+    )) {
+        Text(when(state){
+            true -> "Load More"
+            false -> "Load Less"
+        }, color = app_bg_mid, style = MaterialTheme.typography.bodyMedium)
+    }
+}
+
+
+@Composable
 private fun SongsListened(username: String? , listenCount: Int?){
-    Column (horizontalAlignment = Alignment.CenterHorizontally) {
+    Column (horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
+        .clip(shape = RoundedCornerShape(100.dp))
+        .background(color = app_bg_dark)) {
         Spacer(modifier = Modifier.height(30.dp))
         Text("$username has listened to", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
-        Spacer(modifier = Modifier.height(10.dp))
-        HorizontalDivider(color = app_bg_dark, modifier = Modifier.padding(start = 60.dp, end = 60.dp))
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(15.dp))
+        HorizontalDivider(color = on_app_bg_dark, modifier = Modifier.padding(start = 60.dp, end = 60.dp))
+        Spacer(modifier = Modifier.height(15.dp))
         Text(listenCount.toString(), color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),  textAlign = TextAlign.Center)
         Text("songs so far", color = app_bg_mid, style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
+        Spacer(modifier = Modifier.height(30.dp))
     }
 
 }
 
 @Composable
 private fun FollowersInformation(followersCount: Int?, followingCount: Int?){
-    Spacer(modifier = Modifier.height(30.dp))
-    Row (horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
-        Column (horizontalAlignment = Alignment.CenterHorizontally) {
-            Text((followersCount ?:0).toString(), style = MaterialTheme.typography.bodyLarge, color = Color.White)
-            Text("Followers", style = MaterialTheme.typography.bodyLarge, color = Color.White)
-        }
-        Column (horizontalAlignment = Alignment.CenterHorizontally) {
-            Text((followingCount ?: 0).toString(), style = MaterialTheme.typography.bodyLarge, color = Color.White)
-            Text("Following", style = MaterialTheme.typography.bodyLarge, color = Color.White)
+    Box(modifier = Modifier
+        .clip(shape = RoundedCornerShape(20.dp))
+        .background(
+            Brush.verticalGradient(
+                listOf(
+                    Color(0xFF161616),
+                    Color(0xFF1A1A1A),
+                    Color(0xFF202020),
+                    Color(0xFF242424),
+                    Color.Transparent
+                )
+            )
+        )
+    ){
+        Row (horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 30.dp)) {
+            Column (horizontalAlignment = Alignment.CenterHorizontally) {
+                Text((followersCount ?:0).toString(), style = MaterialTheme.typography.bodyLarge, color = Color.White)
+                Spacer(modifier = Modifier.height(10.dp))
+                Text("Followers", style = MaterialTheme.typography.bodyLarge, color = Color.White)
+            }
+            Column (horizontalAlignment = Alignment.CenterHorizontally) {
+                Text((followingCount ?: 0).toString(), style = MaterialTheme.typography.bodyLarge, color = Color.White)
+                Spacer(modifier = Modifier.height(10.dp))
+                Text("Following", style = MaterialTheme.typography.bodyLarge, color = Color.White)
+            }
         }
     }
+
+
 }
 
 @Composable
@@ -485,18 +641,143 @@ fun CompatibilityCard(compatibility: Float, similarArtists: List<String>){
         Text("${(compatibility*100).toInt()} %", color = app_bg_mid, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
     }
     Spacer(modifier = Modifier.height(10.dp))
-    buildSimilarArtists(similarArtists = similarArtists)
+    BuildSimilarArtists(similarArtists = similarArtists)
 }
 
 @Composable
-private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers: List<String>, following: List<String>){
-    Column (modifier = Modifier.padding(start=16.dp)) {
-        Text("Followers", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers: List<Pair<String,Boolean>>, following: List<Pair<String,Boolean>>, followersState: Boolean, onStateChange: (Boolean) -> Unit) {
+    Column(modifier = Modifier.padding(start = 16.dp , top = 30.dp)) {
+        Text(
+            "Followers",
+            color = Color.White,
+            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp)
+        )
+        Spacer(modifier = Modifier.height(10.dp))
         Row {
-
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = when (followersState) {
+                        true -> lb_purple_night
+                        false -> app_bg_dark
+                    },
+                ),
+                border = when(followersState){
+                    true -> null
+                    false -> BorderStroke(width = 1.dp, color = lb_purple_night)
+                },
+                modifier = Modifier
+                    .width(120.dp)
+                    .height(30.dp)
+                    .clickable {
+                        onStateChange(followersState)
+                    }
+            ) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "Followers (${followersCount})",
+                        color = when (followersState) {
+                            true -> app_bg_dark
+                            false -> lb_purple_night
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = when (followersState) {
+                        true -> app_bg_dark
+                        false -> lb_purple_night
+                    },
+                ),
+                border = when(followersState){
+                    true -> BorderStroke(width = 1.dp, color = lb_purple_night)
+                        false -> null
+                },
+                modifier = Modifier
+                    .width(120.dp)
+                    .height(30.dp)
+                    .clickable {
+                        onStateChange(followersState)
+                    }
+            ) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "Following (${followingCount})",
+                        color = when (followersState) {
+                            true -> lb_purple_night
+                            false -> app_bg_dark
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+        when(followersState){
+            true -> followers.map {
+                state ->
+                FollowCard(username = state.first, onButtonClick = Unit, followStatus = state.second)
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+            false -> following.map {
+                state ->
+                FollowCard(username = state.first, onButtonClick = Unit, followStatus = state.second)
+                Spacer(modifier = Modifier.height(10.dp))
+            }
         }
     }
+}
 
+@Composable
+private fun SimilarUsersCard(similarUsers: List<SimilarUser>){
+    Spacer(modifier = Modifier.height(20.dp))
+    Text("Similar Users", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(horizontal = 16.dp))
+    Spacer(modifier = Modifier.height(20.dp))
+    similarUsers.mapIndexed{
+        index , item ->
+        SimilarUserCard(index = index, userName = item.username, similarity = item.similarity.toFloat(), modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
+    }
+}
+
+@Composable
+private fun FollowCard(username: String?, onButtonClick: Unit, followStatus: Boolean) {
+    Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E))) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
+                .height(70.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                username ?: "",
+                color = lb_purple_night,
+                style = MaterialTheme.typography.bodyLarge
+            )
+            TextButton(
+                onClick = { /*TODO*/ }, colors = ButtonDefaults.buttonColors(
+                    containerColor = when (followStatus) {
+                        true -> app_bg_dark
+                        false -> lb_purple
+                    }
+                ), modifier = Modifier
+                    .width(90.dp)
+                    .height(40.dp), shape = RoundedCornerShape(10.dp)
+            ) {
+                Text(
+                    when (followStatus) {
+                        true -> "Following"
+                        false -> "Follow"
+                    }, color = Color.White
+                )
+            }
+        }
+    }
 }
 
 

@@ -1,5 +1,6 @@
 package org.listenbrainz.android.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,7 +33,8 @@ class ProfileViewModel @Inject constructor(
     val socketRepository: SocketRepository,
     private val socialRepository: SocialRepository,
     private val savedStateHandle: SavedStateHandle,
-    @IoDispatcher ioDispatcher: CoroutineDispatcher
+    @IoDispatcher val ioDispatcher: CoroutineDispatcher,
+
 ) : BaseViewModel<ProfileUiState>() {
     
     private val _loginStatusFlow: MutableStateFlow<Int> = MutableStateFlow(STATUS_LOGGED_OUT)
@@ -48,7 +50,7 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    suspend fun getSimilarArtists(username: String?) : List<String> {
+    private suspend fun getSimilarArtists(username: String?) : List<String> {
         val currentUsername = appPreferences.username.get()
         val currentUserTopArtists = userRepository.getTopArtists(currentUsername)
         val userTopArtists = userRepository.getTopArtists(username)
@@ -65,6 +67,24 @@ class ProfileViewModel @Inject constructor(
         return similarArtists.distinct()
     }
 
+    fun followUser(username: String?){
+        Log.v("pranav", "FOLLOW")
+        if(username.isNullOrEmpty()) return
+        viewModelScope.launch (ioDispatcher) {
+            socialRepository.followUser(username)
+        }
+    }
+
+    fun unfollowUser(username: String?){
+        Log.v("pranav", "UNFOLLOW")
+        if(username.isNullOrEmpty()) return
+        viewModelScope.launch(ioDispatcher) {
+            socialRepository.unfollowUser(username)
+        }
+
+    }
+
+
 
     suspend fun getUserListensData(inputUsername: String?) {
         val username = inputUsername ?: appPreferences.username.get()
@@ -75,7 +95,23 @@ class ProfileViewModel @Inject constructor(
         val listenCount = userRepository.fetchUserListenCount(username).data?.payload?.count
         val listens: List<Listen>? = listensRepository.fetchUserListens(username).data?.payload?.listens
         val followers = socialRepository.getFollowers(username).data?.followers
+        val currentUserFollowing = socialRepository.getFollowing(appPreferences.username.get()).data?.following
+        val followersState : MutableList<Pair<String,Boolean>> = mutableListOf()
+        val followingState : MutableList<Pair<String,Boolean>> = mutableListOf()
         val followersCount = followers?.size
+        val following = socialRepository.getFollowing(username).data?.following
+        val currentUserFollowingSet = currentUserFollowing?.toSet() ?: emptySet()
+        viewModelScope.launch {
+            followers?.forEach { user ->
+                val isFollowing = currentUserFollowingSet.contains(user)
+                followersState.add(Pair(user, isFollowing))
+            }
+            following?.forEach { user ->
+                val isFollowing = currentUserFollowingSet.contains(user)
+                followingState.add(Pair(user, isFollowing))
+            }
+        }
+        val followingCount = following?.size
         val similarUsers = socialRepository.getSimilarUsers(username).data?.payload
         val currentPins = userRepository.fetchUserCurrentPins(username).data
         val compatibility = if (username != appPreferences.username.get())
@@ -85,21 +121,23 @@ class ProfileViewModel @Inject constructor(
             ).data?.userSimilarity?.similarity
         else 0f
         val similarArtists = getSimilarArtists(username)
+        val isFollowing = currentUserFollowingSet.contains(username)
         val listensTabState = ListensTabUiState(
             isLoading = false,
             isSelf = isLoggedInUser,
             listenCount = listenCount,
             followersCount = followersCount,
-            followers = followers,
+            followers = followersState,
+            followingCount = followingCount,
+            following = followingState,
             recentListens = listens,
             compatibility = compatibility,
             similarUsers = similarUsers,
             pinnedSong = currentPins,
-            similarArtists = similarArtists
+            similarArtists = similarArtists,
+            isFollowing = isFollowing
         )
-
         listenStateFlow.emit(listensTabState)
-
     }
 
     override val uiState: StateFlow<ProfileUiState> = createUiStateFlow()

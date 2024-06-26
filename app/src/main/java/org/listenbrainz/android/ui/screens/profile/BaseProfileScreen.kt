@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
@@ -35,19 +36,21 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.listens.ListensScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.app_bg_light
 import org.listenbrainz.android.ui.theme.lb_purple
+import org.listenbrainz.android.ui.theme.new_app_bg_light
 
 @Composable
 fun BaseProfileScreen(
     username: String?,
     snackbarState: SnackbarHostState,
     uiState: ProfileUiState,
+    onFollowClick: (String) -> Unit,
+    onUnfollowClick: (String) -> Unit,
 ){
 
     val currentTab : MutableState<ProfileScreenTab> = remember { mutableStateOf(ProfileScreenTab.LISTENS) }
@@ -122,8 +125,14 @@ fun BaseProfileScreen(
                     .padding(end = 20.dp)) {
                     when(isLoggedInUser) {
                         true -> AddListensButton()
-                        false -> FollowButton()
-                        null -> AddListensButton()
+                        false -> when(uiState.listensTabUiState.isFollowing){
+                            true -> UnFollowButton(username = username, onUnFollowClick = {
+                                onUnfollowClick(it)
+                            })
+                            false -> FollowButton(username = username, onFollowClick = {
+                                onFollowClick(it)
+                            })
+                        }
                     }
                     Spacer(modifier = Modifier.width(10.dp))
                     MusicBrainzButton()
@@ -151,17 +160,43 @@ fun BaseProfileScreen(
 }
 
 @Composable
-private fun FollowButton() {
-    IconButton(onClick = { /*TODO*/ }, modifier = Modifier
+private fun FollowButton(onFollowClick: (String) -> Unit, username: String?) {
+    IconButton(onClick = {
+        if(!username.isNullOrEmpty()){
+            onFollowClick(username)
+        }
+
+    }, modifier = Modifier
         .background(lb_purple)
-        .width(90.dp)
+        .width(100.dp)
         .height(30.dp)) {
-        Row(modifier = Modifier.padding(all = 4.dp)) {
+        Row(modifier = Modifier.padding(horizontal = 8.dp)) {
             Icon(painter = painterResource(id = R.drawable.follow_icon), contentDescription = "", tint = app_bg_light, modifier = Modifier
                 .width(20.dp)
                 .height(20.dp))
             Spacer(modifier = Modifier.width(5.dp))
-            Text("Follow", color = app_bg_light)
+            Text("Follow", color = new_app_bg_light, style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+}
+
+@Composable
+private fun UnFollowButton(onUnFollowClick: (String) -> Unit, username: String?) {
+    IconButton(onClick = {
+        if(!username.isNullOrEmpty()){
+            onUnFollowClick(username)
+        }
+
+    }, modifier = Modifier
+        .background(lb_purple)
+        .width(100.dp)
+        .height(30.dp)) {
+        Row(modifier = Modifier.padding(horizontal = 8.dp)) {
+            Icon(painter = painterResource(id = R.drawable.follow_icon), contentDescription = "", tint = new_app_bg_light, modifier = Modifier
+                .width(20.dp)
+                .height(20.dp))
+            Spacer(modifier = Modifier.width(5.dp))
+            Text("Unfollow", color = new_app_bg_light, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
@@ -170,14 +205,14 @@ private fun FollowButton() {
 private fun AddListensButton() {
     IconButton(onClick = { /*TODO*/ }, modifier = Modifier
         .background(Color(0xFF353070))
-        .width(90.dp)
+        .width(110.dp)
         .height(30.dp)) {
         Row(modifier = Modifier.padding(all = 4.dp)) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "", tint = app_bg_light, modifier = Modifier
+            Icon(imageVector = Icons.Default.Add, contentDescription = "", tint = new_app_bg_light, modifier = Modifier
                 .width(10.dp)
-                .height(30.dp))
+                .height(20.dp))
             Spacer(modifier = Modifier.width(5.dp))
-            Text("Add Listens", color = Color.White, fontSize = 10.sp, )
+            Text("Add Listens", color = new_app_bg_light, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
@@ -186,18 +221,18 @@ private fun AddListensButton() {
 private fun MusicBrainzButton() {
     IconButton(onClick = { /*TODO*/ }, modifier = Modifier
         .background(Color(0xFF353070))
-        .width(120.dp)
+        .width(140.dp)
         .height(30.dp)) {
-        Row(modifier = Modifier.padding(all = 4.dp)) {
-            Icon(painter = painterResource(id = R.drawable.ic_metabrainz_logo_no_text), contentDescription = "", modifier = Modifier
+        Row(modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)) {
+            Icon(painter = painterResource(id = R.drawable.musicbrainz_logo), contentDescription = "", modifier = Modifier
                 .width(20.dp)
-                .height(30.dp))
+                .height(30.dp), tint = Color.Unspecified)
             Spacer(modifier = Modifier.width(5.dp))
-            Text("MusicBrainz", color = Color.White, fontSize = 10.sp)
+            Text("MusicBrainz", color = new_app_bg_light, style = MaterialTheme.typography.bodyMedium)
             Spacer(modifier = Modifier.width(5.dp))
-            Icon(imageVector = Icons.AutoMirrored.Filled.OpenInNew, contentDescription = "", tint = app_bg_light, modifier = Modifier
-                .width(10.dp)
-                .height(30.dp))
+            Icon(imageVector = Icons.AutoMirrored.Filled.OpenInNew, contentDescription = "", tint = new_app_bg_light, modifier = Modifier
+                .width(30.dp)
+                .height(20.dp))
         }
     }
 }

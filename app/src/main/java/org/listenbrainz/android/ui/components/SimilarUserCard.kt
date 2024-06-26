@@ -44,12 +44,16 @@ fun SimilarUserCard(
     cardBackGround: Color = MaterialTheme.colorScheme.background,
     index: Int,
     userName: String,
-    similarity: Float
+    similarity: Float,
+    modifier: Modifier? = null
 ){
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
+        modifier = when(modifier){
+            null -> Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp)
+            else -> modifier
+        },
         color = cardBackGround,
         shape = RoundedCornerShape(5.dp),
         shadowElevation = 5.dp,

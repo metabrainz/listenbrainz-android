@@ -21,10 +21,11 @@ data class ListensTabUiState (
     val pinnedSong: PinnedRecording? = null,
     val compatibility: Float? = null,
     val recentListens: List<Listen>? = emptyList(),
-    val followers: List<String>? = emptyList(),
-    val following: List<String>? = emptyList(),
+    val followers: List<Pair<String,Boolean>>? = emptyList(),
+    val following: List<Pair<String,Boolean>>? = emptyList(),
     val similarUsers: List<SimilarUser>? = emptyList(),
-    val similarArtists: List<String> = emptyList()
+    val similarArtists: List<String> = emptyList(),
+    val isFollowing: Boolean = false
 )
 
 data class ListeningNowUiState(
