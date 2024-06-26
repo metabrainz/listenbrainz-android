@@ -45,11 +45,11 @@ fun SimilarUserCard(
     index: Int,
     userName: String,
     similarity: Float,
-    modifier: Modifier? = null
+    modifier: Modifier = Modifier
 ){
     Surface(
         modifier = when(modifier){
-            null -> Modifier
+            Modifier -> Modifier
                 .fillMaxWidth()
                 .padding(vertical = 4.dp)
             else -> modifier

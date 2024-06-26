@@ -8,9 +8,8 @@ import org.listenbrainz.android.util.Resource
 
 interface UserRepository {
     suspend fun fetchUserListenCount (username: String?) : Resource<Listens?>
-    suspend fun fetchListeningNow (username: String?) : Resource<Listens?>
     suspend fun fetchUserSimilarity(username: String? , otherUserName: String?) : Resource<UserSimilarityPayload?>
     suspend fun fetchUserCurrentPins(username: String?) : Resource<PinnedRecording?>
-    // Will move to artist VM once it is made
+    //TODO: Move to artists VM once implemented
     suspend fun getTopArtists(username: String?): Resource<TopArtists>
 }

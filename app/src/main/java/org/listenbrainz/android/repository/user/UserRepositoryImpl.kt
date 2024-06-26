@@ -18,9 +18,6 @@ class UserRepositoryImpl @Inject constructor(
         service.getListenCount(username)
     }
 
-    override suspend fun fetchListeningNow(username: String?): Resource<Listens?> {
-        TODO("Not yet implemented")
-    }
 
     override suspend fun fetchUserSimilarity(username: String?, otherUserName: String?) : Resource<UserSimilarityPayload?> = parseResponse {
         if(username.isNullOrEmpty() or otherUserName.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
