@@ -1,6 +1,5 @@
 package org.listenbrainz.android.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -68,7 +67,6 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun followUser(username: String?){
-        Log.v("pranav", "FOLLOW")
         if(username.isNullOrEmpty()) return
         viewModelScope.launch (ioDispatcher) {
             socialRepository.followUser(username)
@@ -76,7 +74,6 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun unfollowUser(username: String?){
-        Log.v("pranav", "UNFOLLOW")
         if(username.isNullOrEmpty()) return
         viewModelScope.launch(ioDispatcher) {
             socialRepository.unfollowUser(username)
