@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,14 +20,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import org.listenbrainz.android.R
@@ -41,8 +46,10 @@ import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.listens.ListensScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.app_bg_light
+import org.listenbrainz.android.ui.theme.lb_orange
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.new_app_bg_light
+import org.listenbrainz.android.util.Constants
 
 @Composable
 fun BaseProfileScreen(
@@ -51,10 +58,15 @@ fun BaseProfileScreen(
     uiState: ProfileUiState,
     onFollowClick: (String) -> Unit,
     onUnfollowClick: (String) -> Unit,
+    goToUserProfile: () -> Unit,
 ){
 
     val currentTab : MutableState<ProfileScreenTab> = remember { mutableStateOf(ProfileScreenTab.LISTENS) }
     val isLoggedInUser = uiState.listensTabUiState.isSelf
+    val uriHandler = LocalUriHandler.current
+    val mbOpeningErrorState = remember {
+        mutableStateOf<String?>(null)
+    }
     Box(modifier = Modifier.fillMaxSize()){
         AnimatedVisibility(
             visible = uiState.listensTabUiState.isLoading,
@@ -80,18 +92,41 @@ fun BaseProfileScreen(
                         )
                 ) {
                     Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.chipsHorizontal / 2))
-                    repeat(6) { position ->
+                    repeat(5) { position ->
                         ElevatedSuggestionChip(
                             modifier = Modifier.padding(ListenBrainzTheme.paddings.chipsHorizontal),
                             colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
                                 if (position == currentTab.value.index) {
                                     ListenBrainzTheme.colorScheme.chipSelected
                                 } else {
-                                    ListenBrainzTheme.colorScheme.chipUnselected
+                                    if(position == 0){
+                                        if(uiState.listensTabUiState.isSelf){
+                                            lb_purple
+                                        }
+                                        else{
+                                            lb_orange
+                                        }
+                                    }
+                                    else{
+                                        ListenBrainzTheme.colorScheme.chipUnselected
+                                    }
+
                                 }
                             ),
                             shape = ListenBrainzTheme.shapes.chips,
                             elevation = SuggestionChipDefaults.elevatedSuggestionChipElevation(elevation = 4.dp),
+                            icon = {
+                                if(position == 0 && !uiState.listensTabUiState.isSelf){
+                                    Box (modifier = Modifier
+                                        .background(lb_purple)
+                                        .padding(4.dp)) {
+                                        Icon(Icons.Default.Home, contentDescription = "", tint = new_app_bg_light, modifier = Modifier.clickable {
+                                            goToUserProfile()
+                                        })
+                                    }
+
+                                }
+                            },
                             label = {
                                 Text(
                                     text = when (position) {
@@ -135,7 +170,17 @@ fun BaseProfileScreen(
                         }
                     }
                     Spacer(modifier = Modifier.width(10.dp))
-                    MusicBrainzButton()
+                    MusicBrainzButton(){
+                       try {
+                           uriHandler.openUri(Constants.MB_BASE_URL + "user/${username}")
+                       }
+                       catch (e: RuntimeException) {
+                           mbOpeningErrorState.value = e.message;
+                       }
+                       catch (e: Exception){
+                           mbOpeningErrorState.value = e.message;
+                       }
+                    }
                 }
                 when(currentTab.value) {
                     ProfileScreenTab.LISTENS -> ListensScreen(
@@ -152,6 +197,11 @@ fun BaseProfileScreen(
                     )
                 }
 
+            }
+        }
+        if(mbOpeningErrorState.value != null){
+            LaunchedEffect(mbOpeningErrorState.value) {
+                snackbarState.showSnackbar("Some Error Occoued", duration = SnackbarDuration.Short)
             }
         }
 
@@ -218,8 +268,8 @@ private fun AddListensButton() {
 }
 
 @Composable
-private fun MusicBrainzButton() {
-    IconButton(onClick = { /*TODO*/ }, modifier = Modifier
+private fun MusicBrainzButton(onClick: () -> Unit) {
+    IconButton(onClick = onClick, modifier = Modifier
         .background(Color(0xFF353070))
         .width(140.dp)
         .height(30.dp)) {
