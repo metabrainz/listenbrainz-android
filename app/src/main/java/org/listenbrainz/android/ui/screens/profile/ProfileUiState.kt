@@ -32,7 +32,6 @@ data class ListensTabUiState (
 
 data class TasteTabUIState (
     val isLoading: Boolean = true,
-
     )
 
 data class StatsTabUIState(

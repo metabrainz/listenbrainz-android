@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Add
@@ -36,6 +37,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
@@ -94,71 +96,75 @@ fun BaseProfileScreen(
                                     Color.Transparent
                                 )
                             )
-                        )
+                        ),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.chipsHorizontal / 2))
                     repeat(5) { position ->
-                        ElevatedSuggestionChip(
-                            modifier = Modifier.padding(ListenBrainzTheme.paddings.chipsHorizontal),
-                            colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
-                                if (position == currentTab.value.index) {
-                                    ListenBrainzTheme.colorScheme.chipSelected
-                                } else {
-                                    if(position == 0){
-                                        if(uiState.isSelf){
-                                            lb_purple
-                                        }
-                                        else{
-                                            lb_orange
+                        when(position){
+                            0 -> Box(modifier = Modifier.padding(ListenBrainzTheme.paddings.chipsHorizontal,) .clip(shape = RoundedCornerShape(4.dp)).background(
+                                when(uiState.isSelf){
+                                    true -> lb_purple
+                                    false -> lb_orange
+                                }
+                            )) {
+                                Row (modifier = Modifier.padding(end = 8.dp, top = when(uiState.isSelf){
+                                    true -> 4.dp
+                                    false -> 0.dp
+                                }, bottom = when(uiState.isSelf){
+                                    true -> 4.dp
+                                    false -> 0.dp
+                                }), verticalAlignment = Alignment.CenterVertically) {
+                                    if(!uiState.isSelf){
+                                        Box (modifier = Modifier
+                                            .background(lb_purple)
+                                            .padding(4.dp)) {
+                                            Icon(Icons.Default.Home, contentDescription = "", tint = new_app_bg_light, modifier = Modifier.clickable {
+                                                goToUserProfile()
+                                            })
                                         }
                                     }
-                                    else{
+                                    Text(username ?: "", color = when(uiState.isSelf){
+                                        true -> Color.White
+                                        false -> Color.Black
+                                    }, modifier = Modifier.padding(start = 8.dp))
+                                }
+                            }
+                            else -> ElevatedSuggestionChip(
+                                modifier = Modifier.padding(ListenBrainzTheme.paddings.chipsHorizontal),
+                                colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
+                                    if (position == currentTab.value.index) {
+                                        ListenBrainzTheme.colorScheme.chipSelected
+                                    } else {
                                         ListenBrainzTheme.colorScheme.chipUnselected
                                     }
-
-                                }
-                            ),
-                            shape = ListenBrainzTheme.shapes.chips,
-                            elevation = SuggestionChipDefaults.elevatedSuggestionChipElevation(elevation = 4.dp),
-                            icon = {
-                                if(position == 0 && !uiState.isSelf){
-                                    Box (modifier = Modifier
-                                        .background(lb_purple)
-                                        .padding(4.dp)) {
-                                        Icon(Icons.Default.Home, contentDescription = "", tint = new_app_bg_light, modifier = Modifier.clickable {
-                                            goToUserProfile()
-                                        })
-                                    }
-
-                                }
-                            },
-                            label = {
-                                Text(
-                                    text = when (position) {
-                                        0 -> username ?: ""
-                                        1 -> ProfileScreenTab.LISTENS.value
-                                        2 -> ProfileScreenTab.STATS.value
-                                        3 -> ProfileScreenTab.TASTE.value
-                                        4 -> ProfileScreenTab.PLAYLISTS.value
-                                        5 -> ProfileScreenTab.CREATED_FOR_YOU.value
-                                        else -> ""
-                                    },
-                                    style = ListenBrainzTheme.textStyles.chips,
-                                    color = when (position){
-                                        0 -> Color.White
-                                        else -> ListenBrainzTheme.colorScheme.textColor
-                                    },
-                                )
-                            },
-                            onClick = { currentTab.value = when (position) {
-                                1 -> ProfileScreenTab.LISTENS
-                                2 -> ProfileScreenTab.STATS
-                                3 -> ProfileScreenTab.TASTE
-                                4 -> ProfileScreenTab.PLAYLISTS
-                                5 -> ProfileScreenTab.CREATED_FOR_YOU
-                                else -> ProfileScreenTab.LISTENS
-                            } }
-                        )
+                                ),
+                                shape = ListenBrainzTheme.shapes.chips,
+                                elevation = SuggestionChipDefaults.elevatedSuggestionChipElevation(elevation = 4.dp),
+                                label = {
+                                    Text(
+                                        text = when (position) {
+                                            1 -> ProfileScreenTab.LISTENS.value
+                                            2 -> ProfileScreenTab.STATS.value
+                                            3 -> ProfileScreenTab.TASTE.value
+                                            4 -> ProfileScreenTab.PLAYLISTS.value
+                                            5 -> ProfileScreenTab.CREATED_FOR_YOU.value
+                                            else -> ""
+                                        },
+                                        style = ListenBrainzTheme.textStyles.chips,
+                                        color = ListenBrainzTheme.colorScheme.textColor
+                                    )
+                                },
+                                onClick = { currentTab.value = when (position) {
+                                    1 -> ProfileScreenTab.LISTENS
+                                    2 -> ProfileScreenTab.STATS
+                                    3 -> ProfileScreenTab.TASTE
+                                    4 -> ProfileScreenTab.PLAYLISTS
+                                    5 -> ProfileScreenTab.CREATED_FOR_YOU
+                                    else -> ProfileScreenTab.LISTENS
+                                } }
+                            )
+                        }
                     }
                 }
 

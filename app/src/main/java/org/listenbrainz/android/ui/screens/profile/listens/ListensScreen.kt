@@ -567,8 +567,8 @@ private fun SongsListened(username: String? , listenCount: Int?, isSelf: Boolean
         Spacer(modifier = Modifier.height(30.dp))
         Text(
             when(isSelf){
-                true -> "$username has listened to"
-                false -> "You have listened to"
+                true -> "You have listened to"
+                false -> "$username has listened to"
             }
             , color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
         Spacer(modifier = Modifier.height(15.dp))
