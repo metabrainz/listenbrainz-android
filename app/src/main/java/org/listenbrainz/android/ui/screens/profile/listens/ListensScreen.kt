@@ -3,7 +3,6 @@ package org.listenbrainz.android.ui.screens.profile.listens
 import android.os.Bundle
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -42,7 +41,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
@@ -75,16 +73,13 @@ import org.listenbrainz.android.ui.components.dialogs.ReviewDialog
 import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
 import org.listenbrainz.android.ui.screens.feed.FeedUiState
 import org.listenbrainz.android.ui.screens.feed.SocialDropdown
-import org.listenbrainz.android.ui.screens.profile.ListensTabUiState
+import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.ui.theme.app_bg_dark
 import org.listenbrainz.android.ui.theme.app_bg_mid
-import org.listenbrainz.android.ui.theme.app_bg_secondary_dark
 import org.listenbrainz.android.ui.theme.compatibilityMeterColor
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
-import org.listenbrainz.android.ui.theme.on_app_bg_dark
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
@@ -94,7 +89,7 @@ import org.listenbrainz.android.viewmodel.SocialViewModel
 @Composable
 fun ListensScreen(
     viewModel: ListensViewModel = hiltViewModel(),
-    profileViewModel: ProfileViewModel = hiltViewModel(),
+    profileViewModel: ProfileViewModel,
     socialViewModel: SocialViewModel = hiltViewModel(),
     feedViewModel : FeedViewModel = hiltViewModel(),
     scrollRequestState: Boolean,
@@ -115,7 +110,7 @@ fun ListensScreen(
         scrollRequestState = scrollRequestState,
         onScrollToTop = onScrollToTop,
         username= username,
-        uiState = uiState.listensTabUiState,
+        uiState = uiState,
         feedUiState = feedUiState,
         preferencesUiState = preferencesUiState,
         updateNotificationServicePermissionStatus = {
@@ -158,6 +153,17 @@ fun ListensScreen(
         },
         onPersonallyRecommend = {
             metadata, users, blurbContent ->  socialViewModel.personallyRecommend(metadata, users, blurbContent)
+        },
+        onFollowButtonClick = {
+            it, status ->
+            if(!username.isNullOrEmpty()) {
+                if(!status){
+                    profileViewModel.followUser(it)
+                }
+                else{
+                    profileViewModel.unfollowUser(it)
+                }
+            }
         }
     )
 }
@@ -177,13 +183,12 @@ private enum class ListenDialogBundleKeys {
 
 
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ListensScreen(
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
     username: String?,
-    uiState: ListensTabUiState,
+    uiState: ProfileUiState,
     feedUiState: FeedUiState,
     preferencesUiState: PreferencesUiState,
     updateNotificationServicePermissionStatus: () -> Unit,
@@ -201,7 +206,8 @@ fun ListensScreen(
     searchUsers: (String) -> Unit,
     isCritiqueBrainzLinked: suspend () -> Boolean?,
     onReview: (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String, metadata: Metadata) -> Unit,
-    onPersonallyRecommend: (metadata: Metadata, users: List<String>, blurbContent: String) -> Unit
+    onPersonallyRecommend: (metadata: Metadata, users: List<String>, blurbContent: String) -> Unit,
+    onFollowButtonClick: (String?, Boolean) -> Unit,
 ) {
     val listState = rememberLazyListState()
 
@@ -234,22 +240,22 @@ fun ListensScreen(
         }
     }
 
-        AnimatedVisibility(visible = !uiState.isLoading) {
+        AnimatedVisibility(visible = !uiState.listensTabUiState.isLoading) {
             LazyColumn(state = listState) {
                 item {
-                    SongsListened(username = username, listenCount = uiState.listenCount)
+                    SongsListened(username = username, listenCount = uiState.listensTabUiState.listenCount, isSelf = uiState.isSelf)
                 }
                 item{
-                    FollowersInformation(followersCount = uiState.followersCount, followingCount = uiState.followingCount)
+                    FollowersInformation(followersCount = uiState.listensTabUiState.followersCount, followingCount = uiState.listensTabUiState.followingCount)
                 }
                 item{
                     Spacer(modifier = Modifier.height(30.dp))
-                    Text("Recent Listens", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(start = 16.dp))
+                    Text("Recent Listens", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(start = 16.dp))
                     Spacer(modifier = Modifier.height(10.dp))
                 }
                 itemsIndexed(items = (when(recentListensCollapsibleState.value){
-                    true -> uiState.recentListens?.take(5) ?: listOf()
-                    false -> uiState.recentListens?.take(10) ?: listOf()
+                    true -> uiState.listensTabUiState.recentListens?.take(5) ?: listOf()
+                    false -> uiState.listensTabUiState.recentListens?.take(10) ?: listOf()
                 })) { index, listen  ->
                     val metadata = Metadata(trackMetadata = listen.trackMetadata)
                     ListenCardSmall(
@@ -257,8 +263,7 @@ fun ListensScreen(
                             .padding(
                                 horizontal = 16.dp,
                                 vertical = ListenBrainzTheme.paddings.lazyListAdjacent
-                            )
-                            .background(app_bg_secondary_dark),
+                            ),
                         trackName = listen.trackMetadata.trackName,
                         artistName = listen.trackMetadata.artistName,
                         coverArtUrl = getCoverArtUrl(
@@ -308,7 +313,7 @@ fun ListensScreen(
                     }
                 }
                 item {
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
                     Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                         LoadMoreButton(
                             state = recentListensCollapsibleState.value,
@@ -323,23 +328,14 @@ fun ListensScreen(
                     item {
                         Box(modifier = Modifier
                             .padding(top = 30.dp)
-                            .clip(shape = RoundedCornerShape(20.dp))
                             .background(
-                                Brush.verticalGradient(
-                                    listOf(
-                                        Color(0xFF161616),
-                                        Color(0xFF1A1A1A),
-                                        Color(0xFF202020),
-                                        Color(0xFF242424),
-                                        Color.Transparent
-                                    )
-                                )
+                                ListenBrainzTheme.colorScheme.songsListenedToBG
                             )){
                             Column {
                                 Spacer(modifier = Modifier.height(30.dp))
-                                Text("Your Compatibility", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(start = 16.dp))
+                                Text("Your Compatibility", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(start = 16.dp))
                                 Spacer(modifier = Modifier.height(10.dp))
-                                CompatibilityCard(compatibility = uiState.compatibility ?: 0f, uiState.similarArtists)
+                                CompatibilityCard(compatibility = uiState.listensTabUiState.compatibility ?: 0f, uiState.listensTabUiState.similarArtists)
                             }
                         }
 
@@ -349,37 +345,30 @@ fun ListensScreen(
                 item {
                     Box(modifier = Modifier
                         .padding(top = 30.dp)
-                        .clip(shape = RoundedCornerShape(20.dp))
                         .background(
-                            Brush.verticalGradient(
-                                listOf(
-                                    Color(0xFF161616),
-                                    Color(0xFF1A1A1A),
-                                    Color(0xFF202020),
-                                    Color(0xFF242424),
-                                    Color.Transparent
-                                )
-                            )
+                            ListenBrainzTheme.colorScheme.songsListenedToBG
                         )){
                         Column {
                             FollowersCard(
-                                followersCount = uiState.followersCount,
-                                followingCount = uiState.followingCount,
+                                followersCount = uiState.listensTabUiState.followersCount,
+                                followingCount = uiState.listensTabUiState.followingCount,
                                 followers = when(followersMenuCollapsibleState.value){
-                                    true -> uiState.followers?.take(5) ?: emptyList()
-                                    false -> uiState.followers ?: emptyList()
+                                    true -> uiState.listensTabUiState.followers?.take(5) ?: emptyList()
+                                    false -> uiState.listensTabUiState.followers ?: emptyList()
                                 },
                                 following = when(followersMenuCollapsibleState.value){
-                                    true -> uiState.following?.take(5) ?: emptyList()
-                                    false -> uiState.following ?: emptyList()
+                                    true -> uiState.listensTabUiState.following?.take(5) ?: emptyList()
+                                    false -> uiState.listensTabUiState.following ?: emptyList()
                                 },
                                 followersState = followersMenuState.value,
                                 onStateChange = {
                                         newMenuState->
                                     followersMenuState.value = !newMenuState
-                                }
+                                },
+                                onFollowButtonClick = onFollowButtonClick
                             )
-                            if((uiState.followersCount ?: 0) > 5 || ((uiState.followingCount ?: 0) > 5)){
+                            if((uiState.listensTabUiState.followersCount ?: 0) > 5 || ((uiState.listensTabUiState.followingCount ?: 0) > 5)){
+                                Spacer(modifier = Modifier.height(20.dp))
                                 Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                                     LoadMoreButton(
                                         state = followersMenuCollapsibleState.value,
@@ -400,22 +389,16 @@ fun ListensScreen(
                         .padding(top = 30.dp)
                         .clip(shape = RoundedCornerShape(20.dp))
                         .background(
-                            Brush.verticalGradient(
-                                listOf(
-
-                                    Color(0xFF202020),
-                                    Color(0xFF242424),
-                                    Color.Transparent
-                                )
-                            )
+                            ListenBrainzTheme.colorScheme.songsListenedToBG
                         )){
                         Column {
                             SimilarUsersCard(similarUsers = when(similarUsersCollapsibleState.value){
-                                true -> uiState.similarUsers?.take(5) ?: emptyList()
-                                false -> uiState.similarUsers ?: emptyList()
+                                true -> uiState.listensTabUiState.similarUsers?.take(5) ?: emptyList()
+                                false -> uiState.listensTabUiState.similarUsers ?: emptyList()
                             })
 
-                            if((uiState.similarUsers?.size ?: 0) > 5){
+                            if((uiState.listensTabUiState.similarUsers?.size ?: 0) > 5){
+                                Spacer(modifier = Modifier.height(20.dp))
                                 Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                                     LoadMoreButton(
                                         state = similarUsersCollapsibleState.value,
@@ -445,7 +428,7 @@ fun ListensScreen(
             },
             currentDialog = dialogsState.currentDialog,
             currentIndex = dialogsState.metadata?.getInt(ListenDialogBundleKeys.EVENT_INDEX.name),
-            listens = uiState.recentListens ?: listOf(),
+            listens = uiState.listensTabUiState.recentListens ?: listOf(),
             onPin = {metadata, blurbContent ->  onPin(metadata, blurbContent)},
             searchUsers = { query -> searchUsers(query) },
             feedUiState = feedUiState,
@@ -578,16 +561,20 @@ private fun LoadMoreButton(
 
 
 @Composable
-private fun SongsListened(username: String? , listenCount: Int?){
+private fun SongsListened(username: String? , listenCount: Int?, isSelf: Boolean){
     Column (horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
-        .clip(shape = RoundedCornerShape(100.dp))
-        .background(color = app_bg_dark)) {
+        .background(ListenBrainzTheme.colorScheme.songsListenedToBG)) {
         Spacer(modifier = Modifier.height(30.dp))
-        Text("$username has listened to", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+        Text(
+            when(isSelf){
+                true -> "$username has listened to"
+                false -> "You have listened to"
+            }
+            , color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
         Spacer(modifier = Modifier.height(15.dp))
-        HorizontalDivider(color = on_app_bg_dark, modifier = Modifier.padding(start = 60.dp, end = 60.dp))
+        HorizontalDivider(color = ListenBrainzTheme.colorScheme.dividerColor, modifier = Modifier.padding(start = 60.dp, end = 60.dp))
         Spacer(modifier = Modifier.height(15.dp))
-        Text(listenCount.toString(), color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),  textAlign = TextAlign.Center)
+        Text(listenCount.toString(), color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),  textAlign = TextAlign.Center)
         Text("songs so far", color = app_bg_mid, style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
         Spacer(modifier = Modifier.height(30.dp))
     }
@@ -597,33 +584,25 @@ private fun SongsListened(username: String? , listenCount: Int?){
 @Composable
 private fun FollowersInformation(followersCount: Int?, followingCount: Int?){
     Box(modifier = Modifier
-        .clip(shape = RoundedCornerShape(20.dp))
         .background(
-            Brush.verticalGradient(
-                listOf(
-                    Color(0xFF161616),
-                    Color(0xFF1A1A1A),
-                    Color(0xFF202020),
-                    Color(0xFF242424),
-                    Color.Transparent
-                )
-            )
+            ListenBrainzTheme.colorScheme.userPageGradient
         )
     ){
         Row (horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 30.dp)) {
+            .padding(top = 30.dp, bottom = 30.dp)) {
             Column (horizontalAlignment = Alignment.CenterHorizontally) {
-                Text((followersCount ?:0).toString(), style = MaterialTheme.typography.bodyLarge, color = Color.White)
+                Text((followersCount ?:0).toString(), style = MaterialTheme.typography.bodyLarge, color = ListenBrainzTheme.colorScheme.textColor)
                 Spacer(modifier = Modifier.height(10.dp))
-                Text("Followers", style = MaterialTheme.typography.bodyLarge, color = Color.White)
+                Text("Followers", style = MaterialTheme.typography.bodyLarge, color = ListenBrainzTheme.colorScheme.textColor)
             }
             Column (horizontalAlignment = Alignment.CenterHorizontally) {
-                Text((followingCount ?: 0).toString(), style = MaterialTheme.typography.bodyLarge, color = Color.White)
+                Text((followingCount ?: 0).toString(), style = MaterialTheme.typography.bodyLarge, color = ListenBrainzTheme.colorScheme.textColor)
                 Spacer(modifier = Modifier.height(10.dp))
-                Text("Following", style = MaterialTheme.typography.bodyLarge, color = Color.White)
+                Text("Following", style = MaterialTheme.typography.bodyLarge, color = ListenBrainzTheme.colorScheme.textColor)
             }
         }
+        Spacer(modifier = Modifier.height(10.dp))
     }
 
 
@@ -645,11 +624,11 @@ fun CompatibilityCard(compatibility: Float, similarArtists: List<String>){
 }
 
 @Composable
-private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers: List<Pair<String,Boolean>>, following: List<Pair<String,Boolean>>, followersState: Boolean, onStateChange: (Boolean) -> Unit) {
+private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers: List<Pair<String,Boolean>>, following: List<Pair<String,Boolean>>, followersState: Boolean, onStateChange: (Boolean) -> Unit, onFollowButtonClick: (String?, Boolean) -> Unit) {
     Column(modifier = Modifier.padding(start = 16.dp , top = 30.dp)) {
         Text(
             "Followers",
-            color = Color.White,
+            color = ListenBrainzTheme.colorScheme.textColor,
             style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp)
         )
         Spacer(modifier = Modifier.height(10.dp))
@@ -657,8 +636,8 @@ private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers:
             Card(
                 colors = CardDefaults.cardColors(
                     containerColor = when (followersState) {
-                        true -> lb_purple_night
-                        false -> app_bg_dark
+                        true -> ListenBrainzTheme.colorScheme.followerChipSelected
+                        false -> ListenBrainzTheme.colorScheme.followerChipUnselected
                     },
                 ),
                 border = when(followersState){
@@ -676,8 +655,8 @@ private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers:
                     Text(
                         text = "Followers (${followersCount})",
                         color = when (followersState) {
-                            true -> app_bg_dark
-                            false -> lb_purple_night
+                            true -> ListenBrainzTheme.colorScheme.followerChipUnselected
+                            false -> ListenBrainzTheme.colorScheme.followerChipSelected
                         },
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
@@ -688,8 +667,8 @@ private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers:
             Card(
                 colors = CardDefaults.cardColors(
                     containerColor = when (followersState) {
-                        true -> app_bg_dark
-                        false -> lb_purple_night
+                        true -> ListenBrainzTheme.colorScheme.followerChipUnselected
+                        false -> ListenBrainzTheme.colorScheme.followerChipSelected
                     },
                 ),
                 border = when(followersState){
@@ -707,8 +686,8 @@ private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers:
                     Text(
                         text = "Following (${followingCount})",
                         color = when (followersState) {
-                            true -> lb_purple_night
-                            false -> app_bg_dark
+                            true -> ListenBrainzTheme.colorScheme.followerChipSelected
+                            false -> ListenBrainzTheme.colorScheme.followerChipUnselected
                         },
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
@@ -720,12 +699,12 @@ private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers:
         when(followersState){
             true -> followers.map {
                 state ->
-                FollowCard(username = state.first, onButtonClick = Unit, followStatus = state.second)
+                FollowCard(username = state.first, onFollowButtonClick = onFollowButtonClick, followStatus = state.second)
                 Spacer(modifier = Modifier.height(10.dp))
             }
             false -> following.map {
                 state ->
-                FollowCard(username = state.first, onButtonClick = Unit, followStatus = state.second)
+                FollowCard(username = state.first, onFollowButtonClick = onFollowButtonClick, followStatus = state.second)
                 Spacer(modifier = Modifier.height(10.dp))
             }
         }
@@ -735,7 +714,7 @@ private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers:
 @Composable
 private fun SimilarUsersCard(similarUsers: List<SimilarUser>){
     Spacer(modifier = Modifier.height(20.dp))
-    Text("Similar Users", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(horizontal = 16.dp))
+    Text("Similar Users", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(horizontal = 16.dp))
     Spacer(modifier = Modifier.height(20.dp))
     similarUsers.mapIndexed{
         index , item ->
@@ -744,36 +723,42 @@ private fun SimilarUsersCard(similarUsers: List<SimilarUser>){
 }
 
 @Composable
-private fun FollowCard(username: String?, onButtonClick: Unit, followStatus: Boolean) {
-    Card(colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E))) {
+private fun FollowCard(username: String?, onFollowButtonClick: (String?, Boolean) -> Unit, followStatus: Boolean) {
+    Card(colors = CardDefaults.cardColors(containerColor = ListenBrainzTheme.colorScheme.followerCardColor)) {
         Row(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth()
-                .height(70.dp),
+                .height(60.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 username ?: "",
-                color = lb_purple_night,
+                color = ListenBrainzTheme.colorScheme.followerCardTextColor,
                 style = MaterialTheme.typography.bodyLarge
             )
             TextButton(
-                onClick = { /*TODO*/ }, colors = ButtonDefaults.buttonColors(
+                onClick = {
+                    onFollowButtonClick(username, followStatus)
+                }, colors = ButtonDefaults.buttonColors(
                     containerColor = when (followStatus) {
-                        true -> app_bg_dark
+                        true -> ListenBrainzTheme.colorScheme.followingButtonColor
                         false -> lb_purple
                     }
                 ), modifier = Modifier
                     .width(90.dp)
-                    .height(40.dp), shape = RoundedCornerShape(10.dp)
+                    .height(40.dp), shape = RoundedCornerShape(10.dp),
+                border = ListenBrainzTheme.colorScheme.followingButtonBorder
             ) {
                 Text(
                     when (followStatus) {
                         true -> "Following"
                         false -> "Follow"
-                    }, color = Color.White
+                    }, color = when(followStatus){
+                        true -> ListenBrainzTheme.colorScheme.followerCardTextColor
+                        false -> Color.White
+                    }
                 )
             }
         }
@@ -788,7 +773,7 @@ fun ListensScreenPreview() {
         onScrollToTop = {},
         scrollRequestState = false,
         updateNotificationServicePermissionStatus = {},
-        uiState = ListensTabUiState(),
+        uiState = ProfileUiState(),
         feedUiState = FeedUiState(),
         preferencesUiState = PreferencesUiState(),
         validateUserToken = { true },
@@ -805,6 +790,7 @@ fun ListensScreenPreview() {
         onPersonallyRecommend = {_,_,_ ->},
         dropdownItemIndex = remember { mutableStateOf(null) },
         snackbarState = remember { SnackbarHostState() },
-        username = "pranavkonidena"
+        username = "pranavkonidena",
+        onFollowButtonClick = {_,_ -> }
     )
 }

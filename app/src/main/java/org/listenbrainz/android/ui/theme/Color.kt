@@ -21,6 +21,7 @@ val app_bg_day = Color(0xFFFFFFFF)
 val app_bg_dark = Color(0xFF292929)
 val app_bg_secondary_dark = Color(0xFF1E1E1E)
 val on_app_bg_dark = Color(0xFF101010)
+val app_bg_secondary_light = Color(0xFFD9D9D9)
 val app_bg_light = Color(0xFF8FA3AD)
 //TODO: Change app_bg_light everywhere following approval from lead dev
 val new_app_bg_light = Color(0xFFF5F5F5)

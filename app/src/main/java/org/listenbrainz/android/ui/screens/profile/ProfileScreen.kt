@@ -63,7 +63,7 @@ fun ProfileScreen(
     when(loginStatus) {
         STATUS_LOGGED_IN -> {
             LaunchedEffect(Unit) {
-                viewModel.getUserListensData(username)
+                viewModel.getUserDataFromRemote(username)
             }
 
             BaseProfileScreen(

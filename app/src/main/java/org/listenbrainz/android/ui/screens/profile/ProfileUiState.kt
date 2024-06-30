@@ -8,12 +8,14 @@ import org.listenbrainz.android.model.SimilarUser
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningNowUiState
 
 data class ProfileUiState(
-    val listensTabUiState: ListensTabUiState = ListensTabUiState()
+    val isSelf: Boolean = false,
+    val listensTabUiState: ListensTabUiState = ListensTabUiState(),
+    val statsTabUIState: StatsTabUIState = StatsTabUIState(),
+    val tasteTabUIState: TasteTabUIState = TasteTabUIState(),
 )
 
 data class ListensTabUiState (
     val isLoading: Boolean = true,
-    val isSelf: Boolean = false,
     val listenCount: Int? = null,
     val followersCount: Int? = null,
     val followingCount: Int? = null,
@@ -26,6 +28,15 @@ data class ListensTabUiState (
     val similarUsers: List<SimilarUser>? = emptyList(),
     val similarArtists: List<String> = emptyList(),
     val isFollowing: Boolean = false
+)
+
+data class TasteTabUIState (
+    val isLoading: Boolean = true,
+
+    )
+
+data class StatsTabUIState(
+    val isLoading: Boolean = true,
 )
 
 data class ListeningNowUiState(

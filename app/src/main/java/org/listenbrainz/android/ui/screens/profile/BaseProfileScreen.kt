@@ -41,20 +41,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.listens.ListensScreen
+import org.listenbrainz.android.ui.screens.profile.stats.StatsScreen
+import org.listenbrainz.android.ui.screens.profile.taste.TasteScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.app_bg_light
 import org.listenbrainz.android.ui.theme.lb_orange
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.new_app_bg_light
 import org.listenbrainz.android.util.Constants
+import org.listenbrainz.android.viewmodel.ProfileViewModel
 
 @Composable
 fun BaseProfileScreen(
     username: String?,
     snackbarState: SnackbarHostState,
+    viewModel: ProfileViewModel = hiltViewModel(),
     uiState: ProfileUiState,
     onFollowClick: (String) -> Unit,
     onUnfollowClick: (String) -> Unit,
@@ -62,7 +67,7 @@ fun BaseProfileScreen(
 ){
 
     val currentTab : MutableState<ProfileScreenTab> = remember { mutableStateOf(ProfileScreenTab.LISTENS) }
-    val isLoggedInUser = uiState.listensTabUiState.isSelf
+    val isLoggedInUser = uiState.isSelf
     val uriHandler = LocalUriHandler.current
     val mbOpeningErrorState = remember {
         mutableStateOf<String?>(null)
@@ -100,7 +105,7 @@ fun BaseProfileScreen(
                                     ListenBrainzTheme.colorScheme.chipSelected
                                 } else {
                                     if(position == 0){
-                                        if(uiState.listensTabUiState.isSelf){
+                                        if(uiState.isSelf){
                                             lb_purple
                                         }
                                         else{
@@ -116,7 +121,7 @@ fun BaseProfileScreen(
                             shape = ListenBrainzTheme.shapes.chips,
                             elevation = SuggestionChipDefaults.elevatedSuggestionChipElevation(elevation = 4.dp),
                             icon = {
-                                if(position == 0 && !uiState.listensTabUiState.isSelf){
+                                if(position == 0 && !uiState.isSelf){
                                     Box (modifier = Modifier
                                         .background(lb_purple)
                                         .padding(4.dp)) {
@@ -133,20 +138,23 @@ fun BaseProfileScreen(
                                         0 -> username ?: ""
                                         1 -> ProfileScreenTab.LISTENS.value
                                         2 -> ProfileScreenTab.STATS.value
-                                        3 -> ProfileScreenTab.PLAYLISTS.value
-                                        4 -> ProfileScreenTab.TASTE.value
+                                        3 -> ProfileScreenTab.TASTE.value
+                                        4 -> ProfileScreenTab.PLAYLISTS.value
                                         5 -> ProfileScreenTab.CREATED_FOR_YOU.value
                                         else -> ""
                                     },
                                     style = ListenBrainzTheme.textStyles.chips,
-                                    color = ListenBrainzTheme.colorScheme.text,
+                                    color = when (position){
+                                        0 -> Color.White
+                                        else -> ListenBrainzTheme.colorScheme.textColor
+                                    },
                                 )
                             },
                             onClick = { currentTab.value = when (position) {
                                 1 -> ProfileScreenTab.LISTENS
                                 2 -> ProfileScreenTab.STATS
-                                3 -> ProfileScreenTab.PLAYLISTS
-                                4 -> ProfileScreenTab.TASTE
+                                3 -> ProfileScreenTab.TASTE
+                                4 -> ProfileScreenTab.PLAYLISTS
                                 5 -> ProfileScreenTab.CREATED_FOR_YOU
                                 else -> ProfileScreenTab.LISTENS
                             } }
@@ -158,42 +166,54 @@ fun BaseProfileScreen(
                 Row (modifier = Modifier
                     .align(Alignment.End)
                     .padding(end = 20.dp)) {
-                    when(isLoggedInUser) {
-                        true -> AddListensButton()
-                        false -> when(uiState.listensTabUiState.isFollowing){
-                            true -> UnFollowButton(username = username, onUnFollowClick = {
-                                onUnfollowClick(it)
-                            })
-                            false -> FollowButton(username = username, onFollowClick = {
-                                onFollowClick(it)
-                            })
+                    if(currentTab.value == ProfileScreenTab.LISTENS){
+                        when(isLoggedInUser) {
+                            true -> AddListensButton()
+                            false -> when(uiState.listensTabUiState.isFollowing){
+                                true -> UnFollowButton(username = username, onUnFollowClick = {
+                                    onUnfollowClick(it)
+                                })
+                                false -> FollowButton(username = username, onFollowClick = {
+                                    onFollowClick(it)
+                                })
+                            }
                         }
-                    }
-                    Spacer(modifier = Modifier.width(10.dp))
-                    MusicBrainzButton(){
-                       try {
-                           uriHandler.openUri(Constants.MB_BASE_URL + "user/${username}")
-                       }
-                       catch (e: RuntimeException) {
-                           mbOpeningErrorState.value = e.message;
-                       }
-                       catch (e: Exception){
-                           mbOpeningErrorState.value = e.message;
-                       }
+                        Spacer(modifier = Modifier.width(10.dp))
+                        MusicBrainzButton{
+                            try {
+                                uriHandler.openUri(Constants.MB_BASE_URL + "user/${username}")
+                            }
+                            catch (e: RuntimeException) {
+                                mbOpeningErrorState.value = e.message
+                            }
+                            catch (e: Exception){
+                                mbOpeningErrorState.value = e.message
+                            }
+                        }
                     }
                 }
                 when(currentTab.value) {
                     ProfileScreenTab.LISTENS -> ListensScreen(
                         scrollRequestState = false,
+                        profileViewModel = viewModel,
                         onScrollToTop = {},
                         snackbarState = snackbarState,
                         username = username
                     )
+                    ProfileScreenTab.STATS -> StatsScreen(
+                        viewModel = viewModel,
+                        uiState = uiState,
+                    )
+                    ProfileScreenTab.TASTE -> TasteScreen(
+                        viewModel = viewModel,
+                        uiState = uiState,
+                    )
                     else -> ListensScreen(
                         scrollRequestState = false,
+                        profileViewModel = viewModel,
                         onScrollToTop = {},
                         snackbarState = snackbarState,
-                        username = username
+                        username = username,
                     )
                 }
 
@@ -201,7 +221,7 @@ fun BaseProfileScreen(
         }
         if(mbOpeningErrorState.value != null){
             LaunchedEffect(mbOpeningErrorState.value) {
-                snackbarState.showSnackbar("Some Error Occoued", duration = SnackbarDuration.Short)
+                snackbarState.showSnackbar("Some Error Occurred", duration = SnackbarDuration.Short)
             }
         }
 
