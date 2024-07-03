@@ -207,12 +207,10 @@ fun BaseProfileScreen(
                         username = username
                     )
                     ProfileScreenTab.STATS -> StatsScreen(
-                        viewModel = viewModel,
-                        uiState = uiState,
+
                     )
                     ProfileScreenTab.TASTE -> TasteScreen(
-                        viewModel = viewModel,
-                        uiState = uiState,
+                        snackbarState = snackbarState,
                     )
                     else -> ListensScreen(
                         scrollRequestState = false,

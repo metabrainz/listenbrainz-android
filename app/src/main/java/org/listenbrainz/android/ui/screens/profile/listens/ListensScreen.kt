@@ -168,7 +168,7 @@ fun ListensScreen(
     )
 }
 
-private enum class ListenDialogBundleKeys {
+enum class ListenDialogBundleKeys {
     PAGE,
     EVENT_INDEX;
     companion object {
@@ -479,7 +479,7 @@ private fun BuildSimilarArtists(similarArtists: List<String>) {
 }
 
 @Composable
-private fun Dialogs(
+fun Dialogs(
     deactivateDialog: () -> Unit,
     currentDialog: Dialog,
     feedUiState: FeedUiState,
