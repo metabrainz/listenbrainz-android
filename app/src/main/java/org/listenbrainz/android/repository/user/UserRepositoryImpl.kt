@@ -3,6 +3,7 @@ package org.listenbrainz.android.repository.user
 import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.TopArtists
 import org.listenbrainz.android.model.user.UserFeedback
 import org.listenbrainz.android.model.user.UserSimilarityPayload
@@ -28,6 +29,11 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun fetchUserCurrentPins(username: String?): Resource<PinnedRecording?> = parseResponse {
         if(username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
         service.getUserCurrentPins(username)
+    }
+
+    override suspend fun fetchUserPins(username: String?): Resource<AllPinnedRecordings?> = parseResponse{
+        if(username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
+        service.getUserPins(username)
     }
 
     override suspend fun getTopArtists(

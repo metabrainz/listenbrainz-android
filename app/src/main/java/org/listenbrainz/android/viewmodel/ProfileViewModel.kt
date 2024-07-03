@@ -157,10 +157,12 @@ class ProfileViewModel @Inject constructor(
     private suspend fun getUserTasteData(inputUsername: String?) {
         val lovedSongs = userRepository.getUserFeedback(inputUsername, 1).data
         val hatedSongs = userRepository.getUserFeedback(inputUsername, -1).data
+        val userPins = userRepository.fetchUserPins(inputUsername).data
         val tastesTabState = TasteTabUIState(
             isLoading = false,
             lovedSongs = lovedSongs,
             hatedSongs = hatedSongs,
+            pins = userPins,
         )
         tasteStateFlow.emit(tastesTabState)
     }

@@ -5,6 +5,7 @@ import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.SimilarUser
+import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.UserFeedback
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningNowUiState
 
@@ -35,6 +36,7 @@ data class TasteTabUIState (
     val isLoading: Boolean = true,
     val lovedSongs: UserFeedback? = null,
     val hatedSongs: UserFeedback? = null,
+    val pins: AllPinnedRecordings? = null,
     )
 
 data class StatsTabUIState(

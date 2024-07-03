@@ -2,6 +2,7 @@ package org.listenbrainz.android.service
 
 import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.PinnedRecording
+import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.TopArtists
 import org.listenbrainz.android.model.user.UserFeedback
 import org.listenbrainz.android.model.user.UserSimilarityPayload
@@ -19,6 +20,9 @@ interface UserService {
 
     @GET("{user_name}/pins/current")
     suspend fun getUserCurrentPins(@Path("user_name") username: String?) : Response<PinnedRecording?>
+
+    @GET("{user_name}/pins")
+    suspend fun getUserPins(@Path("user_name") username: String?) : Response<AllPinnedRecordings?>
 
     @GET("stats/user/{user_name}/artists?count=100")
     suspend fun getTopArtistsOfUser(@Path("user_name") username: String?) : Response<TopArtists>

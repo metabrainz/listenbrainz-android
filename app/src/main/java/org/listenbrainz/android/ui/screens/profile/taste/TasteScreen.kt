@@ -3,6 +3,8 @@ package org.listenbrainz.android.ui.screens.profile.taste
 import LovedHated
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.HeartBroken
 import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
@@ -34,10 +37,12 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Metadata
+import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.feed.ReviewEntityType
@@ -132,6 +137,10 @@ fun TasteScreen(
     val lovedHatedState: MutableState<LovedHated> = remember { mutableStateOf(LovedHated.loved) }
 
     val lovedHatedCollapsibleState: MutableState<Boolean> = remember {
+        mutableStateOf(true)
+    }
+
+    val pinsCollapsibleState: MutableState<Boolean> = remember {
         mutableStateOf(true)
     }
 
@@ -230,7 +239,114 @@ fun TasteScreen(
                         lovedHatedCollapsibleState.value = !lovedHatedCollapsibleState.value
                     }
                 }
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+        }
+        item {
+            val pinnedRecordings = when(pinsCollapsibleState.value){
+                true -> uiState.tasteTabUIState.pins?.pinnedRecordings?.take(5) ?: listOf()
+                false -> uiState.tasteTabUIState.pins?.pinnedRecordings ?: listOf()
+            }
+            Box(
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp)
+            ) {
+                Column {
+                    Text(
+                        text = "Pins",
+                        color = ListenBrainzTheme.colorScheme.textColor,
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp)
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+                    pinnedRecordings.mapIndexed { index, recording: PinnedRecording ->
+                        val metadata = Metadata(trackMetadata = recording.trackMetadata)
+                        ListenCardSmall(
+                            enableBlurbContent = true,
+                            blurbContent = {
+                                Text(
+                                    ('"' + (recording.blurbContent
+                                        ?: "No content specified") + '"'),
+                                    color = ListenBrainzTheme.colorScheme.textColor,
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                            },
+                            modifier = Modifier
+                                .padding(
 
+                                    vertical = ListenBrainzTheme.paddings.lazyListAdjacent
+                                ),
+                            trackName = recording.trackMetadata?.trackName ?: "",
+                            artistName = recording.trackMetadata
+                                ?.artistName ?: "",
+                            coverArtUrl = getCoverArtUrl(
+                                caaReleaseMbid = recording.trackMetadata?.mbidMapping?.caaReleaseMbid,
+                                caaId = recording.trackMetadata?.mbidMapping?.caaId
+                            ),
+                            enableDropdownIcon = true,
+                            onDropdownIconClick = {
+                                dropdownItemIndex.value = index
+                            },
+                            dropDown = {
+                                SocialDropdown(
+                                    isExpanded = dropdownItemIndex.value == index,
+                                    onDismiss = {
+                                        dropdownItemIndex.value = null
+                                    },
+                                    metadata = metadata,
+                                    onRecommend = { onRecommend(metadata) },
+                                    onPersonallyRecommend = {
+                                        dialogsState.activateDialog(
+                                            Dialog.PERSONAL_RECOMMENDATION,
+                                            ListenDialogBundleKeys.listenDialogBundle(0, index)
+                                        )
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onReview = {
+                                        dialogsState.activateDialog(
+                                            Dialog.REVIEW,
+                                            ListenDialogBundleKeys.listenDialogBundle(0, index)
+                                        )
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onPin = {
+                                        dialogsState.activateDialog(
+                                            Dialog.PIN,
+                                            ListenDialogBundleKeys.listenDialogBundle(0, index)
+                                        )
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onOpenInMusicBrainz = {
+                                        try {
+                                            uriHandler.openUri("https://musicbrainz.org/recording/${metadata.trackMetadata?.mbidMapping?.recordingMbid}")
+                                        } catch (e: Error) {
+                                            scope.launch {
+                                                snackbarState.showSnackbar(context.getString(R.string.err_generic_toast))
+                                            }
+                                        }
+                                        dropdownItemIndex.value = null
+                                    }
+
+                                )
+                            }
+                        ) {
+                            if (recording.trackMetadata != null) {
+                                playListen(recording.trackMetadata)
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+        item {
+            if((uiState.tasteTabUIState.pins?.count ?: 0) > 5){
+                Spacer(modifier = Modifier.height(20.dp))
+                Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                    LoadMoreButton(state = pinsCollapsibleState.value) {
+                        pinsCollapsibleState.value = !pinsCollapsibleState.value
+                    }
+                }
+                Spacer(modifier = Modifier.height(20.dp))
             }
         }
     }
