@@ -3,6 +3,8 @@ package org.listenbrainz.android.viewmodel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -85,10 +87,13 @@ class ProfileViewModel @Inject constructor(
 
     suspend fun getUserDataFromRemote(
         inputUsername: String?
-    ){
-        getUserListensData(inputUsername)
-        getUserStatsData(inputUsername)
-        getUserTasteData(inputUsername)
+    ) = coroutineScope{
+        val listensTabData = async{ getUserListensData(inputUsername) }
+        val statsTabData = async {getUserStatsData(inputUsername)}
+        val tasteTabData = async {getUserTasteData(inputUsername)}
+        listensTabData.await()
+        statsTabData.await()
+        tasteTabData.await()
     }
 
 
@@ -145,12 +150,19 @@ class ProfileViewModel @Inject constructor(
         listenStateFlow.emit(listensTabState)
     }
 
-    suspend fun getUserStatsData(inputUsername: String?) {
+    private suspend fun getUserStatsData(inputUsername: String?) {
 
     }
 
-    suspend fun getUserTasteData(inputUsername: String?) {
-
+    private suspend fun getUserTasteData(inputUsername: String?) {
+        val lovedSongs = userRepository.getUserFeedback(inputUsername, 1).data
+        val hatedSongs = userRepository.getUserFeedback(inputUsername, -1).data
+        val tastesTabState = TasteTabUIState(
+            isLoading = false,
+            lovedSongs = lovedSongs,
+            hatedSongs = hatedSongs,
+        )
+        tasteStateFlow.emit(tastesTabState)
     }
 
 

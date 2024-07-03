@@ -3,10 +3,12 @@ package org.listenbrainz.android.service
 import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.user.TopArtists
+import org.listenbrainz.android.model.user.UserFeedback
 import org.listenbrainz.android.model.user.UserSimilarityPayload
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface UserService {
     @GET("user/{user_name}/listen-count")
@@ -20,4 +22,7 @@ interface UserService {
 
     @GET("stats/user/{user_name}/artists?count=100")
     suspend fun getTopArtistsOfUser(@Path("user_name") username: String?) : Response<TopArtists>
+
+    @GET("feedback/user/{user_name}/get-feedback?metadata=true")
+    suspend fun getUserFeedback(@Path("user_name") username: String?, @Query("score") score: Int?) : Response<UserFeedback?>
 }

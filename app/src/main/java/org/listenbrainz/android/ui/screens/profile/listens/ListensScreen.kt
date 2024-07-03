@@ -545,7 +545,7 @@ private fun Dialogs(
 }
 
 @Composable
-private fun LoadMoreButton(
+fun LoadMoreButton(
     state: Boolean,
     onClick : () -> Unit,
 ){
