@@ -46,7 +46,7 @@ dependencies {
     implementation 'androidx.room:room-testing:2.6.1'
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
 
-    implementation 'androidx.test:runner:1.6.0'
+    implementation 'androidx.test:runner:1.6.1'
     implementation 'androidx.test.ext:junit:1.2.0'
     implementation 'androidx.arch.core:core-testing:2.2.0'
     implementation 'androidx.test.espresso:espresso-core:3.6.0'
