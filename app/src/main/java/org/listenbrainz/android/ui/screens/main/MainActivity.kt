@@ -199,7 +199,10 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                                 },
-                                snackbarState = snackbarState
+                                snackbarState = snackbarState,
+                                goToUserProfile = {
+                                    navController.navigate("${AppNavigationItem.Profile.route}/${username}")
+                                }
                             )
                         }
                     }

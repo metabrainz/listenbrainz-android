@@ -23,7 +23,8 @@ fun AppNavigation(
     navController: NavController = rememberNavController(),
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
-    snackbarState : SnackbarHostState
+    snackbarState : SnackbarHostState,
+    goToUserProfile: () -> Unit,
 ) {
     NavHost(
         navController = navController as NavHostController,
@@ -62,7 +63,8 @@ fun AppNavigation(
                 onScrollToTop = onScrollToTop,
                 scrollRequestState = scrollRequestState,
                 username = username,
-                snackbarState = snackbarState
+                snackbarState = snackbarState,
+                goToUserProfile = goToUserProfile
             )
         }
         composable(route = AppNavigationItem.Settings.route){

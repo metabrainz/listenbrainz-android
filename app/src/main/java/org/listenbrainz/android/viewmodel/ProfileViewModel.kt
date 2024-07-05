@@ -1,9 +1,10 @@
 package org.listenbrainz.android.viewmodel
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -17,10 +18,11 @@ import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.social.SocialRepository
-import org.listenbrainz.android.repository.socket.SocketRepository
 import org.listenbrainz.android.repository.user.UserRepository
 import org.listenbrainz.android.ui.screens.profile.ListensTabUiState
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
+import org.listenbrainz.android.ui.screens.profile.StatsTabUIState
+import org.listenbrainz.android.ui.screens.profile.TasteTabUIState
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
 import javax.inject.Inject
 
@@ -28,17 +30,19 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     val appPreferences: AppPreferences,
     private val userRepository: UserRepository,
-    val listensRepository: ListensRepository,
-    val socketRepository: SocketRepository,
+    private val listensRepository: ListensRepository,
     private val socialRepository: SocialRepository,
-    private val savedStateHandle: SavedStateHandle,
     @IoDispatcher val ioDispatcher: CoroutineDispatcher,
 
 ) : BaseViewModel<ProfileUiState>() {
     
     private val _loginStatusFlow: MutableStateFlow<Int> = MutableStateFlow(STATUS_LOGGED_OUT)
+    private var isLoggedInUser = false
     val loginStatusFlow: StateFlow<Int> = _loginStatusFlow.asStateFlow()
     private val listenStateFlow : MutableStateFlow<ListensTabUiState> = MutableStateFlow(ListensTabUiState())
+    private val statsStateFlow : MutableStateFlow<StatsTabUIState> = MutableStateFlow(StatsTabUIState())
+    private val tasteStateFlow : MutableStateFlow<TasteTabUIState> = MutableStateFlow(TasteTabUIState())
+
     init {
         viewModelScope.launch(ioDispatcher) {
             appPreferences.getLoginStatusFlow()
@@ -81,11 +85,21 @@ class ProfileViewModel @Inject constructor(
 
     }
 
+    suspend fun getUserDataFromRemote(
+        inputUsername: String?
+    ) = coroutineScope{
+        val listensTabData = async{ getUserListensData(inputUsername) }
+        val statsTabData = async {getUserStatsData(inputUsername)}
+        val tasteTabData = async {getUserTasteData(inputUsername)}
+        listensTabData.await()
+        statsTabData.await()
+        tasteTabData.await()
+    }
 
 
-    suspend fun getUserListensData(inputUsername: String?) {
+
+    private suspend fun getUserListensData(inputUsername: String?) {
         val username = inputUsername ?: appPreferences.username.get()
-        var isLoggedInUser = false
         if(inputUsername != null){
             isLoggedInUser = inputUsername == appPreferences.username.get()
         }
@@ -121,7 +135,6 @@ class ProfileViewModel @Inject constructor(
         val isFollowing = currentUserFollowingSet.contains(username)
         val listensTabState = ListensTabUiState(
             isLoading = false,
-            isSelf = isLoggedInUser,
             listenCount = listenCount,
             followersCount = followersCount,
             followers = followersState,
@@ -137,15 +150,40 @@ class ProfileViewModel @Inject constructor(
         listenStateFlow.emit(listensTabState)
     }
 
+    private suspend fun getUserStatsData(inputUsername: String?) {
+
+    }
+
+    private suspend fun getUserTasteData(inputUsername: String?) {
+        val lovedSongs = userRepository.getUserFeedback(inputUsername, 1).data
+        val hatedSongs = userRepository.getUserFeedback(inputUsername, -1).data
+        val userPins = userRepository.fetchUserPins(inputUsername).data
+        val tastesTabState = TasteTabUIState(
+            isLoading = false,
+            lovedSongs = lovedSongs,
+            hatedSongs = hatedSongs,
+            pins = userPins,
+        )
+        tasteStateFlow.emit(tastesTabState)
+    }
+
+
     override val uiState: StateFlow<ProfileUiState> = createUiStateFlow()
 
 
     override fun createUiStateFlow(): StateFlow<ProfileUiState> {
         return combine(
-            listenStateFlow
+            listenStateFlow,
+            statsStateFlow,
+            tasteStateFlow,
         ) {
-            array ->
-            ProfileUiState(array[0])
+            listensUIState, statsUIState, tasteUIState ->
+            ProfileUiState(
+                isSelf = isLoggedInUser,
+                listensTabUiState = listensUIState,
+                statsTabUIState = statsUIState,
+                tasteTabUIState = tasteUIState,
+            )
         }.stateIn(
             viewModelScope,
             started = SharingStarted.Eagerly,

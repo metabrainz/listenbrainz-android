@@ -2,6 +2,7 @@ package org.listenbrainz.android.ui.theme
 
 import android.app.Activity
 import android.content.Context
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -60,7 +61,19 @@ data class ColorScheme(
     val hint: Color,
     /** Used for BP **/
     val gradientBrush: Brush,
-    val placeHolderColor: Color
+    val placeHolderColor: Color,
+    /** Used for User Pages **/
+    val dividerColor: Color,
+    val textColor: Color,
+    val songsListenedToBG: Color,
+    val userPageGradient: Brush,
+    val followerChipSelected: Color,
+    val followerChipUnselected: Color,
+    val followerCardColor: Color,
+    val followerCardTextColor: Color,
+    val followingButtonColor: Color,
+    val followingButtonTextColor: Color,
+    val followingButtonBorder: BorderStroke?,
 )
 
 
@@ -105,7 +118,26 @@ private val colorSchemeDark = ColorScheme(
     listenText = Color.White,
     hint = Color(0xFF8C8C8C),
     gradientBrush = brainzPlayerDarkGradientsBrush,
-    placeHolderColor = Color(0xFF1E1E1E)
+    placeHolderColor = Color(0xFF1E1E1E),
+    dividerColor = app_bg_secondary_dark,
+    textColor = new_app_bg_light,
+    songsListenedToBG = app_bg_dark,
+    userPageGradient = Brush.verticalGradient(
+        listOf(
+            Color(0xFF161616),
+            Color(0xFF1A1A1A),
+            Color(0xFF202020),
+            Color(0xFF242424),
+            Color.Transparent
+        )
+    ),
+    followerChipSelected = lb_purple_night,
+    followerChipUnselected = app_bg_dark,
+    followerCardColor = app_bg_secondary_dark,
+    followerCardTextColor = lb_purple_night,
+    followingButtonColor = app_bg_dark,
+    followingButtonTextColor = Color.White,
+    followingButtonBorder = null,
 )
 
 private val colorSchemeLight = ColorScheme(
@@ -124,7 +156,30 @@ private val colorSchemeLight = ColorScheme(
     listenText = lb_purple,
     hint = Color(0xFF707070),
     gradientBrush = brainzPlayerLightGradientsBrush,
-    placeHolderColor = Color(0xFFEBEBEB)
+    placeHolderColor = Color(0xFFEBEBEB),
+    dividerColor = app_bg_secondary_light,
+    textColor = app_bg_dark,
+    songsListenedToBG = new_app_bg_light,
+    userPageGradient = Brush.verticalGradient(
+        listOf(
+            Color(0xFFEAEAEA),
+            Color(0xFFEBEBEB),
+            Color(0xFFF0F0F0),
+            Color(0xFFF1F1F1),
+            Color(0xFFF2F2F2),
+            Color(0xFFF3F3F3),
+            Color(0xFFF4F4F4),
+            Color(0xFFF5F5F5),
+            Color.Transparent
+        )
+    ),
+    followerChipSelected = lb_purple,
+    followerChipUnselected = Color.White,
+    followerCardColor = Color.White,
+    followerCardTextColor = lb_purple,
+    followingButtonColor = Color.White,
+    followingButtonTextColor = lb_purple,
+    followingButtonBorder = BorderStroke(width = 1.dp, color = lb_purple)
 )
 
 
