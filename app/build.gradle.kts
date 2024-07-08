@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.compose.compiler)
-    id("io.sentry.android.gradle") version "4.7.0"
+    alias(libs.plugins.sentry)
 }
 
 val keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -126,6 +126,7 @@ android {
 }
 
 dependencies {
+    // AndroidX libraries
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
@@ -138,37 +139,26 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
 
+    // Networking
     implementation(libs.gson)
     implementation(libs.retrofit)
     implementation(libs.okhttp)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp.logging.interceptor)
-    implementation(libs.androidx.paging.runtime)
-    implementation(libs.androidx.paging.compose)
 
+    // Image loading and processing
     implementation(libs.glide)
     implementation(libs.glide.compose)
     implementation(libs.coil.compose)
     implementation(libs.androidsvg)
     ksp(libs.glide.compiler)
 
-    implementation(libs.google.accompanist.permissions)
-
-    implementation(libs.material)
-    implementation(libs.lottie)
-    implementation(libs.onboarding)
-    implementation(libs.share.android)
-    implementation(libs.androidx.hilt.navigation.compose)
-    implementation(libs.lottie.compose)
-
-    // Dependency Injection with Hilt
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
-    implementation(libs.androidx.hilt.work)
-    implementation(libs.androidx.startup.runtime)
-    androidTestImplementation(libs.hilt.android)
-
+    // Compose
     val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)
     implementation(libs.androidx.compose.ui.graphics)
@@ -183,30 +173,55 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.activity.compose)
-
     implementation(libs.androidx.navigation.compose)
 
-    //Spotify
+    // Dependency Injection
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+    implementation(libs.androidx.hilt.work)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.startup.runtime)
+
+    // UI Components
+    implementation(libs.material)
+    implementation(libs.lottie)
+    implementation(libs.lottie.compose)
+    implementation(libs.onboarding)
+    implementation(libs.share.android)
+    implementation(libs.compose.ratingbar)
+
+    // Accompanist
+    implementation(libs.google.accompanist.permissions)
+    implementation(libs.google.accompanist.systemuicontroller)
+
+    // Media playback
+    implementation(libs.google.exoplayer.core)
+    implementation(libs.google.exoplayer.ui)
+    implementation(libs.google.exoplayer.mediasession)
+
+    // Spotify SDK
     implementation(files("./lib/spotify-app-remote-release-0.7.2.aar"))
 
+    // Networking and parsing
     implementation(libs.jsoup)
-
     implementation(libs.socket.io) {
         exclude(group = "org.json", module = "json")
     }
 
-    implementation(libs.androidx.test.ext.junit.ktx)
-    implementation(libs.turbine)
+    // Logging
+    implementation(libs.logger.android)
+
+    // Charts
+    implementation(libs.vico.compose)
+
+    // Testing
     testImplementation(libs.junit)
     testImplementation(libs.mockwebserver)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.androidx.arch.core.testing)
-
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.kotlin)
-
-    debugImplementation(libs.androidx.test.monitor)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
+    testImplementation(project(":sharedTest"))
 
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.work.testing)
@@ -215,22 +230,15 @@ dependencies {
     androidTestImplementation(libs.androidx.arch.core.testing)
     androidTestImplementation(libs.androidx.test.espresso.core)
     androidTestImplementation(libs.androidx.test.espresso.intents)
-
-    testImplementation(project(":sharedTest"))
+    androidTestImplementation(libs.hilt.android)
+    androidTestImplementation(libs.hilt.android.testing)
     androidTestImplementation(project(":sharedTest"))
 
-    implementation(libs.google.exoplayer.core)
-    implementation(libs.google.exoplayer.ui)
-    implementation(libs.google.exoplayer.mediasession)
+    kspAndroidTest(libs.hilt.android.compiler)
 
-    implementation(libs.androidx.room.runtime)
-    ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.ktx)
+    debugImplementation(libs.androidx.test.monitor)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 
-    implementation(libs.google.accompanist.systemuicontroller)
-
-    implementation(libs.compose.ratingbar)
-    implementation(libs.logger.android)
-
-    implementation(libs.vico.compose)
+    implementation(libs.androidx.test.ext.junit.ktx)
+    implementation(libs.turbine)
 }

@@ -1,6 +1,6 @@
 plugins {
-    id("com.android.library")
-    id("kotlin-android")
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -9,7 +9,6 @@ android {
 
     defaultConfig {
         minSdk = libs.versions.minSdk.get().toInt()
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -33,37 +32,32 @@ android {
         jvmTarget = "17"
     }
 
-    testOptions {
-        unitTests {
-            isIncludeAndroidResources = true
-        }
-    }
-
     lint {
         targetSdk = libs.versions.compileSdk.get().toInt()
     }
 }
 
 dependencies {
+    // AndroidX and UI
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
-    // Web Service Setup
+    // Networking
     implementation(libs.gson)
     implementation(libs.retrofit)
     implementation(libs.okhttp)
     implementation(libs.retrofit.converter.gson)
 
-    // Test Setup
+    // Testing
     implementation(libs.junit)
     implementation(libs.mockwebserver)
     implementation(libs.androidx.arch.core.testing)
     implementation(libs.kotlinx.coroutines.test)
-
     implementation(libs.androidx.test.runner)
     implementation(libs.androidx.test.ext.junit)
     implementation(libs.androidx.test.espresso.core)
     implementation(libs.androidx.test.espresso.intents)
 
+    // App module dependency
     implementation(project(":app"))
 }
