@@ -1,17 +1,421 @@
 package org.listenbrainz.android.ui.screens.profile.stats
 
+import CategoryState
+import android.text.TextUtils
+import android.util.Log
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ElevatedSuggestionChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottomAxis
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStartAxis
+import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.compose.common.component.rememberTextComponent
+import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
+import com.patrykandpatrick.vico.core.cartesian.data.columnSeries
+import com.patrykandpatrick.vico.core.cartesian.layer.ColumnCartesianLayer
+import com.patrykandpatrick.vico.core.common.component.LineComponent
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.withContext
+import org.listenbrainz.android.R
+import org.listenbrainz.android.ui.screens.profile.ProfileUiState
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.viewmodel.ProfileViewModel
 
 @Composable
 fun StatsScreen(
+    username: String?,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    Text(text = uiState.listensTabUiState.listenCount.toString(), color = Color.White)
+    val statsRangeState: MutableState<StatsRange> = remember {
+        mutableStateOf(StatsRange.THIS_WEEK)
+    }
+    val userGlobalState: MutableState<UserGlobal> = remember {
+        mutableStateOf(UserGlobal.USER)
+    }
+
+    StatsScreen(
+        username = username,
+        uiState = uiState,
+        statsRangeState = statsRangeState.value,
+        setStatsRange = {
+            range -> statsRangeState.value = range
+        },
+        userGlobalState = userGlobalState.value,
+        setUserGlobal = {
+            selection -> userGlobalState.value = selection
+        }
+    )
 }
+
+
+fun  weekFormatter (
+    value: Int
+): String {
+        val weekDay = when(value){
+            0 -> "Mon"
+            1 -> "Tue"
+            2 -> "Wed"
+            3 -> "Thu"
+            4 -> "Fri"
+            5 -> "Sat"
+            6 -> "Sun"
+            else -> ""
+        }
+    return weekDay
+}
+
+fun yearFormatter(
+    value: Int
+): String {
+    val month = when(value){
+        0 -> "Jan"
+        1 -> "Feb"
+        2 -> "Mar"
+        3 -> "Apr"
+        4 -> "May"
+        5 -> "Jun"
+        6 -> "Jul"
+        7 -> "Aug"
+        8 -> "Sep"
+        9 -> "Oct"
+        10 -> "Nov"
+        11 -> "Dec"
+        else -> ""
+    }
+    return month
+}
+
+
+@Composable
+fun StatsScreen(
+    username: String?,
+    uiState: ProfileUiState,
+    statsRangeState: StatsRange,
+    setStatsRange: (StatsRange) -> Unit,
+    userGlobalState: UserGlobal,
+    setUserGlobal: (UserGlobal) -> Unit,
+) {
+
+    val currentTabSelection: MutableState<CategoryState> = remember {
+        mutableStateOf(CategoryState.ARTISTS)
+    }
+
+    LazyColumn {
+        item {
+            RangeBar(
+                statsRangeState = statsRangeState,
+                onClick = {
+                    range ->
+                    setStatsRange(range)
+                }
+            )
+        }
+        item {
+            UserGlobalBar(
+                userGlobalState = userGlobalState,
+                onUserGlobalChange = setUserGlobal,
+                username = username
+            )
+        }
+        item {
+            Spacer(modifier = Modifier.height(10.dp))
+            Box(modifier = Modifier.padding(start = 10.dp)){
+                Column {
+                    Text("Listening activity", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+                    Spacer(modifier = Modifier.height(15.dp))
+                    val data = uiState.statsTabUIState.userListeningActivity[Pair(userGlobalState, statsRangeState)]
+                        ?: listOf()
+                    if(data.isNotEmpty()){
+                        val modelProducer = remember {
+                            CartesianChartModelProducer()
+                        }
+
+                        LaunchedEffect(data) {
+                            withContext(Dispatchers.Default) {
+                                while(isActive){
+                                    modelProducer.runTransaction { columnSeries {
+                                        series(y = data.map { (it?.listenCount ?: 0).toInt() })
+                                    } }
+                                }
+                            }
+                        }
+
+                        val columnProvider = {
+                            val columnAttributes =
+                                data.map {
+                                    LineComponent(
+                                        color = it?.color ?: Color.Unspecified.toArgb(),
+                                        thicknessDp = 25f,
+                                    )
+                                }
+                            data.forEach{
+                                Log.v("pranav", it?.timeRange.toString())
+                                Log.v("pranav", it?.componentIndex.toString())
+                                Log.v("pranav", it?.color.toString())
+                            }
+                            ColumnCartesianLayer.ColumnProvider.series(
+                                columns = columnAttributes
+                            )
+                        }
+
+                        CartesianChartHost(
+                            modifier = Modifier
+                                .padding(start = 11.dp, end = 11.dp)
+                                .height(250.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(Color(0xFFe0e5de)),
+                            chart = rememberCartesianChart(
+                                rememberColumnCartesianLayer(
+                                    columnProvider = columnProvider(),
+                                    spacing = 25.dp,
+                                    mergeMode = { ColumnCartesianLayer.MergeMode.Grouped },
+                                ),
+                                startAxis = rememberStartAxis(),
+                                bottomAxis = rememberBottomAxis(
+                                    label = rememberTextComponent (
+                                        ellipsize = TextUtils.TruncateAt.MARQUEE,
+                                        textSize = 11.sp
+                                    ),
+                                    guideline = null,
+                                    valueFormatter = { value, chartValues, verticalAxisPosition ->
+                                        if(value.toInt() % 5 == 0){
+                                            value.toString()
+                                        }
+                                        else{
+                                            ""
+                                        }
+                                    }
+                                ),
+                            ),
+                            modelProducer = modelProducer
+                        )
+
+                    }
+                    else{
+                        Text("There are no statistics available for this user for this period", color = ListenBrainzTheme.colorScheme.textColor)
+                    }
+
+                }
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(10.dp))
+           Column (modifier = Modifier
+               .padding(start = 10.dp)
+               .background(
+                   ListenBrainzTheme.colorScheme.userPageGradient
+               )) {
+                    Text("Top ...", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+                    Row {
+                        repeat(3){
+                            position ->
+                            val reqdState = when(position){
+                                0 -> currentTabSelection.value == CategoryState.ARTISTS
+                                1 -> currentTabSelection.value == CategoryState.ALBUMS
+                                2 -> currentTabSelection.value == CategoryState.SONGS
+                                else -> true
+                            }
+                            val label = when(position){
+                                0 -> "Artists"
+                                1 -> "Albums"
+                                2 -> "Songs"
+                                else -> ""
+                            }
+                            ElevatedSuggestionChip(
+                                onClick = {
+                                    when(position){
+                                        0 -> currentTabSelection.value = CategoryState.ARTISTS
+                                        1 -> currentTabSelection.value = CategoryState.ALBUMS
+                                        2 -> currentTabSelection.value = CategoryState.SONGS
+                                    }
+                                },
+                                label = {
+                                    Text(label, color = when(reqdState){
+                                        true -> ListenBrainzTheme.colorScheme.followerChipUnselected
+                                        false -> ListenBrainzTheme.colorScheme.followerChipSelected
+                                    }, style = ListenBrainzTheme.textStyles.chips)
+                                },
+                                shape = RoundedCornerShape(12.dp),
+                                border = when(reqdState){
+                                    true -> null
+                                    false -> BorderStroke(1.dp, lb_purple_night)
+                                },
+                                colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
+                                    if (reqdState) {
+                                        ListenBrainzTheme.colorScheme.followerChipSelected
+                                    } else {
+                                        ListenBrainzTheme.colorScheme.followerChipUnselected
+                                    }
+                                ),
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                        }
+                    }
+                }
+
+        }
+
+    }
+}
+
+@Composable
+private fun RangeBar(
+    statsRangeState: StatsRange,
+    onClick: (StatsRange) -> Unit
+){
+    LazyRow {
+        repeat(7){
+                position ->
+            val rangeAtIndex  = when (position){
+                0 -> StatsRange.THIS_WEEK
+                1 -> StatsRange.THIS_MONTH
+                2 -> StatsRange.THIS_YEAR
+                3 -> StatsRange.LAST_WEEK
+                4 -> StatsRange.LAST_MONTH
+                5 -> StatsRange.LAST_YEAR
+                6 -> StatsRange.ALL_TIME
+                else -> StatsRange.ALL_TIME
+            }
+            item {
+                if(position == 0){
+                    Spacer(modifier = Modifier.width(10.dp))
+                }
+                ElevatedSuggestionChip(
+                    onClick = {
+                        onClick(rangeAtIndex)
+                    },
+                    label = {
+                        Text(rangeAtIndex.rangeString, color = when(statsRangeState == rangeAtIndex){
+                            true -> ListenBrainzTheme.colorScheme.followerChipUnselected
+                            false -> ListenBrainzTheme.colorScheme.followerChipSelected
+                        }, style = ListenBrainzTheme.textStyles.chips)
+                    },
+                    shape = RoundedCornerShape(10.dp),
+                    border = when(statsRangeState == rangeAtIndex){
+                        true -> null
+                        false -> BorderStroke(1.dp, lb_purple_night)
+                    },
+                    colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
+                        if (statsRangeState == rangeAtIndex) {
+                            ListenBrainzTheme.colorScheme.followerChipSelected
+                        } else {
+                            ListenBrainzTheme.colorScheme.followerChipUnselected
+                        }
+                    ),
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+            }
+
+        }
+    }
+}
+
+@Composable
+private fun UserGlobalBar(
+    userGlobalState: UserGlobal,
+    onUserGlobalChange: (UserGlobal) -> Unit,
+    username: String?
+){
+    LazyRow {
+            item {
+                val reqdState = userGlobalState == UserGlobal.USER
+                Spacer(modifier = Modifier.width(10.dp))
+                ElevatedSuggestionChip(
+                    onClick = {
+                        onUserGlobalChange(UserGlobal.USER)
+                    },
+                    label = {
+                        Text((username ?: "").toString(), color = when(reqdState){
+                            true -> ListenBrainzTheme.colorScheme.followerChipUnselected
+                            false -> ListenBrainzTheme.colorScheme.followerChipSelected
+                        }, style = ListenBrainzTheme.textStyles.chips)
+                    },
+                    shape = RoundedCornerShape(10.dp),
+                    border = when(reqdState){
+                        true -> null
+                        false -> BorderStroke(1.dp, lb_purple_night)
+                    },
+                    colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
+                        if (reqdState) {
+                            ListenBrainzTheme.colorScheme.followerChipSelected
+                        } else {
+                            ListenBrainzTheme.colorScheme.followerChipUnselected
+                        }
+                    ),
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+            }
+            item {
+                val reqdState = userGlobalState == UserGlobal.GLOBAL
+                ElevatedSuggestionChip(
+                    onClick = {
+                        onUserGlobalChange(UserGlobal.GLOBAL)
+                    },
+                    label = {
+                        Row (verticalAlignment = Alignment.CenterVertically) {
+                            Text("Global", color = when(reqdState){
+                                true -> ListenBrainzTheme.colorScheme.followerChipUnselected
+                                false -> ListenBrainzTheme.colorScheme.followerChipSelected
+                            }, style = ListenBrainzTheme.textStyles.chips)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Icon(painter = painterResource(id = R.drawable.globe), contentDescription = "", modifier = Modifier.height(25.dp), tint = when(reqdState){
+                                true -> ListenBrainzTheme.colorScheme.followerChipUnselected
+                                false -> ListenBrainzTheme.colorScheme.followerChipSelected
+                            })
+                        }
+
+                    },
+                    shape = RoundedCornerShape(10.dp),
+                    border = when(reqdState){
+                        true -> null
+                        false -> BorderStroke(1.dp, lb_purple_night)
+                    },
+                    colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
+                        if (reqdState) {
+                            ListenBrainzTheme.colorScheme.followerChipSelected
+                        } else {
+                            ListenBrainzTheme.colorScheme.followerChipUnselected
+                        }
+                    ),
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+            }
+    }
+}
+

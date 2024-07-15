@@ -6,8 +6,11 @@ import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.SimilarUser
 import org.listenbrainz.android.model.user.AllPinnedRecordings
+import org.listenbrainz.android.model.user.ListeningActivity
 import org.listenbrainz.android.model.user.UserFeedback
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningNowUiState
+import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
+import org.listenbrainz.android.ui.screens.profile.stats.UserGlobal
 
 data class ProfileUiState(
     val isSelf: Boolean = false,
@@ -41,6 +44,8 @@ data class TasteTabUIState (
 
 data class StatsTabUIState(
     val isLoading: Boolean = true,
+    val userListeningActivity: Map<Pair<UserGlobal, StatsRange>, List<ListeningActivity?>> = mapOf(),
+    val sortedListeningActivity: List<ListeningActivity?>? = listOf()
 )
 
 data class ListeningNowUiState(

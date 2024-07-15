@@ -6,6 +6,7 @@ import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.TopArtists
 import org.listenbrainz.android.model.user.UserFeedback
+import org.listenbrainz.android.model.user.UserListeningActivity
 import org.listenbrainz.android.model.user.UserSimilarityPayload
 import org.listenbrainz.android.service.UserService
 import org.listenbrainz.android.util.Resource
@@ -37,15 +38,25 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getTopArtists(
-        username: String?
+        username: String?,
+        rangeString: String,
+        count: Int
     ): Resource<TopArtists> = parseResponse {
         if(username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
-        service.getTopArtistsOfUser(username)
+        service.getTopArtistsOfUser(username, rangeString, count)
     }
 
     override suspend fun getUserFeedback(username: String?, score: Int?): Resource<UserFeedback?> = parseResponse {
         if(username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
         service.getUserFeedback(username, score)
+    }
+
+    override suspend fun getUserListeningActivity(
+        username: String?,
+        rangeString: String
+    ): Resource<UserListeningActivity?> = parseResponse {
+        if(username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
+        service.getUserListeningActivity(username,rangeString)
     }
 
 

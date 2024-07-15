@@ -23,6 +23,8 @@ import org.listenbrainz.android.ui.screens.profile.ListensTabUiState
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.screens.profile.StatsTabUIState
 import org.listenbrainz.android.ui.screens.profile.TasteTabUIState
+import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
+import org.listenbrainz.android.ui.screens.profile.stats.UserGlobal
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
 import javax.inject.Inject
 
@@ -55,15 +57,15 @@ class ProfileViewModel @Inject constructor(
 
     private suspend fun getSimilarArtists(username: String?) : List<String> {
         val currentUsername = appPreferences.username.get()
-        val currentUserTopArtists = userRepository.getTopArtists(currentUsername)
-        val userTopArtists = userRepository.getTopArtists(username)
+        val currentUserTopArtists = userRepository.getTopArtists(currentUsername, count = 100)
+        val userTopArtists = userRepository.getTopArtists(username, count = 100)
         val similarArtists = mutableListOf<String>()
         currentUserTopArtists.data?.payload?.artists?.map {
             currentUserTopArtist ->
             userTopArtists.data?.payload?.artists?.map{
                 userTopArtist ->
-                if(currentUserTopArtist.artist_name == userTopArtist.artist_name){
-                    similarArtists.add(currentUserTopArtist.artist_name)
+                if(currentUserTopArtist.artistName == userTopArtist.artistName){
+                    similarArtists.add(currentUserTopArtist.artistName)
                 }
             }
         }
@@ -150,8 +152,125 @@ class ProfileViewModel @Inject constructor(
         listenStateFlow.emit(listensTabState)
     }
 
-    private suspend fun getUserStatsData(inputUsername: String?) {
+    private fun extractDayAndMonth(timeRange: String): Pair<Int, Int> {
+        val monthOrder = mapOf(
+            "January" to 1,
+            "February" to 2,
+            "March" to 3,
+            "April" to 4,
+            "May" to 5,
+            "June" to 6,
+            "July" to 7,
+            "August" to 8,
+            "September" to 9,
+            "October" to 10,
+            "November" to 11,
+            "December" to 12
+        )
+        val parts = timeRange.split(" ")
+        val month = parts[1]
+        val day = parts[0].toIntOrNull() ?: 0
+        return Pair(day, monthOrder[month] ?: 0)
+    }
 
+    private fun extractMonthAndYear(timeRange: String): Pair<Int, Int> {
+        val monthOrder = mapOf(
+            "January" to 1,
+            "February" to 2,
+            "March" to 3,
+            "April" to 4,
+            "May" to 5,
+            "June" to 6,
+            "July" to 7,
+            "August" to 8,
+            "September" to 9,
+            "October" to 10,
+            "November" to 11,
+            "December" to 12
+        )
+        val parts = timeRange.split(" ")
+        val month = parts[0]
+        val year = parts[1].toIntOrNull() ?: 0
+        return Pair(monthOrder[month] ?: 0, year)
+    }
+
+    private suspend fun getUserStatsData(inputUsername: String?) {
+        val dayOrder = mapOf(
+            "Monday" to 1,
+            "Tuesday" to 2,
+            "Wednesday" to 3,
+            "Thursday" to 4,
+            "Friday" to 5,
+            "Saturday" to 6,
+            "Sunday" to 7
+        )
+        val userThisWeekListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.THIS_WEEK.apiIdenfier).data?.payload?.listeningActivity?.sortedBy {
+            val day = (it?.timeRange?:"").split(" ")[0]
+            dayOrder[day] ?: 0
+        } ?: listOf()
+        var index = 0
+        var i = 1
+        while((i < userThisWeekListeningActivity.size)){
+            val condn = userThisWeekListeningActivity[i]?.timeRange?.split(" ")
+                ?.get(0) == (userThisWeekListeningActivity[i - 1]?.timeRange?.split(" ")
+                ?.get(0) ?: false)
+            if(condn && userThisWeekListeningActivity[i]?.color == null)
+            {
+                userThisWeekListeningActivity[i]?.componentIndex = index
+                userThisWeekListeningActivity[i-1]?.componentIndex = index
+                userThisWeekListeningActivity[i-1]?.color = (0xFF353070).toInt()
+                userThisWeekListeningActivity[i]?.color = (0xFFEB743B).toInt()
+            }
+            else{
+                userThisWeekListeningActivity[i]?.componentIndex = index
+                if(userThisWeekListeningActivity[i]?.color == null){
+                    userThisWeekListeningActivity[i]?.color = (0xFFEB743B).toInt()
+                }
+
+            }
+            i ++
+            index = index.inc()
+
+        }
+        val userThisMonthListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.THIS_MONTH.apiIdenfier).data?.payload?.listeningActivity?.sortedWith(compareBy(
+            { extractDayAndMonth(it?.timeRange ?: "").first },
+            { extractDayAndMonth(it?.timeRange ?: "").second }
+        ))
+        val userThisYearListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.THIS_YEAR.apiIdenfier).data?.payload?.listeningActivity?.sortedWith(compareBy(
+            { extractMonthAndYear(it?.timeRange ?: "").first },
+            { extractMonthAndYear(it?.timeRange ?: "").second }
+        ))
+        val userLastWeekListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.LAST_WEEK.apiIdenfier).data?.payload?.listeningActivity?.sortedBy {
+            val day = (it?.timeRange?:"").split(" ")[0]
+            dayOrder[day] ?: 0
+        }
+        val userLastMonthListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.LAST_MONTH.apiIdenfier).data?.payload?.listeningActivity?.sortedWith(compareBy(
+            { extractDayAndMonth(it?.timeRange ?: "").first },
+            { extractDayAndMonth(it?.timeRange ?: "").second }
+        ))
+        val userLastYearListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.LAST_YEAR.apiIdenfier).data?.payload?.listeningActivity?.sortedWith(compareBy(
+            { extractMonthAndYear(it?.timeRange ?: "").first },
+            { extractMonthAndYear(it?.timeRange ?: "").second }
+        ))
+        val userAllTimeListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.ALL_TIME.apiIdenfier).data?.payload?.listeningActivity?.sortedBy {
+            it?.timeRange
+        }
+        val userListeningActivityMap = mapOf(
+            Pair(UserGlobal.USER, StatsRange.THIS_WEEK)  to (userThisWeekListeningActivity ?: listOf()),
+            Pair(UserGlobal.USER, StatsRange.THIS_MONTH) to (userThisMonthListeningActivity ?: listOf()),
+            Pair(UserGlobal.USER, StatsRange.THIS_YEAR)  to (userThisYearListeningActivity ?: listOf()),
+            Pair(UserGlobal.USER, StatsRange.LAST_WEEK)  to (userLastWeekListeningActivity ?: listOf()),
+            Pair(UserGlobal.USER, StatsRange.LAST_MONTH) to (userLastMonthListeningActivity ?: listOf()),
+            Pair(UserGlobal.USER, StatsRange.LAST_YEAR)  to (userLastYearListeningActivity ?: listOf()),
+            Pair(UserGlobal.USER, StatsRange.ALL_TIME)   to (userAllTimeListeningActivity ?: listOf()),
+        )
+
+        val userTopArtists = userRepository.getTopArtists(inputUsername, rangeString = StatsRange.THIS_YEAR.apiIdenfier).data
+        val statsTabState = StatsTabUIState(
+            isLoading = false,
+            userListeningActivity = userListeningActivityMap,
+        )
+        statsStateFlow.emit(statsTabState)
     }
 
     private suspend fun getUserTasteData(inputUsername: String?) {

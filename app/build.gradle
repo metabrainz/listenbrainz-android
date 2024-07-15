@@ -259,5 +259,5 @@ dependencies {
     implementation 'com.github.akshaaatt:Logger-Android:1.0.0'
 
     //Charting Library (Vico)
-    implementation('com.patrykandpatrick.vico:compose:1.15.0')
+    implementation('com.patrykandpatrick.vico:compose:2.0.0-alpha.22')
 }
