@@ -195,74 +195,38 @@ class ProfileViewModel @Inject constructor(
     }
 
     private suspend fun getUserStatsData(inputUsername: String?) {
-        val dayOrder = mapOf(
-            "Monday" to 1,
-            "Tuesday" to 2,
-            "Wednesday" to 3,
-            "Thursday" to 4,
-            "Friday" to 5,
-            "Saturday" to 6,
-            "Sunday" to 7
-        )
-        val userThisWeekListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.THIS_WEEK.apiIdenfier).data?.payload?.listeningActivity?.sortedBy {
-            val day = (it?.timeRange?:"").split(" ")[0]
-            dayOrder[day] ?: 0
-        } ?: listOf()
-        var index = 0
-        var i = 1
-        while((i < userThisWeekListeningActivity.size)){
-            val condn = userThisWeekListeningActivity[i]?.timeRange?.split(" ")
-                ?.get(0) == (userThisWeekListeningActivity[i - 1]?.timeRange?.split(" ")
-                ?.get(0) ?: false)
-            if(condn && userThisWeekListeningActivity[i]?.color == null)
-            {
-                userThisWeekListeningActivity[i]?.componentIndex = index
-                userThisWeekListeningActivity[i-1]?.componentIndex = index
-                userThisWeekListeningActivity[i-1]?.color = (0xFF353070).toInt()
-                userThisWeekListeningActivity[i]?.color = (0xFFEB743B).toInt()
-            }
-            else{
-                userThisWeekListeningActivity[i]?.componentIndex = index
-                if(userThisWeekListeningActivity[i]?.color == null){
-                    userThisWeekListeningActivity[i]?.color = (0xFFEB743B).toInt()
-                }
+        val userThisWeekListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.THIS_WEEK.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val userThisMonthListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.THIS_MONTH.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val userThisYearListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.THIS_YEAR.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val userLastWeekListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.LAST_WEEK.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val userLastMonthListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.LAST_MONTH.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val userLastYearListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.LAST_YEAR.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val userAllTimeListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.ALL_TIME.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
 
-            }
-            i ++
-            index = index.inc()
+        val globalThisWeekListeningActivity = userRepository.getGlobalListeningActivity(StatsRange.THIS_WEEK.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val globalThisMonthListeningActivity = userRepository.getGlobalListeningActivity(StatsRange.THIS_MONTH.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val globalThisYearListeningActivity = userRepository.getGlobalListeningActivity(StatsRange.THIS_YEAR.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val globalLastWeekListeningActivity = userRepository.getGlobalListeningActivity(StatsRange.LAST_WEEK.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val globalLastMonthListeningActivity = userRepository.getGlobalListeningActivity(StatsRange.LAST_MONTH.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val globalLastYearListeningActivity = userRepository.getGlobalListeningActivity(StatsRange.LAST_YEAR.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val globalAllTimeListeningActivity = userRepository.getGlobalListeningActivity(StatsRange.ALL_TIME.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
 
-        }
-        val userThisMonthListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.THIS_MONTH.apiIdenfier).data?.payload?.listeningActivity?.sortedWith(compareBy(
-            { extractDayAndMonth(it?.timeRange ?: "").first },
-            { extractDayAndMonth(it?.timeRange ?: "").second }
-        ))
-        val userThisYearListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.THIS_YEAR.apiIdenfier).data?.payload?.listeningActivity?.sortedWith(compareBy(
-            { extractMonthAndYear(it?.timeRange ?: "").first },
-            { extractMonthAndYear(it?.timeRange ?: "").second }
-        ))
-        val userLastWeekListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.LAST_WEEK.apiIdenfier).data?.payload?.listeningActivity?.sortedBy {
-            val day = (it?.timeRange?:"").split(" ")[0]
-            dayOrder[day] ?: 0
-        }
-        val userLastMonthListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.LAST_MONTH.apiIdenfier).data?.payload?.listeningActivity?.sortedWith(compareBy(
-            { extractDayAndMonth(it?.timeRange ?: "").first },
-            { extractDayAndMonth(it?.timeRange ?: "").second }
-        ))
-        val userLastYearListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.LAST_YEAR.apiIdenfier).data?.payload?.listeningActivity?.sortedWith(compareBy(
-            { extractMonthAndYear(it?.timeRange ?: "").first },
-            { extractMonthAndYear(it?.timeRange ?: "").second }
-        ))
-        val userAllTimeListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.ALL_TIME.apiIdenfier).data?.payload?.listeningActivity?.sortedBy {
-            it?.timeRange
-        }
         val userListeningActivityMap = mapOf(
-            Pair(UserGlobal.USER, StatsRange.THIS_WEEK)  to (userThisWeekListeningActivity ?: listOf()),
-            Pair(UserGlobal.USER, StatsRange.THIS_MONTH) to (userThisMonthListeningActivity ?: listOf()),
-            Pair(UserGlobal.USER, StatsRange.THIS_YEAR)  to (userThisYearListeningActivity ?: listOf()),
-            Pair(UserGlobal.USER, StatsRange.LAST_WEEK)  to (userLastWeekListeningActivity ?: listOf()),
-            Pair(UserGlobal.USER, StatsRange.LAST_MONTH) to (userLastMonthListeningActivity ?: listOf()),
-            Pair(UserGlobal.USER, StatsRange.LAST_YEAR)  to (userLastYearListeningActivity ?: listOf()),
-            Pair(UserGlobal.USER, StatsRange.ALL_TIME)   to (userAllTimeListeningActivity ?: listOf()),
+            Pair(UserGlobal.USER, StatsRange.THIS_WEEK)  to userThisWeekListeningActivity,
+            Pair(UserGlobal.USER, StatsRange.THIS_MONTH) to userThisMonthListeningActivity,
+            Pair(UserGlobal.USER, StatsRange.THIS_YEAR)  to userThisYearListeningActivity,
+            Pair(UserGlobal.USER, StatsRange.LAST_WEEK)  to userLastWeekListeningActivity,
+            Pair(UserGlobal.USER, StatsRange.LAST_MONTH) to userLastMonthListeningActivity,
+            Pair(UserGlobal.USER, StatsRange.LAST_YEAR)  to userLastYearListeningActivity,
+            Pair(UserGlobal.USER, StatsRange.ALL_TIME)   to userAllTimeListeningActivity,
+
+            Pair(UserGlobal.GLOBAL, StatsRange.THIS_WEEK)  to globalThisWeekListeningActivity,
+            Pair(UserGlobal.GLOBAL, StatsRange.THIS_MONTH) to globalThisMonthListeningActivity,
+            Pair(UserGlobal.GLOBAL, StatsRange.THIS_YEAR)  to globalThisYearListeningActivity,
+            Pair(UserGlobal.GLOBAL, StatsRange.LAST_WEEK)  to globalLastWeekListeningActivity,
+            Pair(UserGlobal.GLOBAL, StatsRange.LAST_MONTH) to globalLastMonthListeningActivity,
+            Pair(UserGlobal.GLOBAL, StatsRange.LAST_YEAR)  to globalLastYearListeningActivity,
+            Pair(UserGlobal.GLOBAL, StatsRange.ALL_TIME)   to globalAllTimeListeningActivity,
         )
 
         val userTopArtists = userRepository.getTopArtists(inputUsername, rangeString = StatsRange.THIS_YEAR.apiIdenfier).data

@@ -18,4 +18,5 @@ interface UserRepository {
     suspend fun getTopArtists(username: String?, rangeString: String = "all_time", count: Int = 25): Resource<TopArtists>
     suspend fun getUserFeedback(username: String?, score: Int?): Resource<UserFeedback?>
     suspend fun getUserListeningActivity(username: String?, rangeString: String = "all_time"): Resource<UserListeningActivity?>
+    suspend fun getGlobalListeningActivity(rangeString: String = "all_time"): Resource<UserListeningActivity?>
 }

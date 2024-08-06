@@ -33,4 +33,8 @@ interface UserService {
 
     @GET("stats/user/{user_name}/listening-activity")
     suspend fun getUserListeningActivity(@Path("user_name") username: String?, @Query("range") rangeString: String?): Response<UserListeningActivity?>
+
+    @GET("stats/sitewide/listening-activity")
+    suspend fun getGlobalListeningActivity(@Query("range") rangeString: String?) : Response<UserListeningActivity?>
+
 }

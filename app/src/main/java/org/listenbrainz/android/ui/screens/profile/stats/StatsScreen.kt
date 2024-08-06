@@ -2,7 +2,6 @@ package org.listenbrainz.android.ui.screens.profile.stats
 
 import CategoryState
 import android.text.TextUtils
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -31,7 +30,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,11 +39,11 @@ import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottomAxis
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStartAxis
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.compose.common.component.rememberLineComponent
 import com.patrykandpatrick.vico.compose.common.component.rememberTextComponent
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.cartesian.data.columnSeries
 import com.patrykandpatrick.vico.core.cartesian.layer.ColumnCartesianLayer
-import com.patrykandpatrick.vico.core.common.component.LineComponent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
@@ -154,9 +152,9 @@ fun StatsScreen(
         }
         item {
             Spacer(modifier = Modifier.height(10.dp))
-            Box(modifier = Modifier.padding(start = 10.dp)){
+            Box(){
                 Column {
-                    Text("Listening activity", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+                    Text("Listening activity", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(start = 10.dp))
                     Spacer(modifier = Modifier.height(15.dp))
                     val data = uiState.statsTabUIState.userListeningActivity[Pair(userGlobalState, statsRangeState)]
                         ?: listOf()
@@ -165,33 +163,51 @@ fun StatsScreen(
                             CartesianChartModelProducer()
                         }
 
+                        val splitIndex = when(statsRangeState){
+                            StatsRange.THIS_WEEK -> 7
+                                StatsRange.LAST_WEEK -> 7
+                                StatsRange.THIS_MONTH -> 30
+                                StatsRange.LAST_MONTH -> 30
+                                StatsRange.LAST_YEAR -> 12
+                                StatsRange.THIS_YEAR -> 12
+                            StatsRange.ALL_TIME -> 0
+                        }
+                        val listenCountsFirstPart = data.subList(0, minOf(splitIndex, data.size)).mapNotNull { it?.listenCount }
+                        val listenCountsSecondPart = if (data.size > splitIndex) {
+                            data.subList(splitIndex, data.size).mapNotNull { it?.listenCount }
+                        } else {
+                            emptyList()
+                        }
+
                         LaunchedEffect(data) {
                             withContext(Dispatchers.Default) {
                                 while(isActive){
                                     modelProducer.runTransaction { columnSeries {
-                                        series(y = data.map { (it?.listenCount ?: 0).toInt() })
+                                        if(listenCountsFirstPart.isNotEmpty()){
+                                            series(y = listenCountsFirstPart)
+                                        }
+                                        if(listenCountsSecondPart.isNotEmpty()){
+                                            series(y = listenCountsSecondPart)
+                                        }
                                     } }
                                 }
                             }
                         }
 
-                        val columnProvider = {
-                            val columnAttributes =
-                                data.map {
-                                    LineComponent(
-                                        color = it?.color ?: Color.Unspecified.toArgb(),
-                                        thicknessDp = 25f,
-                                    )
-                                }
-                            data.forEach{
-                                Log.v("pranav", it?.timeRange.toString())
-                                Log.v("pranav", it?.componentIndex.toString())
-                                Log.v("pranav", it?.color.toString())
-                            }
+                        val columnProvider =
                             ColumnCartesianLayer.ColumnProvider.series(
-                                columns = columnAttributes
+                                listOf(
+                                    rememberLineComponent(
+                                        color = Color(0xFF353070),
+                                        thickness = 25.dp,
+                                    ),
+                                    rememberLineComponent(
+                                        color = Color(0xFFEB743B),
+                                        thickness = 25.dp,
+                                    )
+                                )
                             )
-                        }
+
 
                         CartesianChartHost(
                             modifier = Modifier
@@ -201,7 +217,7 @@ fun StatsScreen(
                                 .background(Color(0xFFe0e5de)),
                             chart = rememberCartesianChart(
                                 rememberColumnCartesianLayer(
-                                    columnProvider = columnProvider(),
+                                    columnProvider = columnProvider,
                                     spacing = 25.dp,
                                     mergeMode = { ColumnCartesianLayer.MergeMode.Grouped },
                                 ),
@@ -213,21 +229,16 @@ fun StatsScreen(
                                     ),
                                     guideline = null,
                                     valueFormatter = { value, chartValues, verticalAxisPosition ->
-                                        if(value.toInt() % 5 == 0){
-                                            value.toString()
-                                        }
-                                        else{
-                                            ""
-                                        }
-                                    }
+                                        valueFormatter(value.toInt(), statsRangeState)
+                                    },
                                 ),
                             ),
-                            modelProducer = modelProducer
+                            modelProducer = modelProducer,
                         )
 
                     }
                     else{
-                        Text("There are no statistics available for this user for this period", color = ListenBrainzTheme.colorScheme.textColor)
+                        Text("There are no statistics available for this user for this period", color = ListenBrainzTheme.colorScheme.textColor, modifier = Modifier.padding(start = 10.dp))
                     }
 
                 }
@@ -419,3 +430,35 @@ private fun UserGlobalBar(
     }
 }
 
+private fun valueFormatter(value: Int, statsRange: StatsRange) : String {
+    val label : String = when(statsRange){
+        StatsRange.THIS_WEEK, StatsRange.LAST_WEEK -> when(value % 7){
+            0 -> "Mon"
+            1 -> "Tue"
+            2 -> "Wed"
+            3 -> "Thu"
+            4 -> "Fri"
+            5 -> "Sat"
+            6 -> "Sun"
+            else -> ""
+        }
+        StatsRange.THIS_MONTH, StatsRange.LAST_MONTH -> value.toString()
+        StatsRange.THIS_YEAR, StatsRange.LAST_YEAR -> when(value % 12){
+            0 -> "Jan"
+            1 -> "Feb"
+            2 -> "Mar"
+            3 -> "Apr"
+            4 -> "May"
+            5 -> "Jun"
+            6 -> "Jul"
+            7 -> "Aug"
+            8 -> "Sep"
+            9 -> "Oct"
+            10 -> "Nov"
+            11 -> "Dec"
+            else -> ""
+        }
+        StatsRange.ALL_TIME -> (value + 2002).toString()
+    }
+    return label
+}

@@ -210,7 +210,7 @@ dependencies {
     implementation(libs.logger.android)
 
     // Charts
-    implementation("com.patrykandpatrick.vico:compose:2.0.0-alpha.22")
+    implementation(libs.vico.compose)
 
     // Testing
     testImplementation(libs.junit)

@@ -59,5 +59,8 @@ class UserRepositoryImpl @Inject constructor(
         service.getUserListeningActivity(username,rangeString)
     }
 
+    override suspend fun getGlobalListeningActivity(rangeString: String): Resource<UserListeningActivity?> = parseResponse {
+        service.getGlobalListeningActivity(rangeString)
+    }
 
 }
