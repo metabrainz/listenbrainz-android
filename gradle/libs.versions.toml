@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.0.0"
+kotlin = "2.0.10"
 navigation = "2.7.7"
 hilt = "2.51.1"
 compose = "1.6.8"
