@@ -229,10 +229,27 @@ class ProfileViewModel @Inject constructor(
             Pair(UserGlobal.GLOBAL, StatsRange.ALL_TIME)   to globalAllTimeListeningActivity,
         )
 
-        val userTopArtists = userRepository.getTopArtists(inputUsername, rangeString = StatsRange.THIS_YEAR.apiIdenfier).data
+        val userTopArtistsThisWeek = userRepository.getTopArtists(inputUsername, rangeString = StatsRange.THIS_WEEK.apiIdenfier).data
+        val userTopArtistsThisMonth = userRepository.getTopArtists(inputUsername, rangeString = StatsRange.THIS_MONTH.apiIdenfier).data
+        val userTopArtistsThisYear = userRepository.getTopArtists(inputUsername, rangeString = StatsRange.THIS_YEAR.apiIdenfier).data
+        val userTopArtistsLastWeek = userRepository.getTopArtists(inputUsername, rangeString = StatsRange.LAST_WEEK.apiIdenfier).data
+        val userTopArtistsLastMonth = userRepository.getTopArtists(inputUsername, rangeString = StatsRange.LAST_MONTH.apiIdenfier).data
+        val userTopArtistsLastYear = userRepository.getTopArtists(inputUsername, rangeString = StatsRange.LAST_YEAR.apiIdenfier).data
+        val userTopArtistsAllTime = userRepository.getTopArtists(inputUsername, rangeString = StatsRange.ALL_TIME.apiIdenfier).data
+
+        val topArtists = mapOf(
+            StatsRange.THIS_WEEK to userTopArtistsThisWeek,
+            StatsRange.THIS_MONTH to userTopArtistsThisMonth,
+            StatsRange.THIS_YEAR to userTopArtistsThisYear,
+            StatsRange.LAST_WEEK to userTopArtistsLastWeek,
+            StatsRange.LAST_MONTH to userTopArtistsLastMonth,
+            StatsRange.LAST_YEAR to userTopArtistsLastYear,
+            StatsRange.ALL_TIME to userTopArtistsAllTime
+        )
         val statsTabState = StatsTabUIState(
             isLoading = false,
             userListeningActivity = userListeningActivityMap,
+            topArtists = topArtists
         )
         statsStateFlow.emit(statsTabState)
     }

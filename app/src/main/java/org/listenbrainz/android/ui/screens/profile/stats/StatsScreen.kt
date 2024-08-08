@@ -4,10 +4,12 @@ import CategoryState
 import android.text.TextUtils
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -18,6 +20,7 @@ import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SuggestionChipDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,6 +54,7 @@ import kotlinx.coroutines.withContext
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.ui.theme.app_bg_secondary_dark
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.viewmodel.ProfileViewModel
 
@@ -131,6 +136,15 @@ fun StatsScreen(
 
     val currentTabSelection: MutableState<CategoryState> = remember {
         mutableStateOf(CategoryState.ARTISTS)
+    }
+
+    val artistsCollapseState: MutableState<Boolean> = remember {
+        mutableStateOf(true)
+    }
+
+    val topArtists = when(artistsCollapseState.value){
+        true -> uiState.statsTabUIState.topArtists?.get(statsRangeState)?.payload?.artists?.take(5) ?: listOf()
+        false -> uiState.statsTabUIState.topArtists?.get(statsRangeState)?.payload?.artists ?: listOf()
     }
 
     LazyColumn {
@@ -246,13 +260,11 @@ fun StatsScreen(
         }
 
         item {
-            Spacer(modifier = Modifier.height(10.dp))
            Column (modifier = Modifier
-               .padding(start = 10.dp)
-               .background(
-                   ListenBrainzTheme.colorScheme.userPageGradient
-               )) {
+               .padding(start = 10.dp, top = 30.dp)
+               ) {
                     Text("Top ...", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+               Box(modifier = Modifier.height(10.dp))
                     Row {
                         repeat(3){
                             position ->
@@ -298,10 +310,76 @@ fun StatsScreen(
                             Spacer(modifier = Modifier.width(10.dp))
                         }
                     }
-                }
+
+               topArtists.map {
+                       topArtist ->
+                   ArtistCard(artistName = topArtist.artistName, listenCount = topArtist.listenCount) {
+
+                   }
+               }
+
+
+           }
 
         }
 
+    }
+}
+
+@Composable
+fun ArtistCard(
+    modifier: Modifier = Modifier,
+    artistName: String,
+    listenCount: Int? = 0,
+    onClick: () -> Unit,
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(end = 10.dp, top = 10.dp)
+            .clickable(enabled = true) { onClick() },
+        shape = ListenBrainzTheme.shapes.listenCardSmall,
+        shadowElevation = 4.dp,
+        color = app_bg_secondary_dark
+    ) {
+        Column {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(ListenBrainzTheme.sizes.listenCardHeight),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(artistName, color = ListenBrainzTheme.colorScheme.followerChipSelected, style = ListenBrainzTheme.textStyles.listenTitle,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis)
+                }
+
+                Box(
+                    modifier = modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 10.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(ListenBrainzTheme.colorScheme.followerChipSelected)
+                            .padding(6.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = listenCount.toString(),
+                            color = Color.Black
+                        )
+                    }
+                }
+
+            }
+        }
     }
 }
 
