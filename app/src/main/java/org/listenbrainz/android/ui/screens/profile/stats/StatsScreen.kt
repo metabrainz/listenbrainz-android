@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -52,10 +53,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.R
+import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
+import org.listenbrainz.android.ui.screens.profile.listens.LoadMoreButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.app_bg_secondary_dark
 import org.listenbrainz.android.ui.theme.lb_purple_night
+import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.ProfileViewModel
 
 @Composable
@@ -81,6 +85,15 @@ fun StatsScreen(
         userGlobalState = userGlobalState.value,
         setUserGlobal = {
             selection -> userGlobalState.value = selection
+        },
+        fetchTopArtists = {
+            viewModel.getUserTopArtists(it)
+        },
+        fetchTopAlbums = {
+            viewModel.getUserTopAlbums(it)
+        },
+        fetchTopSongs = {
+            viewModel.getUserTopSongs(it)
         }
     )
 }
@@ -132,6 +145,9 @@ fun StatsScreen(
     setStatsRange: (StatsRange) -> Unit,
     userGlobalState: UserGlobal,
     setUserGlobal: (UserGlobal) -> Unit,
+    fetchTopArtists: suspend (String?) -> Unit,
+    fetchTopAlbums: suspend (String?) -> Unit,
+    fetchTopSongs: suspend (String?) -> Unit,
 ) {
 
     val currentTabSelection: MutableState<CategoryState> = remember {
@@ -142,9 +158,52 @@ fun StatsScreen(
         mutableStateOf(true)
     }
 
+    val albumsCollapseState: MutableState<Boolean> = remember {
+        mutableStateOf(true)
+    }
+
+    val songsCollapseState: MutableState<Boolean> = remember {
+        mutableStateOf(true)
+    }
+
+    when(currentTabSelection.value){
+        CategoryState.ARTISTS -> {
+            if(uiState.statsTabUIState.topArtists == null){
+                LaunchedEffect(Unit) {
+                    fetchTopArtists(username)
+                }
+            }
+
+        }
+        CategoryState.ALBUMS -> {
+            if(uiState.statsTabUIState.topAlbums == null){
+                LaunchedEffect(Unit) {
+                    fetchTopAlbums(username)
+                }
+            }
+        }
+        CategoryState.SONGS -> {
+            if(uiState.statsTabUIState.topSongs == null){
+                LaunchedEffect(Unit) {
+                    fetchTopSongs(username)
+                }
+            }
+        }
+    }
+
     val topArtists = when(artistsCollapseState.value){
         true -> uiState.statsTabUIState.topArtists?.get(statsRangeState)?.payload?.artists?.take(5) ?: listOf()
         false -> uiState.statsTabUIState.topArtists?.get(statsRangeState)?.payload?.artists ?: listOf()
+    }
+
+    val topAlbums = when(albumsCollapseState.value){
+        true -> uiState.statsTabUIState.topAlbums?.get(statsRangeState)?.payload?.releases?.take(5) ?: listOf()
+        false -> uiState.statsTabUIState.topAlbums?.get(statsRangeState)?.payload?.releases ?: listOf()
+    }
+
+    val topSongs = when(songsCollapseState.value){
+        true -> uiState.statsTabUIState.topSongs?.get(statsRangeState)?.payload?.recordings?.take(5) ?: listOf()
+        false -> uiState.statsTabUIState.topSongs?.get(statsRangeState)?.payload?.recordings ?: listOf()
     }
 
     LazyColumn {
@@ -166,7 +225,7 @@ fun StatsScreen(
         }
         item {
             Spacer(modifier = Modifier.height(10.dp))
-            Box(){
+            Box{
                 Column {
                     Text("Listening activity", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(start = 10.dp))
                     Spacer(modifier = Modifier.height(15.dp))
@@ -310,19 +369,74 @@ fun StatsScreen(
                             Spacer(modifier = Modifier.width(10.dp))
                         }
                     }
+               when(currentTabSelection.value){
+                   CategoryState.ARTISTS ->
+                       if(uiState.statsTabUIState.isLoading){
+                           CircularProgressIndicator()
+                       }
+                       else{
+                           Column (horizontalAlignment = Alignment.CenterHorizontally) {
+                               topArtists.map {
+                                       topArtist ->
+                                   ArtistCard(artistName = topArtist.artistName, listenCount = topArtist.listenCount){}
+                               }
+                               Spacer(modifier = Modifier.height(10.dp))
+                               if((uiState.statsTabUIState.topArtists?.size ?: 0) > 5){
+                                   LoadMoreButton(state = artistsCollapseState.value) {
+                                       artistsCollapseState.value = !artistsCollapseState.value
+                                   }
+                               }
 
-               topArtists.map {
-                       topArtist ->
-                   ArtistCard(artistName = topArtist.artistName, listenCount = topArtist.listenCount) {
+                           }
+                       }
 
+                   CategoryState.ALBUMS ->
+                       if(uiState.statsTabUIState.isLoading){
+                           CircularProgressIndicator(
+                               color = lb_purple_night
+                           )
+                       }
+                       else{
+                           Column (horizontalAlignment = Alignment.CenterHorizontally) {
+                               topAlbums.map {
+                                       topAlbum ->
+                                   ListenCardSmall(trackName = topAlbum.releaseName ?: "", artistName = topAlbum.artistName ?: "", coverArtUrl = getCoverArtUrl(topAlbum.caaReleaseMbid, topAlbum.caaId), modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, end = 10.dp), color = app_bg_secondary_dark, titleColor = ListenBrainzTheme.colorScheme.followerChipSelected, subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f)) {
+
+                                   }
+                               }
+                               Spacer(modifier = Modifier.height(10.dp))
+                               if((uiState.statsTabUIState.topAlbums?.size ?: 0) > 5) {
+                                   LoadMoreButton(state = albumsCollapseState.value) {
+                                       albumsCollapseState.value = !albumsCollapseState.value
+                                   }
+                               }
+                           }
+                       }
+
+                   CategoryState.SONGS -> {
+                       if(uiState.statsTabUIState.isLoading){
+                           CircularProgressIndicator()
+                       }
+                       else{
+                           Column (horizontalAlignment = Alignment.CenterHorizontally) {
+                               topSongs.map {
+                                       topSong ->
+                                   ListenCardSmall(trackName = topSong.trackName ?: "", artistName = topSong.artistName ?: "", coverArtUrl = getCoverArtUrl(topSong.caaReleaseMbid, topSong.caaId), modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, end = 10.dp), color = app_bg_secondary_dark, titleColor = ListenBrainzTheme.colorScheme.followerChipSelected, subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),) {
+
+                                   }
+                               }
+                               Spacer(modifier = Modifier.height(10.dp))
+                               if((uiState.statsTabUIState.topSongs?.size ?: 0) > 5) {
+                                   LoadMoreButton(state = songsCollapseState.value) {
+                                       songsCollapseState.value = !songsCollapseState.value
+                                   }
+                               }
+                           }
+                       }
                    }
                }
-
-
            }
-
         }
-
     }
 }
 

@@ -59,6 +59,9 @@ fun ListenCardSmall(
     trailingContent: @Composable (modifier: Modifier) -> Unit = {},
     enableBlurbContent: Boolean = false,
     blurbContent: @Composable (ColumnScope.(modifier: Modifier) -> Unit) = {},
+    color: Color = ListenBrainzTheme.colorScheme.level1,
+    titleColor: Color = ListenBrainzTheme.colorScheme.listenText,
+    subtitleColor: Color = titleColor.copy(alpha = 0.7f),
     onClick: () -> Unit,
 ) {
     Surface(
@@ -67,7 +70,7 @@ fun ListenCardSmall(
             .clickable(enabled = true) { onClick() },
         shape = ListenBrainzTheme.shapes.listenCardSmall,
         shadowElevation = 4.dp,
-        color = ListenBrainzTheme.colorScheme.level1
+        color = color
     ) {
         Column {
             
@@ -96,7 +99,7 @@ fun ListenCardSmall(
             
                     Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.coverArtAndTextGap))
             
-                    TitleAndSubtitle(modifier = Modifier.padding(end = 6.dp), title = trackName, subtitle = artistName)
+                    TitleAndSubtitle(modifier = Modifier.padding(end = 6.dp), title = trackName, subtitle = artistName, titleColor = titleColor, subtitleColor = subtitleColor)
             
                 }
                 

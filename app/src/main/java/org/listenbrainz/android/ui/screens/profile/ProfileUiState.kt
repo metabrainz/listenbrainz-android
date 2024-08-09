@@ -7,7 +7,9 @@ import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.SimilarUser
 import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.ListeningActivity
+import org.listenbrainz.android.model.user.TopAlbums
 import org.listenbrainz.android.model.user.TopArtists
+import org.listenbrainz.android.model.user.TopSongs
 import org.listenbrainz.android.model.user.UserFeedback
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningNowUiState
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
@@ -47,6 +49,8 @@ data class StatsTabUIState(
     val isLoading: Boolean = true,
     val userListeningActivity: Map<Pair<UserGlobal, StatsRange>, List<ListeningActivity?>> = mapOf(),
     val topArtists: Map<StatsRange, TopArtists?>? = null,
+    val topAlbums: Map<StatsRange ,TopAlbums?>? = null,
+    val topSongs: Map<StatsRange, TopSongs?>? = null,
 )
 
 data class ListeningNowUiState(

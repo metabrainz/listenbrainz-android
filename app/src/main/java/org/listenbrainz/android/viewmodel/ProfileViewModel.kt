@@ -229,6 +229,16 @@ class ProfileViewModel @Inject constructor(
             Pair(UserGlobal.GLOBAL, StatsRange.ALL_TIME)   to globalAllTimeListeningActivity,
         )
 
+        val statsTabState = StatsTabUIState(
+            isLoading = false,
+            userListeningActivity = userListeningActivityMap,
+        )
+
+        statsStateFlow.emit(statsTabState)
+    }
+
+    suspend fun getUserTopArtists(inputUsername: String?){
+        statsStateFlow.value = statsStateFlow.value.copy(isLoading = true)
         val userTopArtistsThisWeek = userRepository.getTopArtists(inputUsername, rangeString = StatsRange.THIS_WEEK.apiIdenfier).data
         val userTopArtistsThisMonth = userRepository.getTopArtists(inputUsername, rangeString = StatsRange.THIS_MONTH.apiIdenfier).data
         val userTopArtistsThisYear = userRepository.getTopArtists(inputUsername, rangeString = StatsRange.THIS_YEAR.apiIdenfier).data
@@ -246,12 +256,64 @@ class ProfileViewModel @Inject constructor(
             StatsRange.LAST_YEAR to userTopArtistsLastYear,
             StatsRange.ALL_TIME to userTopArtistsAllTime
         )
-        val statsTabState = StatsTabUIState(
+
+        statsStateFlow.value = statsStateFlow.value.copy(
             isLoading = false,
-            userListeningActivity = userListeningActivityMap,
             topArtists = topArtists
         )
-        statsStateFlow.emit(statsTabState)
+    }
+
+
+    suspend fun getUserTopAlbums(inputUsername: String?){
+        statsStateFlow.value = statsStateFlow.value.copy(isLoading = true)
+        val userTopAlbumsThisWeek = userRepository.getTopAlbums(inputUsername, rangeString = StatsRange.THIS_WEEK.apiIdenfier).data
+        val userTopAlbumsThisMonth = userRepository.getTopAlbums(inputUsername, rangeString = StatsRange.THIS_MONTH.apiIdenfier).data
+        val userTopAlbumsThisYear = userRepository.getTopAlbums(inputUsername, rangeString = StatsRange.THIS_YEAR.apiIdenfier).data
+        val userTopAlbumsLastWeek = userRepository.getTopAlbums(inputUsername, rangeString = StatsRange.LAST_WEEK.apiIdenfier).data
+        val userTopAlbumsLastMonth = userRepository.getTopAlbums(inputUsername, rangeString = StatsRange.LAST_MONTH.apiIdenfier).data
+        val userTopAlbumsLastYear = userRepository.getTopAlbums(inputUsername, rangeString = StatsRange.LAST_YEAR.apiIdenfier).data
+        val userTopAlbumsAllTime = userRepository.getTopAlbums(inputUsername, rangeString = StatsRange.ALL_TIME.apiIdenfier).data
+
+        val topAlbums = mapOf(
+            StatsRange.THIS_WEEK to userTopAlbumsThisWeek,
+            StatsRange.THIS_MONTH to userTopAlbumsThisMonth,
+            StatsRange.THIS_YEAR to userTopAlbumsThisYear,
+            StatsRange.LAST_WEEK to userTopAlbumsLastWeek,
+            StatsRange.LAST_MONTH to userTopAlbumsLastMonth,
+            StatsRange.LAST_YEAR to userTopAlbumsLastYear,
+            StatsRange.ALL_TIME to userTopAlbumsAllTime
+        )
+
+        statsStateFlow.value = statsStateFlow.value.copy(
+            isLoading = false,
+            topAlbums = topAlbums
+        )
+    }
+
+    suspend fun getUserTopSongs(inputUsername: String?){
+        statsStateFlow.value = statsStateFlow.value.copy(isLoading = true)
+        val userTopSongsThisWeek = userRepository.getTopSongs(inputUsername, rangeString = StatsRange.THIS_WEEK.apiIdenfier).data
+        val userTopSongsThisMonth = userRepository.getTopSongs(inputUsername, rangeString = StatsRange.THIS_MONTH.apiIdenfier).data
+        val userTopSongsThisYear = userRepository.getTopSongs(inputUsername, rangeString = StatsRange.THIS_YEAR.apiIdenfier).data
+        val userTopSongsLastWeek = userRepository.getTopSongs(inputUsername, rangeString = StatsRange.LAST_WEEK.apiIdenfier).data
+        val userTopSongsLastMonth = userRepository.getTopSongs(inputUsername, rangeString = StatsRange.LAST_MONTH.apiIdenfier).data
+        val userTopSongsLastYear = userRepository.getTopSongs(inputUsername, rangeString = StatsRange.LAST_YEAR.apiIdenfier).data
+        val userTopSongsAllTime = userRepository.getTopSongs(inputUsername, rangeString = StatsRange.ALL_TIME.apiIdenfier).data
+
+        val topSongs = mapOf(
+            StatsRange.THIS_WEEK to userTopSongsThisWeek,
+            StatsRange.THIS_MONTH to userTopSongsThisMonth,
+            StatsRange.THIS_YEAR to userTopSongsThisYear,
+            StatsRange.LAST_WEEK to userTopSongsLastWeek,
+            StatsRange.LAST_MONTH to userTopSongsLastMonth,
+            StatsRange.LAST_YEAR to userTopSongsLastYear,
+            StatsRange.ALL_TIME to userTopSongsAllTime
+        )
+
+        statsStateFlow.value = statsStateFlow.value.copy(
+            isLoading = false,
+            topSongs = topSongs
+        )
     }
 
     private suspend fun getUserTasteData(inputUsername: String?) {

@@ -3,7 +3,9 @@ package org.listenbrainz.android.service
 import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.user.AllPinnedRecordings
+import org.listenbrainz.android.model.user.TopAlbums
 import org.listenbrainz.android.model.user.TopArtists
+import org.listenbrainz.android.model.user.TopSongs
 import org.listenbrainz.android.model.user.UserFeedback
 import org.listenbrainz.android.model.user.UserListeningActivity
 import org.listenbrainz.android.model.user.UserSimilarityPayload
@@ -36,5 +38,11 @@ interface UserService {
 
     @GET("stats/sitewide/listening-activity")
     suspend fun getGlobalListeningActivity(@Query("range") rangeString: String?) : Response<UserListeningActivity?>
+
+    @GET("stats/user/{user_name}/releases")
+    suspend fun getTopAlbumsOfUser(@Path("user_name") username: String?, @Query("range") rangeString: String?): Response<TopAlbums>
+
+    @GET("stats/user/{user_name}/recordings")
+    suspend fun getTopSongsOfUser(@Path("user_name") username: String?, @Query("range") rangeString: String?): Response<TopSongs>
 
 }

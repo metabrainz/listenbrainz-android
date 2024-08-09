@@ -4,7 +4,9 @@ import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.user.AllPinnedRecordings
+import org.listenbrainz.android.model.user.TopAlbums
 import org.listenbrainz.android.model.user.TopArtists
+import org.listenbrainz.android.model.user.TopSongs
 import org.listenbrainz.android.model.user.UserFeedback
 import org.listenbrainz.android.model.user.UserListeningActivity
 import org.listenbrainz.android.model.user.UserSimilarityPayload
@@ -61,6 +63,20 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun getGlobalListeningActivity(rangeString: String): Resource<UserListeningActivity?> = parseResponse {
         service.getGlobalListeningActivity(rangeString)
+    }
+
+    override suspend fun getTopAlbums(
+        username: String?,
+        rangeString: String,
+        count: Int
+    ): Resource<TopAlbums> = parseResponse {
+        if(username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
+        service.getTopAlbumsOfUser(username, rangeString)
+    }
+
+    override suspend fun getTopSongs(username: String?, rangeString: String): Resource<TopSongs>  = parseResponse{
+        if(username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
+        service.getTopSongsOfUser(username, rangeString)
     }
 
 }
