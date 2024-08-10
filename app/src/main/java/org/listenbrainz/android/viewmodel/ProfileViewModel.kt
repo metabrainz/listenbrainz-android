@@ -23,6 +23,8 @@ import org.listenbrainz.android.ui.screens.profile.ListensTabUiState
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.screens.profile.StatsTabUIState
 import org.listenbrainz.android.ui.screens.profile.TasteTabUIState
+import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
+import org.listenbrainz.android.ui.screens.profile.stats.UserGlobal
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
 import javax.inject.Inject
 
@@ -55,15 +57,15 @@ class ProfileViewModel @Inject constructor(
 
     private suspend fun getSimilarArtists(username: String?) : List<String> {
         val currentUsername = appPreferences.username.get()
-        val currentUserTopArtists = userRepository.getTopArtists(currentUsername)
-        val userTopArtists = userRepository.getTopArtists(username)
+        val currentUserTopArtists = userRepository.getTopArtists(currentUsername, count = 100)
+        val userTopArtists = userRepository.getTopArtists(username, count = 100)
         val similarArtists = mutableListOf<String>()
         currentUserTopArtists.data?.payload?.artists?.map {
             currentUserTopArtist ->
             userTopArtists.data?.payload?.artists?.map{
                 userTopArtist ->
-                if(currentUserTopArtist.artist_name == userTopArtist.artist_name){
-                    similarArtists.add(currentUserTopArtist.artist_name)
+                if(currentUserTopArtist.artistName == userTopArtist.artistName){
+                    similarArtists.add(currentUserTopArtist.artistName)
                 }
             }
         }
@@ -150,8 +152,168 @@ class ProfileViewModel @Inject constructor(
         listenStateFlow.emit(listensTabState)
     }
 
-    private suspend fun getUserStatsData(inputUsername: String?) {
+    private fun extractDayAndMonth(timeRange: String): Pair<Int, Int> {
+        val monthOrder = mapOf(
+            "January" to 1,
+            "February" to 2,
+            "March" to 3,
+            "April" to 4,
+            "May" to 5,
+            "June" to 6,
+            "July" to 7,
+            "August" to 8,
+            "September" to 9,
+            "October" to 10,
+            "November" to 11,
+            "December" to 12
+        )
+        val parts = timeRange.split(" ")
+        val month = parts[1]
+        val day = parts[0].toIntOrNull() ?: 0
+        return Pair(day, monthOrder[month] ?: 0)
+    }
 
+    private fun extractMonthAndYear(timeRange: String): Pair<Int, Int> {
+        val monthOrder = mapOf(
+            "January" to 1,
+            "February" to 2,
+            "March" to 3,
+            "April" to 4,
+            "May" to 5,
+            "June" to 6,
+            "July" to 7,
+            "August" to 8,
+            "September" to 9,
+            "October" to 10,
+            "November" to 11,
+            "December" to 12
+        )
+        val parts = timeRange.split(" ")
+        val month = parts[0]
+        val year = parts[1].toIntOrNull() ?: 0
+        return Pair(monthOrder[month] ?: 0, year)
+    }
+
+    private suspend fun getUserStatsData(inputUsername: String?) {
+        val userThisWeekListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.THIS_WEEK.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val userThisMonthListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.THIS_MONTH.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val userThisYearListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.THIS_YEAR.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val userLastWeekListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.LAST_WEEK.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val userLastMonthListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.LAST_MONTH.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val userLastYearListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.LAST_YEAR.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val userAllTimeListeningActivity = userRepository.getUserListeningActivity(inputUsername, StatsRange.ALL_TIME.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+
+        val globalThisWeekListeningActivity = userRepository.getGlobalListeningActivity(StatsRange.THIS_WEEK.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val globalThisMonthListeningActivity = userRepository.getGlobalListeningActivity(StatsRange.THIS_MONTH.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val globalThisYearListeningActivity = userRepository.getGlobalListeningActivity(StatsRange.THIS_YEAR.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val globalLastWeekListeningActivity = userRepository.getGlobalListeningActivity(StatsRange.LAST_WEEK.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val globalLastMonthListeningActivity = userRepository.getGlobalListeningActivity(StatsRange.LAST_MONTH.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val globalLastYearListeningActivity = userRepository.getGlobalListeningActivity(StatsRange.LAST_YEAR.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+        val globalAllTimeListeningActivity = userRepository.getGlobalListeningActivity(StatsRange.ALL_TIME.apiIdenfier).data?.payload?.listeningActivity ?: listOf()
+
+        val userListeningActivityMap = mapOf(
+            Pair(UserGlobal.USER, StatsRange.THIS_WEEK)  to userThisWeekListeningActivity,
+            Pair(UserGlobal.USER, StatsRange.THIS_MONTH) to userThisMonthListeningActivity,
+            Pair(UserGlobal.USER, StatsRange.THIS_YEAR)  to userThisYearListeningActivity,
+            Pair(UserGlobal.USER, StatsRange.LAST_WEEK)  to userLastWeekListeningActivity,
+            Pair(UserGlobal.USER, StatsRange.LAST_MONTH) to userLastMonthListeningActivity,
+            Pair(UserGlobal.USER, StatsRange.LAST_YEAR)  to userLastYearListeningActivity,
+            Pair(UserGlobal.USER, StatsRange.ALL_TIME)   to userAllTimeListeningActivity,
+
+            Pair(UserGlobal.GLOBAL, StatsRange.THIS_WEEK)  to globalThisWeekListeningActivity,
+            Pair(UserGlobal.GLOBAL, StatsRange.THIS_MONTH) to globalThisMonthListeningActivity,
+            Pair(UserGlobal.GLOBAL, StatsRange.THIS_YEAR)  to globalThisYearListeningActivity,
+            Pair(UserGlobal.GLOBAL, StatsRange.LAST_WEEK)  to globalLastWeekListeningActivity,
+            Pair(UserGlobal.GLOBAL, StatsRange.LAST_MONTH) to globalLastMonthListeningActivity,
+            Pair(UserGlobal.GLOBAL, StatsRange.LAST_YEAR)  to globalLastYearListeningActivity,
+            Pair(UserGlobal.GLOBAL, StatsRange.ALL_TIME)   to globalAllTimeListeningActivity,
+        )
+
+        val statsTabState = StatsTabUIState(
+            isLoading = false,
+            userListeningActivity = userListeningActivityMap,
+        )
+
+        statsStateFlow.emit(statsTabState)
+    }
+
+    suspend fun getUserTopArtists(inputUsername: String?){
+        statsStateFlow.value = statsStateFlow.value.copy(isLoading = true)
+        val userTopArtistsThisWeek = userRepository.getTopArtists(inputUsername, rangeString = StatsRange.THIS_WEEK.apiIdenfier).data
+        val userTopArtistsThisMonth = userRepository.getTopArtists(inputUsername, rangeString = StatsRange.THIS_MONTH.apiIdenfier).data
+        val userTopArtistsThisYear = userRepository.getTopArtists(inputUsername, rangeString = StatsRange.THIS_YEAR.apiIdenfier).data
+        val userTopArtistsLastWeek = userRepository.getTopArtists(inputUsername, rangeString = StatsRange.LAST_WEEK.apiIdenfier).data
+        val userTopArtistsLastMonth = userRepository.getTopArtists(inputUsername, rangeString = StatsRange.LAST_MONTH.apiIdenfier).data
+        val userTopArtistsLastYear = userRepository.getTopArtists(inputUsername, rangeString = StatsRange.LAST_YEAR.apiIdenfier).data
+        val userTopArtistsAllTime = userRepository.getTopArtists(inputUsername, rangeString = StatsRange.ALL_TIME.apiIdenfier).data
+
+        val topArtists = mapOf(
+            StatsRange.THIS_WEEK to userTopArtistsThisWeek,
+            StatsRange.THIS_MONTH to userTopArtistsThisMonth,
+            StatsRange.THIS_YEAR to userTopArtistsThisYear,
+            StatsRange.LAST_WEEK to userTopArtistsLastWeek,
+            StatsRange.LAST_MONTH to userTopArtistsLastMonth,
+            StatsRange.LAST_YEAR to userTopArtistsLastYear,
+            StatsRange.ALL_TIME to userTopArtistsAllTime
+        )
+
+        statsStateFlow.value = statsStateFlow.value.copy(
+            isLoading = false,
+            topArtists = topArtists
+        )
+    }
+
+
+    suspend fun getUserTopAlbums(inputUsername: String?){
+        statsStateFlow.value = statsStateFlow.value.copy(isLoading = true)
+        val userTopAlbumsThisWeek = userRepository.getTopAlbums(inputUsername, rangeString = StatsRange.THIS_WEEK.apiIdenfier).data
+        val userTopAlbumsThisMonth = userRepository.getTopAlbums(inputUsername, rangeString = StatsRange.THIS_MONTH.apiIdenfier).data
+        val userTopAlbumsThisYear = userRepository.getTopAlbums(inputUsername, rangeString = StatsRange.THIS_YEAR.apiIdenfier).data
+        val userTopAlbumsLastWeek = userRepository.getTopAlbums(inputUsername, rangeString = StatsRange.LAST_WEEK.apiIdenfier).data
+        val userTopAlbumsLastMonth = userRepository.getTopAlbums(inputUsername, rangeString = StatsRange.LAST_MONTH.apiIdenfier).data
+        val userTopAlbumsLastYear = userRepository.getTopAlbums(inputUsername, rangeString = StatsRange.LAST_YEAR.apiIdenfier).data
+        val userTopAlbumsAllTime = userRepository.getTopAlbums(inputUsername, rangeString = StatsRange.ALL_TIME.apiIdenfier).data
+
+        val topAlbums = mapOf(
+            StatsRange.THIS_WEEK to userTopAlbumsThisWeek,
+            StatsRange.THIS_MONTH to userTopAlbumsThisMonth,
+            StatsRange.THIS_YEAR to userTopAlbumsThisYear,
+            StatsRange.LAST_WEEK to userTopAlbumsLastWeek,
+            StatsRange.LAST_MONTH to userTopAlbumsLastMonth,
+            StatsRange.LAST_YEAR to userTopAlbumsLastYear,
+            StatsRange.ALL_TIME to userTopAlbumsAllTime
+        )
+
+        statsStateFlow.value = statsStateFlow.value.copy(
+            isLoading = false,
+            topAlbums = topAlbums
+        )
+    }
+
+    suspend fun getUserTopSongs(inputUsername: String?){
+        statsStateFlow.value = statsStateFlow.value.copy(isLoading = true)
+        val userTopSongsThisWeek = userRepository.getTopSongs(inputUsername, rangeString = StatsRange.THIS_WEEK.apiIdenfier).data
+        val userTopSongsThisMonth = userRepository.getTopSongs(inputUsername, rangeString = StatsRange.THIS_MONTH.apiIdenfier).data
+        val userTopSongsThisYear = userRepository.getTopSongs(inputUsername, rangeString = StatsRange.THIS_YEAR.apiIdenfier).data
+        val userTopSongsLastWeek = userRepository.getTopSongs(inputUsername, rangeString = StatsRange.LAST_WEEK.apiIdenfier).data
+        val userTopSongsLastMonth = userRepository.getTopSongs(inputUsername, rangeString = StatsRange.LAST_MONTH.apiIdenfier).data
+        val userTopSongsLastYear = userRepository.getTopSongs(inputUsername, rangeString = StatsRange.LAST_YEAR.apiIdenfier).data
+        val userTopSongsAllTime = userRepository.getTopSongs(inputUsername, rangeString = StatsRange.ALL_TIME.apiIdenfier).data
+
+        val topSongs = mapOf(
+            StatsRange.THIS_WEEK to userTopSongsThisWeek,
+            StatsRange.THIS_MONTH to userTopSongsThisMonth,
+            StatsRange.THIS_YEAR to userTopSongsThisYear,
+            StatsRange.LAST_WEEK to userTopSongsLastWeek,
+            StatsRange.LAST_MONTH to userTopSongsLastMonth,
+            StatsRange.LAST_YEAR to userTopSongsLastYear,
+            StatsRange.ALL_TIME to userTopSongsAllTime
+        )
+
+        statsStateFlow.value = statsStateFlow.value.copy(
+            isLoading = false,
+            topSongs = topSongs
+        )
     }
 
     private suspend fun getUserTasteData(inputUsername: String?) {

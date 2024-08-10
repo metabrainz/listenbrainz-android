@@ -1,7 +1,9 @@
 package org.listenbrainz.android.model.user
 
+import com.google.gson.annotations.SerializedName
+
 data class Artist(
-    val artist_mbid: String,
-    val artist_name: String,
-    val listen_count: Int
+    @SerializedName("artist_mbid")  val artistMbid: String,
+    @SerializedName("artist_name")  val artistName: String,
+    @SerializedName("listen_count") val listenCount: Int
 )
