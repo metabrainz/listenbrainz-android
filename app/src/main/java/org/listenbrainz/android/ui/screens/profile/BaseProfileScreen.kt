@@ -207,7 +207,8 @@ fun BaseProfileScreen(
                         username = username
                     )
                     ProfileScreenTab.STATS -> StatsScreen(
-                        username = username
+                        username = username,
+                        snackbarState = snackbarState,
                     )
                     ProfileScreenTab.TASTE -> TasteScreen(
                         snackbarState = snackbarState,
