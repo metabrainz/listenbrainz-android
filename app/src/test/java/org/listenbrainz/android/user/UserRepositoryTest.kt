@@ -25,9 +25,9 @@ import org.listenbrainz.sharedtest.utils.ResourceString.current_pins
 import org.listenbrainz.sharedtest.utils.ResourceString.globalListeningActivity
 import org.listenbrainz.sharedtest.utils.ResourceString.listenCount
 import org.listenbrainz.sharedtest.utils.ResourceString.loved_hated_songs
+import org.listenbrainz.sharedtest.utils.ResourceString.similarUser
 import org.listenbrainz.sharedtest.utils.ResourceString.similarUserError
 import org.listenbrainz.sharedtest.utils.ResourceString.similarUserErrorString
-import org.listenbrainz.sharedtest.utils.ResourceString.similar_users_response
 import org.listenbrainz.sharedtest.utils.ResourceString.topAlbums
 import org.listenbrainz.sharedtest.utils.ResourceString.topSongs
 import org.listenbrainz.sharedtest.utils.ResourceString.top_artists
@@ -62,7 +62,7 @@ class UserRepositoryTest {
                     // Similar Users
                     "/user/$testUsername/similar-to/$testSomeOtherUser" -> {
                         MockResponse().setResponseCode(200).setBody(
-                            similar_users_response
+                            similarUser
                         )
                     }
 

@@ -122,6 +122,10 @@ object ResourceString {
     val listens by lazy {
         EntityTestUtils.loadResourceAsString("listens.json")
     }
+
+    val similarUser by lazy {
+        EntityTestUtils.loadResourceAsString("similar_user.json")
+    }
     
     fun <T> String.toClass(): T {
         return Gson().fromJson(this, object: TypeToken<T>() {}.type)
