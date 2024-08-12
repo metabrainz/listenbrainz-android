@@ -55,13 +55,13 @@ import org.listenbrainz.android.ui.theme.lb_orange
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.new_app_bg_light
 import org.listenbrainz.android.util.Constants
-import org.listenbrainz.android.viewmodel.ProfileViewModel
+import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
 fun BaseProfileScreen(
     username: String?,
     snackbarState: SnackbarHostState,
-    viewModel: ProfileViewModel = hiltViewModel(),
+    viewModel: UserViewModel = hiltViewModel(),
     uiState: ProfileUiState,
     onFollowClick: (String) -> Unit,
     onUnfollowClick: (String) -> Unit,
@@ -201,7 +201,7 @@ fun BaseProfileScreen(
                 when(currentTab.value) {
                     ProfileScreenTab.LISTENS -> ListensScreen(
                         scrollRequestState = false,
-                        profileViewModel = viewModel,
+                        userViewModel = viewModel,
                         onScrollToTop = {},
                         snackbarState = snackbarState,
                         username = username
@@ -215,7 +215,7 @@ fun BaseProfileScreen(
                     )
                     else -> ListensScreen(
                         scrollRequestState = false,
-                        profileViewModel = viewModel,
+                        userViewModel = viewModel,
                         onScrollToTop = {},
                         snackbarState = snackbarState,
                         username = username,

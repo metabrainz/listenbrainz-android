@@ -118,6 +118,10 @@ object ResourceString {
     val listenCount by lazy {
         EntityTestUtils.loadResourceAsString("listen_count.json")
     }
+
+    val listens by lazy {
+        EntityTestUtils.loadResourceAsString("listens.json")
+    }
     
     fun <T> String.toClass(): T {
         return Gson().fromJson(this, object: TypeToken<T>() {}.type)

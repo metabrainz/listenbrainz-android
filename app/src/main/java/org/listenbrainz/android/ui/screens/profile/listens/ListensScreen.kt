@@ -83,13 +83,13 @@ import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
-import org.listenbrainz.android.viewmodel.ProfileViewModel
+import org.listenbrainz.android.viewmodel.UserViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 
 @Composable
 fun ListensScreen(
     viewModel: ListensViewModel = hiltViewModel(),
-    profileViewModel: ProfileViewModel,
+    userViewModel: UserViewModel,
     socialViewModel: SocialViewModel = hiltViewModel(),
     feedViewModel : FeedViewModel = hiltViewModel(),
     scrollRequestState: Boolean,
@@ -98,7 +98,7 @@ fun ListensScreen(
     username: String?,
 ) {
     
-    val uiState by profileViewModel.uiState.collectAsState()
+    val uiState by userViewModel.uiState.collectAsState()
     val preferencesUiState by viewModel.preferencesUiState.collectAsState()
     val socialUiState by socialViewModel.uiState.collectAsState()
     val feedUiState by feedViewModel.uiState.collectAsState()
@@ -158,10 +158,10 @@ fun ListensScreen(
             it, status ->
             if(!username.isNullOrEmpty()) {
                 if(!status){
-                    profileViewModel.followUser(it)
+                    userViewModel.followUser(it)
                 }
                 else{
-                    profileViewModel.unfollowUser(it)
+                    userViewModel.unfollowUser(it)
                 }
             }
         }

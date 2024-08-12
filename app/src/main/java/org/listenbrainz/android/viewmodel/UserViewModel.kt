@@ -29,7 +29,7 @@ import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
 import javax.inject.Inject
 
 @HiltViewModel
-class ProfileViewModel @Inject constructor(
+class UserViewModel @Inject constructor(
     val appPreferences: AppPreferences,
     private val userRepository: UserRepository,
     private val listensRepository: ListensRepository,
@@ -150,48 +150,6 @@ class ProfileViewModel @Inject constructor(
             isFollowing = isFollowing
         )
         listenStateFlow.emit(listensTabState)
-    }
-
-    private fun extractDayAndMonth(timeRange: String): Pair<Int, Int> {
-        val monthOrder = mapOf(
-            "January" to 1,
-            "February" to 2,
-            "March" to 3,
-            "April" to 4,
-            "May" to 5,
-            "June" to 6,
-            "July" to 7,
-            "August" to 8,
-            "September" to 9,
-            "October" to 10,
-            "November" to 11,
-            "December" to 12
-        )
-        val parts = timeRange.split(" ")
-        val month = parts[1]
-        val day = parts[0].toIntOrNull() ?: 0
-        return Pair(day, monthOrder[month] ?: 0)
-    }
-
-    private fun extractMonthAndYear(timeRange: String): Pair<Int, Int> {
-        val monthOrder = mapOf(
-            "January" to 1,
-            "February" to 2,
-            "March" to 3,
-            "April" to 4,
-            "May" to 5,
-            "June" to 6,
-            "July" to 7,
-            "August" to 8,
-            "September" to 9,
-            "October" to 10,
-            "November" to 11,
-            "December" to 12
-        )
-        val parts = timeRange.split(" ")
-        val month = parts[0]
-        val year = parts[1].toIntOrNull() ?: 0
-        return Pair(monthOrder[month] ?: 0, year)
     }
 
     private suspend fun getUserStatsData(inputUsername: String?) {
