@@ -24,10 +24,10 @@ import org.listenbrainz.sharedtest.utils.ResourceString.userListeningActivity
 object UserRepositoryTestData {
     val listenCountTestData: Listens = Listens(
         payload = Payload(
-            count = 34946,
+            count = 3252,
             latest_listen_ts = 0,
             listens = listOf(),
-            user_id = "akshaaatt"
+            user_id = "Jasjeet"
         )
     )
 

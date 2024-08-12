@@ -108,6 +108,16 @@ object ResourceString {
     val topSongs by lazy {
         EntityTestUtils.loadResourceAsString("top_songs.json")
     }
+
+    const val similarUserErrorString = "Similar-to user not found"
+
+    val similarUserError by lazy {
+        EntityTestUtils.loadResourceAsString("similar_user_error.json")
+    }
+
+    val listenCount by lazy {
+        EntityTestUtils.loadResourceAsString("listen_count.json")
+    }
     
     fun <T> String.toClass(): T {
         return Gson().fromJson(this, object: TypeToken<T>() {}.type)
