@@ -126,7 +126,7 @@ class ProfileViewModel @Inject constructor(
         }
         val followingCount = following?.size
         val similarUsers = socialRepository.getSimilarUsers(username).data?.payload
-        val currentPins = userRepository.fetchUserCurrentPins(username).data
+        val currentPins = userRepository.fetchUserCurrentPins(username).data?.pinnedRecording
         val compatibility = if (username != appPreferences.username.get())
             userRepository.fetchUserSimilarity(
                 appPreferences.username.get(),

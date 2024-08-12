@@ -2,6 +2,10 @@ package org.listenbrainz.android.model
 
 import com.google.gson.annotations.SerializedName
 
+data class CurrentPins(
+    @SerializedName("pinned_recording") val pinnedRecording: PinnedRecording? = null
+)
+
 data class PinnedRecording(
     @SerializedName("created"        ) val created: Float? = null,
     @SerializedName("row_id"         ) val rowId: Int? = null,

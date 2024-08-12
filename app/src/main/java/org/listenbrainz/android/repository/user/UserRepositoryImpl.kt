@@ -1,5 +1,6 @@
 package org.listenbrainz.android.repository.user
 
+import org.listenbrainz.android.model.CurrentPins
 import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.ResponseError
@@ -29,7 +30,7 @@ class UserRepositoryImpl @Inject constructor(
         service.getUserSimilarity(username,otherUserName)
     }
 
-    override suspend fun fetchUserCurrentPins(username: String?): Resource<PinnedRecording?> = parseResponse {
+    override suspend fun fetchUserCurrentPins(username: String?): Resource<CurrentPins?> = parseResponse {
         if(username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
         service.getUserCurrentPins(username)
     }
