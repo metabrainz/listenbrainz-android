@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -83,8 +84,8 @@ import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
-import org.listenbrainz.android.viewmodel.UserViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
 fun ListensScreen(
@@ -241,7 +242,7 @@ fun ListensScreen(
     }
 
         AnimatedVisibility(visible = !uiState.listensTabUiState.isLoading) {
-            LazyColumn(state = listState) {
+            LazyColumn(state = listState, modifier = Modifier.testTag("listensScreenScrollableContainer")) {
                 item {
                     SongsListened(username = username, listenCount = uiState.listensTabUiState.listenCount, isSelf = uiState.isSelf)
                 }
