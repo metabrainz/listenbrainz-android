@@ -48,6 +48,9 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.retrofit.converter.gson)
 
+    //Spotify SDK for mocking remotePlaybackHandler
+    implementation(files("../app/lib/spotify-app-remote-release-0.7.2.aar"))
+
     // Testing
     implementation(libs.junit)
     implementation(libs.mockwebserver)

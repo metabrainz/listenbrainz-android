@@ -55,6 +55,9 @@ import org.listenbrainz.android.ui.theme.lb_orange
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.new_app_bg_light
 import org.listenbrainz.android.util.Constants
+import org.listenbrainz.android.viewmodel.FeedViewModel
+import org.listenbrainz.android.viewmodel.ListensViewModel
+import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
@@ -66,6 +69,9 @@ fun BaseProfileScreen(
     onFollowClick: (String) -> Unit,
     onUnfollowClick: (String) -> Unit,
     goToUserProfile: () -> Unit,
+    feedViewModel: FeedViewModel = hiltViewModel(),
+    listensViewModel: ListensViewModel = hiltViewModel(),
+    socialViewModel: SocialViewModel = hiltViewModel()
 ){
 
     val currentTab : MutableState<ProfileScreenTab> = remember { mutableStateOf(ProfileScreenTab.LISTENS) }
@@ -102,12 +108,15 @@ fun BaseProfileScreen(
                     Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.chipsHorizontal / 2))
                     repeat(5) { position ->
                         when(position){
-                            0 -> Box(modifier = Modifier.padding(ListenBrainzTheme.paddings.chipsHorizontal,) .clip(shape = RoundedCornerShape(4.dp)).background(
-                                when(uiState.isSelf){
-                                    true -> lb_purple
-                                    false -> lb_orange
-                                }
-                            )) {
+                            0 -> Box(modifier = Modifier
+                                .padding(ListenBrainzTheme.paddings.chipsHorizontal,)
+                                .clip(shape = RoundedCornerShape(4.dp))
+                                .background(
+                                    when (uiState.isSelf) {
+                                        true -> lb_purple
+                                        false -> lb_orange
+                                    }
+                                )) {
                                 Row (modifier = Modifier.padding(end = 8.dp, top = when(uiState.isSelf){
                                     true -> 4.dp
                                     false -> 0.dp
@@ -204,14 +213,23 @@ fun BaseProfileScreen(
                         userViewModel = viewModel,
                         onScrollToTop = {},
                         snackbarState = snackbarState,
-                        username = username
+                        username = username,
+                        feedViewModel = feedViewModel,
+                        socialViewModel = socialViewModel,
+                        viewModel = listensViewModel
                     )
                     ProfileScreenTab.STATS -> StatsScreen(
                         username = username,
                         snackbarState = snackbarState,
+                        socialViewModel = socialViewModel,
+                        viewModel = viewModel,
+                        feedViewModel = feedViewModel
                     )
                     ProfileScreenTab.TASTE -> TasteScreen(
                         snackbarState = snackbarState,
+                        socialViewModel = socialViewModel,
+                        feedViewModel = feedViewModel,
+                        viewModel = viewModel
                     )
                     else -> ListensScreen(
                         scrollRequestState = false,
@@ -219,6 +237,9 @@ fun BaseProfileScreen(
                         onScrollToTop = {},
                         snackbarState = snackbarState,
                         username = username,
+                        feedViewModel = feedViewModel,
+                        socialViewModel = socialViewModel,
+                        viewModel = listensViewModel
                     )
                 }
 

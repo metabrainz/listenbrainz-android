@@ -54,7 +54,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
@@ -89,10 +88,10 @@ import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
 fun ListensScreen(
-    viewModel: ListensViewModel = hiltViewModel(),
+    viewModel: ListensViewModel,
     userViewModel: UserViewModel,
-    socialViewModel: SocialViewModel = hiltViewModel(),
-    feedViewModel : FeedViewModel = hiltViewModel(),
+    socialViewModel: SocialViewModel,
+    feedViewModel : FeedViewModel,
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
     snackbarState : SnackbarHostState,

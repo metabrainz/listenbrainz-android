@@ -40,11 +40,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottomAxis
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStartAxis
@@ -82,15 +82,15 @@ import org.listenbrainz.android.ui.theme.app_bg_secondary_dark
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.FeedViewModel
-import org.listenbrainz.android.viewmodel.UserViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
 fun StatsScreen(
     username: String?,
-    viewModel: UserViewModel = hiltViewModel(),
-    socialViewModel: SocialViewModel = hiltViewModel(),
-    feedViewModel : FeedViewModel = hiltViewModel(),
+    viewModel: UserViewModel,
+    socialViewModel: SocialViewModel,
+    feedViewModel : FeedViewModel,
     snackbarState : SnackbarHostState,
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -245,7 +245,7 @@ fun StatsScreen(
         false -> uiState.statsTabUIState.topSongs?.get(statsRangeState)?.payload?.recordings ?: listOf()
     }
 
-    LazyColumn {
+    LazyColumn (modifier = Modifier.testTag("statsScreenScrollableContainer")) {
         item {
             RangeBar(
                 statsRangeState = statsRangeState,
@@ -326,7 +326,8 @@ fun StatsScreen(
                                 .padding(start = 11.dp, end = 11.dp)
                                 .height(250.dp)
                                 .clip(RoundedCornerShape(10.dp))
-                                .background(Color(0xFFe0e5de)),
+                                .background(Color(0xFFe0e5de))
+                                .testTag("listeningActivityChart"),
                             chart = rememberCartesianChart(
                                 rememberColumnCartesianLayer(
                                     columnProvider = columnProvider,
