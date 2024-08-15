@@ -198,7 +198,7 @@ dependencies {
     implementation(libs.google.exoplayer.mediasession)
 
     // Spotify SDK
-    implementation(files("./lib/spotify-app-remote-release-0.7.2.aar"))
+    api(project(":spotify-app-remote"))
 
     // Networking and parsing
     implementation(libs.jsoup)
