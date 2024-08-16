@@ -10,5 +10,6 @@ sealed class AppNavigationItem(val route: String, @DrawableRes val iconUnselecte
     object Feed : AppNavigationItem("feed", R.drawable.feed_unselected, R.drawable.feed_selected, "Feed")
     object Settings: AppNavigationItem("settings", R.drawable.ic_settings, R.drawable.ic_settings, "Settings")
     object About: AppNavigationItem("about", R.drawable.ic_info, R.drawable.ic_info, "About")
+    object Artist: AppNavigationItem("artist", R.drawable.ic_artist, R.drawable.ic_artist,"Artist")
 }
 

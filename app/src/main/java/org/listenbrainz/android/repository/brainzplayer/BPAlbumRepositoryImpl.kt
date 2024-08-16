@@ -19,9 +19,9 @@ import org.listenbrainz.android.util.Transformer.toAlbumEntity
 
 import javax.inject.Inject
 
-class AlbumRepositoryImpl @Inject constructor(
+class BPAlbumRepositoryImpl @Inject constructor(
     private val albumDao: AlbumDao
-): AlbumRepository {
+): BPAlbumRepository {
     override fun getAlbums(): Flow<List<Album>> =
         albumDao.getAlbumEntities()
             .map { it ->

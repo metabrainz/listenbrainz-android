@@ -5,7 +5,7 @@ import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.Artist
 import org.listenbrainz.android.model.Song
 
-interface ArtistRepository {
+interface BPArtistRepository {
  fun getArtist(artistID: String) : Flow<Artist>
  fun getArtists(): Flow<List<Artist>>
  suspend fun addArtists(userRequestedRefresh: Boolean = false): Boolean

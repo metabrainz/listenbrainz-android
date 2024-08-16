@@ -71,7 +71,8 @@ fun BaseProfileScreen(
     goToUserProfile: () -> Unit,
     feedViewModel: FeedViewModel = hiltViewModel(),
     listensViewModel: ListensViewModel = hiltViewModel(),
-    socialViewModel: SocialViewModel = hiltViewModel()
+    socialViewModel: SocialViewModel = hiltViewModel(),
+    goToArtistPage: (String) -> Unit,
 ){
 
     val currentTab : MutableState<ProfileScreenTab> = remember { mutableStateOf(ProfileScreenTab.LISTENS) }
@@ -216,7 +217,8 @@ fun BaseProfileScreen(
                         username = username,
                         feedViewModel = feedViewModel,
                         socialViewModel = socialViewModel,
-                        viewModel = listensViewModel
+                        viewModel = listensViewModel,
+                        goToArtistPage = goToArtistPage
                     )
                     ProfileScreenTab.STATS -> StatsScreen(
                         username = username,
@@ -239,7 +241,8 @@ fun BaseProfileScreen(
                         username = username,
                         feedViewModel = feedViewModel,
                         socialViewModel = socialViewModel,
-                        viewModel = listensViewModel
+                        viewModel = listensViewModel,
+                        goToArtistPage = goToArtistPage
                     )
                 }
 

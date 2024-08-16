@@ -6,6 +6,7 @@ import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.SimilarUser
 import org.listenbrainz.android.model.user.AllPinnedRecordings
+import org.listenbrainz.android.model.user.Artist
 import org.listenbrainz.android.model.user.ListeningActivity
 import org.listenbrainz.android.model.user.TopAlbums
 import org.listenbrainz.android.model.user.TopArtists
@@ -34,7 +35,7 @@ data class ListensTabUiState (
     val followers: List<Pair<String,Boolean>>? = emptyList(),
     val following: List<Pair<String,Boolean>>? = emptyList(),
     val similarUsers: List<SimilarUser>? = emptyList(),
-    val similarArtists: List<String> = emptyList(),
+    val similarArtists: List<Artist> = emptyList(),
     val isFollowing: Boolean = false
 )
 

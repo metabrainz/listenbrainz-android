@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -62,6 +63,7 @@ import org.listenbrainz.android.model.SimilarUser
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.feed.ReviewEntityType
+import org.listenbrainz.android.model.user.Artist
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.SimilarUserCard
@@ -96,6 +98,7 @@ fun ListensScreen(
     onScrollToTop: (suspend () -> Unit) -> Unit,
     snackbarState : SnackbarHostState,
     username: String?,
+    goToArtistPage: (String) -> Unit,
 ) {
     
     val uiState by userViewModel.uiState.collectAsState()
@@ -164,7 +167,8 @@ fun ListensScreen(
                     userViewModel.unfollowUser(it)
                 }
             }
-        }
+        },
+        goToArtistPage = goToArtistPage
     )
 }
 
@@ -208,6 +212,7 @@ fun ListensScreen(
     onReview: (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String, metadata: Metadata) -> Unit,
     onPersonallyRecommend: (metadata: Metadata, users: List<String>, blurbContent: String) -> Unit,
     onFollowButtonClick: (String?, Boolean) -> Unit,
+    goToArtistPage: (String) -> Unit,
 ) {
     val listState = rememberLazyListState()
 
@@ -335,7 +340,7 @@ fun ListensScreen(
                                 Spacer(modifier = Modifier.height(30.dp))
                                 Text("Your Compatibility", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(start = 16.dp))
                                 Spacer(modifier = Modifier.height(10.dp))
-                                CompatibilityCard(compatibility = uiState.listensTabUiState.compatibility ?: 0f, uiState.listensTabUiState.similarArtists)
+                                CompatibilityCard(compatibility = uiState.listensTabUiState.compatibility ?: 0f, uiState.listensTabUiState.similarArtists, goToArtistPage = goToArtistPage)
                             }
                         }
 
@@ -440,43 +445,80 @@ fun ListensScreen(
 }
 
 @Composable
-private fun BuildSimilarArtists(similarArtists: List<String>) {
+private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (String) -> Unit) {
     val white = Color.White
 
     when {
         similarArtists.size > 5 -> {
             val topSimilarArtists = similarArtists.take(5)
-            val artists = topSimilarArtists.joinToString(", ")
             val text = buildAnnotatedString {
                 withStyle(style = SpanStyle(color = white)) {
                     append("You both listen to ")
                 }
-                withStyle(style = SpanStyle(color = lb_purple_night)) {
-                    append(artists)
+                topSimilarArtists.forEachIndexed { index, artist ->
+                    pushStringAnnotation(tag = "ARTIST", annotation = artist.artistMbid)
+                    withStyle(style = SpanStyle(color = lb_purple_night)) {
+                        append(artist.artistName)
+                    }
+                    pop()
+                    if (index < topSimilarArtists.size - 1) {
+                        append(", ")
+                    }
                 }
                 withStyle(style = SpanStyle(color = white)) {
                     append(" and more.")
                 }
             }
-            Text(text = text, modifier = Modifier.padding(horizontal = 16.dp))
+            ClickableText(
+                text = text,
+                modifier = Modifier.padding(horizontal = 16.dp),
+                onClick = { offset ->
+                    text.getStringAnnotations(tag = "ARTIST", start = offset, end = offset)
+                        .firstOrNull()?.let { annotation ->
+                            onArtistClick(annotation.item)
+                        }
+                }
+            )
         }
         similarArtists.isEmpty() -> {
-            Text("You have no common artists", color = white, modifier = Modifier.padding(horizontal = 16.dp), style = MaterialTheme.typography.bodyMedium)
+            Text(
+                "You have no common artists",
+                color = white,
+                modifier = Modifier.padding(horizontal = 16.dp),
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
         else -> {
-            val artists = similarArtists.joinToString(", ")
             val text = buildAnnotatedString {
                 withStyle(style = SpanStyle(color = white)) {
                     append("You both listen to ")
                 }
-                withStyle(style = SpanStyle(color = lb_purple_night)) {
-                    append(artists)
+                similarArtists.forEachIndexed { index, artist ->
+                    pushStringAnnotation(tag = "ARTIST", annotation = artist.artistMbid)
+                    withStyle(style = SpanStyle(color = lb_purple_night)) {
+                        append(artist.artistName)
+                    }
+                    pop()
+                    if (index < similarArtists.size - 1) {
+                        append(", ")
+                    }
                 }
             }
-            Text(text = text, modifier = Modifier.padding(horizontal = 16.dp), style = MaterialTheme.typography.bodyMedium)
+            ClickableText(
+                text = text,
+                modifier = Modifier.padding(horizontal = 16.dp),
+                style = MaterialTheme.typography.bodyMedium,
+                onClick = { offset ->
+                    text.getStringAnnotations(tag = "ARTIST", start = offset, end = offset)
+                        .firstOrNull()?.let { annotation ->
+                            onArtistClick(annotation.item)
+                        }
+                }
+            )
         }
     }
 }
+
 
 @Composable
 fun Dialogs(
@@ -609,7 +651,7 @@ private fun FollowersInformation(followersCount: Int?, followingCount: Int?){
 }
 
 @Composable
-fun CompatibilityCard(compatibility: Float, similarArtists: List<String>){
+fun CompatibilityCard(compatibility: Float, similarArtists: List<Artist>, goToArtistPage: (String) -> Unit){
     Row (modifier = Modifier.padding(start = 16.dp)) {
         LinearProgressIndicator(progress = {
             compatibility
@@ -620,7 +662,10 @@ fun CompatibilityCard(compatibility: Float, similarArtists: List<String>){
         Text("${(compatibility*100).toInt()} %", color = app_bg_mid, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
     }
     Spacer(modifier = Modifier.height(10.dp))
-    BuildSimilarArtists(similarArtists = similarArtists)
+    BuildSimilarArtists(similarArtists = similarArtists, onArtistClick = {
+        mbid ->
+        goToArtistPage(mbid)
+    })
 }
 
 @Composable
@@ -791,6 +836,7 @@ fun ListensScreenPreview() {
         dropdownItemIndex = remember { mutableStateOf(null) },
         snackbarState = remember { SnackbarHostState() },
         username = "pranavkonidena",
-        onFollowButtonClick = {_,_ -> }
+        onFollowButtonClick = {_,_ -> },
+        goToArtistPage = {}
     )
 }

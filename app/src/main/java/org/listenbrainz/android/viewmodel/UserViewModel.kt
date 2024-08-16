@@ -55,17 +55,17 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    private suspend fun getSimilarArtists(username: String?) : List<String> {
+    private suspend fun getSimilarArtists(username: String?) : List<org.listenbrainz.android.model.user.Artist> {
         val currentUsername = appPreferences.username.get()
         val currentUserTopArtists = userRepository.getTopArtists(currentUsername, count = 100)
         val userTopArtists = userRepository.getTopArtists(username, count = 100)
-        val similarArtists = mutableListOf<String>()
+        val similarArtists = mutableListOf<org.listenbrainz.android.model.user.Artist>()
         currentUserTopArtists.data?.payload?.artists?.map {
             currentUserTopArtist ->
             userTopArtists.data?.payload?.artists?.map{
                 userTopArtist ->
                 if(currentUserTopArtist.artistName == userTopArtist.artistName){
-                    similarArtists.add(currentUserTopArtist.artistName)
+                    similarArtists.add(currentUserTopArtist)
                 }
             }
         }

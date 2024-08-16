@@ -17,7 +17,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.PlayableType
-import org.listenbrainz.android.repository.brainzplayer.AlbumRepository
+import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.brainzplayer.PlaylistRepository
 import org.listenbrainz.android.repository.brainzplayer.SongRepository
@@ -38,7 +38,7 @@ class BrainzPlayerService : MediaBrowserServiceCompat() {
     lateinit var localMusicSource: LocalMusicSource
 
     @Inject
-    lateinit var albumRepository: AlbumRepository
+    lateinit var BPAlbumRepository: BPAlbumRepository
 
     @Inject
     lateinit var songRepository: SongRepository

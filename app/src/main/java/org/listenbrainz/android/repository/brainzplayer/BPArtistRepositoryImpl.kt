@@ -20,9 +20,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ArtistRepositoryImpl @Inject constructor(
+class BPArtistRepositoryImpl @Inject constructor(
     private val artistDao: ArtistDao
-) : ArtistRepository {
+) : BPArtistRepository {
     override fun getArtist(artistID: String): Flow<Artist> {
         val artist = artistDao.getArtistEntity(artistID)
         return artist.map {
