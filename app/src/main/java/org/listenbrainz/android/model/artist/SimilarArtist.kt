@@ -2,13 +2,12 @@ package org.listenbrainz.android.model.artist
 
 import com.google.gson.annotations.SerializedName
 
-data class ArtistPersonalInfo(
-    val area: String? = null,
+data class SimilarArtist(
     @SerializedName("artist_mbid") val artistMbid: String? = null,
-    @SerializedName("begin_year") val beginYear: Int? = null,
+    val comment: String? = null,
     val gender: String? = null,
-    @SerializedName("join_phrase") val joinPhrase: String? = null,
     val name: String? = null,
-    val rels: Rels? = null,
+    @SerializedName("reference_mbid") val referenceMbid: String? = null,
+    val score: Int? = null,
     val type: String? = null
 )

@@ -1,0 +1,60 @@
+package org.listenbrainz.android.viewmodel
+
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import org.listenbrainz.android.repository.artist.ArtistRepository
+import org.listenbrainz.android.ui.screens.artist.ArtistUIState
+import javax.inject.Inject
+
+class ArtistViewModel @Inject constructor(
+    private val repository: ArtistRepository
+) : BaseViewModel<ArtistUIState>() {
+    private val artistUIStateFlow: MutableStateFlow<ArtistUIState> = MutableStateFlow(ArtistUIState())
+
+    suspend fun fetchArtistData(artistMbid: String?) {
+        val artistData = repository.fetchArtistData(artistMbid).data
+        val artistReviews = repository.fetchArtistReviews(artistMbid).data
+        val artistWikiExtract = repository.fetchArtistWikiExtract(artistMbid).data
+        val appearsOn = artistData?.releaseGroups?.filter { releaseGroup ->
+            releaseGroup?.artists?.firstOrNull()?.artistMbid != artistMbid
+        }
+        val artistUiState = ArtistUIState(
+            isLoading = false,
+            name = artistData?.name,
+            coverArt = artistData?.coverArt,
+            beginYear = artistData?.beginYear,
+            area = artistData?.area,
+            totalPlays = artistData?.listeningStats?.totalListenCount,
+            totalListeners = artistData?.listeningStats?.totalUserCount,
+            wikiExtract = artistWikiExtract,
+            tags = artistData?.tag,
+            links = artistData?.rels,
+            popularTracks = artistData?.popularRecordings,
+            albums = artistData?.releaseGroups,
+            appearsOn = appearsOn,
+            similarArtists = artistData?.similarArtists,
+            topListeners = artistData?.listeningStats?.listeners,
+            reviews = artistReviews
+        )
+        artistUIStateFlow.emit(artistUiState)
+    }
+
+
+    override val uiState: StateFlow<ArtistUIState> = createUiStateFlow()
+
+    override fun createUiStateFlow(): StateFlow<ArtistUIState> {
+        return combine(
+            artistUIStateFlow
+        ) {
+            it[0]
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            ArtistUIState()
+        )
+    }
+}
