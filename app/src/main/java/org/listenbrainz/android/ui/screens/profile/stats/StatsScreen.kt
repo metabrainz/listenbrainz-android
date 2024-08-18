@@ -65,6 +65,7 @@ import org.listenbrainz.android.model.MbidMapping
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
+import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
@@ -450,7 +451,7 @@ fun StatsScreen(
                                        index, topAlbum ->
                                    ListenCardSmall(
                                        trackName = topAlbum.releaseName ?: "",
-                                       artists = topAlbum.artists ?: listOf(),
+                                       artists = topAlbum.artists ?: listOf(FeedListenArtist(topAlbum.artistName ?: "", null, "")),
                                        coverArtUrl = getCoverArtUrl(topAlbum.caaReleaseMbid, topAlbum.caaId),
                                        modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, end = 10.dp),
                                        color = app_bg_secondary_dark,
@@ -497,7 +498,7 @@ fun StatsScreen(
                                    ))
                                    ListenCardSmall(
                                        trackName = topSong.trackName ?: "",
-                                       artists = topSong.artists ?: listOf(),
+                                       artists = topSong.artists ?:listOf(FeedListenArtist(topSong.artistName ?: "", null, "")),
                                        coverArtUrl = getCoverArtUrl(topSong.caaReleaseMbid, topSong.caaId),
                                        modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, end = 10.dp),
                                        color = app_bg_secondary_dark,

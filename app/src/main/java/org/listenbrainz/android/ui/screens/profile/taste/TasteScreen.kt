@@ -44,6 +44,7 @@ import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
+import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
@@ -182,7 +183,9 @@ fun TasteScreen(
                         horizontal = 16.dp,
                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
-                trackName = feedback.trackMetadata?.trackName ?: "", artists = feedback.trackMetadata?.mbidMapping?.artists ?: listOf(), coverArtUrl = getCoverArtUrl(
+                trackName = feedback.trackMetadata?.trackName ?: "", artists = feedback.trackMetadata?.mbidMapping?.artists ?: listOf(
+                    FeedListenArtist(feedback.trackMetadata?.artistName ?: "", null, "")
+                ), coverArtUrl = getCoverArtUrl(
                     caaReleaseMbid = feedback.trackMetadata?.mbidMapping?.caaReleaseMbid,
                     caaId = feedback.trackMetadata?.mbidMapping?.caaId
                 ),
@@ -274,11 +277,10 @@ fun TasteScreen(
                             },
                             modifier = Modifier
                                 .padding(
-
                                     vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                                 ),
                             trackName = recording.trackMetadata?.trackName ?: "",
-                            artists = recording.trackMetadata?.mbidMapping?.artists ?: listOf(),
+                            artists = recording.trackMetadata?.mbidMapping?.artists ?: listOf(FeedListenArtist(recording.trackMetadata?.artistName ?: "", null, "")),
                             coverArtUrl = getCoverArtUrl(
                                 caaReleaseMbid = recording.trackMetadata?.mbidMapping?.caaReleaseMbid,
                                 caaId = recording.trackMetadata?.mbidMapping?.caaId
