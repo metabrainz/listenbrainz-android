@@ -1,7 +1,7 @@
 package org.listenbrainz.android.repository.artist
 
 import org.listenbrainz.android.model.ResponseError
-import org.listenbrainz.android.model.artist.Artist
+import org.listenbrainz.android.model.artist.ArtistPayload
 import org.listenbrainz.android.model.artist.ArtistReview
 import org.listenbrainz.android.model.artist.ArtistWikiExtract
 import org.listenbrainz.android.service.ArtistService
@@ -16,7 +16,7 @@ class ArtistRepositoryImpl @Inject constructor(
     private val mbService: MBService,
     private val cbService: CBService,
 ) : ArtistRepository {
-    override suspend fun fetchArtistData(artistMbid: String?): Resource<Artist?> = parseResponse {
+    override suspend fun fetchArtistData(artistMbid: String?): Resource<ArtistPayload?> = parseResponse {
         if(artistMbid.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
         service.getArtistData(artistMbid)
     }

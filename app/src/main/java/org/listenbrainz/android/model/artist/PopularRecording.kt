@@ -4,16 +4,16 @@ import com.google.gson.annotations.SerializedName
 
 data class PopularRecording(
     @SerializedName("artist_mbids") val artistMbids: List<String>? = listOf(),
-    @SerializedName("artist_name") val artistName: String? = "",
-    val artists: List<ArtistXX>? = listOf(),
-    @SerializedName("caa_id") val caaId: Long? = 0,
-    @SerializedName("caa_release_mbid") val caaReleaseMbid: String? = "",
-    val length: Int? = 0,
-    @SerializedName("recording_mbid") val recordingMbid: String? = "",
-    @SerializedName("recording_name") val recordingName: String? = "",
+    @SerializedName("artist_name") val artistName: String? = null,
+    val artists: List<ArtistsInAlbum>? = listOf(),
+    @SerializedName("caa_id") val caaId: Long? = null,
+    @SerializedName("caa_release_mbid") val caaReleaseMbid: String? = null,
+    val length: Int? = null,
+    @SerializedName("recording_mbid") val recordingMbid: String? = null,
+    @SerializedName("recording_name") val recordingName: String? = null,
     @SerializedName("release_color") val releaseColor: ReleaseColor? = ReleaseColor(),
-    @SerializedName("release_mbid") val releaseMbid: String? = "",
-    @SerializedName("release_name") val releaseName: String? = "",
-    @SerializedName("total_listen_count") val totalListenCount: Int? = 0,
-    @SerializedName("total_user_count") val totalUserCount: Int? = 0
+    @SerializedName("release_mbid") val releaseMbid: String? = null,
+    @SerializedName("release_name") val releaseName: String? = null,
+    @SerializedName("total_listen_count") val totalListenCount: Int? = null,
+    @SerializedName("total_user_count") val totalUserCount: Int? = null
 )

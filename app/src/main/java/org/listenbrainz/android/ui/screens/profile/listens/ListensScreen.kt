@@ -456,6 +456,7 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
                     append("You both listen to ")
                 }
                 topSimilarArtists.forEachIndexed { index, artist ->
+                    if(artist.artistMbid != null)
                     pushStringAnnotation(tag = "ARTIST", annotation = artist.artistMbid)
                     withStyle(style = SpanStyle(color = lb_purple_night)) {
                         append(artist.artistName)
@@ -494,6 +495,7 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
                     append("You both listen to ")
                 }
                 similarArtists.forEachIndexed { index, artist ->
+                    if(artist.artistMbid != null)
                     pushStringAnnotation(tag = "ARTIST", annotation = artist.artistMbid)
                     withStyle(style = SpanStyle(color = lb_purple_night)) {
                         append(artist.artistName)

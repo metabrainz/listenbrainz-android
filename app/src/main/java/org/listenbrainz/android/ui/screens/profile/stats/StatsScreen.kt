@@ -418,7 +418,7 @@ fun StatsScreen(
                            Column (horizontalAlignment = Alignment.CenterHorizontally) {
                                topArtists.map {
                                        topArtist ->
-                                   ArtistCard(artistName = topArtist.artistName, listenCount = topArtist.listenCount){}
+                                   ArtistCard(artistName = topArtist.artistName ?: "", listenCount = topArtist.listenCount){}
                                }
                                Spacer(modifier = Modifier.height(10.dp))
                                if((uiState.statsTabUIState.topArtists?.size ?: 0) > 5){

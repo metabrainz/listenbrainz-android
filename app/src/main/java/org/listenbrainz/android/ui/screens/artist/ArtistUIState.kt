@@ -10,7 +10,7 @@ import org.listenbrainz.android.model.artist.SimilarArtist
 import org.listenbrainz.android.model.artist.Tag
 
 data class ArtistUIState(
-    val isLoading: Boolean? = true,
+    val isLoading: Boolean = true,
     val name: String? = null,
     val coverArt: String? = null,
     val beginYear: Int? = null,

@@ -1,6 +1,7 @@
 package org.listenbrainz.android.viewmodel
 
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -10,6 +11,7 @@ import org.listenbrainz.android.repository.artist.ArtistRepository
 import org.listenbrainz.android.ui.screens.artist.ArtistUIState
 import javax.inject.Inject
 
+@HiltViewModel
 class ArtistViewModel @Inject constructor(
     private val repository: ArtistRepository
 ) : BaseViewModel<ArtistUIState>() {
@@ -24,15 +26,15 @@ class ArtistViewModel @Inject constructor(
         }
         val artistUiState = ArtistUIState(
             isLoading = false,
-            name = artistData?.name,
+            name = artistData?.artist?.name,
             coverArt = artistData?.coverArt,
-            beginYear = artistData?.beginYear,
-            area = artistData?.area,
+            beginYear = artistData?.artist?.beginYear,
+            area = artistData?.artist?.area,
             totalPlays = artistData?.listeningStats?.totalListenCount,
             totalListeners = artistData?.listeningStats?.totalUserCount,
             wikiExtract = artistWikiExtract,
-            tags = artistData?.tag,
-            links = artistData?.rels,
+            tags = artistData?.artist?.tag,
+            links = artistData?.artist?.rels,
             popularTracks = artistData?.popularRecordings,
             albums = artistData?.releaseGroups,
             appearsOn = appearsOn,
