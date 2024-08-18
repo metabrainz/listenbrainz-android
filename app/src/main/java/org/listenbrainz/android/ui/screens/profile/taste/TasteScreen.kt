@@ -69,6 +69,7 @@ fun TasteScreen(
     socialViewModel: SocialViewModel,
     feedViewModel : FeedViewModel,
     snackbarState : SnackbarHostState,
+    goToArtistPage: (String) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val socialUiState by socialViewModel.uiState.collectAsState()
@@ -111,7 +112,8 @@ fun TasteScreen(
         },
         onMessageShown = {
             socialViewModel.clearMsgFlow()
-        }
+        },
+        goToArtistPage = goToArtistPage,
     )
 }
 
@@ -132,6 +134,7 @@ fun TasteScreen(
     onPersonallyRecommend: (metadata: Metadata, users: List<String>, blurbContent: String) -> Unit,
     onErrorShown : () -> Unit,
     onMessageShown : () -> Unit,
+    goToArtistPage: (String) -> Unit,
 ){
     val lovedHatedState: MutableState<LovedHated> = remember { mutableStateOf(LovedHated.loved) }
 
@@ -179,8 +182,7 @@ fun TasteScreen(
                         horizontal = 16.dp,
                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
-                trackName = feedback.trackMetadata?.trackName ?: "", artistName = feedback.trackMetadata
-                    ?.artistName ?: "", coverArtUrl = getCoverArtUrl(
+                trackName = feedback.trackMetadata?.trackName ?: "", artists = feedback.trackMetadata?.mbidMapping?.artists ?: listOf(), coverArtUrl = getCoverArtUrl(
                     caaReleaseMbid = feedback.trackMetadata?.mbidMapping?.caaReleaseMbid,
                     caaId = feedback.trackMetadata?.mbidMapping?.caaId
                 ),
@@ -221,7 +223,8 @@ fun TasteScreen(
                         }
 
                     )
-                }
+                },
+                goToArtistPage = goToArtistPage
             ) {
                 if(feedback.trackMetadata != null){
                     playListen(feedback.trackMetadata)
@@ -275,8 +278,7 @@ fun TasteScreen(
                                     vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                                 ),
                             trackName = recording.trackMetadata?.trackName ?: "",
-                            artistName = recording.trackMetadata
-                                ?.artistName ?: "",
+                            artists = recording.trackMetadata?.mbidMapping?.artists ?: listOf(),
                             coverArtUrl = getCoverArtUrl(
                                 caaReleaseMbid = recording.trackMetadata?.mbidMapping?.caaReleaseMbid,
                                 caaId = recording.trackMetadata?.mbidMapping?.caaId
@@ -326,7 +328,8 @@ fun TasteScreen(
                                     }
 
                                 )
-                            }
+                            },
+                            goToArtistPage = goToArtistPage
                         ) {
                             if (recording.trackMetadata != null) {
                                 playListen(recording.trackMetadata)

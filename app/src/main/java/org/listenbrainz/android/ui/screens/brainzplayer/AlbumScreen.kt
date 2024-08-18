@@ -40,6 +40,7 @@ import coil.compose.AsyncImage
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.PlayableType
+import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.BPLibraryEmptyMessage
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.forwardingPainter
@@ -286,10 +287,11 @@ fun OnAlbumClickScreen(albumID: Long) {
                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
                     trackName = it.title,
-                    artistName = it.artist,
+                    artists = listOf(FeedListenArtist(it.artist, null, "")),
                     coverArtUrl = it.albumArt,
                     errorAlbumArt = R.drawable.ic_erroralbumart,
                     enableDropdownIcon = true,
+                    goToArtistPage = {},
                     onDropdownIconClick = {
                         albumCardMoreOptionsDropMenuExpanded = albumSongs.indexOf(it)
                     }

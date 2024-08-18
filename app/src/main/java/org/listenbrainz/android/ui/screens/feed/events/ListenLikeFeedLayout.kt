@@ -28,7 +28,8 @@ fun ListenLikeFeedLayout(
     onRecommend: () -> Unit,
     onPersonallyRecommend: () -> Unit,
     onReview: () -> Unit,
-    goToUserPage: (String?) -> Unit
+    goToUserPage: (String?) -> Unit,
+    goToArtistPage: (String) -> Unit,
 ) {
     BaseFeedLayout(
         eventType = FeedEventType.LIKE,
@@ -39,7 +40,7 @@ fun ListenLikeFeedLayout(
     ) {
         ListenCardSmall(
             trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
-            artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
+            artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(),
             coverArtUrl = remember {
                 getCoverArtUrl(
                     caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
@@ -60,6 +61,7 @@ fun ListenLikeFeedLayout(
                     onReview = onReview
                 )
             },
+            goToArtistPage = goToArtistPage,
             onClick = onClick
         )
     }
@@ -90,7 +92,8 @@ private fun ListenLikeFeedLayoutPreview() {
                 onRecommend = {},
                 onPersonallyRecommend = {},
                 onReview = {},
-                goToUserPage = {}
+                goToUserPage = {},
+                goToArtistPage = {}
             )
         }
     }

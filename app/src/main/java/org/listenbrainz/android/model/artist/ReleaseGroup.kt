@@ -1,10 +1,11 @@
 package org.listenbrainz.android.model.artist
 
 import com.google.gson.annotations.SerializedName
+import org.listenbrainz.android.model.feed.FeedListenArtist
 
 data class ReleaseGroup(
     @SerializedName("artist_credit_name") val artistCreditName: String? = null,
-    val artists: List<ArtistsInAlbum>? = listOf(),
+    val artists: List<FeedListenArtist>? = listOf(),
     @SerializedName("caa_id") val caaId: Long? = null,
     @SerializedName("caa_release_mbid") val caaReleaseMbid: String? = null,
     val date: String? = null,

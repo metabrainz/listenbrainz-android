@@ -225,13 +225,15 @@ fun BaseProfileScreen(
                         snackbarState = snackbarState,
                         socialViewModel = socialViewModel,
                         viewModel = viewModel,
-                        feedViewModel = feedViewModel
+                        feedViewModel = feedViewModel,
+                        goToArtistPage = goToArtistPage
                     )
                     ProfileScreenTab.TASTE -> TasteScreen(
                         snackbarState = snackbarState,
                         socialViewModel = socialViewModel,
                         feedViewModel = feedViewModel,
-                        viewModel = viewModel
+                        viewModel = viewModel,
+                        goToArtistPage = goToArtistPage
                     )
                     else -> ListensScreen(
                         scrollRequestState = false,

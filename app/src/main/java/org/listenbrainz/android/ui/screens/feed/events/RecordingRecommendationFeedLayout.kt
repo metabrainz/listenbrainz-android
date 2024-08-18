@@ -30,6 +30,7 @@ fun RecordingRecommendationFeedLayout(
     onPersonallyRecommend: () -> Unit,
     onReview: () -> Unit,
     goToUserPage: (String?) -> Unit,
+    goToArtistPage: (String) -> Unit,
 ) {
     BaseFeedLayout(
         eventType = FeedEventType.RECORDING_RECOMMENDATION,
@@ -39,7 +40,7 @@ fun RecordingRecommendationFeedLayout(
         onDeleteOrHide = onDeleteOrHide, goToUserPage = goToUserPage) {
         ListenCardSmall(
             trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
-            artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
+            artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(),
             coverArtUrl = remember {
                 Utils.getCoverArtUrl(
                     caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
@@ -60,6 +61,7 @@ fun RecordingRecommendationFeedLayout(
                     onReview = onReview
                 )
             },
+            goToArtistPage = goToArtistPage,
             onClick = onClick
         )
     }
@@ -91,7 +93,8 @@ private fun RecordingRecommendationFeedCardPreview() {
                 onRecommend = {},
                 onPersonallyRecommend = {},
                 onReview = {},
-                goToUserPage = {}
+                goToUserPage = {},
+                goToArtistPage = {}
             )
         }
     }

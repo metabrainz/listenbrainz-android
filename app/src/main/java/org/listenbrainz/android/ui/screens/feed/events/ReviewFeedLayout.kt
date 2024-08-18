@@ -50,6 +50,7 @@ fun ReviewFeedLayout(
     onPersonallyRecommend: () -> Unit,
     onReview: () -> Unit,
     goToUserPage: (String?) -> Unit,
+    goToArtistPage: (String) -> Unit,
     uriHandler: UriHandler = LocalUriHandler.current
 ) {
     BaseFeedLayout(
@@ -62,7 +63,7 @@ fun ReviewFeedLayout(
         
         ListenCardSmall(
             trackName = event.metadata.entityName ?: "Unknown",
-            artistName = event.metadata.trackMetadata?.artistName ?: "",
+            artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(),
             coverArtUrl = remember {
                 Utils.getCoverArtUrl(
                     caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
@@ -140,6 +141,7 @@ fun ReviewFeedLayout(
                     
                 }
             },
+            goToArtistPage = goToArtistPage,
             onClick = onClick
         )
         
@@ -176,7 +178,8 @@ private fun ReviewFeedLayoutPreview() {
                 onRecommend = {},
                 onPersonallyRecommend = {},
                 onReview = {},
-                goToUserPage = {}
+                goToUserPage = {},
+                goToArtistPage = {}
             )
         }
     }

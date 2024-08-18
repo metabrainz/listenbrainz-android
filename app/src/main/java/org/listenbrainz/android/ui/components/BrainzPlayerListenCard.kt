@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @Composable
@@ -66,7 +67,8 @@ fun BrainzPlayerListenCard(
                     TitleAndSubtitle(
                         modifier = Modifier.padding(end = 6.dp),
                         title = title,
-                        subtitle = subTitle
+                        goToArtistPage = {},
+                        artists = listOf(FeedListenArtist(subTitle, null, "")),
                     )
                 }
                 Box(modifier = Modifier

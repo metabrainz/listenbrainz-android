@@ -47,7 +47,19 @@ fun AppNavigation(
                     // Restore previous state
                     restoreState = true
                 }
-            } })
+            } }, goToArtistPage = {
+                    mbid ->
+                navController.navigate("${AppNavigationItem.Artist.route}/$mbid"){
+                    // Avoid building large backstack
+                    popUpTo(AppNavigationItem.Feed.route){
+                        saveState = true
+                    }
+                    // Avoid copies
+                    launchSingleTop = true
+                    // Restore previous state
+                    restoreState = true
+                }
+            })
         }
         composable(route = AppNavigationItem.BrainzPlayer.route){
             BrainzPlayerScreen()
@@ -86,7 +98,7 @@ fun AppNavigation(
                 }
             }
             else{
-                ArtistScreen(artistMbid = artistMbid)
+                ArtistScreen(artistMbid = artistMbid, goToArtistPage = goToArtistPage)
             }
 
         }

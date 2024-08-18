@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 /**Small configuration of listen card.
@@ -52,7 +53,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 fun ListenCardSmall(
     modifier: Modifier = Modifier,
     trackName: String,
-    artistName: String,
+    artists: List<FeedListenArtist>,
     coverArtUrl: String?,
     listenCount: Int? = null,
     @DrawableRes errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
@@ -66,6 +67,7 @@ fun ListenCardSmall(
     color: Color = ListenBrainzTheme.colorScheme.level1,
     titleColor: Color = ListenBrainzTheme.colorScheme.listenText,
     subtitleColor: Color = titleColor.copy(alpha = 0.7f),
+    goToArtistPage: (String) -> Unit,
     onClick: () -> Unit,
 ) {
     Surface(
@@ -103,7 +105,7 @@ fun ListenCardSmall(
             
                     Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.coverArtAndTextGap))
             
-                    TitleAndSubtitle(modifier = Modifier.padding(end = 6.dp), title = trackName, subtitle = artistName, titleColor = titleColor, subtitleColor = subtitleColor)
+                    TitleAndSubtitle(modifier = Modifier.padding(end = 6.dp), title = trackName, artists = artists, titleColor = titleColor, subtitleColor = subtitleColor, goToArtistPage = goToArtistPage)
                 }
 
                 Box(
@@ -196,15 +198,18 @@ private fun AlbumArt(
     )
 }
 
-/** [title] corresponds to release name and [subtitle] corresponds to artist name.*/
+/** [title] corresponds to release name and [artists] corresponds to all the artists as per
+ * MB's credit system.
+ * The [artists] list consists of artist names and join phrases used to join multiple artists together*/
 @Composable
 fun TitleAndSubtitle(
     modifier: Modifier = Modifier,
     title: String,
-    subtitle: String = "",
+    artists: List<FeedListenArtist>,
     alignment: Alignment.Horizontal = Alignment.Start,
     titleColor: Color = ListenBrainzTheme.colorScheme.listenText,
-    subtitleColor: Color = titleColor.copy(alpha = 0.7f)
+    subtitleColor: Color = titleColor.copy(alpha = 0.7f),
+    goToArtistPage: (String) -> Unit,
 ) {
     Column(modifier = modifier, horizontalAlignment = alignment) {
         Text(
@@ -214,14 +219,17 @@ fun TitleAndSubtitle(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        if (subtitle.isNotEmpty()){
-            Text(
-                text = subtitle,
-                style = ListenBrainzTheme.textStyles.listenSubtitle,
-                color = subtitleColor,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+        Row {
+            artists.map {
+                Text(it.artistCreditName + it.joinPhrase, style = ListenBrainzTheme.textStyles.listenSubtitle,
+                    color = subtitleColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis, modifier = Modifier.clickable {
+                        if(it.artistMbid != null){
+                            goToArtistPage(it.artistMbid)
+                        }
+                    })
+            }
         }
     }
 }
@@ -233,16 +241,17 @@ private fun ListenCardSmallPreview() {
     ListenBrainzTheme {
         ListenCardSmall(
             trackName = "Title",
-            artistName = "Artist",
+            artists = listOf(FeedListenArtist("Artist", "", "")),
             coverArtUrl = "",
             enableDropdownIcon = true,
             enableTrailingContent = true,
             trailingContent = { modifier ->
                 Column(modifier = modifier) {
-                    TitleAndSubtitle(title = "Userrrrrrrrrrrrrr", subtitle = "60%")
+                    TitleAndSubtitle(title = "Userrrrrrrrrrrrrr", goToArtistPage = {}, artists = listOf(FeedListenArtist("Artist", "", "")),)
                 }
             },
             enableBlurbContent = true,
+            goToArtistPage = {},
             blurbContent = {
                 Column(modifier = it) {
                     Text(text = "Blurb Content", color = ListenBrainzTheme.colorScheme.text)
@@ -259,15 +268,16 @@ private fun ListenCardSmallNoBlurbContentPreview() {
     ListenBrainzTheme {
         ListenCardSmall(
             trackName = "Title",
-            artistName = "Artist",
+            artists = listOf(FeedListenArtist("Artist", "", "")),
             coverArtUrl = "",
             enableDropdownIcon = true,
             enableTrailingContent = true,
             trailingContent = { modifier ->
                 Column(modifier = modifier) {
-                    TitleAndSubtitle(title = "Userrrrrrrrrrrrrr", subtitle = "60%")
+                    TitleAndSubtitle(title = "Userrrrrrrrrrrrrr", goToArtistPage = {}, artists = listOf(FeedListenArtist("Artist", "", "")),)
                 }
             },
+            goToArtistPage = {},
             enableBlurbContent = false
         ) {}
     }
@@ -280,10 +290,11 @@ private fun ListenCardSmallSimplePreview() {
     ListenBrainzTheme {
         ListenCardSmall(
             trackName = "Title",
-            artistName = "Artist",
+            artists = listOf(FeedListenArtist("Artist", "", "")),
             coverArtUrl = "",
             enableDropdownIcon = true,
             enableTrailingContent = false,
+            goToArtistPage = {},
             enableBlurbContent = false
         ) {}
     }

@@ -32,6 +32,7 @@ fun PinFeedLayout(
     onPersonallyRecommend: () -> Unit,
     onReview: () -> Unit,
     goToUserPage: (String?) -> Unit,
+    goToArtistPage: (String) -> Unit,
 ) {
     BaseFeedLayout(
         eventType = FeedEventType.RECORDING_PIN,
@@ -44,7 +45,7 @@ fun PinFeedLayout(
         
         ListenCardSmall(
             trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
-            artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
+            artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(),
             coverArtUrl = remember {
                 Utils.getCoverArtUrl(
                     caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
@@ -77,6 +78,7 @@ fun PinFeedLayout(
                     }
                 }
             },
+            goToArtistPage = goToArtistPage,
             onClick = onClick
         )
         
@@ -110,6 +112,7 @@ fun PinFeedLayoutPreview() {
                 onPersonallyRecommend = {},
                 onReview = {},
                 goToUserPage = {},
+                goToArtistPage = {},
             )
         }
     }

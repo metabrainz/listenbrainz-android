@@ -81,19 +81,21 @@ import org.listenbrainz.android.viewmodel.ArtistViewModel
 @Composable
 fun ArtistScreen(
     artistMbid: String,
-    viewModel: ArtistViewModel = hiltViewModel()
+    viewModel: ArtistViewModel = hiltViewModel(),
+    goToArtistPage: (String) -> Unit
 ) {
     LaunchedEffect(Unit) {
         viewModel.fetchArtistData(artistMbid)
     }
     val uiState by viewModel.uiState.collectAsState()
-    ArtistScreen(artistMbid = artistMbid,uiState = uiState)
+    ArtistScreen(artistMbid = artistMbid,uiState = uiState, goToArtistPage = goToArtistPage)
 }
 
 @Composable
 private fun ArtistScreen(
     artistMbid: String,
-    uiState: ArtistUIState
+    uiState: ArtistUIState,
+    goToArtistPage: (String) -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()){
         AnimatedVisibility(
@@ -114,7 +116,7 @@ private fun ArtistScreen(
                         Links(uiState = uiState, artistMbid = artistMbid)
                     }
                     item {
-                        PopularTracks(uiState = uiState)
+                        PopularTracks(uiState = uiState, goToArtistPage = goToArtistPage)
                     }
                     item {
                         AlbumsCard(header = "Albums", albumsList = uiState.albums)
@@ -360,7 +362,8 @@ private fun Links(
 
 @Composable
 private fun PopularTracks(
-    uiState: ArtistUIState
+    uiState: ArtistUIState,
+    goToArtistPage: (String) -> Unit,
 ) {
     val popularTracksCollapsibleState: MutableState<Boolean> = remember {
         mutableStateOf(true)
@@ -378,7 +381,7 @@ private fun PopularTracks(
             Text("Popular Tracks", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
             Spacer(modifier = Modifier.height(20.dp))
             popularTracks.map {
-                ListenCardSmall(trackName = it?.recordingName ?: "", artistName = it?.artistName ?: "", coverArtUrl = Utils.getCoverArtUrl(it?.caaReleaseMbid, it?.caaId)) {
+                ListenCardSmall(trackName = it?.recordingName ?: "", artists = it?.artists ?: listOf(), coverArtUrl = Utils.getCoverArtUrl(it?.caaReleaseMbid, it?.caaId), goToArtistPage = goToArtistPage) {
 
                 }
                 Spacer(modifier = Modifier.height(12.dp))

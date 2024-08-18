@@ -92,6 +92,7 @@ fun StatsScreen(
     socialViewModel: SocialViewModel,
     feedViewModel : FeedViewModel,
     snackbarState : SnackbarHostState,
+    goToArtistPage: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val socialUiState by socialViewModel.uiState.collectAsState()
@@ -158,7 +159,8 @@ fun StatsScreen(
         },
         onPersonallyRecommend = {
                 metadata, users, blurbContent ->  socialViewModel.personallyRecommend(metadata, users, blurbContent)
-        }
+        },
+        goToArtistPage = goToArtistPage
     )
 }
 
@@ -187,6 +189,7 @@ fun StatsScreen(
     isCritiqueBrainzLinked: suspend () -> Boolean?,
     onReview: (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String, metadata: Metadata) -> Unit,
     onPersonallyRecommend: (metadata: Metadata, users: List<String>, blurbContent: String) -> Unit,
+    goToArtistPage: (String) -> Unit,
 ) {
     val currentTabSelection: MutableState<CategoryState> = remember {
         mutableStateOf(CategoryState.ARTISTS)
@@ -442,7 +445,7 @@ fun StatsScreen(
                                        index, topAlbum ->
                                    ListenCardSmall(
                                        trackName = topAlbum.releaseName ?: "",
-                                       artistName = topAlbum.artistName ?: "",
+                                       artists = topAlbum.artists ?: listOf(),
                                        coverArtUrl = getCoverArtUrl(topAlbum.caaReleaseMbid, topAlbum.caaId),
                                        modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, end = 10.dp),
                                        color = app_bg_secondary_dark,
@@ -450,7 +453,8 @@ fun StatsScreen(
                                        subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),
                                        enableTrailingContent = true,
                                        listenCount = topAlbum.listenCount,
-                                       enableDropdownIcon = true
+                                       enableDropdownIcon = true,
+                                       goToArtistPage = goToArtistPage
                                        )
                                    {
 
@@ -488,7 +492,7 @@ fun StatsScreen(
                                    ))
                                    ListenCardSmall(
                                        trackName = topSong.trackName ?: "",
-                                       artistName = topSong.artistName ?: "",
+                                       artists = topSong.artists ?: listOf(),
                                        coverArtUrl = getCoverArtUrl(topSong.caaReleaseMbid, topSong.caaId),
                                        modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, end = 10.dp),
                                        color = app_bg_secondary_dark,
@@ -532,7 +536,8 @@ fun StatsScreen(
                                            )
                                        },
                                        enableTrailingContent = true,
-                                       listenCount = topSong.listenCount
+                                       listenCount = topSong.listenCount,
+                                       goToArtistPage = goToArtistPage
                                    ) {
                                        val trackMetadata = metadata.trackMetadata
                                        if(trackMetadata != null){

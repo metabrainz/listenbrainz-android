@@ -270,7 +270,7 @@ fun ListensScreen(
                                 vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                             ),
                         trackName = listen.trackMetadata.trackName,
-                        artistName = listen.trackMetadata.artistName,
+                        artists = metadata.trackMetadata?.mbidMapping?.artists ?: listOf(),
                         coverArtUrl = getCoverArtUrl(
                             caaReleaseMbid = listen.trackMetadata.mbidMapping?.caaReleaseMbid,
                             caaId = listen.trackMetadata.mbidMapping?.caaId
@@ -279,6 +279,7 @@ fun ListensScreen(
                         onDropdownIconClick = {
                             dropdownItemIndex.value = index
                         },
+                        goToArtistPage = goToArtistPage,
                         dropDown = {
                             SocialDropdown(
                                 isExpanded = dropdownItemIndex.value == index,
@@ -456,8 +457,9 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
                     append("You both listen to ")
                 }
                 topSimilarArtists.forEachIndexed { index, artist ->
-                    if(artist.artistMbid != null)
-                    pushStringAnnotation(tag = "ARTIST", annotation = artist.artistMbid)
+                    if(artist.artistMbid != null) {
+                        pushStringAnnotation(tag = "ARTIST", annotation = artist.artistMbid)
+                    }
                     withStyle(style = SpanStyle(color = lb_purple_night)) {
                         append(artist.artistName)
                     }
