@@ -206,6 +206,10 @@ class MainActivity : ComponentActivity() {
                                 goToArtistPage = {
                                     mbid ->
                                     navController.navigate("artist/${mbid}")
+                                },
+                                goToUserPage = {
+                                    user ->
+                                    navController.navigate("${AppNavigationItem.Profile.route}/$user")
                                 }
                             )
                         }

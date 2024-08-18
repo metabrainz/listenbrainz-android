@@ -64,6 +64,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.artist.ReleaseGroup
+import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.listens.LoadMoreButton
@@ -82,20 +83,22 @@ import org.listenbrainz.android.viewmodel.ArtistViewModel
 fun ArtistScreen(
     artistMbid: String,
     viewModel: ArtistViewModel = hiltViewModel(),
-    goToArtistPage: (String) -> Unit
+    goToArtistPage: (String) -> Unit,
+    goToUserPage: (String?) -> Unit,
 ) {
     LaunchedEffect(Unit) {
         viewModel.fetchArtistData(artistMbid)
     }
     val uiState by viewModel.uiState.collectAsState()
-    ArtistScreen(artistMbid = artistMbid,uiState = uiState, goToArtistPage = goToArtistPage)
+    ArtistScreen(artistMbid = artistMbid,uiState = uiState, goToArtistPage = goToArtistPage, goToUserPage = goToUserPage)
 }
 
 @Composable
 private fun ArtistScreen(
     artistMbid: String,
     uiState: ArtistUIState,
-    goToArtistPage: (String) -> Unit
+    goToArtistPage: (String) -> Unit,
+    goToUserPage: (String?) -> Unit,
 ) {
     Box(modifier = Modifier.fillMaxSize()){
         AnimatedVisibility(
@@ -125,10 +128,10 @@ private fun ArtistScreen(
                         AlbumsCard(header = "Appears On", albumsList = uiState.appearsOn)
                     }
                     item {
-                        SimilarArtists(uiState = uiState)
+                        SimilarArtists(uiState = uiState, goToArtistPage = goToArtistPage)
                     }
                     item {
-                        TopListenersCard(uiState = uiState)
+                        TopListenersCard(uiState = uiState, goToUserPage = goToUserPage)
                     }
                 }
             }
@@ -381,7 +384,9 @@ private fun PopularTracks(
             Text("Popular Tracks", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
             Spacer(modifier = Modifier.height(20.dp))
             popularTracks.map {
-                ListenCardSmall(trackName = it?.recordingName ?: "", artists = it?.artists ?: listOf(), coverArtUrl = Utils.getCoverArtUrl(it?.caaReleaseMbid, it?.caaId), goToArtistPage = goToArtistPage) {
+                ListenCardSmall(trackName = it?.recordingName ?: "", artists = it?.artists ?: listOf(
+                    FeedListenArtist(it?.artistName ?: "" , null, "")
+                ), coverArtUrl = Utils.getCoverArtUrl(it?.caaReleaseMbid, it?.caaId), goToArtistPage = goToArtistPage) {
 
                 }
                 Spacer(modifier = Modifier.height(12.dp))
@@ -445,7 +450,8 @@ private fun AlbumsCard(
 
 @Composable
 private fun SimilarArtists(
-    uiState: ArtistUIState
+    uiState: ArtistUIState,
+    goToArtistPage: (String) -> Unit
 ) {
     val similarArtistsCollapisbleState: MutableState<Boolean> = remember {
         mutableStateOf(true)
@@ -463,7 +469,8 @@ private fun SimilarArtists(
             Text("Similar Artists", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
             similarArtists.map {
                 ArtistCard(artistName = it?.name ?: "") {
-
+                    if(it?.artistMbid != null)
+                    goToArtistPage(it.artistMbid)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
             }
@@ -481,7 +488,8 @@ private fun SimilarArtists(
 
 @Composable
 private fun TopListenersCard(
-    uiState: ArtistUIState
+    uiState: ArtistUIState,
+    goToUserPage: (String?) -> Unit,
 ) {
     val topListenersCollapsibleState: MutableState<Boolean> = remember {
         mutableStateOf(true)
@@ -499,7 +507,7 @@ private fun TopListenersCard(
             Spacer(modifier = Modifier.height(20.dp))
             topListeners.map { 
                 ArtistCard(artistName = it?.userName ?: "", listenCount = it?.listenCount ?: 0) {
-                    
+                    goToUserPage(it?.userName)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
             }

@@ -73,6 +73,7 @@ fun BaseProfileScreen(
     listensViewModel: ListensViewModel = hiltViewModel(),
     socialViewModel: SocialViewModel = hiltViewModel(),
     goToArtistPage: (String) -> Unit,
+    goToUserPage: (String?) -> Unit,
 ){
 
     val currentTab : MutableState<ProfileScreenTab> = remember { mutableStateOf(ProfileScreenTab.LISTENS) }
@@ -218,7 +219,8 @@ fun BaseProfileScreen(
                         feedViewModel = feedViewModel,
                         socialViewModel = socialViewModel,
                         viewModel = listensViewModel,
-                        goToArtistPage = goToArtistPage
+                        goToArtistPage = goToArtistPage,
+                        goToUserPage = goToUserPage,
                     )
                     ProfileScreenTab.STATS -> StatsScreen(
                         username = username,
@@ -244,10 +246,10 @@ fun BaseProfileScreen(
                         feedViewModel = feedViewModel,
                         socialViewModel = socialViewModel,
                         viewModel = listensViewModel,
-                        goToArtistPage = goToArtistPage
+                        goToArtistPage = goToArtistPage,
+                        goToUserPage = goToUserPage,
                     )
                 }
-
             }
         }
         if(mbOpeningErrorState.value != null){

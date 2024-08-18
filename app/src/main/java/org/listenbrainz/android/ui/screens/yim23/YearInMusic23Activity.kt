@@ -33,7 +33,7 @@ class YearInMusic23Activity : ComponentActivity() {
                     Toast.LENGTH_LONG).show()
                 finish()
             }
-            Yim23Navigation(yimViewModel = yim23ViewModel ,networkConnectivityViewModel = networkConnectivityViewModel, activity = this)
+            Yim23Navigation(yimViewModel = yim23ViewModel ,networkConnectivityViewModel = networkConnectivityViewModel, activity = this, goToUserPage = {})
         }
     }
 }

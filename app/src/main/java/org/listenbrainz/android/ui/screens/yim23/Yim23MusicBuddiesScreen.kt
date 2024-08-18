@@ -26,7 +26,8 @@ import org.listenbrainz.android.viewmodel.Yim23ViewModel
 @Composable
 fun Yim23MusicBuddiesScreen (
     viewModel: Yim23ViewModel,
-    navController: NavController
+    navController: NavController,
+    goToUserPage: (String?) -> Unit,
 ) {
     val followers = remember { viewModel.followers }
     val context = LocalContext.current
@@ -41,7 +42,7 @@ fun Yim23MusicBuddiesScreen (
                 else -> Yim23Screens.YimFriendsScreen
             }
         ) {
-            Yim23MusicBuddies(viewModel = viewModel)
+            Yim23MusicBuddies(viewModel = viewModel, goToUserPage = goToUserPage)
         }
     }
     else{
@@ -57,7 +58,7 @@ fun Yim23MusicBuddiesScreen (
 
 
 @Composable
-private fun Yim23MusicBuddies (viewModel: Yim23ViewModel) {
+private fun Yim23MusicBuddies (viewModel: Yim23ViewModel, goToUserPage: (String?) -> Unit,) {
     val musicBuddies  = remember {
         viewModel.getSimilarUsers() ?: listOf()
     }
@@ -75,7 +76,7 @@ private fun Yim23MusicBuddies (viewModel: Yim23ViewModel) {
         LazyColumn (state = rememberLazyListState()) {
             itemsIndexed(musicBuddies.toList()) {index , it ->
                 SimilarUserCard(uiModeIsDark = false,index = index, userName = it.first,
-                    similarity = it.second.toFloat() , cardBackGround = Color(0xFFe0e5de))
+                    similarity = it.second.toFloat() , cardBackGround = Color(0xFFe0e5de), goToUserPage = goToUserPage)
             }
         }
     }
