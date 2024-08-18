@@ -125,6 +125,9 @@ private fun ArtistScreen(
                     item {
                         SimilarArtists(uiState = uiState)
                     }
+                    item {
+                        TopListenersCard(uiState = uiState)
+                    }
                 }
             }
 
@@ -473,6 +476,43 @@ private fun SimilarArtists(
     }
 }
 
+@Composable
+private fun TopListenersCard(
+    uiState: ArtistUIState
+) {
+    val topListenersCollapsibleState: MutableState<Boolean> = remember {
+        mutableStateOf(true)
+    }
+    val topListeners = when(topListenersCollapsibleState.value){
+        true -> uiState.topListeners?.take(5) ?: listOf()
+        false -> uiState.topListeners ?: listOf()
+    }
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
+        .padding(23.dp)) {
+        Column {
+            Text("Top Listeners", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            Spacer(modifier = Modifier.height(20.dp))
+            topListeners.map { 
+                ArtistCard(artistName = it?.userName ?: "", listenCount = it?.listenCount ?: 0) {
+                    
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+            if((uiState.topListeners?.size ?: 0) > 5){
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                    LoadMoreButton(state = topListenersCollapsibleState.value) {
+                        topListenersCollapsibleState.value = !topListenersCollapsibleState.value
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
+            }
+        }
+    }
+}
+
+
 
 @Composable
 private fun LinkCard(
@@ -566,6 +606,7 @@ fun SvgWithWebView(svgContent: String, width: Dp, height: Dp) {
 
     AndroidView(
         factory = { webView },
+        update = {view ->},
         modifier = Modifier
             .width(width)
             .height(height)
