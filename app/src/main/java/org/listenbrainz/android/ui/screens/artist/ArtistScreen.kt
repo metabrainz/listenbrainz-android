@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
@@ -46,9 +47,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -56,14 +60,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.artist.ReleaseGroup
+import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.LoadingAnimation
+import org.listenbrainz.android.ui.screens.profile.listens.LoadMoreButton
+import org.listenbrainz.android.ui.screens.profile.stats.ArtistCard
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.app_bg_dark
 import org.listenbrainz.android.ui.theme.app_bg_mid
 import org.listenbrainz.android.ui.theme.app_bg_secondary_dark
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.util.Constants.MB_BASE_URL
+import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.ArtistViewModel
 
 
@@ -103,7 +114,16 @@ private fun ArtistScreen(
                         Links(uiState = uiState, artistMbid = artistMbid)
                     }
                     item {
-
+                        PopularTracks(uiState = uiState)
+                    }
+                    item {
+                        AlbumsCard(header = "Albums", albumsList = uiState.albums)
+                    }
+                    item {
+                        AlbumsCard(header = "Appears On", albumsList = uiState.appearsOn)
+                    }
+                    item {
+                        SimilarArtists(uiState = uiState)
                     }
                 }
             }
@@ -251,12 +271,14 @@ private fun Links(
         mutableStateOf(ArtistLinksEnum.MAIN)
     }
     Box(modifier = Modifier
-        //.background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
+        .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
         .fillMaxWidth()
         .padding(23.dp)){
         Column {
             Text("Links", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
-            Row (modifier = Modifier.horizontalScroll(rememberScrollState()).padding(top = 10.dp)) {
+            Row (modifier = Modifier
+                .horizontalScroll(rememberScrollState())
+                .padding(top = 10.dp)) {
                 repeat(5) {
                     position ->
                     val reqdState = when(position){
@@ -322,12 +344,11 @@ private fun Links(
                                 url = item.url,
                             )
                         }
-                        // Fill remaining empty space with spacers
                         repeat(3 - rowItems.size) {
                             Spacer(modifier = Modifier.weight(1f))
                         }
                     }
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(5.dp))
                 }
             }
         }
@@ -338,8 +359,120 @@ private fun Links(
 private fun PopularTracks(
     uiState: ArtistUIState
 ) {
+    val popularTracksCollapsibleState: MutableState<Boolean> = remember {
+        mutableStateOf(true)
+    }
+    val popularTracks = when (popularTracksCollapsibleState.value) {
+        true -> uiState.popularTracks?.take(5) ?: listOf()
+        false -> uiState.popularTracks ?: listOf()
+    }
 
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
+        .padding(start = 23.dp, end = 23.dp, top = 23.dp)){
+        Column {
+            Text("Popular Tracks", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            Spacer(modifier = Modifier.height(20.dp))
+            popularTracks.map {
+                ListenCardSmall(trackName = it?.recordingName ?: "", artistName = it?.artistName ?: "", coverArtUrl = Utils.getCoverArtUrl(it?.caaReleaseMbid, it?.caaId)) {
+
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+
+            }
+            if((uiState.popularTracks?.size ?: 0) > 5){
+                Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                    LoadMoreButton(
+                        state = popularTracksCollapsibleState.value,
+                        onClick = {
+                            popularTracksCollapsibleState.value = !popularTracksCollapsibleState.value
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(60.dp))
+                }
+
+            }
+        }
+    }
 }
+
+@Composable
+private fun AlbumsCard(
+    header: String,
+    albumsList: List<ReleaseGroup?>?
+) {
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
+        .padding(23.dp)){
+        Column {
+            Text(header, color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            Row (modifier = Modifier
+                .horizontalScroll(rememberScrollState())
+                .padding(top = 20.dp)) {
+                albumsList?.map {
+                    Box (modifier = Modifier) {
+                        Column {
+                            val coverArt = Utils.getCoverArtUrl(it?.caaReleaseMbid, it?.caaId, 500)
+                            AsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(coverArt)
+                                    .build(),
+                                fallback = painterResource(id = R.drawable.ic_coverartarchive_logo_no_text),
+                                modifier = Modifier.size(ListenBrainzTheme.sizes.listenCardHeight * 3f),
+                                contentScale = ContentScale.Fit,
+                                placeholder = painterResource(id = R.drawable.ic_coverartarchive_logo_no_text),
+                                filterQuality = FilterQuality.Low,
+                                contentDescription = "Album Cover Art"
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(it?.name ?: "", color = lb_purple_night, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp))
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(40.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SimilarArtists(
+    uiState: ArtistUIState
+) {
+    val similarArtistsCollapisbleState: MutableState<Boolean> = remember {
+        mutableStateOf(true)
+    }
+    val similarArtists = when(similarArtistsCollapisbleState.value){
+        true -> uiState.similarArtists?.take(5) ?: listOf()
+        false -> uiState.similarArtists ?: listOf()
+    }
+
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
+        .padding(23.dp)){
+        Column {
+            Text("Similar Artists", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            similarArtists.map {
+                ArtistCard(artistName = it?.name ?: "") {
+
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+            if((uiState.similarArtists?.size ?: 0) > 5){
+                Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                    LoadMoreButton(state = similarArtistsCollapisbleState.value) {
+                        similarArtistsCollapisbleState.value = !similarArtistsCollapisbleState.value
+                    }
+                }
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+        }
+    }
+}
+
 
 @Composable
 private fun LinkCard(

@@ -22,7 +22,7 @@ class ArtistViewModel @Inject constructor(
         val artistReviews = repository.fetchArtistReviews(artistMbid).data
         val artistWikiExtract = repository.fetchArtistWikiExtract(artistMbid).data
         val appearsOn = artistData?.releaseGroups?.filter { releaseGroup ->
-            releaseGroup?.artists?.firstOrNull()?.artistMbid != artistMbid
+            releaseGroup?.artists?.get(0)?.artistMbid != artistMbid
         }
         val artistUiState = ArtistUIState(
             isLoading = false,
