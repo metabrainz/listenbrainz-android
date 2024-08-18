@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -53,7 +54,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
@@ -83,22 +83,22 @@ import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
-import org.listenbrainz.android.viewmodel.ProfileViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
 fun ListensScreen(
-    viewModel: ListensViewModel = hiltViewModel(),
-    profileViewModel: ProfileViewModel,
-    socialViewModel: SocialViewModel = hiltViewModel(),
-    feedViewModel : FeedViewModel = hiltViewModel(),
+    viewModel: ListensViewModel,
+    userViewModel: UserViewModel,
+    socialViewModel: SocialViewModel,
+    feedViewModel : FeedViewModel,
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
     snackbarState : SnackbarHostState,
     username: String?,
 ) {
     
-    val uiState by profileViewModel.uiState.collectAsState()
+    val uiState by userViewModel.uiState.collectAsState()
     val preferencesUiState by viewModel.preferencesUiState.collectAsState()
     val socialUiState by socialViewModel.uiState.collectAsState()
     val feedUiState by feedViewModel.uiState.collectAsState()
@@ -158,10 +158,10 @@ fun ListensScreen(
             it, status ->
             if(!username.isNullOrEmpty()) {
                 if(!status){
-                    profileViewModel.followUser(it)
+                    userViewModel.followUser(it)
                 }
                 else{
-                    profileViewModel.unfollowUser(it)
+                    userViewModel.unfollowUser(it)
                 }
             }
         }
@@ -241,7 +241,7 @@ fun ListensScreen(
     }
 
         AnimatedVisibility(visible = !uiState.listensTabUiState.isLoading) {
-            LazyColumn(state = listState) {
+            LazyColumn(state = listState, modifier = Modifier.testTag("listensScreenScrollableContainer")) {
                 item {
                     SongsListened(username = username, listenCount = uiState.listensTabUiState.listenCount, isSelf = uiState.isSelf)
                 }

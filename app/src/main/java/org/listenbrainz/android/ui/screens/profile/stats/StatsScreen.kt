@@ -20,6 +20,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -30,15 +31,20 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottomAxis
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStartAxis
@@ -51,23 +57,48 @@ import com.patrykandpatrick.vico.core.cartesian.data.columnSeries
 import com.patrykandpatrick.vico.core.cartesian.layer.ColumnCartesianLayer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.AdditionalInfo
+import org.listenbrainz.android.model.MbidMapping
+import org.listenbrainz.android.model.Metadata
+import org.listenbrainz.android.model.SocialUiState
+import org.listenbrainz.android.model.TrackMetadata
+import org.listenbrainz.android.model.feed.ReviewEntityType
+import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
+import org.listenbrainz.android.ui.components.SuccessBar
+import org.listenbrainz.android.ui.components.dialogs.Dialog
+import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
+import org.listenbrainz.android.ui.screens.feed.FeedUiState
+import org.listenbrainz.android.ui.screens.feed.SocialDropdown
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
+import org.listenbrainz.android.ui.screens.profile.listens.Dialogs
+import org.listenbrainz.android.ui.screens.profile.listens.ListenDialogBundleKeys
 import org.listenbrainz.android.ui.screens.profile.listens.LoadMoreButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.app_bg_secondary_dark
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
-import org.listenbrainz.android.viewmodel.ProfileViewModel
+import org.listenbrainz.android.viewmodel.FeedViewModel
+import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
 fun StatsScreen(
     username: String?,
-    viewModel: ProfileViewModel = hiltViewModel(),
+    viewModel: UserViewModel,
+    socialViewModel: SocialViewModel,
+    feedViewModel : FeedViewModel,
+    snackbarState : SnackbarHostState,
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val socialUiState by socialViewModel.uiState.collectAsState()
+    val feedUiState by feedViewModel.uiState.collectAsState()
+    val dropdownItemIndex: MutableState<Int?> = rememberSaveable {
+        mutableStateOf(null)
+    }
     val statsRangeState: MutableState<StatsRange> = remember {
         mutableStateOf(StatsRange.THIS_WEEK)
     }
@@ -94,53 +125,48 @@ fun StatsScreen(
         },
         fetchTopSongs = {
             viewModel.getUserTopSongs(it)
+        },
+        dropdownItemIndex = dropdownItemIndex,
+        feedUiState = feedUiState,
+        playListen = {
+            socialViewModel.playListen(it)
+        },
+        snackbarState = snackbarState,
+        socialUiState = socialUiState,
+        onRecommend = {metadata ->
+            socialViewModel.recommend(metadata)
+            dropdownItemIndex.value = null
+        },
+        onErrorShown = {
+            socialViewModel.clearErrorFlow()
+        },
+        onMessageShown = {
+            socialViewModel.clearMsgFlow()
+        },
+        onPin = {
+                metadata, blurbContent -> socialViewModel.pin(metadata , blurbContent)
+            dropdownItemIndex.value = null
+        },
+        searchUsers = {
+                query -> feedViewModel.searchUser(query)
+        },
+        isCritiqueBrainzLinked = {
+            feedViewModel.isCritiqueBrainzLinked()
+        },
+        onReview = {
+                type, blurbContent, rating, locale, metadata ->  socialViewModel.review(metadata , type , blurbContent , rating , locale)
+        },
+        onPersonallyRecommend = {
+                metadata, users, blurbContent ->  socialViewModel.personallyRecommend(metadata, users, blurbContent)
         }
     )
 }
-
-
-fun  weekFormatter (
-    value: Int
-): String {
-        val weekDay = when(value){
-            0 -> "Mon"
-            1 -> "Tue"
-            2 -> "Wed"
-            3 -> "Thu"
-            4 -> "Fri"
-            5 -> "Sat"
-            6 -> "Sun"
-            else -> ""
-        }
-    return weekDay
-}
-
-fun yearFormatter(
-    value: Int
-): String {
-    val month = when(value){
-        0 -> "Jan"
-        1 -> "Feb"
-        2 -> "Mar"
-        3 -> "Apr"
-        4 -> "May"
-        5 -> "Jun"
-        6 -> "Jul"
-        7 -> "Aug"
-        8 -> "Sep"
-        9 -> "Oct"
-        10 -> "Nov"
-        11 -> "Dec"
-        else -> ""
-    }
-    return month
-}
-
 
 @Composable
 fun StatsScreen(
     username: String?,
     uiState: ProfileUiState,
+    uriHandler: UriHandler = LocalUriHandler.current,
     statsRangeState: StatsRange,
     setStatsRange: (StatsRange) -> Unit,
     userGlobalState: UserGlobal,
@@ -148,23 +174,36 @@ fun StatsScreen(
     fetchTopArtists: suspend (String?) -> Unit,
     fetchTopAlbums: suspend (String?) -> Unit,
     fetchTopSongs: suspend (String?) -> Unit,
+    dropdownItemIndex : MutableState<Int?>,
+    feedUiState: FeedUiState,
+    playListen: (TrackMetadata) -> Unit,
+    snackbarState: SnackbarHostState,
+    socialUiState: SocialUiState,
+    onRecommend : (metadata : Metadata) -> Unit,
+    onErrorShown : () -> Unit,
+    onMessageShown : () -> Unit,
+    onPin : (metadata : Metadata , blurbContent : String) -> Unit,
+    searchUsers: (String) -> Unit,
+    isCritiqueBrainzLinked: suspend () -> Boolean?,
+    onReview: (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String, metadata: Metadata) -> Unit,
+    onPersonallyRecommend: (metadata: Metadata, users: List<String>, blurbContent: String) -> Unit,
 ) {
-
     val currentTabSelection: MutableState<CategoryState> = remember {
         mutableStateOf(CategoryState.ARTISTS)
     }
-
     val artistsCollapseState: MutableState<Boolean> = remember {
         mutableStateOf(true)
     }
-
     val albumsCollapseState: MutableState<Boolean> = remember {
         mutableStateOf(true)
     }
-
     val songsCollapseState: MutableState<Boolean> = remember {
         mutableStateOf(true)
     }
+
+    val dialogsState = rememberDialogsState()
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     when(currentTabSelection.value){
         CategoryState.ARTISTS -> {
@@ -206,7 +245,7 @@ fun StatsScreen(
         false -> uiState.statsTabUIState.topSongs?.get(statsRangeState)?.payload?.recordings ?: listOf()
     }
 
-    LazyColumn {
+    LazyColumn (modifier = Modifier.testTag("statsScreenScrollableContainer")) {
         item {
             RangeBar(
                 statsRangeState = statsRangeState,
@@ -287,7 +326,8 @@ fun StatsScreen(
                                 .padding(start = 11.dp, end = 11.dp)
                                 .height(250.dp)
                                 .clip(RoundedCornerShape(10.dp))
-                                .background(Color(0xFFe0e5de)),
+                                .background(Color(0xFFe0e5de))
+                                .testTag("listeningActivityChart"),
                             chart = rememberCartesianChart(
                                 rememberColumnCartesianLayer(
                                     columnProvider = columnProvider,
@@ -398,9 +438,21 @@ fun StatsScreen(
                        }
                        else{
                            Column (horizontalAlignment = Alignment.CenterHorizontally) {
-                               topAlbums.map {
-                                       topAlbum ->
-                                   ListenCardSmall(trackName = topAlbum.releaseName ?: "", artistName = topAlbum.artistName ?: "", coverArtUrl = getCoverArtUrl(topAlbum.caaReleaseMbid, topAlbum.caaId), modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, end = 10.dp), color = app_bg_secondary_dark, titleColor = ListenBrainzTheme.colorScheme.followerChipSelected, subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f)) {
+                               topAlbums.mapIndexed {
+                                       index, topAlbum ->
+                                   ListenCardSmall(
+                                       trackName = topAlbum.releaseName ?: "",
+                                       artistName = topAlbum.artistName ?: "",
+                                       coverArtUrl = getCoverArtUrl(topAlbum.caaReleaseMbid, topAlbum.caaId),
+                                       modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, end = 10.dp),
+                                       color = app_bg_secondary_dark,
+                                       titleColor = ListenBrainzTheme.colorScheme.followerChipSelected,
+                                       subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),
+                                       enableTrailingContent = true,
+                                       listenCount = topAlbum.listenCount,
+                                       enableDropdownIcon = true
+                                       )
+                                   {
 
                                    }
                                }
@@ -419,10 +471,73 @@ fun StatsScreen(
                        }
                        else{
                            Column (horizontalAlignment = Alignment.CenterHorizontally) {
-                               topSongs.map {
-                                       topSong ->
-                                   ListenCardSmall(trackName = topSong.trackName ?: "", artistName = topSong.artistName ?: "", coverArtUrl = getCoverArtUrl(topSong.caaReleaseMbid, topSong.caaId), modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, end = 10.dp), color = app_bg_secondary_dark, titleColor = ListenBrainzTheme.colorScheme.followerChipSelected, subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),) {
-
+                               topSongs.mapIndexed {
+                                       index, topSong ->
+                                   val metadata = Metadata(trackMetadata = TrackMetadata(
+                                       artistName = topSong.artistName ?: "",
+                                       releaseName = topSong.releaseName,
+                                       trackName = topSong.trackName ?: "",
+                                       mbidMapping = MbidMapping(
+                                           artistMbids = topSong.artistMbids ?: listOf(),
+                                           recordingName = topSong.releaseName ?: "",
+                                           caaId = topSong.caaId,
+                                           caaReleaseMbid = topSong.caaReleaseMbid,
+                                           recordingMbid = topSong.recordingMbid
+                                       ),
+                                       additionalInfo = AdditionalInfo()
+                                   ))
+                                   ListenCardSmall(
+                                       trackName = topSong.trackName ?: "",
+                                       artistName = topSong.artistName ?: "",
+                                       coverArtUrl = getCoverArtUrl(topSong.caaReleaseMbid, topSong.caaId),
+                                       modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, end = 10.dp),
+                                       color = app_bg_secondary_dark,
+                                       titleColor = ListenBrainzTheme.colorScheme.followerChipSelected,
+                                       subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),
+                                       enableDropdownIcon = true,
+                                       onDropdownIconClick = {
+                                           dropdownItemIndex.value = index
+                                       },
+                                       dropDown = {
+                                           SocialDropdown(
+                                               isExpanded = dropdownItemIndex.value == index,
+                                               onDismiss = {
+                                                   dropdownItemIndex.value = null
+                                               },
+                                               metadata = metadata,
+                                               onRecommend = { onRecommend(metadata) },
+                                               onPersonallyRecommend = {
+                                                   dialogsState.activateDialog(Dialog.PERSONAL_RECOMMENDATION , ListenDialogBundleKeys.listenDialogBundle(0, index))
+                                                   dropdownItemIndex.value = null
+                                               },
+                                               onReview = {
+                                                   dialogsState.activateDialog(Dialog.REVIEW , ListenDialogBundleKeys.listenDialogBundle(0, index))
+                                                   dropdownItemIndex.value = null
+                                               },
+                                               onPin = {
+                                                   dialogsState.activateDialog(Dialog.PIN , ListenDialogBundleKeys.listenDialogBundle(0, index))
+                                                   dropdownItemIndex.value = null
+                                               },
+                                               onOpenInMusicBrainz = {
+                                                   try {
+                                                       uriHandler.openUri("https://musicbrainz.org/recording/${metadata.trackMetadata?.mbidMapping?.recordingMbid}")
+                                                   }
+                                                   catch(e : Error) {
+                                                       scope.launch {
+                                                           snackbarState.showSnackbar(context.getString(R.string.err_generic_toast))
+                                                       }
+                                                   }
+                                                   dropdownItemIndex.value = null
+                                               }
+                                           )
+                                       },
+                                       enableTrailingContent = true,
+                                       listenCount = topSong.listenCount
+                                   ) {
+                                       val trackMetadata = metadata.trackMetadata
+                                       if(trackMetadata != null){
+                                           playListen(trackMetadata)
+                                       }
                                    }
                                }
                                Spacer(modifier = Modifier.height(10.dp))
@@ -438,6 +553,25 @@ fun StatsScreen(
            }
         }
     }
+
+    ErrorBar(error = socialUiState.error, onErrorShown = onErrorShown )
+    SuccessBar(resId = socialUiState.successMsgId, onMessageShown = onMessageShown, snackbarState = snackbarState)
+
+    Dialogs(
+        deactivateDialog = {
+            dialogsState.deactivateDialog()
+        },
+        currentDialog = dialogsState.currentDialog,
+        currentIndex = dialogsState.metadata?.getInt(ListenDialogBundleKeys.EVENT_INDEX.name),
+        listens = uiState.listensTabUiState.recentListens ?: listOf(),
+        onPin = {metadata, blurbContent ->  onPin(metadata, blurbContent)},
+        searchUsers = { query -> searchUsers(query) },
+        feedUiState = feedUiState,
+        isCritiqueBrainzLinked = isCritiqueBrainzLinked,
+        onReview = {type, blurbContent, rating, locale, metadata -> onReview(type, blurbContent, rating, locale, metadata) },
+        onPersonallyRecommend = {metadata, users, blurbContent -> onPersonallyRecommend(metadata, users, blurbContent)},
+        snackbarState = snackbarState,
+        socialUiState = socialUiState)
 }
 
 @Composable

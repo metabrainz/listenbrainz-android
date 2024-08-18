@@ -76,6 +76,56 @@ object ResourceString {
     val yim_data by lazy {
         EntityTestUtils.loadResourceAsString("yim_data.json")
     }
+
+    val current_pins by lazy {
+        EntityTestUtils.loadResourceAsString("current_pins.json")
+    }
+
+    val all_pins by lazy {
+        EntityTestUtils.loadResourceAsString("pins.json")
+    }
+
+    val top_artists by lazy {
+        EntityTestUtils.loadResourceAsString("top_artists.json")
+    }
+
+    val loved_hated_songs by lazy {
+        EntityTestUtils.loadResourceAsString("loved_hated_songs.json")
+    }
+
+    val userListeningActivity by lazy {
+        EntityTestUtils.loadResourceAsString("listening_activity.json")
+    }
+
+    val globalListeningActivity by lazy {
+        EntityTestUtils.loadResourceAsString("global_listening_activity.json")
+    }
+
+    val topAlbums by lazy {
+        EntityTestUtils.loadResourceAsString("top_albums.json")
+    }
+
+    val topSongs by lazy {
+        EntityTestUtils.loadResourceAsString("top_songs.json")
+    }
+
+    const val similarUserErrorString = "Similar-to user not found"
+
+    val similarUserError by lazy {
+        EntityTestUtils.loadResourceAsString("similar_user_error.json")
+    }
+
+    val listenCount by lazy {
+        EntityTestUtils.loadResourceAsString("listen_count.json")
+    }
+
+    val listens by lazy {
+        EntityTestUtils.loadResourceAsString("listens.json")
+    }
+
+    val similarUser by lazy {
+        EntityTestUtils.loadResourceAsString("similar_user.json")
+    }
     
     fun <T> String.toClass(): T {
         return Gson().fromJson(this, object: TypeToken<T>() {}.type)

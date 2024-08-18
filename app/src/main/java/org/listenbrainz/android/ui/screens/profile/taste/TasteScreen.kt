@@ -38,7 +38,6 @@ import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Metadata
@@ -61,14 +60,14 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.FeedViewModel
-import org.listenbrainz.android.viewmodel.ProfileViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
 fun TasteScreen(
-    viewModel: ProfileViewModel = hiltViewModel(),
-    socialViewModel: SocialViewModel = hiltViewModel(),
-    feedViewModel : FeedViewModel = hiltViewModel(),
+    viewModel: UserViewModel,
+    socialViewModel: SocialViewModel,
+    feedViewModel : FeedViewModel,
     snackbarState : SnackbarHostState,
 ) {
     val uiState by viewModel.uiState.collectAsState()

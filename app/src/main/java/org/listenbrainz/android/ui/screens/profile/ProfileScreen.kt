@@ -37,12 +37,12 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import org.listenbrainz.android.R
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
-import org.listenbrainz.android.viewmodel.ProfileViewModel
+import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
 fun ProfileScreen(
     context: Context = LocalContext.current,
-    viewModel: ProfileViewModel = hiltViewModel(),
+    viewModel: UserViewModel = hiltViewModel(),
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
     username: String?,

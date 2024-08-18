@@ -1,5 +1,6 @@
 package org.listenbrainz.android.repository.user
 
+import org.listenbrainz.android.model.CurrentPins
 import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.user.AllPinnedRecordings
@@ -14,7 +15,7 @@ import org.listenbrainz.android.util.Resource
 interface UserRepository {
     suspend fun fetchUserListenCount (username: String?) : Resource<Listens?>
     suspend fun fetchUserSimilarity(username: String? , otherUserName: String?) : Resource<UserSimilarityPayload?>
-    suspend fun fetchUserCurrentPins(username: String?) : Resource<PinnedRecording?>
+    suspend fun fetchUserCurrentPins(username: String?) : Resource<CurrentPins?>
     suspend fun fetchUserPins(username: String?) : Resource<AllPinnedRecordings?>
     //TODO: Move to artists VM once implemented
     suspend fun getTopArtists(username: String?, rangeString: String = "all_time", count: Int = 25): Resource<TopArtists>
