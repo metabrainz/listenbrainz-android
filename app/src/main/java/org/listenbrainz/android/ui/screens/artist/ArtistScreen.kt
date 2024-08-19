@@ -107,6 +107,7 @@ fun ArtistScreen(
     feedViewModel: FeedViewModel = hiltViewModel(),
     goToArtistPage: (String) -> Unit,
     goToUserPage: (String?) -> Unit,
+    goToAlbumPage: (String) -> Unit,
     snackBarState: SnackbarHostState
 ) {
     LaunchedEffect(Unit) {
@@ -114,7 +115,7 @@ fun ArtistScreen(
     }
     val uiState by viewModel.uiState.collectAsState()
     ArtistScreen(artistMbid = artistMbid,uiState = uiState, goToArtistPage = goToArtistPage, goToUserPage = goToUserPage,
-        socialViewModel = socialViewModel, feedViewModel = feedViewModel, snackBarState = snackBarState)
+        socialViewModel = socialViewModel, feedViewModel = feedViewModel, snackBarState = snackBarState, goToAlbumPage = goToAlbumPage)
 }
 
 @Composable
@@ -125,7 +126,8 @@ private fun ArtistScreen(
     goToUserPage: (String?) -> Unit,
     socialViewModel: SocialViewModel,
     feedViewModel: FeedViewModel,
-    snackBarState: SnackbarHostState
+    snackBarState: SnackbarHostState,
+    goToAlbumPage: (String) -> Unit,
 ) {
     Box(modifier = Modifier.fillMaxSize()){
         AnimatedVisibility(
@@ -149,10 +151,10 @@ private fun ArtistScreen(
                         PopularTracks(uiState = uiState, goToArtistPage = goToArtistPage)
                     }
                     item {
-                        AlbumsCard(header = "Albums", albumsList = uiState.albums)
+                        AlbumsCard(header = "Albums", albumsList = uiState.albums, goToAlbumPage = goToAlbumPage)
                     }
                     item {
-                        AlbumsCard(header = "Appears On", albumsList = uiState.appearsOn)
+                        AlbumsCard(header = "Appears On", albumsList = uiState.appearsOn, goToAlbumPage = goToAlbumPage)
                     }
                     item {
                         SimilarArtists(uiState = uiState, goToArtistPage = goToArtistPage)
@@ -443,7 +445,8 @@ private fun PopularTracks(
 @Composable
 private fun AlbumsCard(
     header: String,
-    albumsList: List<ReleaseGroup?>?
+    albumsList: List<ReleaseGroup?>?,
+    goToAlbumPage: (String) -> Unit,
 ) {
     Box(modifier = Modifier
         .fillMaxWidth()
@@ -455,7 +458,11 @@ private fun AlbumsCard(
                 .horizontalScroll(rememberScrollState())
                 .padding(top = 20.dp)) {
                 albumsList?.map {
-                    Box (modifier = Modifier.width(150.dp)) {
+                    Box (modifier = Modifier.width(150.dp).clickable {
+                        if(it?.mbid != null){
+                            goToAlbumPage(it.mbid)
+                        }
+                    }) {
                         Column {
                             val coverArt = Utils.getCoverArtUrl(it?.caaReleaseMbid, it?.caaId, 500)
                             AsyncImage(
@@ -472,7 +479,11 @@ private fun AlbumsCard(
                             Spacer(modifier = Modifier.height(10.dp))
                             Text(it?.name ?: "", color = ListenBrainzTheme.colorScheme.followerCardTextColor,
                                 style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                                maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.clickable {
+                                    if(it?.mbid != null){
+                                        goToAlbumPage(it.mbid)
+                                    }
+                                })
                         }
                     }
                     Spacer(modifier = Modifier.width(40.dp))

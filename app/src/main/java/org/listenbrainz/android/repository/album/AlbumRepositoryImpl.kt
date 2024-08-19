@@ -12,9 +12,9 @@ import org.listenbrainz.android.util.Utils.parseResponse
 import javax.inject.Inject
 
 class AlbumRepositoryImpl @Inject constructor(
-    val service: AlbumService,
-    val cbService: CBService,
-    val mbService: MBService
+    private val service: AlbumService,
+    private val cbService: CBService,
+    private val mbService: MBService
 ) : AlbumRepository {
     override suspend fun fetchAlbumInfo(albumMbid: String?): Resource<AlbumInfo?> = parseResponse {
         if(albumMbid.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()

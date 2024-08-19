@@ -102,11 +102,25 @@ class ServiceModule {
 
     @Singleton
     @Provides
-    fun providesMBService(): MBService = Retrofit.Builder()
-        .baseUrl(MB_BASE_URL)
-        .client(okHttpClient)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build().create(MBService::class.java)
+    fun providesMBService(): MBService {
+        val okHttpClient = OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val original = chain.request()
+                val request = original.newBuilder()
+                    .header("user-agent", "ListenBrainz Android")
+                    .method(original.method, original.body)
+                    .build()
+                chain.proceed(request)
+            }
+            .build()
+
+        return Retrofit.Builder()
+            .baseUrl(MB_BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(MBService::class.java)
+    }
 
     @Singleton
     @Provides
