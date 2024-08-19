@@ -14,6 +14,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import org.listenbrainz.android.model.yimdata.YimData
 import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.service.AlbumService
 import org.listenbrainz.android.service.ArtistService
 import org.listenbrainz.android.service.BlogService
 import org.listenbrainz.android.service.CBService
@@ -114,6 +115,14 @@ class ServiceModule {
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build().create(CBService::class.java)
+
+    @Singleton
+    @Provides
+    fun providesAlbumService(): AlbumService = Retrofit.Builder()
+        .baseUrl(LB_BASE_URL)
+        .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build().create(AlbumService::class.java)
 
     @Singleton
     @Provides

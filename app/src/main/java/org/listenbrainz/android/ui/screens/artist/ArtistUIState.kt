@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.screens.artist
 
-import org.listenbrainz.android.model.artist.ArtistReview
+import org.listenbrainz.android.model.artist.CBReview
 import org.listenbrainz.android.model.artist.ArtistWikiExtract
 import org.listenbrainz.android.model.artist.Listeners
 import org.listenbrainz.android.model.artist.PopularRecording
@@ -25,5 +25,5 @@ data class ArtistUIState(
     val appearsOn: List<ReleaseGroup?>? = listOf(),
     val similarArtists: List<SimilarArtist?>? = listOf(),
     val topListeners: List<Listeners?>? = listOf(),
-    val reviews: ArtistReview? = null,
+    val reviews: CBReview? = null,
 )

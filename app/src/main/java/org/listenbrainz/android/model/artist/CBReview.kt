@@ -2,7 +2,7 @@ package org.listenbrainz.android.model.artist
 
 import com.google.gson.annotations.SerializedName
 
-data class ArtistReview(
+data class CBReview(
     @SerializedName("average_rating") val averageRating: AverageRating? = null,
     val count: Int? = null,
     val limit: Int? = null,
