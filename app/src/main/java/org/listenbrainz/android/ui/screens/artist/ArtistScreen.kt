@@ -86,10 +86,8 @@ import org.listenbrainz.android.ui.screens.profile.listens.ListenDialogBundleKey
 import org.listenbrainz.android.ui.screens.profile.listens.LoadMoreButton
 import org.listenbrainz.android.ui.screens.profile.stats.ArtistCard
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.ui.theme.app_bg_dark
 import org.listenbrainz.android.ui.theme.app_bg_light
 import org.listenbrainz.android.ui.theme.app_bg_mid
-import org.listenbrainz.android.ui.theme.app_bg_secondary_dark
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.ui.theme.new_app_bg_light
@@ -180,11 +178,11 @@ private fun ArtistBioCard(
     Box(modifier = Modifier
         .fillMaxWidth()
         .clip(shape = RoundedCornerShape(bottomStart = 18.dp, bottomEnd = 18.dp))
-        .background(Color(0xFF2B2E35))
+        .background(ListenBrainzTheme.colorScheme.artistBioColor)
         .padding(23.dp)){
         Column {
             Row (horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                Text(uiState.name ?: "", color = Color.White, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 25.sp))
+                Text(uiState.name ?: "", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 25.sp))
                 LbRadioButton {
 
                 }
@@ -202,7 +200,7 @@ private fun ArtistBioCard(
                     Text(uiState.beginYear.toString(), color = app_bg_mid, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
                     Text(uiState.area.toString(), color = app_bg_mid, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
                     Spacer(modifier = Modifier.height(10.dp))
-                    HorizontalDivider(color = app_bg_dark, thickness = 3.dp, modifier = Modifier.padding(end = 50.dp))
+                    HorizontalDivider(color = ListenBrainzTheme.colorScheme.dividerColor, thickness = 3.dp, modifier = Modifier.padding(end = 50.dp))
                     Spacer(modifier = Modifier.height(10.dp))
                     Row {
                         Icon(
@@ -229,7 +227,7 @@ private fun ArtistBioCard(
                 Text(removeHtmlTags(uiState.wikiExtract.wikipediaExtract.content).trim() , maxLines = 4, color = app_bg_mid, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp), overflow = TextOverflow.Ellipsis)
                 if(uiState.wikiExtract.wikipediaExtract.url != null){
                     val uriHandlder = LocalUriHandler.current
-                    Text("read more", color = lb_purple_night, modifier = Modifier.clickable {
+                    Text("read more", color = ListenBrainzTheme.colorScheme.followerChipSelected, modifier = Modifier.clickable {
                         uriHandlder.openUri(uiState.wikiExtract.wikipediaExtract.url)
                     })
                 }
@@ -243,12 +241,12 @@ private fun ArtistBioCard(
                             .clip(
                                 RoundedCornerShape((16.dp))
                             )
-                            .background(app_bg_secondary_dark)
+                            .background(ListenBrainzTheme.colorScheme.followerCardColor)
                             .padding(10.dp)) {
                             Row {
-                                Text(it.tag, color= lb_purple_night, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
+                                Text(it.tag, color= ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text((it.count ?: 0).toString(), color = Color.White ,style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
+                                Text((it.count ?: 0).toString(), color= ListenBrainzTheme.colorScheme.textColor ,style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
                             }
                         }
                         Spacer(modifier = Modifier.width(10.dp))
@@ -316,7 +314,7 @@ private fun Links(
         .fillMaxWidth()
         .padding(23.dp)){
         Column {
-            Text("Links", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            Text("Links", color= ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
             Row (modifier = Modifier
                 .horizontalScroll(rememberScrollState())
                 .padding(top = 10.dp)) {
@@ -414,7 +412,7 @@ private fun PopularTracks(
         .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
         .padding(start = 23.dp, end = 23.dp, top = 23.dp)){
         Column {
-            Text("Popular Tracks", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            Text("Popular Tracks", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
             Spacer(modifier = Modifier.height(20.dp))
             popularTracks.map {
                 ListenCardSmall(trackName = it?.recordingName ?: "", artists = it?.artists ?: listOf(
@@ -451,7 +449,7 @@ private fun AlbumsCard(
         .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
         .padding(23.dp)){
         Column {
-            Text(header, color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            Text(header, color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
             Row (modifier = Modifier
                 .horizontalScroll(rememberScrollState())
                 .padding(top = 20.dp)) {
@@ -471,7 +469,9 @@ private fun AlbumsCard(
                                 contentDescription = "Album Cover Art"
                             )
                             Spacer(modifier = Modifier.height(10.dp))
-                            Text(it?.name ?: "", color = lb_purple_night, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp), overflow = TextOverflow.Ellipsis)
+                            Text(it?.name ?: "", color = ListenBrainzTheme.colorScheme.followerCardTextColor,
+                                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                                maxLines = 2, overflow = TextOverflow.Ellipsis)
                         }
                     }
                     Spacer(modifier = Modifier.width(40.dp))
@@ -499,7 +499,7 @@ private fun SimilarArtists(
         .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
         .padding(23.dp)){
         Column {
-            Text("Similar Artists", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            Text("Similar Artists", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
             similarArtists.map {
                 ArtistCard(artistName = it?.name ?: "") {
                     if(it?.artistMbid != null)
@@ -536,7 +536,7 @@ private fun TopListenersCard(
         .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
         .padding(23.dp)) {
         Column {
-            Text("Top Listeners", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            Text("Top Listeners", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
             Spacer(modifier = Modifier.height(20.dp))
             topListeners.map { 
                 ArtistCard(artistName = it?.userName ?: "", listenCount = it?.listenCount ?: 0) {
@@ -575,7 +575,7 @@ private fun ReviewsCard(
         .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
         .padding(23.dp)) {
         Column {
-            Text("Reviews", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            Text("Reviews", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
             if(reviews.isEmpty()){
                 Spacer(modifier = Modifier.height(10.dp))
                 Text("Be the first one to review this artist on CritiqueBrainz", color = app_bg_mid, style = MaterialTheme.typography.bodyMedium)
@@ -653,7 +653,7 @@ private fun LinkCard(
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
-            .background(color = app_bg_secondary_dark)
+            .background(color = ListenBrainzTheme.colorScheme.followerCardColor)
             .padding(top = 10.dp, bottom = 10.dp, start = 16.dp, end = 16.dp)
             .clickable {
                 try {
@@ -668,10 +668,10 @@ private fun LinkCard(
         Row (verticalAlignment = Alignment.CenterVertically) {
             Icon(imageVector = icon, contentDescription = null, tint = when(icon){
                 ImageVector.vectorResource(id = R.drawable.musicbrainz_logo) -> Color.Unspecified
-                    else -> lb_purple_night
+                    else -> ListenBrainzTheme.colorScheme.followerCardTextColor
             })
             Spacer(modifier = Modifier.width(10.dp))
-            Text(label, color = lb_purple_night, style = MaterialTheme.typography.bodyMedium)
+            Text(label, color = ListenBrainzTheme.colorScheme.followerCardTextColor, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }

@@ -74,6 +74,8 @@ data class ColorScheme(
     val followingButtonColor: Color,
     val followingButtonTextColor: Color,
     val followingButtonBorder: BorderStroke?,
+    /** Used for Artist Pages **/
+    val artistBioColor: Color,
 )
 
 
@@ -138,6 +140,7 @@ private val colorSchemeDark = ColorScheme(
     followingButtonColor = app_bg_dark,
     followingButtonTextColor = Color.White,
     followingButtonBorder = null,
+    artistBioColor = Color(0xFF2B2E35)
 )
 
 private val colorSchemeLight = ColorScheme(
@@ -179,7 +182,8 @@ private val colorSchemeLight = ColorScheme(
     followerCardTextColor = lb_purple,
     followingButtonColor = Color.White,
     followingButtonTextColor = lb_purple,
-    followingButtonBorder = BorderStroke(width = 1.dp, color = lb_purple)
+    followingButtonBorder = BorderStroke(width = 1.dp, color = lb_purple),
+    artistBioColor = Color(0xFFD7D6EB)
 )
 
 

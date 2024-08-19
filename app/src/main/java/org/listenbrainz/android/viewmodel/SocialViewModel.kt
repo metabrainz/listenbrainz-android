@@ -164,8 +164,6 @@ class SocialViewModel @Inject constructor(
                     )
                 )
             )
-
-            Log.v("pranav", result.status.toString())
             
             if (result.status == Resource.Status.FAILED){
                 emitError(result.error)

@@ -599,7 +599,7 @@ fun ArtistCard(
             .clickable(enabled = true) { onClick() },
         shape = ListenBrainzTheme.shapes.listenCardSmall,
         shadowElevation = 4.dp,
-        color = app_bg_secondary_dark
+        color = ListenBrainzTheme.colorScheme.followerCardColor
     ) {
         Column {
             Box(
@@ -632,7 +632,7 @@ fun ArtistCard(
                     ) {
                         Text(
                             text = listenCount.toString(),
-                            color = Color.Black
+                            color = ListenBrainzTheme.colorScheme.followerChipUnselected
                         )
                     }
                 }
