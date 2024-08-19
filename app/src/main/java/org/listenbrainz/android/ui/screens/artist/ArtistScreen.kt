@@ -96,6 +96,7 @@ import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.ArtistViewModel
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
+import kotlin.math.round
 
 
 @Composable
@@ -209,7 +210,7 @@ private fun ArtistBioCard(
                             tint = app_bg_mid
                         )
                         Spacer(modifier = Modifier.width(5.dp))
-                        Text((uiState.totalPlays ?: 0).toString() + " plays", color = app_bg_mid, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
+                        Text(formatNumber(uiState.totalPlays ?: 0) + " plays", color = app_bg_mid, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
                     }
                     Row {
                         Icon(
@@ -218,7 +219,7 @@ private fun ArtistBioCard(
                             tint = app_bg_mid
                         )
                         Spacer(modifier = Modifier.width(5.dp))
-                        Text((uiState.totalListeners ?: 0).toString() + " listeners", color = app_bg_mid, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
+                        Text(formatNumber(uiState.totalListeners ?: 0) + " listeners", color = app_bg_mid, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
                     }
                 }
             }
@@ -500,6 +501,7 @@ private fun SimilarArtists(
         .padding(23.dp)){
         Column {
             Text("Similar Artists", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            Spacer(modifier = Modifier.height(20.dp))
             similarArtists.map {
                 ArtistCard(artistName = it?.name ?: "") {
                     if(it?.artistMbid != null)
@@ -539,7 +541,7 @@ private fun TopListenersCard(
             Text("Top Listeners", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
             Spacer(modifier = Modifier.height(20.dp))
             topListeners.map { 
-                ArtistCard(artistName = it?.userName ?: "", listenCount = it?.listenCount ?: 0) {
+                ArtistCard(artistName = it?.userName ?: "", listenCountLabel = formatNumber(it?.listenCount ?: 0)) {
                     goToUserPage(it?.userName)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
@@ -687,6 +689,7 @@ private fun LbRadioButton(
                 imageVector = ImageVector.vectorResource(id = R.drawable.lb_radio_play_button),
                 contentDescription = ""
             )
+            Spacer(modifier = Modifier.width(5.dp))
             Text("Radio")
         }
     }
@@ -746,4 +749,12 @@ fun removeHtmlTags(input: String): String {
     val regex = "<[^>]*>".toRegex()
     // Replace all matches of the pattern with an empty string
     return input.replace(regex, "")
+}
+
+fun formatNumber(input: Int): String {
+    return when {
+        input >= 1_00_000 -> "${round(input/1_00_000f)}L"
+        input >= 1_000 -> "${round(input/1_000f)}K"
+        else -> input.toString()
+    }
 }

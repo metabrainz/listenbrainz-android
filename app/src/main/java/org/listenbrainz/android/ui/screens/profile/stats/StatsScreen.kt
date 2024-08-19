@@ -72,6 +72,7 @@ import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.SuccessBar
 import org.listenbrainz.android.ui.components.dialogs.Dialog
 import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
+import org.listenbrainz.android.ui.screens.artist.formatNumber
 import org.listenbrainz.android.ui.screens.feed.FeedUiState
 import org.listenbrainz.android.ui.screens.feed.SocialDropdown
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
@@ -422,7 +423,7 @@ fun StatsScreen(
                            Column (horizontalAlignment = Alignment.CenterHorizontally) {
                                topArtists.map {
                                        topArtist ->
-                                   ArtistCard(artistName = topArtist.artistName ?: "", listenCount = topArtist.listenCount){
+                                   ArtistCard(artistName = topArtist.artistName ?: "", listenCountLabel = formatNumber(topArtist.listenCount ?: 0)){
                                        if(topArtist.artistMbid != null){
                                            goToArtistPage(topArtist.artistMbid)
                                        }
@@ -589,7 +590,7 @@ fun StatsScreen(
 fun ArtistCard(
     modifier: Modifier = Modifier,
     artistName: String,
-    listenCount: Int? = 0,
+    listenCountLabel: String? = null,
     onClick: () -> Unit,
 ) {
     Surface(
@@ -616,24 +617,25 @@ fun ArtistCard(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis)
                 }
-
-                Box(
-                    modifier = modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 10.dp),
-                    contentAlignment = Alignment.Center
-                ) {
+                if(listenCountLabel != null){
                     Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(ListenBrainzTheme.colorScheme.followerChipSelected)
-                            .padding(6.dp),
+                        modifier = modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 10.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = listenCount.toString(),
-                            color = ListenBrainzTheme.colorScheme.followerChipUnselected
-                        )
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(ListenBrainzTheme.colorScheme.followerChipSelected)
+                                .padding(6.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = listenCountLabel,
+                                color = ListenBrainzTheme.colorScheme.followerChipUnselected
+                            )
+                        }
                     }
                 }
 
@@ -689,7 +691,6 @@ private fun RangeBar(
                 )
                 Spacer(modifier = Modifier.width(10.dp))
             }
-
         }
     }
 }
