@@ -1,6 +1,7 @@
 package org.listenbrainz.android.viewmodel
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.listenbrainz.android.R
 import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.RecommendationData
@@ -25,7 +27,6 @@ import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
-import org.listenbrainz.android.R
 
 @HiltViewModel
 class SocialViewModel @Inject constructor(
@@ -149,7 +150,13 @@ class SocialViewModel @Inject constructor(
                 data = Review(
                     metadata = ReviewMetadata(
                         entityName = metadata.trackMetadata?.trackName ?: return@launch,
-                        entityId = (metadata.trackMetadata.mbidMapping?.recordingMbid ?: return@launch).toString(),
+                        entityId = when(entityType) {
+                            ReviewEntityType.RECORDING -> (metadata.trackMetadata.mbidMapping?.recordingMbid ?: return@launch).toString()
+                            ReviewEntityType.ARTIST -> (when(metadata.trackMetadata.mbidMapping?.artistMbids?.size){
+                                1 -> metadata.trackMetadata.mbidMapping.artistMbids[0]
+                                else -> return@launch
+                            }).toString()
+                            ReviewEntityType.RELEASE_GROUP -> (metadata.trackMetadata.mbidMapping?.recordingMbid ?: return@launch).toString() },
                         entityType = entityType.code,
                         text = blurbContent,
                         rating = rating,
@@ -157,6 +164,8 @@ class SocialViewModel @Inject constructor(
                     )
                 )
             )
+
+            Log.v("pranav", result.status.toString())
             
             if (result.status == Resource.Status.FAILED){
                 emitError(result.error)

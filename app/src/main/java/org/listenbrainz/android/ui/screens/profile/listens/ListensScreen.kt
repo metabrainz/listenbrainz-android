@@ -504,8 +504,9 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
                     append("You both listen to ")
                 }
                 similarArtists.forEachIndexed { index, artist ->
-                    if(artist.artistMbid != null)
-                    pushStringAnnotation(tag = "ARTIST", annotation = artist.artistMbid)
+                    if(artist.artistMbid != null) {
+                        pushStringAnnotation(tag = "ARTIST", annotation = artist.artistMbid)
+                    }
                     withStyle(style = SpanStyle(color = lb_purple_night)) {
                         append(artist.artistName)
                     }
@@ -544,7 +545,8 @@ fun Dialogs(
     onReview : (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String , metadata : Metadata) -> Unit,
     onPersonallyRecommend : (metadata : Metadata , users : List<String> , blurbContent : String) -> Unit,
     snackbarState: SnackbarHostState,
-    socialUiState: SocialUiState
+    socialUiState: SocialUiState,
+    reviewEntityType: ReviewEntityType = ReviewEntityType.RECORDING
 ) {
     val context = LocalContext.current
     when (currentDialog) {
@@ -591,7 +593,8 @@ fun Dialogs(
                         locale,
                         Metadata(trackMetadata = listens[currentIndex].trackMetadata)
                     )
-                }
+                },
+                reviewEntityType = reviewEntityType
             )
         }
     }

@@ -100,7 +100,7 @@ fun AppNavigation(
                 }
             }
             else{
-                ArtistScreen(artistMbid = artistMbid, goToArtistPage = goToArtistPage, goToUserPage = {username : String? ->
+                ArtistScreen(artistMbid = artistMbid, goToArtistPage = goToArtistPage, snackBarState = snackbarState, goToUserPage = {username : String? ->
                     if(username != null) {
                         navController.navigate("${AppNavigationItem.Profile.route}/$username"){
                             // Avoid building large backstack

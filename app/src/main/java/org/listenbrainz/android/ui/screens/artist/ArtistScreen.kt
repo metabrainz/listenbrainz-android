@@ -34,8 +34,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -62,35 +64,58 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.gowtham.ratingbar.RatingBar
+import com.gowtham.ratingbar.RatingBarStyle
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.Listen
+import org.listenbrainz.android.model.MbidMapping
+import org.listenbrainz.android.model.Metadata
+import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.artist.ReleaseGroup
 import org.listenbrainz.android.model.feed.FeedListenArtist
+import org.listenbrainz.android.model.feed.ReviewEntityType
+import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.LoadingAnimation
+import org.listenbrainz.android.ui.components.SuccessBar
+import org.listenbrainz.android.ui.components.dialogs.Dialog
+import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
+import org.listenbrainz.android.ui.screens.feed.FeedUiState
+import org.listenbrainz.android.ui.screens.profile.listens.Dialogs
+import org.listenbrainz.android.ui.screens.profile.listens.ListenDialogBundleKeys
 import org.listenbrainz.android.ui.screens.profile.listens.LoadMoreButton
 import org.listenbrainz.android.ui.screens.profile.stats.ArtistCard
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.app_bg_dark
+import org.listenbrainz.android.ui.theme.app_bg_light
 import org.listenbrainz.android.ui.theme.app_bg_mid
 import org.listenbrainz.android.ui.theme.app_bg_secondary_dark
+import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
+import org.listenbrainz.android.ui.theme.new_app_bg_light
 import org.listenbrainz.android.util.Constants.MB_BASE_URL
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.ArtistViewModel
+import org.listenbrainz.android.viewmodel.FeedViewModel
+import org.listenbrainz.android.viewmodel.SocialViewModel
 
 
 @Composable
 fun ArtistScreen(
     artistMbid: String,
     viewModel: ArtistViewModel = hiltViewModel(),
+    socialViewModel: SocialViewModel = hiltViewModel(),
+    feedViewModel: FeedViewModel = hiltViewModel(),
     goToArtistPage: (String) -> Unit,
     goToUserPage: (String?) -> Unit,
+    snackBarState: SnackbarHostState
 ) {
     LaunchedEffect(Unit) {
         viewModel.fetchArtistData(artistMbid)
     }
     val uiState by viewModel.uiState.collectAsState()
-    ArtistScreen(artistMbid = artistMbid,uiState = uiState, goToArtistPage = goToArtistPage, goToUserPage = goToUserPage)
+    ArtistScreen(artistMbid = artistMbid,uiState = uiState, goToArtistPage = goToArtistPage, goToUserPage = goToUserPage,
+        socialViewModel = socialViewModel, feedViewModel = feedViewModel, snackBarState = snackBarState)
 }
 
 @Composable
@@ -99,6 +124,9 @@ private fun ArtistScreen(
     uiState: ArtistUIState,
     goToArtistPage: (String) -> Unit,
     goToUserPage: (String?) -> Unit,
+    socialViewModel: SocialViewModel,
+    feedViewModel: FeedViewModel,
+    snackBarState: SnackbarHostState
 ) {
     Box(modifier = Modifier.fillMaxSize()){
         AnimatedVisibility(
@@ -132,6 +160,11 @@ private fun ArtistScreen(
                     }
                     item {
                         TopListenersCard(uiState = uiState, goToUserPage = goToUserPage)
+                    }
+                    item {
+                        ReviewsCard(uiState = uiState, goToUserPage = goToUserPage,
+                            socialViewModel = socialViewModel, feedViewModel = feedViewModel, artistMbid = artistMbid,
+                            snackBarState = snackBarState, onMessageShown = {socialViewModel.clearMsgFlow()}, onErrorShown = {socialViewModel.clearErrorFlow()})
                     }
                 }
             }
@@ -423,7 +456,7 @@ private fun AlbumsCard(
                 .horizontalScroll(rememberScrollState())
                 .padding(top = 20.dp)) {
                 albumsList?.map {
-                    Box (modifier = Modifier) {
+                    Box (modifier = Modifier.width(150.dp)) {
                         Column {
                             val coverArt = Utils.getCoverArtUrl(it?.caaReleaseMbid, it?.caaId, 500)
                             AsyncImage(
@@ -438,7 +471,7 @@ private fun AlbumsCard(
                                 contentDescription = "Album Cover Art"
                             )
                             Spacer(modifier = Modifier.height(10.dp))
-                            Text(it?.name ?: "", color = lb_purple_night, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp))
+                            Text(it?.name ?: "", color = lb_purple_night, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp), overflow = TextOverflow.Ellipsis)
                         }
                     }
                     Spacer(modifier = Modifier.width(40.dp))
@@ -523,7 +556,91 @@ private fun TopListenersCard(
     }
 }
 
+@Composable
+private fun ReviewsCard(
+    uiState: ArtistUIState,
+    feedViewModel: FeedViewModel,
+    socialViewModel: SocialViewModel,
+    snackBarState: SnackbarHostState,
+    goToUserPage: (String?) -> Unit,
+    artistMbid: String,
+    onErrorShown : () -> Unit,
+    onMessageShown : () -> Unit,
+) {
+    val reviews = uiState.reviews?.reviews?.take(2) ?: listOf()
+    val dialogsState = rememberDialogsState()
+    val socialUiState by socialViewModel.uiState.collectAsState()
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
+        .padding(23.dp)) {
+        Column {
+            Text("Reviews", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            if(reviews.isEmpty()){
+                Spacer(modifier = Modifier.height(10.dp))
+                Text("Be the first one to review this artist on CritiqueBrainz", color = app_bg_mid, style = MaterialTheme.typography.bodyMedium)
+            }
+            else{
+                Spacer(modifier = Modifier.height(10.dp))
+                reviews.map {
+                    Box {
+                        Column {
+                            Row {
+                                Text("Rating: ", color = app_bg_light)
+                                RatingBar(
+                                    modifier = Modifier.padding(start = 2.dp),
+                                    value = (it?.rating ?: 0).toFloat(),
+                                    size = 19.dp,
+                                    spaceBetween = 2.dp,
+                                    style = RatingBarStyle.Default,
+                                    onValueChange = {},
+                                    onRatingChanged = {}
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(it?.text ?: "", color = app_bg_mid, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodyMedium)
+                            Spacer(modifier = Modifier.height(5.dp))
+                            Text("By ${it?.user?.musicbrainzUsername ?: ""}", color = lb_purple_night, modifier = Modifier.clickable {
+                                goToUserPage(it?.user?.musicbrainzUsername)
+                            })
+                            Spacer(modifier = Modifier.height(10.dp))
+                        }
+                    }
+                }
+            }
+            TextButton(onClick = {
+                dialogsState.activateDialog(Dialog.REVIEW , ListenDialogBundleKeys.listenDialogBundle(0, 0))
+            }, modifier = Modifier.background(lb_purple)) {
+                Row (verticalAlignment = Alignment.CenterVertically) {
+                    Text("Review", color = new_app_bg_light)
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Icon(imageVector = ImageVector.vectorResource(id = R.drawable.ic_redirect), tint = new_app_bg_light, contentDescription = null, modifier = Modifier.size(12.dp))
+                }
+            }
+        }
+    }
 
+    ErrorBar(error = socialUiState.error, onErrorShown = onErrorShown )
+    SuccessBar(resId = socialUiState.successMsgId, onMessageShown = onMessageShown, snackbarState = snackBarState)
+
+    Dialogs(
+        deactivateDialog = {
+            dialogsState.deactivateDialog()
+        },
+        currentDialog = dialogsState.currentDialog,
+        currentIndex = dialogsState.metadata?.getInt(ListenDialogBundleKeys.EVENT_INDEX.name),
+        listens = listOf(Listen(insertedAt = "", recordingMsid = "", userName = "", trackMetadata = TrackMetadata(additionalInfo = null, mbidMapping = MbidMapping(artistMbids = listOf(artistMbid), recordingName = ""), artistName = uiState.name ?: "", trackName = "", releaseName = null))),
+        onPin = {meatadata: Metadata,blurbContent: String ->},
+        searchUsers = { query ->  },
+        feedUiState = FeedUiState(),
+        isCritiqueBrainzLinked = {feedViewModel.isCritiqueBrainzLinked()},
+        onReview = {type, blurbContent, rating, locale, metadata -> socialViewModel.review(metadata , type , blurbContent , rating , locale)},
+        onPersonallyRecommend = {metadata, users, blurbContent -> },
+        snackbarState = snackBarState,
+        socialUiState = socialUiState,
+        reviewEntityType = ReviewEntityType.ARTIST
+    )
+}
 
 @Composable
 private fun LinkCard(
