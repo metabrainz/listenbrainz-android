@@ -106,7 +106,7 @@ fun AppNavigation(
                 }
             }
             else{
-                AlbumScreen(albumMbid = albumMbid)
+                AlbumScreen(albumMbid = albumMbid, snackBarState = snackbarState)
             }
         }
     }

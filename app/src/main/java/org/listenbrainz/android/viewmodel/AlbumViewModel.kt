@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import org.listenbrainz.android.repository.album.AlbumRepository
 import org.listenbrainz.android.ui.screens.album.AlbumUiState
+import org.listenbrainz.android.util.Utils
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,6 +26,7 @@ class AlbumViewModel @Inject constructor(
         val albumUiState = AlbumUiState(
             isLoading = false,
             name = albumInfo?.title,
+            coverArt = Utils.getCoverArtUrl(albumData?.caaReleaseMbid, albumData?.caaId),
             artists = albumData?.releaseGroupMetadata?.artist?.artists ?: listOf(),
             releaseDate = albumInfo?.firstReleaseDate,
             totalPlays = albumData?.listeningStats?.totalListenCount,

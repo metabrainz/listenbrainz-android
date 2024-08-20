@@ -10,6 +10,7 @@ import org.listenbrainz.android.model.artist.Rels
 data class AlbumUiState(
     val isLoading: Boolean = true,
     val name: String? = null,
+    val coverArt: String? = null,
     val artists: List<Artist?> = listOf(),
     val releaseDate: String? = null,
     val totalPlays: Int? = null,
