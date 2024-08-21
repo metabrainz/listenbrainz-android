@@ -116,7 +116,8 @@ class UserPagesTest {
     }
 
     @Test
-    fun allTabsExistenceTest () {
+    fun allTabsExistenceTest() {
+        // Verify that all tabs ("Listens", "Stats", "Taste") exist on the main screen
         rule.onNodeWithText("Listens").assertExists()
         rule.onNodeWithText("Stats").assertExists()
         rule.onNodeWithText("Taste").assertExists()
@@ -124,36 +125,60 @@ class UserPagesTest {
 
     @Test
     fun listensTabScreenFlowTest() {
+        // Navigate to the "Listens" tab
         rule.onNodeWithText("Listens").performClick()
+
+        // Verify that key elements on the "Listens" screen are present
         rule.onNodeWithText("You have listened to").assertExists()
         rule.onNodeWithText("Recent Listens").assertExists()
         rule.onNodeWithText("Followers").assertExists()
+
+        // Locate the scrollable container for the "Listens" screen
         val scrollableContainer = rule.onNodeWithTag("listensScreenScrollableContainer")
+
+        // Scroll to a specific index to ensure additional content is loaded
         scrollableContainer.performScrollToIndex(10)
+
+        // Verify that more elements are present after scrolling
         rule.onNodeWithText("Similar Users").assertExists()
     }
 
     @Test
     fun statsTabScreenFlowTest() {
+        // Navigate to the "Stats" tab
         rule.onNodeWithText("Stats").performClick()
+
+        // Verify that key elements on the "Stats" screen are present
         rule.onNodeWithText("Global").assertExists()
         rule.onNodeWithText("This Week").assertExists()
         rule.onNodeWithText("This Month").assertExists()
         rule.onNodeWithText("This Year").assertExists()
+
+        // Locate the scrollable container for the "Stats" screen
         val scrollableContainer = rule.onNodeWithTag("statsScreenScrollableContainer")
+
+        // Scroll to a specific index to ensure additional content is loaded
         scrollableContainer.performScrollToIndex(2)
+
+        // Verify that more elements are present after scrolling
         rule.onNodeWithText("Artists").assertExists()
         rule.onNodeWithText("Albums").assertExists()
         rule.onNodeWithText("Songs").assertExists()
+
+        // Scroll further to check the presence of additional content
         scrollableContainer.performScrollToIndex(3)
         rule.onNodeWithText("Load More").assertExists()
     }
 
     @Test
     fun tasteTabScreenFlowTest() {
+        // Navigate to the "Taste" tab
         rule.onNodeWithText("Taste").performClick()
+
+        // Verify that key elements on the "Taste" screen are present
         rule.onNodeWithText("Loved").assertExists()
         rule.onNodeWithText("Hated").assertExists()
         rule.onNodeWithText("Pins").assertExists()
     }
+
 }
