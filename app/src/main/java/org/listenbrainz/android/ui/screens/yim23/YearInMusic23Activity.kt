@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.screens.yim23
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,9 +14,7 @@ import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModelImpl
-import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
-import org.listenbrainz.android.viewmodel.YimViewModel
 
 @AndroidEntryPoint
 class YearInMusic23Activity : ComponentActivity() {
@@ -36,7 +33,7 @@ class YearInMusic23Activity : ComponentActivity() {
                     Toast.LENGTH_LONG).show()
                 finish()
             }
-            Yim23Navigation(yimViewModel = yim23ViewModel ,networkConnectivityViewModel = networkConnectivityViewModel, activity = this)
+            Yim23Navigation(yimViewModel = yim23ViewModel ,networkConnectivityViewModel = networkConnectivityViewModel, activity = this, goToUserPage = {})
         }
     }
 }

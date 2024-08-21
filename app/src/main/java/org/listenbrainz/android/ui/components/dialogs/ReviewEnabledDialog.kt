@@ -59,13 +59,14 @@ fun ReviewEnabledDialog(
     onDismiss: () -> Unit,
     uriHandler: UriHandler = LocalUriHandler.current,
     keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current,
-    onSubmit: (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String) -> Unit
+    onSubmit: (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String) -> Unit,
+    selectedEntityType: ReviewEntityType = ReviewEntityType.RECORDING
 ){
     var blurbContent by rememberSaveable {
         mutableStateOf("")
     }
     var selectedEntity by rememberSaveable {
-        mutableStateOf(ReviewEntityType.RECORDING)
+        mutableStateOf(selectedEntityType)
     }
     var rating by rememberSaveable {
         mutableStateOf(0f)

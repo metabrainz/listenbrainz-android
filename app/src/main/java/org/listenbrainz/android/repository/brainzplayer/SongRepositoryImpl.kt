@@ -38,4 +38,33 @@ class SongRepositoryImpl @Inject constructor(
         
         return songs.isNotEmpty()
     }
+
+    override suspend fun updateSong(song : Song) {
+        songDao.updateSong(song.toSongEntity())
+    }
+
+    override fun getRecentlyPlayedSongs(): Flow<List<Song>> =
+        songDao.getRecentlyPlayedSongs()
+            .map { it ->
+                it.map{
+                    it.toSong()
+                }
+            }
+
+    override fun getSongsPlayedToday(): Flow<List<Song>>  =
+        songDao.getSongsPlayedToday()
+            .map { it ->
+                it.map {
+                    it.toSong()
+                }
+            }
+
+    override fun getSongsPlayedThisWeek(): Flow<List<Song>> =
+        songDao.getSongsPlayedThisWeek()
+            .map {
+                it ->
+                it.map {
+                    it.toSong()
+                }
+            }
 }

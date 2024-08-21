@@ -83,6 +83,7 @@ import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.PlayPauseIcon
 import org.listenbrainz.android.ui.components.SeekBar
@@ -432,9 +433,10 @@ fun PlayerScreen(
                     ListenCardSmall(
                         modifier = modifier,
                         trackName = song.title,
-                        artistName = song.artist,
+                        artists = listOf(FeedListenArtist(song.artist, null, "")),
                         coverArtUrl = song.albumArt,
-                        errorAlbumArt = R.drawable.ic_erroralbumart
+                        errorAlbumArt = R.drawable.ic_erroralbumart,
+                        goToArtistPage = {}
                     ) {
                         brainzPlayerViewModel.skipToPlayable(index)
                         brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let {

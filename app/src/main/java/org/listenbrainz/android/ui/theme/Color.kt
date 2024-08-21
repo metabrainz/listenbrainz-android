@@ -19,13 +19,20 @@ val bp_lavender_dark = Color(0xFFE9DCFE)
 /** background Colors */
 val app_bg_day = Color(0xFFFFFFFF)
 val app_bg_dark = Color(0xFF292929)
+val app_bg_secondary_dark = Color(0xFF1E1E1E)
+val on_app_bg_dark = Color(0xFF101010)
+val app_bg_secondary_light = Color(0xFFD9D9D9)
 val app_bg_light = Color(0xFF8FA3AD)
+//TODO: Change app_bg_light everywhere following approval from lead dev
+val new_app_bg_light = Color(0xFFF5F5F5)
+val app_bg_mid = Color(0xFF8D8D8D)
 val app_bottom_nav_dark = Color(0xFF000000)
 val app_bottom_nav_day = Color(0xFFFFFFFF)
 
 val lb_orange = Color(0xFFEA743B)
 val lb_purple = Color(0xFF353070)
 val lb_yellow = Color(0xFFE59B2E)
+val lb_purple_night = Color(0xFF9AABD1)
 
 val yimYellow = Color(0xFFFECB49)
 val yimRed = Color(0xFFFE0E25)
@@ -41,3 +48,6 @@ val yim23DarkGray = Color(0xFF282423)
 val yim23Red = Color(0xFFBE4A55)
 val yim23Blue = Color(0xFF567276)
 val yim23Grey = Color(0xFF4C4442)
+
+/* User Page Colors */
+val compatibilityMeterColor = Color(0xFFDB7544)

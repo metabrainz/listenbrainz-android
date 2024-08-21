@@ -13,16 +13,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,14 +45,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.LifecycleResumeEffect
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun UserData(
     preferencesUiState: PreferencesUiState,
@@ -64,9 +65,8 @@ fun UserData(
     var showDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
-    LifecycleResumeEffect(Unit) {
+    LaunchedEffect(Unit) {
         updateNotificationServicePermissionStatus()
-        onPauseOrDispose {}
     }
 
     Card(
@@ -74,8 +74,10 @@ fun UserData(
             .fillMaxWidth()
             .padding(8.dp)
             .clip(RoundedCornerShape(16.dp)),
-        elevation = 0.dp,
-        backgroundColor = if (onScreenUiModeIsDark()) Color.Black else offWhite,
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (onScreenUiModeIsDark()) Color.Black else offWhite
+        )
     ) {
         Column {
             Row(
@@ -88,21 +90,21 @@ fun UserData(
                     color = if (onScreenUiModeIsDark()) Color.White else Color.Black,
                     fontWeight = FontWeight.Light,
                     fontSize = 20.sp,
-                    style = MaterialTheme.typography.subtitle1,
+                    style = MaterialTheme.typography.titleSmall,
                     textAlign = TextAlign.Center,
                 )
             }
-            
+
             var tempAccessToken by remember {
                 mutableStateOf(preferencesUiState.accessToken)
             }
-            if(preferencesUiState.accessToken.isEmpty()) {
+            if (preferencesUiState.accessToken.isEmpty()) {
                 Row(
                     modifier = Modifier
                         .padding(16.dp)
                 ) {
                     OutlinedTextField(
-                        value = preferencesUiState.accessToken,
+                        value = tempAccessToken,
                         onValueChange = { newText ->
                             tempAccessToken = newText
                         },
@@ -111,17 +113,13 @@ fun UserData(
                         keyboardActions = KeyboardActions(
                             onDone = {
                                 coroutineScope.launch {
-                                    val tokenValid = validateUserToken(preferencesUiState.accessToken)
+                                    val tokenValid = validateUserToken(tempAccessToken)
                                     if (tokenValid) {
-                                        coroutineScope.launch {
-                                            setToken(tempAccessToken)
-                                        }
+                                        setToken(tempAccessToken)
                                         keyboardController?.hide()
                                         focusManager.clearFocus()
                                     } else {
-                                        coroutineScope.launch {
-                                            setToken("")
-                                        }
+                                        setToken("")
                                         Toast.makeText(
                                             context,
                                             "Invalid token",
@@ -152,7 +150,7 @@ fun UserData(
                 }
             }
 
-            if(!preferencesUiState.isNotificationServiceAllowed) {
+            if (!preferencesUiState.isNotificationServiceAllowed) {
                 Row(
                     modifier = Modifier
                         .padding(16.dp)
@@ -196,7 +194,6 @@ fun UserData(
             dismissButton = {
                 TextButton(onClick = {
                     showDialog = false
-                    // Your code to update preferences and switch state
                 }) {
                     Text("Cancel")
                 }

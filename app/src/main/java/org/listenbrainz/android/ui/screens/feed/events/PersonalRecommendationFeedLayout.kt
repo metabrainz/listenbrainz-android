@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventType
+import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.dialogs.UserTag
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
@@ -39,17 +40,20 @@ fun PersonalRecommendationFeedLayout(
     onPin: () -> Unit,
     onRecommend: () -> Unit,
     onPersonallyRecommend: () -> Unit,
-    onReview: () -> Unit
+    onReview: () -> Unit,
+    goToUserPage: (String?) -> Unit,
+    goToArtistPage: (String) -> Unit,
 ) {
     BaseFeedLayout(
         eventType = FeedEventType.PERSONAL_RECORDING_RECOMMENDATION,
         event = event,
         parentUser = parentUser,
-        onDeleteOrHide = onDeleteOrHide
+        onDeleteOrHide = onDeleteOrHide,
+        goToUserPage = goToUserPage
     ) {
         ListenCardSmall(
             trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
-            artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
+            artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(FeedListenArtist(event.metadata.trackMetadata?.artistName ?: "" , null, "")),
             coverArtUrl = remember {
                 Utils.getCoverArtUrl(
                     caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
@@ -71,35 +75,34 @@ fun PersonalRecommendationFeedLayout(
                 )
             },
             enableBlurbContent = true,
-            onClick = onClick,
             blurbContent = { modifier ->
                 Column(modifier = modifier) {
-                    
+
                     // Only show "Sent to:" text if user is the one who personally recommended.
                     if (FeedEventType.isUserSelf(event, parentUser)){
-                        
+
                         Row(
                             modifier = Modifier.padding(bottom = 6.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            
+
                             Text(
                                 text = "Sent to:",
                                 style = ListenBrainzTheme.textStyles.feedBlurbContent,
                                 color = ListenBrainzTheme.colorScheme.text
                             )
-                            
+
                             LazyRow {
-                                
+
                                 items(items = event.metadata.usersList ?: emptyList()) { user ->
                                     Spacer(modifier = Modifier.width(6.dp))
-    
+
                                     UserTag(user)
                                 }
                             }
                         }
                     }
-    
+
                     event.blurbContent?.let {
                         Text(
                             text = it,
@@ -108,7 +111,9 @@ fun PersonalRecommendationFeedLayout(
                         )
                     }
                 }
-            }
+            },
+            goToArtistPage = goToArtistPage,
+            onClick = onClick
         )
         
     }
@@ -142,7 +147,9 @@ private fun PersonalRecommendationFeedLayoutPreview() {
                 onPin = {},
                 onRecommend = {},
                 onPersonallyRecommend = {},
-                onReview = {}
+                onReview = {},
+                goToUserPage = {},
+                goToArtistPage = {}
             )
         }
     }

@@ -36,20 +36,23 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import org.listenbrainz.android.R
-import org.listenbrainz.android.ui.screens.listens.ListensScreen
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
-import org.listenbrainz.android.viewmodel.ProfileViewModel
+import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
 fun ProfileScreen(
     context: Context = LocalContext.current,
-    viewModel: ProfileViewModel = hiltViewModel(),
+    viewModel: UserViewModel = hiltViewModel(),
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
-    snackbarState : SnackbarHostState
+    username: String?,
+    snackbarState: SnackbarHostState,
+    goToUserProfile: () -> Unit,
+    goToArtistPage: (String) -> Unit,
+    goToUserPage: (String?) -> Unit,
 ) {
     val scrollState = rememberScrollState()
-
+    val uiState = viewModel.uiState.collectAsState()
     // Scroll to the top when shouldScrollToTop becomes true
     LaunchedEffect(scrollRequestState) {
         onScrollToTop {
@@ -61,10 +64,23 @@ fun ProfileScreen(
 
     when(loginStatus) {
         STATUS_LOGGED_IN -> {
-            ListensScreen(
-                onScrollToTop = onScrollToTop,
-                scrollRequestState = scrollRequestState,
-                snackbarState = snackbarState
+            LaunchedEffect(Unit) {
+                viewModel.getUserDataFromRemote(username)
+            }
+
+            BaseProfileScreen(
+                username = username,
+                snackbarState = snackbarState,
+                uiState = uiState.value,
+                onFollowClick = {
+                    viewModel.followUser(it)
+                },
+                onUnfollowClick = {
+                    viewModel.unfollowUser(it)
+                },
+                goToUserProfile = goToUserProfile,
+                goToArtistPage = goToArtistPage,
+                goToUserPage = goToUserPage
             )
         }
         else -> {

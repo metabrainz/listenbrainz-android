@@ -44,26 +44,27 @@ import coil.compose.AsyncImage
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Artist
 import org.listenbrainz.android.model.PlayableType
+import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.BPLibraryEmptyMessage
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.forwardingPainter
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
-import org.listenbrainz.android.viewmodel.AlbumViewModel
-import org.listenbrainz.android.viewmodel.ArtistViewModel
+import org.listenbrainz.android.viewmodel.BPAlbumViewModel
+import org.listenbrainz.android.viewmodel.BPArtistViewModel
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ArtistScreen(navigateToArtistScreen: (id: Long) -> Unit) {
-    val artistViewModel = hiltViewModel<ArtistViewModel>()
-    val artists = artistViewModel.artists.collectAsState(initial = listOf())
+    val BPArtistViewModel = hiltViewModel<BPArtistViewModel>()
+    val artists = BPArtistViewModel.artists.collectAsState(initial = listOf())
 
-    val refreshing by artistViewModel.isRefreshing.collectAsState()
+    val refreshing by BPArtistViewModel.isRefreshing.collectAsState()
     val pullRefreshState = rememberPullRefreshState(
         refreshing = refreshing,
-        onRefresh = { artistViewModel.fetchArtistsFromDevice(userRequestedRefresh = true) }
+        onRefresh = { BPArtistViewModel.fetchArtistsFromDevice(userRequestedRefresh = true) }
     )
     
     // Content
@@ -207,13 +208,13 @@ private fun ArtistsScreen(
 @Composable
 fun OnArtistClickScreen(artistID: String, navigateToAlbum: (id: Long) -> Unit) {
     val brainzPlayerViewModel = hiltViewModel<BrainzPlayerViewModel>()
-    val artistViewModel = hiltViewModel<ArtistViewModel>()
-    val albumViewModel = hiltViewModel<AlbumViewModel>()
-    val artist = artistViewModel.getArtistByID(artistID).collectAsState(initial = Artist()).value
+    val BPArtistViewModel = hiltViewModel<BPArtistViewModel>()
+    val BPAlbumViewModel = hiltViewModel<BPAlbumViewModel>()
+    val artist = BPArtistViewModel.getArtistByID(artistID).collectAsState(initial = Artist()).value
     val artistAlbums =
-        artistViewModel.getAllAlbumsOfArtist(artist).collectAsState(initial = listOf()).value.distinctBy { it.albumId }
+        BPArtistViewModel.getAllAlbumsOfArtist(artist).collectAsState(initial = listOf()).value.distinctBy { it.albumId }
     val artistSongs =
-        artistViewModel.getAllSongsOfArtist(artist).collectAsState(initial = listOf()).value.distinctBy { it.mediaID }
+        BPArtistViewModel.getAllSongsOfArtist(artist).collectAsState(initial = listOf()).value.distinctBy { it.mediaID }
     val currentlyPlayingSong =
         brainzPlayerViewModel.currentlyPlayingSong.collectAsState().value.toSong
     var artistCardMoreOptionsDropMenuExpanded by rememberSaveable { mutableStateOf(-1) }
@@ -234,7 +235,7 @@ fun OnArtistClickScreen(artistID: String, navigateToAlbum: (id: Long) -> Unit) {
         item {
             LazyRow {
                 items(items = artistAlbums) {
-                    val albumSongs = albumViewModel.getAllSongsOfAlbum(it.albumId).collectAsState(listOf()).value
+                    val albumSongs = BPAlbumViewModel.getAllSongsOfAlbum(it.albumId).collectAsState(listOf()).value
                     Box(
                         modifier = Modifier
                             .height(240.dp)
@@ -372,13 +373,14 @@ fun OnArtistClickScreen(artistID: String, navigateToAlbum: (id: Long) -> Unit) {
                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
                     trackName = it.title,
-                    artistName = it.artist,
+                    artists = listOf(FeedListenArtist(it.artist, null, "")),
                     coverArtUrl = it.albumArt,
                     errorAlbumArt = R.drawable.ic_erroralbumart,
                     enableDropdownIcon = true,
                     onDropdownIconClick = {
                         artistCardMoreOptionsDropMenuExpanded = artistSongs.indexOf(it)
-                    }
+                    },
+                    goToArtistPage = {}
                 ) {
                     brainzPlayerViewModel.changePlayable(
                         artistSongs,

@@ -12,6 +12,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.di.IoDispatcher
@@ -31,6 +32,8 @@ class DashBoardViewModel @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : AndroidViewModel(application) {
 
+    var username = ""
+    val job =  viewModelScope.launch { username = async {appPreferences.username.get() }.await() }
     // Sets Ui mode for XML layouts.
     fun setUiMode(){
         viewModelScope.launch {
@@ -73,10 +76,7 @@ class DashBoardViewModel @Inject constructor(
     // TODO: Rework permissions
     val neededPermissions = when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
-            arrayOf(
-                Manifest.permission.READ_MEDIA_IMAGES,
-                Manifest.permission.READ_MEDIA_AUDIO
-            )
+            arrayOf(Manifest.permission.READ_MEDIA_AUDIO)
         }
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
             arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -92,7 +92,6 @@ class DashBoardViewModel @Inject constructor(
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
                 if (
-                    checkSelfPermission(application.applicationContext, Manifest.permission.READ_MEDIA_IMAGES) == PermissionChecker.PERMISSION_GRANTED &&
                     checkSelfPermission(application.applicationContext, Manifest.permission.READ_MEDIA_AUDIO) == PermissionChecker.PERMISSION_GRANTED
                 ){
                     setPermissionsPreference(PermissionStatus.GRANTED.name)
@@ -127,7 +126,8 @@ class DashBoardViewModel @Inject constructor(
                 && appPreferences.isListeningAllowed.get()
         } && appPreferences.lbAccessToken.get().isNotEmpty()
     }
-    
+
+
     fun connectToSpotify() {
         viewModelScope.launch {
             remotePlaybackHandler.connectToSpotify {

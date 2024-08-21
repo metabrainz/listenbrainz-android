@@ -114,6 +114,8 @@ enum class FeedEventType (
         onReview: () -> Unit,
         onPin: () -> Unit,
         onClick: () -> Unit,
+        goToUserPage: (String?) -> Unit,
+        goToArtistPage: (String) -> Unit,
     ){
         when (this){
             RECORDING_RECOMMENDATION -> RecordingRecommendationFeedLayout(
@@ -129,7 +131,9 @@ enum class FeedEventType (
                 onPin = onPin,
                 onReview = onReview,
                 onPersonallyRecommend = onPersonallyRecommend,
-                onRecommend = onRecommend
+                onRecommend = onRecommend,
+                goToUserPage = goToUserPage,
+                goToArtistPage = goToArtistPage
             )
             PERSONAL_RECORDING_RECOMMENDATION -> PersonalRecommendationFeedLayout(
                 event = event,
@@ -143,7 +147,9 @@ enum class FeedEventType (
                 onPin = onPin,
                 onReview = onReview,
                 onPersonallyRecommend = onPersonallyRecommend,
-                onRecommend = onRecommend
+                onRecommend = onRecommend,
+                goToUserPage = goToUserPage,
+                goToArtistPage = goToArtistPage
             )
             RECORDING_PIN -> PinFeedLayout(
                 event = event,
@@ -158,7 +164,9 @@ enum class FeedEventType (
                 onPin = onPin,
                 onReview = onReview,
                 onPersonallyRecommend = onPersonallyRecommend,
-                onRecommend = onRecommend
+                onRecommend = onRecommend,
+                goToUserPage = goToUserPage,
+                goToArtistPage = goToArtistPage
             )
             LIKE -> ListenLikeFeedLayout(
                 event = event,
@@ -172,7 +180,9 @@ enum class FeedEventType (
                 onPin = onPin,
                 onReview = onReview,
                 onPersonallyRecommend = onPersonallyRecommend,
-                onRecommend = onRecommend
+                onRecommend = onRecommend,
+                goToUserPage = goToUserPage,
+                goToArtistPage = goToArtistPage
             )
             LISTEN -> ListenFeedLayout(
                 event = event,
@@ -186,10 +196,12 @@ enum class FeedEventType (
                 onPin = onPin,
                 onReview = onReview,
                 onPersonallyRecommend = onPersonallyRecommend,
-                onRecommend = onRecommend
+                onRecommend = onRecommend,
+                goToUserPage = goToUserPage,
+                goToArtistPage = goToArtistPage
             )
-            FOLLOW -> FollowFeedLayout(event = event, parentUser = parentUser)
-            NOTIFICATION -> NotificationFeedLayout(event = event, onDeleteOrHide = onDeleteOrHide)
+            FOLLOW -> FollowFeedLayout(event = event, parentUser = parentUser, goToUserPage = goToUserPage)
+            NOTIFICATION -> NotificationFeedLayout(event = event, onDeleteOrHide = onDeleteOrHide, goToUserPage = goToUserPage)
             REVIEW -> ReviewFeedLayout(
                 event = event,
                 parentUser = parentUser,
@@ -202,7 +214,9 @@ enum class FeedEventType (
                 onPin = onPin,
                 onReview = onReview,
                 onPersonallyRecommend = onPersonallyRecommend,
-                onRecommend = onRecommend
+                onRecommend = onRecommend,
+                goToUserPage = goToUserPage,
+                goToArtistPage = goToArtistPage
             )
             UNKNOWN -> UnknownFeedLayout(event = event)
         }
@@ -212,7 +226,8 @@ enum class FeedEventType (
     fun Tagline(
         modifier: Modifier = Modifier,
         event: FeedEvent,
-        parentUser: String
+        parentUser: String,
+        goToUserPage: (String?) -> Unit
     ) {
         val linkStyle = SpanStyle(
             color = ListenBrainzTheme.colorScheme.lbSignature,
@@ -236,6 +251,7 @@ enum class FeedEventType (
             text = annotatedString,
         ) { charOffset ->
             onClick(charOffset)
+            goToUserPage(event.username)
         }
         
         

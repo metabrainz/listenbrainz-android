@@ -1,9 +1,11 @@
 package org.listenbrainz.android.ui.screens.settings
 
+import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import android.provider.Settings
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -50,16 +52,20 @@ import androidx.lifecycle.Lifecycle
 import com.limurse.logger.Logger
 import com.limurse.logger.util.FileIntent
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.ui.components.Switch
-import org.listenbrainz.android.ui.screens.listens.ListeningAppsList
+import org.listenbrainz.android.ui.screens.profile.listens.ListeningAppsList
 import org.listenbrainz.android.ui.screens.main.DonateActivity
+import org.listenbrainz.android.ui.screens.main.MainActivity
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Constants
+import org.listenbrainz.android.util.Resource
+import org.listenbrainz.android.util.Utils.getActivity
 import org.listenbrainz.android.viewmodel.ListensViewModel
 import org.listenbrainz.android.viewmodel.SettingsViewModel
 
@@ -84,7 +90,8 @@ fun SettingsScreen(
         .getFlow().collectAsState(initial = true)
     val shouldScrobbleNewPlayers by viewModel.appPreferences
         .shouldListenNewPlayers.getFlow().collectAsState(initial = true)
-    
+    val logoutStatus = viewModel.logoutStatus.collectAsState(initial = null).value
+
     val lifecycleOwner = LocalLifecycleOwner.current
     val lifecycleState by lifecycleOwner.lifecycle.currentStateFlow.collectAsState()
     LaunchedEffect(lifecycleState) {
@@ -95,6 +102,17 @@ fun SettingsScreen(
                 }
             }
             else -> Unit
+        }
+    }
+
+    LaunchedEffect(logoutStatus) {
+        if (logoutStatus == true) {
+            val intent = Intent(context, MainActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(intent)
+            (context as? Activity)?.finish()
         }
     }
 
@@ -320,22 +338,42 @@ fun SettingsScreen(
                     Logger.apply {
                         compressLogsInZipFile { zipFile ->
                             zipFile?.let {
-                                FileIntent.fromFile(
-                                    context,
-                                    it,
-                                    BuildConfig.APPLICATION_ID
-                                )?.let { intent ->
-                                    intent.putExtra(Intent.EXTRA_SUBJECT, "Log Files")
-                                    intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("mobile@metabrainz.org"))
-                                    intent.putExtra(Intent.EXTRA_TEXT, "Please find the attached log files.")
-                                    intent.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(context, "${BuildConfig.APPLICATION_ID}.provider", zipFile))
-                                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                    try {
-                                        context.startActivity(Intent.createChooser(intent, "Email logs..."))
-                                    } catch (e: java.lang.Exception) {
-                                        e(throwable = e)
+                                FileIntent
+                                    .fromFile(
+                                        context,
+                                        it,
+                                        BuildConfig.APPLICATION_ID
+                                    )
+                                    ?.let { intent ->
+                                        intent.putExtra(Intent.EXTRA_SUBJECT, "Log Files")
+                                        intent.putExtra(
+                                            Intent.EXTRA_EMAIL,
+                                            arrayOf("mobile@metabrainz.org")
+                                        )
+                                        intent.putExtra(
+                                            Intent.EXTRA_TEXT,
+                                            "Please find the attached log files."
+                                        )
+                                        intent.putExtra(
+                                            Intent.EXTRA_STREAM,
+                                            FileProvider.getUriForFile(
+                                                context,
+                                                "${BuildConfig.APPLICATION_ID}.provider",
+                                                zipFile
+                                            )
+                                        )
+                                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                        try {
+                                            context.startActivity(
+                                                Intent.createChooser(
+                                                    intent,
+                                                    "Email logs..."
+                                                )
+                                            )
+                                        } catch (e: java.lang.Exception) {
+                                            e(throwable = e)
+                                        }
                                     }
-                                }
                             }
                         }
                     }
@@ -361,6 +399,25 @@ fun SettingsScreen(
                     modifier = Modifier
                         .padding(top = 6.dp)
                         .width(240.dp)
+                )
+            }
+        }
+
+        Divider(thickness = 1.dp)
+
+        if(viewModel.appPreferences.getLoginStatusFlow().collectAsState(initial = Constants.Strings.STATUS_LOGGED_IN).value == Constants.Strings.STATUS_LOGGED_IN) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(18.dp)
+                    .clickable {
+                        viewModel.logout()
+                    },
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "Logout",
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
@@ -502,22 +559,6 @@ fun SettingsScreen(
                 }
             )
         }
-
-        // TODO: Decide whether we need a logout button or not
-        //        Row(
-        //            modifier = Modifier
-        //                .fillMaxWidth()
-        //                .padding(18.dp)
-        //            ,
-        //            verticalAlignment = Alignment.CenterVertically,
-        //        ) {
-        //            Text(
-        //                text = "Logout",
-        //                color = MaterialTheme.colorScheme.onSurface,
-        //            )
-        //        }
-        //
-        //        Divider(thickness = 1.dp)
 
         // BlackList Dialog
         val uiState by listensViewModel.preferencesUiState.collectAsState()

@@ -29,7 +29,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 fun TopBar(
     navController: NavController = rememberNavController(),
     searchBarState: SearchBarState,
-    context: Context = LocalContext.current
+    context: Context = LocalContext.current,
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -38,9 +38,11 @@ fun TopBar(
             AppNavigationItem.Feed.route -> AppNavigationItem.Feed.title
             AppNavigationItem.BrainzPlayer.route -> AppNavigationItem.BrainzPlayer.title
             AppNavigationItem.Explore.route -> AppNavigationItem.Explore.title
-            AppNavigationItem.Profile.route -> AppNavigationItem.Profile.title
+            "${AppNavigationItem.Profile.route}/{username}" -> AppNavigationItem.Profile.title
             AppNavigationItem.Settings.route -> AppNavigationItem.Settings.title
             AppNavigationItem.About.route -> AppNavigationItem.About.title
+            "${AppNavigationItem.Artist.route}/{mbid}" -> AppNavigationItem.Artist.title
+        "${AppNavigationItem.Album.route}/{mbid}" -> AppNavigationItem.Album.title
             else -> ""
         }
     } ?: "ListenBrainz"

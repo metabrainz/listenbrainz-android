@@ -2,6 +2,7 @@ package org.listenbrainz.android.ui.theme
 
 import android.app.Activity
 import android.content.Context
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -17,6 +18,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.toArgb
@@ -55,7 +58,50 @@ data class ColorScheme(
     val listenText: Color,
     /** Used for stars.*/
     val golden: Color = Color(0xFFF9A825),
-    val hint: Color
+    val hint: Color,
+    /** Used for BP **/
+    val gradientBrush: Brush,
+    val placeHolderColor: Color,
+    /** Used for User Pages **/
+    val dividerColor: Color,
+    val textColor: Color,
+    val songsListenedToBG: Color,
+    val userPageGradient: Brush,
+    val followerChipSelected: Color,
+    val followerChipUnselected: Color,
+    val followerCardColor: Color,
+    val followerCardTextColor: Color,
+    val followingButtonColor: Color,
+    val followingButtonTextColor: Color,
+    val followingButtonBorder: BorderStroke?,
+    /** Used for Artist Pages **/
+    val artistBioColor: Color,
+)
+
+
+private val brainzPlayerLightGradientsBrush = Brush.linearGradient(
+    start = Offset.Zero,
+    end = Offset(0f, Float.POSITIVE_INFINITY),
+    colors = listOf(
+        Color(0xFFF5F5F5),
+        Color(0xFFF7F7F7),
+        Color(0xFFF9F9F9),
+        Color(0xFFFBFBFB),
+        Color(0xFFFDFDFD)
+    )
+)
+
+private val brainzPlayerDarkGradientsBrush = Brush.linearGradient(
+    start = Offset.Zero,
+    end = Offset(0f, Float.POSITIVE_INFINITY),
+    colors = listOf(
+        Color(0xFF111111),
+        Color(0xFF131313),
+        Color(0xFF151515),
+        Color(0xFF171717),
+        Color(0xFF272727),
+        Color(0xFF272E27)
+    )
 )
 
 private val colorSchemeDark = ColorScheme(
@@ -72,7 +118,29 @@ private val colorSchemeDark = ColorScheme(
     chipSelected = Color.Black,
     text = Color.White,
     listenText = Color.White,
-    hint = Color(0xFF8C8C8C)
+    hint = Color(0xFF8C8C8C),
+    gradientBrush = brainzPlayerDarkGradientsBrush,
+    placeHolderColor = Color(0xFF1E1E1E),
+    dividerColor = app_bg_secondary_dark,
+    textColor = new_app_bg_light,
+    songsListenedToBG = app_bg_dark,
+    userPageGradient = Brush.verticalGradient(
+        listOf(
+            Color(0xFF161616),
+            Color(0xFF1A1A1A),
+            Color(0xFF202020),
+            Color(0xFF242424),
+            Color.Transparent
+        )
+    ),
+    followerChipSelected = lb_purple_night,
+    followerChipUnselected = app_bg_dark,
+    followerCardColor = app_bg_secondary_dark,
+    followerCardTextColor = lb_purple_night,
+    followingButtonColor = app_bg_dark,
+    followingButtonTextColor = Color.White,
+    followingButtonBorder = null,
+    artistBioColor = Color(0xFF2B2E35)
 )
 
 private val colorSchemeLight = ColorScheme(
@@ -89,10 +157,39 @@ private val colorSchemeLight = ColorScheme(
     chipSelected = Color(0xFFB6B6B6),
     text = Color.Black,
     listenText = lb_purple,
-    hint = Color(0xFF707070)
+    hint = Color(0xFF707070),
+    gradientBrush = brainzPlayerLightGradientsBrush,
+    placeHolderColor = Color(0xFFEBEBEB),
+    dividerColor = app_bg_secondary_light,
+    textColor = app_bg_dark,
+    songsListenedToBG = new_app_bg_light,
+    userPageGradient = Brush.verticalGradient(
+        listOf(
+            Color(0xFFEAEAEA),
+            Color(0xFFEBEBEB),
+            Color(0xFFF0F0F0),
+            Color(0xFFF1F1F1),
+            Color(0xFFF2F2F2),
+            Color(0xFFF3F3F3),
+            Color(0xFFF4F4F4),
+            Color(0xFFF5F5F5),
+            Color.Transparent
+        )
+    ),
+    followerChipSelected = lb_purple,
+    followerChipUnselected = Color.White,
+    followerCardColor = Color.White,
+    followerCardTextColor = lb_purple,
+    followingButtonColor = Color.White,
+    followingButtonTextColor = lb_purple,
+    followingButtonBorder = BorderStroke(width = 1.dp, color = lb_purple),
+    artistBioColor = Color(0xFFD7D6EB)
 )
 
+
 private var LocalColorScheme: ProvidableCompositionLocal<ColorScheme> = staticCompositionLocalOf { colorSchemeLight }
+
+
 
 private val DarkColorScheme = darkColorScheme(
     background = app_bg_dark,

@@ -8,15 +8,15 @@ import com.google.android.exoplayer2.MediaItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.model.State
-import org.listenbrainz.android.repository.brainzplayer.AlbumRepository
+import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
 import org.listenbrainz.android.repository.brainzplayer.PlaylistRepository
 import org.listenbrainz.android.repository.brainzplayer.SongRepository
 import javax.inject.Inject
 
 class LocalMusicSource @Inject constructor(
     private val songRepository: SongRepository,
-    private val albumRepository: AlbumRepository,
-    private val artistRepository: AlbumRepository,
+    private val BPAlbumRepository: BPAlbumRepository,
+    private val artistRepository: BPAlbumRepository,
     private val playlistRepository: PlaylistRepository
 ) :
     MusicSource<MediaMetadataCompat> {

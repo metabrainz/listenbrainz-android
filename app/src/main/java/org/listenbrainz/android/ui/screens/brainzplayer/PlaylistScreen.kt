@@ -37,6 +37,7 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.Playlist
+import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.forwardingPainter
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -411,10 +412,11 @@ fun OnPlaylistClickScreen(playlistID: Long) {
                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
                     trackName = it.title,
-                    artistName = it.artist,
+                    artists = listOf(FeedListenArtist(it.artist, null, "")),
                     coverArtUrl = it.albumArt,
                     errorAlbumArt = R.drawable.ic_erroralbumart,
                     enableDropdownIcon = true,
+                    goToArtistPage = {},
                     onDropdownIconClick = {
                         selectedPlaylistItemIndex = selectedPlaylist.items.indexOf(it)
                     }

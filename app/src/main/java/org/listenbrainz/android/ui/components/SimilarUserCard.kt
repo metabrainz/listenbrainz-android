@@ -2,6 +2,7 @@ package org.listenbrainz.android.ui.components
 
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -44,12 +45,14 @@ fun SimilarUserCard(
     cardBackGround: Color = MaterialTheme.colorScheme.background,
     index: Int,
     userName: String,
-    similarity: Float
+    similarity: Float,
+    modifier: Modifier = Modifier
+        .fillMaxWidth()
+        .padding(vertical = 4.dp),
+    goToUserPage: (String) -> Unit,
 ){
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
+        modifier = modifier,
         color = cardBackGround,
         shape = RoundedCornerShape(5.dp),
         shadowElevation = 5.dp,
@@ -90,6 +93,9 @@ fun SimilarUserCard(
                             color = if (uiModeIsDark) MaterialTheme.colorScheme.onSurface else lb_purple,
                             lineHeight = 14.sp
                         ) ,
+                    modifier = Modifier.clickable {
+                        goToUserPage(userName)
+                    }
                 )
             }
             
@@ -135,6 +141,6 @@ fun SimilarUserCard(
 @Composable
 fun Preview(){
     ListenBrainzTheme {
-        SimilarUserCard(index = 0, userName = "jasje", similarity = 0.80f)
+        SimilarUserCard(index = 0, userName = "jasje", similarity = 0.80f, goToUserPage = {})
     }
 }

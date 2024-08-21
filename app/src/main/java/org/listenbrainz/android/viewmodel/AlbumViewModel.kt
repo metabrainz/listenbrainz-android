@@ -1,54 +1,57 @@
 package org.listenbrainz.android.viewmodel
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import org.listenbrainz.android.model.Album
-import org.listenbrainz.android.model.Song
-import org.listenbrainz.android.repository.brainzplayer.AlbumRepository
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import org.listenbrainz.android.repository.album.AlbumRepository
+import org.listenbrainz.android.ui.screens.album.AlbumUiState
+import org.listenbrainz.android.util.Utils
 import javax.inject.Inject
 
 @HiltViewModel
 class AlbumViewModel @Inject constructor(
-    val albumRepository: AlbumRepository,
-    val appPreferences: AppPreferences
-) : ViewModel() {
-    val albums = albumRepository.getAlbums()
-    
-    // Refreshing variables.
-    private val _isRefreshing = MutableStateFlow(false)
-    val isRefreshing = _isRefreshing.asStateFlow()
-    
-    init {
-        fetchAlbumsFromDevice()
+    private val repository: AlbumRepository
+) : BaseViewModel<AlbumUiState>() {
+    private val albumUIStateFlow: MutableStateFlow<AlbumUiState> = MutableStateFlow(AlbumUiState())
+
+    suspend fun fetchAlbumData(albumMbid: String?) {
+        val albumInfo = repository.fetchAlbumInfo(albumMbid).data
+        val albumData =  repository.fetchAlbum(albumMbid).data
+        val albumReviews = repository.fetchAlbumReviews(albumMbid).data
+
+        val albumUiState = AlbumUiState(
+            isLoading = false,
+            name = albumInfo?.title,
+            coverArt = Utils.getCoverArtUrl(albumData?.caaReleaseMbid, albumData?.caaId),
+            artists = albumData?.releaseGroupMetadata?.artist?.artists ?: listOf(),
+            releaseDate = albumInfo?.firstReleaseDate,
+            totalPlays = albumData?.listeningStats?.totalListenCount,
+            totalListeners = albumData?.listeningStats?.totalUserCount,
+            tags = albumData?.releaseGroupMetadata?.tag?.releaseGroup ?: listOf(),
+            links = albumData?.releaseGroupMetadata?.artist?.artists?.get(0)?.rels,
+            trackList = albumData?.mediums?.get(0)?.tracks ?: listOf(),
+            topListeners = albumData?.listeningStats?.listeners ?: listOf(),
+            reviews = albumReviews,
+            type = albumData?.type
+        )
+        albumUIStateFlow.emit(albumUiState)
     }
-    
-    fun fetchAlbumsFromDevice(userRequestedRefresh: Boolean = false) {
-        viewModelScope.launch(Dispatchers.IO) {
-            if (userRequestedRefresh){
-                _isRefreshing.update { true }
-                appPreferences.albumsOnDevice = albumRepository.addAlbums(userRequestedRefresh = true)
-                _isRefreshing.update { false }
-            } else {
-                albums.collectLatest {
-                    if (it.isEmpty()) {
-                        _isRefreshing.update { true }
-                        appPreferences.albumsOnDevice = albumRepository.addAlbums()
-                        _isRefreshing.update { false }
-                    }
-                }
-            }
-        }
-    }
-    
-    fun getAlbumFromID(albumID: Long): Flow<Album> {
-        return albumRepository.getAlbum(albumID)
-    }
-    fun getAllSongsOfAlbum(albumID: Long): Flow<List<Song>>{
-        return albumRepository.getAllSongsOfAlbum(albumID)
+
+    override val uiState: StateFlow<AlbumUiState> = createUiStateFlow()
+
+    override fun createUiStateFlow(): StateFlow<AlbumUiState> {
+        return combine(
+            albumUIStateFlow
+        ) {
+            it[0]
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            AlbumUiState()
+        )
     }
 }

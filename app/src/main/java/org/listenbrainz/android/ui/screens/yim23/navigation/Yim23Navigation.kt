@@ -2,31 +2,16 @@ package org.listenbrainz.android.ui.screens.yim23.navigation
 
 import androidx.activity.ComponentActivity
 import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import kotlinx.coroutines.launch
-import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.yimdata.Yim23Screens
-import org.listenbrainz.android.model.yimdata.YimScreens
-import org.listenbrainz.android.ui.screens.profile.ProfileScreen
-import org.listenbrainz.android.ui.screens.yim.*
 import org.listenbrainz.android.ui.screens.yim.navigation.addYimScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23AlbumsListScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23ChartTitleScreen
@@ -48,11 +33,8 @@ import org.listenbrainz.android.ui.screens.yim23.Yim23StatsTitleScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23TopAlbumsScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23TopArtistsScreen
 import org.listenbrainz.android.ui.screens.yim23.Yim23TopSongsScreen
-import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
-import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
-import org.listenbrainz.android.viewmodel.YimViewModel
 
 // Transition Duration
 private const val screenTransitionDuration = 900
@@ -63,6 +45,7 @@ fun Yim23Navigation(
     yimViewModel: Yim23ViewModel,
     activity: ComponentActivity,
     networkConnectivityViewModel: NetworkConnectivityViewModel,
+    goToUserPage: (String?) -> Unit,
 ) {
     val navController = rememberNavController()
     NavHost(
@@ -142,7 +125,7 @@ fun Yim23Navigation(
             Yim23NewAlbumsFromTopArtistsScreen(viewModel = yimViewModel, navController = navController)
         }
         addYimScreen( route = Yim23Screens.YimMusicBuddiesScreen.name){
-            Yim23MusicBuddiesScreen(viewModel = yimViewModel, navController = navController)
+            Yim23MusicBuddiesScreen(viewModel = yimViewModel, navController = navController, goToUserPage = goToUserPage)
         }
         addYimScreen( route = Yim23Screens.YimFriendsScreen.name){
             Yim23FriendsScreen(viewModel = yimViewModel, navController = navController)

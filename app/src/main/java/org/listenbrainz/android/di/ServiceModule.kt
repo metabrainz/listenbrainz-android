@@ -14,15 +14,23 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import org.listenbrainz.android.model.yimdata.YimData
 import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.service.AlbumService
+import org.listenbrainz.android.service.ArtistService
 import org.listenbrainz.android.service.BlogService
+import org.listenbrainz.android.service.CBService
 import org.listenbrainz.android.service.FeedService
 import org.listenbrainz.android.service.ListensService
+import org.listenbrainz.android.service.MBService
 import org.listenbrainz.android.service.SocialService
+import org.listenbrainz.android.service.UserService
 import org.listenbrainz.android.service.Yim23Service
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.service.YouTubeApiService
+import org.listenbrainz.android.util.Constants.CB_BASE_URL
+import org.listenbrainz.android.util.Constants.LB_BASE_URL
 import org.listenbrainz.android.util.Constants.LISTENBRAINZ_API_BASE_URL
 import org.listenbrainz.android.util.Constants.LISTENBRAINZ_BETA_API_BASE_URL
+import org.listenbrainz.android.util.Constants.MB_BASE_URL
 import org.listenbrainz.android.util.HeaderInterceptor
 import org.listenbrainz.android.util.Utils
 import retrofit2.Retrofit
@@ -77,8 +85,59 @@ class ServiceModule {
     fun providesFeedService(appPreferences: AppPreferences): FeedService =
         constructRetrofit(appPreferences)
             .create(FeedService::class.java)
-    
-    
+
+    @Singleton
+    @Provides
+    fun providesUserService(appPreferences: AppPreferences) : UserService =
+        constructRetrofit(appPreferences)
+        .create(UserService::class.java)
+
+    @Singleton
+    @Provides
+    fun providesArtistService(): ArtistService = Retrofit.Builder()
+        .baseUrl(LB_BASE_URL)
+        .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build().create(ArtistService::class.java)
+
+    @Singleton
+    @Provides
+    fun providesMBService(): MBService {
+        val okHttpClient = OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val original = chain.request()
+                val request = original.newBuilder()
+                    .header("user-agent", "ListenBrainz Android")
+                    .method(original.method, original.body)
+                    .build()
+                chain.proceed(request)
+            }
+            .build()
+
+        return Retrofit.Builder()
+            .baseUrl(MB_BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(MBService::class.java)
+    }
+
+    @Singleton
+    @Provides
+    fun providesCBService(): CBService = Retrofit.Builder()
+        .baseUrl(CB_BASE_URL)
+        .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build().create(CBService::class.java)
+
+    @Singleton
+    @Provides
+    fun providesAlbumService(): AlbumService = Retrofit.Builder()
+        .baseUrl(LB_BASE_URL)
+        .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build().create(AlbumService::class.java)
+
     @Singleton
     @Provides
     fun providesYoutubeApiService(@ApplicationContext context: Context): YouTubeApiService =
