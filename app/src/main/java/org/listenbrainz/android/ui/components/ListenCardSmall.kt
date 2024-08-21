@@ -53,7 +53,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 fun ListenCardSmall(
     modifier: Modifier = Modifier,
     trackName: String,
-    artists: List<FeedListenArtist>,
+    artists: List<FeedListenArtist?>,
     coverArtUrl: String?,
     listenCount: Int? = null,
     @DrawableRes errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
@@ -205,7 +205,7 @@ private fun AlbumArt(
 fun TitleAndSubtitle(
     modifier: Modifier = Modifier,
     title: String,
-    artists: List<FeedListenArtist>,
+    artists: List<FeedListenArtist?>,
     alignment: Alignment.Horizontal = Alignment.Start,
     titleColor: Color = ListenBrainzTheme.colorScheme.listenText,
     subtitleColor: Color = titleColor.copy(alpha = 0.7f),
@@ -221,11 +221,11 @@ fun TitleAndSubtitle(
         )
         Row {
             artists.map {
-                Text(it.artistCreditName + it.joinPhrase, style = ListenBrainzTheme.textStyles.listenSubtitle,
+                Text((it?.artistCreditName ?: "") + (it?.joinPhrase ?: ""), style = ListenBrainzTheme.textStyles.listenSubtitle,
                     color = subtitleColor,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis, modifier = Modifier.clickable {
-                        if(it.artistMbid != null){
+                        if(it?.artistMbid != null){
                             goToArtistPage(it.artistMbid)
                         }
                     })

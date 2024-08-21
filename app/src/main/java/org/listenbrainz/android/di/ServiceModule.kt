@@ -14,6 +14,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import org.listenbrainz.android.model.yimdata.YimData
 import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.service.AlbumService
 import org.listenbrainz.android.service.ArtistService
 import org.listenbrainz.android.service.BlogService
 import org.listenbrainz.android.service.CBService
@@ -101,11 +102,25 @@ class ServiceModule {
 
     @Singleton
     @Provides
-    fun providesMBService(): MBService = Retrofit.Builder()
-        .baseUrl(MB_BASE_URL)
-        .client(okHttpClient)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build().create(MBService::class.java)
+    fun providesMBService(): MBService {
+        val okHttpClient = OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val original = chain.request()
+                val request = original.newBuilder()
+                    .header("user-agent", "ListenBrainz Android")
+                    .method(original.method, original.body)
+                    .build()
+                chain.proceed(request)
+            }
+            .build()
+
+        return Retrofit.Builder()
+            .baseUrl(MB_BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(MBService::class.java)
+    }
 
     @Singleton
     @Provides
@@ -114,6 +129,14 @@ class ServiceModule {
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build().create(CBService::class.java)
+
+    @Singleton
+    @Provides
+    fun providesAlbumService(): AlbumService = Retrofit.Builder()
+        .baseUrl(LB_BASE_URL)
+        .client(okHttpClient)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build().create(AlbumService::class.java)
 
     @Singleton
     @Provides
