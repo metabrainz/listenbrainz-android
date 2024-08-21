@@ -202,6 +202,14 @@ class MainActivity : ComponentActivity() {
                                 snackbarState = snackbarState,
                                 goToUserProfile = {
                                     navController.navigate("${AppNavigationItem.Profile.route}/${username}")
+                                },
+                                goToArtistPage = {
+                                    mbid ->
+                                    navController.navigate("artist/${mbid}")
+                                },
+                                goToUserPage = {
+                                    user ->
+                                    navController.navigate("${AppNavigationItem.Profile.route}/$user")
                                 }
                             )
                         }

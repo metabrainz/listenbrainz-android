@@ -1,60 +1,62 @@
 package org.listenbrainz.android.viewmodel
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import org.listenbrainz.android.model.Album
-import org.listenbrainz.android.model.Artist
-import org.listenbrainz.android.model.Song
-import org.listenbrainz.android.repository.preferences.AppPreferences
-import org.listenbrainz.android.repository.brainzplayer.ArtistRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import org.listenbrainz.android.repository.artist.ArtistRepository
+import org.listenbrainz.android.ui.screens.artist.ArtistUIState
 import javax.inject.Inject
 
 @HiltViewModel
 class ArtistViewModel @Inject constructor(
-    private val artistRepository: ArtistRepository,
-    private val appPreferences: AppPreferences
-) : ViewModel() {
-    val artists = artistRepository.getArtists()
-    
-    // Refreshing variables.
-    private val _isRefreshing = MutableStateFlow(false)
-    val isRefreshing = _isRefreshing.asStateFlow()
-    
-    init {
-        fetchArtistsFromDevice()
-    }
-    
-    fun fetchArtistsFromDevice(userRequestedRefresh: Boolean = false){
-        viewModelScope.launch(Dispatchers.IO) {
-            if (userRequestedRefresh){
-                _isRefreshing.update { true }
-                appPreferences.albumsOnDevice = artistRepository.addArtists(userRequestedRefresh = true)
-                _isRefreshing.update { false }
-            } else {
-                artists.collectLatest {
-                    if (it.isEmpty()) {
-                        _isRefreshing.update { true }
-                        appPreferences.albumsOnDevice = artistRepository.addArtists()
-                        _isRefreshing.update { false }
-                    }
-                }
-            }
+    private val repository: ArtistRepository
+) : BaseViewModel<ArtistUIState>() {
+    private val artistUIStateFlow: MutableStateFlow<ArtistUIState> = MutableStateFlow(ArtistUIState())
+
+    suspend fun fetchArtistData(artistMbid: String?) {
+        val artistData = repository.fetchArtistData(artistMbid).data
+        val artistReviews = repository.fetchArtistReviews(artistMbid).data
+        val artistWikiExtract = repository.fetchArtistWikiExtract(artistMbid).data
+        val appearsOn = artistData?.releaseGroups?.filter { releaseGroup ->
+            releaseGroup?.artists?.get(0)?.artistMbid != artistMbid
         }
+        val artistUiState = ArtistUIState(
+            isLoading = false,
+            name = artistData?.artist?.name,
+            coverArt = artistData?.coverArt,
+            beginYear = artistData?.artist?.beginYear,
+            area = artistData?.artist?.area,
+            totalPlays = artistData?.listeningStats?.totalListenCount,
+            totalListeners = artistData?.listeningStats?.totalUserCount,
+            wikiExtract = artistWikiExtract,
+            tags = artistData?.artist?.tag,
+            links = artistData?.artist?.rels,
+            popularTracks = artistData?.popularRecordings,
+            albums = artistData?.releaseGroups,
+            appearsOn = appearsOn,
+            similarArtists = artistData?.similarArtists,
+            topListeners = artistData?.listeningStats?.listeners,
+            reviews = artistReviews
+        )
+        artistUIStateFlow.emit(artistUiState)
     }
-    
-    fun getArtistByID(artistID: String): Flow<Artist> {
-        return artistRepository.getArtist(artistID)
-    }
-    
-    fun getAllSongsOfArtist(artist: Artist): Flow<List<Song>> {
-        return flowOf(artist.songs)
-    }
-    
-    fun getAllAlbumsOfArtist(artist: Artist): Flow<List<Album>> {
-        return flowOf(artist.albums)
+
+
+    override val uiState: StateFlow<ArtistUIState> = createUiStateFlow()
+
+    override fun createUiStateFlow(): StateFlow<ArtistUIState> {
+        return combine(
+            artistUIStateFlow
+        ) {
+            it[0]
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            ArtistUIState()
+        )
     }
 }

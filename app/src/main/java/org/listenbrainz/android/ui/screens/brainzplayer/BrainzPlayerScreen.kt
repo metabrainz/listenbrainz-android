@@ -39,8 +39,8 @@ import org.listenbrainz.android.ui.screens.brainzplayer.overview.RecentPlaysScre
 import org.listenbrainz.android.ui.screens.brainzplayer.overview.SongsOverviewScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
-import org.listenbrainz.android.viewmodel.AlbumViewModel
-import org.listenbrainz.android.viewmodel.ArtistViewModel
+import org.listenbrainz.android.viewmodel.BPAlbumViewModel
+import org.listenbrainz.android.viewmodel.BPArtistViewModel
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import org.listenbrainz.android.viewmodel.SongViewModel
@@ -49,16 +49,16 @@ import org.listenbrainz.android.viewmodel.SongViewModel
 @Composable
 fun BrainzPlayerScreen() {
     // View models
-    val albumViewModel = hiltViewModel<AlbumViewModel>()
+    val BPAlbumViewModel = hiltViewModel<BPAlbumViewModel>()
     val songsViewModel = hiltViewModel<SongViewModel>()
-    val artistViewModel = hiltViewModel<ArtistViewModel>()
+    val BPArtistViewModel = hiltViewModel<BPArtistViewModel>()
     val playlistViewModel = hiltViewModel<PlaylistViewModel>()
     val brainzPlayerViewModel = hiltViewModel<BrainzPlayerViewModel>()
     
     // Data streams
-    val albums = albumViewModel.albums.collectAsState(initial = listOf()).value     // TODO: Introduce initial values to avoid flicker.
+    val albums = BPAlbumViewModel.albums.collectAsState(initial = listOf()).value     // TODO: Introduce initial values to avoid flicker.
     val songs = songsViewModel.songs.collectAsState(initial = listOf()).value
-    val artists = artistViewModel.artists.collectAsState(initial = listOf()).value
+    val artists = BPArtistViewModel.artists.collectAsState(initial = listOf()).value
     val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
     val songsPlayedToday = brainzPlayerViewModel.songsPlayedToday.collectAsState(initial = listOf()).value
     val recentlyPlayed = brainzPlayerViewModel.recentlyPlayed.collectAsState(initial = mutableListOf()).value
@@ -68,7 +68,7 @@ fun BrainzPlayerScreen() {
     val albumSongsMap : MutableMap<Album,List<Song>> = mutableMapOf()
 
     for(i in 1..albums.size){
-        val albumSongs : List<Song> = albumViewModel.getAllSongsOfAlbum(albums[i-1].albumId).collectAsState(
+        val albumSongs : List<Song> = BPAlbumViewModel.getAllSongsOfAlbum(albums[i-1].albumId).collectAsState(
             initial = listOf()
         ).value
         albumSongsMap[albums[i-1]] = albumSongs

@@ -3,6 +3,7 @@ package org.listenbrainz.android.ui.navigation
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -12,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import org.listenbrainz.android.model.AppNavigationItem
+import org.listenbrainz.android.ui.screens.artist.ArtistScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen
 import org.listenbrainz.android.ui.screens.explore.ExploreScreen
 import org.listenbrainz.android.ui.screens.feed.FeedScreen
@@ -25,6 +27,8 @@ fun AppNavigation(
     onScrollToTop: (suspend () -> Unit) -> Unit,
     snackbarState : SnackbarHostState,
     goToUserProfile: () -> Unit,
+    goToArtistPage: (String) -> Unit,
+    goToUserPage: (String?) -> Unit,
 ) {
     NavHost(
         navController = navController as NavHostController,
@@ -44,7 +48,19 @@ fun AppNavigation(
                     // Restore previous state
                     restoreState = true
                 }
-            } })
+            } }, goToArtistPage = {
+                    mbid ->
+                navController.navigate("${AppNavigationItem.Artist.route}/$mbid"){
+                    // Avoid building large backstack
+                    popUpTo(AppNavigationItem.Feed.route){
+                        saveState = true
+                    }
+                    // Avoid copies
+                    launchSingleTop = true
+                    // Restore previous state
+                    restoreState = true
+                }
+            })
         }
         composable(route = AppNavigationItem.BrainzPlayer.route){
             BrainzPlayerScreen()
@@ -64,11 +80,40 @@ fun AppNavigation(
                 scrollRequestState = scrollRequestState,
                 username = username,
                 snackbarState = snackbarState,
-                goToUserProfile = goToUserProfile
+                goToUserProfile = goToUserProfile,
+                goToArtistPage = goToArtistPage,
+                goToUserPage = goToUserPage
             )
         }
         composable(route = AppNavigationItem.Settings.route){
             SettingsScreen()
+        }
+        composable(route = "${AppNavigationItem.Artist.route}/{mbid}", arguments = listOf(
+            navArgument("mbid"){
+                type = NavType.StringType
+            }
+        )){
+            val artistMbid = it.arguments?.getString("mbid")
+            if(artistMbid == null){
+                LaunchedEffect(Unit) {
+                    snackbarState.showSnackbar("The artist page can't be loaded")
+                }
+            }
+            else{
+                ArtistScreen(artistMbid = artistMbid, goToArtistPage = goToArtistPage, snackBarState = snackbarState, goToUserPage = {username : String? ->
+                    if(username != null) {
+                        navController.navigate("${AppNavigationItem.Profile.route}/$username"){
+                            // Avoid building large backstack
+                            popUpTo(AppNavigationItem.Feed.route){
+                                saveState = true
+                            }
+                            // Avoid copies
+                            launchSingleTop = true
+                            // Restore previous state
+                            restoreState = true
+                        }
+                    } })
+            }
         }
     }
 }

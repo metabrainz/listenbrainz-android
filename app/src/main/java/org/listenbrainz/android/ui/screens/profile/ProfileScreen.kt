@@ -47,7 +47,9 @@ fun ProfileScreen(
     onScrollToTop: (suspend () -> Unit) -> Unit,
     username: String?,
     snackbarState: SnackbarHostState,
-    goToUserProfile: () -> Unit
+    goToUserProfile: () -> Unit,
+    goToArtistPage: (String) -> Unit,
+    goToUserPage: (String?) -> Unit,
 ) {
     val scrollState = rememberScrollState()
     val uiState = viewModel.uiState.collectAsState()
@@ -76,9 +78,10 @@ fun ProfileScreen(
                 onUnfollowClick = {
                     viewModel.unfollowUser(it)
                 },
-                goToUserProfile = goToUserProfile
+                goToUserProfile = goToUserProfile,
+                goToArtistPage = goToArtistPage,
+                goToUserPage = goToUserPage
             )
-
         }
         else -> {
             Column(

@@ -1,0 +1,760 @@
+package org.listenbrainz.android.ui.screens.artist
+
+import ArtistLinksEnum
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SettingsVoice
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ElevatedSuggestionChip
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SuggestionChipDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.gowtham.ratingbar.RatingBar
+import com.gowtham.ratingbar.RatingBarStyle
+import org.listenbrainz.android.R
+import org.listenbrainz.android.model.Listen
+import org.listenbrainz.android.model.MbidMapping
+import org.listenbrainz.android.model.Metadata
+import org.listenbrainz.android.model.TrackMetadata
+import org.listenbrainz.android.model.artist.ReleaseGroup
+import org.listenbrainz.android.model.feed.FeedListenArtist
+import org.listenbrainz.android.model.feed.ReviewEntityType
+import org.listenbrainz.android.ui.components.ErrorBar
+import org.listenbrainz.android.ui.components.ListenCardSmall
+import org.listenbrainz.android.ui.components.LoadingAnimation
+import org.listenbrainz.android.ui.components.SuccessBar
+import org.listenbrainz.android.ui.components.dialogs.Dialog
+import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
+import org.listenbrainz.android.ui.screens.feed.FeedUiState
+import org.listenbrainz.android.ui.screens.profile.listens.Dialogs
+import org.listenbrainz.android.ui.screens.profile.listens.ListenDialogBundleKeys
+import org.listenbrainz.android.ui.screens.profile.listens.LoadMoreButton
+import org.listenbrainz.android.ui.screens.profile.stats.ArtistCard
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.ui.theme.app_bg_light
+import org.listenbrainz.android.ui.theme.app_bg_mid
+import org.listenbrainz.android.ui.theme.lb_purple
+import org.listenbrainz.android.ui.theme.lb_purple_night
+import org.listenbrainz.android.ui.theme.new_app_bg_light
+import org.listenbrainz.android.util.Constants.MB_BASE_URL
+import org.listenbrainz.android.util.Utils
+import org.listenbrainz.android.viewmodel.ArtistViewModel
+import org.listenbrainz.android.viewmodel.FeedViewModel
+import org.listenbrainz.android.viewmodel.SocialViewModel
+import kotlin.math.round
+
+
+@Composable
+fun ArtistScreen(
+    artistMbid: String,
+    viewModel: ArtistViewModel = hiltViewModel(),
+    socialViewModel: SocialViewModel = hiltViewModel(),
+    feedViewModel: FeedViewModel = hiltViewModel(),
+    goToArtistPage: (String) -> Unit,
+    goToUserPage: (String?) -> Unit,
+    snackBarState: SnackbarHostState
+) {
+    LaunchedEffect(Unit) {
+        viewModel.fetchArtistData(artistMbid)
+    }
+    val uiState by viewModel.uiState.collectAsState()
+    ArtistScreen(artistMbid = artistMbid,uiState = uiState, goToArtistPage = goToArtistPage, goToUserPage = goToUserPage,
+        socialViewModel = socialViewModel, feedViewModel = feedViewModel, snackBarState = snackBarState)
+}
+
+@Composable
+private fun ArtistScreen(
+    artistMbid: String,
+    uiState: ArtistUIState,
+    goToArtistPage: (String) -> Unit,
+    goToUserPage: (String?) -> Unit,
+    socialViewModel: SocialViewModel,
+    feedViewModel: FeedViewModel,
+    snackBarState: SnackbarHostState
+) {
+    Box(modifier = Modifier.fillMaxSize()){
+        AnimatedVisibility(
+            visible = uiState.isLoading,
+            modifier = Modifier.align(Alignment.Center),
+            enter = fadeIn(initialAlpha = 0.4f),
+            exit = fadeOut(animationSpec = tween(durationMillis = 250))
+        ) {
+            LoadingAnimation()
+        }
+        AnimatedVisibility(visible = !uiState.isLoading) {
+            ListenBrainzTheme {
+                LazyColumn {
+                    item {
+                        ArtistBioCard(uiState = uiState)
+                    }
+                    item { 
+                        Links(uiState = uiState, artistMbid = artistMbid)
+                    }
+                    item {
+                        PopularTracks(uiState = uiState, goToArtistPage = goToArtistPage)
+                    }
+                    item {
+                        AlbumsCard(header = "Albums", albumsList = uiState.albums)
+                    }
+                    item {
+                        AlbumsCard(header = "Appears On", albumsList = uiState.appearsOn)
+                    }
+                    item {
+                        SimilarArtists(uiState = uiState, goToArtistPage = goToArtistPage)
+                    }
+                    item {
+                        TopListenersCard(uiState = uiState, goToUserPage = goToUserPage)
+                    }
+                    item {
+                        ReviewsCard(uiState = uiState, goToUserPage = goToUserPage,
+                            socialViewModel = socialViewModel, feedViewModel = feedViewModel, artistMbid = artistMbid,
+                            snackBarState = snackBarState, onMessageShown = {socialViewModel.clearMsgFlow()}, onErrorShown = {socialViewModel.clearErrorFlow()})
+                    }
+                }
+            }
+
+        }
+    }
+}
+
+@Composable
+private fun ArtistBioCard(
+    uiState: ArtistUIState
+) {
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .clip(shape = RoundedCornerShape(bottomStart = 18.dp, bottomEnd = 18.dp))
+        .background(ListenBrainzTheme.colorScheme.artistBioColor)
+        .padding(23.dp)){
+        Column {
+            Row (horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                Text(uiState.name ?: "", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 25.sp))
+                LbRadioButton {
+
+                }
+            }
+            Row {
+                if (uiState.coverArt != null) {
+                    SvgWithWebView(
+                        svgContent = uiState.coverArt,
+                        width = 200.dp,
+                        height = 200.dp
+                    )
+                }
+                Spacer(modifier = Modifier.width(20.dp))
+                Column {
+                    Text(uiState.beginYear.toString(), color = app_bg_mid, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
+                    Text(uiState.area.toString(), color = app_bg_mid, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
+                    Spacer(modifier = Modifier.height(10.dp))
+                    HorizontalDivider(color = ListenBrainzTheme.colorScheme.dividerColor, thickness = 3.dp, modifier = Modifier.padding(end = 50.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Row {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.listens_icon),
+                            contentDescription = null,
+                            tint = app_bg_mid
+                        )
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Text(formatNumber(uiState.totalPlays ?: 0) + " plays", color = app_bg_mid, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
+                    }
+                    Row {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.listeners_icon),
+                            contentDescription = null,
+                            tint = app_bg_mid
+                        )
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Text(formatNumber(uiState.totalListeners ?: 0) + " listeners", color = app_bg_mid, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
+                    }
+                }
+            }
+            if(uiState.wikiExtract?.wikipediaExtract?.content != null){
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(removeHtmlTags(uiState.wikiExtract.wikipediaExtract.content).trim() , maxLines = 4, color = app_bg_mid, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp), overflow = TextOverflow.Ellipsis)
+                if(uiState.wikiExtract.wikipediaExtract.url != null){
+                    val uriHandlder = LocalUriHandler.current
+                    Text("read more", color = ListenBrainzTheme.colorScheme.followerChipSelected, modifier = Modifier.clickable {
+                        uriHandlder.openUri(uiState.wikiExtract.wikipediaExtract.url)
+                    })
+                }
+            }
+            Row (modifier = Modifier
+                .horizontalScroll(rememberScrollState())
+                .padding(top = 10.dp)) {
+                uiState.tags?.artist?.map {
+                    if(it.tag != null){
+                        Box (modifier = Modifier
+                            .clip(
+                                RoundedCornerShape((16.dp))
+                            )
+                            .background(ListenBrainzTheme.colorScheme.followerCardColor)
+                            .padding(10.dp)) {
+                            Row {
+                                Text(it.tag, color= ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text((it.count ?: 0).toString(), color= ListenBrainzTheme.colorScheme.textColor ,style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(10.dp))
+                    }
+
+                }
+            }
+
+        }
+    }
+}
+
+class LinkCardData (val iconResId: ImageVector, val label: String, val url: String) {}
+
+@Composable
+private fun Links(
+    artistMbid: String,
+    uiState: ArtistUIState
+) {
+    //TODO: Move this logic to vm and get map to ui state
+    val allLinkCards: MutableList<LinkCardData> = mutableListOf()
+    val mainLinkCards: MutableList<LinkCardData> = mutableListOf()
+    val streamingLinkCards: MutableList<LinkCardData> = mutableListOf()
+    val socialMediaLinkCards: MutableList<LinkCardData> = mutableListOf()
+    val lyricsLinkCards: MutableList<LinkCardData> = mutableListOf()
+    val links = uiState.links
+    if(links?.wikidata != null){
+        val wikidata = LinkCardData(ImageVector.vectorResource(id = R.drawable.wiki_data), "Wikidata", links.wikidata)
+        allLinkCards.add(wikidata)
+        mainLinkCards.add(wikidata)
+    }
+    if(links?.lyrics != null){
+        val lyrics = LinkCardData(Icons.Default.SettingsVoice, "Lyrics", links.lyrics)
+        allLinkCards.add(lyrics)
+        lyricsLinkCards.add(lyrics)
+    }
+    if(links?.officialHomePage != null){
+        val homePage = LinkCardData(ImageVector.vectorResource(id = R.drawable.home_icon), "Homepage", links.officialHomePage)
+        allLinkCards.add(homePage)
+        mainLinkCards.add(homePage)
+    }
+    if(links?.purchaseForDownload != null){
+        val purchase = LinkCardData(ImageVector.vectorResource(id = R.drawable.mail_order), "Purchase for Download", links.purchaseForDownload)
+        allLinkCards.add(purchase)
+        streamingLinkCards.add(purchase)
+    }
+    if(links?.purchaseForMailOrder != null){
+        val mailOrder = LinkCardData(ImageVector.vectorResource(id = R.drawable.mail_order), "Purchase for mail order", links.purchaseForMailOrder)
+        allLinkCards.add(mailOrder)
+        streamingLinkCards.add(mailOrder)
+    }
+    mainLinkCards.add(LinkCardData(ImageVector.vectorResource(id = R.drawable.musicbrainz_logo), "Edit", MB_BASE_URL + "artist/${artistMbid}"))
+    val linksMap: Map<ArtistLinksEnum, List<LinkCardData>> = mapOf(
+        ArtistLinksEnum.ALL to allLinkCards,
+        ArtistLinksEnum.MAIN to mainLinkCards,
+        ArtistLinksEnum.LYRICS to lyricsLinkCards,
+        ArtistLinksEnum.STREAMING to streamingLinkCards,
+        ArtistLinksEnum.SOCIAL_MEDIA to socialMediaLinkCards
+    )
+    val linkOptionSelectionState: MutableState<ArtistLinksEnum> = remember {
+        mutableStateOf(ArtistLinksEnum.MAIN)
+    }
+    Box(modifier = Modifier
+        .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
+        .fillMaxWidth()
+        .padding(23.dp)){
+        Column {
+            Text("Links", color= ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            Row (modifier = Modifier
+                .horizontalScroll(rememberScrollState())
+                .padding(top = 10.dp)) {
+                repeat(5) {
+                    position ->
+                    val reqdState = when(position){
+                        0 -> linkOptionSelectionState.value == ArtistLinksEnum.ALL
+                        1 -> linkOptionSelectionState.value == ArtistLinksEnum.MAIN
+                        2 -> linkOptionSelectionState.value == ArtistLinksEnum.STREAMING
+                        3 -> linkOptionSelectionState.value == ArtistLinksEnum.SOCIAL_MEDIA
+                        4 -> linkOptionSelectionState.value == ArtistLinksEnum.LYRICS
+                        else -> false
+                    }
+                    ElevatedSuggestionChip(
+                        onClick = {
+                            when(position){
+                                0 -> linkOptionSelectionState.value = ArtistLinksEnum.ALL
+                                1 -> linkOptionSelectionState.value = ArtistLinksEnum.MAIN
+                                2 -> linkOptionSelectionState.value = ArtistLinksEnum.STREAMING
+                                3 -> linkOptionSelectionState.value = ArtistLinksEnum.SOCIAL_MEDIA
+                                4 -> linkOptionSelectionState.value = ArtistLinksEnum.LYRICS
+                            }
+                        },
+                        label = {
+                            val label = when(position){
+                                0 -> ArtistLinksEnum.ALL.label
+                                1 -> ArtistLinksEnum.MAIN.label
+                                2 -> ArtistLinksEnum.STREAMING.label
+                                3 -> ArtistLinksEnum.SOCIAL_MEDIA.label
+                                4 -> ArtistLinksEnum.LYRICS.label
+                                else -> ""
+                            }
+                            Text(label, color = when(reqdState){
+                                true -> ListenBrainzTheme.colorScheme.followerChipUnselected
+                                false -> ListenBrainzTheme.colorScheme.followerChipSelected
+                            }, style = ListenBrainzTheme.textStyles.chips)
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        border = when(reqdState){
+                            true -> null
+                            false -> BorderStroke(1.dp, lb_purple_night)
+                        },
+                        colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
+                            if (reqdState) {
+                                ListenBrainzTheme.colorScheme.followerChipSelected
+                            } else {
+                                ListenBrainzTheme.colorScheme.followerChipUnselected
+                            }
+                        ),
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                }
+
+            }
+            Column (modifier = Modifier.padding(top = 20.dp)) {
+                val items = linksMap[linkOptionSelectionState.value]
+                items?.chunked(3)?.forEach { rowItems ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        rowItems.forEach { item ->
+                            LinkCard(
+                                icon = item.iconResId,
+                                label = item.label,
+                                url = item.url,
+                            )
+                        }
+                        repeat(3 - rowItems.size) {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(5.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PopularTracks(
+    uiState: ArtistUIState,
+    goToArtistPage: (String) -> Unit,
+) {
+    val popularTracksCollapsibleState: MutableState<Boolean> = remember {
+        mutableStateOf(true)
+    }
+    val popularTracks = when (popularTracksCollapsibleState.value) {
+        true -> uiState.popularTracks?.take(5) ?: listOf()
+        false -> uiState.popularTracks ?: listOf()
+    }
+
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
+        .padding(start = 23.dp, end = 23.dp, top = 23.dp)){
+        Column {
+            Text("Popular Tracks", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            Spacer(modifier = Modifier.height(20.dp))
+            popularTracks.map {
+                ListenCardSmall(trackName = it?.recordingName ?: "", artists = it?.artists ?: listOf(
+                    FeedListenArtist(it?.artistName ?: "" , null, "")
+                ), coverArtUrl = Utils.getCoverArtUrl(it?.caaReleaseMbid, it?.caaId), goToArtistPage = goToArtistPage) {
+
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+
+            }
+            if((uiState.popularTracks?.size ?: 0) > 5){
+                Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                    LoadMoreButton(
+                        state = popularTracksCollapsibleState.value,
+                        onClick = {
+                            popularTracksCollapsibleState.value = !popularTracksCollapsibleState.value
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(60.dp))
+                }
+
+            }
+        }
+    }
+}
+
+@Composable
+private fun AlbumsCard(
+    header: String,
+    albumsList: List<ReleaseGroup?>?
+) {
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
+        .padding(23.dp)){
+        Column {
+            Text(header, color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            Row (modifier = Modifier
+                .horizontalScroll(rememberScrollState())
+                .padding(top = 20.dp)) {
+                albumsList?.map {
+                    Box (modifier = Modifier.width(150.dp)) {
+                        Column {
+                            val coverArt = Utils.getCoverArtUrl(it?.caaReleaseMbid, it?.caaId, 500)
+                            AsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(coverArt)
+                                    .build(),
+                                fallback = painterResource(id = R.drawable.ic_coverartarchive_logo_no_text),
+                                modifier = Modifier.size(ListenBrainzTheme.sizes.listenCardHeight * 3f),
+                                contentScale = ContentScale.Fit,
+                                placeholder = painterResource(id = R.drawable.ic_coverartarchive_logo_no_text),
+                                filterQuality = FilterQuality.Low,
+                                contentDescription = "Album Cover Art"
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(it?.name ?: "", color = ListenBrainzTheme.colorScheme.followerCardTextColor,
+                                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                                maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(40.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SimilarArtists(
+    uiState: ArtistUIState,
+    goToArtistPage: (String) -> Unit
+) {
+    val similarArtistsCollapisbleState: MutableState<Boolean> = remember {
+        mutableStateOf(true)
+    }
+    val similarArtists = when(similarArtistsCollapisbleState.value){
+        true -> uiState.similarArtists?.take(5) ?: listOf()
+        false -> uiState.similarArtists ?: listOf()
+    }
+
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
+        .padding(23.dp)){
+        Column {
+            Text("Similar Artists", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            Spacer(modifier = Modifier.height(20.dp))
+            similarArtists.map {
+                ArtistCard(artistName = it?.name ?: "") {
+                    if(it?.artistMbid != null)
+                    goToArtistPage(it.artistMbid)
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+            if((uiState.similarArtists?.size ?: 0) > 5){
+                Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                    LoadMoreButton(state = similarArtistsCollapisbleState.value) {
+                        similarArtistsCollapisbleState.value = !similarArtistsCollapisbleState.value
+                    }
+                }
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun TopListenersCard(
+    uiState: ArtistUIState,
+    goToUserPage: (String?) -> Unit,
+) {
+    val topListenersCollapsibleState: MutableState<Boolean> = remember {
+        mutableStateOf(true)
+    }
+    val topListeners = when(topListenersCollapsibleState.value){
+        true -> uiState.topListeners?.take(5) ?: listOf()
+        false -> uiState.topListeners ?: listOf()
+    }
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
+        .padding(23.dp)) {
+        Column {
+            Text("Top Listeners", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            Spacer(modifier = Modifier.height(20.dp))
+            topListeners.map { 
+                ArtistCard(artistName = it?.userName ?: "", listenCountLabel = formatNumber(it?.listenCount ?: 0)) {
+                    goToUserPage(it?.userName)
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+            if((uiState.topListeners?.size ?: 0) > 5){
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                    LoadMoreButton(state = topListenersCollapsibleState.value) {
+                        topListenersCollapsibleState.value = !topListenersCollapsibleState.value
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ReviewsCard(
+    uiState: ArtistUIState,
+    feedViewModel: FeedViewModel,
+    socialViewModel: SocialViewModel,
+    snackBarState: SnackbarHostState,
+    goToUserPage: (String?) -> Unit,
+    artistMbid: String,
+    onErrorShown : () -> Unit,
+    onMessageShown : () -> Unit,
+) {
+    val reviews = uiState.reviews?.reviews?.take(2) ?: listOf()
+    val dialogsState = rememberDialogsState()
+    val socialUiState by socialViewModel.uiState.collectAsState()
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
+        .padding(23.dp)) {
+        Column {
+            Text("Reviews", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            if(reviews.isEmpty()){
+                Spacer(modifier = Modifier.height(10.dp))
+                Text("Be the first one to review this artist on CritiqueBrainz", color = app_bg_mid, style = MaterialTheme.typography.bodyMedium)
+            }
+            else{
+                Spacer(modifier = Modifier.height(10.dp))
+                reviews.map {
+                    Box {
+                        Column {
+                            Row {
+                                Text("Rating: ", color = app_bg_light)
+                                RatingBar(
+                                    modifier = Modifier.padding(start = 2.dp),
+                                    value = (it?.rating ?: 0).toFloat(),
+                                    size = 19.dp,
+                                    spaceBetween = 2.dp,
+                                    style = RatingBarStyle.Default,
+                                    onValueChange = {},
+                                    onRatingChanged = {}
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(it?.text ?: "", color = app_bg_mid, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodyMedium)
+                            Spacer(modifier = Modifier.height(5.dp))
+                            Text("By ${it?.user?.musicbrainzUsername ?: ""}", color = lb_purple_night, modifier = Modifier.clickable {
+                                goToUserPage(it?.user?.musicbrainzUsername)
+                            })
+                            Spacer(modifier = Modifier.height(10.dp))
+                        }
+                    }
+                }
+            }
+            TextButton(onClick = {
+                dialogsState.activateDialog(Dialog.REVIEW , ListenDialogBundleKeys.listenDialogBundle(0, 0))
+            }, modifier = Modifier.background(lb_purple)) {
+                Row (verticalAlignment = Alignment.CenterVertically) {
+                    Text("Review", color = new_app_bg_light)
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Icon(imageVector = ImageVector.vectorResource(id = R.drawable.ic_redirect), tint = new_app_bg_light, contentDescription = null, modifier = Modifier.size(12.dp))
+                }
+            }
+        }
+    }
+
+    ErrorBar(error = socialUiState.error, onErrorShown = onErrorShown )
+    SuccessBar(resId = socialUiState.successMsgId, onMessageShown = onMessageShown, snackbarState = snackBarState)
+
+    Dialogs(
+        deactivateDialog = {
+            dialogsState.deactivateDialog()
+        },
+        currentDialog = dialogsState.currentDialog,
+        currentIndex = dialogsState.metadata?.getInt(ListenDialogBundleKeys.EVENT_INDEX.name),
+        listens = listOf(Listen(insertedAt = "", recordingMsid = "", userName = "", trackMetadata = TrackMetadata(additionalInfo = null, mbidMapping = MbidMapping(artistMbids = listOf(artistMbid), recordingName = ""), artistName = uiState.name ?: "", trackName = "", releaseName = null))),
+        onPin = {meatadata: Metadata,blurbContent: String ->},
+        searchUsers = { query ->  },
+        feedUiState = FeedUiState(),
+        isCritiqueBrainzLinked = {feedViewModel.isCritiqueBrainzLinked()},
+        onReview = {type, blurbContent, rating, locale, metadata -> socialViewModel.review(metadata , type , blurbContent , rating , locale)},
+        onPersonallyRecommend = {metadata, users, blurbContent -> },
+        snackbarState = snackBarState,
+        socialUiState = socialUiState,
+        reviewEntityType = ReviewEntityType.ARTIST
+    )
+}
+
+@Composable
+private fun LinkCard(
+    icon: ImageVector,
+    label: String,
+    url: String,
+) {
+    val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(color = ListenBrainzTheme.colorScheme.followerCardColor)
+            .padding(top = 10.dp, bottom = 10.dp, start = 16.dp, end = 16.dp)
+            .clickable {
+                try {
+                    uriHandler.openUri(url)
+                } catch (err: Error) {
+                    Toast
+                        .makeText(context, "Some unknown error occurred", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            }
+    ) {
+        Row (verticalAlignment = Alignment.CenterVertically) {
+            Icon(imageVector = icon, contentDescription = null, tint = when(icon){
+                ImageVector.vectorResource(id = R.drawable.musicbrainz_logo) -> Color.Unspecified
+                    else -> ListenBrainzTheme.colorScheme.followerCardTextColor
+            })
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(label, color = ListenBrainzTheme.colorScheme.followerCardTextColor, style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+}
+
+
+@Composable
+private fun LbRadioButton(
+    onClick: () -> Unit
+) {
+    OutlinedButton(onClick = onClick, colors = ButtonColors(containerColor = Color(0xFF353070), contentColor = Color.White, disabledContentColor = Color(0xFF353070), disabledContainerColor = Color(0xFF353070))) {
+        Row (horizontalArrangement = Arrangement.SpaceBetween) {
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.lb_radio_play_button),
+                contentDescription = ""
+            )
+            Spacer(modifier = Modifier.width(5.dp))
+            Text("Radio")
+        }
+    }
+}
+
+@Composable
+fun SvgWithWebView(svgContent: String, width: Dp, height: Dp) {
+    val context = LocalContext.current
+    val webView = remember { WebView(context) }
+
+    LaunchedEffect(svgContent) {
+        webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                // Optionally, handle size adjustments or interactions if needed
+            }
+        }
+
+        val htmlContent = """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body {
+                        margin: 0;
+                        padding: 0;
+                        overflow: auto; /* Ensure scrollbars appear if necessary */
+                    }
+                    svg {
+                        width: 100%;
+                        height: auto; /* Adjust to fit content */
+                    }
+                </style>
+            </head>
+            <body>
+                <div id="svg-container">
+                    $svgContent
+                </div>
+            </body>
+            </html>
+        """
+
+        webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
+    }
+
+    AndroidView(
+        factory = { webView },
+        update = {view ->},
+        modifier = Modifier
+            .width(width)
+            .height(height)
+    )
+}
+
+fun removeHtmlTags(input: String): String {
+    // Regular expression pattern to match HTML tags
+    val regex = "<[^>]*>".toRegex()
+    // Replace all matches of the pattern with an empty string
+    return input.replace(regex, "")
+}
+
+fun formatNumber(input: Int): String {
+    return when {
+        input >= 1_00_000 -> "${round(input/1_00_000f)}L"
+        input >= 1_000 -> "${round(input/1_000f)}K"
+        else -> input.toString()
+    }
+}

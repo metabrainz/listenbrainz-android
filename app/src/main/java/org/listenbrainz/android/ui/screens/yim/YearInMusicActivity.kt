@@ -33,7 +33,7 @@ class YearInMusicActivity : ComponentActivity() {
                 Toast.makeText(this, "Please Login to access your Year in Music!", Toast.LENGTH_LONG).show()
                 finish()
             }
-            YimNavigation(yimViewModel = yimViewModel, networkConnectivityViewModel = networkConnectivityViewModel, activity = this)
+            YimNavigation(yimViewModel = yimViewModel, networkConnectivityViewModel = networkConnectivityViewModel, activity = this, goToUserPage = {})
         }
     }
 }

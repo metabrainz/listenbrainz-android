@@ -71,6 +71,7 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventType
+import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
@@ -91,7 +92,8 @@ fun FeedScreen(
     socialViewModel: SocialViewModel = hiltViewModel(),
     scrollToTopState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
-    goToUserPage: (String?) -> Unit
+    goToUserPage: (String?) -> Unit,
+    goToArtistPage: (String) -> Unit
 ) {
     
     val uiState by viewModel.uiState.collectAsState()
@@ -123,7 +125,8 @@ fun FeedScreen(
         onPlay = { event ->
             viewModel.play(event)
         },
-        goToUserPage =  goToUserPage
+        goToUserPage =  goToUserPage,
+        goToArtistPage = goToArtistPage
     )
 }
 
@@ -143,7 +146,8 @@ fun FeedScreen(
     searchFollower: (String) -> Unit,
     isCritiqueBrainzLinked: suspend () -> Boolean?,
     onPlay: (event: FeedEvent) -> Unit,
-    goToUserPage: (String?) -> Unit
+    goToUserPage: (String?) -> Unit,
+    goToArtistPage: (String) -> Unit
 ) {
     val myFeedPagingData = uiState.myFeedState.eventList.collectAsLazyPagingItems()
     val myFeedListState = rememberLazyListState()
@@ -245,7 +249,8 @@ fun FeedScreen(
                         )
                     },
                     onPlay = onPlay,
-                    goToUserPage = goToUserPage
+                    goToUserPage = goToUserPage,
+                    goToArtistPage = goToArtistPage
                 )
             
                 1 -> FollowListens(
@@ -270,7 +275,8 @@ fun FeedScreen(
                             FeedDialogBundleKeys.feedDialogBundle(1, index)
                         )
                     },
-                    onPlay = onPlay
+                    onPlay = onPlay,
+                    goToArtistPage = goToArtistPage
                 )
             
                 2 -> SimilarListens(
@@ -295,7 +301,8 @@ fun FeedScreen(
                             FeedDialogBundleKeys.feedDialogBundle(2, index)
                         )
                     },
-                    onPlay = onPlay
+                    onPlay = onPlay,
+                    goToArtistPage = goToArtistPage
                 )
             }
         }
@@ -410,6 +417,7 @@ private fun MyFeed(
     pin: (index: Int) -> Unit,
     onPlay: (FeedEvent) -> Unit,
     goToUserPage: (String?) -> Unit,
+    goToArtistPage: (String) -> Unit,
     uriHandler: UriHandler = LocalUriHandler.current
 ) {
     // Since, at most one drop down will be active at a time, then we only need to maintain one state variable.
@@ -478,7 +486,8 @@ private fun MyFeed(
                             onPlay(event)
                             dropdownItemIndex.value = null
                         },
-                        goToUserPage = goToUserPage
+                        goToUserPage = goToUserPage,
+                        goToArtistPage = goToArtistPage
                     )
                     
                 }
@@ -503,7 +512,8 @@ fun FollowListens(
     review: (index: Int) -> Unit,
     pin: (index: Int) -> Unit,
     onPlay: (FeedEvent) -> Unit,
-    uriHandler: UriHandler = LocalUriHandler.current
+    uriHandler: UriHandler = LocalUriHandler.current,
+    goToArtistPage: (String) -> Unit,
 ) {
     // Since, at most one drop down will be active at a time, then we only need to maintain one state variable.
     val dropdownItemIndex: MutableState<Int?> = rememberSaveable {
@@ -527,7 +537,9 @@ fun FollowListens(
                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
                     trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
-                    artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
+                    artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(
+                        FeedListenArtist(event.metadata.trackMetadata?.artistName ?: "" , null, "")
+                    ),
                     coverArtUrl =
                         Utils.getCoverArtUrl(
                             caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
@@ -570,7 +582,9 @@ fun FollowListens(
                         Column(modifier, horizontalAlignment = Alignment.End) {
                             TitleAndSubtitle(
                                 title = event.username ?: "Unknown",
-                                titleColor = ListenBrainzTheme.colorScheme.lbSignature
+                                artists = listOf(),
+                                titleColor = ListenBrainzTheme.colorScheme.lbSignature,
+                                goToArtistPage = goToArtistPage
                             )
                             Date(
                                 event = event,
@@ -578,7 +592,8 @@ fun FollowListens(
                                 eventType = eventType
                             )
                         }
-                    }
+                    },
+                    goToArtistPage = goToArtistPage
                 ) {
                     onPlay(event)
                 }
@@ -603,7 +618,8 @@ fun SimilarListens(
     review: (index: Int) -> Unit,
     pin: (index: Int) -> Unit,
     onPlay: (FeedEvent) -> Unit,
-    uriHandler: UriHandler = LocalUriHandler.current
+    uriHandler: UriHandler = LocalUriHandler.current,
+    goToArtistPage: (String) -> Unit
 ) {
     // Since, at most one drop down will be active at a time, then we only need to maintain one state variable.
     val dropdownItemIndex: MutableState<Int?> = rememberSaveable {
@@ -627,7 +643,7 @@ fun SimilarListens(
                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
                     trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
-                    artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
+                    artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(FeedListenArtist(event.metadata.trackMetadata?.artistName ?: "" , null, "")),
                     coverArtUrl =
                         Utils.getCoverArtUrl(
                             caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
@@ -680,7 +696,9 @@ fun SimilarListens(
                         Column(modifier, horizontalAlignment = Alignment.End) {
                             TitleAndSubtitle(
                                 title = event.username ?: "Unknown",
-                                titleColor = ListenBrainzTheme.colorScheme.lbSignature
+                                artists = listOf(),
+                                titleColor = ListenBrainzTheme.colorScheme.lbSignature,
+                                goToArtistPage = goToArtistPage
                             )
                             Date(
                                 event = event,
@@ -688,7 +706,8 @@ fun SimilarListens(
                                 eventType = eventType
                             )
                         }
-                    }
+                    },
+                    goToArtistPage = goToArtistPage
                 ) {
                     onPlay(event)
                 }
@@ -890,7 +909,8 @@ private fun FeedScreenPreview() {
                 searchFollower = {},
                 isCritiqueBrainzLinked = {true},
                 onPlay = {},
-                goToUserPage = {}
+                goToUserPage = {},
+                goToArtistPage = {}
             )
         }
         

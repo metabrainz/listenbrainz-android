@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventType
+import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.dialogs.UserTag
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
@@ -41,6 +42,7 @@ fun PersonalRecommendationFeedLayout(
     onPersonallyRecommend: () -> Unit,
     onReview: () -> Unit,
     goToUserPage: (String?) -> Unit,
+    goToArtistPage: (String) -> Unit,
 ) {
     BaseFeedLayout(
         eventType = FeedEventType.PERSONAL_RECORDING_RECOMMENDATION,
@@ -51,7 +53,7 @@ fun PersonalRecommendationFeedLayout(
     ) {
         ListenCardSmall(
             trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
-            artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
+            artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(FeedListenArtist(event.metadata.trackMetadata?.artistName ?: "" , null, "")),
             coverArtUrl = remember {
                 Utils.getCoverArtUrl(
                     caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
@@ -110,6 +112,7 @@ fun PersonalRecommendationFeedLayout(
                     }
                 }
             },
+            goToArtistPage = goToArtistPage,
             onClick = onClick
         )
         
@@ -145,7 +148,8 @@ private fun PersonalRecommendationFeedLayoutPreview() {
                 onRecommend = {},
                 onPersonallyRecommend = {},
                 onReview = {},
-                goToUserPage = {}
+                goToUserPage = {},
+                goToArtistPage = {}
             )
         }
     }

@@ -41,6 +41,7 @@ fun TopBar(
             "${AppNavigationItem.Profile.route}/{username}" -> AppNavigationItem.Profile.title
             AppNavigationItem.Settings.route -> AppNavigationItem.Settings.title
             AppNavigationItem.About.route -> AppNavigationItem.About.title
+            "${AppNavigationItem.Artist.route}/{mbid}" -> AppNavigationItem.Artist.title
             else -> ""
         }
     } ?: "ListenBrainz"

@@ -29,6 +29,7 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventType
+import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
 import org.listenbrainz.android.ui.screens.feed.SocialDropdown
@@ -50,6 +51,7 @@ fun ReviewFeedLayout(
     onPersonallyRecommend: () -> Unit,
     onReview: () -> Unit,
     goToUserPage: (String?) -> Unit,
+    goToArtistPage: (String) -> Unit,
     uriHandler: UriHandler = LocalUriHandler.current
 ) {
     BaseFeedLayout(
@@ -62,7 +64,7 @@ fun ReviewFeedLayout(
         
         ListenCardSmall(
             trackName = event.metadata.entityName ?: "Unknown",
-            artistName = event.metadata.trackMetadata?.artistName ?: "",
+            artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(FeedListenArtist(event.metadata.trackMetadata?.artistName ?: "" , null, "")),
             coverArtUrl = remember {
                 Utils.getCoverArtUrl(
                     caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
@@ -140,6 +142,7 @@ fun ReviewFeedLayout(
                     
                 }
             },
+            goToArtistPage = goToArtistPage,
             onClick = onClick
         )
         
@@ -176,7 +179,8 @@ private fun ReviewFeedLayoutPreview() {
                 onRecommend = {},
                 onPersonallyRecommend = {},
                 onReview = {},
-                goToUserPage = {}
+                goToUserPage = {},
+                goToArtistPage = {}
             )
         }
     }
