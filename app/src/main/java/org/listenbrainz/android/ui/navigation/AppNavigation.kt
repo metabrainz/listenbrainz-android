@@ -28,6 +28,7 @@ fun AppNavigation(
     snackbarState : SnackbarHostState,
     goToUserProfile: () -> Unit,
     goToArtistPage: (String) -> Unit,
+    goToUserPage: (String?) -> Unit,
 ) {
     NavHost(
         navController = navController as NavHostController,
@@ -47,7 +48,19 @@ fun AppNavigation(
                     // Restore previous state
                     restoreState = true
                 }
-            } })
+            } }, goToArtistPage = {
+                    mbid ->
+                navController.navigate("${AppNavigationItem.Artist.route}/$mbid"){
+                    // Avoid building large backstack
+                    popUpTo(AppNavigationItem.Feed.route){
+                        saveState = true
+                    }
+                    // Avoid copies
+                    launchSingleTop = true
+                    // Restore previous state
+                    restoreState = true
+                }
+            })
         }
         composable(route = AppNavigationItem.BrainzPlayer.route){
             BrainzPlayerScreen()
@@ -68,7 +81,8 @@ fun AppNavigation(
                 username = username,
                 snackbarState = snackbarState,
                 goToUserProfile = goToUserProfile,
-                goToArtistPage = goToArtistPage
+                goToArtistPage = goToArtistPage,
+                goToUserPage = goToUserPage
             )
         }
         composable(route = AppNavigationItem.Settings.route){
@@ -86,9 +100,20 @@ fun AppNavigation(
                 }
             }
             else{
-                ArtistScreen(artistMbid = artistMbid)
+                ArtistScreen(artistMbid = artistMbid, goToArtistPage = goToArtistPage, snackBarState = snackbarState, goToUserPage = {username : String? ->
+                    if(username != null) {
+                        navController.navigate("${AppNavigationItem.Profile.route}/$username"){
+                            // Avoid building large backstack
+                            popUpTo(AppNavigationItem.Feed.route){
+                                saveState = true
+                            }
+                            // Avoid copies
+                            launchSingleTop = true
+                            // Restore previous state
+                            restoreState = true
+                        }
+                    } })
             }
-
         }
     }
 }

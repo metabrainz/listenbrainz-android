@@ -62,6 +62,7 @@ import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.SimilarUser
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
+import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.model.user.Artist
 import org.listenbrainz.android.ui.components.ErrorBar
@@ -99,6 +100,7 @@ fun ListensScreen(
     snackbarState : SnackbarHostState,
     username: String?,
     goToArtistPage: (String) -> Unit,
+    goToUserPage: (String?) -> Unit
 ) {
     
     val uiState by userViewModel.uiState.collectAsState()
@@ -168,7 +170,8 @@ fun ListensScreen(
                 }
             }
         },
-        goToArtistPage = goToArtistPage
+        goToArtistPage = goToArtistPage,
+        goToUserPage = goToUserPage
     )
 }
 
@@ -213,6 +216,7 @@ fun ListensScreen(
     onPersonallyRecommend: (metadata: Metadata, users: List<String>, blurbContent: String) -> Unit,
     onFollowButtonClick: (String?, Boolean) -> Unit,
     goToArtistPage: (String) -> Unit,
+    goToUserPage: (String?) -> Unit,
 ) {
     val listState = rememberLazyListState()
 
@@ -270,7 +274,9 @@ fun ListensScreen(
                                 vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                             ),
                         trackName = listen.trackMetadata.trackName,
-                        artistName = listen.trackMetadata.artistName,
+                        artists = metadata.trackMetadata?.mbidMapping?.artists ?: listOf(
+                            FeedListenArtist(metadata.trackMetadata?.artistName ?: "" , null, "")
+                        ),
                         coverArtUrl = getCoverArtUrl(
                             caaReleaseMbid = listen.trackMetadata.mbidMapping?.caaReleaseMbid,
                             caaId = listen.trackMetadata.mbidMapping?.caaId
@@ -279,6 +285,7 @@ fun ListensScreen(
                         onDropdownIconClick = {
                             dropdownItemIndex.value = index
                         },
+                        goToArtistPage = goToArtistPage,
                         dropDown = {
                             SocialDropdown(
                                 isExpanded = dropdownItemIndex.value == index,
@@ -370,7 +377,8 @@ fun ListensScreen(
                                         newMenuState->
                                     followersMenuState.value = !newMenuState
                                 },
-                                onFollowButtonClick = onFollowButtonClick
+                                onFollowButtonClick = onFollowButtonClick,
+                                goToUserPage = goToUserPage
                             )
                             if((uiState.listensTabUiState.followersCount ?: 0) > 5 || ((uiState.listensTabUiState.followingCount ?: 0) > 5)){
                                 Spacer(modifier = Modifier.height(20.dp))
@@ -400,7 +408,7 @@ fun ListensScreen(
                             SimilarUsersCard(similarUsers = when(similarUsersCollapsibleState.value){
                                 true -> uiState.listensTabUiState.similarUsers?.take(5) ?: emptyList()
                                 false -> uiState.listensTabUiState.similarUsers ?: emptyList()
-                            })
+                            }, goToUserPage = goToUserPage)
 
                             if((uiState.listensTabUiState.similarUsers?.size ?: 0) > 5){
                                 Spacer(modifier = Modifier.height(20.dp))
@@ -456,8 +464,9 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
                     append("You both listen to ")
                 }
                 topSimilarArtists.forEachIndexed { index, artist ->
-                    if(artist.artistMbid != null)
-                    pushStringAnnotation(tag = "ARTIST", annotation = artist.artistMbid)
+                    if(artist.artistMbid != null) {
+                        pushStringAnnotation(tag = "ARTIST", annotation = artist.artistMbid)
+                    }
                     withStyle(style = SpanStyle(color = lb_purple_night)) {
                         append(artist.artistName)
                     }
@@ -495,8 +504,9 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
                     append("You both listen to ")
                 }
                 similarArtists.forEachIndexed { index, artist ->
-                    if(artist.artistMbid != null)
-                    pushStringAnnotation(tag = "ARTIST", annotation = artist.artistMbid)
+                    if(artist.artistMbid != null) {
+                        pushStringAnnotation(tag = "ARTIST", annotation = artist.artistMbid)
+                    }
                     withStyle(style = SpanStyle(color = lb_purple_night)) {
                         append(artist.artistName)
                     }
@@ -535,7 +545,8 @@ fun Dialogs(
     onReview : (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String , metadata : Metadata) -> Unit,
     onPersonallyRecommend : (metadata : Metadata , users : List<String> , blurbContent : String) -> Unit,
     snackbarState: SnackbarHostState,
-    socialUiState: SocialUiState
+    socialUiState: SocialUiState,
+    reviewEntityType: ReviewEntityType = ReviewEntityType.RECORDING
 ) {
     val context = LocalContext.current
     when (currentDialog) {
@@ -582,7 +593,8 @@ fun Dialogs(
                         locale,
                         Metadata(trackMetadata = listens[currentIndex].trackMetadata)
                     )
-                }
+                },
+                reviewEntityType = reviewEntityType
             )
         }
     }
@@ -671,7 +683,9 @@ fun CompatibilityCard(compatibility: Float, similarArtists: List<Artist>, goToAr
 }
 
 @Composable
-private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers: List<Pair<String,Boolean>>, following: List<Pair<String,Boolean>>, followersState: Boolean, onStateChange: (Boolean) -> Unit, onFollowButtonClick: (String?, Boolean) -> Unit) {
+private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers: List<Pair<String,Boolean>>,
+                          following: List<Pair<String,Boolean>>, followersState: Boolean, onStateChange: (Boolean) -> Unit,
+                          onFollowButtonClick: (String?, Boolean) -> Unit, goToUserPage: (String?) -> Unit) {
     Column(modifier = Modifier.padding(start = 16.dp , top = 30.dp)) {
         Text(
             "Followers",
@@ -746,12 +760,12 @@ private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers:
         when(followersState){
             true -> followers.map {
                 state ->
-                FollowCard(username = state.first, onFollowButtonClick = onFollowButtonClick, followStatus = state.second)
+                FollowCard(username = state.first, onFollowButtonClick = onFollowButtonClick, followStatus = state.second, goToUserPage = goToUserPage)
                 Spacer(modifier = Modifier.height(10.dp))
             }
             false -> following.map {
                 state ->
-                FollowCard(username = state.first, onFollowButtonClick = onFollowButtonClick, followStatus = state.second)
+                FollowCard(username = state.first, onFollowButtonClick = onFollowButtonClick, followStatus = state.second, goToUserPage = goToUserPage)
                 Spacer(modifier = Modifier.height(10.dp))
             }
         }
@@ -759,18 +773,19 @@ private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers:
 }
 
 @Composable
-private fun SimilarUsersCard(similarUsers: List<SimilarUser>){
+private fun SimilarUsersCard(similarUsers: List<SimilarUser>, goToUserPage: (String?) -> Unit){
     Spacer(modifier = Modifier.height(20.dp))
     Text("Similar Users", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(horizontal = 16.dp))
     Spacer(modifier = Modifier.height(20.dp))
     similarUsers.mapIndexed{
         index , item ->
-        SimilarUserCard(index = index, userName = item.username, similarity = item.similarity.toFloat(), modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
+        SimilarUserCard(index = index, userName = item.username, similarity = item.similarity.toFloat(),
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp), goToUserPage = goToUserPage)
     }
 }
 
 @Composable
-private fun FollowCard(username: String?, onFollowButtonClick: (String?, Boolean) -> Unit, followStatus: Boolean) {
+private fun FollowCard(username: String?, onFollowButtonClick: (String?, Boolean) -> Unit, followStatus: Boolean, goToUserPage: (String?) -> Unit) {
     Card(colors = CardDefaults.cardColors(containerColor = ListenBrainzTheme.colorScheme.followerCardColor)) {
         Row(
             modifier = Modifier
@@ -783,7 +798,10 @@ private fun FollowCard(username: String?, onFollowButtonClick: (String?, Boolean
             Text(
                 username ?: "",
                 color = ListenBrainzTheme.colorScheme.followerCardTextColor,
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.clickable {
+                    goToUserPage(username)
+                }
             )
             TextButton(
                 onClick = {
@@ -839,6 +857,7 @@ fun ListensScreenPreview() {
         snackbarState = remember { SnackbarHostState() },
         username = "pranavkonidena",
         onFollowButtonClick = {_,_ -> },
-        goToArtistPage = {}
+        goToArtistPage = {},
+        goToUserPage = {}
     )
 }

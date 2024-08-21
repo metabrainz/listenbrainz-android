@@ -44,6 +44,7 @@ import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
+import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
@@ -69,6 +70,7 @@ fun TasteScreen(
     socialViewModel: SocialViewModel,
     feedViewModel : FeedViewModel,
     snackbarState : SnackbarHostState,
+    goToArtistPage: (String) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val socialUiState by socialViewModel.uiState.collectAsState()
@@ -111,7 +113,8 @@ fun TasteScreen(
         },
         onMessageShown = {
             socialViewModel.clearMsgFlow()
-        }
+        },
+        goToArtistPage = goToArtistPage,
     )
 }
 
@@ -132,6 +135,7 @@ fun TasteScreen(
     onPersonallyRecommend: (metadata: Metadata, users: List<String>, blurbContent: String) -> Unit,
     onErrorShown : () -> Unit,
     onMessageShown : () -> Unit,
+    goToArtistPage: (String) -> Unit,
 ){
     val lovedHatedState: MutableState<LovedHated> = remember { mutableStateOf(LovedHated.loved) }
 
@@ -179,8 +183,9 @@ fun TasteScreen(
                         horizontal = 16.dp,
                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
-                trackName = feedback.trackMetadata?.trackName ?: "", artistName = feedback.trackMetadata
-                    ?.artistName ?: "", coverArtUrl = getCoverArtUrl(
+                trackName = feedback.trackMetadata?.trackName ?: "", artists = feedback.trackMetadata?.mbidMapping?.artists ?: listOf(
+                    FeedListenArtist(feedback.trackMetadata?.artistName ?: "", null, "")
+                ), coverArtUrl = getCoverArtUrl(
                     caaReleaseMbid = feedback.trackMetadata?.mbidMapping?.caaReleaseMbid,
                     caaId = feedback.trackMetadata?.mbidMapping?.caaId
                 ),
@@ -221,7 +226,8 @@ fun TasteScreen(
                         }
 
                     )
-                }
+                },
+                goToArtistPage = goToArtistPage
             ) {
                 if(feedback.trackMetadata != null){
                     playListen(feedback.trackMetadata)
@@ -271,12 +277,10 @@ fun TasteScreen(
                             },
                             modifier = Modifier
                                 .padding(
-
                                     vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                                 ),
                             trackName = recording.trackMetadata?.trackName ?: "",
-                            artistName = recording.trackMetadata
-                                ?.artistName ?: "",
+                            artists = recording.trackMetadata?.mbidMapping?.artists ?: listOf(FeedListenArtist(recording.trackMetadata?.artistName ?: "", null, "")),
                             coverArtUrl = getCoverArtUrl(
                                 caaReleaseMbid = recording.trackMetadata?.mbidMapping?.caaReleaseMbid,
                                 caaId = recording.trackMetadata?.mbidMapping?.caaId
@@ -326,7 +330,8 @@ fun TasteScreen(
                                     }
 
                                 )
-                            }
+                            },
+                            goToArtistPage = goToArtistPage
                         ) {
                             if (recording.trackMetadata != null) {
                                 playListen(recording.trackMetadata)

@@ -106,6 +106,8 @@ class UserPagesTest {
                         feedViewModel = feedViewModel,
                         socialViewModel = socialViewModel,
                         listensViewModel = listensViewModel,
+                        goToUserPage = {},
+                        goToArtistPage = {}
                     )
                 }
 

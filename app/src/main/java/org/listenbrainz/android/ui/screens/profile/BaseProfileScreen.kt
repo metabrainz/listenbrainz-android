@@ -73,6 +73,7 @@ fun BaseProfileScreen(
     listensViewModel: ListensViewModel = hiltViewModel(),
     socialViewModel: SocialViewModel = hiltViewModel(),
     goToArtistPage: (String) -> Unit,
+    goToUserPage: (String?) -> Unit,
 ){
 
     val currentTab : MutableState<ProfileScreenTab> = remember { mutableStateOf(ProfileScreenTab.LISTENS) }
@@ -218,20 +219,23 @@ fun BaseProfileScreen(
                         feedViewModel = feedViewModel,
                         socialViewModel = socialViewModel,
                         viewModel = listensViewModel,
-                        goToArtistPage = goToArtistPage
+                        goToArtistPage = goToArtistPage,
+                        goToUserPage = goToUserPage,
                     )
                     ProfileScreenTab.STATS -> StatsScreen(
                         username = username,
                         snackbarState = snackbarState,
                         socialViewModel = socialViewModel,
                         viewModel = viewModel,
-                        feedViewModel = feedViewModel
+                        feedViewModel = feedViewModel,
+                        goToArtistPage = goToArtistPage
                     )
                     ProfileScreenTab.TASTE -> TasteScreen(
                         snackbarState = snackbarState,
                         socialViewModel = socialViewModel,
                         feedViewModel = feedViewModel,
-                        viewModel = viewModel
+                        viewModel = viewModel,
+                        goToArtistPage = goToArtistPage
                     )
                     else -> ListensScreen(
                         scrollRequestState = false,
@@ -242,10 +246,10 @@ fun BaseProfileScreen(
                         feedViewModel = feedViewModel,
                         socialViewModel = socialViewModel,
                         viewModel = listensViewModel,
-                        goToArtistPage = goToArtistPage
+                        goToArtistPage = goToArtistPage,
+                        goToUserPage = goToUserPage,
                     )
                 }
-
             }
         }
         if(mbOpeningErrorState.value != null){

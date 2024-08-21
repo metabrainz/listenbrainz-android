@@ -65,12 +65,14 @@ import org.listenbrainz.android.model.MbidMapping
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
+import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.SuccessBar
 import org.listenbrainz.android.ui.components.dialogs.Dialog
 import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
+import org.listenbrainz.android.ui.screens.artist.formatNumber
 import org.listenbrainz.android.ui.screens.feed.FeedUiState
 import org.listenbrainz.android.ui.screens.feed.SocialDropdown
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
@@ -92,6 +94,7 @@ fun StatsScreen(
     socialViewModel: SocialViewModel,
     feedViewModel : FeedViewModel,
     snackbarState : SnackbarHostState,
+    goToArtistPage: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val socialUiState by socialViewModel.uiState.collectAsState()
@@ -158,7 +161,8 @@ fun StatsScreen(
         },
         onPersonallyRecommend = {
                 metadata, users, blurbContent ->  socialViewModel.personallyRecommend(metadata, users, blurbContent)
-        }
+        },
+        goToArtistPage = goToArtistPage
     )
 }
 
@@ -187,6 +191,7 @@ fun StatsScreen(
     isCritiqueBrainzLinked: suspend () -> Boolean?,
     onReview: (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String, metadata: Metadata) -> Unit,
     onPersonallyRecommend: (metadata: Metadata, users: List<String>, blurbContent: String) -> Unit,
+    goToArtistPage: (String) -> Unit,
 ) {
     val currentTabSelection: MutableState<CategoryState> = remember {
         mutableStateOf(CategoryState.ARTISTS)
@@ -418,7 +423,12 @@ fun StatsScreen(
                            Column (horizontalAlignment = Alignment.CenterHorizontally) {
                                topArtists.map {
                                        topArtist ->
-                                   ArtistCard(artistName = topArtist.artistName ?: "", listenCount = topArtist.listenCount){}
+                                   ArtistCard(artistName = topArtist.artistName ?: "", listenCountLabel = formatNumber(topArtist.listenCount ?: 0)){
+                                       if(topArtist.artistMbid != null){
+                                           goToArtistPage(topArtist.artistMbid)
+                                       }
+
+                                   }
                                }
                                Spacer(modifier = Modifier.height(10.dp))
                                if((uiState.statsTabUIState.topArtists?.size ?: 0) > 5){
@@ -442,7 +452,7 @@ fun StatsScreen(
                                        index, topAlbum ->
                                    ListenCardSmall(
                                        trackName = topAlbum.releaseName ?: "",
-                                       artistName = topAlbum.artistName ?: "",
+                                       artists = topAlbum.artists ?: listOf(FeedListenArtist(topAlbum.artistName ?: "", null, "")),
                                        coverArtUrl = getCoverArtUrl(topAlbum.caaReleaseMbid, topAlbum.caaId),
                                        modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, end = 10.dp),
                                        color = app_bg_secondary_dark,
@@ -450,7 +460,8 @@ fun StatsScreen(
                                        subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),
                                        enableTrailingContent = true,
                                        listenCount = topAlbum.listenCount,
-                                       enableDropdownIcon = true
+                                       enableDropdownIcon = true,
+                                       goToArtistPage = goToArtistPage
                                        )
                                    {
 
@@ -488,7 +499,7 @@ fun StatsScreen(
                                    ))
                                    ListenCardSmall(
                                        trackName = topSong.trackName ?: "",
-                                       artistName = topSong.artistName ?: "",
+                                       artists = topSong.artists ?:listOf(FeedListenArtist(topSong.artistName ?: "", null, "")),
                                        coverArtUrl = getCoverArtUrl(topSong.caaReleaseMbid, topSong.caaId),
                                        modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, end = 10.dp),
                                        color = app_bg_secondary_dark,
@@ -532,7 +543,8 @@ fun StatsScreen(
                                            )
                                        },
                                        enableTrailingContent = true,
-                                       listenCount = topSong.listenCount
+                                       listenCount = topSong.listenCount,
+                                       goToArtistPage = goToArtistPage
                                    ) {
                                        val trackMetadata = metadata.trackMetadata
                                        if(trackMetadata != null){
@@ -578,7 +590,7 @@ fun StatsScreen(
 fun ArtistCard(
     modifier: Modifier = Modifier,
     artistName: String,
-    listenCount: Int? = 0,
+    listenCountLabel: String? = null,
     onClick: () -> Unit,
 ) {
     Surface(
@@ -588,7 +600,7 @@ fun ArtistCard(
             .clickable(enabled = true) { onClick() },
         shape = ListenBrainzTheme.shapes.listenCardSmall,
         shadowElevation = 4.dp,
-        color = app_bg_secondary_dark
+        color = ListenBrainzTheme.colorScheme.followerCardColor
     ) {
         Column {
             Box(
@@ -605,24 +617,25 @@ fun ArtistCard(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis)
                 }
-
-                Box(
-                    modifier = modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 10.dp),
-                    contentAlignment = Alignment.Center
-                ) {
+                if(listenCountLabel != null){
                     Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(ListenBrainzTheme.colorScheme.followerChipSelected)
-                            .padding(6.dp),
+                        modifier = modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 10.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = listenCount.toString(),
-                            color = Color.Black
-                        )
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(ListenBrainzTheme.colorScheme.followerChipSelected)
+                                .padding(6.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = listenCountLabel,
+                                color = ListenBrainzTheme.colorScheme.followerChipUnselected
+                            )
+                        }
                     }
                 }
 
@@ -678,7 +691,6 @@ private fun RangeBar(
                 )
                 Spacer(modifier = Modifier.width(10.dp))
             }
-
         }
     }
 }

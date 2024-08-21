@@ -15,7 +15,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.listenbrainz.android.model.yimdata.YimScreens
-import org.listenbrainz.android.ui.screens.yim.*
+import org.listenbrainz.android.ui.screens.yim.YimChartsScreen
+import org.listenbrainz.android.ui.screens.yim.YimDiscoverScreen
+import org.listenbrainz.android.ui.screens.yim.YimEndgameScreen
+import org.listenbrainz.android.ui.screens.yim.YimHomeScreen
+import org.listenbrainz.android.ui.screens.yim.YimRecommendedPlaylistsScreen
+import org.listenbrainz.android.ui.screens.yim.YimStatisticsScreen
+import org.listenbrainz.android.ui.screens.yim.YimTopAlbumsScreen
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
 import org.listenbrainz.android.viewmodel.YimViewModel
 
@@ -28,6 +34,7 @@ fun YimNavigation(
     yimViewModel: YimViewModel,
     activity: ComponentActivity,
     networkConnectivityViewModel: NetworkConnectivityViewModel,
+    goToUserPage: (String?) -> Unit,
 ) {
     val navController = rememberNavController()
     NavHost(
@@ -73,7 +80,7 @@ fun YimNavigation(
         }
         
         addYimScreen( route = YimScreens.YimDiscoverScreen.name ){
-            YimDiscoverScreen(yimViewModel = yimViewModel, navController = navController)
+            YimDiscoverScreen(yimViewModel = yimViewModel, navController = navController, goToUserPage = goToUserPage)
         }
         
         addYimScreen( route = YimScreens.YimEndgameScreen.name ){

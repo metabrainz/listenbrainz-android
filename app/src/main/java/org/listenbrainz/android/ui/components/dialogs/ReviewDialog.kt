@@ -25,7 +25,8 @@ fun ReviewDialog(
     releaseName: String?,
     onDismiss: () -> Unit,
     isCritiqueBrainzLinked: suspend () -> Boolean?,
-    onSubmit: (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String) -> Unit
+    onSubmit: (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String) -> Unit,
+    reviewEntityType: ReviewEntityType = ReviewEntityType.RECORDING
 ) {
     var isLinked by rememberSaveable { mutableStateOf<Boolean?>(null) }
     
@@ -45,7 +46,8 @@ fun ReviewDialog(
             artistName = artistName,
             releaseName = releaseName,
             onDismiss = onDismiss,
-            onSubmit = onSubmit
+            onSubmit = onSubmit,
+            selectedEntityType = reviewEntityType
         )
         false -> ReviewDisabledDialog(onDismiss = onDismiss)
         null -> Dialog(onDismissRequest = onDismiss) {

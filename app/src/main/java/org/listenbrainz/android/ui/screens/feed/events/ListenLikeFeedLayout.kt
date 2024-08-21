@@ -8,6 +8,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventType
+import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
 import org.listenbrainz.android.ui.screens.feed.SocialDropdown
@@ -28,7 +29,8 @@ fun ListenLikeFeedLayout(
     onRecommend: () -> Unit,
     onPersonallyRecommend: () -> Unit,
     onReview: () -> Unit,
-    goToUserPage: (String?) -> Unit
+    goToUserPage: (String?) -> Unit,
+    goToArtistPage: (String) -> Unit,
 ) {
     BaseFeedLayout(
         eventType = FeedEventType.LIKE,
@@ -39,7 +41,7 @@ fun ListenLikeFeedLayout(
     ) {
         ListenCardSmall(
             trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
-            artistName = event.metadata.trackMetadata?.artistName ?: "Unknown",
+            artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(FeedListenArtist(event.metadata.trackMetadata?.artistName ?: "" , null, "")),
             coverArtUrl = remember {
                 getCoverArtUrl(
                     caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
@@ -60,6 +62,7 @@ fun ListenLikeFeedLayout(
                     onReview = onReview
                 )
             },
+            goToArtistPage = goToArtistPage,
             onClick = onClick
         )
     }
@@ -90,7 +93,8 @@ private fun ListenLikeFeedLayoutPreview() {
                 onRecommend = {},
                 onPersonallyRecommend = {},
                 onReview = {},
-                goToUserPage = {}
+                goToUserPage = {},
+                goToArtistPage = {}
             )
         }
     }

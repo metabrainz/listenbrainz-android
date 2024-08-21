@@ -9,3 +9,4 @@
 .externalNativeBuild
 play_config.json
 .kotlin
+/spotify-app-remote/build

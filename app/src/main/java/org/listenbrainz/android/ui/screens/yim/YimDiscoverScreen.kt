@@ -52,7 +52,8 @@ import org.listenbrainz.android.viewmodel.YimViewModel
 fun YimDiscoverScreen(
     yimViewModel: YimViewModel,
     navController: NavController,
-    paddings: YimPaddings = LocalYimPaddings.current
+    paddings: YimPaddings = LocalYimPaddings.current,
+    goToUserPage: (String?) -> Unit,
 ){
     YearInMusicTheme(redTheme = false) {
         var startAnim by remember{
@@ -167,7 +168,7 @@ fun YimDiscoverScreen(
                         visible = startAnim,
                         enter = expandVertically(animationSpec = tween(durationMillis = 700, delayMillis = 1900))
                     ) {
-                        YimSimilarUsersList(yimViewModel = yimViewModel)
+                        YimSimilarUsersList(yimViewModel = yimViewModel, goToUserPage = goToUserPage)
                     }
             
                 }
@@ -189,7 +190,8 @@ fun YimDiscoverScreen(
 @Composable
 private fun YimSimilarUsersList(
     yimViewModel: YimViewModel,
-    paddings: YimPaddings = LocalYimPaddings.current
+    paddings: YimPaddings = LocalYimPaddings.current,
+    goToUserPage: (String?) -> Unit,
 ) {
     val similarUsers = remember {
         yimViewModel.getSimilarUsers() ?: listOf()
@@ -211,7 +213,8 @@ private fun YimSimilarUsersList(
                 userName = item.first,
                 similarity = item.second.toFloat(),
                 cardBackGround = MaterialTheme.colorScheme.surface,
-                uiModeIsDark = false
+                uiModeIsDark = false,
+                goToUserPage = goToUserPage
             )
         }
     }

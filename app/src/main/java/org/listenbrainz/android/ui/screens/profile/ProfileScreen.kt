@@ -49,6 +49,7 @@ fun ProfileScreen(
     snackbarState: SnackbarHostState,
     goToUserProfile: () -> Unit,
     goToArtistPage: (String) -> Unit,
+    goToUserPage: (String?) -> Unit,
 ) {
     val scrollState = rememberScrollState()
     val uiState = viewModel.uiState.collectAsState()
@@ -78,9 +79,9 @@ fun ProfileScreen(
                     viewModel.unfollowUser(it)
                 },
                 goToUserProfile = goToUserProfile,
-                goToArtistPage = goToArtistPage
+                goToArtistPage = goToArtistPage,
+                goToUserPage = goToUserPage
             )
-
         }
         else -> {
             Column(
