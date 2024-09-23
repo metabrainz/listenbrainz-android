@@ -1,24 +1,62 @@
 package org.listenbrainz.android.ui.screens.brainzplayer
 
-import CacheService
-import android.annotation.SuppressLint
-import androidx.compose.animation.*
+
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.BackdropScaffold
+import androidx.compose.material.BackdropScaffoldState
+import androidx.compose.material.BackdropValue
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Card
+import androidx.compose.material.Checkbox
+import androidx.compose.material.CheckboxDefaults
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RepeatOn
-import androidx.compose.material.icons.rounded.*
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Loop
+import androidx.compose.material.icons.rounded.RepeatOne
+import androidx.compose.material.icons.rounded.Shuffle
+import androidx.compose.material.icons.rounded.ShuffleOn
+import androidx.compose.material.icons.rounded.SkipNext
+import androidx.compose.material.icons.rounded.SkipPrevious
+import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -31,13 +69,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.google.accompanist.pager.*
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.application.App
@@ -45,12 +83,14 @@ import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.PlayPauseIcon
 import org.listenbrainz.android.ui.components.SeekBar
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
-import org.listenbrainz.android.util.BrainzPlayerExtensions.duration
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
+import org.listenbrainz.android.util.CacheService
 import org.listenbrainz.android.util.Constants.RECENTLY_PLAYED_KEY
 import org.listenbrainz.android.util.SongViewPager
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
@@ -58,31 +98,33 @@ import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@OptIn(ExperimentalFoundationApi::class)
 @ExperimentalMaterialApi
-@ExperimentalPagerApi
 @Composable
 fun BrainzPlayerBackDropScreen(
     backdropScaffoldState: BackdropScaffoldState,
     brainzPlayerViewModel: BrainzPlayerViewModel = viewModel(),
+    paddingValues: PaddingValues,
     backLayerContent: @Composable () -> Unit
 ) {
     val isShuffled by brainzPlayerViewModel.isShuffled.collectAsState()
     val currentlyPlayingSong =
         brainzPlayerViewModel.currentlyPlayingSong.collectAsState().value.toSong
     var maxDelta by rememberSaveable {
-        mutableStateOf(0F)
+        mutableFloatStateOf(0F)
     }
     val repeatMode by brainzPlayerViewModel.repeatMode.collectAsState()
 
     /** 56.dp is default bottom navigation height. 80.dp is our mini player's height. */
     val headerHeight by animateDpAsState(targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null") 56.dp else 136.dp)
+    val isPlaying = brainzPlayerViewModel.isPlaying.collectAsState().value
 
     BackdropScaffold(
+        modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
         frontLayerShape = RectangleShape,
         backLayerBackgroundColor = MaterialTheme.colorScheme.background,
         frontLayerScrimColor = Color.Unspecified,
-        headerHeight = headerHeight, // 136.dp is optimal header height.
+        headerHeight = if (isPlaying) headerHeight else 56.dp, // 136.dp is optimal header height.
         peekHeight = 0.dp,
         scaffoldState = backdropScaffoldState,
         backLayerContent = {
@@ -94,95 +136,26 @@ fun BrainzPlayerBackDropScreen(
         appBar = {},
         persistentAppBar = false,
         frontLayerContent = {
-            val delta = backdropScaffoldState.offset.value
+            val delta by backdropScaffoldState.offset
             maxDelta = max(delta, maxDelta)
             PlayerScreen(
                 currentlyPlayingSong = currentlyPlayingSong,
                 isShuffled = isShuffled,
                 repeatMode = repeatMode
             )
+            val songList = brainzPlayerViewModel.mediaItem.collectAsState().value.data ?: listOf()
             SongViewPager(
                 modifier = Modifier.graphicsLayer {
                     alpha = ( delta / (maxDelta - headerHeight.toPx()) )
                 },
-                backdropScaffoldState = backdropScaffoldState
+                songList = songList,
+                backdropScaffoldState = backdropScaffoldState,
+                currentlyPlayingSong = currentlyPlayingSong
             )
         })
 }
 
-
-@OptIn(ExperimentalPagerApi::class)
-@Composable
-fun AlbumArtViewPager(viewModel: BrainzPlayerViewModel) {
-    val songList = viewModel.mediaItem.collectAsState().value
-    val currentlyPlayingSong = viewModel.currentlyPlayingSong.collectAsState().value.toSong
-    val pagerState = viewModel.pagerState.collectAsState().value
-    val pageState = rememberPagerState(initialPage = pagerState)
-    songList.data?.let {
-        HorizontalPager(
-            count = it.size, state = pageState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    MaterialTheme.colorScheme.background
-                ),
-        ) { page ->
-            Column(
-                Modifier
-                    .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Card(
-                    modifier = Modifier
-                        .height(280.dp)
-                        .padding(top = 20.dp)
-                        .width(300.dp)
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(MaterialTheme.colorScheme.background)
-                        .graphicsLayer {
-                            // Calculate the absolute offset for the current page from the
-                            // scroll position. We use the absolute value which allows us to mirror
-                            // any effects for both directions
-                            val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
-
-                            // We animate the scaleX + scaleY, between 85% and 100%
-                            lerp(
-                                start = 0.85f,
-                                stop = 1f,
-                                fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                            ).also { scale ->
-                                scaleX = scale
-                                scaleY = scale
-                            }
-
-                            // We animate the alpha, between 50% and 100%
-                            alpha = lerp(
-                                start = 0.5f,
-                                stop = 1f,
-                                fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                            )
-                        }
-                ) {
-                    AsyncImage(
-                        modifier = Modifier
-                            .background(MaterialTheme.colorScheme.background)
-                            .fillMaxSize()
-                            .padding()
-                            .clip(shape = RoundedCornerShape(20.dp))
-                            .graphicsLayer { clip = true },
-                        model = currentlyPlayingSong.albumArt,
-                        contentDescription = "",
-                        error = painterResource(
-                            id = R.drawable.ic_erroralbumart
-                        ),
-                        contentScale = ContentScale.FillBounds
-                    )
-                }
-            }
-        }
-        //  TODO("Fix View Pager changing pages")
-    }
-}
-
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PlayerScreen(
     brainzPlayerViewModel: BrainzPlayerViewModel = viewModel(),
@@ -194,6 +167,8 @@ fun PlayerScreen(
     val playlistViewModel = hiltViewModel<PlaylistViewModel>()
     val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
     val playlist = playlists.filter { it.id == (1).toLong() }
+    val songList by brainzPlayerViewModel.mediaItem.collectAsState()
+    val pagerState = rememberPagerState { songList.data?.size ?: 0 }
     var listenLiked = false
     if (playlist.isNotEmpty()) {
         playlist[0].items.forEach {
@@ -205,7 +180,9 @@ fun PlayerScreen(
     }
     LazyColumn {
         item {
-            AlbumArtViewPager(viewModel = brainzPlayerViewModel)
+            songList.data?.let {
+                AlbumArtViewPager(currentlyPlayingSong, pagerState)
+            }
         }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -276,15 +253,14 @@ fun PlayerScreen(
                 modifier = Modifier
                     .fillMaxWidth(0.98F)
                     .padding(start = 10.dp, top = 10.dp, end = 10.dp)) {
-                val song by brainzPlayerViewModel.currentlyPlayingSong.collectAsState()
                 val songCurrentPosition by brainzPlayerViewModel.songCurrentPosition.collectAsState()
-                var duration = "00:00"
-                var currentPosition = "00:00"
-                if (song.duration / (1000 * 60 * 60) > 0 &&  songCurrentPosition / (1000 * 60 * 60) > 0){
-                    duration =String.format("%02d:%02d:%02d", song.duration/(1000 * 60 * 60),song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
+                val duration: String
+                val currentPosition: String
+                if (currentlyPlayingSong.duration / (1000 * 60 * 60) > 0 &&  songCurrentPosition / (1000 * 60 * 60) > 0){
+                    duration = String.format("%02d:%02d:%02d", currentlyPlayingSong.duration/(1000 * 60 * 60),currentlyPlayingSong.duration/(1000 * 60) % 60,currentlyPlayingSong.duration/1000 % 60)
                     currentPosition = String.format("%02d:%02d:%02d", songCurrentPosition/(1000 * 60 * 60),songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
-                }else{
-                    duration = String.format("%02d:%02d",song.duration/(1000 * 60) % 60,song.duration/1000 % 60)
+                } else {
+                    duration = String.format("%02d:%02d",currentlyPlayingSong.duration/(1000 * 60) % 60,currentlyPlayingSong.duration/1000 % 60)
                     currentPosition = String.format("%02d:%02d",songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
                 }
 
@@ -333,7 +309,14 @@ fun PlayerScreen(
                     contentDescription = "",
                     modifier = Modifier
                         .size(FloatingActionButtonDefaults.LargeIconSize)
-                        .clickable { brainzPlayerViewModel.skipToPreviousSong() },
+                        .clickable {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(
+                                    (pagerState.currentPage - 1).coerceAtLeast(0)
+                                )
+                            }
+                            brainzPlayerViewModel.skipToPreviousSong()
+                        },
                     tint = MaterialTheme.colorScheme.surfaceTint
                 )
 
@@ -357,7 +340,12 @@ fun PlayerScreen(
                     contentDescription = "",
                     modifier = Modifier
                         .size(FloatingActionButtonDefaults.LargeIconSize)
-                        .clickable { brainzPlayerViewModel.skipToNextSong() },
+                        .clickable {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                            }
+                            brainzPlayerViewModel.skipToNextSong()
+                        },
                     tint = MaterialTheme.colorScheme.surfaceTint
                 )
                 Icon(
@@ -379,7 +367,7 @@ fun PlayerScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    "Now Playing",
+                    "Listening now",
                     fontSize = 24.sp,
                     modifier = Modifier.padding(start = 25.dp),
                     fontWeight = FontWeight.SemiBold,
@@ -444,12 +432,11 @@ fun PlayerScreen(
                     }
                     ListenCardSmall(
                         modifier = modifier,
-                        releaseName = song.title,
-                        artistName = song.artist,
+                        trackName = song.title,
+                        artists = listOf(FeedListenArtist(song.artist, null, "")),
                         coverArtUrl = song.albumArt,
-                        imageLoadSize = 200,
-                        useSystemTheme = true,
-                        errorAlbumArt = R.drawable.ic_erroralbumart
+                        errorAlbumArt = R.drawable.ic_erroralbumart,
+                        goToArtistPage = {}
                     ) {
                         brainzPlayerViewModel.skipToPlayable(index)
                         brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let {
@@ -500,10 +487,87 @@ fun PlayerScreen(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun AlbumArtViewPager(currentlyPlayingSong: Song, pagerState: PagerState) {
+    HorizontalPager(
+            state = pagerState,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(ListenBrainzTheme.colorScheme.background),
+    ) { page ->
+        Column(
+            Modifier
+                .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Card(
+                modifier = Modifier
+                    .height(280.dp)
+                    .padding(top = 20.dp)
+                    .width(300.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(MaterialTheme.colorScheme.background)
+                    .graphicsLayer {
+                        // Calculate the absolute offset for the current page from the
+                        // scroll position. We use the absolute value which allows us to mirror
+                        // any effects for both directions
+                        val pageOffset = pagerState.getOffsetFractionForPage(page).absoluteValue
+                        
+                        // We animate the scaleX + scaleY, between 85% and 100%
+                        lerp(
+                            start = 0.85f,
+                            stop = 1f,
+                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                        ).also { scale ->
+                            scaleX = scale
+                            scaleY = scale
+                        }
+                        
+                        // We animate the alpha, between 50% and 100%
+                        alpha = lerp(
+                            start = 0.5f,
+                            stop = 1f,
+                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                        )
+                    }
+            ) {
+                AsyncImage(
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.background)
+                        .fillMaxSize()
+                        .padding()
+                        .clip(shape = RoundedCornerShape(20.dp))
+                        .graphicsLayer { clip = true },
+                    model = currentlyPlayingSong.albumArt,
+                    contentDescription = "",
+                    error = painterResource(
+                        id = R.drawable.ic_erroralbumart
+                    ),
+                    contentScale = ContentScale.FillBounds
+                )
+            }
+        }
+    }
+    //  TODO("Fix View Pager changing pages")
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@PreviewLightDark
+@Composable
+fun AlbumArtViewPagerPreview() {
+    AlbumArtViewPager(
+        currentlyPlayingSong = Song.preview(),
+        pagerState = rememberPagerState { 3 }
+    )
+}
+
+@OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
 fun BrainzPlayerBackDropScreenPreview() {
-    BrainzPlayerBackDropScreen(backdropScaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed)) {}
+    BrainzPlayerBackDropScreen(
+        backdropScaffoldState = rememberBackdropScaffoldState(BackdropValue.Concealed),
+        paddingValues = PaddingValues(0.dp)
+    ) {}
 }
 

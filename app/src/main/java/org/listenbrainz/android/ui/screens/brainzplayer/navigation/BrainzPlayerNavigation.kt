@@ -1,55 +1,77 @@
 package org.listenbrainz.android.ui.screens.brainzplayer.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.Artist
 import org.listenbrainz.android.model.Playlist
 import org.listenbrainz.android.model.Song
-import org.listenbrainz.android.ui.screens.brainzplayer.*
+import org.listenbrainz.android.ui.screens.brainzplayer.AlbumScreen
+import org.listenbrainz.android.ui.screens.brainzplayer.ArtistScreen
+import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerHomeScreen
+import org.listenbrainz.android.ui.screens.brainzplayer.OnAlbumClickScreen
+import org.listenbrainz.android.ui.screens.brainzplayer.OnArtistClickScreen
+import org.listenbrainz.android.ui.screens.brainzplayer.OnPlaylistClickScreen
+import org.listenbrainz.android.ui.screens.brainzplayer.overview.OverviewScreen
+import org.listenbrainz.android.ui.screens.brainzplayer.PlaylistScreen
+import org.listenbrainz.android.ui.screens.brainzplayer.SongScreen
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalMaterial3Api
 @Composable
 fun Navigation(
-    localNavHostController: NavHostController,
-    appNavController: NavController,
     albums: List<Album>,
+    previewAlbums: List<Album>,
     artists: List<Artist>,
+    previewArtists: List<Artist>,
     playlists: List<Playlist>,
-    recentlyPlayedSongs: Playlist,
-    songs: List<Song>
+    songsPlayedToday: List<Song>,
+    songsPlayedThisWeek: List<Song>,
+    recentlyPlayedSongs : List<Song>,
+    songs: List<Song>,
+    albumSongsMap: MutableMap<Album,List<Song>>,
+    navHostController: NavHostController = rememberNavController()
 ) {
-    NavHost(navController = localNavHostController, startDestination = BrainzPlayerNavigationItem.Home.route) {
+    
+    fun goTo(destination: BrainzPlayerNavigationItem) = navHostController.navigate(destination.route)
+    
+    NavHost(navController = navHostController, startDestination = BrainzPlayerNavigationItem.Home.route) {
         
         composable(route = BrainzPlayerNavigationItem.Home.route) {
             BrainzPlayerHomeScreen(
                 songs = songs,
                 albums = albums,
+                previewAlbums = previewAlbums,
                 artists = artists,
-                playlists = playlists,
+                previewArtists = previewArtists,
+                songsPlayedToday = songsPlayedToday,
+                songsPlayedThisWeek = songsPlayedThisWeek,
                 recentlyPlayedSongs = recentlyPlayedSongs,
-                navHostController = localNavHostController,
-                appNavController = appNavController
+                albumSongsMap = albumSongsMap,
             )
         }
         composable(route = BrainzPlayerNavigationItem.Songs.route) {
             SongScreen()
         }
         composable(route = BrainzPlayerNavigationItem.Artists.route) {
-            ArtistScreen(localNavHostController)
+            ArtistScreen { id ->
+                navHostController.navigate("onArtistClick/$id")
+            }
         }
         composable(route = BrainzPlayerNavigationItem.Albums.route) {
-            AlbumScreen(localNavHostController)
+            AlbumScreen { id -> navHostController.navigate("onAlbumClick/$id") }
         }
         composable(route = BrainzPlayerNavigationItem.Playlists.route) {
-            PlaylistScreen(localNavHostController)
+            PlaylistScreen { id -> navHostController.navigate("onPlaylistClick/$id") }
         }
 
         //BrainzPlayerActivity navigation on different screens
@@ -70,7 +92,9 @@ fun Navigation(
             })
         ) {
             it.arguments?.getString("artistID")?.let { artistID ->
-                OnArtistClickScreen(artistID = artistID, localNavHostController)
+                OnArtistClickScreen(artistID = artistID) { id ->
+                    navHostController.navigate("onAlbumClick/$id")
+                }
             }
         }
         composable(

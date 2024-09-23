@@ -33,8 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.YimScreens
-import org.listenbrainz.android.model.YimShareable
+import org.listenbrainz.android.model.yimdata.YimScreens
+import org.listenbrainz.android.model.yimdata.YimShareable
 import org.listenbrainz.android.ui.components.YimShareButton
 import org.listenbrainz.android.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.ui.theme.YearInMusicTheme
@@ -59,6 +59,8 @@ fun YimHomeScreen(
         var startAnimations by remember { mutableStateOf(false) }
         val swipeableState = rememberSwipeableState(initialValue = false)
         var isYimAvailable by remember { mutableStateOf(false) }
+        val networkStatus = networkConnectivityViewModel.getNetworkStatusFlow()
+            .collectAsState(initial = ConnectivityObserver.NetworkStatus.UNAVAILABLE)
         
         LaunchedEffect(key1 = true){
             startAnimations = true
@@ -67,8 +69,8 @@ fun YimHomeScreen(
         // What happens when user swipes up
         LaunchedEffect(key1 = swipeableState.currentValue){
             if (swipeableState.currentValue) {
-                when (networkConnectivityViewModel.getNetworkStatus()) {
-                    ConnectivityObserver.NetworkStatus.Available -> {
+                when (networkStatus.value) {
+                    ConnectivityObserver.NetworkStatus.AVAILABLE -> {
                         // Data status checking
                         when (viewModel.yimData.value.status){
                             Resource.Status.LOADING -> {
@@ -167,14 +169,15 @@ fun YimHomeScreen(
                         Resource.Status.SUCCESS -> {
     
                             // Down Arrow animation
-                            val infiniteAnim = rememberInfiniteTransition()
+                            val infiniteAnim = rememberInfiniteTransition(label = "infiniteAnim")
                             val animValue by infiniteAnim.animateFloat(
                                 initialValue = 0f,
                                 targetValue = 45f,
                                 animationSpec = infiniteRepeatable(
                                     animation = tween(durationMillis = 600, delayMillis = 200),
                                     repeatMode = RepeatMode.Reverse
-                                )
+                                ),
+                                label = "animValue"
                             )
                             
                             if (viewModel.yimData.value.data?.payload?.data != null) {
@@ -220,7 +223,8 @@ fun YimHomeScreen(
             // Bottom Window height animation
             val bottomBarHeight by animateDpAsState(
                 targetValue = if (startAnimations) 180.dp else 0.dp,
-                animationSpec = tween(durationMillis = 1000)
+                animationSpec = tween(durationMillis = 1000),
+                label = "bottomBarHeight"
             )
         
             // Bottom window content
@@ -233,6 +237,7 @@ fun YimHomeScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
+                val username by viewModel.getUsernameFlow().collectAsState(initial = "")
                 
                 // Bottom Window text
                 Text(
@@ -255,7 +260,7 @@ fun YimHomeScreen(
                                 fontWeight = FontWeight.Bold
                             )
                         ){
-                            append(viewModel.getUserName() + "'s")
+                            append("$username's")
                         }
                         withStyle(
                             style = SpanStyle(

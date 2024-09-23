@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="welcome_loggedin">Выполнен вход как</string>
+    <string name="title_tracks">Треки</string>
+    <string name="releases">Релизы</string>
+    <string name="app_name">ListenBrainz</string>
+    <string name="dash_donate">Пожертвовать</string>
+    <string name="dash_about">О приложении</string>
+    <string name="welcome">Добро пожаловать в ListenBrainz!</string>
+    <string name="search_type_artist">Исполнитель</string>
+    <string name="search_type_release">Релиз</string>
+    <string name="search_type_label">Лейбл</string>
+    <string name="search_type_recording">Запись</string>
+    <string name="title_image_size">Размер изображения</string>
+    <string name="recording_releases">Появляется в релизах</string>
+    <string name="search_hint">Поиск в ListenBrainz</string>
+    <string name="news_card">Новости ListenBrainz</string>
+    <string name="dash_scan">Сканировать</string>
+    <string name="dash_collections">Коллекции</string>
+</resources>

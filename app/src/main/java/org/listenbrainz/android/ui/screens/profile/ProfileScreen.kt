@@ -16,9 +16,9 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -35,35 +35,53 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
-import kotlinx.coroutines.Dispatchers
 import org.listenbrainz.android.R
-import org.listenbrainz.android.ui.screens.listens.ListensScreen
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
-import org.listenbrainz.android.viewmodel.ProfileViewModel
+import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
 fun ProfileScreen(
     context: Context = LocalContext.current,
-    viewModel: ProfileViewModel = hiltViewModel(),
-    shouldScrollToTop: MutableState<Boolean>
+    viewModel: UserViewModel = hiltViewModel(),
+    scrollRequestState: Boolean,
+    onScrollToTop: (suspend () -> Unit) -> Unit,
+    username: String?,
+    snackbarState: SnackbarHostState,
+    goToUserProfile: () -> Unit,
+    goToArtistPage: (String) -> Unit,
+    goToUserPage: (String?) -> Unit,
 ) {
     val scrollState = rememberScrollState()
-
+    val uiState = viewModel.uiState.collectAsState()
     // Scroll to the top when shouldScrollToTop becomes true
-    LaunchedEffect(shouldScrollToTop.value) {
-        if (shouldScrollToTop.value) {
+    LaunchedEffect(scrollRequestState) {
+        onScrollToTop {
             scrollState.animateScrollTo(0)
-            shouldScrollToTop.value = false
         }
     }
-
-    val loginStatus = viewModel.getLoginStatusFlow()
-        .collectAsState(initial = viewModel.appPreferences.loginStatus, context = Dispatchers.Default)
-        .value
+    
+    val loginStatus by viewModel.loginStatusFlow.collectAsState()
 
     when(loginStatus) {
         STATUS_LOGGED_IN -> {
-            ListensScreen(shouldScrollToTop = shouldScrollToTop)
+            LaunchedEffect(Unit) {
+                viewModel.getUserDataFromRemote(username)
+            }
+
+            BaseProfileScreen(
+                username = username,
+                snackbarState = snackbarState,
+                uiState = uiState.value,
+                onFollowClick = {
+                    viewModel.followUser(it)
+                },
+                onUnfollowClick = {
+                    viewModel.unfollowUser(it)
+                },
+                goToUserProfile = goToUserProfile,
+                goToArtistPage = goToArtistPage,
+                goToUserPage = goToUserPage
+            )
         }
         else -> {
             Column(

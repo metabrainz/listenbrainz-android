@@ -1,14 +1,32 @@
 package org.listenbrainz.android.util
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.BackdropScaffoldState
+import androidx.compose.material.BackdropValue
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.SkipPrevious
+import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -27,28 +45,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.ui.components.PlayPauseIcon
 import org.listenbrainz.android.ui.components.SeekBar
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
-import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
-@OptIn(ExperimentalMaterialApi::class)
-@ExperimentalPagerApi
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun SongViewPager(modifier: Modifier = Modifier, backdropScaffoldState: BackdropScaffoldState, viewModel: BrainzPlayerViewModel = hiltViewModel()) {
-    val songList = viewModel.mediaItem.collectAsState().value.data ?: listOf()
-    val currentlyPlayingSong = viewModel.currentlyPlayingSong.collectAsState().value.toSong
-    val pagerState = viewModel.pagerState.collectAsState().value
-    val pageState = rememberPagerState(initialPage = pagerState)
+fun SongViewPager(
+    modifier: Modifier = Modifier,
+    backdropScaffoldState: BackdropScaffoldState,
+    currentlyPlayingSong: Song,
+    songList: List<Song>,
+    viewModel: BrainzPlayerViewModel = hiltViewModel()
+) {
     val coroutineScope = rememberCoroutineScope()
+    val pagerState: PagerState = rememberPagerState { songList.size }
     
-    HorizontalPager(count = songList.size, state = pageState, modifier = modifier
+    HorizontalPager(state = pagerState, modifier = modifier
         .fillMaxWidth()
         .background(MaterialTheme.colorScheme.tertiaryContainer)
     ) {
@@ -118,7 +135,14 @@ fun SongViewPager(modifier: Modifier = Modifier, backdropScaffoldState: Backdrop
                                 contentDescription = "",
                                 Modifier
                                     .size(35.dp)
-                                    .clickable { viewModel.skipToPreviousSong() },
+                                    .clickable {
+                                        coroutineScope.launch {
+                                            pagerState.animateScrollToPage(
+                                                (pagerState.currentPage - 1).coerceAtLeast(0)
+                                            )
+                                        }
+                                        viewModel.skipToPreviousSong()
+                                    },
                                 tint = MaterialTheme.colorScheme.onTertiary
                             )
                             Box(
@@ -164,9 +188,13 @@ fun SongViewPager(modifier: Modifier = Modifier, backdropScaffoldState: Backdrop
     }
 }
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
 fun SongViewPagerPreview() {
-    SongViewPager(backdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed))
+    SongViewPager(
+        songList = listOf(),
+        currentlyPlayingSong = Song.preview(),
+        backdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
+    )
 }

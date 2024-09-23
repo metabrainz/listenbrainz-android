@@ -2,6 +2,7 @@ package org.listenbrainz.android.service
 
 import android.content.ComponentName
 import android.content.Context
+import android.media.MediaMetadata
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
@@ -9,15 +10,24 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.work.WorkManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.runBlocking
+import org.listenbrainz.android.BuildConfig
+import org.listenbrainz.android.model.PlayingTrack.Companion.toPlayingTrack
 import org.listenbrainz.android.model.RepeatMode
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlaying
+import org.listenbrainz.android.util.ListenSubmissionState
 import org.listenbrainz.android.util.Resource
 
 class BrainzPlayerServiceConnection(
-    context: Context
+    context: Context,
+    val appPreferences: AppPreferences,
+    val workManager: WorkManager
 ) {
+
     private val _isConnected = MutableStateFlow(Resource(Resource.Status.LOADING, false))
     val isConnected = _isConnected.asStateFlow()
 
@@ -74,7 +84,7 @@ class BrainzPlayerServiceConnection(
     ) : MediaBrowserCompat.ConnectionCallback() {
         override fun onConnected() {
             mediaController = MediaControllerCompat(context, mediaBrowser.sessionToken).apply {
-                registerCallback(MediaControllerCallback())
+                registerCallback(MediaControllerCallback(context))
             }
             _isConnected.value = Resource(Resource.Status.SUCCESS, true)
         }
@@ -87,41 +97,69 @@ class BrainzPlayerServiceConnection(
             _isConnected.value = Resource(Resource.Status.FAILED, false)
         }
     }
-    private inner class MediaControllerCallback : MediaControllerCompat.Callback() {
+    private inner class MediaControllerCallback(context: Context) : MediaControllerCompat.Callback() {
+        val listenSubmissionState: ListenSubmissionState by lazy {
+            ListenSubmissionState(workManager = workManager, context = context)
+        }
+    
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             _playbackState.value = state ?: EMPTY_PLAYBACK_STATE
-            _playButtonState.value = if (state?.isPlaying==true) Icons.Rounded.Pause
-            else Icons.Rounded.PlayArrow
-            if (state?.isPlaying != previousPlaybackState) _isPlaying.value = state?.isPlaying == true
+            _playButtonState.value =
+                if (state?.isPlaying == true)
+                    Icons.Rounded.Pause
+                else
+                    Icons.Rounded.PlayArrow
+        
+            if (state?.isPlaying != previousPlaybackState) _isPlaying.value =
+                state?.isPlaying == true
             previousPlaybackState = state?.isPlaying == true
+        
+            // Cutout point for normal bp and bp submitter
+            if (
+                appPreferences.isNotificationServiceAllowed &&
+                runBlocking { appPreferences.isListeningAllowed.get() }
+            ) return
+        
+            listenSubmissionState.alertPlaybackStateChanged()
+        
         }
-
+    
         override fun onRepeatModeChanged(repeatMode: Int) {
             super.onRepeatModeChanged(repeatMode)
-            when(repeatMode){
+            when (repeatMode) {
                 PlaybackStateCompat.REPEAT_MODE_NONE -> _repeatModeState.value =
                     RepeatMode.REPEAT_MODE_OFF
+            
                 PlaybackStateCompat.REPEAT_MODE_ONE -> _repeatModeState.value =
                     RepeatMode.REPEAT_MODE_ONE
+            
                 PlaybackStateCompat.REPEAT_MODE_ALL -> _repeatModeState.value =
                     RepeatMode.REPEAT_MODE_ALL
+            
                 else -> _repeatModeState.value = RepeatMode.REPEAT_MODE_OFF
             }
         }
-
+    
         override fun onShuffleModeChanged(shuffleMode: Int) {
             super.onShuffleModeChanged(shuffleMode)
             _shuffleState.value = shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL
-                    || shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL
         }
-
-        override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
+    
+        override fun onMetadataChanged(metadataCompat: MediaMetadataCompat?) {
             _currentlyPlayingSong.value =
-                if (metadata?.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID) == null)
+                if (metadataCompat?.getString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID) == null)
                     NOTHING_PLAYING
-                else metadata
+                else metadataCompat
+        
+            // Cutoff point for bp and bp submitter.
+            if (appPreferences.isNotificationServiceAllowed) return
+        
+            val metadata = metadataCompat?.mediaMetadata as MediaMetadata
+            
+            listenSubmissionState.onControllerCallback(metadata.toPlayingTrack(BuildConfig.APPLICATION_ID))
+        
         }
-
+    
         override fun onSessionDestroyed() {
             mediaBrowserConnectionCallback.onConnectionSuspended()
         }

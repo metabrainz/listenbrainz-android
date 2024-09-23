@@ -2,8 +2,15 @@ package org.listenbrainz.android.ui.components
 
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
@@ -24,8 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.ui.theme.isUiModeIsDark
 import org.listenbrainz.android.ui.theme.lb_purple
+import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import java.text.DecimalFormat
 
 /**
@@ -34,20 +41,18 @@ import java.text.DecimalFormat
  */
 @Composable
 fun SimilarUserCard(
-    uiModeIsDark: Boolean = when (isUiModeIsDark.value){
-        true -> true
-        false -> false
-        null -> isSystemInDarkTheme()
-    },
+    uiModeIsDark: Boolean = onScreenUiModeIsDark(),
     cardBackGround: Color = MaterialTheme.colorScheme.background,
     index: Int,
     userName: String,
-    similarity: Float
+    similarity: Float,
+    modifier: Modifier = Modifier
+        .fillMaxWidth()
+        .padding(vertical = 4.dp),
+    goToUserPage: (String) -> Unit,
 ){
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
+        modifier = modifier,
         color = cardBackGround,
         shape = RoundedCornerShape(5.dp),
         shadowElevation = 5.dp,
@@ -88,6 +93,9 @@ fun SimilarUserCard(
                             color = if (uiModeIsDark) MaterialTheme.colorScheme.onSurface else lb_purple,
                             lineHeight = 14.sp
                         ) ,
+                    modifier = Modifier.clickable {
+                        goToUserPage(userName)
+                    }
                 )
             }
             
@@ -133,6 +141,6 @@ fun SimilarUserCard(
 @Composable
 fun Preview(){
     ListenBrainzTheme {
-        SimilarUserCard(index = 0, userName = "jasje", similarity = 0.80f)
+        SimilarUserCard(index = 0, userName = "jasje", similarity = 0.80f, goToUserPage = {})
     }
 }

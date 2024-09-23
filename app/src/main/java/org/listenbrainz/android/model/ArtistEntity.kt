@@ -8,6 +8,6 @@ data class ArtistEntity(
     @PrimaryKey(autoGenerate = true)
     val artistID: Long = 0,
     val name: String,
-    val songs: MutableList<SongEntity>,
-    val albums: MutableList<AlbumEntity>
+    var songs: List<SongEntity>,
+    var albums: List<AlbumEntity>
 )

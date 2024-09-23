@@ -1,13 +1,21 @@
 package org.listenbrainz.android.viewmodel
 
+import android.os.Build
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.session.PlaybackStateCompat.*
+import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ALL
+import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_NONE
+import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ONE
+import android.support.v4.media.session.PlaybackStateCompat.SHUFFLE_MODE_ALL
+import android.support.v4.media.session.PlaybackStateCompat.SHUFFLE_MODE_NONE
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,8 +27,8 @@ import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.Playlist.Companion.currentlyPlaying
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
-import org.listenbrainz.android.repository.AppPreferences
-import org.listenbrainz.android.repository.SongRepository
+import org.listenbrainz.android.repository.brainzplayer.SongRepository
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.BrainzPlayerService
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
 import org.listenbrainz.android.util.BrainzPlayerExtensions.currentPlaybackPosition
@@ -30,6 +38,8 @@ import org.listenbrainz.android.util.BrainzPlayerExtensions.isPrepared
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID
 import org.listenbrainz.android.util.Resource
+import org.listenbrainz.android.util.Transformer.toSongEntity
+import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
@@ -38,7 +48,6 @@ class BrainzPlayerViewModel @Inject constructor(
     private val songRepository: SongRepository,
     val appPreferences: AppPreferences,
 ) : ViewModel() {
-    val pagerState = MutableStateFlow(0)
     private val _mediaItems = MutableStateFlow<Resource<List<Song>>>(Resource.loading())
     private val _songDuration = MutableStateFlow(0L)
     private val _songCurrentPosition = MutableStateFlow(0L)
@@ -47,6 +56,9 @@ class BrainzPlayerViewModel @Inject constructor(
     val progress = _progress.asStateFlow()
     val songCurrentPosition = _songCurrentPosition.asStateFlow()
     val songs = songRepository.getSongsStream()
+    val recentlyPlayed = songRepository.getRecentlyPlayedSongs()
+    val songsPlayedToday = songRepository.getSongsPlayedToday()
+    val songsPlayedThisWeek = songRepository.getSongsPlayedThisWeek()
     private val playbackState = brainzPlayerServiceConnection.playbackState
     val isShuffled = brainzPlayerServiceConnection.shuffleState
     val currentlyPlayingSong = brainzPlayerServiceConnection.currentPlayingSong
@@ -84,7 +96,6 @@ class BrainzPlayerViewModel @Inject constructor(
 
     fun skipToNextSong() {
         brainzPlayerServiceConnection.transportControls.skipToNext()
-        pagerState.value++
         // Updating currently playing song.
         appPreferences.currentPlayable = appPreferences.currentPlayable
             ?.copy(currentSongIndex = ( appPreferences.currentPlayable?.currentSongIndex!! + 1)   // Since BP won't be visible to users with no songs, we don't need to worry.
@@ -94,13 +105,13 @@ class BrainzPlayerViewModel @Inject constructor(
 
     fun skipToPreviousSong() {
         brainzPlayerServiceConnection.transportControls.skipToPrevious()
-        pagerState.value--.coerceAtLeast(0)
         // Updating currently playing song.
         appPreferences.currentPlayable = appPreferences.currentPlayable
             ?.copy(currentSongIndex = ( appPreferences.currentPlayable?.currentSongIndex!! - 1)   // Since BP won't be visible to users with no songs, we don't need to worry.
                 .coerceAtLeast(0)
             )
     }
+
 
     fun onSeek(seekTo: Float) {
         viewModelScope.launch { _progress.emit(seekTo) }
@@ -142,23 +153,29 @@ class BrainzPlayerViewModel @Inject constructor(
         return result
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun playOrToggleSong(mediaItem: Song, toggle: Boolean = false) {
         val isPrepared = playbackState.value.isPrepared
-        if (isPrepared && mediaItem.mediaID == currentlyPlayingSong.value.toSong.mediaID
-        ) {
+        if (isPrepared && mediaItem.mediaID == currentlyPlayingSong.value.toSong.mediaID) {
             playbackState.value.let { playbackState ->
                 when {
                     playbackState.isPlaying -> if (toggle) brainzPlayerServiceConnection.transportControls.pause()
-                    playbackState.isPlayEnabled -> brainzPlayerServiceConnection.transportControls.play()
+                    playbackState.isPlayEnabled -> {
+                        mediaItem.lastListenedTo = System.currentTimeMillis()
+                        viewModelScope.launch { songRepository.updateSong(mediaItem) }
+                        brainzPlayerServiceConnection.transportControls.play()
+                    }
                     else -> Unit
                 }
             }
         } else {
+            mediaItem.lastListenedTo = System.currentTimeMillis()
+            viewModelScope.launch { songRepository.updateSong(mediaItem) }
             brainzPlayerServiceConnection.transportControls.playFromMediaId(mediaItem.mediaID.toString(), null)
         }
     }
 
-    fun queueChanged(mediaItem: Song,toggle: Boolean ) {
+    fun queueChanged(mediaItem: Song, toggle: Boolean ) {
         brainzPlayerServiceConnection.transportControls.playFromMediaId(mediaItem.mediaID.toString(), null)
         playbackState.value.let { playbackState ->
             when {

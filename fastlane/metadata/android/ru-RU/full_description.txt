@@ -1,0 +1,3 @@
+ListenBrainz keeps track of the music you listen to and provides you with insights into your listening habits.
+Using our visualizations, you can use ListenBrainz to track your music listening habits and share your taste with others.
+Based on your listening history we recommend music you might like, new music you missed out on from your favorite artists, and what similar users have been listening to.

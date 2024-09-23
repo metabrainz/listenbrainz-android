@@ -11,9 +11,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ServiceComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ServiceScoped
-import org.listenbrainz.android.repository.AlbumRepository
-import org.listenbrainz.android.repository.PlaylistRepository
-import org.listenbrainz.android.repository.SongRepository
+import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
+import org.listenbrainz.android.repository.brainzplayer.PlaylistRepository
+import org.listenbrainz.android.repository.brainzplayer.SongRepository
 import org.listenbrainz.android.util.LocalMusicSource
 import org.listenbrainz.android.util.MusicSource
 
@@ -41,9 +41,9 @@ object ServiceModule {
     @ServiceScoped
     @Provides
     fun providesMusicSource(songRepository: SongRepository,
-                            albumRepository: AlbumRepository,
-                            artistRepository: AlbumRepository,
+                            BPAlbumRepository: BPAlbumRepository,
+                            artistRepository: BPAlbumRepository,
                             playlistRepository: PlaylistRepository
     ): MusicSource<MediaMetadataCompat> =
-        LocalMusicSource(songRepository, albumRepository, artistRepository,playlistRepository)
+        LocalMusicSource(songRepository, BPAlbumRepository, artistRepository,playlistRepository)
 }

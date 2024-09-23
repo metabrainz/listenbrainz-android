@@ -1,22 +1,35 @@
 package org.listenbrainz.android.util
 
+import android.app.ActivityManager
+import android.app.NotificationManager
+import android.content.ActivityNotFoundException
 import android.content.ContentValues
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Icon
 import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.provider.Settings
-import android.util.Log
+import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
+import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.Dispatchers
 import okhttp3.*
-import org.listenbrainz.android.util.Log.e
+import org.listenbrainz.android.R
+import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.android.model.ResponseError.Companion.getError
+import org.listenbrainz.android.util.Constants.Strings.CHANNEL_ID
+import retrofit2.Response
 import java.io.*
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
@@ -27,26 +40,74 @@ import java.util.*
  */
 object Utils {
     
+    /** General function to parse an API endpoint's response.
+     * @param request Call the API endpoint here. Run any pre-conditional checks to directly return error/success in some cases. */
+    inline fun <T> parseResponse(request: () -> Response<T>): Resource<T> =
+        runCatching<Resource<T>> {
+            val response = request()
+            
+            return@runCatching if (response.isSuccessful) {
+                Resource.success(response.body()!!)
+            } else {
+                val error = getError(response = response)
+                Resource.failure(error = error)
+            }
+        
+        }.getOrElse { logAndReturn(it) }
+    
+    fun <T> logAndReturn(it: Throwable) : Resource<T> {
+        it.printStackTrace()
+        return when (it){
+            is FileNotFoundException -> Resource.failure(error = ResponseError.FILE_NOT_FOUND)
+            is IOException -> Resource.failure(error = ResponseError.NETWORK_ERROR)
+            else -> Resource.failure(error = ResponseError.UNKNOWN)
+        }
+    }
+    
     /** Get *CoverArtArchive* url for cover art of a release.
      * @param size Allowed sizes are 250, 500, 750 and 1000. Default is 250.*/
-    fun getCoverArtUrl(caaReleaseMbid: String?, caaId: Long?, size: Int = 250): String {
-        return  "https://archive.org/download/mbid-${caaReleaseMbid}/mbid-${caaReleaseMbid}-${caaId}_thumb${size}.jpg"
+    fun getCoverArtUrl(caaReleaseMbid: String?, caaId: Long?, size: Int = 250): String? {
+        if (caaReleaseMbid == null || caaId == null) return null
+        return "https://archive.org/download/mbid-${caaReleaseMbid}/mbid-${caaReleaseMbid}-${caaId}_thumb${size}.jpg"
     }
+    
+    fun similarityToPercent(similarity: Float?): String {
+        return if (similarity != null)
+            "${(similarity * 100).toInt()}%"
+        else
+            ""
+    }
+    
+    fun Context.getActivity(): ComponentActivity? = when (this) {
+        is ComponentActivity -> this
+        is ContextWrapper -> baseContext.getActivity()
+        else -> null
+    }
+    
 
-    fun isNotificationServiceEnabled(context: Context): Boolean {
-        val packageNames = Settings.Secure.getString(
-            context.contentResolver,
-            "enabled_notification_listeners"
-        )
-        if (packageNames != null && packageNames.contains(context.packageName)) {
-            return true
+    /** Get human readable error.
+     *
+     * **CAUTION:** If this function is called once, calling it further with the same [Response] instance will result in an empty
+     * string. Store this function's result for multiple use cases.*/
+    fun <T> Response<T>.error(): String? = this.errorBody()?.string()
+    
+    fun sendFeedback(context: Context) {
+        try {
+            context.startActivity(emailIntent(Constants.FEEDBACK_EMAIL, Constants.FEEDBACK_SUBJECT))
+        } catch (e: ActivityNotFoundException) {
+            Toast.makeText(context, R.string.toast_feedback_fail, Toast.LENGTH_LONG).show()
         }
-        return false
     }
-
-    fun shareIntent(text: String?): Intent {
-        val intent = Intent(Intent.ACTION_SEND).setType("text/plain")
-        return intent.putExtra(Intent.EXTRA_TEXT, text)
+    
+    fun getArticle(str: String): String {
+        return when (str.first()){
+            'a' -> "an"
+            'e' -> "an"
+            'i' -> "an"
+            'o' -> "an"
+            'u' -> "an"
+            else -> "a"
+        }
     }
 
     fun emailIntent(recipient: String, subject: String?): Intent {
@@ -72,6 +133,88 @@ object Utils {
         return null
     }
 
+    fun Context.isServiceRunning(serviceClass: Class<*>): Boolean {
+        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                return true
+            }
+        }
+        return false
+    }
+    
+    fun Context.openAppSystemSettings() {
+        startActivity(Intent().apply {
+            action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+            data = Uri.fromParts("package", packageName, null)
+        })
+    }
+    
+    
+    fun notifyListen(songTitle: String, artistName: String, albumArt: Bitmap?, nm: NotificationManager, context: Context) {
+        val notificationBuilder = NotificationCompat.Builder(context,
+            CHANNEL_ID
+        )
+        .setContentTitle(songTitle)
+        .setContentText(artistName)
+        .setSmallIcon(R.drawable.ic_listenbrainz_logo_no_text)
+        .setLargeIcon(albumArt) // Set the album art here
+        .setPriority(NotificationCompat.PRIORITY_LOW)
+        .setAutoCancel(false)
+        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+
+        try {
+            nm.notify(0, notificationBuilder.build())
+        } catch (e: RuntimeException) {
+            Log.e(message = "Error showing notification")
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun Icon.toBitmap(context: Context): Bitmap? {
+        val drawable = this.loadDrawable(context)
+        return if (drawable is BitmapDrawable) {
+            drawable.bitmap
+        } else {
+            val bitmap = drawable?.let {
+                Bitmap.createBitmap(
+                    it.intrinsicWidth,
+                    drawable.intrinsicHeight,
+                    Bitmap.Config.ARGB_8888
+                )
+            }
+            val canvas = bitmap?.let { Canvas(it) }
+            if (canvas != null) {
+                drawable.setBounds(0, 0, canvas.width, canvas.height)
+                drawable.draw(canvas)
+            }
+            bitmap
+        }
+    }
+
+    fun listenFromNotiExtractMeta(titleStr: String, formatStr: String): Pair<String, String>? {
+        val tpos = formatStr.indexOf("%1\$s")
+        val apos = formatStr.indexOf("%2\$s")
+        val regex = formatStr.replace("(", "\\(")
+            .replace(")", "\\)")
+            .replace("%1\$s", "(.*)")
+            .replace("%2\$s", "(.*)")
+        return try {
+            val m = regex.toRegex().find(titleStr)!!
+            val g = m.groupValues
+            if (g.size != 3)
+                throw IllegalArgumentException("group size != 3")
+            if (tpos > apos)
+                g[1] to g[2]
+            else
+                g[2] to g[1]
+
+        } catch (e: Exception) {
+            print("err in $titleStr $formatStr")
+            null
+        }
+    }
+
     fun stringFromAsset(context: Context, asset: String?): String {
         return try {
             val input = context.resources.assets.open(asset!!)
@@ -83,7 +226,7 @@ object Utils {
             input.close()
             output.toString()
         } catch (e: IOException) {
-            e("Error reading text file from assets folder.")
+            Log.e(message = "Error reading text file from assets folder.")
             ""
         }
     }
@@ -184,6 +327,8 @@ object Utils {
                 
                 if (!appImagesFolder.exists()) {
                     if (appImagesFolder.mkdirs())        // Making sure folder exists.
+                        Log.e("saveBitmap", "Successfully created app directory.")
+                    else
                         Log.e("saveBitmap", "Failed to create a directory.", )
                 }
                 
@@ -214,6 +359,5 @@ object Utils {
         }
         
         return resultUrl
-        
     }
 }

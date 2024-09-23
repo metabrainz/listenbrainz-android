@@ -2,13 +2,17 @@ package org.listenbrainz.android.ui.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.*
+import androidx.compose.material.BackdropScaffoldState
+import androidx.compose.material.BackdropValue
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
+import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
@@ -22,22 +26,24 @@ import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AppNavigationItem
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun BottomNavigationBar(
-    shouldScrollToTop: MutableState<Boolean>,
     navController: NavController = rememberNavController(),
-    backdropScaffoldState: BackdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
+    backdropScaffoldState: BackdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed),
+    scrollToTop: () -> Unit,
+    username : String?,
 ) {
     val items = listOf(
-        AppNavigationItem.Home,
+        AppNavigationItem.Feed,
+        AppNavigationItem.Explore,
         AppNavigationItem.BrainzPlayer,
-//        AppNavigationItem.Explore,
-        AppNavigationItem.Profile,
+        AppNavigationItem.Profile
     )
     BottomNavigation(
-        backgroundColor = MaterialTheme.colorScheme.tertiaryContainer,
+        backgroundColor = ListenBrainzTheme.colorScheme.nav,
         elevation = 0.dp
     ) {
         val coroutineScope = rememberCoroutineScope()
@@ -45,7 +51,6 @@ fun BottomNavigationBar(
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
             val selected = currentDestination?.hierarchy?.any { it.route == item.route } == true
-
             BottomNavigationItem(
                 icon = {
                     Icon(
@@ -54,8 +59,15 @@ fun BottomNavigationBar(
                             ?.let { item.iconSelected }
                             ?: item.iconUnselected),
                         modifier = Modifier
-                        .size(24.dp)
-                        .padding(top = 5.dp), contentDescription = item.title, tint = MaterialTheme.colorScheme.onSurface
+                            .size(24.dp)
+                            .padding(vertical = 4.dp), contentDescription = item.title, tint = MaterialTheme.colorScheme.onSurface
+                    )
+                },
+                label = {
+                    Text(
+                        text = item.title,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(),
                     )
                 },
                 selectedContentColor = MaterialTheme.colorScheme.onSurface,
@@ -64,21 +76,41 @@ fun BottomNavigationBar(
                 selected = selected,
                 onClick = {
                     coroutineScope.launch {
-                        shouldScrollToTop.value = true
+                        if (selected) {
+                            scrollToTop()
+                        }
 
                         // A quick way to navigate to back layer content.
                         backdropScaffoldState.reveal()
-                        
-                        navController.navigate(item.route){
-                            // Avoid building large backstack
-                            popUpTo(AppNavigationItem.Home.route){
-                                saveState = true
+
+                        when (item.route) {
+                            AppNavigationItem.Profile.route -> {
+                                navController.navigate("profile/${username}"){
+                                    // Avoid building large backstack
+                                    popUpTo(AppNavigationItem.Feed.route){
+                                        saveState = true
+                                    }
+                                    // Avoid copies
+                                    launchSingleTop = true
+                                    // Restore previous state
+                                    restoreState = true
+                                }
                             }
-                            // Avoid copies
-                            launchSingleTop = true
-                            // Restore previous state
-                            restoreState = true
+                            AppNavigationItem.Feed.route -> {
+                                navController.navigate(AppNavigationItem.Feed.route)
+                            }
+                            else -> navController.navigate(item.route){
+                                    // Avoid building large backstack
+                                    popUpTo(AppNavigationItem.Feed.route){
+                                        saveState = true
+                                    }
+                                    // Avoid copies
+                                    launchSingleTop = false
+                                    // Restore previous state
+                                    restoreState = true
+                                }
                         }
+
                     }
                     
                 }
@@ -92,5 +124,5 @@ fun BottomNavigationBar(
 @Preview
 @Composable
 fun BottomNavigationBarPreview() {
-    BottomNavigationBar(shouldScrollToTop = remember { mutableStateOf(false) }, navController = rememberNavController())
+    BottomNavigationBar(navController = rememberNavController() , scrollToTop = {} ,username = "pranavkonidena")
 }

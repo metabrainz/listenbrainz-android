@@ -14,9 +14,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'oracle'
           java-version: 17
@@ -27,26 +27,32 @@ jobs:
           bundler-cache: true # runs 'bundle install' and caches installed gems automatically
 
       - name: Cache Ruby - Bundler
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: vendor/bundle
           key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-gems-
       - name: Cache Gradle
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.gradle/caches/
           key: cache-clean-gradle-${{ matrix.os }}-${{ matrix.jdk }}
 
       - name: Cache Gradle Wrapper
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.gradle/wrapper/
           key: cache-clean-wrapper-${{ matrix.os }}-${{ matrix.jdk }}
 
       - name: Grant Permission to Execute
         run: chmod +x gradlew
+
+#      - name: run tests
+#        uses: reactivecircus/android-emulator-runner@v2
+#        with:
+#          api-level: 33
+#          script: ./gradlew connectedCheck
 
       - name: Install bundle
         run: |

@@ -4,8 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import org.listenbrainz.android.repository.SongRepository
-import org.listenbrainz.android.repository.SongRepositoryImpl
+import org.listenbrainz.android.repository.brainzplayer.SongRepository
+import org.listenbrainz.android.repository.brainzplayer.SongRepositoryImpl
 
 @Module
 @InstallIn(SingletonComponent::class)

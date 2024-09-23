@@ -2,19 +2,19 @@ name: ListenBrainz CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dev, beta ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, dev, beta ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
       - name: set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'oracle'
           java-version: 17
@@ -24,5 +24,15 @@ jobs:
 
       - name: Run unit tests
         run: ./gradlew test
+
       - name: Build with Gradle
         run: ./gradlew build
+
+      - name: Run lint with Gradle
+        run: ./gradlew lint
+
+      - name: Check lint results
+        uses: yutailang0119/action-android-lint@v4
+        with:
+          report-path: build/reports/*.xml
+        continue-on-error: false

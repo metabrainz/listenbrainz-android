@@ -12,10 +12,10 @@ import androidx.lifecycle.viewModelScope
 import com.caverock.androidsvg.SVG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
 import org.listenbrainz.android.model.yimdata.*
-import org.listenbrainz.android.repository.AppPreferences
-import org.listenbrainz.android.repository.YimRepository
-import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
+import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.repository.yim.YimRepository
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.saveBitmap
 import java.net.URL
@@ -32,6 +32,7 @@ class YimViewModel @Inject constructor(
                     Resource<YimPayload>
                     >
     = mutableStateOf(Resource.loading())
+    val loginFlow = appPreferences.getLoginStatusFlow()
     
     init {
         getData()
@@ -39,7 +40,7 @@ class YimViewModel @Inject constructor(
     
     private fun getData() {
         viewModelScope.launch {
-            val response = getUserName()?.let { repository.getYimData(username = it) }!!
+            val response = repository.getYimData(username = getUsername())
             when (response.status){
                 Resource.Status.SUCCESS -> yimData.value = response
                 Resource.Status.LOADING -> yimData.value = Resource.loading()
@@ -49,11 +50,12 @@ class YimViewModel @Inject constructor(
     }
     
     // Username related functions
-    fun getUserName() : String?{
-        return appPreferences.username
+    suspend fun getUsername() : String {
+        return appPreferences.username.get()
     }
-    fun isLoggedIn() : Boolean{
-        return (appPreferences.loginStatus == STATUS_LOGGED_IN)
+    
+    fun getUsernameFlow() : Flow<String> {
+        return appPreferences.username.getFlow()
     }
     
     /** Get Data functions
@@ -219,7 +221,7 @@ class YimViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val bitmap: Bitmap = Bitmap.createBitmap(924,924,Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
-            val imageURL = "https://api.listenbrainz.org/1/art/year-in-music/2022/${getUserName()}?image=$sharableType"
+            val imageURL = "https://api.listenbrainz.org/1/art/year-in-music/2022/${getUsername()}?image=$sharableType"
             
             try {
                 // Download Image from URL
@@ -232,7 +234,7 @@ class YimViewModel @Inject constructor(
                     context = context,
                     bitmap = bitmap,
                     format = Bitmap.CompressFormat.PNG,
-                    displayName = "${getUserName()}'s $sharableType",
+                    displayName = "${getUsername()}'s $sharableType",
                     launchShareIntent = true
                 )
                 

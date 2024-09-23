@@ -2,19 +2,18 @@ package org.listenbrainz.android.data.dao
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import app.cash.turbine.test
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestWatcher
-import org.junit.runner.Description
 import org.junit.runner.RunWith
 import org.listenbrainz.android.di.brainzplayer.BrainzPlayerDatabase
 import org.listenbrainz.android.model.AlbumEntity
@@ -25,14 +24,41 @@ import org.listenbrainz.android.model.dao.AlbumDao
 import org.listenbrainz.android.model.dao.ArtistDao
 import org.listenbrainz.android.model.dao.PlaylistDao
 import org.listenbrainz.android.model.dao.SongDao
+import org.listenbrainz.sharedtest.utils.CoroutineTestRule
 
+
+object Migrations {
+    val MIGRATION_1_2: Migration = object : Migration(1, 2) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            val cursor = db.query("PRAGMA table_info('SONGS')")
+            var columnExists = false
+            val columnNameIndex = cursor.getColumnIndex("name")
+            if (columnNameIndex != -1) {
+                while (cursor.moveToNext()) {
+                    val columnName = cursor.getString(columnNameIndex)
+                    if (columnName == "lastListenedTo") {
+                        columnExists = true
+                        break
+                    }
+                }
+            }
+            cursor.close()
+
+            if (!columnExists) {
+                db.execSQL(
+                    "ALTER TABLE 'SONGS' ADD COLUMN 'lastListenedTo' INTEGER NOT NULL DEFAULT 0"
+                )
+            }
+        }
+    }
+}
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class DaoTest {
 
     @get:Rule
-    val dispatcherRule = TestDispatcherRule()
+    val dispatcherRule = CoroutineTestRule()
 
     private lateinit var albumDao: AlbumDao
     private lateinit var artistDao: ArtistDao
@@ -63,7 +89,8 @@ class DaoTest {
              song.toLong(),
              song.toLong(),
              song.toLong(),
-             song.toLong()
+             song.toLong(),
+            0
         )
     }
 
@@ -82,6 +109,7 @@ class DaoTest {
                     "AlbumArt$song",
                     song,
                     song,
+                    song.toLong(),
                     song.toLong(),
                     song.toLong(),
                     song.toLong(),
@@ -109,6 +137,7 @@ class DaoTest {
                     song.toLong(),
                     song.toLong(),
                     song.toLong(),
+                    song.toLong(),
                     song.toLong()
                 )
 
@@ -129,6 +158,7 @@ class DaoTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         brainzPlayerDatabase = Room
             .inMemoryDatabaseBuilder(context, BrainzPlayerDatabase::class.java)
+            .addMigrations(Migrations.MIGRATION_1_2)
             .build()
         albumDao = brainzPlayerDatabase.albumDao()
         artistDao = brainzPlayerDatabase.artistDao()
@@ -211,18 +241,5 @@ class DaoTest {
     @After
     fun cleanup() {
         brainzPlayerDatabase.close()
-    }
-}
-
-@ExperimentalCoroutinesApi
-class TestDispatcherRule(
-    private val testDispatcher: TestDispatcher = UnconfinedTestDispatcher()
-) : TestWatcher() {
-    override fun starting(description: Description) {
-        Dispatchers.setMain(testDispatcher)
-    }
-
-    override fun finished(description: Description) {
-        Dispatchers.resetMain()
     }
 }

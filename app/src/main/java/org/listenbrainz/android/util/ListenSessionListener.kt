@@ -4,190 +4,133 @@ import android.media.MediaMetadata
 import android.media.session.MediaController
 import android.media.session.MediaSessionManager.OnActiveSessionsChangedListener
 import android.media.session.PlaybackState
-import com.dariobrux.kotimer.Timer
-import com.dariobrux.kotimer.interfaces.OnTimerListener
-import org.listenbrainz.android.repository.AppPreferences
-import org.listenbrainz.android.util.Log.d
-import org.listenbrainz.android.util.Log.w
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
+import org.listenbrainz.android.repository.preferences.AppPreferences
+import java.util.concurrent.ConcurrentHashMap
 
-class ListenSessionListener(private val handler: ListenHandler, val appPreferences: AppPreferences) : OnActiveSessionsChangedListener {
-    
-    private val activeSessions: MutableMap<MediaController, ListenCallback?> = HashMap()
+class ListenSessionListener(
+    val appPreferences: AppPreferences,
+    val listenServiceManager: ListenServiceManager,
+    private val serviceScope: CoroutineScope
+) : OnActiveSessionsChangedListener {
+    private val availableSessions: ConcurrentHashMap<MediaController, ListenCallback?> = ConcurrentHashMap()
+    private val activeSessions: ConcurrentHashMap<MediaController, ListenCallback?> = ConcurrentHashMap()
 
+    @Synchronized
     override fun onActiveSessionsChanged(controllers: List<MediaController>?) {
-        d("onActiveSessionsChanged: EXECUTED")
+        // d("onActiveSessionsChanged: EXECUTED")
         if (controllers == null) return
         clearSessions()
         registerControllers(controllers)
     }
-
+    
+    init {
+        serviceScope.launch {
+            appPreferences
+                .listeningWhitelist.getFlow()
+                .distinctUntilChanged()
+                .collectLatest { whitelist ->
+                    // Unregistering callback is reactive.
+                    launch {
+                        for (entry in activeSessions) {
+                            if (entry.key.packageName !in whitelist) {
+                                // Unregister listen callback
+                                entry.key.unregisterCallback(entry.value!!)
+            
+                                // remove the active session.
+                                activeSessions.remove(entry.key)
+                                Log.d("### UNREGISTERED MediaController Callback for ${entry.key.packageName}.")
+                            }
+                        }
+                    }
+                    
+                    // Registering callback is reactive.
+                    for (entry in availableSessions) {
+                        if (!activeSessions.contains(entry.key.packageName) && entry.key.packageName in whitelist) {
+                            // register listen callback
+                            entry.key.registerCallback(entry.value!!)
+                            
+                            // add to active sessions.
+                            activeSessions[entry.key] = entry.value!!
+                            Log.d("### REGISTERED MediaController Callback for ${entry.key.packageName}.")
+                            break
+                        }
+                    }
+                }
+        }
+    }
+    
     private fun registerControllers(controllers: List<MediaController>) {
+        val whitelist = runBlocking { appPreferences.listeningWhitelist.get() }
+        
+        fun MediaController.shouldListen(): Boolean = packageName in whitelist
+        
         for (controller in controllers) {
             // BlackList
-            if (controller.packageName in appPreferences.listeningBlacklist)
+            if (!controller.shouldListen()){
                 continue
-
+            }
             val callback = ListenCallback(controller.packageName)
             activeSessions[controller] = callback
+            availableSessions[controller] = callback
             controller.registerCallback(callback)
-            d("### REGISTERED MediaController callback for ${controller.packageName}.")
+            Log.d("### REGISTERED MediaController callback for ${controller.packageName}.")
         }
 
+        updateAppsList(controllers)
+    }
+    
+    private fun updateAppsList(controllers: List<MediaController>) {
         // Adding any new app packages found in the notification.
-        controllers.forEach { controller ->
-            val appList = appPreferences.listeningApps
-            if (controller.packageName !in appList){
-                appPreferences.listeningApps = appList.plus(controller.packageName)
+        serviceScope.launch(Dispatchers.Default) {
+            val shouldScrobbleNewPlayer = appPreferences.shouldListenNewPlayers.get()
+            fun addToWhiteList(packageName: String) {
+                launch {
+                    appPreferences.listeningWhitelist.getAndUpdate { whitelist ->
+                        whitelist.toMutableList().plus(packageName)
+                    }
+                }
+            }
+        
+            appPreferences.listeningApps.getAndUpdate {
+                val appList = it.toMutableList()
+                controllers.forEach { controller ->
+                    if (controller.packageName !in appList){
+                        if (shouldScrobbleNewPlayer)
+                            addToWhiteList(controller.packageName)
+                        appList.add(controller.packageName)
+                    }
+                }
+                return@getAndUpdate appList
             }
         }
-        // println(appPreferences.listeningApps)
     }
 
     fun clearSessions() {
         for ((controller, callback) in activeSessions) {
             controller.unregisterCallback(callback!!)
-            d("### UNREGISTERED MediaController Callback for ${controller.packageName}.")
+            Log.d("### UNREGISTERED MediaController Callback for ${controller.packageName}.")
         }
         activeSessions.clear()
+        availableSessions.clear()
     }
 
     private inner class ListenCallback(private val player: String) : MediaController.Callback() {
-        var artist: String? = null
-        var title: String? = null
-        var releaseName: String? = null
-        var timestamp: Long = 0
-        var duration: Long = 0
-        val timer: Timer = Timer()
-        var state: PlaybackState? = null
-        var submitted = false
         
-        // FIXME:
-        //  1) First ever session song isn't recorded. This is because onMetadataChanged
-        //      isn't called by callback itself.
-        
+        @Synchronized
         override fun onMetadataChanged(metadata: MediaMetadata?) {
-            
-            if (metadata == null) return
-            
-            // Stop timer and reset metadata.
-            resetMetadata()     // Do not perform this action in timer's onTimerStop due to concurrency issues.
-            timer.stop()
-    
-            when {
-                state != null -> d("onMetadataChanged: Listen Metadata " + state!!.state)
-                else -> d("onMetadataChanged: Listen Metadata")
-            }
-            
-            setArtist(metadata)
-            setTitle(metadata)
-            
-            if (isMetadataFaulty()){
-                w("${if (artist == null) "Artist" else "Title"} is null, listen cancelled.")
-                return
-            }
-            
-            setMiscellaneousDetails(metadata)
-            setDurationAndCallbacks(metadata)
-            
+            listenServiceManager.onMetadataChanged(metadata, player)
         }
     
+        @Synchronized
         override fun onPlaybackStateChanged(state: PlaybackState?) {
-            if (state == null) return
-            
-            this.state = state
-            d("onPlaybackStateChanged: Listen PlaybackState " + state.state)
-    
-            if (isDurationUndefined() || submitted) return
-            
-            if (state.state == PlaybackState.STATE_PLAYING){
-                timer.start()
-                // d("Timer started")
-            }
-            
-            if (state.state == PlaybackState.STATE_PAUSED){
-                timer.pause()
-                // d("Timer paused")
-            }
-            
-        }
-        
-        // UTILITY FUNCTIONS
-        
-        private fun setTitle(metadata: MediaMetadata) {
-            title = when {
-                !metadata.getString(MediaMetadata.METADATA_KEY_TITLE).isNullOrEmpty() -> metadata.getString(MediaMetadata.METADATA_KEY_TITLE)
-                !metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE).isNullOrEmpty() -> metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE)
-                else -> null
-            }
-        }
-    
-        private fun setArtist(metadata: MediaMetadata) {
-            artist = when {
-                !metadata.getString(MediaMetadata.METADATA_KEY_ARTIST).isNullOrEmpty() -> metadata.getString(MediaMetadata.METADATA_KEY_ARTIST)
-                !metadata.getString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST).isNullOrEmpty() -> metadata.getString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST)
-                !metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE).isNullOrEmpty() -> metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE)
-                !metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION).isNullOrEmpty() -> metadata.getString(MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION)
-                else -> null
-            }
-        }
-        
-        /** Sets releaseName*/
-        private fun setMiscellaneousDetails(metadata: MediaMetadata) {
-            releaseName = metadata.getString(MediaMetadata.METADATA_KEY_ALBUM)
-        }
-        
-        private fun isMetadataFaulty() : Boolean
-            = artist.isNullOrEmpty() || title.isNullOrEmpty()
-        
-        /** Run [artist] and [title] value-check before invoking this function.*/
-        private fun setDurationAndCallbacks(metadata: MediaMetadata) {
-            duration = roundDuration(duration = metadata.getLong(MediaMetadata.METADATA_KEY_DURATION) / 2L)
-                .coerceAtMost(240000)   // Since maximum time required to validate a listen as submittable listen is 4 minutes.
-            timestamp = System.currentTimeMillis() / 1000
-            
-            // d(duration.toString())
-            timer.setDuration(duration)
-            
-            // Setting listener
-            timer.setOnTimerListener(listener = object : OnTimerListener {
-                override fun onTimerEnded() {
-                    handler.submitListen(
-                        artist,
-                        title,
-                        timestamp,
-                        metadata.getLong(MediaMetadata.METADATA_KEY_DURATION),
-                        player,
-                        releaseName
-                    )
-                    submitted = true
-                }
-    
-                override fun onTimerPaused(remainingMillis: Long) {
-                    d("${remainingMillis / 1000} seconds left to submit listen.")
-                }
-                override fun onTimerRun(milliseconds: Long) {}
-                override fun onTimerStarted() {}
-                override fun onTimerStopped() {}
-                
-            }, callbacksOnMainThread = true)
-            d("Listener Set")
-        }
-    
-        private fun isDurationUndefined() : Boolean
-            = duration <= 0
-        
-        private fun resetMetadata() {
-            d("Metadata Reset")
-            artist = null
-            title = null
-            timestamp = 0
-            duration = 0
-            submitted = false
-            releaseName = null
-        }
-        
-        private fun roundDuration(duration: Long): Long {
-            return (duration / 1000) * 1000
+            listenServiceManager.onPlaybackStateChanged(state)
         }
         
     }

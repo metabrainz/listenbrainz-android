@@ -1,130 +1,98 @@
 package org.listenbrainz.android.ui.screens.profile
 
+import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
+import android.view.View
+import android.view.ViewGroup
+import android.webkit.CookieManager
+import android.webkit.CookieSyncManager
+import android.webkit.WebView
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.Lifecycle
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.R
-import org.listenbrainz.android.model.AccessToken
-import org.listenbrainz.android.model.UserInfo
-import org.listenbrainz.android.ui.components.ListenBrainzActivity
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.viewmodel.LoginViewModel
+import org.listenbrainz.android.util.Utils.getActivity
+import org.listenbrainz.android.viewmodel.ListensViewModel
+
 
 @AndroidEntryPoint
-class LoginActivity : ListenBrainzActivity() {
+class LoginActivity : ComponentActivity() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        val viewModel = ViewModelProvider(this)[LoginViewModel::class.java]
-        
-        // Variable used to show progress of login process.
-        var loginState by mutableStateOf(R.string.login_uninitialized)
-    
-        val response = viewModel.checkRedirectUri(callbackUri = intent.data)
-        when (response){
-            R.string.login_started -> {
-                
-                startActivity(viewModel.getStartLoginIntent())
-                // Finish the activity so that if user returns to the app without any action,
-                // he/she should not be stuck in this activity.
-                finish()
-            }
-            R.string.login_request_denied -> {
-                Toast.makeText(this, getString(R.string.login_request_denied), Toast.LENGTH_SHORT).show()
-                finish()
-            }
-            R.string.login_failed_server_error -> {
-                Toast.makeText(this, getString(R.string.login_failed_server_error), Toast.LENGTH_SHORT).show()
-                finish()
-            }
-        }
-        // Updating loginState
-        loginState = response
-        
-        
+        val viewModel = ViewModelProvider(this)[ListensViewModel::class.java]
         setContent {
             ListenBrainzTheme {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Row(modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        CircularProgressIndicator(color = MaterialTheme.colorScheme.inverseOnSurface)
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(
-                            text = stringResource(id = loginState),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
-            }
-        }
-        
-        lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch {
-                    viewModel.accessTokenFlow.collectLatest { accessToken: AccessToken? ->
-                        // null means no login request has been made.
-                        if (accessToken != null){
-                            val accessTokenResponse = viewModel.saveOAuthToken(accessToken)
-                            
-                            // Updating loginState
-                            loginState = accessTokenResponse
-    
-                            if (accessTokenResponse == R.string.login_failed_access_token) {
-                                Toast.makeText(this@LoginActivity, getString(accessTokenResponse), Toast.LENGTH_SHORT).show()
-                                finish()
-                            }
-                            
-                        }
-                    }
-                }
-                launch {
-                    viewModel.userInfoFlow.collectLatest { userInfo: UserInfo? ->
-                        if (userInfo != null) {
-                            println("userInfo: ${userInfo.username}")
-                            val userInfoResponse = viewModel.saveUserInfo(userInfo)
-                            
-                            // Updating loginState
-                            loginState = userInfoResponse
-                            
-                            if (userInfoResponse == R.string.login_failed_user_info){
-                                Toast.makeText(this@LoginActivity, userInfoResponse, Toast.LENGTH_SHORT).show()
-                            }else{
-                                Toast.makeText(this@LoginActivity, "Login successful. " + userInfo.username + " is now logged in.", Toast.LENGTH_SHORT).show()
-                            }
-                            finish()
-                        }
-                    }
+                    // FIXME: Security certificate warning in API 24 and below.
+                    ListenBrainzLogin(viewModel)
                 }
             }
         }
     }
-    
+}
 
+@SuppressLint("SetJavaScriptEnabled")
+@Composable
+fun ListenBrainzLogin(viewModel: ListensViewModel) {
+    val url = "https://listenbrainz.org/login"
+    val coroutineScope = rememberCoroutineScope()
+    val activity = LocalContext.current.getActivity()
+    Row(modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        AndroidView(factory = {
+            WebView(it).apply {
+    
+                fun clearCookies() {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                        CookieManager.getInstance().removeAllCookies(null)
+                        CookieManager.getInstance().flush()
+                    } else {
+                        val cookieSyncManager = CookieSyncManager.createInstance(context)
+                        cookieSyncManager.startSync()
+                        val cookieManager: CookieManager = CookieManager.getInstance()
+                        cookieManager.removeAllCookie()
+                        cookieManager.removeSessionCookie()
+                        cookieSyncManager.stopSync()
+                        cookieSyncManager.sync()
+                    }
+                }
+                
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+                webViewClient = ListenBrainzWebClient { token ->
+                    // Token is not null or empty.
+                    coroutineScope.launch {
+                        viewModel.saveUserDetails(token)
+                        activity?.finish()
+                    }
+                }
+                clearCookies()
+                settings.javaScriptEnabled = true
+                setLayerType(View.LAYER_TYPE_HARDWARE, null)
+                loadUrl(url)
+            }
+        }, update = {
+            it.loadUrl(url)
+        })
+    }
 }

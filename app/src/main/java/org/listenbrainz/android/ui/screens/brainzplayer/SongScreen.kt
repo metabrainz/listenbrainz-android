@@ -202,7 +202,7 @@ fun SongScreen() {
             BPLibraryEmptyMessage(modifier = Modifier.align(Alignment.Center))
         } else {
             LazyVerticalGrid(columns = GridCells.Fixed(2)) {
-                items(songs.value.sortedBy { it.discNumber }) {
+                items(songs.value) {
                     Box(modifier = Modifier
                         .padding(2.dp)
                         .height(240.dp)
@@ -218,7 +218,10 @@ fun SongScreen() {
                                     .indexOf(it),
                                 0L
                             )
-                            brainzPlayerViewModel.playOrToggleSong(it, true)
+                            brainzPlayerViewModel.playOrToggleSong(
+                                it,
+                                true,
+                            )
                         }
                     ) {
                         DropdownMenu(
@@ -308,7 +311,8 @@ fun SongScreen() {
                                     .clip(CircleShape)
                                     .background(Color.LightGray)
                                     .clickable {
-                                        songCardMoreOptionsDropMenuExpanded = songs.value.indexOf(it)
+                                        songCardMoreOptionsDropMenuExpanded =
+                                            songs.value.indexOf(it)
                                     }
                                     .align(Alignment.BottomEnd),
                                     contentAlignment = Alignment.Center
@@ -324,7 +328,7 @@ fun SongScreen() {
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 color = colorResource(
-                                    id = R.color.white
+                                    id = R.color.text
                                 )
                             )
                             Text(
@@ -335,7 +339,7 @@ fun SongScreen() {
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 color = colorResource(
-                                    id = R.color.white
+                                    id = R.color.text
                                 )
                             )
                         }
