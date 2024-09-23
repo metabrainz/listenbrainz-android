@@ -3,6 +3,7 @@ package org.listenbrainz.android.util
 import android.content.Context
 import android.media.AudioManager
 import android.media.MediaMetadata
+import android.os.Handler
 import android.service.notification.StatusBarNotification
 import androidx.core.content.ContextCompat
 import androidx.work.WorkManager
@@ -12,11 +13,7 @@ import org.listenbrainz.android.model.OnTimerListener
 import org.listenbrainz.android.model.PlayingTrack
 import org.listenbrainz.android.service.ListenSubmissionWorker.Companion.buildWorkRequest
 
-class ListenSubmissionState(
-    jobQueue: JobQueue = JobQueue(Dispatchers.Default),
-    private val workManager: WorkManager,
-    private val context: Context
-) {
+class ListenSubmissionState {
     var playingTrack: PlayingTrack = PlayingTrack()
         private set
     private val audioManager by lazy {
@@ -25,9 +22,27 @@ class ListenSubmissionState(
             AudioManager::class.java
         )!!
     }
-    private val timer: Timer = Timer(jobQueue)
+    private val timer: Timer
+    private val workManager: WorkManager
+    private val context: Context
+
+    constructor(jobQueue: JobQueue = JobQueue(Dispatchers.Default), workManager: WorkManager, context: Context) {
+        this.timer = TimerJQ(jobQueue)
+        this.workManager = workManager
+        this.context = context
+
+        init()
+    }
+
+    constructor(handler: Handler, workManager: WorkManager, context: Context) {
+        this.timer = TimerHandler(handler)
+        this.workManager = workManager
+        this.context = context
+
+        init()
+    }
     
-    init {
+    fun init() {
         // Setting listener
         timer.setOnTimerListener(listener = object : OnTimerListener {
             override fun onTimerEnded() {
