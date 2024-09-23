@@ -121,12 +121,14 @@ class ListenSubmissionState {
                 beforeMetadataSet()
                 playingTrack = track
                 afterMetadataSet()
+                Log.d("onControllerCallback: Updated current track")
             },
             onTrackIsSimilarCallbackTrack = { track ->
                 // Usually this won't happen because metadata isn't being changed.
                 beforeMetadataSet()
                 playingTrack = track
                 afterMetadataSet()
+                Log.d("onControllerCallback: track is similar.")
             },
             onTrackIsSimilarNotificationTrack = { track ->
                 // Update but retain timestamp and playingNowSubmitted.
@@ -140,6 +142,7 @@ class ListenSubmissionState {
                 timer.extendDuration { secondsPassed ->
                     track.duration/2 - secondsPassed
                 }
+                Log.d("onControllerCallback: track is similar, updated metadata.")
             }
         )
         // No need to toggle timer here since we can rely on onNotificationPosted to do that.
@@ -159,15 +162,18 @@ class ListenSubmissionState {
                 
                 afterMetadataSet()
                 alertPlaybackStateChanged()
+                Log.d("notificationPosted: Updated current track")
             },
             onTrackIsSimilarCallbackTrack = { track ->
                 // We definitely know that whenever the notification bar changes a bit, we will get a state
                 // update which means we have a valid reason to query if music is playing or not.
                 alertPlaybackStateChanged()
+                Log.d("notificationPosted: metadata is already updated, playback state changed.")
             },
             onTrackIsSimilarNotificationTrack = { track ->
                 // Same as above.
                 alertPlaybackStateChanged()
+                Log.d("notificationPosted: track is similar, metadata is about the same, playback state changed.")
             }
         )
     }
@@ -182,8 +188,10 @@ class ListenSubmissionState {
         
         if (audioManager.isMusicActive) {
             timer.startOrResume()
+            Log.d("Play")
         } else {
             timer.pause()
+            Log.d("Pause")
         }
     }
     

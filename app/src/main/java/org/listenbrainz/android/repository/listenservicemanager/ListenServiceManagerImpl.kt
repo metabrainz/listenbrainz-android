@@ -7,6 +7,8 @@ import android.media.session.PlaybackState
 import android.os.Handler
 import android.os.Looper
 import android.service.notification.StatusBarNotification
+import android.text.Spannable
+import android.text.SpannableString
 import androidx.core.os.HandlerCompat
 import androidx.work.WorkManager
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -36,7 +38,7 @@ class ListenServiceManagerImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ): ListenServiceManager {
     
-    private val handler: Handler = HandlerCompat.createAsync(Looper.getMainLooper())
+    private val handler: Handler = Handler(Looper.getMainLooper())
     private val listenSubmissionState = ListenSubmissionState(handler, workManager, context)
     //private val jobQueue: JobQueue by lazy { JobQueue(defaultDispatcher) }
     //private val listenSubmissionState = ListenSubmissionState(jobQueue, workManager, context)
@@ -117,10 +119,22 @@ class ListenServiceManagerImpl @Inject constructor(
             if (sbn?.notification?.category != Notification.CATEGORY_TRANSPORT) return@post
     
             val newTrack = PlayingTrack(
-                title = sbn.notification.extras.getString(Notification.EXTRA_TITLE)
-                    ?: return@post,
-                artist = sbn.notification.extras.getString(Notification.EXTRA_TEXT)
-                    ?: return@post,
+                title = sbn.notification.extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()
+                    ?: sbn.notification.extras.getString(Notification.EXTRA_TITLE)
+                    //?: (sbn.notification.extras.get(Notification.EXTRA_TITLE) as? SpannableString)?.toString()
+                    //?: sbn.notification.extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()
+                    ?: run {
+                        Log.d("Notification title is null")
+                        return@post
+                    },
+                artist = sbn.notification.extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()
+                    ?: sbn.notification.extras.getString(Notification.EXTRA_TEXT)
+                    //?: (sbn.notification.extras.get(Notification.EXTRA_TEXT) as? SpannableString)?.toString()
+                    //?: sbn.notification.extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()
+                    ?: run {
+                        Log.d("Notification artist is null")
+                        return@post
+                    },
                 pkgName = sbn.packageName,
                 timestamp = sbn.notification.`when`
             )
