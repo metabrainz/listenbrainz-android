@@ -259,7 +259,7 @@ fun ListensScreen(
                 }
                 item{
                     Spacer(modifier = Modifier.height(30.dp))
-                    Text("Recent Listens", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(start = 16.dp))
+                    Text("Recent Listens", color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(start = 16.dp))
                     Spacer(modifier = Modifier.height(10.dp))
                 }
                 itemsIndexed(items = (when(recentListensCollapsibleState.value){
@@ -345,7 +345,7 @@ fun ListensScreen(
                             )){
                             Column {
                                 Spacer(modifier = Modifier.height(30.dp))
-                                Text("Your Compatibility", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(start = 16.dp))
+                                Text("Your Compatibility", color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(start = 16.dp))
                                 Spacer(modifier = Modifier.height(10.dp))
                                 CompatibilityCard(compatibility = uiState.listensTabUiState.compatibility ?: 0f, uiState.listensTabUiState.similarArtists, goToArtistPage = goToArtistPage)
                             }
@@ -510,7 +510,9 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
                     withStyle(style = SpanStyle(color = lb_purple_night)) {
                         append(artist.artistName)
                     }
-                    pop()
+                    if (artist.artistMbid != null) {
+                        pop()
+                    }
                     if (index < similarArtists.size - 1) {
                         append(", ")
                     }
@@ -626,11 +628,11 @@ private fun SongsListened(username: String? , listenCount: Int?, isSelf: Boolean
                 true -> "You have listened to"
                 false -> "$username has listened to"
             }
-            , color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            , color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
         Spacer(modifier = Modifier.height(15.dp))
         HorizontalDivider(color = ListenBrainzTheme.colorScheme.dividerColor, modifier = Modifier.padding(start = 60.dp, end = 60.dp))
         Spacer(modifier = Modifier.height(15.dp))
-        Text(listenCount.toString(), color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),  textAlign = TextAlign.Center)
+        Text(listenCount.toString(), color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),  textAlign = TextAlign.Center)
         Text("songs so far", color = app_bg_mid, style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
         Spacer(modifier = Modifier.height(30.dp))
     }
@@ -648,14 +650,14 @@ private fun FollowersInformation(followersCount: Int?, followingCount: Int?){
             .fillMaxWidth()
             .padding(top = 30.dp, bottom = 30.dp)) {
             Column (horizontalAlignment = Alignment.CenterHorizontally) {
-                Text((followersCount ?:0).toString(), style = MaterialTheme.typography.bodyLarge, color = ListenBrainzTheme.colorScheme.textColor)
+                Text((followersCount ?:0).toString(), style = MaterialTheme.typography.bodyLarge, color = ListenBrainzTheme.colorScheme.text)
                 Spacer(modifier = Modifier.height(10.dp))
-                Text("Followers", style = MaterialTheme.typography.bodyLarge, color = ListenBrainzTheme.colorScheme.textColor)
+                Text("Followers", style = MaterialTheme.typography.bodyLarge, color = ListenBrainzTheme.colorScheme.text)
             }
             Column (horizontalAlignment = Alignment.CenterHorizontally) {
-                Text((followingCount ?: 0).toString(), style = MaterialTheme.typography.bodyLarge, color = ListenBrainzTheme.colorScheme.textColor)
+                Text((followingCount ?: 0).toString(), style = MaterialTheme.typography.bodyLarge, color = ListenBrainzTheme.colorScheme.text)
                 Spacer(modifier = Modifier.height(10.dp))
-                Text("Following", style = MaterialTheme.typography.bodyLarge, color = ListenBrainzTheme.colorScheme.textColor)
+                Text("Following", style = MaterialTheme.typography.bodyLarge, color = ListenBrainzTheme.colorScheme.text)
             }
         }
         Spacer(modifier = Modifier.height(10.dp))
@@ -689,7 +691,7 @@ private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers:
     Column(modifier = Modifier.padding(start = 16.dp , top = 30.dp)) {
         Text(
             "Followers",
-            color = ListenBrainzTheme.colorScheme.textColor,
+            color = ListenBrainzTheme.colorScheme.text,
             style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp)
         )
         Spacer(modifier = Modifier.height(10.dp))
@@ -775,7 +777,7 @@ private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers:
 @Composable
 private fun SimilarUsersCard(similarUsers: List<SimilarUser>, goToUserPage: (String?) -> Unit){
     Spacer(modifier = Modifier.height(20.dp))
-    Text("Similar Users", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(horizontal = 16.dp))
+    Text("Similar Users", color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(horizontal = 16.dp))
     Spacer(modifier = Modifier.height(20.dp))
     similarUsers.mapIndexed{
         index , item ->

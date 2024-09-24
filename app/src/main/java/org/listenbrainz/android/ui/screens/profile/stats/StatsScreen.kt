@@ -356,7 +356,7 @@ fun StatsScreen(
 
                     }
                     else{
-                        Text("There are no statistics available for this user for this period", color = ListenBrainzTheme.colorScheme.textColor, modifier = Modifier.padding(start = 10.dp))
+                        Text("There are no statistics available for this user for this period", color = ListenBrainzTheme.colorScheme.text, modifier = Modifier.padding(start = 10.dp))
                     }
 
                 }
