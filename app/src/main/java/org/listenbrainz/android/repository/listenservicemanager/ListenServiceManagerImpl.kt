@@ -116,7 +116,11 @@ class ListenServiceManagerImpl @Inject constructor(
             if (!isListeningAllowed) return@post
             
             // Only CATEGORY_TRANSPORT contain media player metadata.
-            if (sbn?.notification?.category != Notification.CATEGORY_TRANSPORT) return@post
+            if (sbn?.notification?.category != Notification.CATEGORY_TRANSPORT) {
+                Log.d("Notification category is ${sbn?.notification?.category} not transport")
+                return@post
+            }
+
     
             val newTrack = PlayingTrack(
                 title = sbn.notification.extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()
@@ -141,14 +145,20 @@ class ListenServiceManagerImpl @Inject constructor(
     
             // Avoid repetitive submissions
             with(listenSubmissionState) {
-                if (
+                /*if (
                     newTrack.pkgName == playingTrack.pkgName
                     && newTrack.timestamp in lastNotificationPostTs..lastNotificationPostTs + NOTI_SUBMISSION_TIMEOUT_INTERVAL
                     && newTrack.title == playingTrack.title
-                ) return@post
+                ) {
+                    Log.d("Repetitive listen, dismissing.")
+                    return@post
+                }*/
     
                 // Check for whitelisted apps
-                if (sbn.packageName !in whitelist) return@post
+                if (sbn.packageName !in whitelist) {
+                    Log.d("Package ${sbn.packageName} not in whitelist, dismissing.")
+                    return@post
+                }
     
                 lastNotificationPostTs = newTrack.timestamp
     
