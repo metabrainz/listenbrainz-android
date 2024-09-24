@@ -100,7 +100,7 @@ class ListenSubmissionState {
     private fun afterMetadataSet() {
         // After metadata set
         if (isMetadataFaulty()) {
-            Log.w("${if (playingTrack.artist == null) "Artist" else "Title"} is null, listen cancelled.")
+            Log.w("${if (playingTrack.artist.isNullOrEmpty()) "Artist" else "Title"} is null, listen cancelled.")
             playingTrack.reset()
             return
         }
@@ -140,7 +140,7 @@ class ListenSubmissionState {
                 
                 // Update timer because now we have duration.
                 timer.extendDuration { secondsPassed ->
-                    track.duration/2 - secondsPassed
+                    track.duration / 2 - secondsPassed
                 }
                 Log.d("onControllerCallback: track is similar, updated metadata.")
             }
