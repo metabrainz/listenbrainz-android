@@ -46,7 +46,7 @@ abstract class TimerBase: Timer {
     
     protected fun startOrResume(
         delay: Long = 0L,
-        postDelayed: (duration: Long, token: Int, block: () -> Unit) -> Unit
+        postDelayed: (durationLeft: Long, token: Int, block: () -> Unit) -> Unit
     ) {
         when (mState) {
             TimerState.RUNNING -> return
@@ -131,8 +131,8 @@ abstract class TimerBase: Timer {
 class TimerJQ(
     private val jobQueue: JobQueue
 ): TimerBase() {
-    override fun startOrResume(delay: Long) = startOrResume(delay) { duration, token, block ->
-        jobQueue.postDelayed(duration, token) { block() }
+    override fun startOrResume(delay: Long) = startOrResume(delay) { durationLeft, token, block ->
+        jobQueue.postDelayed(durationLeft, token) { block() }
     }
 
     override fun stop() = stop { jobQueue.removePosts(it) }
@@ -152,11 +152,11 @@ class TimerJQ(
 class TimerHandler(
     private val handler: Handler
 ): TimerBase() {
-    override fun startOrResume(delay: Long) = startOrResume(delay) { duration, token, block ->
+    override fun startOrResume(delay: Long) = startOrResume(delay) { durationLeft, token, block ->
         handler.postAtTime(
             { block() },
             token,
-            duration,
+            SystemClock.uptimeMillis() + durationLeft,
         )
     }
 
@@ -169,7 +169,7 @@ class TimerHandler(
             handler.postAtTime(
                 { block() },
                 token,
-                duration,
+                SystemClock.uptimeMillis() + duration,
             )
         }
     )
