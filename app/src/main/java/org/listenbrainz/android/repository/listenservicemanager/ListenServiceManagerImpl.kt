@@ -7,9 +7,6 @@ import android.media.session.PlaybackState
 import android.os.Handler
 import android.os.Looper
 import android.service.notification.StatusBarNotification
-import android.text.Spannable
-import android.text.SpannableString
-import androidx.core.os.HandlerCompat
 import androidx.work.WorkManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
@@ -20,7 +17,6 @@ import org.listenbrainz.android.di.DefaultDispatcher
 import org.listenbrainz.android.model.PlayingTrack
 import org.listenbrainz.android.model.PlayingTrack.Companion.toPlayingTrack
 import org.listenbrainz.android.repository.preferences.AppPreferences
-import org.listenbrainz.android.util.JobQueue
 import org.listenbrainz.android.util.ListenSubmissionState
 import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractTitle
 import org.listenbrainz.android.util.Log
@@ -102,16 +98,12 @@ class ListenServiceManagerImpl @Inject constructor(
     
     override fun onPlaybackStateChanged(state: PlaybackState?) {
         // No need of this right now.
-        /*scope.launch {
-            timerMutex.withLock {
-                listenSubmissionState.toggleTimer(state?.state)
-            }
-        }*/
+        //listenSubmissionState.alertPlaybackStateChanged()
     }
     
     /** NOTE FOR FUTURE USE: When onNotificationPosted is called twice within 300..600ms delay, it usually
      * means the track has been changed.*/
-    override fun onNotificationPosted(sbn: StatusBarNotification?) {
+    override fun onNotificationPosted(sbn: StatusBarNotification?, mediaPlaying: Boolean) {
         handler.post {
             if (!isListeningAllowed) return@post
             
@@ -163,9 +155,8 @@ class ListenServiceManagerImpl @Inject constructor(
                 lastNotificationPostTs = newTrack.timestamp
     
                 // Alert submission state
-                alertMediaNotificationUpdate(newTrack)
+                alertMediaNotificationUpdate(newTrack, mediaPlaying)
             }
-            Log.e("NOTI")
         }
     }
     

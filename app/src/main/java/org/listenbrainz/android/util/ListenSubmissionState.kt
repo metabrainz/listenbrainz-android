@@ -16,12 +16,6 @@ import org.listenbrainz.android.service.ListenSubmissionWorker.Companion.buildWo
 class ListenSubmissionState {
     var playingTrack: PlayingTrack = PlayingTrack()
         private set
-    private val audioManager by lazy {
-        ContextCompat.getSystemService(
-            context,
-            AudioManager::class.java
-        )!!
-    }
     private val timer: Timer
     private val workManager: WorkManager
     private val context: Context
@@ -148,7 +142,7 @@ class ListenSubmissionState {
         // No need to toggle timer here since we can rely on onNotificationPosted to do that.
     }
     
-    fun alertMediaNotificationUpdate(newTrack: PlayingTrack) {
+    fun alertMediaNotificationUpdate(newTrack: PlayingTrack, isMediaPlaying: Boolean) {
         newTrack.updatePlayingTrack(
             onTrackIsOutdated = { track ->
                 beforeMetadataSet()
@@ -161,18 +155,18 @@ class ListenSubmissionState {
                 }
                 
                 afterMetadataSet()
-                alertPlaybackStateChanged()
+                alertPlaybackStateChanged(isMediaPlaying)
                 Log.d("notificationPosted: Updated current track")
             },
             onTrackIsSimilarCallbackTrack = { track ->
                 // We definitely know that whenever the notification bar changes a bit, we will get a state
                 // update which means we have a valid reason to query if music is playing or not.
-                alertPlaybackStateChanged()
+                alertPlaybackStateChanged(isMediaPlaying)
                 Log.d("notificationPosted: metadata is already updated, playback state changed.")
             },
             onTrackIsSimilarNotificationTrack = { track ->
                 // Same as above.
-                alertPlaybackStateChanged()
+                alertPlaybackStateChanged(isMediaPlaying)
                 Log.d("notificationPosted: track is similar, metadata is about the same, playback state changed.")
             }
         )
@@ -183,10 +177,10 @@ class ListenSubmissionState {
     }
     
     /** Toggle timer based on state. */
-    fun alertPlaybackStateChanged() {
+    fun alertPlaybackStateChanged(isMediaPlaying: Boolean) {
         if (playingTrack.isSubmitted()) return
-        
-        if (audioManager.isMusicActive) {
+
+        if (isMediaPlaying) {
             timer.startOrResume()
             Log.d("Play")
         } else {

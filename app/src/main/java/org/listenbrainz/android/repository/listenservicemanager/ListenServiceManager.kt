@@ -10,7 +10,7 @@ interface ListenServiceManager {
     
     fun onPlaybackStateChanged(state: PlaybackState?)
     
-    fun onNotificationPosted(sbn: StatusBarNotification?)
+    fun onNotificationPosted(sbn: StatusBarNotification?, mediaPlaying: Boolean)
     
     fun onNotificationRemoved(sbn: StatusBarNotification?)
     

@@ -79,7 +79,7 @@ class ListenSubmissionService : NotificationListenerService() {
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
-        serviceManager.onNotificationPosted(sbn)
+        serviceManager.onNotificationPosted(sbn, sessionListener!!.isMediaPlaying)
     }
 
     override fun onNotificationRemoved(

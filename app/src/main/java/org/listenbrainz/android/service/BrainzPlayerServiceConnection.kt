@@ -122,8 +122,7 @@ class BrainzPlayerServiceConnection(
                 runBlocking { appPreferences.isListeningAllowed.get() }
             ) return
         
-            listenSubmissionState.alertPlaybackStateChanged()
-        
+            listenSubmissionState.alertPlaybackStateChanged(state?.isPlaying == true)
         }
     
         override fun onRepeatModeChanged(repeatMode: Int) {
