@@ -29,9 +29,14 @@ class ListenSubmissionService : NotificationListenerService() {
     @Inject
     lateinit var serviceManager: ListenServiceManager
     
-    private var sessionListener: ListenSessionListener? = null
-    private var listenServiceComponent: ComponentName? = null
     private val scope = MainScope()
+
+    private var _sessionListener: ListenSessionListener? = null
+    private val sessionListener: ListenSessionListener
+        get() = _sessionListener!!
+
+    private var listenServiceComponent: ComponentName? = null
+    private var isConnected = false
     
     private val nm: NotificationManager? by lazy {
         val manager = ContextCompat.getSystemService(this, NotificationManager::class.java)
@@ -45,22 +50,33 @@ class ListenSubmissionService : NotificationListenerService() {
             Log.e("MediaSessionManager is not available in this context.")
         manager
     }
-    
-    override fun onCreate() {
-        super.onCreate()
-        initialize()
+
+    override fun onListenerConnected() {
+        // Called more times than onListenerDisconnected for some reason.
+        if (!isConnected) {
+            initialize()
+            isConnected = true
+        }
+    }
+
+    override fun onListenerDisconnected() {
+        if (isConnected) {
+            destroy()
+            Log.d("onListenerDisconnected: Listen Service paused.")
+            isConnected = false
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) = Service.START_STICKY
 
     private fun initialize() {
         Log.d("Initializing Listener Service")
-        sessionListener = ListenSessionListener(appPreferences, serviceManager, scope)
+        _sessionListener = ListenSessionListener(appPreferences, serviceManager, scope)
         listenServiceComponent = ComponentName(this, this.javaClass)
         createNotificationChannel()
 
         try {
-            sessionManager?.addOnActiveSessionsChangedListener(sessionListener!!, listenServiceComponent)
+            sessionManager?.addOnActiveSessionsChangedListener(sessionListener, listenServiceComponent)
         } catch (e: SecurityException) {
             Log.e(message = "Could not add session listener due to security exception: ${e.message}")
         } catch (e: Exception) {
@@ -68,18 +84,21 @@ class ListenSubmissionService : NotificationListenerService() {
         }
     }
 
-    override fun onDestroy() {
+    private fun destroy() {
         deleteNotificationChannel()
-        sessionListener?.clearSessions()
-        sessionListener?.let { sessionManager?.removeOnActiveSessionsChangedListener(it) }
+        sessionListener.clearSessions()
+        sessionListener.let { sessionManager?.removeOnActiveSessionsChangedListener(it) }
+    }
+
+    override fun onDestroy() {
         serviceManager.close()
         scope.cancel()
-        Log.d("onDestroy: Listen Scrobble Service stopped.")
+        Log.d("onDestroy: Listen Service stopped.")
         super.onDestroy()
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
-        serviceManager.onNotificationPosted(sbn, sessionListener!!.isMediaPlaying)
+        serviceManager.onNotificationPosted(sbn, sessionListener.isMediaPlaying)
     }
 
     override fun onNotificationRemoved(

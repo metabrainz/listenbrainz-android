@@ -82,6 +82,11 @@ class ListenSessionListener(
             activeSessions[controller] = callback
             availableSessions[controller] = callback
             controller.registerCallback(callback)
+
+            // Force call the callback for the first time a controller is registered.
+            callback.onMetadataChanged(controller.metadata)
+            callback.onPlaybackStateChanged(controller.playbackState)
+
             Log.d("### REGISTERED MediaController callback for ${controller.packageName}.")
         }
 
