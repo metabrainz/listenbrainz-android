@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
 import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.util.ListenSessionListener.Companion.isPlaying
 import java.util.concurrent.ConcurrentHashMap
 
 class ListenSessionListener(
@@ -89,7 +90,7 @@ class ListenSessionListener(
     private fun updateAppsList(controllers: List<MediaController>) {
         // Adding any new app packages found in the notification.
         serviceScope.launch(Dispatchers.Default) {
-            val shouldScrobbleNewPlayer = appPreferences.shouldListenNewPlayers.get()
+            val shouldListenNewPlayer = appPreferences.shouldListenNewPlayers.get()
             fun addToWhiteList(packageName: String) {
                 launch {
                     appPreferences.listeningWhitelist.getAndUpdate { whitelist ->
@@ -102,7 +103,7 @@ class ListenSessionListener(
                 val appList = it.toMutableList()
                 controllers.forEach { controller ->
                     if (controller.packageName !in appList){
-                        if (shouldScrobbleNewPlayer)
+                        if (shouldListenNewPlayer)
                             addToWhiteList(controller.packageName)
                         appList.add(controller.packageName)
                     }
@@ -132,6 +133,12 @@ class ListenSessionListener(
         override fun onPlaybackStateChanged(state: PlaybackState?) {
             listenServiceManager.onPlaybackStateChanged(state)
         }
-        
+    }
+
+    val isMediaPlaying get() = activeSessions.any { it.key.playbackState?.isPlaying == true }
+
+    companion object {
+        inline val PlaybackState.isPlaying: Boolean
+            get() = state == PlaybackState.STATE_PLAYING || state == PlaybackState.STATE_BUFFERING
     }
 }
