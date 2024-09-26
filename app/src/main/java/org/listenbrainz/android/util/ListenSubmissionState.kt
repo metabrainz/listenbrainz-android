@@ -1,10 +1,9 @@
 package org.listenbrainz.android.util
 
 import android.content.Context
-import android.media.AudioManager
 import android.media.MediaMetadata
+import android.os.Handler
 import android.service.notification.StatusBarNotification
-import androidx.core.content.ContextCompat
 import androidx.work.WorkManager
 import kotlinx.coroutines.Dispatchers
 import org.listenbrainz.android.model.ListenType
@@ -12,22 +11,38 @@ import org.listenbrainz.android.model.OnTimerListener
 import org.listenbrainz.android.model.PlayingTrack
 import org.listenbrainz.android.service.ListenSubmissionWorker.Companion.buildWorkRequest
 
-class ListenSubmissionState(
-    jobQueue: JobQueue = JobQueue(Dispatchers.Default),
-    private val workManager: WorkManager,
-    private val context: Context
-) {
+class ListenSubmissionState {
     var playingTrack: PlayingTrack = PlayingTrack()
         private set
-    private val audioManager by lazy {
-        ContextCompat.getSystemService(
-            context,
-            AudioManager::class.java
-        )!!
+    val timer: Timer
+    private val workManager: WorkManager
+    private val context: Context
+
+    constructor(jobQueue: JobQueue = JobQueue(Dispatchers.Default), workManager: WorkManager, context: Context) {
+        this.timer = TimerJQ(jobQueue)
+        this.workManager = workManager
+        this.context = context
+
+        init()
     }
-    private val timer: Timer = Timer(jobQueue)
+
+    constructor(handler: Handler, workManager: WorkManager, context: Context) {
+        this.timer = TimerHandler(handler)
+        this.workManager = workManager
+        this.context = context
+
+        init()
+    }
+
+    constructor(workManager: WorkManager, context: Context) {
+        this.workManager = workManager
+        this.context = context
+        this.timer = TimerWorkManager(workManager)
+
+        init()
+    }
     
-    init {
+    fun init() {
         // Setting listener
         timer.setOnTimerListener(listener = object : OnTimerListener {
             override fun onTimerEnded() {
@@ -85,7 +100,7 @@ class ListenSubmissionState(
     private fun afterMetadataSet() {
         // After metadata set
         if (isMetadataFaulty()) {
-            Log.w("${if (playingTrack.artist == null) "Artist" else "Title"} is null, listen cancelled.")
+            Log.w("${if (playingTrack.artist.isNullOrEmpty()) "Artist" else "Title"} is null, listen cancelled.")
             playingTrack.reset()
             return
         }
@@ -106,12 +121,14 @@ class ListenSubmissionState(
                 beforeMetadataSet()
                 playingTrack = track
                 afterMetadataSet()
+                Log.d("onControllerCallback: Updated current track")
             },
             onTrackIsSimilarCallbackTrack = { track ->
                 // Usually this won't happen because metadata isn't being changed.
                 beforeMetadataSet()
                 playingTrack = track
                 afterMetadataSet()
+                Log.d("onControllerCallback: track is similar.")
             },
             onTrackIsSimilarNotificationTrack = { track ->
                 // Update but retain timestamp and playingNowSubmitted.
@@ -123,19 +140,20 @@ class ListenSubmissionState(
                 
                 // Update timer because now we have duration.
                 timer.extendDuration { secondsPassed ->
-                    track.duration/2 - secondsPassed
+                    track.duration / 2 - secondsPassed
                 }
+                Log.d("onControllerCallback: track is similar, updated metadata.")
             }
         )
         // No need to toggle timer here since we can rely on onNotificationPosted to do that.
     }
     
-    fun alertMediaNotificationUpdate(newTrack: PlayingTrack) {
+    fun alertMediaNotificationUpdate(newTrack: PlayingTrack, isMediaPlaying: Boolean) {
         newTrack.updatePlayingTrack(
             onTrackIsOutdated = { track ->
                 beforeMetadataSet()
                 
-                playingTrack = if (playingTrack.isSimilarTo(track)){
+                playingTrack = if (playingTrack.isSimilarTo(track)) {
                     // Old track has useful metadata like duration, so smartly retrieve.
                     track.apply { duration = playingTrack.duration }
                 } else {
@@ -143,16 +161,19 @@ class ListenSubmissionState(
                 }
                 
                 afterMetadataSet()
-                alertPlaybackStateChanged()
+                alertPlaybackStateChanged(isMediaPlaying)
+                Log.d("notificationPosted: Updated current track")
             },
             onTrackIsSimilarCallbackTrack = { track ->
                 // We definitely know that whenever the notification bar changes a bit, we will get a state
                 // update which means we have a valid reason to query if music is playing or not.
-                alertPlaybackStateChanged()
+                alertPlaybackStateChanged(isMediaPlaying)
+                Log.d("notificationPosted: metadata is already updated, playback state changed.")
             },
             onTrackIsSimilarNotificationTrack = { track ->
                 // Same as above.
-                alertPlaybackStateChanged()
+                alertPlaybackStateChanged(isMediaPlaying)
+                Log.d("notificationPosted: track is similar, metadata is about the same, playback state changed.")
             }
         )
     }
@@ -162,13 +183,15 @@ class ListenSubmissionState(
     }
     
     /** Toggle timer based on state. */
-    fun alertPlaybackStateChanged() {
+    fun alertPlaybackStateChanged(isMediaPlaying: Boolean) {
         if (playingTrack.isSubmitted()) return
-        
-        if (audioManager.isMusicActive) {
+
+        if (isMediaPlaying) {
             timer.startOrResume()
+            Log.d("Play")
         } else {
             timer.pause()
+            Log.d("Pause")
         }
     }
     
@@ -190,9 +213,8 @@ class ListenSubmissionState(
     
     // Utility functions
     
-    private fun roundDuration(duration: Long): Long {
-        return (duration / 1000) * 1000
-    }
+    private fun roundDuration(duration: Long): Long =
+        (duration / 1000) * 1000
     
     private fun submitListen(listenType: ListenType) =
         workManager.enqueue(buildWorkRequest(playingTrack, listenType))

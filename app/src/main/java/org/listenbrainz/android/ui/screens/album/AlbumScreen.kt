@@ -208,7 +208,7 @@ private fun TrackListCard(
         .fillMaxWidth()
         .padding(23.dp)){
         Column {
-            Text("Tracklist", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 25.sp))
+            Text("Tracklist", color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 25.sp))
             Spacer(modifier = Modifier.height(20.dp))
             trackList.map {
                 ListenCardSmall(trackName = it?.name ?: "", artists = it?.artists ?: listOf(), coverArtUrl = uiState.coverArt, goToArtistPage = {}){} 
@@ -241,7 +241,7 @@ private fun TopListenersCard(
         .fillMaxWidth()
         .padding(23.dp)){
         Column {
-            Text("Top listeners", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 25.sp))
+            Text("Top listeners", color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 25.sp))
             Spacer(modifier = Modifier.height(20.dp))
             topListeners.map {
                 ArtistCard(artistName = it?.userName ?: "", listenCountLabel = formatNumber(it?.listenCount ?: 0)) {

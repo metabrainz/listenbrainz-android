@@ -121,9 +121,12 @@ class ListenSubmissionWorker @AssistedInject constructor(
                 if (inputData.getString("TYPE") == "single"){
                     // We don't want to submit playing nows later.
                     if (response.error?.ordinal == ResponseError.BAD_REQUEST.ordinal) {
-                        Log.d("Submission failed, not saving listen because metadata is faulty.")
+                        Log.e(
+                            "Submission failed, not saving listen because metadata is faulty."
+                            + "\n Server response: ${response.error.toast()}" + "\n POST Request Body: $body"
+                        )
                     } else {
-                        Log.d("Submission failed, listen saved.")
+                        Log.e("Submission failed, listen saved.")
                         pendingListensDao.addListen(listen)
                     }
                 }

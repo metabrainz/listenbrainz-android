@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
 import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.android.util.ListenSessionListener.Companion.isPlaying
 import java.util.concurrent.ConcurrentHashMap
 
 class ListenSessionListener(
@@ -21,6 +22,7 @@ class ListenSessionListener(
 ) : OnActiveSessionsChangedListener {
     private val availableSessions: ConcurrentHashMap<MediaController, ListenCallback?> = ConcurrentHashMap()
     private val activeSessions: ConcurrentHashMap<MediaController, ListenCallback?> = ConcurrentHashMap()
+    val isMediaPlaying get() = activeSessions.any { it.key.playbackState?.isPlaying == true }
 
     @Synchronized
     override fun onActiveSessionsChanged(controllers: List<MediaController>?) {
@@ -29,7 +31,7 @@ class ListenSessionListener(
         clearSessions()
         registerControllers(controllers)
     }
-    
+
     init {
         serviceScope.launch {
             appPreferences
@@ -42,20 +44,20 @@ class ListenSessionListener(
                             if (entry.key.packageName !in whitelist) {
                                 // Unregister listen callback
                                 entry.key.unregisterCallback(entry.value!!)
-            
+
                                 // remove the active session.
                                 activeSessions.remove(entry.key)
                                 Log.d("### UNREGISTERED MediaController Callback for ${entry.key.packageName}.")
                             }
                         }
                     }
-                    
+
                     // Registering callback is reactive.
                     for (entry in availableSessions) {
                         if (!activeSessions.contains(entry.key.packageName) && entry.key.packageName in whitelist) {
                             // register listen callback
                             entry.key.registerCallback(entry.value!!)
-                            
+
                             // add to active sessions.
                             activeSessions[entry.key] = entry.value!!
                             Log.d("### REGISTERED MediaController Callback for ${entry.key.packageName}.")
@@ -65,12 +67,12 @@ class ListenSessionListener(
                 }
         }
     }
-    
+
     private fun registerControllers(controllers: List<MediaController>) {
         val whitelist = runBlocking { appPreferences.listeningWhitelist.get() }
-        
+
         fun MediaController.shouldListen(): Boolean = packageName in whitelist
-        
+
         for (controller in controllers) {
             // BlackList
             if (!controller.shouldListen()){
@@ -80,16 +82,21 @@ class ListenSessionListener(
             activeSessions[controller] = callback
             availableSessions[controller] = callback
             controller.registerCallback(callback)
+
+            // Force call the callback for the first time a controller is registered.
+            callback.onMetadataChanged(controller.metadata)
+            callback.onPlaybackStateChanged(controller.playbackState)
+
             Log.d("### REGISTERED MediaController callback for ${controller.packageName}.")
         }
 
         updateAppsList(controllers)
     }
-    
+
     private fun updateAppsList(controllers: List<MediaController>) {
         // Adding any new app packages found in the notification.
         serviceScope.launch(Dispatchers.Default) {
-            val shouldScrobbleNewPlayer = appPreferences.shouldListenNewPlayers.get()
+            val shouldListenNewPlayer = appPreferences.shouldListenNewPlayers.get()
             fun addToWhiteList(packageName: String) {
                 launch {
                     appPreferences.listeningWhitelist.getAndUpdate { whitelist ->
@@ -97,12 +104,12 @@ class ListenSessionListener(
                     }
                 }
             }
-        
+
             appPreferences.listeningApps.getAndUpdate {
                 val appList = it.toMutableList()
                 controllers.forEach { controller ->
                     if (controller.packageName !in appList){
-                        if (shouldScrobbleNewPlayer)
+                        if (shouldListenNewPlayer)
                             addToWhiteList(controller.packageName)
                         appList.add(controller.packageName)
                     }
@@ -122,16 +129,20 @@ class ListenSessionListener(
     }
 
     private inner class ListenCallback(private val player: String) : MediaController.Callback() {
-        
+
         @Synchronized
         override fun onMetadataChanged(metadata: MediaMetadata?) {
             listenServiceManager.onMetadataChanged(metadata, player)
         }
-    
+
         @Synchronized
         override fun onPlaybackStateChanged(state: PlaybackState?) {
             listenServiceManager.onPlaybackStateChanged(state)
         }
-        
+    }
+
+    companion object {
+        inline val PlaybackState.isPlaying: Boolean
+            get() = state == PlaybackState.STATE_PLAYING || state == PlaybackState.STATE_BUFFERING
     }
 }

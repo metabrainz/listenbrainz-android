@@ -163,7 +163,7 @@ fun BaseProfileScreen(
                                             else -> ""
                                         },
                                         style = ListenBrainzTheme.textStyles.chips,
-                                        color = ListenBrainzTheme.colorScheme.textColor
+                                        color = ListenBrainzTheme.colorScheme.text
                                     )
                                 },
                                 onClick = { currentTab.value = when (position) {

@@ -64,7 +64,6 @@ data class ColorScheme(
     val placeHolderColor: Color,
     /** Used for User Pages **/
     val dividerColor: Color,
-    val textColor: Color,
     val songsListenedToBG: Color,
     val userPageGradient: Brush,
     val followerChipSelected: Color,
@@ -122,7 +121,6 @@ private val colorSchemeDark = ColorScheme(
     gradientBrush = brainzPlayerDarkGradientsBrush,
     placeHolderColor = Color(0xFF1E1E1E),
     dividerColor = app_bg_secondary_dark,
-    textColor = new_app_bg_light,
     songsListenedToBG = app_bg_dark,
     userPageGradient = Brush.verticalGradient(
         listOf(
@@ -161,7 +159,6 @@ private val colorSchemeLight = ColorScheme(
     gradientBrush = brainzPlayerLightGradientsBrush,
     placeHolderColor = Color(0xFFEBEBEB),
     dividerColor = app_bg_secondary_light,
-    textColor = app_bg_dark,
     songsListenedToBG = new_app_bg_light,
     userPageGradient = Brush.verticalGradient(
         listOf(

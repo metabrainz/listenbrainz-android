@@ -3,6 +3,7 @@ package org.listenbrainz.android.service
 import android.content.ComponentName
 import android.content.Context
 import android.media.MediaMetadata
+import android.os.Looper
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
@@ -10,6 +11,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
+import androidx.core.os.HandlerCompat
 import androidx.work.WorkManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -120,8 +122,7 @@ class BrainzPlayerServiceConnection(
                 runBlocking { appPreferences.isListeningAllowed.get() }
             ) return
         
-            listenSubmissionState.alertPlaybackStateChanged()
-        
+            listenSubmissionState.alertPlaybackStateChanged(state?.isPlaying == true)
         }
     
         override fun onRepeatModeChanged(repeatMode: Int) {

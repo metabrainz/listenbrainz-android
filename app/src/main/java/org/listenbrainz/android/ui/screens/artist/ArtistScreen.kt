@@ -216,7 +216,7 @@ fun BioCard(
         .padding(23.dp)){
         Column {
             Row (horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                Text(header ?: "", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 25.sp))
+                Text(header ?: "", color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 25.sp))
                 if(displayRadioButton){
                     LbRadioButton {
 
@@ -319,9 +319,9 @@ fun BioCard(
                                 .background(ListenBrainzTheme.colorScheme.followerCardColor)
                                 .padding(10.dp)) {
                                 Row {
-                                    Text(it.tag, color= ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
+                                    Text(it.tag, color= ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text((it.count ?: 0).toString(), color= ListenBrainzTheme.colorScheme.textColor ,style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
+                                    Text((it.count ?: 0).toString(), color= ListenBrainzTheme.colorScheme.text ,style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
                                 }
                             }
                             Spacer(modifier = Modifier.width(10.dp))
@@ -337,9 +337,9 @@ fun BioCard(
                             .background(ListenBrainzTheme.colorScheme.followerCardColor)
                             .padding(10.dp)) {
                             Row {
-                                Text(it.tag, color= ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
+                                Text(it.tag, color= ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text((it.count ?: 0).toString(), color= ListenBrainzTheme.colorScheme.textColor ,style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
+                                Text((it.count ?: 0).toString(), color= ListenBrainzTheme.colorScheme.text ,style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
                             }
                         }
                         Spacer(modifier = Modifier.width(10.dp))
@@ -407,7 +407,7 @@ fun Links(
         .fillMaxWidth()
         .padding(23.dp)){
         Column {
-            Text("Links", color= ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 25.sp))
+            Text("Links", color= ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 25.sp))
             Row (modifier = Modifier
                 .horizontalScroll(rememberScrollState())
                 .padding(top = 10.dp)) {
@@ -505,7 +505,7 @@ private fun PopularTracks(
         .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
         .padding(start = 23.dp, end = 23.dp, top = 23.dp)){
         Column {
-            Text("Popular Tracks", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            Text("Popular Tracks", color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
             Spacer(modifier = Modifier.height(20.dp))
             popularTracks.map {
                 ListenCardSmall(trackName = it?.recordingName ?: "", artists = it?.artists ?: listOf(
@@ -543,7 +543,7 @@ private fun AlbumsCard(
         .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
         .padding(23.dp)){
         Column {
-            Text(header, color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            Text(header, color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
             Row (modifier = Modifier
                 .horizontalScroll(rememberScrollState())
                 .padding(top = 20.dp)) {
@@ -603,7 +603,7 @@ private fun SimilarArtists(
         .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
         .padding(23.dp)){
         Column {
-            Text("Similar Artists", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            Text("Similar Artists", color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
             Spacer(modifier = Modifier.height(20.dp))
             similarArtists.map {
                 ArtistCard(artistName = it?.name ?: "") {
@@ -641,7 +641,7 @@ private fun TopListenersCard(
         .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
         .padding(23.dp)) {
         Column {
-            Text("Top Listeners", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            Text("Top Listeners", color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
             Spacer(modifier = Modifier.height(20.dp))
             topListeners.map { 
                 ArtistCard(artistName = it?.userName ?: "", listenCountLabel = formatNumber(it?.listenCount ?: 0)) {
@@ -683,7 +683,7 @@ fun ReviewsCard(
         .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
         .padding(23.dp)) {
         Column {
-            Text("Reviews", color = ListenBrainzTheme.colorScheme.textColor, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            Text("Reviews", color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
             if(reviews.isEmpty()){
                 Spacer(modifier = Modifier.height(10.dp))
                 Text("Be the first one to review this artist on CritiqueBrainz", color = app_bg_mid, style = MaterialTheme.typography.bodyMedium)
