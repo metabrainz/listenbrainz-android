@@ -21,12 +21,14 @@ import org.listenbrainz.android.util.ListenSubmissionState
 import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractTitle
 import org.listenbrainz.android.util.Log
 import javax.inject.Inject
+import javax.inject.Singleton
 
 /** The sole responsibility of this layer is to maintain mutual exclusion between [onMetadataChanged] and
  * [onNotificationPosted], filter out repetitive submissions and handle changes in settings which concern
- * listen scrobbing.
+ * listening.
  *
  * FUTURE: Call notification popups here as well.*/
+@Singleton
 class ListenServiceManagerImpl @Inject constructor(
     workManager: WorkManager,
     private val appPreferences: AppPreferences,
@@ -35,7 +37,7 @@ class ListenServiceManagerImpl @Inject constructor(
 ): ListenServiceManager {
     
     private val handler: Handler = Handler(Looper.getMainLooper())
-    private val listenSubmissionState = ListenSubmissionState(handler, workManager, context)
+    override val listenSubmissionState = ListenSubmissionState(workManager, context)
     //private val jobQueue: JobQueue by lazy { JobQueue(defaultDispatcher) }
     //private val listenSubmissionState = ListenSubmissionState(jobQueue, workManager, context)
     private val scope = MainScope()
@@ -132,7 +134,9 @@ class ListenServiceManagerImpl @Inject constructor(
                         return@post
                     },
                 pkgName = sbn.packageName,
-                timestamp = sbn.notification.`when`
+                timestamp = sbn.notification.`when`.let {
+                    if (it == 0L) System.currentTimeMillis() else it
+                }
             )
     
             // Avoid repetitive submissions

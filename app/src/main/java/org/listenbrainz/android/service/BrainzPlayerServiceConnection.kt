@@ -101,7 +101,7 @@ class BrainzPlayerServiceConnection(
     }
     private inner class MediaControllerCallback(context: Context) : MediaControllerCompat.Callback() {
         val listenSubmissionState: ListenSubmissionState by lazy {
-            ListenSubmissionState(handler = HandlerCompat.createAsync(Looper.getMainLooper()), workManager = workManager, context = context)
+            ListenSubmissionState(workManager = workManager, context = context)
         }
     
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {

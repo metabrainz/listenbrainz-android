@@ -1,11 +1,9 @@
 package org.listenbrainz.android.util
 
 import android.content.Context
-import android.media.AudioManager
 import android.media.MediaMetadata
 import android.os.Handler
 import android.service.notification.StatusBarNotification
-import androidx.core.content.ContextCompat
 import androidx.work.WorkManager
 import kotlinx.coroutines.Dispatchers
 import org.listenbrainz.android.model.ListenType
@@ -16,7 +14,7 @@ import org.listenbrainz.android.service.ListenSubmissionWorker.Companion.buildWo
 class ListenSubmissionState {
     var playingTrack: PlayingTrack = PlayingTrack()
         private set
-    private val timer: Timer
+    val timer: Timer
     private val workManager: WorkManager
     private val context: Context
 
@@ -32,6 +30,14 @@ class ListenSubmissionState {
         this.timer = TimerHandler(handler)
         this.workManager = workManager
         this.context = context
+
+        init()
+    }
+
+    constructor(workManager: WorkManager, context: Context) {
+        this.workManager = workManager
+        this.context = context
+        this.timer = TimerWorkManager(workManager)
 
         init()
     }
@@ -147,7 +153,7 @@ class ListenSubmissionState {
             onTrackIsOutdated = { track ->
                 beforeMetadataSet()
                 
-                playingTrack = if (playingTrack.isSimilarTo(track)){
+                playingTrack = if (playingTrack.isSimilarTo(track)) {
                     // Old track has useful metadata like duration, so smartly retrieve.
                     track.apply { duration = playingTrack.duration }
                 } else {
@@ -207,9 +213,8 @@ class ListenSubmissionState {
     
     // Utility functions
     
-    private fun roundDuration(duration: Long): Long {
-        return (duration / 1000) * 1000
-    }
+    private fun roundDuration(duration: Long): Long =
+        (duration / 1000) * 1000
     
     private fun submitListen(listenType: ListenType) =
         workManager.enqueue(buildWorkRequest(playingTrack, listenType))
