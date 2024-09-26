@@ -259,7 +259,7 @@ fun TasteScreen(
                 Column {
                     Text(
                         text = "Pins",
-                        color = ListenBrainzTheme.colorScheme.textColor,
+                        color = ListenBrainzTheme.colorScheme.text,
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp)
                     )
                     Spacer(modifier = Modifier.height(20.dp))
@@ -268,12 +268,13 @@ fun TasteScreen(
                         ListenCardSmall(
                             enableBlurbContent = true,
                             blurbContent = {
-                                Text(
-                                    ('"' + (recording.blurbContent
-                                        ?: "No content specified") + '"'),
-                                    color = ListenBrainzTheme.colorScheme.textColor,
-                                    modifier = Modifier.padding(8.dp)
-                                )
+                                if (!recording.blurbContent.isNullOrEmpty()) {
+                                    Text(
+                                        modifier = it,
+                                        text = recording.blurbContent,
+                                        color = ListenBrainzTheme.colorScheme.text,
+                                    )
+                                }
                             },
                             modifier = Modifier
                                 .padding(

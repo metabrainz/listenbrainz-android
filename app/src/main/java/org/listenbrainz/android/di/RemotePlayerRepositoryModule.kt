@@ -15,8 +15,4 @@ abstract class RemotePlayerRepositoryModule {
     
     @Binds
     abstract fun bindsRemotePlayerRepository(repository: RemotePlaybackHandlerImpl?): RemotePlaybackHandler?
-    
-    
-    @Binds
-    abstract fun bindsListenServiceManager(listenServiceManager: ListenServiceManagerImpl): ListenServiceManager
 }
