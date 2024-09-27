@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.LoadingAnimation
+import org.listenbrainz.android.ui.screens.brainzplayer.PlaylistScreen
 import org.listenbrainz.android.ui.screens.profile.listens.ListensScreen
 import org.listenbrainz.android.ui.screens.profile.stats.StatsScreen
 import org.listenbrainz.android.ui.screens.profile.taste.TasteScreen
@@ -108,7 +109,7 @@ fun BaseProfileScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.chipsHorizontal / 2))
-                    repeat(5) { position ->
+                    repeat(ProfileScreenTab.entries.size) { position ->
                         when(position){
                             0 -> Box(modifier = Modifier
                                 .padding(ListenBrainzTheme.paddings.chipsHorizontal,)
@@ -158,8 +159,8 @@ fun BaseProfileScreen(
                                             1 -> ProfileScreenTab.LISTENS.value
                                             2 -> ProfileScreenTab.STATS.value
                                             3 -> ProfileScreenTab.TASTE.value
-                                            4 -> ProfileScreenTab.PLAYLISTS.value
-                                            5 -> ProfileScreenTab.CREATED_FOR_YOU.value
+                                            //4 -> ProfileScreenTab.PLAYLISTS.value
+                                            //5 -> ProfileScreenTab.CREATED_FOR_YOU.value
                                             else -> ""
                                         },
                                         style = ListenBrainzTheme.textStyles.chips,
@@ -170,8 +171,8 @@ fun BaseProfileScreen(
                                     1 -> ProfileScreenTab.LISTENS
                                     2 -> ProfileScreenTab.STATS
                                     3 -> ProfileScreenTab.TASTE
-                                    4 -> ProfileScreenTab.PLAYLISTS
-                                    5 -> ProfileScreenTab.CREATED_FOR_YOU
+                                    //4 -> ProfileScreenTab.PLAYLISTS
+                                    //5 -> ProfileScreenTab.CREATED_FOR_YOU
                                     else -> ProfileScreenTab.LISTENS
                                 } }
                             )
