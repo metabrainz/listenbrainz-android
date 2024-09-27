@@ -61,6 +61,7 @@ fun AppNavigation(
         composable(route = "${AppNavigationItem.Profile.route}/{username}", arguments = listOf(
             navArgument("username"){
                 type = NavType.StringType
+                nullable = true
             }
         ))
         {
