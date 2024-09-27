@@ -109,7 +109,7 @@ fun BaseProfileScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.chipsHorizontal / 2))
-                    repeat(ProfileScreenTab.entries.size) { position ->
+                    repeat(ProfileScreenTab.entries.size + 1) { position ->
                         when(position){
                             0 -> Box(modifier = Modifier
                                 .padding(ListenBrainzTheme.paddings.chipsHorizontal,)
