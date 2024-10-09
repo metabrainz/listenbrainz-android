@@ -240,7 +240,6 @@ class TimerWorkManager(private val workManager: WorkManager): TimerBase() {
                 mDurationLeft += delay
 
                 scheduleRequest()
-
                 Log.d(TAG,"Timer started")
 
                 mListener?.onTimerStarted()

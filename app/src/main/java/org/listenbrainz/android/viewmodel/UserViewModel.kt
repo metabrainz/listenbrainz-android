@@ -35,25 +35,20 @@ class UserViewModel @Inject constructor(
     private val listensRepository: ListensRepository,
     private val socialRepository: SocialRepository,
     @IoDispatcher val ioDispatcher: CoroutineDispatcher,
-
 ) : BaseViewModel<ProfileUiState>() {
-    
-    private val _loginStatusFlow: MutableStateFlow<Int> = MutableStateFlow(STATUS_LOGGED_OUT)
+
     private var isLoggedInUser = false
-    val loginStatusFlow: StateFlow<Int> = _loginStatusFlow.asStateFlow()
+    val loginStatusFlow: StateFlow<Int> =
+        appPreferences
+            .getLoginStatusFlow()
+            .stateIn(
+                viewModelScope,
+                SharingStarted.Lazily,
+                STATUS_LOGGED_OUT
+            )
     private val listenStateFlow : MutableStateFlow<ListensTabUiState> = MutableStateFlow(ListensTabUiState())
     private val statsStateFlow : MutableStateFlow<StatsTabUIState> = MutableStateFlow(StatsTabUIState())
     private val tasteStateFlow : MutableStateFlow<TasteTabUIState> = MutableStateFlow(TasteTabUIState())
-
-    init {
-        viewModelScope.launch(ioDispatcher) {
-            appPreferences.getLoginStatusFlow()
-                .stateIn(this)
-                .collectLatest {
-                    _loginStatusFlow.emit(it)
-                }
-        }
-    }
 
     private suspend fun getSimilarArtists(username: String?) : List<org.listenbrainz.android.model.user.Artist> {
         val currentUsername = appPreferences.username.get()
@@ -90,7 +85,7 @@ class UserViewModel @Inject constructor(
     suspend fun getUserDataFromRemote(
         inputUsername: String?
     ) = coroutineScope{
-        val listensTabData = async{ getUserListensData(inputUsername) }
+        val listensTabData = async { getUserListensData(inputUsername) }
         val statsTabData = async {getUserStatsData(inputUsername)}
         val tasteTabData = async {getUserTasteData(inputUsername)}
         listensTabData.await()
