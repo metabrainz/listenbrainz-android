@@ -2,6 +2,7 @@ package org.listenbrainz.android.ui.components.dialogs
 
 import android.os.Bundle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
@@ -17,6 +18,7 @@ fun rememberDialogsState(): DialogsState {
     }
 }
 
+@Stable
 class DialogsState(
     initialDialog: Dialog,
     initialMetadata: Bundle? = null
@@ -31,7 +33,7 @@ class DialogsState(
     
     fun activateDialog(
         dialog: Dialog,
-        metadata: Bundle,
+        metadata: Bundle = Bundle(),
     ) {
         // Activation order is important!
         this.metadata = metadata

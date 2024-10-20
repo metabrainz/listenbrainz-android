@@ -216,7 +216,6 @@ fun BaseProfileScreen(
                         onScrollToTop = {},
                         snackbarState = snackbarState,
                         username = username,
-                        feedViewModel = feedViewModel,
                         socialViewModel = socialViewModel,
                         viewModel = listensViewModel,
                         goToArtistPage = goToArtistPage,
@@ -236,18 +235,6 @@ fun BaseProfileScreen(
                         feedViewModel = feedViewModel,
                         viewModel = viewModel,
                         goToArtistPage = goToArtistPage
-                    )
-                    else -> ListensScreen(
-                        scrollRequestState = false,
-                        userViewModel = viewModel,
-                        onScrollToTop = {},
-                        snackbarState = snackbarState,
-                        username = username,
-                        feedViewModel = feedViewModel,
-                        socialViewModel = socialViewModel,
-                        viewModel = listensViewModel,
-                        goToArtistPage = goToArtistPage,
-                        goToUserPage = goToUserPage,
                     )
                 }
             }
