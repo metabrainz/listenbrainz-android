@@ -5,13 +5,20 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.R
+import org.listenbrainz.android.di.DefaultDispatcher
 import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.RecommendationData
@@ -22,35 +29,81 @@ import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.feed.ReviewEntityType
+import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
+import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
 
 @HiltViewModel
 class SocialViewModel @Inject constructor(
     private val repository: SocialRepository,
+    private val listensRepository: ListensRepository,
     private val appPreferences: AppPreferences,
     private val remotePlaybackHandler: RemotePlaybackHandler,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
 ): FollowUnfollowModel<SocialUiState>(repository, ioDispatcher) {
 
+    private val inputSearchFollowerQuery = MutableStateFlow("")
 
-
+    @OptIn(FlowPreview::class)
+    private val searchFollowerQuery = inputSearchFollowerQuery.asStateFlow().debounce(500).distinctUntilChanged()
+    private val searchFollowerResult = MutableStateFlow<List<String>>(emptyList())
     
     override val uiState: StateFlow<SocialUiState> = createUiStateFlow()
+
+    init {
+        viewModelScope.launch(defaultDispatcher) {
+            searchFollowerQuery.collectLatest { query ->
+                if (query.isEmpty()) return@collectLatest
+
+                val result = repository.getFollowers(appPreferences.username.get())
+                if (result.status == Resource.Status.SUCCESS){
+                    searchFollowerResult.emit(
+                        result.data?.followers?.filter {
+                            it.startsWith(query, ignoreCase = true) || it.contains(query, ignoreCase = true)
+                        } ?: emptyList()
+                    )
+                    println(searchFollowerResult.value)
+                } else {
+                    emitError(error = result.error)
+                }
+            }
+        }
+    }
+
     override fun createUiStateFlow(): StateFlow<SocialUiState> =
         combine(
+            searchFollowerResult,
             errorFlow,
             successMsgFlow
-        ){
-            error , message -> SocialUiState(error , message)
+        ){ searchResult, error, message ->
+            SocialUiState(searchResult, error, message)
         }.stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
             SocialUiState()
         )
+
+    fun searchUser(query: String){
+        viewModelScope.launch {
+            inputSearchFollowerQuery.emit(query)
+        }
+    }
+
+    suspend fun isCritiqueBrainzLinked(): Boolean? {
+        val result = listensRepository.getLinkedServices(
+            appPreferences.lbAccessToken.get(),
+            appPreferences.username.get()
+        )
+        if (!result.status.isSuccessful()) {
+            emitError(result.error)
+        }
+        return result.data?.toLinkedServicesList()?.contains(LinkedService.CRITIQUEBRAINZ)
+    }
     
     fun playListen(trackMetadata: TrackMetadata) {
         val spotifyId = trackMetadata.additionalInfo?.spotifyId
@@ -90,7 +143,6 @@ class SocialViewModel @Inject constructor(
     }
     
     fun recommend(metadata: Metadata) {
-        
         viewModelScope.launch(ioDispatcher) {
             val result = repository.postRecommendationToAll(
                 username = appPreferences.username.get(),
@@ -115,7 +167,6 @@ class SocialViewModel @Inject constructor(
     }
     
     fun personallyRecommend(metadata: Metadata, users: List<String>, blurbContent: String) {
-        
         viewModelScope.launch(ioDispatcher) {
             val result = repository.postPersonalRecommendation(
                 username = appPreferences.username.get(),
@@ -139,11 +190,9 @@ class SocialViewModel @Inject constructor(
                 emitMsg(R.string.personal_recommendation_greeting)
             }
         }
-        
     }
     
     fun review(metadata: Metadata, entityType: ReviewEntityType, blurbContent: String, rating: Int?, locale: String){
-        
         viewModelScope.launch(ioDispatcher) {
             val result = repository.postReview(
                 username = appPreferences.username.get(),
@@ -175,7 +224,6 @@ class SocialViewModel @Inject constructor(
     }
     
     fun pin(metadata: Metadata, blurbContent: String? ) {
-        
         viewModelScope.launch(ioDispatcher) {
             val result = repository.pin(
                 recordingMsid = metadata.trackMetadata?.additionalInfo?.recordingMsid,
@@ -200,5 +248,4 @@ class SocialViewModel @Inject constructor(
             }
         }
     }
-
 }

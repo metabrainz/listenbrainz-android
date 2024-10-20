@@ -9,4 +9,13 @@ data class Listen(
     @SerializedName("track_metadata") val trackMetadata: TrackMetadata,
     @SerializedName("user_name") val userName: String,
     @SerializedName("cover_art") val coverArt: CoverArt? = null
-)
+) {
+    fun toMetadata(): Metadata {
+        return Metadata(
+            listenedAt = listenedAt,
+            insertedAt = insertedAt.toIntOrNull(),
+            username = userName,
+            trackMetadata = trackMetadata
+        )
+    }
+}

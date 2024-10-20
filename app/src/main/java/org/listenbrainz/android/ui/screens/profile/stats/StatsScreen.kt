@@ -60,8 +60,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.AdditionalInfo
-import org.listenbrainz.android.model.MbidMapping
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
@@ -271,11 +269,17 @@ fun StatsScreen(
             Spacer(modifier = Modifier.height(10.dp))
             Box{
                 Column {
-                    Text("Listening activity", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(start = 10.dp))
+                    Text(
+                        text = "Listening activity",
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),
+                        modifier = Modifier.padding(start = 10.dp)
+                    )
+
                     Spacer(modifier = Modifier.height(15.dp))
-                    val data = uiState.statsTabUIState.userListeningActivity[Pair(userGlobalState, statsRangeState)]
-                        ?: listOf()
-                    if(data.isNotEmpty()){
+
+                    val data = uiState.statsTabUIState.userListeningActivity[Pair(userGlobalState, statsRangeState)] ?: listOf()
+                    if (data.isNotEmpty()) {
                         val modelProducer = remember {
                             CartesianChartModelProducer()
                         }
@@ -370,7 +374,7 @@ fun StatsScreen(
                     Text("Top ...", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
                Box(modifier = Modifier.height(10.dp))
                     Row {
-                        repeat(3){
+                        repeat(3) {
                             position ->
                             val reqdState = when(position){
                                 0 -> currentTabSelection.value == CategoryState.ARTISTS
@@ -481,22 +485,9 @@ fun StatsScreen(
                            CircularProgressIndicator()
                        }
                        else{
-                           Column (horizontalAlignment = Alignment.CenterHorizontally) {
-                               topSongs.mapIndexed {
-                                       index, topSong ->
-                                   val metadata = Metadata(trackMetadata = TrackMetadata(
-                                       artistName = topSong.artistName ?: "",
-                                       releaseName = topSong.releaseName,
-                                       trackName = topSong.trackName ?: "",
-                                       mbidMapping = MbidMapping(
-                                           artistMbids = topSong.artistMbids ?: listOf(),
-                                           recordingName = topSong.releaseName ?: "",
-                                           caaId = topSong.caaId,
-                                           caaReleaseMbid = topSong.caaReleaseMbid,
-                                           recordingMbid = topSong.recordingMbid
-                                       ),
-                                       additionalInfo = AdditionalInfo()
-                                   ))
+                           Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                               topSongs.mapIndexed { index, topSong ->
+                                   val metadata = Metadata(trackMetadata = topSong.toTrackMetadata())
                                    ListenCardSmall(
                                        trackName = topSong.trackName ?: "",
                                        artists = topSong.artists ?:listOf(FeedListenArtist(topSong.artistName ?: "", null, "")),

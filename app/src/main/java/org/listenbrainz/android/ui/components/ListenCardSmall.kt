@@ -15,13 +15,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,8 +38,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import kotlinx.coroutines.CoroutineScope
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.Metadata
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.feed.FeedListenArtist
+import org.listenbrainz.android.ui.screens.feed.SocialDropdownDefault
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 /**Small configuration of listen card.
@@ -105,7 +112,14 @@ fun ListenCardSmall(
             
                     Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.coverArtAndTextGap))
             
-                    TitleAndSubtitle(modifier = Modifier.padding(end = 6.dp), title = trackName, artists = artists, titleColor = titleColor, subtitleColor = subtitleColor, goToArtistPage = goToArtistPage)
+                    TitleAndSubtitle(
+                        modifier = Modifier.padding(end = 6.dp),
+                        title = trackName,
+                        artists = artists,
+                        titleColor = titleColor,
+                        subtitleColor = subtitleColor,
+                        goToArtistPage = goToArtistPage
+                    )
                 }
 
                 Box(
@@ -156,16 +170,73 @@ fun ListenCardSmall(
             }
             
             if (enableBlurbContent) {
-                Divider()
+                HorizontalDivider()
                 blurbContent(Modifier.padding(ListenBrainzTheme.paddings.insideCard))
             }
         }
     }
 }
 
+@Suppress("NOTHING_TO_INLINE")
+@Composable
+inline fun ListenCardSmallDefault(
+    modifier: Modifier = Modifier,
+    metadata: Metadata,
+    coverArtUrl: String?,
+    listenCount: Int? = null,
+    @DrawableRes errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
+    enableTrailingContent: Boolean = false,
+    noinline trailingContent: @Composable (modifier: Modifier) -> Unit = {},
+    enableBlurbContent: Boolean = false,
+    noinline blurbContent: @Composable (ColumnScope.(modifier: Modifier) -> Unit) = {},
+    color: Color = ListenBrainzTheme.colorScheme.level1,
+    titleColor: Color = ListenBrainzTheme.colorScheme.listenText,
+    subtitleColor: Color = titleColor.copy(alpha = 0.7f),
+    noinline onDropdownError: suspend CoroutineScope.(error: ResponseError) -> Unit,
+    noinline onDropdownSuccess: suspend CoroutineScope.(message: String) -> Unit,
+    noinline goToArtistPage: (String) -> Unit,
+    noinline onClick: () -> Unit,
+) {
+    metadata.trackMetadata?.let {
+        var isDropdownExpanded by remember { mutableStateOf(false) }
+
+        ListenCardSmall(
+            modifier = modifier,
+            trackName = metadata.trackMetadata.trackName,
+            artists = metadata.trackMetadata.mbidMapping?.artists ?: listOf(
+                FeedListenArtist(metadata.trackMetadata.artistName , null, "")
+            ),
+            coverArtUrl = coverArtUrl,
+            listenCount = listenCount,
+            errorAlbumArt = errorAlbumArt,
+            enableDropdownIcon = true,
+            onDropdownIconClick = {
+                isDropdownExpanded = !isDropdownExpanded
+            },
+            dropDown = {
+                SocialDropdownDefault(
+                    isExpanded = isDropdownExpanded,
+                    metadata = metadata,
+                    onError = onDropdownError,
+                    onSuccess = onDropdownSuccess,
+                    onDropdownDismiss = { isDropdownExpanded = !isDropdownExpanded },
+                )
+            },
+            enableTrailingContent = enableTrailingContent,
+            trailingContent = trailingContent,
+            enableBlurbContent = enableBlurbContent,
+            blurbContent = blurbContent,
+            color = color,
+            titleColor = titleColor,
+            subtitleColor = subtitleColor,
+            goToArtistPage = goToArtistPage,
+            onClick = onClick
+        )
+    }
+}
+
 @Composable
 private fun DropdownButton(modifier: Modifier = Modifier, onDropdownIconClick: () -> Unit) {
-    
     IconButton(
         modifier = modifier,
         onClick = onDropdownIconClick
@@ -211,7 +282,10 @@ fun TitleAndSubtitle(
     subtitleColor: Color = titleColor.copy(alpha = 0.7f),
     goToArtistPage: (String) -> Unit,
 ) {
-    Column(modifier = modifier, horizontalAlignment = alignment) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = alignment
+    ) {
         Text(
             text = title,
             style = ListenBrainzTheme.textStyles.listenTitle,
@@ -219,16 +293,23 @@ fun TitleAndSubtitle(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
+
         Row {
-            artists.map {
-                Text((it?.artistCreditName ?: "") + (it?.joinPhrase ?: ""), style = ListenBrainzTheme.textStyles.listenSubtitle,
-                    color = subtitleColor,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis, modifier = Modifier.clickable {
-                        if(it?.artistMbid != null){
-                            goToArtistPage(it.artistMbid)
-                        }
-                    })
+            artists.forEach { artist ->
+                artist?.artistCreditName?.let {
+                    Text(
+                        modifier = Modifier.clickable {
+                            if(artist.artistMbid != null){
+                                goToArtistPage(artist.artistMbid)
+                            }
+                        },
+                        text = artist.artistCreditName + (artist.joinPhrase ?: ""),
+                        style = ListenBrainzTheme.textStyles.listenSubtitle,
+                        color = subtitleColor,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
     }
