@@ -233,7 +233,8 @@ data class Paddings(
     val adjacentDialogButtons: Dp = 8.dp,
     val chipsHorizontal: Dp = 6.dp,
     val insideDialog: Dp = 14.dp,
-    val dialogContent: Dp = 8.dp
+    val dialogContent: Dp = 8.dp,
+    val settings: Dp = 18.dp
 )
 private val LocalPaddings = staticCompositionLocalOf { Paddings() }
 
