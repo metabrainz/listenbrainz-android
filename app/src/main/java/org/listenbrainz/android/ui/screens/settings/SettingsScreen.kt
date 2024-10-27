@@ -1,9 +1,9 @@
 package org.listenbrainz.android.ui.screens.settings
 
-import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
 import android.provider.Settings
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -16,16 +16,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,14 +61,15 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
-import org.listenbrainz.android.ui.screens.profile.listens.ListeningAppsList
+import org.listenbrainz.android.ui.components.DialogLB
 import org.listenbrainz.android.ui.screens.main.DonateActivity
-import org.listenbrainz.android.ui.screens.main.MainActivity
 import org.listenbrainz.android.ui.screens.profile.LoginActivity
+import org.listenbrainz.android.ui.screens.profile.listens.ListeningAppsList
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.viewmodel.ListensViewModel
 import org.listenbrainz.android.viewmodel.SettingsViewModel
+
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
@@ -100,6 +101,7 @@ fun SettingsScreen(
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
     var showBlacklist by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
     val darkTheme = ListenBrainzTheme.uiModeIsDark
     val scope = rememberCoroutineScope()
     
@@ -263,10 +265,20 @@ fun SettingsScreen(
 
         HorizontalDivider()
 
+        SettingsHeader(title = "Account settings")
+
         if(!isLoggedOut) {
             SettingsTextOption(
-                modifier = Modifier.clickable(onClick = callbacks.logout),
+                modifier = Modifier.clickable { showLogoutDialog = true},
                 title = "Logout"
+            )
+
+            SettingsTextOption(
+                modifier = Modifier.clickable {
+                    uriHandler.openUri("https://musicbrainz.org/account/delete")
+                },
+                title = "Delete account",
+                textColor = Color.Red
             )
         } else {
             SettingsTextOption(
@@ -400,6 +412,50 @@ fun SettingsScreen(
                 getPackageLabel = callbacks.getPackageLabel,
                 setWhitelist = callbacks.setWhitelist,
             ) { showBlacklist = false }
+        }
+
+        if (showLogoutDialog) {
+            AlertDialog(
+                title = {
+                    Text(
+                        text = "Logout?",
+                        color = ListenBrainzTheme.colorScheme.text
+                    )
+                },
+                text = {
+                    Text(
+                        text = "Are you sure you want to logout?",
+                        color = ListenBrainzTheme.colorScheme.text
+                    )
+                },
+                onDismissRequest = { showLogoutDialog = false },
+                confirmButton = {
+                    Button(
+                        onClick = { showLogoutDialog = false },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+                    ) {
+                        Text(
+                            text = "Cancel",
+                            color = ListenBrainzTheme.colorScheme.text
+                        )
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = {
+                            callbacks.logout()
+                            showLogoutDialog = false
+                            Toast.makeText(context, "Logged out successfully!", Toast.LENGTH_SHORT).show()
+                        },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                    ) {
+                        Text(
+                            text = "Confirm",
+                            color = Color.White
+                        )
+                    }
+                }
+            )
         }
     }
 }

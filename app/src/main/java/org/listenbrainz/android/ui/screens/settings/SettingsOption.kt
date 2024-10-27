@@ -65,7 +65,8 @@ fun SettingsTextOption(
     modifier: Modifier = Modifier,
     title: String,
     subtitle: String? = null,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    textColor: Color = ListenBrainzTheme.colorScheme.text
 ) {
     SettingsText(
         modifier = modifier
@@ -73,7 +74,8 @@ fun SettingsTextOption(
             .padding(horizontal = ListenBrainzTheme.paddings.settings),
         title = title,
         subtitle = subtitle,
-        enabled = enabled
+        enabled = enabled,
+        textColor = textColor,
     )
 }
 
