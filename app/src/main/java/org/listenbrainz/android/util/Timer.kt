@@ -1,23 +1,34 @@
 package org.listenbrainz.android.util
 
+import android.annotation.SuppressLint
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.media.MediaMetadata
 import android.os.Build
 import android.os.Handler
 import android.os.SystemClock
 import android.util.Log
+import androidx.core.app.AlarmManagerCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.hilt.work.HiltWorker
+import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
+import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.WorkRequest
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.OnTimerListener
 import org.listenbrainz.android.model.TimerState
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
@@ -203,7 +214,6 @@ class TimerWorkManager(private val workManager: WorkManager): TimerBase() {
 
     companion object {
         private const val TAG = "Timer"
-        private const val TIMER_STATE = "TimerState"
     }
 
     private var mState: TimerState = TimerState.ENDED
