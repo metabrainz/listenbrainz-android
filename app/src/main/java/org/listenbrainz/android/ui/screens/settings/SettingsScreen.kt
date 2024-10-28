@@ -61,7 +61,6 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
-import org.listenbrainz.android.ui.components.DialogLB
 import org.listenbrainz.android.ui.screens.main.DonateActivity
 import org.listenbrainz.android.ui.screens.profile.LoginActivity
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningAppsList
@@ -273,12 +272,13 @@ fun SettingsScreen(
                 title = "Logout"
             )
 
-            SettingsTextOption(
+            SettingsHyperlink(
                 modifier = Modifier.clickable {
                     uriHandler.openUri("https://musicbrainz.org/account/delete")
                 },
                 title = "Delete account",
-                textColor = Color.Red
+                textColor = Color.Red,
+                iconColor = Color.Red
             )
         } else {
             SettingsTextOption(
@@ -294,51 +294,21 @@ fun SettingsScreen(
 
         SettingsHeader(title = "About")
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = ListenBrainzTheme.paddings.settings)
-                .clickable {
-                    val intent = Intent(Intent.ACTION_VIEW)
-                    intent.data = Constants.ABOUT_URL.toUri()
-                    context.startActivity(intent)
-                }
-            ,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "About ListenBrainz",
-                color = MaterialTheme.colorScheme.onSurface
-            )
+        SettingsHyperlink(
+            modifier = Modifier.clickable {
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data = Constants.ABOUT_URL.toUri()
+                context.startActivity(intent)
+            },
+            title = "About ListenBrainz"
+        )
 
-            Image(
-                painter = painterResource(id = R.drawable.link_to),
-                contentDescription = "Arrow",
-            )
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = ListenBrainzTheme.paddings.settings)
-                .clickable {
-                    context.startActivity(Intent(context, DonateActivity::class.java))
-                }
-            ,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = "Support MetaBrainz",
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            Image(
-                painter = painterResource(id = R.drawable.link_to),
-                contentDescription = "Arrow",
-            )
-        }
+        SettingsHyperlink(
+            modifier = Modifier.clickable {
+                context.startActivity(Intent(context, DonateActivity::class.java))
+            },
+            title = "Support MetaBrainz"
+        )
 
         Row(
             modifier = Modifier
@@ -460,7 +430,7 @@ fun SettingsScreen(
     }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun SettingsScreenPreview() {
