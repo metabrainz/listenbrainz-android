@@ -51,7 +51,6 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun UserData(
     preferencesUiState: PreferencesUiState,
@@ -141,9 +140,9 @@ fun UserData(
                                 color = if (onScreenUiModeIsDark()) Color.White else Color.Black
                             )
                         },
-                        colors = TextFieldDefaults.outlinedTextFieldColors(
-                            focusedBorderColor = if (onScreenUiModeIsDark()) Color.White else Color.Black,
-                            unfocusedBorderColor = if (onScreenUiModeIsDark()) Color.White else Color.Black,
+                        colors = TextFieldDefaults.colors(
+                            focusedIndicatorColor = if (onScreenUiModeIsDark()) Color.White else Color.Black,
+                            unfocusedIndicatorColor = if (onScreenUiModeIsDark()) Color.White else Color.Black,
                             cursorColor = if (onScreenUiModeIsDark()) Color.White else Color.Black
                         )
                     )

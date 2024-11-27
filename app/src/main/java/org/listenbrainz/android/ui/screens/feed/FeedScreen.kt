@@ -131,7 +131,7 @@ fun FeedScreen(
 }
 
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun FeedScreen(
     uiState: FeedUiState,
@@ -221,7 +221,7 @@ fun FeedScreen(
     
         HorizontalPager(
             state = pagerState,
-            beyondBoundsPageCount = 1
+            beyondViewportPageCount = 1
         ) { position ->
             when (position) {
                 0 -> MyFeed(

@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -101,28 +102,6 @@ class FeedViewModel @Inject constructor(
     // Exposed UI state
     override val uiState = createUiStateFlow()
     
-    init {
-        viewModelScope.launch(defaultDispatcher) {
-            searchFollowerQuery.collectLatest { query ->
-                if (query.isEmpty()) return@collectLatest
-                
-                val result = socialRepository.getFollowers(appPreferences.username.get())
-                if (result.status == Resource.Status.SUCCESS){
-                    searchFollowerResult.emit(
-                        result.data?.followers?.filter {
-                            it.startsWith(query, ignoreCase = true) || it.contains(query, ignoreCase = true)
-                        } ?: emptyList()
-                    )
-                    println(searchFollowerResult.value)
-                } else {
-                    emitError(error = result.error)
-                }
-                
-            }
-        }
-        
-    }
-    
     override fun createUiStateFlow(): StateFlow<FeedUiState> {
         return combine(
             myFeedFlow,
@@ -132,11 +111,15 @@ class FeedViewModel @Inject constructor(
             errorFlow
         ){ feedScreenState, followListensState, similarListensState, searchResult, error ->
             FeedUiState(feedScreenState, followListensState, similarListensState, searchResult, error)
-        }.stateIn(
-            viewModelScope,
-            SharingStarted.Eagerly,
-            FeedUiState()
-        )
+        }
+            .onStart {
+                observeSearchFollowerQuery()
+            }
+            .stateIn(
+                viewModelScope,
+                SharingStarted.Eagerly,
+                FeedUiState()
+            )
     }
     
     private fun createNewMyFeedPagingSource(): MyFeedPagingSource =
@@ -320,5 +303,23 @@ class FeedViewModel @Inject constructor(
             e.printStackTrace()
         }
     }
-    
+
+    private fun observeSearchFollowerQuery() {
+        viewModelScope.launch(defaultDispatcher) {
+            searchFollowerQuery.collectLatest { query ->
+                if (query.isEmpty()) return@collectLatest
+
+                val result = socialRepository.getFollowers(appPreferences.username.get())
+                if (result.status == Resource.Status.SUCCESS){
+                    searchFollowerResult.emit(
+                        result.data?.followers?.filter {
+                            it.startsWith(query, ignoreCase = true) || it.contains(query, ignoreCase = true)
+                        } ?: emptyList()
+                    )
+                } else {
+                    emitError(error = result.error)
+                }
+            }
+        }
+    }
 }
