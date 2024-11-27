@@ -40,7 +40,7 @@ import org.listenbrainz.android.ui.navigation.BottomNavigationBar
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
 import org.listenbrainz.android.ui.screens.search.BrainzPlayerSearchScreen
-import org.listenbrainz.android.ui.screens.search.SearchScreen
+import org.listenbrainz.android.ui.screens.search.UserSearchScreen
 import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils.isServiceRunning
@@ -220,23 +220,20 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                val brainzplayerSearchTextState = remember {
-                    mutableStateOf("")
-                }
                 when(currentDestination?.route) {
-                    AppNavigationItem.BrainzPlayer.route -> BrainzPlayerSearchScreen(isActive = brainzplayerSearchBarState.isActive , deactivate = {brainzplayerSearchBarState.deactivate()} , brainzplayerQueryState = brainzplayerSearchTextState)
-                    else -> SearchScreen(
+                    AppNavigationItem.BrainzPlayer.route -> BrainzPlayerSearchScreen(
+                        isActive = brainzplayerSearchBarState.isActive,
+                        deactivate = brainzplayerSearchBarState::deactivate,
+                    )
+                    else -> UserSearchScreen(
                         isActive = searchBarState.isActive,
-                        deactivate = {searchBarState.deactivate()},
-                        goToUserPage = {
-                            username ->
+                        deactivate = searchBarState::deactivate,
+                        goToUserPage = { username ->
                             searchBarState.deactivate()
                             navController.navigate("${AppNavigationItem.Profile.route}/$username")
                         }
                     )
                 }
-
-
             }
         }
     }

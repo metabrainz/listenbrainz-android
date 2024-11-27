@@ -85,7 +85,6 @@ fun ReviewFeedLayout(
                     onReview = onReview
                 )
             },
-            enableBlurbContent = true,
             blurbContent = { modifier ->
                 val iconSize = 24.dp
                 

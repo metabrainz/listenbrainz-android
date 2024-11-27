@@ -74,7 +74,6 @@ fun PersonalRecommendationFeedLayout(
                     onReview = onReview
                 )
             },
-            enableBlurbContent = true,
             blurbContent = { modifier ->
                 Column(modifier = modifier) {
 

@@ -1,7 +1,7 @@
 package org.listenbrainz.android.model
 
-data class SearchUiState(
+data class SearchUiState<T>(
     val query: String,
-    val result: UserListUiState,
+    val result: T,
     val error: ResponseError?
 )

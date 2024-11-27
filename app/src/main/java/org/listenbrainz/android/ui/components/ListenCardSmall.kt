@@ -54,7 +54,6 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
  * @param dropDownState State of the dropdown icon. Usually, in case of a lazy list, we would want to supply a
  * mutable state list or map with index/key rather than maintaining a state for each listen card. False means
  * dropdown should remain closed.
- * @param enableBlurbContent True means card will shape itself to accommodate content whether it is empty or not.
  * @author jasje*/
 @Composable
 fun ListenCardSmall(
@@ -69,8 +68,7 @@ fun ListenCardSmall(
     dropDown: @Composable () -> Unit = {},
     enableTrailingContent: Boolean = false,
     trailingContent: @Composable (modifier: Modifier) -> Unit = {},
-    enableBlurbContent: Boolean = false,
-    blurbContent: @Composable (ColumnScope.(modifier: Modifier) -> Unit) = {},
+    blurbContent: @Composable (ColumnScope.(modifier: Modifier) -> Unit)? = null,
     color: Color = ListenBrainzTheme.colorScheme.level1,
     titleColor: Color = ListenBrainzTheme.colorScheme.listenText,
     subtitleColor: Color = titleColor.copy(alpha = 0.7f),
@@ -169,7 +167,7 @@ fun ListenCardSmall(
         
             }
             
-            if (enableBlurbContent) {
+            blurbContent?.let {
                 HorizontalDivider()
                 blurbContent(Modifier.padding(ListenBrainzTheme.paddings.insideCard))
             }
@@ -187,8 +185,7 @@ inline fun ListenCardSmallDefault(
     @DrawableRes errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
     enableTrailingContent: Boolean = false,
     noinline trailingContent: @Composable (modifier: Modifier) -> Unit = {},
-    enableBlurbContent: Boolean = false,
-    noinline blurbContent: @Composable (ColumnScope.(modifier: Modifier) -> Unit) = {},
+    noinline blurbContent: @Composable (ColumnScope.(modifier: Modifier) -> Unit)? = null,
     color: Color = ListenBrainzTheme.colorScheme.level1,
     titleColor: Color = ListenBrainzTheme.colorScheme.listenText,
     subtitleColor: Color = titleColor.copy(alpha = 0.7f),
@@ -224,7 +221,6 @@ inline fun ListenCardSmallDefault(
             },
             enableTrailingContent = enableTrailingContent,
             trailingContent = trailingContent,
-            enableBlurbContent = enableBlurbContent,
             blurbContent = blurbContent,
             color = color,
             titleColor = titleColor,
@@ -297,12 +293,16 @@ fun TitleAndSubtitle(
         Row {
             artists.forEach { artist ->
                 artist?.artistCreditName?.let {
-                    Text(
-                        modifier = Modifier.clickable {
-                            if(artist.artistMbid != null){
+                    fun Modifier.goToArtistPage() =
+                        if(artist.artistMbid != null){
+                            this.clickable {
                                 goToArtistPage(artist.artistMbid)
                             }
-                        },
+                        } else
+                            this
+
+                    Text(
+                        modifier = Modifier.goToArtistPage(),
                         text = artist.artistCreditName + (artist.joinPhrase ?: ""),
                         style = ListenBrainzTheme.textStyles.listenSubtitle,
                         color = subtitleColor,
@@ -331,7 +331,6 @@ private fun ListenCardSmallPreview() {
                     TitleAndSubtitle(title = "Userrrrrrrrrrrrrr", goToArtistPage = {}, artists = listOf(FeedListenArtist("Artist", "", "")),)
                 }
             },
-            enableBlurbContent = true,
             goToArtistPage = {},
             blurbContent = {
                 Column(modifier = it) {
@@ -359,7 +358,6 @@ private fun ListenCardSmallNoBlurbContentPreview() {
                 }
             },
             goToArtistPage = {},
-            enableBlurbContent = false
         ) {}
     }
 }
@@ -376,7 +374,6 @@ private fun ListenCardSmallSimplePreview() {
             enableDropdownIcon = true,
             enableTrailingContent = false,
             goToArtistPage = {},
-            enableBlurbContent = false
         ) {}
     }
 }

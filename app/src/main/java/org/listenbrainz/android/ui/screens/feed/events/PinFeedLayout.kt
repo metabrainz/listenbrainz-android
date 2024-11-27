@@ -67,9 +67,8 @@ fun PinFeedLayout(
                     onReview = onReview
                 )
             },
-            enableBlurbContent = !event.blurbContent.isNullOrEmpty(),
             blurbContent = { modifier ->
-                event.blurbContent?.let {
+                event.blurbContent?.takeIf { it.isNotEmpty() }?.let {
                     Column(modifier = modifier) {
                         Text(
                             text = it,

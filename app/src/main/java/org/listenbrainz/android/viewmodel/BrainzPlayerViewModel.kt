@@ -153,7 +153,6 @@ class BrainzPlayerViewModel @Inject constructor(
         return result
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     fun playOrToggleSong(mediaItem: Song, toggle: Boolean = false) {
         val isPrepared = playbackState.value.isPrepared
         if (isPrepared && mediaItem.mediaID == currentlyPlayingSong.value.toSong.mediaID) {
