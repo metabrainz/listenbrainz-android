@@ -67,17 +67,17 @@ fun PinFeedLayout(
                     onReview = onReview
                 )
             },
-            blurbContent = { modifier ->
-                event.blurbContent?.takeIf { it.isNotEmpty() }?.let {
+            blurbContent = if (!event.blurbContent.isNullOrBlank()) {
+                { modifier ->
                     Column(modifier = modifier) {
                         Text(
-                            text = it,
+                            text = event.blurbContent!!,
                             style = ListenBrainzTheme.textStyles.feedBlurbContent,
                             color = ListenBrainzTheme.colorScheme.text
                         )
                     }
                 }
-            },
+            } else null,
             goToArtistPage = goToArtistPage,
             onClick = onClick
         )
