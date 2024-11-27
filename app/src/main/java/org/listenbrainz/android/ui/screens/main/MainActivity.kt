@@ -4,9 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.captionBar
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material.BackdropValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.rememberBackdropScaffoldState
@@ -22,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -50,23 +53,26 @@ import org.listenbrainz.android.viewmodel.DashBoardViewModel
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private lateinit var dashBoardViewModel: DashBoardViewModel
+    private lateinit var _dashBoardViewModel: DashBoardViewModel
+    private val dashBoardViewModel get() = _dashBoardViewModel
 
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
-        dashBoardViewModel = ViewModelProvider(this)[DashBoardViewModel::class.java]
+        enableEdgeToEdge()
+
+        _dashBoardViewModel = ViewModelProvider(this)[DashBoardViewModel::class.java]
+
+        dashBoardViewModel.setUiMode()
+        dashBoardViewModel.beginOnboarding(this)
+        dashBoardViewModel.updatePermissionPreference()
 
         setContent {
             ListenBrainzTheme {
                 // TODO: Since this view-model will remain throughout the lifecycle of the app,
                 //  we can have tasks which require such lifecycle access or longevity. We can get this view-model's
                 //  instance anywhere when we initialize it as a hilt view-model.
-
-                dashBoardViewModel.setUiMode()
-                dashBoardViewModel.beginOnboarding(this)
-                dashBoardViewModel.updatePermissionPreference()
 
                 DisposableEffect(Unit) {
                     dashBoardViewModel.connectToSpotify()
@@ -143,8 +149,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 val navController = rememberNavController()
-                val backdropScaffoldState =
-                    rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
+                val backdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
                 var scrollToTopState by remember { mutableStateOf(false) }
                 val snackbarState = remember { SnackbarHostState() }
                 val searchBarState = rememberSearchBarState()
@@ -153,11 +158,18 @@ class MainActivity : ComponentActivity() {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
                 val username = dashBoardViewModel.username
+
                 Scaffold(
-                    topBar = { TopBar(navController = navController, searchBarState = when (currentDestination?.route) {
-                        AppNavigationItem.BrainzPlayer.route -> brainzplayerSearchBarState
-                        else -> searchBarState
-                    }) },
+                    modifier = Modifier.safeDrawingPadding(),
+                    topBar = {
+                        TopBar(
+                            navController = navController,
+                            searchBarState = when (currentDestination?.route) {
+                                AppNavigationItem.BrainzPlayer.route -> brainzplayerSearchBarState
+                                else -> searchBarState
+                            }
+                        )
+                    },
                     bottomBar = {
                         BottomNavigationBar(
                             navController = navController,

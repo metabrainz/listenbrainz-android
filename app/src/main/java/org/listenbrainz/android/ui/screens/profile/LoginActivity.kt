@@ -10,11 +10,13 @@ import android.webkit.CookieSyncManager
 import android.webkit.WebView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -31,14 +33,19 @@ import org.listenbrainz.android.viewmodel.ListensViewModel
 
 @AndroidEntryPoint
 class LoginActivity : ComponentActivity() {
-
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         
         val viewModel = ViewModelProvider(this)[ListensViewModel::class.java]
         setContent {
             ListenBrainzTheme {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .safeDrawingPadding(),
+                    contentAlignment = Alignment.Center
+                ) {
                     // FIXME: Security certificate warning in API 24 and below.
                     ListenBrainzLogin(viewModel)
                 }

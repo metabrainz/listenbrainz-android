@@ -6,6 +6,9 @@ import android.content.Intent
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.core.content.PermissionChecker
 import androidx.core.content.PermissionChecker.checkSelfPermission
 import androidx.lifecycle.AndroidViewModel
@@ -32,7 +35,7 @@ class DashBoardViewModel @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : AndroidViewModel(application) {
 
-    var username = ""
+    var username by mutableStateOf("")
     val job =  viewModelScope.launch { username = async {appPreferences.username.get() }.await() }
     // Sets Ui mode for XML layouts.
     fun setUiMode(){

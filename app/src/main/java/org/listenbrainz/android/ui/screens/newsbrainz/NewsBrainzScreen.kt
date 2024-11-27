@@ -49,6 +49,7 @@ import org.listenbrainz.android.R
 
 @Composable
 fun NewsBrainzScreen(
+    modifier: Modifier = Modifier,
     viewModel: NewsListViewModel,
     onItemClicked: (BlogPost) -> Unit,
     onItemLongClicked: (BlogPost) -> Unit,
@@ -61,6 +62,7 @@ fun NewsBrainzScreen(
     }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = { Text(text = "NewsBrainz", color = MaterialTheme.colorScheme.onSurface) },
