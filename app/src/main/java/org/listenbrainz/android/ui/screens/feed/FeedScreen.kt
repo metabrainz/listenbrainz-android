@@ -221,7 +221,7 @@ fun FeedScreen(
     
         HorizontalPager(
             state = pagerState,
-            beyondBoundsPageCount = 1
+            beyondViewportPageCount = 1
         ) { position ->
             when (position) {
                 0 -> MyFeed(

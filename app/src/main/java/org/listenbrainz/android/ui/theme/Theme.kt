@@ -284,10 +284,15 @@ private lateinit var LocalUiMode: ProvidableCompositionLocal<UiMode>
  * what theme the device is using. Different from [isSystemInDarkTheme].*/
 @Composable
 fun onScreenUiModeIsDark() : Boolean {
-    return when (LocalUiMode.current){
-        UiMode.DARK -> true
-        UiMode.LIGHT -> false
-        else -> isSystemInDarkTheme()
+    val uiMode = LocalUiMode.current
+    val isSystemInDarkTheme = isSystemInDarkTheme()
+
+    return remember(uiMode, isSystemInDarkTheme) {
+        when (uiMode){
+            UiMode.DARK -> true
+            UiMode.LIGHT -> false
+            else -> isSystemInDarkTheme
+        }
     }
 }
 

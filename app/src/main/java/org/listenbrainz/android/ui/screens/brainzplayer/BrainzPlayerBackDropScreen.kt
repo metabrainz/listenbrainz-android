@@ -50,6 +50,7 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -98,7 +99,6 @@ import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
-@OptIn(ExperimentalFoundationApi::class)
 @ExperimentalMaterialApi
 @Composable
 fun BrainzPlayerBackDropScreen(
@@ -136,8 +136,11 @@ fun BrainzPlayerBackDropScreen(
         appBar = {},
         persistentAppBar = false,
         frontLayerContent = {
-            val delta by backdropScaffoldState.offset
-            maxDelta = max(delta, maxDelta)
+            LaunchedEffect(Unit) {
+                val delta = backdropScaffoldState.requireOffset()
+                maxDelta = max(delta, maxDelta)
+            }
+
             PlayerScreen(
                 currentlyPlayingSong = currentlyPlayingSong,
                 isShuffled = isShuffled,
@@ -146,7 +149,7 @@ fun BrainzPlayerBackDropScreen(
             val songList = brainzPlayerViewModel.mediaItem.collectAsState().value.data ?: listOf()
             SongViewPager(
                 modifier = Modifier.graphicsLayer {
-                    alpha = ( delta / (maxDelta - headerHeight.toPx()) )
+                    alpha = ( backdropScaffoldState.requireOffset() / (maxDelta - headerHeight.toPx()) )
                 },
                 songList = songList,
                 backdropScaffoldState = backdropScaffoldState,
@@ -511,7 +514,7 @@ fun AlbumArtViewPager(currentlyPlayingSong: Song, pagerState: PagerState) {
                         // Calculate the absolute offset for the current page from the
                         // scroll position. We use the absolute value which allows us to mirror
                         // any effects for both directions
-                        val pageOffset = pagerState.getOffsetFractionForPage(page).absoluteValue
+                        val pageOffset = pagerState.getOffsetDistanceInPages(page).absoluteValue
                         
                         // We animate the scaleX + scaleY, between 85% and 100%
                         lerp(
