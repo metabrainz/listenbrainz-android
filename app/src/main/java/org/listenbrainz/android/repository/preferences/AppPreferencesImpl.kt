@@ -243,7 +243,7 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
 
     override val version: String
         get() = try {
-            context.packageManager?.getPackageInfo(context.packageName, 0)!!.versionName
+            context.packageManager?.getPackageInfo(context.packageName, 0)!!.versionName ?: "N/A"
         }
         catch (e: PackageManager.NameNotFoundException) {
             "unknown"

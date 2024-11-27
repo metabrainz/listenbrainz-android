@@ -32,15 +32,16 @@ class FeaturesActivity : OnboardAdvanced() {
     private val featuresViewModel: FeaturesViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Disable for android 15
+        theme.applyStyle(R.style.OptOutEdgeToEdgeEnforcement, /* force */ false)
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        WindowCompat.setDecorFitsSystemWindows(window, true)
 
         showSignInButton = true
         isWizardMode = true
 
         showStatusBar(true)
         setStatusBarColorRes(R.color.app_bg)
+        setNavBarColorRes(R.color.app_bg)
 
         askForPermissions(
             when {

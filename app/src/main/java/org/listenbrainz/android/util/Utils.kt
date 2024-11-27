@@ -124,7 +124,7 @@ object Utils {
 
     fun getSHA1(context: Context, packageName: String): String? {
         try {
-            val signatures = context.packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES).signatures
+            val signatures = context.packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES).signatures ?: emptyArray()
             for (signature in signatures) {
                 val md = MessageDigest.getInstance("SHA-1")
                 md.update(signature.toByteArray())
