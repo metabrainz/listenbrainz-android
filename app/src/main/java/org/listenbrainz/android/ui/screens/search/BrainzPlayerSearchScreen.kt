@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,16 +24,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.PlayableType
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.SearchUiState
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.Utils.showToast
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
 @Composable
@@ -41,6 +45,7 @@ fun BrainzPlayerSearchScreen(
     viewModel: BrainzPlayerViewModel = hiltViewModel(),
     deactivate: () -> Unit,
 ) {
+    val context = LocalContext.current
     var brainzplayerQueryState by remember {
         mutableStateOf("")
     }
@@ -49,9 +54,14 @@ fun BrainzPlayerSearchScreen(
         mutableStateListOf<Song>()
     }
 
+    var error by remember {
+        mutableStateOf<ResponseError?>(null)
+    }
+
     fun onDismiss() {
         searchItems.clear()
         brainzplayerQueryState = ""
+        error = null
         deactivate()
     }
 
@@ -61,11 +71,11 @@ fun BrainzPlayerSearchScreen(
         exit = fadeOut()
     ) {
         SearchScreen(
-            uiState = remember(searchItems, brainzplayerQueryState) {
+            uiState = remember(searchItems, brainzplayerQueryState, error) {
                 SearchUiState(
                     query = brainzplayerQueryState,
                     result = searchItems,
-                    error = null
+                    error = error
                 )
             },
             onDismiss = ::onDismiss,
@@ -75,37 +85,27 @@ fun BrainzPlayerSearchScreen(
                 searchItems.addAll(viewModel.searchSongs(brainzplayerQueryState) ?: emptyList())
             },
             onClear = searchItems::clear,
-            onErrorShown = {}
+            onErrorShown = { error = null }
         ) {
-            SongList(
-                searchResult = searchItems,
-                onClick = { song ->
-                    viewModel.changePlayable(listOf(song), PlayableType.SONG, song.mediaID, 0)
-                    viewModel.playOrToggleSong(song, true)
-                    onDismiss()
+            LazyColumn {
+                itemsIndexed(searchItems) { _, song ->
+                    ListenCardSmallDefault(
+                        modifier = Modifier.padding(
+                            horizontal = ListenBrainzTheme.paddings.horizontal,
+                            vertical = ListenBrainzTheme.paddings.lazyListAdjacent
+                        ),
+                        metadata = song.toMetadata(),
+                        coverArtUrl = song.albumArt,
+                        errorAlbumArt = R.drawable.ic_erroralbumart,
+                        goToArtistPage = {},
+                        onDropdownSuccess = { context.showToast(it) },
+                        onDropdownError = { error = it }
+                    ) {
+                        viewModel.changePlayable(listOf(song), PlayableType.SONG, song.mediaID, 0)
+                        viewModel.playOrToggleSong(song, true)
+                        onDismiss()
+                    }
                 }
-            )
-        }
-    }
-}
-
-@Composable
-private fun SongList (searchResult: MutableList<Song> , onClick: (song : Song) -> Unit) {
-    LazyColumn(contentPadding = PaddingValues(ListenBrainzTheme.paddings.lazyListAdjacent)) {
-        itemsIndexed(searchResult) { _, song ->
-            ListenCardSmallDefault(
-                modifier = Modifier.padding(
-                    horizontal = ListenBrainzTheme.paddings.horizontal,
-                    vertical = ListenBrainzTheme.paddings.lazyListAdjacent
-                ),
-                metadata = song.toMetadata(),
-                coverArtUrl = song.albumArt,
-                errorAlbumArt = R.drawable.ic_erroralbumart,
-                goToArtistPage = {},
-                onDropdownSuccess = {},
-                onDropdownError = {}
-            ) {
-                onClick(song)
             }
         }
     }

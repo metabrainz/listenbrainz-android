@@ -83,6 +83,11 @@ object Utils {
         is ContextWrapper -> baseContext.getActivity()
         else -> null
     }
+
+    fun Context.showToast(
+        message: String,
+        length: Int = Toast.LENGTH_LONG
+    ) = Toast.makeText(this, message, length).show()
     
 
     /** Get human readable error.
