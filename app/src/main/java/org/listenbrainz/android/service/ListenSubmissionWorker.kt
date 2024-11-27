@@ -123,7 +123,7 @@ class ListenSubmissionWorker @AssistedInject constructor(
                     if (response.error?.ordinal == ResponseError.BAD_REQUEST.ordinal) {
                         Log.e(
                             "Submission failed, not saving listen because metadata is faulty."
-                            + "\n Server response: ${response.error.toast()}" + "\n POST Request Body: $body"
+                            + "\n Server response: ${response.error.toast}" + "\n POST Request Body: $body"
                         )
                     } else {
                         Log.e("Submission failed, listen saved.")

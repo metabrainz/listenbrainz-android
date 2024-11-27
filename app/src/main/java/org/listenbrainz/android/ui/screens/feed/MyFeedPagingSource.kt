@@ -28,7 +28,7 @@ class MyFeedPagingSource (
         if (username.isEmpty()) {
             val error = ResponseError.UNAUTHORISED.apply { actualResponse = "Login to access feed." }
             onError(error)
-            return LoadResult.Error(Exception(error.toast()))
+            return LoadResult.Error(Exception(error.toast))
         }
         
         val result = withContext(ioDispatcher) {
@@ -61,7 +61,7 @@ class MyFeedPagingSource (
             }
             else -> {
                 onError(result.error)
-                LoadResult.Error(Exception(result.error?.toast()))
+                LoadResult.Error(Exception(result.error?.toast))
             }
             
         }

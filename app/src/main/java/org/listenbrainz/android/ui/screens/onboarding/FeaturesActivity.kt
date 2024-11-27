@@ -6,8 +6,10 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.limurse.onboard.OnboardAdvanced
@@ -30,6 +32,8 @@ class FeaturesActivity : OnboardAdvanced() {
     private val featuresViewModel: FeaturesViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Disable for android 15
+        theme.applyStyle(R.style.OptOutEdgeToEdgeEnforcement, /* force */ false)
         super.onCreate(savedInstanceState)
 
         showSignInButton = true
@@ -37,6 +41,7 @@ class FeaturesActivity : OnboardAdvanced() {
 
         showStatusBar(true)
         setStatusBarColorRes(R.color.app_bg)
+        setNavBarColorRes(R.color.app_bg)
 
         askForPermissions(
             when {

@@ -32,7 +32,7 @@ class SearchViewModel @Inject constructor(
     private val repository: SocialRepository,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-) : FollowUnfollowModel<SearchUiState>(repository, ioDispatcher) {
+) : FollowUnfollowModel<SearchUiState<UserListUiState>>(repository, ioDispatcher) {
     
     private val inputQueryFlow = MutableStateFlow("")
     
@@ -47,7 +47,7 @@ class SearchViewModel @Inject constructor(
             emit(UserListUiState(userList, isFollowedList))
         }
     
-    override val uiState: StateFlow<SearchUiState> = createUiStateFlow()
+    override val uiState: StateFlow<SearchUiState<UserListUiState>> = createUiStateFlow()
     
     init {
         // Engage query flow
@@ -92,7 +92,7 @@ class SearchViewModel @Inject constructor(
         }
     }
     
-    override fun createUiStateFlow(): StateFlow<SearchUiState> {
+    override fun createUiStateFlow(): StateFlow<SearchUiState<UserListUiState>> {
         return combine(
             inputQueryFlow,
             resultFlow,

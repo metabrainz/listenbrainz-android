@@ -266,7 +266,6 @@ fun TasteScreen(
                     pinnedRecordings.mapIndexed { index, recording: PinnedRecording ->
                         val metadata = Metadata(trackMetadata = recording.trackMetadata)
                         ListenCardSmall(
-                            enableBlurbContent = true,
                             blurbContent = {
                                 if (!recording.blurbContent.isNullOrEmpty()) {
                                     Text(

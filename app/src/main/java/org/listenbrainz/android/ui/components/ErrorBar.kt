@@ -49,7 +49,7 @@ fun ErrorBar(
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                text = error?.toast() ?: "",
+                text = error?.toast ?: "",
                 modifier = Modifier.padding(vertical = 4.dp),
                 color = ListenBrainzTheme.colorScheme.onLbSignature,
                 textAlign = TextAlign.Center

@@ -1,5 +1,7 @@
 package org.listenbrainz.android.model
 
+import org.listenbrainz.android.model.feed.FeedListenArtist
+
 data class Song (
     val mediaID : Long=0L,
     val title : String="",
@@ -16,6 +18,20 @@ data class Song (
     val discNumber : Long = 0L,
     var lastListenedTo : Long = 0L
 ) {
+    fun toMetadata(): Metadata = Metadata(
+        trackMetadata = TrackMetadata(
+            artistName = artist,
+            releaseName = album,
+            trackName = title,
+            mbidMapping = MbidMapping(
+                artistMbids = emptyList(),
+                recordingName = title,
+                artists = listOf(FeedListenArtist(artist, null, null))
+            ),
+            additionalInfo = null
+        )
+    )
+
     companion object {
         val emptySong = Song(
             mediaID = 0L,

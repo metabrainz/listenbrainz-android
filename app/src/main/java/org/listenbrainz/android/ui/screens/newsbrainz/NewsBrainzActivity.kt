@@ -5,6 +5,9 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import com.aemerse.share.SharableItem
 import com.aemerse.share.Share
@@ -20,12 +23,14 @@ class NewsBrainzActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
 
         viewModel = ViewModelProvider(this)[NewsListViewModel::class.java]
 
         setContent {
             ListenBrainzTheme {
                 NewsBrainzScreen(
+                    modifier = Modifier.safeDrawingPadding(),
                     viewModel = viewModel,
                     onItemClicked = { post ->
                         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(post.URL))
