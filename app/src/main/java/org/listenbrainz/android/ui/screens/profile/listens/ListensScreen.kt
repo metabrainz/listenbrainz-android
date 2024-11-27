@@ -249,7 +249,7 @@ fun ListensScreen(
                             caaId = listen.trackMetadata.mbidMapping?.caaId
                         ),
                         onDropdownError = { error ->
-                            snackbarState.showSnackbar(error.toast())
+                            snackbarState.showSnackbar(error.toast)
                         },
                         onDropdownSuccess = { message ->
                             snackbarState.showSnackbar(message)

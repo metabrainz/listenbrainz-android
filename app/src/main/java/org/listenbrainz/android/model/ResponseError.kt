@@ -42,7 +42,7 @@ enum class ResponseError(val genericToast: String, var actualResponse: String? =
     
     
     /** Simple function that returns the most suitable message to show the user.*/
-    fun toast(): String = actualResponse ?: genericToast
+    val toast get() =  actualResponse ?: genericToast
     
     /** Wrap this [ResponseError] in [Resource] with an optional parameter to add the actual response.*/
     fun <T> asResource(actualResponse: String? = null): Resource<T> =
