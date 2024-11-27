@@ -1,6 +1,7 @@
 package org.listenbrainz.android.model.feed
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import com.google.gson.annotations.SerializedName
 import org.listenbrainz.android.model.Metadata
 
