@@ -131,7 +131,7 @@ fun FeedScreen(
 }
 
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun FeedScreen(
     uiState: FeedUiState,
