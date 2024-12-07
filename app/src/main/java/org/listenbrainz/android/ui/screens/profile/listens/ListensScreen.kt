@@ -295,6 +295,7 @@ fun ListensScreen(
                 item {
                     Box(modifier = Modifier
                         .padding(top = 30.dp)
+                        .fillMaxWidth()
                         .background(ListenBrainzTheme.colorScheme.songsListenedToBG)
                     ) {
                         Column {
@@ -336,6 +337,7 @@ fun ListensScreen(
                     Box(modifier = Modifier
                         .padding(top = 30.dp)
                         .clip(shape = RoundedCornerShape(20.dp))
+                        .fillMaxWidth()
                         .background(
                             ListenBrainzTheme.colorScheme.songsListenedToBG
                         )){
@@ -603,7 +605,7 @@ fun CompatibilityCard(compatibility: Float, similarArtists: List<Artist>, goToAr
 private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers: List<Pair<String,Boolean>>,
                           following: List<Pair<String,Boolean>>, followersState: Boolean, onStateChange: (Boolean) -> Unit,
                           onFollowButtonClick: (String?, Boolean) -> Unit, goToUserPage: (String?) -> Unit) {
-    Column(modifier = Modifier.padding(start = 16.dp , top = 30.dp)) {
+    Column(modifier = Modifier.padding(start = 16.dp , top = 30.dp, end = 16.dp)) {
         Text(
             "Followers",
             color = ListenBrainzTheme.colorScheme.text,
