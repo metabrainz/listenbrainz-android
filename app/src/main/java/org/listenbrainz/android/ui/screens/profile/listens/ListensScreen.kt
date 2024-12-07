@@ -334,28 +334,39 @@ fun ListensScreen(
                 }
 
                 item {
-                    Box(modifier = Modifier
-                        .padding(top = 30.dp)
-                        .clip(shape = RoundedCornerShape(20.dp))
-                        .fillMaxWidth()
-                        .background(
-                            ListenBrainzTheme.colorScheme.songsListenedToBG
-                        )){
-                        Column {
-                            SimilarUsersCard(similarUsers = when(similarUsersCollapsibleState.value){
-                                true -> uiState.listensTabUiState.similarUsers?.take(5) ?: emptyList()
-                                false -> uiState.listensTabUiState.similarUsers ?: emptyList()
-                            }, goToUserPage = goToUserPage)
+                    if(!uiState.listensTabUiState.similarUsers.isNullOrEmpty()) {
+                        Box(
+                            modifier = Modifier
+                                .padding(top = 30.dp)
+                                .clip(shape = RoundedCornerShape(20.dp))
+                                .fillMaxWidth()
+                                .background(
+                                    ListenBrainzTheme.colorScheme.songsListenedToBG
+                                )
+                        ) {
+                            Column {
+                                SimilarUsersCard(
+                                    similarUsers = when (similarUsersCollapsibleState.value) {
+                                        true -> uiState.listensTabUiState.similarUsers.take(5)
 
-                            if((uiState.listensTabUiState.similarUsers?.size ?: 0) > 5){
-                                Spacer(modifier = Modifier.height(20.dp))
-                                Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                                    LoadMoreButton(
-                                        state = similarUsersCollapsibleState.value,
-                                        onClick = {
-                                            similarUsersCollapsibleState.value = !similarUsersCollapsibleState.value
-                                        }
-                                    )
+                                        false -> uiState.listensTabUiState.similarUsers
+                                    }, goToUserPage = goToUserPage
+                                )
+
+                                if ((uiState.listensTabUiState.similarUsers.size) > 5) {
+                                    Spacer(modifier = Modifier.height(20.dp))
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
+                                        LoadMoreButton(
+                                            state = similarUsersCollapsibleState.value,
+                                            onClick = {
+                                                similarUsersCollapsibleState.value =
+                                                    !similarUsersCollapsibleState.value
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
