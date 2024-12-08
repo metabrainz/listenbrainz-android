@@ -66,6 +66,7 @@ If you think you have found a bug, please report it on the [issue tracker](https
 
 Reach out to the developers at one of the following places:
 
+- ChatBrainz: https://wiki.musicbrainz.org/Communication/ChatBrainz
 - MetaBrainz Community: https://community.metabrainz.org/tag/android
 - Development IRC Channel: `#metabrainz`
 - E-Mail: **support@metabrainz.org**
