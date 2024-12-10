@@ -183,7 +183,7 @@ fun BaseProfileScreen(
 
                 Row (modifier = Modifier
                     .align(Alignment.End)
-                    .padding(end = 20.dp)) {
+                    .padding(end = 20.dp, bottom = 4.dp)) {
                     if(currentTab.value == ProfileScreenTab.LISTENS){
                         when(isLoggedInUser) {
                             true -> AddListensButton()
@@ -258,6 +258,7 @@ private fun FollowButton(onFollowClick: (String) -> Unit, username: String?) {
         }
 
     }, modifier = Modifier
+        .clip(RoundedCornerShape(4.dp))
         .background(lb_purple)
         .width(100.dp)
         .height(30.dp)) {
@@ -279,6 +280,7 @@ private fun UnFollowButton(onUnFollowClick: (String) -> Unit, username: String?)
         }
 
     }, modifier = Modifier
+        .clip(RoundedCornerShape(4.dp))
         .background(lb_purple)
         .width(100.dp)
         .height(30.dp)) {
@@ -295,6 +297,7 @@ private fun UnFollowButton(onUnFollowClick: (String) -> Unit, username: String?)
 @Composable
 private fun AddListensButton() {
     IconButton(onClick = { /*TODO*/ }, modifier = Modifier
+        .clip(RoundedCornerShape(4.dp))
         .background(Color(0xFF353070))
         .width(110.dp)
         .height(30.dp)) {
@@ -311,6 +314,7 @@ private fun AddListensButton() {
 @Composable
 private fun MusicBrainzButton(onClick: () -> Unit) {
     IconButton(onClick = onClick, modifier = Modifier
+        .clip(RoundedCornerShape(4.dp))
         .background(Color(0xFF353070))
         .width(140.dp)
         .height(30.dp)) {
