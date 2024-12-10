@@ -184,8 +184,7 @@ private val colorSchemeLight = ColorScheme(
 )
 
 
-private var LocalColorScheme: ProvidableCompositionLocal<ColorScheme> = staticCompositionLocalOf { colorSchemeLight }
-
+private val LocalColorScheme: ProvidableCompositionLocal<ColorScheme> = staticCompositionLocalOf { colorSchemeLight }
 
 
 private val DarkColorScheme = darkColorScheme(
@@ -236,7 +235,8 @@ data class Paddings(
     val dialogContent: Dp = 8.dp,
     val settings: Dp = 18.dp
 )
-private val LocalPaddings = staticCompositionLocalOf { Paddings() }
+
+val LocalPaddings = staticCompositionLocalOf { Paddings() }
 
 @Immutable
 data class Sizes(
@@ -245,7 +245,7 @@ data class Sizes(
     val dropdownItem: Dp = 20.dp
 )
 
-private val LocalSizes = staticCompositionLocalOf { Sizes() }
+val LocalSizes = staticCompositionLocalOf { Sizes() }
 
 @Immutable
 data class Shapes(
@@ -256,7 +256,7 @@ data class Shapes(
     val chips: Shape = RoundedCornerShape(4.dp)
 )
 
-private val LocalShapes = staticCompositionLocalOf { Shapes() }
+val LocalShapes = staticCompositionLocalOf { Shapes() }
 
 @Immutable
 data class TextStyles(
@@ -276,9 +276,9 @@ data class TextStyles(
     val dialogTextBold: TextStyle = TextStyle(fontWeight = FontWeight.Bold, fontSize = 14.sp)
 )
 
-private val LocalTextStyles = staticCompositionLocalOf { TextStyles() }
+val LocalTextStyles = staticCompositionLocalOf { TextStyles() }
 
-private lateinit var LocalUiMode: ProvidableCompositionLocal<UiMode>
+val LocalUiMode = staticCompositionLocalOf { UiMode.FOLLOW_SYSTEM }
 
 /** This function determines if the absolute UI mode of the app is dark (True) or not, irrespective of
  * what theme the device is using. Different from [isSystemInDarkTheme].*/
@@ -309,7 +309,6 @@ fun ListenBrainzTheme(
 ) {
     
     val uiMode by appPreferences.themePreference.getFlow().collectAsState(initial = UiMode.FOLLOW_SYSTEM)
-    LocalUiMode = staticCompositionLocalOf { uiMode }
     
     // With Dynamic Color
     /*val colorScheme = if (dynamicColor){
@@ -341,8 +340,6 @@ fun ListenBrainzTheme(
         }
     }
     
-    LocalColorScheme = staticCompositionLocalOf { localColorScheme }
-    
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
@@ -357,19 +354,20 @@ fun ListenBrainzTheme(
             systemUiController.setNavigationBarColor(color = colorScheme.tertiaryContainer)
         }
     }
-    CompositionLocalProvider {
-        LocalPaddings provides Paddings()
-        LocalShapes provides Shapes()
-        LocalSizes provides Sizes()
-        LocalTextStyles provides TextStyles()
-        LocalUiMode provides uiMode
-        LocalColorScheme provides localColorScheme
-    }
     
-    MaterialTheme(
-        colorScheme = colorScheme,
-        content = content
-    )
+    CompositionLocalProvider(
+        LocalPaddings provides Paddings(),
+        LocalShapes provides Shapes(),
+        LocalSizes provides Sizes(),
+        LocalTextStyles provides TextStyles(),
+        LocalUiMode provides uiMode,
+        LocalColorScheme provides localColorScheme
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            content = content
+        )
+    }
 }
 
 
