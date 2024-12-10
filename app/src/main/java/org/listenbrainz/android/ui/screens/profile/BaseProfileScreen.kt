@@ -45,6 +45,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.listenbrainz.android.R
+import org.listenbrainz.android.ui.components.FollowButton
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.brainzplayer.PlaylistScreen
 import org.listenbrainz.android.ui.screens.profile.listens.ListensScreen
@@ -183,18 +184,27 @@ fun BaseProfileScreen(
 
                 Row (modifier = Modifier
                     .align(Alignment.End)
-                    .padding(end = 20.dp)) {
+                    .padding(end = 20.dp, bottom = 4.dp)) {
                     if(currentTab.value == ProfileScreenTab.LISTENS){
                         when(isLoggedInUser) {
                             true -> AddListensButton()
-                            false -> when(uiState.listensTabUiState.isFollowing){
-                                true -> UnFollowButton(username = username, onUnFollowClick = {
-                                    onUnfollowClick(it)
-                                })
-                                false -> FollowButton(username = username, onFollowClick = {
-                                    onFollowClick(it)
-                                })
-                            }
+                            false->
+                                Box() {
+                                    FollowButton(
+                                        modifier = Modifier,
+                                        isFollowedState = uiState.listensTabUiState.isFollowing,
+                                        buttonColor = lb_purple,
+                                        followedStateTextColor = new_app_bg_light,
+                                        unfollowedStateTextColor = ListenBrainzTheme.colorScheme.text,
+                                        onClick = {
+                                            if (uiState.listensTabUiState.isFollowing) {
+                                                onUnfollowClick(username ?: "")
+                                            } else {
+                                                onFollowClick(username ?: "")
+                                            }
+                                        }
+                                    )
+                                }
                         }
                         Spacer(modifier = Modifier.width(10.dp))
                         MusicBrainzButton{
@@ -250,51 +260,11 @@ fun BaseProfileScreen(
 
 }
 
-@Composable
-private fun FollowButton(onFollowClick: (String) -> Unit, username: String?) {
-    IconButton(onClick = {
-        if(!username.isNullOrEmpty()){
-            onFollowClick(username)
-        }
-
-    }, modifier = Modifier
-        .background(lb_purple)
-        .width(100.dp)
-        .height(30.dp)) {
-        Row(modifier = Modifier.padding(horizontal = 8.dp)) {
-            Icon(painter = painterResource(id = R.drawable.follow_icon), contentDescription = "", tint = app_bg_light, modifier = Modifier
-                .width(20.dp)
-                .height(20.dp))
-            Spacer(modifier = Modifier.width(5.dp))
-            Text("Follow", color = new_app_bg_light, style = MaterialTheme.typography.bodyMedium)
-        }
-    }
-}
-
-@Composable
-private fun UnFollowButton(onUnFollowClick: (String) -> Unit, username: String?) {
-    IconButton(onClick = {
-        if(!username.isNullOrEmpty()){
-            onUnFollowClick(username)
-        }
-
-    }, modifier = Modifier
-        .background(lb_purple)
-        .width(100.dp)
-        .height(30.dp)) {
-        Row(modifier = Modifier.padding(horizontal = 8.dp)) {
-            Icon(painter = painterResource(id = R.drawable.follow_icon), contentDescription = "", tint = new_app_bg_light, modifier = Modifier
-                .width(20.dp)
-                .height(20.dp))
-            Spacer(modifier = Modifier.width(5.dp))
-            Text("Unfollow", color = new_app_bg_light, style = MaterialTheme.typography.bodyMedium)
-        }
-    }
-}
 
 @Composable
 private fun AddListensButton() {
     IconButton(onClick = { /*TODO*/ }, modifier = Modifier
+        .clip(RoundedCornerShape(4.dp))
         .background(Color(0xFF353070))
         .width(110.dp)
         .height(30.dp)) {
@@ -311,6 +281,7 @@ private fun AddListensButton() {
 @Composable
 private fun MusicBrainzButton(onClick: () -> Unit) {
     IconButton(onClick = onClick, modifier = Modifier
+        .clip(RoundedCornerShape(4.dp))
         .background(Color(0xFF353070))
         .width(140.dp)
         .height(30.dp)) {

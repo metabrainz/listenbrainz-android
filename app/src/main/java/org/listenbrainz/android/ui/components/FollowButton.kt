@@ -45,6 +45,8 @@ fun FollowButton(
     fontSize: TextUnit = (height.value/2 - 1).sp,
     cornerRadius: Dp = 6.dp,
     buttonColor: Color = ListenBrainzTheme.colorScheme.lbSignature,
+    followedStateTextColor: Color = ListenBrainzTheme.colorScheme.lbSignature,
+    unfollowedStateTextColor: Color = ListenBrainzTheme.colorScheme.onLbSignature,
     onClick: () -> Unit,
 ) {
     
@@ -78,7 +80,7 @@ fun FollowButton(
         Box(contentAlignment = Alignment.Center) {
             Text(
                 text = if (isFollowedState) "Following" else "Follow",
-                color = if (isFollowedState) ListenBrainzTheme.colorScheme.lbSignature else ListenBrainzTheme.colorScheme.onLbSignature,
+                color = if (isFollowedState) followedStateTextColor else unfollowedStateTextColor,
                 fontWeight = FontWeight.Medium,
                 fontSize = fontSize
             )

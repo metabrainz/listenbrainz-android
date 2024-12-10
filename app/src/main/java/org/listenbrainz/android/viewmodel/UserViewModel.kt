@@ -26,6 +26,7 @@ import org.listenbrainz.android.ui.screens.profile.TasteTabUIState
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
 import org.listenbrainz.android.ui.screens.profile.stats.UserGlobal
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
+import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
 
 @HiltViewModel
@@ -70,14 +71,22 @@ class UserViewModel @Inject constructor(
     fun followUser(username: String?){
         if(username.isNullOrEmpty()) return
         viewModelScope.launch (ioDispatcher) {
-            socialRepository.followUser(username)
+            listenStateFlow.value = listenStateFlow.value.copy(isFollowing = true)
+            val result = socialRepository.followUser(username)
+            if (result.status == Resource.Status.FAILED) {
+                listenStateFlow.value = listenStateFlow.value.copy(isFollowing = false)
+            }
         }
     }
 
     fun unfollowUser(username: String?){
         if(username.isNullOrEmpty()) return
         viewModelScope.launch(ioDispatcher) {
-            socialRepository.unfollowUser(username)
+            listenStateFlow.value = listenStateFlow.value.copy(isFollowing = false)
+            val result = socialRepository.unfollowUser(username)
+            if (result.status == Resource.Status.FAILED) {
+                listenStateFlow.value = listenStateFlow.value.copy(isFollowing = true)
+            }
         }
 
     }
