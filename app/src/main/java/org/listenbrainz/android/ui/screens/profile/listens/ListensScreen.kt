@@ -279,6 +279,7 @@ fun ListensScreen(
                     item {
                         Box(
                             modifier = Modifier
+                                .fillMaxWidth()
                                 .padding(top = 30.dp)
                                 .background(ListenBrainzTheme.colorScheme.songsListenedToBG)
                         ) {
@@ -421,8 +422,8 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
         similarArtists.isEmpty() -> {
             Text(
                 "You have no common artists",
-                color = white,
-                modifier = Modifier.padding(horizontal = 16.dp),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(start = 16.dp, bottom = 8.dp),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
