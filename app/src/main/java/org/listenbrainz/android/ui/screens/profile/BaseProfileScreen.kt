@@ -192,6 +192,7 @@ fun BaseProfileScreen(
                                     org.listenbrainz.android.ui.components.FollowButton(
                                         modifier = Modifier,
                                         isFollowedState = uiState.listensTabUiState.isFollowing,
+                                        buttonColor = Color(0xFF353070),
                                         onClick = {
                                             if (uiState.listensTabUiState.isFollowing) {
                                                 onUnfollowClick(username ?: "")
