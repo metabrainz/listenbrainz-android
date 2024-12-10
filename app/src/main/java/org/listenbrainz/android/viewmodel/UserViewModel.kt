@@ -71,6 +71,8 @@ class UserViewModel @Inject constructor(
         if(username.isNullOrEmpty()) return
         viewModelScope.launch (ioDispatcher) {
             socialRepository.followUser(username)
+            //Updating the state of the screen after user is successfully followed
+            listenStateFlow.value = listenStateFlow.value.copy(isFollowing = true)
         }
     }
 
@@ -78,6 +80,8 @@ class UserViewModel @Inject constructor(
         if(username.isNullOrEmpty()) return
         viewModelScope.launch(ioDispatcher) {
             socialRepository.unfollowUser(username)
+            //Updating the state of the screen after user is successfully unfollowed
+            listenStateFlow.value = listenStateFlow.value.copy(isFollowing = false)
         }
 
     }

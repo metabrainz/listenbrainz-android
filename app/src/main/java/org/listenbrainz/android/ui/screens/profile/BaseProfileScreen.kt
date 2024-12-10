@@ -187,14 +187,20 @@ fun BaseProfileScreen(
                     if(currentTab.value == ProfileScreenTab.LISTENS){
                         when(isLoggedInUser) {
                             true -> AddListensButton()
-                            false -> when(uiState.listensTabUiState.isFollowing){
-                                true -> UnFollowButton(username = username, onUnFollowClick = {
-                                    onUnfollowClick(it)
-                                })
-                                false -> FollowButton(username = username, onFollowClick = {
-                                    onFollowClick(it)
-                                })
-                            }
+                            false->
+                                Box() {
+                                    org.listenbrainz.android.ui.components.FollowButton(
+                                        modifier = Modifier,
+                                        isFollowedState = uiState.listensTabUiState.isFollowing,
+                                        onClick = {
+                                            if (uiState.listensTabUiState.isFollowing) {
+                                                onUnfollowClick(username ?: "")
+                                            } else {
+                                                onFollowClick(username ?: "")
+                                            }
+                                        }
+                                    )
+                                }
                         }
                         Spacer(modifier = Modifier.width(10.dp))
                         MusicBrainzButton{
