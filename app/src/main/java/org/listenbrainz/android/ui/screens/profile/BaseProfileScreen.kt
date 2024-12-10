@@ -194,6 +194,8 @@ fun BaseProfileScreen(
                                         modifier = Modifier,
                                         isFollowedState = uiState.listensTabUiState.isFollowing,
                                         buttonColor = lb_purple,
+                                        followedStateTextColor = new_app_bg_light,
+                                        unfollowedStateTextColor = ListenBrainzTheme.colorScheme.text,
                                         onClick = {
                                             if (uiState.listensTabUiState.isFollowing) {
                                                 onUnfollowClick(username ?: "")
