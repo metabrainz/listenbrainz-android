@@ -184,7 +184,7 @@ private val colorSchemeLight = ColorScheme(
 )
 
 
-private val LocalColorScheme: ProvidableCompositionLocal<ColorScheme> = staticCompositionLocalOf { colorSchemeLight }
+val LocalColorScheme: ProvidableCompositionLocal<ColorScheme> = staticCompositionLocalOf { colorSchemeLight }
 
 
 private val DarkColorScheme = darkColorScheme(
@@ -354,7 +354,7 @@ fun ListenBrainzTheme(
             systemUiController.setNavigationBarColor(color = colorScheme.tertiaryContainer)
         }
     }
-    
+
     CompositionLocalProvider(
         LocalPaddings provides Paddings(),
         LocalShapes provides Shapes(),
