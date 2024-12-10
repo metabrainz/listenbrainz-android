@@ -193,7 +193,7 @@ fun BaseProfileScreen(
                                     FollowButton(
                                         modifier = Modifier,
                                         isFollowedState = uiState.listensTabUiState.isFollowing,
-                                        buttonColor = Color(0xFF353070),
+                                        buttonColor = lb_purple,
                                         onClick = {
                                             if (uiState.listensTabUiState.isFollowing) {
                                                 onUnfollowClick(username ?: "")
