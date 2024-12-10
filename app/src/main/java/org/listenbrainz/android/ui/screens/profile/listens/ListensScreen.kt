@@ -422,7 +422,7 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
         similarArtists.isEmpty() -> {
             Text(
                 "You have no common artists",
-                color = MaterialTheme.colorScheme.onSurface,
+                color = ListenBrainzTheme.colorScheme.text,
                 modifier = Modifier.padding(start = 16.dp, bottom = 8.dp),
                 style = MaterialTheme.typography.bodyMedium
             )

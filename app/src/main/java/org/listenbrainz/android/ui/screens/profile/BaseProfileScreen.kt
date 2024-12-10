@@ -45,6 +45,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.listenbrainz.android.R
+import org.listenbrainz.android.ui.components.FollowButton
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.brainzplayer.PlaylistScreen
 import org.listenbrainz.android.ui.screens.profile.listens.ListensScreen
@@ -189,7 +190,7 @@ fun BaseProfileScreen(
                             true -> AddListensButton()
                             false->
                                 Box() {
-                                    org.listenbrainz.android.ui.components.FollowButton(
+                                    FollowButton(
                                         modifier = Modifier,
                                         isFollowedState = uiState.listensTabUiState.isFollowing,
                                         buttonColor = Color(0xFF353070),
@@ -257,49 +258,6 @@ fun BaseProfileScreen(
 
 }
 
-@Composable
-private fun FollowButton(onFollowClick: (String) -> Unit, username: String?) {
-    IconButton(onClick = {
-        if(!username.isNullOrEmpty()){
-            onFollowClick(username)
-        }
-
-    }, modifier = Modifier
-        .clip(RoundedCornerShape(4.dp))
-        .background(lb_purple)
-        .width(100.dp)
-        .height(30.dp)) {
-        Row(modifier = Modifier.padding(horizontal = 8.dp)) {
-            Icon(painter = painterResource(id = R.drawable.follow_icon), contentDescription = "", tint = app_bg_light, modifier = Modifier
-                .width(20.dp)
-                .height(20.dp))
-            Spacer(modifier = Modifier.width(5.dp))
-            Text("Follow", color = new_app_bg_light, style = MaterialTheme.typography.bodyMedium)
-        }
-    }
-}
-
-@Composable
-private fun UnFollowButton(onUnFollowClick: (String) -> Unit, username: String?) {
-    IconButton(onClick = {
-        if(!username.isNullOrEmpty()){
-            onUnFollowClick(username)
-        }
-
-    }, modifier = Modifier
-        .clip(RoundedCornerShape(4.dp))
-        .background(lb_purple)
-        .width(100.dp)
-        .height(30.dp)) {
-        Row(modifier = Modifier.padding(horizontal = 8.dp)) {
-            Icon(painter = painterResource(id = R.drawable.follow_icon), contentDescription = "", tint = new_app_bg_light, modifier = Modifier
-                .width(20.dp)
-                .height(20.dp))
-            Spacer(modifier = Modifier.width(5.dp))
-            Text("Unfollow", color = new_app_bg_light, style = MaterialTheme.typography.bodyMedium)
-        }
-    }
-}
 
 @Composable
 private fun AddListensButton() {
