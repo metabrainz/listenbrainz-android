@@ -397,7 +397,7 @@ fun PlayerScreen(
                 Text(
                     "Listening now",
                     fontSize = 24.sp,
-                    modifier = Modifier.padding(start = 25.dp),
+                    modifier = Modifier.padding(start = 22.dp),
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -429,7 +429,7 @@ fun PlayerScreen(
                     ),
                     enabled = checkedSongs.isNotEmpty(),
                     modifier = Modifier
-                        .padding(end = 16.dp)
+                        .padding(end = 20.dp)
                         .align(Alignment.CenterVertically)
                         .alpha(if (checkedSongs.isNotEmpty()) 1f else 0f)
                 ) {
@@ -447,11 +447,11 @@ fun PlayerScreen(
             val isChecked = checkedSongs.contains(song)
             BoxWithConstraints {
                 val maxWidth =
-                    (maxWidth - 120.dp)
+                    (maxWidth - 100.dp)
                 Row(
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 20.dp)
+                    modifier = Modifier.padding(horizontal = 10.dp)
                 )
                 {
                     val modifier = if (currentlyPlayingSong.mediaID == song.mediaID) {
@@ -486,7 +486,7 @@ fun PlayerScreen(
                     if (currentlyPlayingSong.mediaID != song.mediaID) {
                         androidx.compose.material3.Surface(
                             shape = RoundedCornerShape(5.dp),
-                            shadowElevation = 5.dp
+                            shadowElevation = 5.dp,
                         ) {
                             Checkbox(
                                 checked = isChecked,
