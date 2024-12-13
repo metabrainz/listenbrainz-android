@@ -397,7 +397,7 @@ fun PlayerScreen(
                 Text(
                     "Listening now",
                     fontSize = 24.sp,
-                    modifier = Modifier.padding(start = 22.dp),
+                    modifier = Modifier.padding(start = ListenBrainzTheme.paddings.defaultPadding),
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -429,7 +429,7 @@ fun PlayerScreen(
                     ),
                     enabled = checkedSongs.isNotEmpty(),
                     modifier = Modifier
-                        .padding(end = 20.dp)
+                        .padding(end = ListenBrainzTheme.paddings.vertical)
                         .align(Alignment.CenterVertically)
                         .alpha(if (checkedSongs.isNotEmpty()) 1f else 0f)
                 ) {
@@ -447,20 +447,24 @@ fun PlayerScreen(
             val isChecked = checkedSongs.contains(song)
             BoxWithConstraints {
                 val maxWidth =
-                    (maxWidth - 100.dp)
+                    (maxWidth - 70.dp)
                 Row(
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = 10.dp)
+                    modifier = Modifier.padding(horizontal = ListenBrainzTheme.paddings.horizontal)
                 )
                 {
                     val modifier = if (currentlyPlayingSong.mediaID == song.mediaID) {
                         Modifier
-                            .padding(horizontal = 10.dp, vertical = 6.dp)
+                            .padding(vertical = 6.dp)
                             .fillMaxWidth()
                     } else {
                         Modifier
-                            .padding(horizontal = 10.dp, vertical = 6.dp)
+                            .padding(
+                                top = 6.dp,
+                                bottom = 6.dp,
+                                end = ListenBrainzTheme.paddings.smallPadding
+                            )
                             .width(maxWidth)
                     }
                     ListenCardSmall(
