@@ -429,7 +429,7 @@ fun PlayerScreen(
                     ),
                     enabled = checkedSongs.isNotEmpty(),
                     modifier = Modifier
-                        .padding(end = ListenBrainzTheme.paddings.vertical)
+                        .padding(end = ListenBrainzTheme.paddings.horizontal)
                         .align(Alignment.CenterVertically)
                         .alpha(if (checkedSongs.isNotEmpty()) 1f else 0f)
                 ) {
