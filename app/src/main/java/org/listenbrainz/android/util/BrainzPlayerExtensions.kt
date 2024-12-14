@@ -46,7 +46,8 @@ object BrainzPlayerExtensions {
                 title = it.title.toString(),
                 artist = it.subtitle.toString(),
                 uri = it.mediaUri.toString(),
-                albumArt = it.iconUri.toString()
+                albumArt = it.iconUri.toString(),
+                duration = this.duration
             )
         } ?: Song()
 
@@ -76,7 +77,7 @@ object BrainzPlayerExtensions {
     inline val MediaMetadataCompat.artist: String?
         get() = getString(MediaMetadataCompat.METADATA_KEY_ARTIST)
 
-    inline val MediaMetadataCompat.duration
+    inline val MediaMetadataCompat.duration: Long
         get() = getLong(MediaMetadataCompat.METADATA_KEY_DURATION)
 
     inline val MediaMetadataCompat.album: String?

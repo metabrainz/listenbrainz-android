@@ -149,7 +149,8 @@ fun BrainzPlayerBackDropScreen(
             val songList = brainzPlayerViewModel.mediaItem.collectAsState().value.data ?: listOf()
             SongViewPager(
                 modifier = Modifier.graphicsLayer {
-                    alpha = ( backdropScaffoldState.requireOffset() / (maxDelta - headerHeight.toPx()) )
+                    alpha =
+                        (backdropScaffoldState.requireOffset() / (maxDelta - headerHeight.toPx()))
                 },
                 songList = songList,
                 backdropScaffoldState = backdropScaffoldState,
@@ -188,14 +189,19 @@ fun PlayerScreen(
             }
         }
         item {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(modifier = Modifier.fillMaxWidth(0.8f)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .padding(start = 25.dp, end = 25.dp)
+                    .fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.fillMaxWidth(0.9f)) {
                     Spacer(modifier = Modifier.height(25.dp))
                     Text(
                         text = currentlyPlayingSong.title,
                         fontSize = 20.sp,
                         modifier = Modifier
-                            .padding(start = 25.dp)
                             .basicMarquee(),
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Start,
@@ -205,7 +211,6 @@ fun PlayerScreen(
                         text = currentlyPlayingSong.artist,
                         fontSize = 16.sp,
                         modifier = Modifier
-                            .padding(start = 25.dp)
                             .basicMarquee(),
                         textAlign = TextAlign.Start,
                         color = MaterialTheme.colorScheme.onSurface
@@ -245,26 +250,46 @@ fun PlayerScreen(
                     modifier = Modifier
                         .height(10.dp)
                         .fillMaxWidth(0.98F)
-                        .padding(10.dp),
+                        .padding(horizontal = 20.dp),
                     progress = progress,
                     onValueChange = brainzPlayerViewModel::onSeek,
                     onValueChanged = brainzPlayerViewModel::onSeeked
                 )
             }
-            Row(verticalAlignment = Alignment.CenterVertically,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .fillMaxWidth(0.98F)
-                    .padding(start = 10.dp, top = 10.dp, end = 10.dp)) {
+                    .padding(start = 22.dp, top = 10.dp, end = 22.dp)
+            ) {
                 val songCurrentPosition by brainzPlayerViewModel.songCurrentPosition.collectAsState()
                 val duration: String
                 val currentPosition: String
-                if (currentlyPlayingSong.duration / (1000 * 60 * 60) > 0 &&  songCurrentPosition / (1000 * 60 * 60) > 0){
-                    duration = String.format("%02d:%02d:%02d", currentlyPlayingSong.duration/(1000 * 60 * 60),currentlyPlayingSong.duration/(1000 * 60) % 60,currentlyPlayingSong.duration/1000 % 60)
-                    currentPosition = String.format("%02d:%02d:%02d", songCurrentPosition/(1000 * 60 * 60),songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
+                if (currentlyPlayingSong.duration / (1000 * 60 * 60) > 0 && songCurrentPosition / (1000 * 60 * 60) > 0) {
+                    duration = String.format(
+                        "%02d:%02d:%02d",
+                        currentlyPlayingSong.duration / (1000 * 60 * 60),
+                        currentlyPlayingSong.duration / (1000 * 60) % 60,
+                        currentlyPlayingSong.duration / 1000 % 60
+                    )
+                    currentPosition = String.format(
+                        "%02d:%02d:%02d",
+                        songCurrentPosition / (1000 * 60 * 60),
+                        songCurrentPosition / (1000 * 60) % 60,
+                        songCurrentPosition / 1000 % 60
+                    )
                 } else {
-                    duration = String.format("%02d:%02d",currentlyPlayingSong.duration/(1000 * 60) % 60,currentlyPlayingSong.duration/1000 % 60)
-                    currentPosition = String.format("%02d:%02d",songCurrentPosition/(1000 * 60) % 60,songCurrentPosition/1000 % 60)
+                    duration = String.format(
+                        "%02d:%02d",
+                        currentlyPlayingSong.duration / (1000 * 60) % 60,
+                        currentlyPlayingSong.duration / 1000 % 60
+                    )
+                    currentPosition = String.format(
+                        "%02d:%02d",
+                        songCurrentPosition / (1000 * 60) % 60,
+                        songCurrentPosition / 1000 % 60
+                    )
                 }
 
 
@@ -290,10 +315,10 @@ fun PlayerScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 60.dp)
+                    .padding(top = 20.dp, bottom = 20.dp)
             ) {
                 Icon(
-                    imageVector =    when(repeatMode) {
+                    imageVector = when (repeatMode) {
                         RepeatMode.REPEAT_MODE_OFF -> Icons.Rounded.Loop
                         RepeatMode.REPEAT_MODE_ALL -> Icons.Filled.RepeatOn
                         RepeatMode.REPEAT_MODE_ONE -> Icons.Rounded.RepeatOne
@@ -372,7 +397,7 @@ fun PlayerScreen(
                 Text(
                     "Listening now",
                     fontSize = 24.sp,
-                    modifier = Modifier.padding(start = 25.dp),
+                    modifier = Modifier.padding(start = ListenBrainzTheme.paddings.defaultPadding),
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -380,14 +405,16 @@ fun PlayerScreen(
                 Button(
                     onClick = {
                         checkedSongs.forEach { song ->
-                            brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()?.remove(song)
+                            brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()
+                                ?.remove(song)
                         }
                         brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let {
                             brainzPlayerViewModel.changePlayable(
                                 it,
                                 PlayableType.ALL_SONGS,
                                 brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0,
-                                brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { it.mediaID == currentlyPlayingSong.mediaID } ?: 0,brainzPlayerViewModel.songCurrentPosition.value
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { it.mediaID == currentlyPlayingSong.mediaID }
+                                    ?: 0, brainzPlayerViewModel.songCurrentPosition.value
                             )
                         }
                         brainzPlayerViewModel.queueChanged(
@@ -402,7 +429,7 @@ fun PlayerScreen(
                     ),
                     enabled = checkedSongs.isNotEmpty(),
                     modifier = Modifier
-                        .padding(end = 16.dp)
+                        .padding(end = ListenBrainzTheme.paddings.horizontal)
                         .align(Alignment.CenterVertically)
                         .alpha(if (checkedSongs.isNotEmpty()) 1f else 0f)
                 ) {
@@ -414,23 +441,30 @@ fun PlayerScreen(
             }
         }
         // Playlist
-        itemsIndexed(items = brainzPlayerViewModel.appPreferences.currentPlayable?.songs ?: mutableListOf()) { index, song ->
+        itemsIndexed(
+            items = brainzPlayerViewModel.appPreferences.currentPlayable?.songs ?: mutableListOf()
+        ) { index, song ->
             val isChecked = checkedSongs.contains(song)
             BoxWithConstraints {
                 val maxWidth =
-                    (maxWidth - 60.dp).coerceAtMost(600.dp)
+                    (maxWidth - 70.dp)
                 Row(
                     horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = ListenBrainzTheme.paddings.horizontal)
                 )
                 {
                     val modifier = if (currentlyPlayingSong.mediaID == song.mediaID) {
                         Modifier
-                            .padding(horizontal = 10.dp, vertical = 6.dp)
+                            .padding(vertical = 6.dp)
                             .fillMaxWidth()
                     } else {
                         Modifier
-                            .padding(horizontal = 10.dp, vertical = 6.dp)
+                            .padding(
+                                top = 6.dp,
+                                bottom = 6.dp,
+                                end = ListenBrainzTheme.paddings.smallPadding
+                            )
                             .width(maxWidth)
                     }
                     ListenCardSmall(
@@ -444,14 +478,19 @@ fun PlayerScreen(
                         brainzPlayerViewModel.skipToPlayable(index)
                         brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let {
                             brainzPlayerViewModel.changePlayable(
-                                it, PlayableType.ALL_SONGS, brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0, index,0L)
+                                it,
+                                PlayableType.ALL_SONGS,
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0,
+                                index,
+                                0L
+                            )
                         }
                         brainzPlayerViewModel.playOrToggleSong(song, true)
                     }
-                    if (currentlyPlayingSong.mediaID!=song.mediaID) {
+                    if (currentlyPlayingSong.mediaID != song.mediaID) {
                         androidx.compose.material3.Surface(
                             shape = RoundedCornerShape(5.dp),
-                            shadowElevation = 5.dp
+                            shadowElevation = 5.dp,
                         ) {
                             Checkbox(
                                 checked = isChecked,
@@ -482,11 +521,11 @@ fun PlayerScreen(
     }
 
     // TODO: fix this
-    val cache= App.context?.let { CacheService<Song>(it, RECENTLY_PLAYED_KEY) }
+    val cache = App.context?.let { CacheService<Song>(it, RECENTLY_PLAYED_KEY) }
     cache?.saveData(currentlyPlayingSong, Song::class.java)
-    val data= cache?.getData(Song::class.java)
+    val data = cache?.getData(Song::class.java)
     if (data != null) {
-        recentlyPlayed.items=data.filter { it.title!="null" }.toList().reversed()
+        recentlyPlayed.items = data.filter { it.title != "null" }.toList().reversed()
     }
 }
 
@@ -494,10 +533,10 @@ fun PlayerScreen(
 @Composable
 fun AlbumArtViewPager(currentlyPlayingSong: Song, pagerState: PagerState) {
     HorizontalPager(
-            state = pagerState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(ListenBrainzTheme.colorScheme.background),
+        state = pagerState,
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(ListenBrainzTheme.colorScheme.background),
     ) { page ->
         Column(
             Modifier
@@ -515,7 +554,7 @@ fun AlbumArtViewPager(currentlyPlayingSong: Song, pagerState: PagerState) {
                         // scroll position. We use the absolute value which allows us to mirror
                         // any effects for both directions
                         val pageOffset = pagerState.getOffsetDistanceInPages(page).absoluteValue
-                        
+
                         // We animate the scaleX + scaleY, between 85% and 100%
                         lerp(
                             start = 0.85f,
@@ -525,7 +564,7 @@ fun AlbumArtViewPager(currentlyPlayingSong: Song, pagerState: PagerState) {
                             scaleX = scale
                             scaleY = scale
                         }
-                        
+
                         // We animate the alpha, between 50% and 100%
                         alpha = lerp(
                             start = 0.5f,
