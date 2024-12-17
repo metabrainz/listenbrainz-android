@@ -68,27 +68,42 @@ class UserViewModel @Inject constructor(
         return similarArtists.distinct()
     }
 
-    fun followUser(username: String?){
-        if(username.isNullOrEmpty()) return
-        viewModelScope.launch (ioDispatcher) {
-            listenStateFlow.value = listenStateFlow.value.copy(isFollowing = true)
+    fun followUser(username: String?) {
+        if (username.isNullOrEmpty()) return
+        updateFollowState(username, true)
+
+        viewModelScope.launch(ioDispatcher) {
             val result = socialRepository.followUser(username)
             if (result.status == Resource.Status.FAILED) {
-                listenStateFlow.value = listenStateFlow.value.copy(isFollowing = false)
+                updateFollowState(username, false)
             }
         }
     }
 
-    fun unfollowUser(username: String?){
-        if(username.isNullOrEmpty()) return
+    fun unfollowUser(username: String?) {
+        if (username.isNullOrEmpty()) return
+        updateFollowState(username, false)
+
         viewModelScope.launch(ioDispatcher) {
-            listenStateFlow.value = listenStateFlow.value.copy(isFollowing = false)
             val result = socialRepository.unfollowUser(username)
             if (result.status == Resource.Status.FAILED) {
-                listenStateFlow.value = listenStateFlow.value.copy(isFollowing = true)
+                updateFollowState(username, true)
             }
         }
+    }
 
+    private fun updateFollowState(username: String, isFollowing: Boolean) {
+        val updatedFollowers = listenStateFlow.value.followers?.map { (user, status) ->
+            if (user == username) user to isFollowing else user to status
+        }
+        val updatedFollowing = listenStateFlow.value.following?.map { (user, status) ->
+            if (user == username) user to isFollowing else user to status
+        }
+        listenStateFlow.value = listenStateFlow.value.copy(
+            followers = updatedFollowers,
+            following = updatedFollowing,
+            isFollowing = isFollowing
+        )
     }
 
     suspend fun getUserDataFromRemote(

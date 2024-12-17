@@ -389,7 +389,7 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
         similarArtists.size > 5 -> {
             val topSimilarArtists = similarArtists.take(5)
             val text = buildAnnotatedString {
-                withStyle(style = SpanStyle(color = white)) {
+                withStyle(style = SpanStyle(color = lb_purple_night)) {
                     append("You both listen to ")
                 }
                 topSimilarArtists.forEachIndexed { index, artist ->
@@ -401,10 +401,13 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
                     }
                     pop()
                     if (index < topSimilarArtists.size - 1) {
-                        append(", ")
+                        withStyle(style = SpanStyle(color = lb_purple_night)) {
+                            append(", ")
+                        }
+
                     }
                 }
-                withStyle(style = SpanStyle(color = white)) {
+                withStyle(style = SpanStyle(color = lb_purple_night)) {
                     append(" and more.")
                 }
             }
