@@ -38,7 +38,7 @@ class ArtistViewModel @Inject constructor(
             popularTracks = artistData?.popularRecordings,
             albums = artistData?.releaseGroups,
             appearsOn = appearsOn,
-            similarArtists = artistData?.similarArtists,
+            similarArtists = artistData?.similarArtists?.artists,
             topListeners = artistData?.listeningStats?.listeners,
             reviews = artistReviews
         )
