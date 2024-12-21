@@ -618,16 +618,18 @@ private fun AlbumsCard(
                                         .data(coverArt)
                                         .build(),
                                     fallback = painterResource(id = R.drawable.ic_coverartarchive_logo_no_text),
-                                    modifier = Modifier.size(ListenBrainzTheme.sizes.listenCardHeight * 3f),
-                                    contentScale = ContentScale.Fit,
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .size(ListenBrainzTheme.sizes.listenCardHeight * 3f),
+                                    contentScale = ContentScale.Crop,
                                     placeholder = painterResource(id = R.drawable.ic_coverartarchive_logo_no_text),
                                     filterQuality = FilterQuality.Low,
                                     contentDescription = "Album Cover Art"
                                 )
-                                Spacer(modifier = Modifier.height(10.dp))
+                                Spacer(modifier = Modifier.height(6.dp))
                                 Text(album?.name ?: "",
                                     color = ListenBrainzTheme.colorScheme.followerCardTextColor,
-                                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.sp),
                                     maxLines = 2,
                                     overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier.clickable {
@@ -747,6 +749,7 @@ fun ReviewsCard(
             if(reviews.isEmpty()){
                 Spacer(modifier = Modifier.height(10.dp))
                 Text("Be the first one to review this artist on CritiqueBrainz", color = app_bg_mid, style = MaterialTheme.typography.bodyMedium)
+                Spacer(modifier = Modifier.height(10.dp))
             }
             else{
                 Spacer(modifier = Modifier.height(10.dp))
@@ -778,7 +781,8 @@ fun ReviewsCard(
             }
             TextButton(onClick = {
                 dialogsState.activateDialog(Dialog.REVIEW , ListenDialogBundleKeys.listenDialogBundle(0, 0))
-            }, modifier = Modifier.background(lb_purple)) {
+            }, modifier = Modifier.background(lb_purple, shape = ListenBrainzTheme.shapes.chips)
+            ) {
                 Row (verticalAlignment = Alignment.CenterVertically) {
                     Text("Review", color = new_app_bg_light)
                     Spacer(modifier = Modifier.width(10.dp))
