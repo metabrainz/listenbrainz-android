@@ -37,6 +37,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SuggestionChipDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -210,143 +211,195 @@ fun BioCard(
     albumReleaseDate: String? = null,
     albumTags: List<ReleaseGroupData?>? = null
 ) {
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .clip(shape = RoundedCornerShape(bottomStart = 18.dp, bottomEnd = 18.dp))
-        .background(ListenBrainzTheme.colorScheme.artistBioColor)
-        .padding(23.dp)){
-        Column {
-            Row (horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                Text(header ?: "", color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 25.sp))
-                if(displayRadioButton){
-                    LbRadioButton {
+    //Surface is added to make the rounded corner shape of Box visible
+    Surface(
+        modifier = Modifier
+            .background(ListenBrainzTheme.colorScheme.background)
+    ) {
+        Box(
+            modifier = Modifier
+                .background(
+                    ListenBrainzTheme.colorScheme.artistBioColor,
+                    shape = RoundedCornerShape(bottomStart = 18.dp, bottomEnd = 18.dp)
+                )
+                .fillMaxWidth()
+                .padding(ListenBrainzTheme.paddings.largePadding)
+        ) {
+            Column {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        header ?: "",
+                        color = ListenBrainzTheme.colorScheme.text,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 25.sp)
+                    )
+                    if (displayRadioButton) {
+                        LbRadioButton {
 
-                    }
-                }
-                else{
-                    Spacer(modifier = Modifier.height(40.dp))
-                }
-            }
-            Row {
-                if (coverArt != null) {
-                    if(useWebView){
-                        SvgWithWebView(
-                            svgContent = coverArt,
-                            width = 200.dp,
-                            height = 200.dp
-                        )
-                    }
-                    else{
-                        AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(coverArt)
-                                .build(),
-                            fallback = painterResource(id = R.drawable.ic_coverartarchive_logo_no_text),
-                            modifier = Modifier.size(ListenBrainzTheme.sizes.listenCardHeight * 3f),
-                            contentScale = ContentScale.Fit,
-                            placeholder = painterResource(id = R.drawable.ic_coverartarchive_logo_no_text),
-                            filterQuality = FilterQuality.Low,
-                            contentDescription = "Album Cover Art"
-                        )
+                        }
+                    } else {
                         Spacer(modifier = Modifier.height(40.dp))
                     }
-
                 }
-                Spacer(modifier = Modifier.width(20.dp))
-                Column {
-                    if(beginYear != null){
-                        Text(beginYear.toString(), color = app_bg_mid, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
-                    }
-                    else if(artists != null){
-                        Row {
-                            artists.map {
-                                Text((it?.name ?: "") + (it?.joinPhrase ?: ""), color = app_bg_mid, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp), maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis)
-                            }
+                Row {
+                    if (coverArt != null) {
+                        if (useWebView) {
+                            SvgWithWebView(
+                                svgContent = coverArt,
+                                width = 150.dp,
+                                height = 150.dp
+                            )
+                        } else {
+                            AsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(coverArt)
+                                    .build(),
+                                fallback = painterResource(id = R.drawable.ic_coverartarchive_logo_no_text),
+                                modifier = Modifier.size(ListenBrainzTheme.sizes.listenCardHeight * 3f),
+                                contentScale = ContentScale.Fit,
+                                placeholder = painterResource(id = R.drawable.ic_coverartarchive_logo_no_text),
+                                filterQuality = FilterQuality.Low,
+                                contentDescription = "Album Cover Art"
+                            )
+                            Spacer(modifier = Modifier.height(40.dp))
                         }
+
                     }
-                    if(area != null){
-                        Text(area.toString(), color = app_bg_mid, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
-                    }
-                    if(albumType != null){
-                        Text(albumType.toString(), color = app_bg_mid, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
-                    }
-                    if(albumReleaseDate != null){
-                        Text(albumReleaseDate.toString(), color = app_bg_mid, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
-                    HorizontalDivider(color = ListenBrainzTheme.colorScheme.dividerColor, thickness = 3.dp, modifier = Modifier.padding(end = 50.dp))
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Row {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(id = R.drawable.listens_icon),
-                            contentDescription = null,
-                            tint = app_bg_mid
-                        )
-                        Spacer(modifier = Modifier.width(5.dp))
-                        Text(formatNumber(totalPlays ?: 0) + " plays", color = app_bg_mid, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
-                    }
-                    Row {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(id = R.drawable.listeners_icon),
-                            contentDescription = null,
-                            tint = app_bg_mid
-                        )
-                        Spacer(modifier = Modifier.width(5.dp))
-                        Text(formatNumber(totalListeners ?: 0) + " listeners", color = app_bg_mid, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
-                    }
-                }
-            }
-            if(wikiExtract?.wikipediaExtract?.content != null){
-                Spacer(modifier = Modifier.height(20.dp))
-                Text(removeHtmlTags(wikiExtract.wikipediaExtract.content).trim() , maxLines = 4, color = app_bg_mid, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp), overflow = TextOverflow.Ellipsis)
-                if(wikiExtract.wikipediaExtract.url != null){
-                    val uriHandlder = LocalUriHandler.current
-                    Text("read more", color = ListenBrainzTheme.colorScheme.followerChipSelected, modifier = Modifier.clickable {
-                        uriHandlder.openUri(wikiExtract.wikipediaExtract.url)
-                    })
-                }
-            }
-            Row (modifier = Modifier
-                .horizontalScroll(rememberScrollState())
-                .padding(top = 10.dp)) {
-                if(artistTags != null){
-                    artistTags.artist?.map {
-                        if(it.tag != null){
-                            Box (modifier = Modifier
-                                .clip(
-                                    RoundedCornerShape((16.dp))
-                                )
-                                .background(ListenBrainzTheme.colorScheme.followerCardColor)
-                                .padding(10.dp)) {
-                                Row {
-                                    Text(it.tag, color= ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text((it.count ?: 0).toString(), color= ListenBrainzTheme.colorScheme.text ,style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
+                    Spacer(modifier = Modifier.width(20.dp))
+                    Column {
+                        if (beginYear != null) {
+                            Text(
+                                beginYear.toString(),
+                                color = app_bg_mid,
+                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp)
+                            )
+                        } else if (artists != null) {
+                            Row {
+                                artists.map {
+                                    Text(
+                                        (it?.name ?: "") + (it?.joinPhrase ?: ""),
+                                        color = app_bg_mid,
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
                                 }
                             }
-                            Spacer(modifier = Modifier.width(10.dp))
+                        }
+                        if (area != null) {
+                            Text(
+                                area.toString(),
+                                color = app_bg_mid,
+                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp)
+                            )
+                        }
+                        if (albumType != null) {
+                            Text(
+                                albumType.toString(),
+                                color = app_bg_mid,
+                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp)
+                            )
+                        }
+                        if (albumReleaseDate != null) {
+                            Text(
+                                albumReleaseDate.toString(),
+                                color = app_bg_mid,
+                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                        HorizontalDivider(
+                            color = ListenBrainzTheme.colorScheme.dividerColor,
+                            thickness = 3.dp,
+                            modifier = Modifier.padding(end = 50.dp)
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Row {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(id = R.drawable.listens_icon),
+                                contentDescription = null,
+                                tint = app_bg_mid
+                            )
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Text(
+                                formatNumber(totalPlays ?: 0) + " plays",
+                                color = app_bg_mid,
+                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp)
+                            )
+                        }
+                        Row {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(id = R.drawable.listeners_icon),
+                                contentDescription = null,
+                                tint = app_bg_mid
+                            )
+                            Spacer(modifier = Modifier.width(5.dp))
+                            Text(
+                                formatNumber(totalListeners ?: 0) + " listeners",
+                                color = app_bg_mid,
+                                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp)
+                            )
                         }
                     }
                 }
-                albumTags?.map {
-                    if(it?.tag != null){
-                        Box (modifier = Modifier
-                            .clip(
-                                RoundedCornerShape((16.dp))
-                            )
-                            .background(ListenBrainzTheme.colorScheme.followerCardColor)
-                            .padding(10.dp)) {
-                            Row {
-                                Text(it.tag, color= ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
+                if (wikiExtract?.wikipediaExtract?.content != null) {
+                    Spacer(modifier = Modifier.height(20.dp))
+                    Text(
+                        removeHtmlTags(wikiExtract.wikipediaExtract.content).trim(),
+                        maxLines = 4,
+                        color = app_bg_mid,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if (wikiExtract.wikipediaExtract.url != null) {
+                        val uriHandlder = LocalUriHandler.current
+                        Text(
+                            "read more",
+                            color = ListenBrainzTheme.colorScheme.followerChipSelected,
+                            modifier = Modifier.clickable {
+                                uriHandlder.openUri(wikiExtract.wikipediaExtract.url)
+                            })
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .horizontalScroll(rememberScrollState())
+                        .padding(top = 10.dp)
+                ) {
+                    if (artistTags != null) {
+                        artistTags.artist?.map {
+                            if (it.tag != null) {
+                                BioTag(it.tag, it.count ?: 0)
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text((it.count ?: 0).toString(), color= ListenBrainzTheme.colorScheme.text ,style = MaterialTheme.typography.bodyMedium.copy(fontSize = 18.sp))
                             }
                         }
-                        Spacer(modifier = Modifier.width(10.dp))
+                    }
+                    albumTags?.map {
+                        if (it?.tag != null) {
+                            BioTag(it.tag, it.count ?: 0)
+                            Spacer(modifier = Modifier.width(8.dp))
+                        }
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun BioTag(tag: String, count: Int) {
+    Box (modifier = Modifier
+        .clip(
+            RoundedCornerShape((14.dp))
+        )
+        .background(ListenBrainzTheme.colorScheme.followerCardColor)
+        .padding(horizontal = ListenBrainzTheme.paddings.smallPadding, vertical = 6.dp)) {
+        Row {
+            Text(tag, color= ListenBrainzTheme.colorScheme.followerChipSelected, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(count.toString(), color= ListenBrainzTheme.colorScheme.text ,style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp))
         }
     }
 }
@@ -548,7 +601,7 @@ private fun AlbumsCard(
             LazyRow(modifier = Modifier
                 .padding(top = 20.dp)) {
                 items(albumsList?.size ?: 0) {
-                    val album = albumsList?.get(it)
+                        val album = albumsList?.get(it)
                         Box(modifier = Modifier
                             .width(150.dp)
                             .clickable {
@@ -860,6 +913,7 @@ fun SvgWithWebView(svgContent: String, width: Dp, height: Dp) {
         modifier = Modifier
             .width(width)
             .height(height)
+            .clip(RoundedCornerShape(8.dp))
     )
 }
 
