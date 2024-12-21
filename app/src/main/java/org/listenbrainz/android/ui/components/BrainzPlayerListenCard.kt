@@ -10,12 +10,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -133,8 +136,13 @@ private fun AlbumArt(
             .data(coverArtUrl)
             .build(),
         fallback = painterResource(id = errorAlbumArt),
-        modifier = Modifier.size(ListenBrainzTheme.sizes.listenCardHeight),
-        contentScale = ContentScale.Fit,
+        error = painterResource(id = errorAlbumArt),
+        modifier = Modifier
+            .size(ListenBrainzTheme.sizes.listenCardHeight)
+            .clip(GenericShape { size, _ ->
+                addRect(Rect(0f, 0f, size.width*0.95f, size.height))
+            }),
+        contentScale = ContentScale.Crop,
         placeholder = painterResource(id = errorAlbumArt),
         filterQuality = FilterQuality.Low,
         contentDescription = "Album Cover Art"

@@ -75,7 +75,7 @@ private fun RecentlyPlayedOverview(
             items(items = recentlyPlayedSongs) { song ->
                 if (song.title != "") {
                     BrainzPlayerActivityCards(icon = song.albumArt,
-                        errorIcon = R.drawable.ic_artist,
+                        errorIcon = R.drawable.ic_song,
                         title = song.artist,
                         subtitle = song.title,
                         modifier = Modifier
@@ -194,7 +194,7 @@ private fun AlbumsOverview(
                     album ->
                 if(album.title != ""){
                     BrainzPlayerActivityCards(icon = album.albumArt,
-                        errorIcon = R.drawable.ic_artist,
+                        errorIcon = R.drawable.ic_album,
                         title = album.artist,
                         subtitle = album.title,
                     )

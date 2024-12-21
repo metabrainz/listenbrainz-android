@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.ui.components.BrainzPlayerDropDownMenu
 import org.listenbrainz.android.ui.components.BrainzPlayerListenCard
@@ -86,7 +87,7 @@ private fun PlayedToday(
     )) {
         itemsIndexed(songsPlayedToday){
             index, it ->
-            BrainzPlayerListenCard(title = it.title, subTitle = it.artist, coverArtUrl = it.albumArt, onPlayIconClick = {onPlayIconClick(it)}, onDropdownIconClick = {dropDownState.value = Pair(1,index)}, dropDownState = dropDownState.value == Pair(1,index),dropDown = {BrainzPlayerDropDownMenu(
+            BrainzPlayerListenCard(title = it.title, subTitle = it.artist, coverArtUrl = it.albumArt, errorAlbumArt = R.drawable.ic_erroralbumart, onPlayIconClick = {onPlayIconClick(it)}, onDropdownIconClick = {dropDownState.value = Pair(1,index)}, dropDownState = dropDownState.value == Pair(1,index),dropDown = {BrainzPlayerDropDownMenu(
                 expanded = dropDownState.value == Pair(1,index),
                 onDismiss = {dropDownState.value = Pair(-1,-1)},
                 onAddToQueue = {onAddToQueue(it)},
@@ -117,7 +118,7 @@ private fun PlayedThisWeek(
     )) {
         itemsIndexed(songsPlayedThisWeek){
             index, it ->
-            BrainzPlayerListenCard(title = it.title, subTitle = it.artist, coverArtUrl = it.albumArt, onPlayIconClick = {onPlayIconClick(it)}, onDropdownIconClick = {dropDownState.value = Pair(2,index)}, dropDownState = dropDownState.value == Pair(2,index),dropDown = {BrainzPlayerDropDownMenu(
+            BrainzPlayerListenCard(title = it.title, subTitle = it.artist, coverArtUrl = it.albumArt, errorAlbumArt = R.drawable.ic_erroralbumart, onPlayIconClick = {onPlayIconClick(it)}, onDropdownIconClick = {dropDownState.value = Pair(2,index)}, dropDownState = dropDownState.value == Pair(2,index),dropDown = {BrainzPlayerDropDownMenu(
                 expanded = dropDownState.value == Pair(2,index),
                 onDismiss = {dropDownState.value = Pair(-1,-1)},
                 onAddToQueue = {onAddToQueue(it)},
