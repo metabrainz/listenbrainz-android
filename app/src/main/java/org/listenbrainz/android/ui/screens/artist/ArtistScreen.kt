@@ -459,12 +459,12 @@ fun Links(
     Box(modifier = Modifier
         .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
         .fillMaxWidth()
-        .padding(23.dp)){
+        .padding(ListenBrainzTheme.paddings.largePadding)){
         Column {
             Text("Links", color= ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 25.sp))
             Row (modifier = Modifier
                 .horizontalScroll(rememberScrollState())
-                .padding(top = 10.dp)) {
+                .padding(top = ListenBrainzTheme.paddings.vertical)) {
                 repeat(5) {
                     position ->
                     val reqdState = when(position){
@@ -520,7 +520,8 @@ fun Links(
                 val items = linksMap[linkOptionSelectionState.value]
                 items?.chunked(3)?.forEach { rowItems ->
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         rowItems.forEach { item ->
