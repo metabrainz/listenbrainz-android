@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -160,7 +161,7 @@ private fun ArtistScreen(
                             artistTags = uiState.tags
                         )
                     }
-                    item { 
+                    item {
                         Links(artistMbid = artistMbid, links = uiState.links)
                     }
                     item {
@@ -544,43 +545,48 @@ private fun AlbumsCard(
         .padding(23.dp)){
         Column {
             Text(header, color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
-            Row (modifier = Modifier
-                .horizontalScroll(rememberScrollState())
+            LazyRow(modifier = Modifier
                 .padding(top = 20.dp)) {
-                albumsList?.map {
-                    Box (modifier = Modifier
-                        .width(150.dp)
-                        .clickable {
-                            if (it?.mbid != null) {
-                                goToAlbumPage(it.mbid)
+                items(albumsList?.size ?: 0) {
+                    val album = albumsList?.get(it)
+                        Box(modifier = Modifier
+                            .width(150.dp)
+                            .clickable {
+                                if (album?.mbid != null) {
+                                    goToAlbumPage(album.mbid)
+                                }
+                            }) {
+                            Column {
+                                val coverArt =
+                                    Utils.getCoverArtUrl(album?.caaReleaseMbid, album?.caaId, 500)
+                                AsyncImage(
+                                    model = ImageRequest.Builder(LocalContext.current)
+                                        .data(coverArt)
+                                        .build(),
+                                    fallback = painterResource(id = R.drawable.ic_coverartarchive_logo_no_text),
+                                    modifier = Modifier.size(ListenBrainzTheme.sizes.listenCardHeight * 3f),
+                                    contentScale = ContentScale.Fit,
+                                    placeholder = painterResource(id = R.drawable.ic_coverartarchive_logo_no_text),
+                                    filterQuality = FilterQuality.Low,
+                                    contentDescription = "Album Cover Art"
+                                )
+                                Spacer(modifier = Modifier.height(10.dp))
+                                Text(album?.name ?: "",
+                                    color = ListenBrainzTheme.colorScheme.followerCardTextColor,
+                                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.clickable {
+                                        if (album?.mbid != null) {
+                                            goToAlbumPage(album.mbid)
+                                        }
+                                    })
                             }
-                        }) {
-                        Column {
-                            val coverArt = Utils.getCoverArtUrl(it?.caaReleaseMbid, it?.caaId, 500)
-                            AsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current)
-                                    .data(coverArt)
-                                    .build(),
-                                fallback = painterResource(id = R.drawable.ic_coverartarchive_logo_no_text),
-                                modifier = Modifier.size(ListenBrainzTheme.sizes.listenCardHeight * 3f),
-                                contentScale = ContentScale.Fit,
-                                placeholder = painterResource(id = R.drawable.ic_coverartarchive_logo_no_text),
-                                filterQuality = FilterQuality.Low,
-                                contentDescription = "Album Cover Art"
-                            )
-                            Spacer(modifier = Modifier.height(10.dp))
-                            Text(it?.name ?: "", color = ListenBrainzTheme.colorScheme.followerCardTextColor,
-                                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
-                                maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.clickable {
-                                    if(it?.mbid != null){
-                                        goToAlbumPage(it.mbid)
-                                    }
-                                })
                         }
+                        Spacer(modifier = Modifier.width(40.dp))
                     }
-                    Spacer(modifier = Modifier.width(40.dp))
                 }
-            }
+
         }
     }
 }
