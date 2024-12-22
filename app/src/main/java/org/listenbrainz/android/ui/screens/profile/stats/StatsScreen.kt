@@ -5,6 +5,7 @@ import android.text.TextUtils
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -62,6 +63,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
@@ -273,7 +275,7 @@ fun StatsScreen(
                 Column {
                     Text(
                         text = "Listening activity",
-                        color = Color.White,
+                        color = ListenBrainzTheme.colorScheme.text,
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),
                         modifier = Modifier.padding(start = 10.dp)
                     )
@@ -381,7 +383,7 @@ fun StatsScreen(
            Column (modifier = Modifier
                .padding(start = 10.dp, top = 30.dp)
                ) {
-                    Text("Top ...", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+                    Text("Top ...", color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
                Box(modifier = Modifier.height(10.dp))
                     Row {
                         repeat(3) {
