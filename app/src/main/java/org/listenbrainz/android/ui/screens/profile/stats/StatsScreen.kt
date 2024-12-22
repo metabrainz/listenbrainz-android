@@ -52,9 +52,11 @@ import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesian
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.compose.common.component.rememberLineComponent
 import com.patrykandpatrick.vico.compose.common.component.rememberTextComponent
+import com.patrykandpatrick.vico.compose.common.of
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.cartesian.data.columnSeries
 import com.patrykandpatrick.vico.core.cartesian.layer.ColumnCartesianLayer
+import com.patrykandpatrick.vico.core.common.Dimensions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -343,11 +345,19 @@ fun StatsScreen(
                                     spacing = 25.dp,
                                     mergeMode = { ColumnCartesianLayer.MergeMode.Grouped },
                                 ),
-                                startAxis = rememberStartAxis(),
+                                startAxis = rememberStartAxis(
+                                    label = rememberTextComponent(
+                                        color = Color.Black,
+                                        textSize = 11.sp,
+                                        padding = Dimensions.of(ListenBrainzTheme.paddings.tinyPadding)
+                                    )
+                                ),
                                 bottomAxis = rememberBottomAxis(
                                     label = rememberTextComponent (
                                         ellipsize = TextUtils.TruncateAt.MARQUEE,
-                                        textSize = 11.sp
+                                        textSize = 11.sp,
+                                        color = Color.Black,
+                                        padding = Dimensions.of(ListenBrainzTheme.paddings.tinyPadding)
                                     ),
                                     guideline = null,
                                     valueFormatter = { value, chartValues, verticalAxisPosition ->
