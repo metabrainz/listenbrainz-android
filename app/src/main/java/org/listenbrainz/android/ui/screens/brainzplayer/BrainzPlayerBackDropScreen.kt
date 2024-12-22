@@ -63,7 +63,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -121,10 +120,10 @@ fun BrainzPlayerBackDropScreen(
 
     BackdropScaffold(
         modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
-        frontLayerShape = RectangleShape,
+        frontLayerShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         backLayerBackgroundColor = MaterialTheme.colorScheme.background,
         frontLayerScrimColor = Color.Unspecified,
-        headerHeight = if (isPlaying) headerHeight else 56.dp, // 136.dp is optimal header height.
+        headerHeight = headerHeight, // 136.dp is optimal header height.
         peekHeight = 0.dp,
         scaffoldState = backdropScaffoldState,
         backLayerContent = {
@@ -612,4 +611,5 @@ fun BrainzPlayerBackDropScreenPreview() {
         paddingValues = PaddingValues(0.dp)
     ) {}
 }
+
 

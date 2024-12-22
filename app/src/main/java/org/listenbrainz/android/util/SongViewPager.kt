@@ -48,8 +48,8 @@ import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.ui.components.CustomSeekBar
 import org.listenbrainz.android.ui.components.PlayPauseIcon
-import org.listenbrainz.android.ui.components.SeekBar
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
@@ -64,7 +64,7 @@ fun SongViewPager(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val pagerState: PagerState = rememberPagerState { songList.size }
-    
+
     HorizontalPager(state = pagerState, modifier = modifier
         .fillMaxWidth()
         .background(MaterialTheme.colorScheme.tertiaryContainer)
@@ -83,14 +83,16 @@ fun SongViewPager(
         ) {
             Box {
                 val progress by viewModel.progress.collectAsState()
-                SeekBar(
+                CustomSeekBar(
                     modifier = Modifier
                         .height(10.dp)
                         .fillMaxWidth()
-                        .padding(top = 12.dp, start = 5.dp, end = 5.dp),
+                        .padding(start = 14.dp, end = 14.dp),
                     progress = progress,
-                    onValueChange = viewModel::onSeek,
-                    onValueChanged = viewModel::onSeeked
+                    onValueChange = { newProgress ->
+                        viewModel.onSeek(newProgress)
+                        viewModel.onSeeked()
+                    }
                 )
             }
             Spacer(modifier = Modifier.height(14.dp))
