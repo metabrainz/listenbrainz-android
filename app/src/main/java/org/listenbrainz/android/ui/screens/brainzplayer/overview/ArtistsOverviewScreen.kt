@@ -74,7 +74,7 @@ fun ArtistsOverviewScreen(
                         BrainzPlayerListenCard(title = artistsStarting[startingLetter]!![j - 1].name, subTitle = when (artistsStarting[startingLetter]!![j - 1].songs.size) {
                             1 -> "1 track"
                             else -> "${artistsStarting[startingLetter]!![j - 1].songs.size} tracks"
-                        }, coverArtUrl = coverArt, onPlayIconClick = {
+                        }, coverArtUrl = coverArt, errorAlbumArt = R.drawable.ic_artist, onPlayIconClick = {
                             onPlayClick(artistsStarting[startingLetter]!![j-1])
                         }, modifier = Modifier.padding(start = 10.dp, end = 10.dp), dropDown = { BrainzPlayerDropDownMenu(onAddToNewPlaylist = {onAddToNewPlaylist(artist)}, onAddToExistingPlaylist = {onAddToExistingPlaylist(artist)},onAddToQueue = {onAddToQueue(artist)}, onPlayNext = {onPlayNext(artist)},expanded = dropdownState == Pair(i,j-1), onDismiss = {dropdownState = Pair(-1,-1)})}, onDropdownIconClick = {dropdownState = Pair(i,j-1)}, dropDownState = dropdownState == Pair(i,j-1))
                         Spacer(modifier = Modifier.height(10.dp))
