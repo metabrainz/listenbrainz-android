@@ -63,6 +63,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -114,16 +115,16 @@ fun BrainzPlayerBackDropScreen(
     }
     val repeatMode by brainzPlayerViewModel.repeatMode.collectAsState()
 
-    /** 56.dp is default bottom navigation height. 80.dp is our mini player's height. */
-    val headerHeight by animateDpAsState(targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null") 56.dp else 136.dp)
+    /** 56.dp is default bottom navigation height. 70.dp is our mini player's height. */
+    val headerHeight by animateDpAsState(targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null") 56.dp else 126.dp)
     val isPlaying = brainzPlayerViewModel.isPlaying.collectAsState().value
 
     BackdropScaffold(
         modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
-        frontLayerShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+        frontLayerShape = RectangleShape,
         backLayerBackgroundColor = MaterialTheme.colorScheme.background,
         frontLayerScrimColor = Color.Unspecified,
-        headerHeight = headerHeight, // 136.dp is optimal header height.
+        headerHeight = headerHeight, // 126.dp is optimal header height.
         peekHeight = 0.dp,
         scaffoldState = backdropScaffoldState,
         backLayerContent = {

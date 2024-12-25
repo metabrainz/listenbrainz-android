@@ -1,5 +1,7 @@
 package org.listenbrainz.android.util
 
+import android.graphics.drawable.BitmapDrawable
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,14 +31,23 @@ import androidx.compose.material.icons.rounded.SkipPrevious
 import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -44,7 +55,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.palette.graphics.Palette
+import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import coil.request.SuccessResult
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Song
@@ -67,7 +82,7 @@ fun SongViewPager(
 
     HorizontalPager(state = pagerState, modifier = modifier
         .fillMaxWidth()
-        .background(MaterialTheme.colorScheme.tertiaryContainer)
+        .dynamicBackgroundFromAlbumArt(currentlyPlayingSong.albumArt)
     ) {
         Column(
             modifier = Modifier
@@ -86,8 +101,7 @@ fun SongViewPager(
                 CustomSeekBar(
                     modifier = Modifier
                         .height(10.dp)
-                        .fillMaxWidth()
-                        .padding(start = 14.dp, end = 14.dp),
+                        .fillMaxWidth(),
                     progress = progress,
                     onValueChange = { newProgress ->
                         viewModel.onSeek(newProgress)
@@ -95,7 +109,7 @@ fun SongViewPager(
                     }
                 )
             }
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -145,28 +159,23 @@ fun SongViewPager(
                                         }
                                         viewModel.skipToPreviousSong()
                                     },
-                                tint = MaterialTheme.colorScheme.onTertiary
+                                tint = MaterialTheme.colorScheme.onSurface
                             )
-                            Box(
-                                modifier = Modifier
-                                    .size(35.dp)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.onTertiary)
-                            ) {
-                                PlayPauseIcon(
-                                    playIcon,
-                                    viewModel,
-                                    Modifier.size(35.dp),
-                                    tint = MaterialTheme.colorScheme.tertiaryContainer
-                                )
-                            }
+
+                            PlayPauseIcon(
+                                playIcon,
+                                viewModel,
+                                Modifier.size(35.dp),
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+
                             Icon(
                                 imageVector = Icons.Rounded.SkipNext,
                                 contentDescription = "",
                                 Modifier
                                     .size(35.dp)
                                     .clickable { viewModel.skipToNextSong() },
-                                tint = MaterialTheme.colorScheme.onTertiary
+                                tint = MaterialTheme.colorScheme.onSurface
                             )
                         }
                         Text(
@@ -187,6 +196,50 @@ fun SongViewPager(
             }
         }
         //  TODO("Fix View Pager changing pages")
+    }
+}
+
+@Composable
+fun Modifier.dynamicBackgroundFromAlbumArt(
+    albumArtUrl: String?,
+    defaultColor: Color = MaterialTheme.colorScheme.tertiaryContainer,
+    dullnessFactor: Float = 0.6f
+) = composed {
+    val context = LocalContext.current
+    var backgroundColor by remember { mutableStateOf(defaultColor) }
+    val animatedBackgroundColor by animateColorAsState(targetValue = backgroundColor)
+
+    LaunchedEffect(albumArtUrl) {
+        albumArtUrl?.let { url ->
+            val loader = ImageLoader(context)
+            val request = ImageRequest.Builder(context)
+                .data(url)
+                .allowHardware(false)
+                .build()
+            val result = loader.execute(request)
+            val bitmap = (result as? SuccessResult)?.drawable?.let { drawable ->
+                (drawable as? BitmapDrawable)?.bitmap
+            }
+
+            bitmap?.let {
+                Palette.from(it).generate { palette ->
+                    val dominantColor = palette?.getDominantColor(defaultColor.toArgb())
+                    val color = Color(dominantColor ?: defaultColor.toArgb())
+
+                    backgroundColor = color.copy(
+                        red = color.red * dullnessFactor + (1 - dullnessFactor) * 0.5f,
+                        green = color.green * dullnessFactor + (1 - dullnessFactor) * 0.5f,
+                        blue = color.blue * dullnessFactor + (1 - dullnessFactor) * 0.5f
+                    )
+                }
+            } ?: run {
+                backgroundColor = defaultColor
+            }
+        }
+    }
+
+    Modifier.drawBehind {
+        drawRect(color = animatedBackgroundColor, size = size)
     }
 }
 
