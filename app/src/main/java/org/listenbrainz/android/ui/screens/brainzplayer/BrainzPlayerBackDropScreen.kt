@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.screens.brainzplayer
 
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -144,7 +145,8 @@ fun BrainzPlayerBackDropScreen(
             PlayerScreen(
                 currentlyPlayingSong = currentlyPlayingSong,
                 isShuffled = isShuffled,
-                repeatMode = repeatMode
+                repeatMode = repeatMode,
+                backdropScaffoldState = backdropScaffoldState
             )
             val songList = brainzPlayerViewModel.mediaItem.collectAsState().value.data ?: listOf()
             SongViewPager(
@@ -165,7 +167,8 @@ fun PlayerScreen(
     brainzPlayerViewModel: BrainzPlayerViewModel = viewModel(),
     currentlyPlayingSong: Song,
     isShuffled: Boolean,
-    repeatMode: RepeatMode
+    repeatMode: RepeatMode,
+    backdropScaffoldState: BackdropScaffoldState,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val playlistViewModel = hiltViewModel<PlaylistViewModel>()
@@ -181,6 +184,14 @@ fun PlayerScreen(
         }
     } else {
         println("Playlist is empty")
+    }
+
+    if(backdropScaffoldState.isConcealed){
+        BackHandler {
+            coroutineScope.launch {
+                backdropScaffoldState.reveal()
+            }
+        }
     }
     LazyColumn {
         item {
