@@ -457,8 +457,7 @@ fun PlayerScreen(
         ) { index, song ->
             val isChecked = checkedSongs.contains(song)
             BoxWithConstraints {
-                val maxWidth =
-                    (maxWidth - 70.dp)
+                val maxWidth = (this@BoxWithConstraints.maxWidth - 70.dp)
                 Row(
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
@@ -529,14 +528,6 @@ fun PlayerScreen(
             // Fixes bottom nav bar overlapping over last song
             Spacer(modifier = Modifier.height(56.dp))
         }
-    }
-
-    // TODO: fix this
-    val cache = App.context?.let { CacheService<Song>(it, RECENTLY_PLAYED_KEY) }
-    cache?.saveData(currentlyPlayingSong, Song::class.java)
-    val data = cache?.getData(Song::class.java)
-    if (data != null) {
-        recentlyPlayed.items = data.filter { it.title != "null" }.toList().reversed()
     }
 }
 
