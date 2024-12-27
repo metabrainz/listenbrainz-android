@@ -63,6 +63,7 @@ import coil.request.SuccessResult
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.service.NOTHING_PLAYING
 import org.listenbrainz.android.ui.components.CustomSeekBar
 import org.listenbrainz.android.ui.components.PlayPauseIcon
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
@@ -77,13 +78,31 @@ fun SongViewPager(
     songList: List<Song>,
     viewModel: BrainzPlayerViewModel = hiltViewModel()
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    val pagerState: PagerState = rememberPagerState { songList.size }
+    if (songList.isEmpty())
+        return
 
-    HorizontalPager(state = pagerState, modifier = modifier
-        .fillMaxWidth()
-        .dynamicBackgroundFromAlbumArt(currentlyPlayingSong.albumArt)
-    ) {
+    val coroutineScope = rememberCoroutineScope()
+    val pagerState: PagerState = rememberPagerState(
+        initialPage = songList
+            .indexOfFirst { it.mediaID == currentlyPlayingSong.mediaID }
+            .takeIf { it != -1 } ?: 0
+    ) { songList.size }
+
+    LaunchedEffect(pagerState.settledPage) {
+        val newSong = songList[pagerState.settledPage]
+        if (currentlyPlayingSong.mediaID != 0L && newSong != currentlyPlayingSong) {
+            viewModel.playOrToggleSong(newSong)
+        }
+    }
+
+    HorizontalPager(
+        state = pagerState,
+        modifier = modifier
+            .fillMaxWidth()
+            .dynamicBackgroundFromAlbumArt(currentlyPlayingSong.albumArt)
+    ) { index ->
+        val song = songList[index]
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -127,7 +146,7 @@ fun SongViewPager(
                                 .matchParentSize()
                                 .clip(shape = RoundedCornerShape(8.dp))
                                 .graphicsLayer { clip = true },
-                            model = currentlyPlayingSong.albumArt,
+                            model = song.albumArt,
                             contentDescription = "",
                             error = painterResource(
                                 id = R.drawable.ic_erroralbumart
@@ -180,10 +199,10 @@ fun SongViewPager(
                         }
                         Text(
                             text = when {
-                                currentlyPlayingSong.artist == "null" && currentlyPlayingSong.title == "null"-> ""
-                                currentlyPlayingSong.artist == "null" -> currentlyPlayingSong.title
-                                currentlyPlayingSong.title == "null" -> currentlyPlayingSong.artist
-                                else -> currentlyPlayingSong.artist + "  -  " + currentlyPlayingSong.title
+                                song.artist == "null" && song.title == "null"-> ""
+                                song.artist == "null" -> song.title
+                                song.title == "null" -> song.artist
+                                else -> song.artist + "  -  " + song.title
                             },
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,

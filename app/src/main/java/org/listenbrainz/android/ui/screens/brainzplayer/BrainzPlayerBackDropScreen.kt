@@ -76,6 +76,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
@@ -108,13 +109,13 @@ fun BrainzPlayerBackDropScreen(
     paddingValues: PaddingValues,
     backLayerContent: @Composable () -> Unit
 ) {
-    val isShuffled by brainzPlayerViewModel.isShuffled.collectAsState()
+    val isShuffled by brainzPlayerViewModel.isShuffled.collectAsStateWithLifecycle()
     val currentlyPlayingSong =
-        brainzPlayerViewModel.currentlyPlayingSong.collectAsState().value.toSong
+        brainzPlayerViewModel.currentlyPlayingSong.collectAsStateWithLifecycle().value.toSong
     var maxDelta by rememberSaveable {
         mutableFloatStateOf(0F)
     }
-    val repeatMode by brainzPlayerViewModel.repeatMode.collectAsState()
+    val repeatMode by brainzPlayerViewModel.repeatMode.collectAsStateWithLifecycle()
 
     /** 56.dp is default bottom navigation height. 70.dp is our mini player's height. */
     val headerHeight by animateDpAsState(targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null") 56.dp else 126.dp)
