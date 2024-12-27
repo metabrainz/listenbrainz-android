@@ -214,7 +214,6 @@ fun SongViewPager(
                 }
             }
         }
-        //  TODO("Fix View Pager changing pages")
     }
 }
 
