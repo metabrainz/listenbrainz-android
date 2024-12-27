@@ -27,6 +27,7 @@ import com.patrykandpatrick.vico.core.cartesian.layer.ColumnCartesianLayer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @Composable
 fun YimGraph (yearListens : List<Pair<String , Int>>) {
@@ -49,8 +50,7 @@ fun YimGraph (yearListens : List<Pair<String , Int>>) {
         modifier = Modifier
             .padding(start = 11.dp, end = 11.dp)
             .height(250.dp)
-            .clip(RoundedCornerShape(10.dp))
-            .background(Color(0xFFe0e5de)),
+            .clip(RoundedCornerShape(10.dp)),
         chart = rememberCartesianChart(
             rememberColumnCartesianLayer(
                 ColumnCartesianLayer.ColumnProvider.series(
@@ -61,9 +61,16 @@ fun YimGraph (yearListens : List<Pair<String , Int>>) {
                 ),
                 spacing = 1.dp
             ),
-            startAxis = rememberStartAxis(),
+            startAxis = rememberStartAxis(
+                label = rememberTextComponent(
+                    color = Color.White,
+                    ellipsize = TextUtils.TruncateAt.MARQUEE,
+                    textSize = 11.sp
+                )
+            ),
             bottomAxis = rememberBottomAxis(
-                label = rememberTextComponent (
+                label = rememberTextComponent(
+                    color = Color.White,
                     ellipsize = TextUtils.TruncateAt.MARQUEE,
                     textSize = 11.sp
                 ),
