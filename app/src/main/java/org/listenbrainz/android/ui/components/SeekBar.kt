@@ -11,6 +11,8 @@ import androidx.compose.material.Slider
 import androidx.compose.material.SliderDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
@@ -44,7 +46,8 @@ fun CustomSeekBar(
     modifier: Modifier = Modifier,
     @FloatRange(from = 0.0, to = 1.0)
     progress: Float,
-    onValueChange: (Float) -> Unit
+    onValueChange: (Float) -> Unit,
+    remainingProgressColor: Color = Color.Transparent
 ) {
     val range = 0f..1f
 
@@ -80,6 +83,10 @@ fun CustomSeekBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(4.dp)
+                .graphicsLayer {
+                    alpha = 0.2f
+                }
+                .background(remainingProgressColor)
         )
         Box(
             modifier = Modifier

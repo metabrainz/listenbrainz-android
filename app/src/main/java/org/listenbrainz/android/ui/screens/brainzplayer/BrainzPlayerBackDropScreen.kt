@@ -67,6 +67,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -87,6 +88,7 @@ import org.listenbrainz.android.model.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.model.feed.FeedListenArtist
+import org.listenbrainz.android.ui.components.CustomSeekBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.PlayPauseIcon
 import org.listenbrainz.android.ui.components.SeekBar
@@ -258,14 +260,17 @@ fun PlayerScreen(
         item {
             Box {
                 val progress by brainzPlayerViewModel.progress.collectAsState()
-                SeekBar(
+                CustomSeekBar(
                     modifier = Modifier
                         .height(10.dp)
                         .fillMaxWidth(0.98F)
                         .padding(horizontal = 20.dp),
                     progress = progress,
-                    onValueChange = brainzPlayerViewModel::onSeek,
-                    onValueChanged = brainzPlayerViewModel::onSeeked
+                    onValueChange = { newProgress ->
+                        brainzPlayerViewModel.onSeek(newProgress)
+                        brainzPlayerViewModel.onSeeked()
+                    },
+                    remainingProgressColor = colorResource(id = R.color.bp_color_primary)
                 )
             }
             Row(
