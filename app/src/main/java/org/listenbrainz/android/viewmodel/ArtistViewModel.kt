@@ -24,6 +24,7 @@ class ArtistViewModel @Inject constructor(
         val appearsOn = artistData?.releaseGroups?.filter { releaseGroup ->
             releaseGroup?.artists?.get(0)?.artistMbid != artistMbid
         }
+
         val artistUiState = ArtistUIState(
             isLoading = false,
             name = artistData?.artist?.name,
@@ -40,7 +41,8 @@ class ArtistViewModel @Inject constructor(
             appearsOn = appearsOn,
             similarArtists = artistData?.similarArtists?.artists,
             topListeners = artistData?.listeningStats?.listeners,
-            reviews = artistReviews
+            reviews = artistReviews,
+            artistMbid = artistMbid
         )
         artistUIStateFlow.emit(artistUiState)
     }

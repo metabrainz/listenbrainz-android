@@ -26,4 +26,5 @@ data class ArtistUIState(
     val similarArtists: List<SimilarArtist?>? = listOf(),
     val topListeners: List<Listeners?>? = listOf(),
     val reviews: CBReview? = null,
+    val artistMbid: String? = null
 )

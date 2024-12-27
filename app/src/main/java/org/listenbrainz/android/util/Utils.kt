@@ -22,6 +22,9 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.unit.IntSize
 import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.Dispatchers
 import okhttp3.*
@@ -89,6 +92,17 @@ object Utils {
         length: Int = Toast.LENGTH_LONG
     ) = Toast.makeText(this, message, length).show()
     
+
+    fun List<Placeable>.measureSize(): IntSize {
+        var width = 0
+        var height = 0
+        forEach {
+            width += it.width
+            height += it.height
+        }
+
+        return IntSize(width, height)
+    }
 
     /** Get human readable error.
      *
