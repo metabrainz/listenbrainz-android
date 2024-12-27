@@ -339,7 +339,6 @@ fun StatsScreen(
                                 .padding(start = 11.dp, end = 11.dp)
                                 .height(250.dp)
                                 .clip(RoundedCornerShape(10.dp))
-                                .background(Color(0xFFe0e5de))
                                 .testTag("listeningActivityChart"),
                             chart = rememberCartesianChart(
                                 rememberColumnCartesianLayer(
@@ -349,7 +348,7 @@ fun StatsScreen(
                                 ),
                                 startAxis = rememberStartAxis(
                                     label = rememberTextComponent(
-                                        color = Color.Black,
+                                        color = ListenBrainzTheme.colorScheme.text,
                                         textSize = 11.sp,
                                         padding = Dimensions.of(ListenBrainzTheme.paddings.tinyPadding)
                                     )
@@ -358,7 +357,7 @@ fun StatsScreen(
                                     label = rememberTextComponent (
                                         ellipsize = TextUtils.TruncateAt.MARQUEE,
                                         textSize = 11.sp,
-                                        color = Color.Black,
+                                        color = ListenBrainzTheme.colorScheme.text,
                                         padding = Dimensions.of(ListenBrainzTheme.paddings.tinyPadding)
                                     ),
                                     guideline = null,
