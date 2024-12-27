@@ -63,10 +63,10 @@ import coil.request.SuccessResult
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Song
-import org.listenbrainz.android.service.NOTHING_PLAYING
 import org.listenbrainz.android.ui.components.CustomSeekBar
 import org.listenbrainz.android.ui.components.PlayPauseIcon
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
@@ -99,7 +99,7 @@ fun SongViewPager(
         state = pagerState,
         modifier = modifier
             .fillMaxWidth()
-            .dynamicBackgroundFromAlbumArt(currentlyPlayingSong.albumArt)
+            .dynamicBackgroundFromAlbumArt(songList[pagerState.currentPage].albumArt)
     ) { index ->
         val song = songList[index]
 
@@ -221,7 +221,7 @@ fun SongViewPager(
 @Composable
 fun Modifier.dynamicBackgroundFromAlbumArt(
     albumArtUrl: String?,
-    defaultColor: Color = MaterialTheme.colorScheme.tertiaryContainer,
+    defaultColor: Color = ListenBrainzTheme.colorScheme.level1,
     dullnessFactor: Float = 0.6f
 ) = composed {
     val context = LocalContext.current
