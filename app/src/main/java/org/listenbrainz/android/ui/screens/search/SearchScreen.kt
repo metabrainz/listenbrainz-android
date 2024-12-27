@@ -19,10 +19,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.SoftwareKeyboardController
@@ -44,6 +46,7 @@ fun <T> SearchScreen(
     },
     onErrorShown: () -> Unit,
     focusRequester: FocusRequester = remember { FocusRequester() },
+    focusManager: FocusManager = LocalFocusManager.current,
     window: WindowInfo = LocalWindowInfo.current,
     content: @Composable () -> Unit
 ) {
@@ -112,6 +115,7 @@ fun <T> SearchScreen(
                 .pointerInput(key1 = "Keyboard") {
                     // Tap to hide keyboard.
                     detectTapGestures {
+                        focusManager.clearFocus()
                         keyboardController?.hide()
                     }
                 }
