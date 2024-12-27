@@ -67,6 +67,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -76,6 +77,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
@@ -86,6 +88,7 @@ import org.listenbrainz.android.model.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.model.feed.FeedListenArtist
+import org.listenbrainz.android.ui.components.CustomSeekBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.PlayPauseIcon
 import org.listenbrainz.android.ui.components.SeekBar
@@ -108,16 +111,16 @@ fun BrainzPlayerBackDropScreen(
     paddingValues: PaddingValues,
     backLayerContent: @Composable () -> Unit
 ) {
-    val isShuffled by brainzPlayerViewModel.isShuffled.collectAsState()
+    val isShuffled by brainzPlayerViewModel.isShuffled.collectAsStateWithLifecycle()
     val currentlyPlayingSong =
-        brainzPlayerViewModel.currentlyPlayingSong.collectAsState().value.toSong
+        brainzPlayerViewModel.currentlyPlayingSong.collectAsStateWithLifecycle().value.toSong
     var maxDelta by rememberSaveable {
         mutableFloatStateOf(0F)
     }
-    val repeatMode by brainzPlayerViewModel.repeatMode.collectAsState()
+    val repeatMode by brainzPlayerViewModel.repeatMode.collectAsStateWithLifecycle()
 
-    /** 56.dp is default bottom navigation height. 80.dp is our mini player's height. */
-    val headerHeight by animateDpAsState(targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null") 56.dp else 136.dp)
+    /** 56.dp is default bottom navigation height. 70.dp is our mini player's height. */
+    val headerHeight by animateDpAsState(targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null") 56.dp else 126.dp)
     val isPlaying = brainzPlayerViewModel.isPlaying.collectAsState().value
 
     BackdropScaffold(
@@ -125,7 +128,7 @@ fun BrainzPlayerBackDropScreen(
         frontLayerShape = RectangleShape,
         backLayerBackgroundColor = MaterialTheme.colorScheme.background,
         frontLayerScrimColor = Color.Unspecified,
-        headerHeight = if (isPlaying) headerHeight else 56.dp, // 136.dp is optimal header height.
+        headerHeight = headerHeight, // 126.dp is optimal header height.
         peekHeight = 0.dp,
         scaffoldState = backdropScaffoldState,
         backLayerContent = {
@@ -257,14 +260,17 @@ fun PlayerScreen(
         item {
             Box {
                 val progress by brainzPlayerViewModel.progress.collectAsState()
-                SeekBar(
+                CustomSeekBar(
                     modifier = Modifier
                         .height(10.dp)
                         .fillMaxWidth(0.98F)
                         .padding(horizontal = 20.dp),
                     progress = progress,
-                    onValueChange = brainzPlayerViewModel::onSeek,
-                    onValueChanged = brainzPlayerViewModel::onSeeked
+                    onValueChange = { newProgress ->
+                        brainzPlayerViewModel.onSeek(newProgress)
+                        brainzPlayerViewModel.onSeeked()
+                    },
+                    remainingProgressColor = colorResource(id = R.color.bp_color_primary)
                 )
             }
             Row(
@@ -457,8 +463,7 @@ fun PlayerScreen(
         ) { index, song ->
             val isChecked = checkedSongs.contains(song)
             BoxWithConstraints {
-                val maxWidth =
-                    (maxWidth - 70.dp)
+                val maxWidth = (this@BoxWithConstraints.maxWidth - 70.dp)
                 Row(
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
@@ -529,14 +534,6 @@ fun PlayerScreen(
             // Fixes bottom nav bar overlapping over last song
             Spacer(modifier = Modifier.height(56.dp))
         }
-    }
-
-    // TODO: fix this
-    val cache = App.context?.let { CacheService<Song>(it, RECENTLY_PLAYED_KEY) }
-    cache?.saveData(currentlyPlayingSong, Song::class.java)
-    val data = cache?.getData(Song::class.java)
-    if (data != null) {
-        recentlyPlayed.items = data.filter { it.title != "null" }.toList().reversed()
     }
 }
 
@@ -623,4 +620,5 @@ fun BrainzPlayerBackDropScreenPreview() {
         paddingValues = PaddingValues(0.dp)
     ) {}
 }
+
 

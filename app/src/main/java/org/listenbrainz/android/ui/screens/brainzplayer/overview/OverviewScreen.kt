@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -33,34 +34,52 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
 @Composable
-fun OverviewScreen (
+fun OverviewScreen(
     songsPlayedToday: List<Song>,
     goToRecentScreen: () -> Unit,
     goToArtistScreen: () -> Unit,
     goToAlbumScreen: () -> Unit,
     recentlyPlayedSongs: List<Song>,
     brainzPlayerViewModel: BrainzPlayerViewModel = hiltViewModel(),
-    artists : List<Artist>,
+    artists: List<Artist>,
     albums: List<Album>
 ) {
-    Column (modifier = Modifier.verticalScroll(rememberScrollState())) {
-       RecentlyPlayedOverview(recentlyPlayedSongs = recentlyPlayedSongs, goToRecentScreen = goToRecentScreen ,brainzPlayerViewModel = brainzPlayerViewModel)
-        ArtistsOverview(artists = artists, goToArtistScreen = goToArtistScreen)
-        AlbumsOverview(albums = albums, goToAlbumScreen = goToAlbumScreen)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
+        RecentlyPlayedOverview(
+            modifier = Modifier.fillMaxWidth(),
+            recentlyPlayedSongs = recentlyPlayedSongs,
+            goToRecentScreen = goToRecentScreen,
+            brainzPlayerViewModel = brainzPlayerViewModel
+        )
+        ArtistsOverview(
+            modifier = Modifier.fillMaxWidth(),
+            artists = artists,
+            goToArtistScreen = goToArtistScreen
+        )
+        AlbumsOverview(
+            modifier = Modifier.fillMaxWidth(),
+            albums = albums,
+            goToAlbumScreen = goToAlbumScreen
+        )
     }
-
-
 }
 
 @Composable
 private fun RecentlyPlayedOverview(
+    modifier: Modifier = Modifier,
     recentlyPlayedSongs: List<Song>,
-    brainzPlayerViewModel : BrainzPlayerViewModel,
-    goToRecentScreen : () -> Unit
+    brainzPlayerViewModel: BrainzPlayerViewModel,
+    goToRecentScreen: () -> Unit
 ) {
-    Column(modifier = Modifier.background(
-        brush = ListenBrainzTheme.colorScheme.gradientBrush
-    ).padding(top = 15.dp, bottom = 15.dp)) {
+    Column(
+        modifier = modifier
+            .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
+            .padding(top = 15.dp, bottom = 15.dp)
+    ) {
         Text(
             "Recently Played", style = TextStyle(
                 fontSize = 24.sp,
@@ -101,7 +120,9 @@ private fun RecentlyPlayedOverview(
                             }
                     ) {
                         Column(
-                            modifier = Modifier.fillMaxSize().background(ListenBrainzTheme.colorScheme.placeHolderColor)
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(ListenBrainzTheme.colorScheme.placeHolderColor)
                                 .padding(start = 5.dp, bottom = 20.dp),
                             verticalArrangement = Arrangement.Bottom
                         ) {
@@ -120,12 +141,17 @@ private fun RecentlyPlayedOverview(
 
 @Composable
 private fun ArtistsOverview(
-    artists : List<Artist>,
-    goToArtistScreen : () -> Unit
+    modifier: Modifier = Modifier,
+    artists: List<Artist>,
+    goToArtistScreen: () -> Unit
 ) {
-    Column(modifier = Modifier.background(
-        brush = ListenBrainzTheme.colorScheme.gradientBrush
-    ).padding(top = 15.dp, bottom = 15.dp)) {
+    Column(
+        modifier = modifier
+            .background(
+                brush = ListenBrainzTheme.colorScheme.gradientBrush
+            )
+            .padding(top = 15.dp, bottom = 15.dp)
+    ) {
         Text(
             "Artists", style = TextStyle(
                 fontSize = 24.sp,
@@ -156,7 +182,9 @@ private fun ArtistsOverview(
                             }
                     ) {
                         Column(
-                            modifier = Modifier.fillMaxSize().background(ListenBrainzTheme.colorScheme.placeHolderColor)
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(ListenBrainzTheme.colorScheme.placeHolderColor)
                                 .padding(start = 5.dp, bottom = 20.dp),
                             verticalArrangement = Arrangement.Bottom
                         ) {
@@ -168,7 +196,6 @@ private fun ArtistsOverview(
                         }
                     }
                 }
-
             }
         }
     }
@@ -176,30 +203,35 @@ private fun ArtistsOverview(
 
 @Composable
 private fun AlbumsOverview(
+    modifier: Modifier = Modifier,
     albums: List<Album>,
     goToAlbumScreen: () -> Unit
-){
-   Column(modifier = Modifier.background(
-        brush = ListenBrainzTheme.colorScheme.gradientBrush
-    ).padding(top = 15.dp, bottom = 15.dp)){
-        Text("Albums" , style = TextStyle(
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = ListenBrainzTheme.colorScheme.lbSignature
-        ) , modifier = Modifier.padding(start = 17.dp))
+) {
+    Column(
+        modifier = modifier
+            .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
+            .padding(top = 15.dp, bottom = 15.dp)
+    ) {
+        Text(
+            "Albums", style = TextStyle(
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = ListenBrainzTheme.colorScheme.lbSignature
+            ), modifier = Modifier.padding(start = 17.dp)
+        )
         LazyRow(
             modifier = Modifier
-                .height(250.dp)){
-            items(items = albums) {
-                    album ->
-                if(album.title != ""){
-                    BrainzPlayerActivityCards(icon = album.albumArt,
+                .height(250.dp)
+        ) {
+            items(items = albums) { album ->
+                if (album.title != "") {
+                    BrainzPlayerActivityCards(
+                        icon = album.albumArt,
                         errorIcon = R.drawable.ic_album,
                         title = album.artist,
                         subtitle = album.title,
                     )
-                }
-                else{
+                } else {
                     Box(
                         modifier = Modifier
                             .padding(10.dp)
@@ -208,13 +240,22 @@ private fun AlbumsOverview(
                             .clickable {
                                 goToAlbumScreen()
                             }
-                    ){
-                        Column (modifier = Modifier.fillMaxSize().background(ListenBrainzTheme.colorScheme.placeHolderColor).padding(start = 5.dp , bottom = 20.dp) , verticalArrangement = Arrangement.Bottom) {
-                            Text(" All \n Albums" , style = TextStyle(fontSize = 20.sp) , color = ListenBrainzTheme.colorScheme.lbSignature)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(ListenBrainzTheme.colorScheme.placeHolderColor)
+                                .padding(start = 5.dp, bottom = 20.dp),
+                            verticalArrangement = Arrangement.Bottom
+                        ) {
+                            Text(
+                                " All \n Albums",
+                                style = TextStyle(fontSize = 20.sp),
+                                color = ListenBrainzTheme.colorScheme.lbSignature
+                            )
                         }
                     }
                 }
-
             }
         }
     }

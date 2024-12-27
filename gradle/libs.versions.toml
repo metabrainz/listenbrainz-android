@@ -48,6 +48,7 @@ loggerAndroid = "1.0.0"
 compileSdk = "35"
 targetSdk = "35"
 minSdk = "22"
+paletteKtx = "1.0.0"
 
 [libraries]
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
@@ -141,6 +142,7 @@ androidx-test-espresso-intents = { module = "androidx.test.espresso:espresso-int
 vico-compose = { module = "com.patrykandpatrick.vico:compose", version.ref = "vicoCompose" }
 compose-ratingbar = { module = "com.github.a914-gowtham:compose-ratingbar", version.ref = "composeRatingbar" }
 logger-android = { module = "com.github.akshaaatt:Logger-Android", version.ref = "loggerAndroid" }
+androidx-palette-ktx = { group = "androidx.palette", name = "palette-ktx", version.ref = "paletteKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

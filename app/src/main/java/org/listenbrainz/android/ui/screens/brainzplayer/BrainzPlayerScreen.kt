@@ -80,8 +80,7 @@ fun BrainzPlayerScreen() {
     topAlbums.add(Album())
     
     Column(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         Navigation(albums = albums, previewAlbums = topAlbums, artists = artists, previewArtists = topArtists, playlists, songsPlayedToday, songsPlayedThisWeek ,topRecents ,songs, albumSongsMap)
     }
@@ -108,7 +107,8 @@ fun BrainzPlayerHomeScreen(
         brainzPlayerViewModel.currentlyPlayingSong.collectAsState().value.toSong
     val isPlaying = brainzPlayerViewModel.isPlaying
     Column {
-        Row(modifier = Modifier
+        Row(
+            modifier = Modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
             .background(
@@ -118,7 +118,8 @@ fun BrainzPlayerHomeScreen(
                         Color.Transparent
                     )
                 )
-            )) {
+            )
+        ) {
             Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.chipsHorizontal / 2))
             repeat(5) { position ->
                 ElevatedSuggestionChip(
