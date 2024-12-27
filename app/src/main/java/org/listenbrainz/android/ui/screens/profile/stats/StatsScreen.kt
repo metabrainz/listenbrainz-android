@@ -5,6 +5,7 @@ import android.text.TextUtils
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -52,14 +53,17 @@ import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesian
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.compose.common.component.rememberLineComponent
 import com.patrykandpatrick.vico.compose.common.component.rememberTextComponent
+import com.patrykandpatrick.vico.compose.common.of
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.cartesian.data.columnSeries
 import com.patrykandpatrick.vico.core.cartesian.layer.ColumnCartesianLayer
+import com.patrykandpatrick.vico.core.common.Dimensions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
@@ -271,7 +275,7 @@ fun StatsScreen(
                 Column {
                     Text(
                         text = "Listening activity",
-                        color = Color.White,
+                        color = ListenBrainzTheme.colorScheme.text,
                         style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),
                         modifier = Modifier.padding(start = 10.dp)
                     )
@@ -335,7 +339,6 @@ fun StatsScreen(
                                 .padding(start = 11.dp, end = 11.dp)
                                 .height(250.dp)
                                 .clip(RoundedCornerShape(10.dp))
-                                .background(Color(0xFFe0e5de))
                                 .testTag("listeningActivityChart"),
                             chart = rememberCartesianChart(
                                 rememberColumnCartesianLayer(
@@ -343,11 +346,19 @@ fun StatsScreen(
                                     spacing = 25.dp,
                                     mergeMode = { ColumnCartesianLayer.MergeMode.Grouped },
                                 ),
-                                startAxis = rememberStartAxis(),
+                                startAxis = rememberStartAxis(
+                                    label = rememberTextComponent(
+                                        color = ListenBrainzTheme.colorScheme.text,
+                                        textSize = 11.sp,
+                                        padding = Dimensions.of(ListenBrainzTheme.paddings.tinyPadding)
+                                    )
+                                ),
                                 bottomAxis = rememberBottomAxis(
                                     label = rememberTextComponent (
                                         ellipsize = TextUtils.TruncateAt.MARQUEE,
-                                        textSize = 11.sp
+                                        textSize = 11.sp,
+                                        color = ListenBrainzTheme.colorScheme.text,
+                                        padding = Dimensions.of(ListenBrainzTheme.paddings.tinyPadding)
                                     ),
                                     guideline = null,
                                     valueFormatter = { value, chartValues, verticalAxisPosition ->
@@ -371,7 +382,7 @@ fun StatsScreen(
            Column (modifier = Modifier
                .padding(start = 10.dp, top = 30.dp)
                ) {
-                    Text("Top ...", color = Color.White, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+                    Text("Top ...", color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
                Box(modifier = Modifier.height(10.dp))
                     Row {
                         repeat(3) {
