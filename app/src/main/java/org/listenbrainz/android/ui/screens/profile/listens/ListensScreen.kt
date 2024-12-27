@@ -68,6 +68,7 @@ import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.model.user.Artist
 import org.listenbrainz.android.ui.components.ErrorBar
+import org.listenbrainz.android.ui.components.FollowButton
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
 import org.listenbrainz.android.ui.components.SimilarUserCard
 import org.listenbrainz.android.ui.components.SuccessBar
@@ -84,6 +85,7 @@ import org.listenbrainz.android.ui.theme.app_bg_mid
 import org.listenbrainz.android.ui.theme.compatibilityMeterColor
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
+import org.listenbrainz.android.ui.theme.new_app_bg_light
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
@@ -389,7 +391,7 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
         similarArtists.size > 5 -> {
             val topSimilarArtists = similarArtists.take(5)
             val text = buildAnnotatedString {
-                withStyle(style = SpanStyle(color = white)) {
+                withStyle(style = SpanStyle(color = lb_purple_night)) {
                     append("You both listen to ")
                 }
                 topSimilarArtists.forEachIndexed { index, artist ->
@@ -401,10 +403,13 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
                     }
                     pop()
                     if (index < topSimilarArtists.size - 1) {
-                        append(", ")
+                        withStyle(style = SpanStyle(color = lb_purple_night)) {
+                            append(", ")
+                        }
+
                     }
                 }
-                withStyle(style = SpanStyle(color = white)) {
+                withStyle(style = SpanStyle(color = lb_purple_night)) {
                     append(" and more.")
                 }
             }
@@ -734,29 +739,19 @@ private fun FollowCard(username: String?, onFollowButtonClick: (String?, Boolean
                     goToUserPage(username)
                 }
             )
-            TextButton(
-                onClick = {
-                    onFollowButtonClick(username, followStatus)
-                }, colors = ButtonDefaults.buttonColors(
-                    containerColor = when (followStatus) {
-                        true -> ListenBrainzTheme.colorScheme.followingButtonColor
-                        false -> lb_purple
-                    }
-                ), modifier = Modifier
-                    .width(90.dp)
-                    .height(40.dp), shape = RoundedCornerShape(10.dp),
-                border = ListenBrainzTheme.colorScheme.followingButtonBorder
-            ) {
-                Text(
-                    when (followStatus) {
-                        true -> "Following"
-                        false -> "Follow"
-                    }, color = when(followStatus){
-                        true -> ListenBrainzTheme.colorScheme.followerCardTextColor
-                        false -> Color.White
+            Box(){
+                FollowButton(
+                    modifier = Modifier,
+                    isFollowedState = followStatus,
+                    buttonColor = lb_purple,
+                    followedStateTextColor = ListenBrainzTheme.colorScheme.lbSignature,
+                    unfollowedStateTextColor = new_app_bg_light,
+                    onClick = {
+                        onFollowButtonClick(username, followStatus)
                     }
                 )
             }
+
         }
     }
 }
