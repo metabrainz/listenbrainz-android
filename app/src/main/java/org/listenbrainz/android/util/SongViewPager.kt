@@ -99,10 +99,8 @@ fun SongViewPager(
         state = pagerState,
         modifier = modifier
             .fillMaxWidth()
-            .dynamicBackgroundFromAlbumArt(songList[pagerState.currentPage].albumArt)
-    ) { index ->
-        val song = songList[index]
-
+            .dynamicBackgroundFromAlbumArt(currentlyPlayingSong.albumArt)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -146,7 +144,7 @@ fun SongViewPager(
                                 .matchParentSize()
                                 .clip(shape = RoundedCornerShape(8.dp))
                                 .graphicsLayer { clip = true },
-                            model = song.albumArt,
+                            model = currentlyPlayingSong.albumArt,
                             contentDescription = "",
                             error = painterResource(
                                 id = R.drawable.ic_erroralbumart
@@ -199,10 +197,10 @@ fun SongViewPager(
                         }
                         Text(
                             text = when {
-                                song.artist == "null" && song.title == "null"-> ""
-                                song.artist == "null" -> song.title
-                                song.title == "null" -> song.artist
-                                else -> song.artist + "  -  " + song.title
+                                currentlyPlayingSong.artist == "null" && currentlyPlayingSong.title == "null"-> ""
+                                currentlyPlayingSong.artist == "null" -> currentlyPlayingSong.title
+                                currentlyPlayingSong.title == "null" -> currentlyPlayingSong.artist
+                                else -> currentlyPlayingSong.artist + "  -  " + currentlyPlayingSong.title
                             },
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
