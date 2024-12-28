@@ -26,7 +26,7 @@ fun AppNavigation(
     navController: NavController = rememberNavController(),
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
-    snackbarState : SnackbarHostState,
+    snackbarState: SnackbarHostState,
     goToUserProfile: () -> Unit,
     goToArtistPage: (String) -> Unit,
     goToAlbumPage: (String) -> Unit,
@@ -36,35 +36,43 @@ fun AppNavigation(
         navController = navController as NavHostController,
         modifier = Modifier.fillMaxSize(),
         startDestination = AppNavigationItem.Feed.route
-    ){
-        composable(route = AppNavigationItem.Feed.route){
-            FeedScreen(scrollToTopState = scrollRequestState, onScrollToTop = onScrollToTop, goToUserPage = {username : String? ->
-                if(username != null) {
-                navController.navigate("${AppNavigationItem.Profile.route}/$username"){
-                    // Avoid building large backstack
-                    popUpTo(AppNavigationItem.Feed.route){
-                        saveState = true
+    ) {
+        composable(route = AppNavigationItem.Feed.route) {
+            FeedScreen(
+                scrollToTopState = scrollRequestState,
+                onScrollToTop = onScrollToTop,
+                goToUserPage = { username: String? ->
+                    if (username != null) {
+                        navController.navigate("${AppNavigationItem.Profile.route}/$username") {
+                            // Avoid building large backstack
+                            popUpTo(AppNavigationItem.Feed.route) {
+                                saveState = true
+                            }
+                            // Avoid copies
+                            launchSingleTop = true
+                            // Restore previous state
+                            restoreState = true
+                        }
                     }
-                    // Avoid copies
-                    launchSingleTop = true
-                    // Restore previous state
-                    restoreState = true
-                }
-            } }, goToArtistPage = goToArtistPage)
+                },
+                goToArtistPage = goToArtistPage
+            )
         }
-        composable(route = AppNavigationItem.BrainzPlayer.route){
+        composable(route = AppNavigationItem.BrainzPlayer.route) {
             BrainzPlayerScreen()
         }
-        composable(route = AppNavigationItem.Explore.route){
+        composable(route = AppNavigationItem.Explore.route) {
             ExploreScreen()
         }
-        composable(route = "${AppNavigationItem.Profile.route}/{username}", arguments = listOf(
-            navArgument("username"){
-                type = NavType.StringType
-                nullable = true
-            }
-        ))
-        {
+        composable(
+            route = "${AppNavigationItem.Profile.route}/{username}",
+            arguments = listOf(
+                navArgument("username") {
+                    type = NavType.StringType
+                    nullable = true
+                }
+            )
+        ) {
             val username = it.arguments?.getString("username")
             ProfileScreen(
                 onScrollToTop = onScrollToTop,
@@ -76,37 +84,48 @@ fun AppNavigation(
                 goToUserPage = goToUserPage
             )
         }
-        composable(route = AppNavigationItem.Settings.route){
+        composable(
+            route = AppNavigationItem.Settings.route
+        ) {
             SettingsScreen()
         }
-        composable(route = "${AppNavigationItem.Artist.route}/{mbid}", arguments = listOf(
-            navArgument("mbid"){
-                type = NavType.StringType
-            }
-        )){
+        composable(
+            route = "${AppNavigationItem.Artist.route}/{mbid}",
+            arguments = listOf(
+                navArgument("mbid") {
+                    type = NavType.StringType
+                }
+            )
+        ) {
             val artistMbid = it.arguments?.getString("mbid")
-            if(artistMbid == null){
+            if (artistMbid == null) {
                 LaunchedEffect(Unit) {
                     snackbarState.showSnackbar("The artist page can't be loaded")
                 }
-            }
-            else{
-                ArtistScreen(artistMbid = artistMbid, goToArtistPage = goToArtistPage,
-                    snackBarState = snackbarState, goToUserPage = goToUserPage, goToAlbumPage = goToAlbumPage)
+            } else {
+                ArtistScreen(
+                    artistMbid = artistMbid,
+                    goToArtistPage = goToArtistPage,
+                    snackBarState = snackbarState,
+                    goToUserPage = goToUserPage,
+                    goToAlbumPage = goToAlbumPage
+                )
             }
         }
-        composable(route = "${AppNavigationItem.Album.route}/{mbid}", arguments = listOf(
-            navArgument("mbid"){
-                type = NavType.StringType
-            }
-        )){
+        composable(
+            route = "${AppNavigationItem.Album.route}/{mbid}",
+            arguments = listOf(
+                navArgument("mbid") {
+                    type = NavType.StringType
+                }
+            )
+        ) {
             val albumMbid = it.arguments?.getString("mbid")
-            if(albumMbid == null){
+            if (albumMbid == null) {
                 LaunchedEffect(Unit) {
                     snackbarState.showSnackbar("The album page can't be loaded")
                 }
-            }
-            else{
+            } else {
                 AlbumScreen(albumMbid = albumMbid, snackBarState = snackbarState)
             }
         }
