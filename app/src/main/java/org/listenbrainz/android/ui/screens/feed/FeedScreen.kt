@@ -58,6 +58,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.flow
 import org.listenbrainz.android.model.Metadata
+import org.listenbrainz.android.model.feed.FeedCallbacks
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventType
 import org.listenbrainz.android.model.feed.FeedListenArtist
@@ -91,32 +92,36 @@ fun FeedScreen(
     FeedScreen(
         uiState = uiState,
         scrollToTopState = scrollToTopState,
-        onScrollToTop = onScrollToTop,
-        onDeleteOrHide = { event, eventType, parentUser ->
-            viewModel.hideOrDeleteEvent(event, eventType, parentUser)
-        },
-        onErrorShown = { viewModel.clearErrorFlow() },
-        recommendTrack = { event ->
-            socialViewModel.recommend(event.metadata)
-        },
-        personallyRecommendTrack = { event, users, blurbContent ->
-            socialViewModel.personallyRecommend(event.metadata, users, blurbContent)
-        },
-        review = { event, type, blurbContent, rating, locale ->
-            socialViewModel.review(event.metadata, type, blurbContent, rating, locale)
-        },
-        pin = { event, blurbContent ->
-            socialViewModel.pin(event.metadata, blurbContent)
-        },
-        searchFollower = { query ->
-            viewModel.searchUser(query)
-        },
-        isCritiqueBrainzLinked = viewModel::isCritiqueBrainzLinked,
-        onPlay = { event ->
-            viewModel.play(event)
-        },
-        goToUserPage = goToUserPage,
-        goToArtistPage = goToArtistPage
+        callbacks = remember {
+            FeedCallbacks(
+                onScrollToTop = onScrollToTop,
+                onDeleteOrHide = { event, eventType, parentUser ->
+                    viewModel.hideOrDeleteEvent(event, eventType, parentUser)
+                },
+                onErrorShown = { viewModel.clearErrorFlow() },
+                onRecommend = { event ->
+                    socialViewModel.recommend(event.metadata)
+                },
+                onPersonallyRecommend = { event, users, blurbContent ->
+                    socialViewModel.personallyRecommend(event.metadata, users, blurbContent)
+                },
+                onReview = { event, type, blurbContent, rating, locale ->
+                    socialViewModel.review(event.metadata, type, blurbContent, rating, locale)
+                },
+                onPin = { event, blurbContent ->
+                    socialViewModel.pin(event.metadata, blurbContent)
+                },
+                searchFollower = { query ->
+                    viewModel.searchUser(query)
+                },
+                isCritiqueBrainzLinked = viewModel::isCritiqueBrainzLinked,
+                onPlay = { event ->
+                    viewModel.play(event)
+                },
+                goToUserPage = goToUserPage,
+                goToArtistPage = goToArtistPage
+            )
+        }
     )
 }
 
@@ -126,18 +131,7 @@ fun FeedScreen(
 fun FeedScreen(
     uiState: FeedUiState,
     scrollToTopState: Boolean,
-    onScrollToTop: (suspend () -> Unit) -> Unit,
-    onDeleteOrHide: (event: FeedEvent, eventType: FeedEventType, parentUser: String) -> Unit,
-    onErrorShown: () -> Unit,
-    recommendTrack: (event: FeedEvent) -> Unit,
-    personallyRecommendTrack: (event: FeedEvent, users: List<String>, blurbContent: String) -> Unit,
-    review: (event: FeedEvent, entityType: ReviewEntityType, blurbContent: String, rating: Int?, locale: String) -> Unit,
-    pin: (event: FeedEvent, blurbContent: String?) -> Unit,
-    searchFollower: (String) -> Unit,
-    isCritiqueBrainzLinked: suspend () -> Boolean?,
-    onPlay: (event: FeedEvent) -> Unit,
-    goToUserPage: (String) -> Unit,
-    goToArtistPage: (String) -> Unit
+    callbacks: FeedCallbacks,
 ) {
     val myFeedPagingData = uiState.myFeedState.eventList.collectAsLazyPagingItems()
     val myFeedListState = rememberLazyListState()
@@ -175,7 +169,7 @@ fun FeedScreen(
     )
     
     LaunchedEffect(scrollToTopState){
-        onScrollToTop {
+        callbacks.onScrollToTop {
             when (pagerState.currentPage){
                 0 -> {
                     myFeedListState.scrollToItem(0)
@@ -218,8 +212,8 @@ fun FeedScreen(
                     listState = myFeedListState,
                     pagingData = myFeedPagingData,
                     uiState = uiState.myFeedState,
-                    onDeleteOrHide = onDeleteOrHide,
-                    recommendTrack = recommendTrack,
+                    onDeleteOrHide = callbacks.onDeleteOrHide,
+                    recommendTrack = callbacks.onRecommend,
                     personallyRecommendTrack = { index ->
                         dialogsState.activateDialog(
                             Dialog.PERSONAL_RECOMMENDATION,
@@ -238,15 +232,15 @@ fun FeedScreen(
                             FeedDialogBundleKeys.feedDialogBundle(0, index)
                         )
                     },
-                    onPlay = onPlay,
-                    goToUserPage = goToUserPage,
-                    goToArtistPage = goToArtistPage
+                    onPlay = callbacks.onPlay,
+                    goToUserPage = callbacks.goToUserPage,
+                    goToArtistPage = callbacks.goToArtistPage
                 )
             
                 1 -> FollowListens(
                     listState = followListensListState,
                     pagingData = followListensPagingData,
-                    recommendTrack = recommendTrack,
+                    recommendTrack = callbacks.onRecommend,
                     personallyRecommendTrack = { index ->
                         dialogsState.activateDialog(
                             Dialog.PERSONAL_RECOMMENDATION,
@@ -265,14 +259,14 @@ fun FeedScreen(
                             FeedDialogBundleKeys.feedDialogBundle(1, index)
                         )
                     },
-                    onPlay = onPlay,
-                    goToArtistPage = goToArtistPage
+                    onPlay = callbacks.onPlay,
+                    goToArtistPage = callbacks.goToArtistPage
                 )
             
                 2 -> SimilarListens(
                     listState = similarListensListState,
                     pagingData = similarListensPagingData,
-                    recommendTrack = recommendTrack,
+                    recommendTrack = callbacks.onRecommend,
                     personallyRecommendTrack = { index ->
                         dialogsState.activateDialog(
                             Dialog.PERSONAL_RECOMMENDATION,
@@ -291,14 +285,14 @@ fun FeedScreen(
                             FeedDialogBundleKeys.feedDialogBundle(2, index)
                         )
                     },
-                    onPlay = onPlay,
-                    goToArtistPage = goToArtistPage
+                    onPlay = callbacks.onPlay,
+                    goToArtistPage = callbacks.goToArtistPage
                 )
             }
         }
         
         Column(Modifier.fillMaxWidth()) {
-            ErrorBar(error = uiState.error, onErrorShown = onErrorShown)
+            ErrorBar(error = uiState.error, onErrorShown = callbacks.onErrorShown)
             NavigationChips(
                 chips = remember {
                     listOf(
@@ -334,12 +328,8 @@ fun FeedScreen(
                 else -> similarListensPagingData
             }
         },
-        onPin = pin,
+        callbacks = callbacks,
         searchUserResult = uiState.searchResult,
-        searchUsers = searchFollower,
-        onPersonallyRecommend = personallyRecommendTrack,
-        isCritiqueBrainzLinked = isCritiqueBrainzLinked,
-        onReview = review
     )
     
 }
@@ -351,11 +341,7 @@ private fun Dialogs(
     currentEventIndex: Int?,
     pagingSource: LazyPagingItems<FeedUiEventItem>,
     searchUserResult: List<String>,
-    onPin: (event: FeedEvent, blurbContent: String) -> Unit,
-    searchUsers: (String) -> Unit,
-    onPersonallyRecommend: (event: FeedEvent, users: List<String>, blurbContent: String) -> Unit,
-    isCritiqueBrainzLinked: suspend () -> Boolean?,
-    onReview: (event: FeedEvent, type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String) -> Unit
+    callbacks: FeedCallbacks
 ) {
     when (currentDialog){
         Dialog.NONE -> Unit
@@ -367,7 +353,7 @@ private fun Dialogs(
                 artistName = metadata?.trackMetadata?.artistName ?: return,
                 onDismiss = deactivateDialog,
                 onSubmit = { blurbContent ->
-                    onPin(pagingSource[currentEventIndex]?.event!!, blurbContent)
+                    callbacks.onPin(pagingSource[currentEventIndex]?.event!!, blurbContent)
                 }
             )
         }
@@ -378,9 +364,9 @@ private fun Dialogs(
                     ?: metadata?.entityName ?: return,
                 onDismiss = deactivateDialog,
                 searchResult = searchUserResult,
-                searchUsers = searchUsers,
+                searchUsers = callbacks.searchFollower,
                 onSubmit = { users, blurbContent ->
-                    onPersonallyRecommend(pagingSource[currentEventIndex]?.event!!, users, blurbContent)
+                    callbacks.onPersonallyRecommend(pagingSource[currentEventIndex]?.event!!, users, blurbContent)
                 }
             )
         }
@@ -389,14 +375,14 @@ private fun Dialogs(
             ReviewDialog(
                 trackName = metadata?.trackMetadata?.trackName
                     ?: if (metadata?.entityType == ReviewEntityType.RECORDING.code) metadata.entityName else return,
-                artistName = metadata?.trackMetadata?.artistName
-                    ?: if (metadata?.entityType == ReviewEntityType.ARTIST.code) metadata.entityName else null,
-                releaseName = metadata?.trackMetadata?.releaseName
-                    ?: if (metadata?.entityType == ReviewEntityType.RELEASE_GROUP.code) metadata.entityName else null,
+                artistName = metadata.trackMetadata?.artistName
+                    ?: if (metadata.entityType == ReviewEntityType.ARTIST.code) metadata.entityName else null,
+                releaseName = metadata.trackMetadata?.releaseName
+                    ?: if (metadata.entityType == ReviewEntityType.RELEASE_GROUP.code) metadata.entityName else null,
                 onDismiss = deactivateDialog,
-                isCritiqueBrainzLinked = isCritiqueBrainzLinked,
+                isCritiqueBrainzLinked = callbacks.isCritiqueBrainzLinked,
                 onSubmit = { type, blurbContent, rating, locale ->
-                    onReview(pagingSource[currentEventIndex]?.event!!, type, blurbContent, rating, locale)
+                    callbacks.onReview(pagingSource[currentEventIndex]?.event!!, type, blurbContent, rating, locale)
                 }
             )
         }
@@ -487,16 +473,13 @@ private fun MyFeed(
                         goToUserPage = goToUserPage,
                         goToArtistPage = goToArtistPage
                     )
-                    
                 }
             }
-            
         }
         
         item {
             PagerRearLoadingIndicator(pagingData)
         }
-        
     }
 }
 
@@ -848,20 +831,21 @@ private fun FeedScreenPreview() {
                     })
                 ),
                 scrollToTopState = false,
-                onScrollToTop = {},
-                onDeleteOrHide = {_,_,_ -> },
-                onErrorShown = {},
-                recommendTrack = {},
-                personallyRecommendTrack = {_,_,_ -> },
-                review = {_,_,_,_,_ ->},
-                pin = {_,_ ->},
-                searchFollower = {},
-                isCritiqueBrainzLinked = {true},
-                onPlay = {},
-                goToUserPage = {},
-                goToArtistPage = {}
+                callbacks = FeedCallbacks(
+                    onScrollToTop = {},
+                    onDeleteOrHide = {_,_,_ -> },
+                    onErrorShown = {},
+                    onRecommend = {},
+                    onPersonallyRecommend = {_,_,_ -> },
+                    onReview = {_,_,_,_,_ ->},
+                    onPin = {_,_ ->},
+                    searchFollower = {},
+                    isCritiqueBrainzLinked = {true},
+                    onPlay = {},
+                    goToUserPage = {},
+                    goToArtistPage = {}
+                ),
             )
         }
-        
     }
 }
