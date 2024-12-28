@@ -56,9 +56,14 @@ fun SongsOverviewScreen(
                         val song: Song = songsStarting[startingLetter]!![j-1]
                         var coverArt: String? = null
                         coverArt = songsStarting[startingLetter]!![j - 1].albumArt
-                        BrainzPlayerListenCard(modifier = Modifier.padding(start= 10.dp, end = 10.dp),title = songsStarting[startingLetter]!![j - 1].title, subTitle = songsStarting[startingLetter]!![j - 1].artist, coverArtUrl = coverArt, errorAlbumArt = R.drawable.ic_erroralbumart){
-                            onPlayIconClick(song,songsStarting[startingLetter]!!)
-                        }
+                        BrainzPlayerListenCard(
+                            modifier = Modifier.padding(start = 10.dp, end = 10.dp),
+                            title = songsStarting[startingLetter]!![j - 1].title,
+                            subTitle = songsStarting[startingLetter]!![j - 1].artist,
+                            coverArtUrl = coverArt,
+                            errorAlbumArt = R.drawable.ic_erroralbumart,
+                            onPlayIconClick = { onPlayIconClick(song, songsStarting[startingLetter]!!) }
+                        )
                         Spacer(modifier = Modifier.height(10.dp))
                     }
                 }

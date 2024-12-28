@@ -35,6 +35,7 @@ import org.listenbrainz.android.util.BrainzPlayerExtensions.currentPlaybackPosit
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlayEnabled
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlaying
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPrepared
+import org.listenbrainz.android.util.BrainzPlayerExtensions.title
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID
 import org.listenbrainz.android.util.Resource
@@ -66,9 +67,16 @@ class BrainzPlayerViewModel @Inject constructor(
     val playButton = brainzPlayerServiceConnection.playButtonState
     val repeatMode = brainzPlayerServiceConnection.repeatModeState
     var isSearching by mutableStateOf(false)
+    private val _currentlyPlayingTitle = MutableStateFlow<String?>(null)
+    val currentlyPlayingTitle = _currentlyPlayingTitle.asStateFlow()
 
     init {
         updatePlayerPosition()
+        viewModelScope.launch(Dispatchers.IO) {
+            brainzPlayerServiceConnection.currentPlayingSong.collectLatest { song ->
+                _currentlyPlayingTitle.value = song.title
+            }
+        }
         _mediaItems.value = Resource.loading()
         brainzPlayerServiceConnection.subscribe(
             MEDIA_ROOT_ID,
@@ -82,7 +90,6 @@ class BrainzPlayerViewModel @Inject constructor(
                         it.toSong
                     }
                     _mediaItems.value = Resource(Resource.Status.SUCCESS, songs)
-
                 }
             })
         viewModelScope.launch(Dispatchers.IO) {
@@ -172,6 +179,7 @@ class BrainzPlayerViewModel @Inject constructor(
             viewModelScope.launch { songRepository.updateSong(mediaItem) }
             brainzPlayerServiceConnection.transportControls.playFromMediaId(mediaItem.mediaID.toString(), null)
         }
+        _currentlyPlayingTitle.value = mediaItem.title
     }
 
     fun queueChanged(mediaItem: Song, toggle: Boolean ) {

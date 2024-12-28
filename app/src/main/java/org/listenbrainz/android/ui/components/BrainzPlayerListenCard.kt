@@ -15,20 +15,26 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
 @Composable
 fun BrainzPlayerListenCard(
@@ -40,8 +46,16 @@ fun BrainzPlayerListenCard(
     onDropdownIconClick: () -> Unit = {},
     dropDown: @Composable () -> Unit = {},
     dropDownState: Boolean = false,
-    onPlayIconClick: () -> Unit
+    onPlayIconClick: () -> Unit,
+    viewModel: BrainzPlayerViewModel = hiltViewModel()
 ) {
+    val currentlyPlayingTitle by viewModel.currentlyPlayingTitle.collectAsState()
+    val titleColor = if (currentlyPlayingTitle == title) {
+        colorResource(id = R.color.bp_color_primary)
+    } else {
+        ListenBrainzTheme.colorScheme.listenText
+    }
+
     Surface(
         modifier = modifier
             .fillMaxWidth(),
@@ -72,6 +86,7 @@ fun BrainzPlayerListenCard(
                         title = title,
                         goToArtistPage = {},
                         artists = listOf(FeedListenArtist(subTitle, null, "")),
+                        titleColor = titleColor
                     )
                 }
                 Box(modifier = Modifier
