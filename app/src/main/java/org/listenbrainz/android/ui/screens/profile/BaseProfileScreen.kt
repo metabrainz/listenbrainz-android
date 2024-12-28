@@ -179,8 +179,10 @@ fun BaseProfileScreen(
                 }
 
                 HorizontalPager(
+                    modifier = Modifier.fillMaxSize(),
                     state = pagerState,
                     beyondViewportPageCount = 1,
+                    verticalAlignment = Alignment.Top,
                     key = { ProfileScreenTab.entries[it] }
                 ) { index ->
                     when (index) {

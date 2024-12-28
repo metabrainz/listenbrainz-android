@@ -255,8 +255,7 @@ fun TasteScreen(
                 false -> uiState.tasteTabUIState.pins?.pinnedRecordings ?: listOf()
             }
             Box(
-                modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp)
+                modifier = Modifier.padding(16.dp)
             ) {
                 Column {
                     Text(
