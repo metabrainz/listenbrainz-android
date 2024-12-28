@@ -445,13 +445,15 @@ fun StatsScreen(
 
                                    }
                                }
-                               Spacer(modifier = Modifier.height(10.dp))
+
                                if((uiState.statsTabUIState.topArtists?.size ?: 0) > 5){
-                                   LoadMoreButton(state = artistsCollapseState.value) {
+                                   LoadMoreButton(
+                                       modifier = Modifier.padding(16.dp),
+                                       state = artistsCollapseState.value
+                                   ) {
                                        artistsCollapseState.value = !artistsCollapseState.value
                                    }
                                }
-
                            }
                        }
 
@@ -482,9 +484,12 @@ fun StatsScreen(
 
                                    }
                                }
-                               Spacer(modifier = Modifier.height(10.dp))
+
                                if((uiState.statsTabUIState.topAlbums?.size ?: 0) > 5) {
-                                   LoadMoreButton(state = albumsCollapseState.value) {
+                                   LoadMoreButton(
+                                       modifier = Modifier.padding(16.dp),
+                                       state = albumsCollapseState.value
+                                   ) {
                                        albumsCollapseState.value = !albumsCollapseState.value
                                    }
                                }
@@ -554,9 +559,12 @@ fun StatsScreen(
                                        }
                                    }
                                }
-                               Spacer(modifier = Modifier.height(10.dp))
+
                                if((uiState.statsTabUIState.topSongs?.size ?: 0) > 5) {
-                                   LoadMoreButton(state = songsCollapseState.value) {
+                                   LoadMoreButton(
+                                       modifier = Modifier.padding(16.dp),
+                                       state = songsCollapseState.value
+                                   ) {
                                        songsCollapseState.value = !songsCollapseState.value
                                    }
                                }

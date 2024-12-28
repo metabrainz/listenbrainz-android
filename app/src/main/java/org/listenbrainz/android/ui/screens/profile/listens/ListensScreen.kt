@@ -316,12 +316,12 @@ fun ListensScreen(
             }
 
             item {
-                Spacer(modifier = Modifier.height(20.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
                     LoadMoreButton(
+                        modifier = Modifier.padding(16.dp),
                         state = recentListensCollapsibleState,
                         onClick = {
                             recentListensCollapsibleState = !recentListensCollapsibleState
@@ -360,7 +360,7 @@ fun ListensScreen(
             item {
                 Box(
                     modifier = Modifier
-                        .padding(top = 30.dp)
+                        .padding(vertical = 30.dp)
                         .fillMaxWidth()
                         .background(ListenBrainzTheme.colorScheme.songsListenedToBG)
                 ) {
@@ -386,12 +386,12 @@ fun ListensScreen(
                         if ((uiState.listensTabUiState.followersCount
                                 ?: 0) > 5 || ((uiState.listensTabUiState.followingCount ?: 0) > 5)
                         ) {
-                            Spacer(modifier = Modifier.height(20.dp))
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.Center
                             ) {
                                 LoadMoreButton(
+                                    modifier = Modifier.padding(16.dp),
                                     state = followersMenuCollapsibleState.value,
                                     onClick = {
                                         followersMenuCollapsibleState.value =
@@ -408,7 +408,7 @@ fun ListensScreen(
                 if (!uiState.listensTabUiState.similarUsers.isNullOrEmpty()) {
                     Box(
                         modifier = Modifier
-                            .padding(top = 30.dp)
+                            .padding(vertical = 30.dp)
                             .clip(shape = RoundedCornerShape(20.dp))
                             .fillMaxWidth()
                             .background(
@@ -425,12 +425,12 @@ fun ListensScreen(
                             )
 
                             if ((uiState.listensTabUiState.similarUsers.size) > 5) {
-                                Spacer(modifier = Modifier.height(20.dp))
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.Center
                                 ) {
                                     LoadMoreButton(
+                                        modifier = Modifier.padding(16.dp),
                                         state = similarUsersCollapsibleState.value,
                                         onClick = {
                                             similarUsersCollapsibleState.value =
@@ -616,11 +616,12 @@ fun Dialogs(
 
 @Composable
 fun LoadMoreButton(
+    modifier: Modifier = Modifier,
     state: Boolean,
     onClick: () -> Unit,
 ) {
     TextButton(
-        onClick, modifier = Modifier.border(
+        onClick, modifier = modifier.border(
             border = BorderStroke(
                 1.dp,
                 app_bg_mid

@@ -276,7 +276,7 @@ fun BioCard(
                                 val context = LocalContext.current
                                 LbRadioButton(
                                     modifier = Modifier
-                                        .weight(1f)
+                                        .padding(start = 8.dp)
                                         .wrapContentWidth()
                                 ) {
                                     if (artistMbid != null) {
@@ -321,7 +321,7 @@ fun BioCard(
                             }
 
                             radioButtonPlaceables.forEach { placeable ->
-                                placeable.placeRelative(textSize.width, (height - radioButtonSize.height) / 2)
+                                placeable.placeRelative(constraints.maxWidth - radioButtonSize.width, (height - radioButtonSize.height) / 2)
                             }
                         }
                     }
@@ -716,13 +716,14 @@ private fun PopularTracks(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     LoadMoreButton(
+                        modifier = Modifier.padding(16.dp),
                         state = popularTracksCollapsibleState.value,
                         onClick = {
                             popularTracksCollapsibleState.value =
                                 !popularTracksCollapsibleState.value
                         }
                     )
-                    Spacer(modifier = Modifier.height(60.dp))
+                    Spacer(modifier = Modifier.height(30.dp))
                 }
 
             }
@@ -836,7 +837,10 @@ private fun SimilarArtists(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    LoadMoreButton(state = similarArtistsCollapisbleState.value) {
+                    LoadMoreButton(
+                        modifier = Modifier.padding(16.dp),
+                        state = similarArtistsCollapisbleState.value
+                    ) {
                         similarArtistsCollapisbleState.value = !similarArtistsCollapisbleState.value
                     }
                 }
@@ -885,7 +889,10 @@ private fun TopListenersCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    LoadMoreButton(state = topListenersCollapsibleState.value) {
+                    LoadMoreButton(
+                        modifier = Modifier.padding(16.dp),
+                        state = topListenersCollapsibleState.value
+                    ) {
                         topListenersCollapsibleState.value = !topListenersCollapsibleState.value
                     }
                     Spacer(modifier = Modifier.height(20.dp))
@@ -1105,7 +1112,7 @@ private fun LinkCard(
 
 @Composable
 private fun LbRadioButton(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     OutlinedButton(

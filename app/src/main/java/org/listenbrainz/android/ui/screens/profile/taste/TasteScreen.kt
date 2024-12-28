@@ -238,9 +238,11 @@ fun TasteScreen(
             if((uiState.tasteTabUIState.lovedSongs?.count
                     ?: 0) > 5 || (uiState.tasteTabUIState.hatedSongs?.count ?: 0) > 5
             ){
-                Spacer(modifier = Modifier.height(20.dp))
                 Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                    LoadMoreButton(state = lovedHatedCollapsibleState.value) {
+                    LoadMoreButton(
+                        modifier = Modifier.padding(16.dp),
+                        state = lovedHatedCollapsibleState.value
+                    ) {
                         lovedHatedCollapsibleState.value = !lovedHatedCollapsibleState.value
                     }
                 }
@@ -344,9 +346,11 @@ fun TasteScreen(
         }
         item {
             if((uiState.tasteTabUIState.pins?.count ?: 0) > 5){
-                Spacer(modifier = Modifier.height(20.dp))
                 Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                    LoadMoreButton(state = pinsCollapsibleState.value) {
+                    LoadMoreButton(
+                        modifier = Modifier.padding(16.dp),
+                        state = pinsCollapsibleState.value
+                    ) {
                         pinsCollapsibleState.value = !pinsCollapsibleState.value
                     }
                 }

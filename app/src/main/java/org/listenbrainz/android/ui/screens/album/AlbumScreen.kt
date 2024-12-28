@@ -251,7 +251,10 @@ private fun TopListenersCard(
             }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 if(uiState.topListeners.size > 5){
-                    LoadMoreButton(state = topListenersCollapsibleState.value) {
+                    LoadMoreButton(
+                        modifier = Modifier.padding(16.dp),
+                        state = topListenersCollapsibleState.value
+                    ) {
                         topListenersCollapsibleState.value = !topListenersCollapsibleState.value
                     }
                 }
