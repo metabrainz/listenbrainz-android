@@ -739,19 +739,14 @@ private fun FollowCard(username: String?, onFollowButtonClick: (String?, Boolean
                     goToUserPage(username)
                 }
             )
-            Box(){
-                FollowButton(
-                    modifier = Modifier,
-                    isFollowedState = followStatus,
-                    buttonColor = lb_purple,
-                    followedStateTextColor = ListenBrainzTheme.colorScheme.lbSignature,
-                    unfollowedStateTextColor = new_app_bg_light,
-                    onClick = {
-                        onFollowButtonClick(username, followStatus)
-                    }
-                )
-            }
 
+            FollowButton(
+                modifier = Modifier,
+                isFollowedState = followStatus,
+                onClick = {
+                    onFollowButtonClick(username, followStatus)
+                }
+            )
         }
     }
 }

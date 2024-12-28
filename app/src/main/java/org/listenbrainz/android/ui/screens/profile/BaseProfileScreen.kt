@@ -34,9 +34,11 @@ import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,15 +48,14 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.FollowButton
 import org.listenbrainz.android.ui.components.LoadingAnimation
-import org.listenbrainz.android.ui.screens.brainzplayer.PlaylistScreen
 import org.listenbrainz.android.ui.screens.profile.listens.ListensScreen
 import org.listenbrainz.android.ui.screens.profile.stats.StatsScreen
 import org.listenbrainz.android.ui.screens.profile.taste.TasteScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.ui.theme.app_bg_light
 import org.listenbrainz.android.ui.theme.lb_orange
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.new_app_bg_light
@@ -79,14 +80,21 @@ fun BaseProfileScreen(
     goToArtistPage: (String) -> Unit,
     goToUserPage: (String?) -> Unit,
 ) {
-
-    val currentTab: MutableState<ProfileScreenTab> =
-        remember { mutableStateOf(ProfileScreenTab.LISTENS) }
+    val pagerState = rememberPagerState { ProfileScreenTab.entries.size }
     val isLoggedInUser = uiState.isSelf
     val uriHandler = LocalUriHandler.current
-    val mbOpeningErrorState = remember {
+    var mbOpeningErrorState by remember {
         mutableStateOf<String?>(null)
     }
+
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(mbOpeningErrorState) {
+        if (mbOpeningErrorState != null) {
+            snackbarState.showSnackbar("Some Error Occurred", duration = SnackbarDuration.Short)
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         AnimatedVisibility(
             visible = uiState.listensTabUiState.isLoading,
@@ -162,44 +170,35 @@ fun BaseProfileScreen(
                                 }
                             }
 
-                            else -> ElevatedSuggestionChip(
-                                modifier = Modifier.padding(ListenBrainzTheme.paddings.chipsHorizontal),
-                                colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
-                                    if (position == currentTab.value.index) {
-                                        ListenBrainzTheme.colorScheme.chipSelected
-                                    } else {
-                                        ListenBrainzTheme.colorScheme.chipUnselected
+                            else -> {
+                                val adjustedPosition = position - 1
+                                ElevatedSuggestionChip(
+                                    modifier = Modifier.padding(ListenBrainzTheme.paddings.chipsHorizontal),
+                                    colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
+                                        if (adjustedPosition == pagerState.currentPage) {
+                                            ListenBrainzTheme.colorScheme.chipSelected
+                                        } else {
+                                            ListenBrainzTheme.colorScheme.chipUnselected
+                                        }
+                                    ),
+                                    shape = ListenBrainzTheme.shapes.chips,
+                                    elevation = SuggestionChipDefaults.elevatedSuggestionChipElevation(
+                                        elevation = 4.dp
+                                    ),
+                                    label = {
+                                        Text(
+                                            text = ProfileScreenTab.entries.firstOrNull { it.index == adjustedPosition }?.value ?: "",
+                                            style = ListenBrainzTheme.textStyles.chips,
+                                            color = ListenBrainzTheme.colorScheme.text
+                                        )
+                                    },
+                                    onClick = {
+                                        scope.launch {
+                                            pagerState.animateScrollToPage(adjustedPosition)
+                                        }
                                     }
-                                ),
-                                shape = ListenBrainzTheme.shapes.chips,
-                                elevation = SuggestionChipDefaults.elevatedSuggestionChipElevation(
-                                    elevation = 4.dp
-                                ),
-                                label = {
-                                    Text(
-                                        text = when (position) {
-                                            1 -> ProfileScreenTab.LISTENS.value
-                                            2 -> ProfileScreenTab.STATS.value
-                                            3 -> ProfileScreenTab.TASTE.value
-                                            //4 -> ProfileScreenTab.PLAYLISTS.value
-                                            //5 -> ProfileScreenTab.CREATED_FOR_YOU.value
-                                            else -> ""
-                                        },
-                                        style = ListenBrainzTheme.textStyles.chips,
-                                        color = ListenBrainzTheme.colorScheme.text
-                                    )
-                                },
-                                onClick = {
-                                    currentTab.value = when (position) {
-                                        1 -> ProfileScreenTab.LISTENS
-                                        2 -> ProfileScreenTab.STATS
-                                        3 -> ProfileScreenTab.TASTE
-                                        //4 -> ProfileScreenTab.PLAYLISTS
-                                        //5 -> ProfileScreenTab.CREATED_FOR_YOU
-                                        else -> ProfileScreenTab.LISTENS
-                                    }
-                                }
-                            )
+                                )
+                            }
                         }
                     }
                 }
@@ -210,79 +209,75 @@ fun BaseProfileScreen(
                         .align(Alignment.End)
                         .padding(end = 20.dp, bottom = 4.dp)
                 ) {
-                    if (currentTab.value == ProfileScreenTab.LISTENS) {
+                    if (pagerState.currentPage == ProfileScreenTab.LISTENS.index) {
                         when (isLoggedInUser) {
                             true -> AddListensButton()
                             false ->
-                                Box() {
-                                    FollowButton(
-                                        modifier = Modifier,
-                                        isFollowedState = uiState.listensTabUiState.isFollowing,
-                                        buttonColor = lb_purple,
-                                        followedStateTextColor = ListenBrainzTheme.colorScheme.text,
-                                        unfollowedStateTextColor = new_app_bg_light,
-                                        onClick = {
-                                            if (uiState.listensTabUiState.isFollowing) {
-                                                onUnfollowClick(username ?: "")
-                                            } else {
-                                                onFollowClick(username ?: "")
-                                            }
+                                FollowButton(
+                                    modifier = Modifier,
+                                    isFollowedState = uiState.listensTabUiState.isFollowing,
+                                    onClick = {
+                                        if (uiState.listensTabUiState.isFollowing) {
+                                            onUnfollowClick(username ?: "")
+                                        } else {
+                                            onFollowClick(username ?: "")
                                         }
-                                    )
-                                }
+                                    }
+                                )
                         }
                         Spacer(modifier = Modifier.width(10.dp))
                         MusicBrainzButton {
                             try {
                                 uriHandler.openUri(Constants.MB_BASE_URL + "user/${username}")
                             } catch (e: RuntimeException) {
-                                mbOpeningErrorState.value = e.message
+                                mbOpeningErrorState = e.message
                             } catch (e: Exception) {
-                                mbOpeningErrorState.value = e.message
+                                mbOpeningErrorState = e.message
                             }
                         }
                     }
                 }
-                when (currentTab.value) {
-                    ProfileScreenTab.LISTENS -> ListensScreen(
-                        scrollRequestState = false,
-                        userViewModel = viewModel,
-                        onScrollToTop = {},
-                        snackbarState = snackbarState,
-                        username = username,
-                        socialViewModel = socialViewModel,
-                        viewModel = listensViewModel,
-                        goToArtistPage = goToArtistPage,
-                        goToUserPage = goToUserPage,
-                    )
 
-                    ProfileScreenTab.STATS -> StatsScreen(
-                        username = username,
-                        snackbarState = snackbarState,
-                        socialViewModel = socialViewModel,
-                        viewModel = viewModel,
-                        feedViewModel = feedViewModel,
-                        goToArtistPage = goToArtistPage
-                    )
 
-                    ProfileScreenTab.TASTE -> TasteScreen(
-                        snackbarState = snackbarState,
-                        socialViewModel = socialViewModel,
-                        feedViewModel = feedViewModel,
-                        viewModel = viewModel,
-                        goToArtistPage = goToArtistPage
-                    )
+                HorizontalPager(
+                    state = pagerState,
+                    beyondViewportPageCount = 1,
+                    key = { ProfileScreenTab.entries[it] }
+                ) { index ->
+                    when (index) {
+                        ProfileScreenTab.LISTENS.index -> ListensScreen(
+                            scrollRequestState = false,
+                            userViewModel = viewModel,
+                            onScrollToTop = {},
+                            snackbarState = snackbarState,
+                            username = username,
+                            socialViewModel = socialViewModel,
+                            viewModel = listensViewModel,
+                            goToArtistPage = goToArtistPage,
+                            goToUserPage = goToUserPage,
+                        )
+
+                        ProfileScreenTab.STATS.index -> StatsScreen(
+                            username = username,
+                            snackbarState = snackbarState,
+                            socialViewModel = socialViewModel,
+                            viewModel = viewModel,
+                            feedViewModel = feedViewModel,
+                            goToArtistPage = goToArtistPage
+                        )
+
+                        ProfileScreenTab.TASTE.index -> TasteScreen(
+                            snackbarState = snackbarState,
+                            socialViewModel = socialViewModel,
+                            feedViewModel = feedViewModel,
+                            viewModel = viewModel,
+                            goToArtistPage = goToArtistPage
+                        )
+                    }
                 }
             }
         }
-        if (mbOpeningErrorState.value != null) {
-            LaunchedEffect(mbOpeningErrorState.value) {
-                snackbarState.showSnackbar("Some Error Occurred", duration = SnackbarDuration.Short)
-            }
-        }
-
     }
-
 }
 
 

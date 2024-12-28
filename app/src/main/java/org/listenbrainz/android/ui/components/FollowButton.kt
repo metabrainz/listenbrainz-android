@@ -58,32 +58,34 @@ fun FollowButton(
     val colorAlpha by transition.animateFloat(label = "Alpha") { isFollowedByUser ->
         if (isFollowedByUser) 0f else 1f
     }
-    
-    Surface(
-        modifier = modifier
-            .height(height)
-            .width(height * (2.5f))
-            .graphicsLayer { alpha = colorAlpha },
-        color = buttonColor,
-        shape = RoundedCornerShape(cornerRadius)
-    ) {}
-    
-    Surface(
-        modifier = modifier
-            .height(height)
-            .width(height * (2.5f))
-            .clickable { onClick() },
-        border = BorderStroke(2.dp, buttonColor),
-        shape = RoundedCornerShape(cornerRadius),
-        color = Color.Unspecified
-    ) {
-        Box(contentAlignment = Alignment.Center) {
-            Text(
-                text = if (isFollowedState) "Following" else "Follow",
-                color = if (isFollowedState) followedStateTextColor else unfollowedStateTextColor,
-                fontWeight = FontWeight.Medium,
-                fontSize = fontSize
-            )
+
+    Box {
+        Surface(
+            modifier = modifier
+                .height(height)
+                .width(height * (2.5f))
+                .graphicsLayer { alpha = colorAlpha },
+            color = buttonColor,
+            shape = RoundedCornerShape(cornerRadius)
+        ) {}
+
+        Surface(
+            modifier = modifier
+                .height(height)
+                .width(height * (2.5f))
+                .clickable { onClick() },
+            border = BorderStroke(2.dp, buttonColor),
+            shape = RoundedCornerShape(cornerRadius),
+            color = Color.Unspecified
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Text(
+                    text = if (isFollowedState) "Following" else "Follow",
+                    color = if (isFollowedState) followedStateTextColor else unfollowedStateTextColor,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = fontSize
+                )
+            }
         }
     }
 }
