@@ -43,7 +43,6 @@ fun PinFeedLayout(
         onDeleteOrHide = onDeleteOrHide,
         goToUserPage = goToUserPage,
     ) {
-        
         ListenCardSmall(
             trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
             artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(FeedListenArtist(event.metadata.trackMetadata?.artistName ?: "" , null, "")),

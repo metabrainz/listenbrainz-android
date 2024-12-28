@@ -170,7 +170,7 @@ fun ListenCardSmall(
             }
             
             blurbContent?.let {
-                HorizontalDivider()
+                HorizontalDivider(color = ListenBrainzTheme.colorScheme.hint)
                 blurbContent(Modifier.padding(ListenBrainzTheme.paddings.insideCard))
             }
         }

@@ -268,15 +268,15 @@ fun TasteScreen(
                     pinnedRecordings.mapIndexed { index, recording: PinnedRecording ->
                         val metadata = Metadata(trackMetadata = recording.trackMetadata)
                         ListenCardSmall(
-                            blurbContent = {
-                                if (!recording.blurbContent.isNullOrEmpty()) {
+                            blurbContent = if (!recording.blurbContent.isNullOrBlank()) {
+                                { modifier ->
                                     Text(
-                                        modifier = it,
+                                        modifier = modifier,
                                         text = recording.blurbContent,
                                         color = ListenBrainzTheme.colorScheme.text,
                                     )
                                 }
-                            },
+                            } else null,
                             modifier = Modifier
                                 .padding(
                                     vertical = ListenBrainzTheme.paddings.lazyListAdjacent
