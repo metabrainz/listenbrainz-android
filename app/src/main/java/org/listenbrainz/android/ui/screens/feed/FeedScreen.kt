@@ -6,9 +6,6 @@ import android.os.Bundle
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,7 +22,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
@@ -36,9 +32,7 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.Icon
-import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,12 +41,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalUriHandler
@@ -65,9 +56,7 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventType
@@ -75,6 +64,7 @@ import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
+import org.listenbrainz.android.ui.components.NavigationChips
 import org.listenbrainz.android.ui.components.TitleAndSubtitle
 import org.listenbrainz.android.ui.components.dialogs.Dialog
 import org.listenbrainz.android.ui.components.dialogs.PersonalRecommendationDialog
@@ -309,7 +299,16 @@ fun FeedScreen(
         
         Column(Modifier.fillMaxWidth()) {
             ErrorBar(error = uiState.error, onErrorShown = onErrorShown)
-            NavigationChips(currentPageStateProvider = { pagerState.currentPage }) { position ->
+            NavigationChips(
+                chips = remember {
+                    listOf(
+                        "My Feed",
+                        "Follow Listens",
+                        "Similar Listens"
+                    )
+                },
+                currentPageStateProvider = { pagerState.currentPage }
+            ) { position ->
                 pagerState.animateScrollToPage(position)
             }
             PullRefreshIndicator(
@@ -724,55 +723,6 @@ fun SimilarListens(
 @Composable
 fun StartingSpacer() {
     Spacer(modifier = Modifier.height(60.dp))   // 6 + 6 + 48
-}
-
-@Composable
-fun NavigationChips(
-    currentPageStateProvider: () -> Int,
-    scope: CoroutineScope = rememberCoroutineScope(),
-    onClick: suspend (Int) -> Unit
-){
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .horizontalScroll(rememberScrollState())
-        .background(
-            Brush.verticalGradient(
-                listOf(
-                    ListenBrainzTheme.colorScheme.background,
-                    Color.Transparent
-                )
-            )
-        )
-    ) {
-        Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.chipsHorizontal/2))
-        repeat(3){ position ->
-            ElevatedSuggestionChip(
-                modifier = Modifier.padding(ListenBrainzTheme.paddings.chipsHorizontal),
-                colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
-                    if (currentPageStateProvider() == position) {
-                        ListenBrainzTheme.colorScheme.chipSelected
-                    } else {
-                        ListenBrainzTheme.colorScheme.chipUnselected
-                    }
-                ),
-                shape = ListenBrainzTheme.shapes.chips,
-                elevation = SuggestionChipDefaults.elevatedSuggestionChipElevation(elevation = 4.dp),
-                label = {
-                    Text(
-                        text = when(position) {
-                            0 ->"My Feed"
-                            1 -> "Follow Listens"
-                            else -> "Similar Listens"
-                        },
-                        style = ListenBrainzTheme.textStyles.chips,
-                        color = ListenBrainzTheme.colorScheme.text,
-                    )
-                },
-                onClick = { scope.launch { onClick(position) } }
-            )
-        }
-    }
-    
 }
 
 @Composable
