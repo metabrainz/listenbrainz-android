@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -76,15 +78,16 @@ fun BaseProfileScreen(
     socialViewModel: SocialViewModel = hiltViewModel(),
     goToArtistPage: (String) -> Unit,
     goToUserPage: (String?) -> Unit,
-){
+) {
 
-    val currentTab : MutableState<ProfileScreenTab> = remember { mutableStateOf(ProfileScreenTab.LISTENS) }
+    val currentTab: MutableState<ProfileScreenTab> =
+        remember { mutableStateOf(ProfileScreenTab.LISTENS) }
     val isLoggedInUser = uiState.isSelf
     val uriHandler = LocalUriHandler.current
     val mbOpeningErrorState = remember {
         mutableStateOf<String?>(null)
     }
-    Box(modifier = Modifier.fillMaxSize()){
+    Box(modifier = Modifier.fillMaxSize()) {
         AnimatedVisibility(
             visible = uiState.listensTabUiState.isLoading,
             modifier = Modifier.align(Alignment.Center),
@@ -110,39 +113,55 @@ fun BaseProfileScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.chipsHorizontal / 2))
+
                     repeat(ProfileScreenTab.entries.size + 1) { position ->
-                        when(position){
-                            0 -> Box(modifier = Modifier
-                                .padding(ListenBrainzTheme.paddings.chipsHorizontal,)
-                                .clip(shape = RoundedCornerShape(4.dp))
-                                .background(
-                                    when (uiState.isSelf) {
-                                        true -> lb_purple
-                                        false -> lb_orange
-                                    }
-                                )) {
-                                Row (modifier = Modifier.padding(end = 8.dp, top = when(uiState.isSelf){
-                                    true -> 4.dp
-                                    false -> 0.dp
-                                }, bottom = when(uiState.isSelf){
-                                    true -> 4.dp
-                                    false -> 0.dp
-                                }), verticalAlignment = Alignment.CenterVertically) {
-                                    if(!uiState.isSelf){
-                                        Box (modifier = Modifier
-                                            .background(lb_purple)
-                                            .padding(4.dp)) {
-                                            Icon(Icons.Default.Home, contentDescription = "", tint = new_app_bg_light, modifier = Modifier.clickable {
-                                                goToUserProfile()
-                                            })
+                        when (position) {
+                            0 -> Box(
+                                modifier = Modifier
+                                    .padding(ListenBrainzTheme.paddings.chipsHorizontal)
+                                    .clip(shape = RoundedCornerShape(4.dp))
+                                    .background(
+                                        when (uiState.isSelf) {
+                                            true -> lb_purple
+                                            false -> lb_orange
+                                        }
+                                    )
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(
+                                        end = 8.dp, top = when (uiState.isSelf) {
+                                            true -> 4.dp
+                                            false -> 0.dp
+                                        }, bottom = when (uiState.isSelf) {
+                                            true -> 4.dp
+                                            false -> 0.dp
+                                        }
+                                    ), verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    if (!uiState.isSelf) {
+                                        Box(
+                                            modifier = Modifier
+                                                .background(lb_purple)
+                                                .padding(4.dp)
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Home,
+                                                contentDescription = "",
+                                                tint = new_app_bg_light,
+                                                modifier = Modifier.clickable {
+                                                    goToUserProfile()
+                                                })
                                         }
                                     }
-                                    Text(username ?: "", color = when(uiState.isSelf){
-                                        true -> Color.White
-                                        false -> Color.Black
-                                    }, modifier = Modifier.padding(start = 8.dp))
+                                    Text(
+                                        username ?: "", color = when (uiState.isSelf) {
+                                            true -> Color.White
+                                            false -> Color.Black
+                                        }, modifier = Modifier.padding(start = 8.dp)
+                                    )
                                 }
                             }
+
                             else -> ElevatedSuggestionChip(
                                 modifier = Modifier.padding(ListenBrainzTheme.paddings.chipsHorizontal),
                                 colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
@@ -153,7 +172,9 @@ fun BaseProfileScreen(
                                     }
                                 ),
                                 shape = ListenBrainzTheme.shapes.chips,
-                                elevation = SuggestionChipDefaults.elevatedSuggestionChipElevation(elevation = 4.dp),
+                                elevation = SuggestionChipDefaults.elevatedSuggestionChipElevation(
+                                    elevation = 4.dp
+                                ),
                                 label = {
                                     Text(
                                         text = when (position) {
@@ -168,27 +189,31 @@ fun BaseProfileScreen(
                                         color = ListenBrainzTheme.colorScheme.text
                                     )
                                 },
-                                onClick = { currentTab.value = when (position) {
-                                    1 -> ProfileScreenTab.LISTENS
-                                    2 -> ProfileScreenTab.STATS
-                                    3 -> ProfileScreenTab.TASTE
-                                    //4 -> ProfileScreenTab.PLAYLISTS
-                                    //5 -> ProfileScreenTab.CREATED_FOR_YOU
-                                    else -> ProfileScreenTab.LISTENS
-                                } }
+                                onClick = {
+                                    currentTab.value = when (position) {
+                                        1 -> ProfileScreenTab.LISTENS
+                                        2 -> ProfileScreenTab.STATS
+                                        3 -> ProfileScreenTab.TASTE
+                                        //4 -> ProfileScreenTab.PLAYLISTS
+                                        //5 -> ProfileScreenTab.CREATED_FOR_YOU
+                                        else -> ProfileScreenTab.LISTENS
+                                    }
+                                }
                             )
                         }
                     }
                 }
 
 
-                Row (modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(end = 20.dp, bottom = 4.dp)) {
-                    if(currentTab.value == ProfileScreenTab.LISTENS){
-                        when(isLoggedInUser) {
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(end = 20.dp, bottom = 4.dp)
+                ) {
+                    if (currentTab.value == ProfileScreenTab.LISTENS) {
+                        when (isLoggedInUser) {
                             true -> AddListensButton()
-                            false->
+                            false ->
                                 Box() {
                                     FollowButton(
                                         modifier = Modifier,
@@ -207,20 +232,18 @@ fun BaseProfileScreen(
                                 }
                         }
                         Spacer(modifier = Modifier.width(10.dp))
-                        MusicBrainzButton{
+                        MusicBrainzButton {
                             try {
                                 uriHandler.openUri(Constants.MB_BASE_URL + "user/${username}")
-                            }
-                            catch (e: RuntimeException) {
+                            } catch (e: RuntimeException) {
                                 mbOpeningErrorState.value = e.message
-                            }
-                            catch (e: Exception){
+                            } catch (e: Exception) {
                                 mbOpeningErrorState.value = e.message
                             }
                         }
                     }
                 }
-                when(currentTab.value) {
+                when (currentTab.value) {
                     ProfileScreenTab.LISTENS -> ListensScreen(
                         scrollRequestState = false,
                         userViewModel = viewModel,
@@ -232,6 +255,7 @@ fun BaseProfileScreen(
                         goToArtistPage = goToArtistPage,
                         goToUserPage = goToUserPage,
                     )
+
                     ProfileScreenTab.STATS -> StatsScreen(
                         username = username,
                         snackbarState = snackbarState,
@@ -240,6 +264,7 @@ fun BaseProfileScreen(
                         feedViewModel = feedViewModel,
                         goToArtistPage = goToArtistPage
                     )
+
                     ProfileScreenTab.TASTE -> TasteScreen(
                         snackbarState = snackbarState,
                         socialViewModel = socialViewModel,
@@ -250,7 +275,7 @@ fun BaseProfileScreen(
                 }
             }
         }
-        if(mbOpeningErrorState.value != null){
+        if (mbOpeningErrorState.value != null) {
             LaunchedEffect(mbOpeningErrorState.value) {
                 snackbarState.showSnackbar("Some Error Occurred", duration = SnackbarDuration.Short)
             }
@@ -263,38 +288,65 @@ fun BaseProfileScreen(
 
 @Composable
 private fun AddListensButton() {
-    IconButton(onClick = { /*TODO*/ }, modifier = Modifier
-        .clip(RoundedCornerShape(4.dp))
-        .background(Color(0xFF353070))
-        .width(110.dp)
-        .height(30.dp)) {
+    IconButton(
+        onClick = { /*TODO*/ }, modifier = Modifier
+            .clip(RoundedCornerShape(4.dp))
+            .background(Color(0xFF353070))
+            .width(110.dp)
+            .height(30.dp)
+    ) {
         Row(modifier = Modifier.padding(all = 4.dp)) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "", tint = new_app_bg_light, modifier = Modifier
-                .width(10.dp)
-                .height(20.dp))
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "",
+                tint = new_app_bg_light,
+                modifier = Modifier
+                    .width(10.dp)
+                    .height(20.dp)
+            )
             Spacer(modifier = Modifier.width(5.dp))
-            Text("Add Listens", color = new_app_bg_light, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                "Add Listens",
+                color = new_app_bg_light,
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }
 
 @Composable
 private fun MusicBrainzButton(onClick: () -> Unit) {
-    IconButton(onClick = onClick, modifier = Modifier
-        .clip(RoundedCornerShape(4.dp))
-        .background(Color(0xFF353070))
-        .width(140.dp)
-        .height(30.dp)) {
+    IconButton(
+        onClick = onClick, modifier = Modifier
+            .clip(RoundedCornerShape(4.dp))
+            .background(Color(0xFF353070))
+            .width(140.dp)
+            .height(30.dp)
+    ) {
         Row(modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)) {
-            Icon(painter = painterResource(id = R.drawable.musicbrainz_logo), contentDescription = "", modifier = Modifier
-                .width(20.dp)
-                .height(30.dp), tint = Color.Unspecified)
+            Icon(
+                painter = painterResource(id = R.drawable.musicbrainz_logo),
+                contentDescription = "",
+                modifier = Modifier
+                    .width(20.dp)
+                    .height(30.dp),
+                tint = Color.Unspecified
+            )
             Spacer(modifier = Modifier.width(5.dp))
-            Text("MusicBrainz", color = new_app_bg_light, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                "MusicBrainz",
+                color = new_app_bg_light,
+                style = MaterialTheme.typography.bodyMedium
+            )
             Spacer(modifier = Modifier.width(5.dp))
-            Icon(imageVector = Icons.AutoMirrored.Filled.OpenInNew, contentDescription = "", tint = new_app_bg_light, modifier = Modifier
-                .width(30.dp)
-                .height(20.dp))
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                contentDescription = "",
+                tint = new_app_bg_light,
+                modifier = Modifier
+                    .width(30.dp)
+                    .height(20.dp)
+            )
         }
     }
 }
