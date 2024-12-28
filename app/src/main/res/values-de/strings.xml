@@ -65,7 +65,7 @@
     <string name="toast_feedback_fail">Kein E-Mail-Client gefunden</string>
     <string name="toast_search_err">Füge etwas Text zur Suche hinzu</string>
     <string name="toast_search_cleared">Suchverlauf gelöscht</string>
-    <string name="login_required">Du musst dich anmelden, um deine Sammlungen zu sehen</string>
+    <string name="login_required">Du musst dich anmelden, um deine Sammlungen zu sehen.</string>
     <string name="links">Weitere Links</string>
     <string name="ratings">Bewertung</string>
     <string name="user_ratings">Deine Bewertung</string>
