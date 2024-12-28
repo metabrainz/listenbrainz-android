@@ -59,9 +59,9 @@ fun FollowButton(
         if (isFollowedByUser) 0f else 1f
     }
 
-    Box {
+    Box(modifier) {
         Surface(
-            modifier = modifier
+            modifier = Modifier
                 .height(height)
                 .width(height * (2.5f))
                 .graphicsLayer { alpha = colorAlpha },
@@ -70,7 +70,7 @@ fun FollowButton(
         ) {}
 
         Surface(
-            modifier = modifier
+            modifier = Modifier
                 .height(height)
                 .width(height * (2.5f))
                 .clickable { onClick() },

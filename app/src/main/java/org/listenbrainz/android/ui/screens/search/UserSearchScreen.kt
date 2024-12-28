@@ -61,6 +61,7 @@ fun UserSearchScreen(
             onQueryChange = viewModel::updateQueryFlow,
             onClear = viewModel::clearUi,
             onErrorShown = viewModel::clearErrorFlow,
+            placeholderText = "Search Users"
         ) {
             UserList(
                 uiState = uiState,
@@ -118,7 +119,6 @@ private fun UserList(
                     }
                 }
             }
-            
         }
     }
 }
@@ -150,6 +150,7 @@ private fun SearchScreenPreview() {
             onQueryChange = {},
             onClear = {},
             onErrorShown = {},
+            placeholderText = "Search Users"
         ) {
             UserList(
                 uiState = uiState,
