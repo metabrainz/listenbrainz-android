@@ -1,9 +1,11 @@
 package org.listenbrainz.android.ui.screens.profile
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -64,16 +66,17 @@ fun BaseProfileScreen(
     val pagerState = rememberPagerState { ProfileScreenTab.entries.size }
     val scope = rememberCoroutineScope()
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        AnimatedVisibility(
-            visible = uiState.listensTabUiState.isLoading,
-            modifier = Modifier.align(Alignment.Center),
-            enter = fadeIn(initialAlpha = 0.4f),
-            exit = fadeOut(animationSpec = tween(durationMillis = 250))
-        ) {
-            LoadingAnimation()
+    AnimatedContent(
+        targetState = uiState.listensTabUiState.isLoading,
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+        transitionSpec = {
+            fadeIn() togetherWith fadeOut()
         }
-        AnimatedVisibility(visible = !uiState.listensTabUiState.isLoading) {
+    ) { isLoading ->
+        if (isLoading) {
+            LoadingAnimation()
+        } else {
             Column {
                 Row(
                     modifier = Modifier
@@ -158,7 +161,8 @@ fun BaseProfileScreen(
                                     ),
                                     label = {
                                         Text(
-                                            text = ProfileScreenTab.entries.firstOrNull { it.index == adjustedPosition }?.value ?: "",
+                                            text = ProfileScreenTab.entries.firstOrNull { it.index == adjustedPosition }?.value
+                                                ?: "",
                                             style = ListenBrainzTheme.textStyles.chips,
                                             color = ListenBrainzTheme.colorScheme.text
                                         )

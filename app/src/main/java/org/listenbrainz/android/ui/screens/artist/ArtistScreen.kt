@@ -4,6 +4,7 @@ import ArtistLinksEnum
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.animation.core.tween
@@ -158,74 +159,69 @@ private fun ArtistScreen(
     snackBarState: SnackbarHostState,
     goToAlbumPage: (String) -> Unit,
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        AnimatedVisibility(
-            visible = uiState.isLoading,
-            modifier = Modifier.align(Alignment.Center),
-            enter = fadeIn(initialAlpha = 0.4f),
-            exit = fadeOut(animationSpec = tween(durationMillis = 250))
-        ) {
+    AnimatedContent(
+        modifier = Modifier.fillMaxSize(),
+        targetState = uiState.isLoading,
+        contentAlignment = Alignment.Center
+    ) { isLoading ->
+        if (isLoading) {
             LoadingAnimation()
-        }
-        AnimatedVisibility(visible = !uiState.isLoading) {
-            ListenBrainzTheme {
-                LazyColumn {
-                    item {
-                        BioCard(
-                            header = uiState.name,
-                            coverArt = uiState.coverArt,
-                            displayRadioButton = true,
-                            beginYear = uiState.beginYear,
-                            area = uiState.area,
-                            totalPlays = uiState.totalPlays,
-                            totalListeners = uiState.totalListeners,
-                            wikiExtract = uiState.wikiExtract,
-                            artistTags = uiState.tags,
-                            artistMbid = uiState.artistMbid
-                        )
-                    }
-                    item {
-                        Links(artistMbid = artistMbid, links = uiState.links)
-                    }
-                    item {
-                        PopularTracks(uiState = uiState, goToArtistPage = goToArtistPage)
-                    }
-                    item {
-                        AlbumsCard(
-                            header = "Albums",
-                            albumsList = uiState.albums,
-                            goToAlbumPage = goToAlbumPage
-                        )
-                    }
-                    item {
-                        AlbumsCard(
-                            header = "Appears On",
-                            albumsList = uiState.appearsOn,
-                            goToAlbumPage = goToAlbumPage
-                        )
-                    }
-                    item {
-                        SimilarArtists(uiState = uiState, goToArtistPage = goToArtistPage)
-                    }
-                    item {
-                        TopListenersCard(uiState = uiState, goToUserPage = goToUserPage)
-                    }
-                    item {
-                        if (uiState.name != null) {
-                            ReviewsCard(reviewOfEntity = uiState.reviews,
-                                goToUserPage = goToUserPage,
-                                socialViewModel = socialViewModel,
-                                feedViewModel = feedViewModel,
-                                artistMbid = artistMbid,
-                                artistName = uiState.name,
-                                snackBarState = snackBarState,
-                                onMessageShown = { socialViewModel.clearMsgFlow() },
-                                onErrorShown = { socialViewModel.clearErrorFlow() })
-                        }
+        } else {
+            LazyColumn {
+                item {
+                    BioCard(
+                        header = uiState.name,
+                        coverArt = uiState.coverArt,
+                        displayRadioButton = true,
+                        beginYear = uiState.beginYear,
+                        area = uiState.area,
+                        totalPlays = uiState.totalPlays,
+                        totalListeners = uiState.totalListeners,
+                        wikiExtract = uiState.wikiExtract,
+                        artistTags = uiState.tags,
+                        artistMbid = uiState.artistMbid
+                    )
+                }
+                item {
+                    Links(artistMbid = artistMbid, links = uiState.links)
+                }
+                item {
+                    PopularTracks(uiState = uiState, goToArtistPage = goToArtistPage)
+                }
+                item {
+                    AlbumsCard(
+                        header = "Albums",
+                        albumsList = uiState.albums,
+                        goToAlbumPage = goToAlbumPage
+                    )
+                }
+                item {
+                    AlbumsCard(
+                        header = "Appears On",
+                        albumsList = uiState.appearsOn,
+                        goToAlbumPage = goToAlbumPage
+                    )
+                }
+                item {
+                    SimilarArtists(uiState = uiState, goToArtistPage = goToArtistPage)
+                }
+                item {
+                    TopListenersCard(uiState = uiState, goToUserPage = goToUserPage)
+                }
+                item {
+                    if (uiState.name != null) {
+                        ReviewsCard(reviewOfEntity = uiState.reviews,
+                            goToUserPage = goToUserPage,
+                            socialViewModel = socialViewModel,
+                            feedViewModel = feedViewModel,
+                            artistMbid = artistMbid,
+                            artistName = uiState.name,
+                            snackBarState = snackBarState,
+                            onMessageShown = { socialViewModel.clearMsgFlow() },
+                            onErrorShown = { socialViewModel.clearErrorFlow() })
                     }
                 }
             }
-
         }
     }
 }
@@ -321,7 +317,10 @@ fun BioCard(
                             }
 
                             radioButtonPlaceables.forEach { placeable ->
-                                placeable.placeRelative(constraints.maxWidth - radioButtonSize.width, (height - radioButtonSize.height) / 2)
+                                placeable.placeRelative(
+                                    constraints.maxWidth - radioButtonSize.width,
+                                    (height - radioButtonSize.height) / 2
+                                )
                             }
                         }
                     }

@@ -1,9 +1,11 @@
 package org.listenbrainz.android.ui.screens.album
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -83,111 +85,123 @@ private fun AlbumScreen(
     snackBarState: SnackbarHostState,
     albumMbid: String,
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        AnimatedVisibility(
-            visible = uiState.isLoading,
-            modifier = Modifier.align(Alignment.Center),
-            enter = fadeIn(initialAlpha = 0.4f),
-            exit = fadeOut(animationSpec = tween(durationMillis = 250))
-        ) {
-            LoadingAnimation()
+    AnimatedContent(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+        targetState = uiState.isLoading,
+        transitionSpec = {
+            fadeIn() togetherWith fadeOut()
         }
-        AnimatedVisibility(
-            visible = !uiState.isLoading,
-        ) {
-            ListenBrainzTheme {
-                LazyColumn {
-                    item {
-                        BioCard(
-                            header = uiState.name,
-                            coverArt = uiState.coverArt,
-                            displayRadioButton = false,
-                            useWebView = false,
-                            totalPlays = uiState.totalPlays,
-                            totalListeners = uiState.totalListeners,
-                            artists = uiState.artists,
-                            albumType = uiState.type,
-                            albumReleaseDate = uiState.releaseDate,
-                            albumTags = uiState.tags
+    ) { isLoading ->
+        if (isLoading) {
+            LoadingAnimation()
+        } else {
+            LazyColumn {
+                item {
+                    BioCard(
+                        header = uiState.name,
+                        coverArt = uiState.coverArt,
+                        displayRadioButton = false,
+                        useWebView = false,
+                        totalPlays = uiState.totalPlays,
+                        totalListeners = uiState.totalListeners,
+                        artists = uiState.artists,
+                        albumType = uiState.type,
+                        albumReleaseDate = uiState.releaseDate,
+                        albumTags = uiState.tags
+                    )
+                }
+                item {
+                    ArtistRadio()
+                }
+                item {
+                    val artistMbid = when (uiState.artists.isNotEmpty()) {
+                        true -> uiState.artists[0]?.artistMbid
+                        false -> null
+                    }
+                    val links = when (uiState.artists.isNotEmpty()) {
+                        true -> uiState.artists[0]?.rels
+                        false -> null
+                    }
+                    Links(
+                        artistMbid = artistMbid,
+                        links = links
+                    )
+                }
+                item {
+                    TrackListCard(uiState = uiState)
+                }
+                item {
+                    TopListenersCard(uiState = uiState)
+                }
+                item {
+                    if (uiState.name != null) {
+                        ReviewsCard(
+                            reviewOfEntity = uiState.reviews,
+                            feedViewModel = feedViewModel,
+                            socialViewModel = socialViewModel,
+                            snackBarState = snackBarState,
+                            goToUserPage = {},
+                            onErrorShown = { socialViewModel.clearErrorFlow() },
+                            onMessageShown = { socialViewModel.clearMsgFlow() },
+                            albumMbid = albumMbid,
+                            albumName = uiState.name
                         )
                     }
-                    item {
-                        ArtistRadio()
-                    }
-                    item {
-                        val artistMbid = when(uiState.artists.isNotEmpty()){
-                            true -> uiState.artists[0]?.artistMbid
-                            false -> null
-                        }
-                        val links = when(uiState.artists.isNotEmpty()){
-                            true -> uiState.artists[0]?.rels
-                            false -> null
-                        }
-                        Links(
-                            artistMbid = artistMbid,
-                            links = links
-                        )
-                    }
-                    item {
-                        TrackListCard(uiState = uiState)
-                    }
-                    item { 
-                        TopListenersCard(uiState = uiState)
-                    }
-                    item {
-                        if(uiState.name != null){
-                            ReviewsCard(
-                                reviewOfEntity = uiState.reviews,
-                                feedViewModel = feedViewModel,
-                                socialViewModel = socialViewModel,
-                                snackBarState = snackBarState,
-                                goToUserPage = {},
-                                onErrorShown = {socialViewModel.clearErrorFlow()},
-                                onMessageShown = {socialViewModel.clearMsgFlow()},
-                                albumMbid = albumMbid,
-                                albumName = uiState.name
-                            )
-                        }
 
-                    }
                 }
             }
-
         }
     }
 }
 
 @Composable
-private fun ArtistRadio () {
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .background(
-            brush = Brush.linearGradient(
-                start = Offset.Zero,
-                end = Offset(0f, Float.POSITIVE_INFINITY),
-                colors = listOf(
-                    Color(0xFF1E1E24),
-                    Color(0xFF1F1E25),
-                    Color(0xFF201F28),
-                    Color(0xFF1F1F27),
-                    Color(0xFF201F29),
-                    Color(0xFF21202C),
-                    Color(0xFF232233),
-                    Color(0xFF242235)
+private fun ArtistRadio() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                brush = Brush.linearGradient(
+                    start = Offset.Zero,
+                    end = Offset(0f, Float.POSITIVE_INFINITY),
+                    colors = listOf(
+                        Color(0xFF1E1E24),
+                        Color(0xFF1F1E25),
+                        Color(0xFF201F28),
+                        Color(0xFF1F1F27),
+                        Color(0xFF201F29),
+                        Color(0xFF21202C),
+                        Color(0xFF232233),
+                        Color(0xFF242235)
+                    )
                 )
             )
-        )
-        .padding(start = 23.dp, top = 18.dp, bottom = 18.dp)) {
-        Row (verticalAlignment = Alignment.CenterVertically) {
-            Icon(imageVector = ImageVector.vectorResource(id = R.drawable.lb_radio_play_button), contentDescription = null, tint = new_app_bg_light, modifier = Modifier
-                .width(24.dp)
-                .height(24.dp))
+            .padding(start = 23.dp, top = 18.dp, bottom = 18.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.lb_radio_play_button),
+                contentDescription = null,
+                tint = new_app_bg_light,
+                modifier = Modifier
+                    .width(24.dp)
+                    .height(24.dp)
+            )
             Spacer(modifier = Modifier.width(14.dp))
-            Text("Artist Radio", color = new_app_bg_light, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 25.sp))
+            Text(
+                "Artist Radio",
+                color = new_app_bg_light,
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 25.sp)
+            )
             Spacer(modifier = Modifier.fillMaxWidth(0.8f))
-            Icon(imageVector = Icons.Rounded.ArrowDropDown, contentDescription = null, tint = new_app_bg_light, modifier = Modifier
-                .width(24.dp)
-                .height(24.dp))
+            Icon(
+                imageVector = Icons.Rounded.ArrowDropDown,
+                contentDescription = null,
+                tint = new_app_bg_light,
+                modifier = Modifier
+                    .width(24.dp)
+                    .height(24.dp)
+            )
         }
     }
 }
@@ -199,23 +213,33 @@ private fun TrackListCard(
     val trackListCollapsibleState: MutableState<Boolean> = remember {
         mutableStateOf(true)
     }
-    val trackList = when(trackListCollapsibleState.value){
+    val trackList = when (trackListCollapsibleState.value) {
         true -> uiState.trackList.take(5)
         false -> uiState.trackList
     }
-    Box(modifier = Modifier
-        .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
-        .fillMaxWidth()
-        .padding(23.dp)){
+    Box(
+        modifier = Modifier
+            .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
+            .fillMaxWidth()
+            .padding(23.dp)
+    ) {
         Column {
-            Text("Tracklist", color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 25.sp))
+            Text(
+                "Tracklist",
+                color = ListenBrainzTheme.colorScheme.text,
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 25.sp)
+            )
             Spacer(modifier = Modifier.height(20.dp))
             trackList.map {
-                ListenCardSmall(trackName = it?.name ?: "", artists = it?.artists ?: listOf(), coverArtUrl = uiState.coverArt, goToArtistPage = {}){} 
+                ListenCardSmall(
+                    trackName = it?.name ?: "",
+                    artists = it?.artists ?: listOf(),
+                    coverArtUrl = uiState.coverArt,
+                    goToArtistPage = {}) {}
                 Spacer(modifier = Modifier.height(12.dp))
             }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                if(uiState.trackList.size > 5){
+                if (uiState.trackList.size > 5) {
                     LoadMoreButton(state = trackListCollapsibleState.value) {
                         trackListCollapsibleState.value = !trackListCollapsibleState.value
                     }
@@ -232,25 +256,34 @@ private fun TopListenersCard(
     val topListenersCollapsibleState: MutableState<Boolean> = remember {
         mutableStateOf(true)
     }
-    val topListeners = when(topListenersCollapsibleState.value){
+    val topListeners = when (topListenersCollapsibleState.value) {
         true -> uiState.topListeners.take(5)
         false -> uiState.topListeners
     }
-    Box(modifier = Modifier
-        .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
-        .fillMaxWidth()
-        .padding(23.dp)){
+    Box(
+        modifier = Modifier
+            .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
+            .fillMaxWidth()
+            .padding(23.dp)
+    ) {
         Column {
-            Text("Top listeners", color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyMedium.copy(fontSize = 25.sp))
+            Text(
+                "Top listeners",
+                color = ListenBrainzTheme.colorScheme.text,
+                style = MaterialTheme.typography.bodyMedium.copy(fontSize = 25.sp)
+            )
             Spacer(modifier = Modifier.height(20.dp))
             topListeners.map {
-                ArtistCard(artistName = it?.userName ?: "", listenCountLabel = formatNumber(it?.listenCount ?: 0)) {
-                    
+                ArtistCard(
+                    artistName = it?.userName ?: "",
+                    listenCountLabel = formatNumber(it?.listenCount ?: 0)
+                ) {
+
                 }
                 Spacer(modifier = Modifier.height(12.dp))
             }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                if(uiState.topListeners.size > 5){
+                if (uiState.topListeners.size > 5) {
                     LoadMoreButton(
                         modifier = Modifier.padding(16.dp),
                         state = topListenersCollapsibleState.value
