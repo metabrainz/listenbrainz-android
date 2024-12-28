@@ -7,7 +7,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -44,6 +44,7 @@ fun <T> SearchScreen(
     onSearch: (String) -> Unit = {
         keyboardController?.hide()
     },
+    placeholderText: String,
     onErrorShown: () -> Unit,
     focusRequester: FocusRequester = remember { FocusRequester() },
     focusManager: FocusManager = LocalFocusManager.current,
@@ -72,14 +73,14 @@ fun <T> SearchScreen(
         },
         leadingIcon = {
             Icon(
-                imageVector = Icons.Rounded.ArrowBack,
+                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
                 modifier = Modifier
                     .clip(CircleShape)
                     .clickable {
                         keyboardController?.hide()
                         onDismiss()
                     },
-                contentDescription = "Search users",
+                contentDescription = "Go Back",
                 tint = ListenBrainzTheme.colorScheme.hint
             )
         },
@@ -97,7 +98,7 @@ fun <T> SearchScreen(
             )
         },
         placeholder = {
-            Text(text = "Search users", color = MaterialTheme.colorScheme.onSurface.copy(0.5f))
+            Text(text = placeholderText, color = MaterialTheme.colorScheme.onSurface.copy(0.5f))
         },
         colors = SearchBarDefaults.colors(
             containerColor = ListenBrainzTheme.colorScheme.background,

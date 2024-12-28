@@ -114,7 +114,7 @@ enum class FeedEventType (
         onReview: () -> Unit,
         onPin: () -> Unit,
         onClick: () -> Unit,
-        goToUserPage: (String?) -> Unit,
+        goToUserPage: (String) -> Unit,
         goToArtistPage: (String) -> Unit,
     ){
         when (this){
@@ -227,7 +227,7 @@ enum class FeedEventType (
         modifier: Modifier = Modifier,
         event: FeedEvent,
         parentUser: String,
-        goToUserPage: (String?) -> Unit
+        goToUserPage: (String) -> Unit
     ) {
         val linkStyle = SpanStyle(
             color = ListenBrainzTheme.colorScheme.lbSignature,
@@ -242,7 +242,7 @@ enum class FeedEventType (
         val uriHandler = LocalUriHandler.current
         
         val (annotatedString, onClick) = remember {
-            getAnnotatedString(event, parentUser, normalStyle, linkStyle, uriHandler)
+            getAnnotatedString(event, parentUser, normalStyle, linkStyle, uriHandler, goToUserPage)
         }
         
         // Our main tagline composable
@@ -251,10 +251,7 @@ enum class FeedEventType (
             text = annotatedString,
         ) { charOffset ->
             onClick(charOffset)
-            goToUserPage(event.username)
         }
-        
-        
     }
     
     
@@ -263,7 +260,8 @@ enum class FeedEventType (
         parentUser: String,
         normalStyle: SpanStyle,
         linkStyle: SpanStyle,
-        uriHandler: UriHandler
+        uriHandler: UriHandler,
+        goToUserPage: (String) -> Unit
     ): Pair<AnnotatedString, (Int) -> Unit> {
         return when (this) {
             NOTIFICATION -> {
@@ -305,9 +303,7 @@ enum class FeedEventType (
                         Log.w("MyFeed: Notification link invalid.")
                         e.printStackTrace()
                     }
-                    
                 }
-                
             }
         
             UNKNOWN -> {
@@ -321,11 +317,16 @@ enum class FeedEventType (
             }
         
             else -> {
+                val annotatedLinkString = constructTagline(event, parentUser, normalStyle, linkStyle)
                 Pair(
-                    constructTagline( event, parentUser, normalStyle, linkStyle)
+                    annotatedLinkString
                 ) { charOffset ->
-                    // TODO: Navigate to user's profile with `stringAnnotation.item`
-                    //  "user1" for firstUsername and "user2" for second username.
+                    annotatedLinkString
+                        .getStringAnnotations(charOffset, charOffset)
+                        .firstOrNull()
+                        ?.let { stringAnnotation ->
+                            goToUserPage(stringAnnotation.item)
+                        }
                 }
             }
         }
@@ -343,7 +344,10 @@ enum class FeedEventType (
         // Checking if first input is present or not.
         if (feedEvent.username == null) return emptyString
         
-        val firstUsername = if(isUserSelf(feedEvent, parentUser)) "You" else feedEvent.username
+        val firstUsername = if(isUserSelf(feedEvent, parentUser))
+            "You"
+        else
+            feedEvent.metadata.user0 ?: feedEvent.username
         
         val firstAnnotatedString = buildAnnotatedString {
             withStyle(style = linkStyle){
@@ -351,10 +355,10 @@ enum class FeedEventType (
             }
             
             addStringAnnotation(
-                tag = "user1",
-                annotation = feedEvent.username,
+                tag = "user0",
+                annotation = firstUsername,
                 start = 0,
-                end = firstUsername.lastIndex
+                end = firstUsername.lastIndex + 1
             )
         }
         
@@ -420,7 +424,6 @@ enum class FeedEventType (
                         start = str.indexOf(secondUsername),
                         end = str.lastIndex - 1
                     )
-                    
                 }
             }
             REVIEW -> {

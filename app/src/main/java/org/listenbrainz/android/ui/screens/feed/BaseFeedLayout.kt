@@ -59,10 +59,9 @@ fun BaseFeedLayout(
     parentUser: String,
     onDeleteOrHide: () -> Unit,
     isHidden: Boolean = event.hidden == true,
-    goToUserPage: (String?) -> Unit,
+    goToUserPage: (String) -> Unit,
     content: @Composable () -> Unit,
 ) {
-    
     // Content that is to be measured for horizontal line.
     @Composable
     fun MainContent() {
@@ -121,9 +120,7 @@ fun BaseFeedLayout(
                     eventType.Tagline(
                         event = event,
                         parentUser = parentUser,
-                        goToUserPage = {
-                            username -> goToUserPage(username)
-                        }
+                        goToUserPage = goToUserPage
                     )
                 } else {
                     Text(

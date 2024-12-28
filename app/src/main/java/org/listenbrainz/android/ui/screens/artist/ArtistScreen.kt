@@ -4,6 +4,7 @@ import ArtistLinksEnum
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.animation.core.tween
@@ -127,7 +128,7 @@ fun ArtistScreen(
     socialViewModel: SocialViewModel = hiltViewModel(),
     feedViewModel: FeedViewModel = hiltViewModel(),
     goToArtistPage: (String) -> Unit,
-    goToUserPage: (String?) -> Unit,
+    goToUserPage: (String) -> Unit,
     goToAlbumPage: (String) -> Unit,
     snackBarState: SnackbarHostState
 ) {
@@ -152,80 +153,75 @@ private fun ArtistScreen(
     artistMbid: String,
     uiState: ArtistUIState,
     goToArtistPage: (String) -> Unit,
-    goToUserPage: (String?) -> Unit,
+    goToUserPage: (String) -> Unit,
     socialViewModel: SocialViewModel,
     feedViewModel: FeedViewModel,
     snackBarState: SnackbarHostState,
     goToAlbumPage: (String) -> Unit,
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        AnimatedVisibility(
-            visible = uiState.isLoading,
-            modifier = Modifier.align(Alignment.Center),
-            enter = fadeIn(initialAlpha = 0.4f),
-            exit = fadeOut(animationSpec = tween(durationMillis = 250))
-        ) {
+    AnimatedContent(
+        modifier = Modifier.fillMaxSize(),
+        targetState = uiState.isLoading,
+        contentAlignment = Alignment.Center
+    ) { isLoading ->
+        if (isLoading) {
             LoadingAnimation()
-        }
-        AnimatedVisibility(visible = !uiState.isLoading) {
-            ListenBrainzTheme {
-                LazyColumn {
-                    item {
-                        BioCard(
-                            header = uiState.name,
-                            coverArt = uiState.coverArt,
-                            displayRadioButton = true,
-                            beginYear = uiState.beginYear,
-                            area = uiState.area,
-                            totalPlays = uiState.totalPlays,
-                            totalListeners = uiState.totalListeners,
-                            wikiExtract = uiState.wikiExtract,
-                            artistTags = uiState.tags,
-                            artistMbid = uiState.artistMbid
-                        )
-                    }
-                    item {
-                        Links(artistMbid = artistMbid, links = uiState.links)
-                    }
-                    item {
-                        PopularTracks(uiState = uiState, goToArtistPage = goToArtistPage)
-                    }
-                    item {
-                        AlbumsCard(
-                            header = "Albums",
-                            albumsList = uiState.albums,
-                            goToAlbumPage = goToAlbumPage
-                        )
-                    }
-                    item {
-                        AlbumsCard(
-                            header = "Appears On",
-                            albumsList = uiState.appearsOn,
-                            goToAlbumPage = goToAlbumPage
-                        )
-                    }
-                    item {
-                        SimilarArtists(uiState = uiState, goToArtistPage = goToArtistPage)
-                    }
-                    item {
-                        TopListenersCard(uiState = uiState, goToUserPage = goToUserPage)
-                    }
-                    item {
-                        if (uiState.name != null) {
-                            ReviewsCard(reviewOfEntity = uiState.reviews,
-                                goToUserPage = goToUserPage,
-                                socialViewModel = socialViewModel,
-                                feedViewModel = feedViewModel,
-                                artistMbid = artistMbid,
-                                artistName = uiState.name,
-                                snackBarState = snackBarState,
-                                onMessageShown = { socialViewModel.clearMsgFlow() },
-                                onErrorShown = { socialViewModel.clearErrorFlow() })
-                        }
+        } else {
+            LazyColumn {
+                item {
+                    BioCard(
+                        header = uiState.name,
+                        coverArt = uiState.coverArt,
+                        displayRadioButton = true,
+                        beginYear = uiState.beginYear,
+                        area = uiState.area,
+                        totalPlays = uiState.totalPlays,
+                        totalListeners = uiState.totalListeners,
+                        wikiExtract = uiState.wikiExtract,
+                        artistTags = uiState.tags,
+                        artistMbid = uiState.artistMbid
+                    )
+                }
+                item {
+                    Links(artistMbid = artistMbid, links = uiState.links)
+                }
+                item {
+                    PopularTracks(uiState = uiState, goToArtistPage = goToArtistPage)
+                }
+                item {
+                    AlbumsCard(
+                        header = "Albums",
+                        albumsList = uiState.albums,
+                        goToAlbumPage = goToAlbumPage
+                    )
+                }
+                item {
+                    AlbumsCard(
+                        header = "Appears On",
+                        albumsList = uiState.appearsOn,
+                        goToAlbumPage = goToAlbumPage
+                    )
+                }
+                item {
+                    SimilarArtists(uiState = uiState, goToArtistPage = goToArtistPage)
+                }
+                item {
+                    TopListenersCard(uiState = uiState, goToUserPage = goToUserPage)
+                }
+                item {
+                    if (uiState.name != null) {
+                        ReviewsCard(reviewOfEntity = uiState.reviews,
+                            goToUserPage = goToUserPage,
+                            socialViewModel = socialViewModel,
+                            feedViewModel = feedViewModel,
+                            artistMbid = artistMbid,
+                            artistName = uiState.name,
+                            snackBarState = snackBarState,
+                            onMessageShown = { socialViewModel.clearMsgFlow() },
+                            onErrorShown = { socialViewModel.clearErrorFlow() })
                     }
                 }
             }
-
         }
     }
 }
@@ -276,7 +272,7 @@ fun BioCard(
                                 val context = LocalContext.current
                                 LbRadioButton(
                                     modifier = Modifier
-                                        .weight(1f)
+                                        .padding(start = 8.dp)
                                         .wrapContentWidth()
                                 ) {
                                     if (artistMbid != null) {
@@ -321,7 +317,10 @@ fun BioCard(
                             }
 
                             radioButtonPlaceables.forEach { placeable ->
-                                placeable.placeRelative(textSize.width, (height - radioButtonSize.height) / 2)
+                                placeable.placeRelative(
+                                    constraints.maxWidth - radioButtonSize.width,
+                                    (height - radioButtonSize.height) / 2
+                                )
                             }
                         }
                     }
@@ -716,13 +715,14 @@ private fun PopularTracks(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     LoadMoreButton(
+                        modifier = Modifier.padding(16.dp),
                         state = popularTracksCollapsibleState.value,
                         onClick = {
                             popularTracksCollapsibleState.value =
                                 !popularTracksCollapsibleState.value
                         }
                     )
-                    Spacer(modifier = Modifier.height(60.dp))
+                    Spacer(modifier = Modifier.height(30.dp))
                 }
 
             }
@@ -836,7 +836,10 @@ private fun SimilarArtists(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    LoadMoreButton(state = similarArtistsCollapisbleState.value) {
+                    LoadMoreButton(
+                        modifier = Modifier.padding(16.dp),
+                        state = similarArtistsCollapisbleState.value
+                    ) {
                         similarArtistsCollapisbleState.value = !similarArtistsCollapisbleState.value
                     }
                 }
@@ -849,7 +852,7 @@ private fun SimilarArtists(
 @Composable
 private fun TopListenersCard(
     uiState: ArtistUIState,
-    goToUserPage: (String?) -> Unit,
+    goToUserPage: (String) -> Unit,
 ) {
     val topListenersCollapsibleState: MutableState<Boolean> = remember {
         mutableStateOf(true)
@@ -876,7 +879,9 @@ private fun TopListenersCard(
                     artistName = it?.userName ?: "",
                     listenCountLabel = formatNumber(it?.listenCount ?: 0)
                 ) {
-                    goToUserPage(it?.userName)
+                    if (it?.userName != null) {
+                        goToUserPage(it.userName)
+                    }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
             }
@@ -885,7 +890,10 @@ private fun TopListenersCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    LoadMoreButton(state = topListenersCollapsibleState.value) {
+                    LoadMoreButton(
+                        modifier = Modifier.padding(16.dp),
+                        state = topListenersCollapsibleState.value
+                    ) {
                         topListenersCollapsibleState.value = !topListenersCollapsibleState.value
                     }
                     Spacer(modifier = Modifier.height(20.dp))
@@ -901,7 +909,7 @@ fun ReviewsCard(
     feedViewModel: FeedViewModel,
     socialViewModel: SocialViewModel,
     snackBarState: SnackbarHostState,
-    goToUserPage: (String?) -> Unit,
+    goToUserPage: (String) -> Unit,
     artistMbid: String? = null,
     artistName: String? = null,
     onErrorShown: () -> Unit,
@@ -961,7 +969,9 @@ fun ReviewsCard(
                                 "By ${it?.user?.musicbrainzUsername ?: ""}",
                                 color = lb_purple_night,
                                 modifier = Modifier.clickable {
-                                    goToUserPage(it?.user?.musicbrainzUsername)
+                                    if (it?.user?.musicbrainzUsername != null) {
+                                        goToUserPage(it.user.musicbrainzUsername)
+                                    }
                                 })
                             Spacer(modifier = Modifier.height(10.dp))
                         }
@@ -1105,7 +1115,7 @@ private fun LinkCard(
 
 @Composable
 private fun LbRadioButton(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     OutlinedButton(

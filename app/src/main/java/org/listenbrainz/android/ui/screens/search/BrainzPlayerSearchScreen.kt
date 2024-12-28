@@ -85,7 +85,8 @@ fun BrainzPlayerSearchScreen(
                 searchItems.addAll(viewModel.searchSongs(brainzplayerQueryState) ?: emptyList())
             },
             onClear = searchItems::clear,
-            onErrorShown = { error = null }
+            onErrorShown = { error = null },
+            placeholderText = "Search your music library"
         ) {
             LazyColumn {
                 itemsIndexed(searchItems) { _, song ->

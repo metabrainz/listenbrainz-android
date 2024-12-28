@@ -14,7 +14,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 fun FollowFeedLayout(
     event: FeedEvent,
     parentUser: String,
-    goToUserPage: (String?) -> Unit,
+    goToUserPage: (String) -> Unit,
 ) {
     BaseFeedLayout(
         eventType = FeedEventType.FOLLOW,

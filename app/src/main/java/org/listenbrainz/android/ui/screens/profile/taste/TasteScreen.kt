@@ -238,9 +238,11 @@ fun TasteScreen(
             if((uiState.tasteTabUIState.lovedSongs?.count
                     ?: 0) > 5 || (uiState.tasteTabUIState.hatedSongs?.count ?: 0) > 5
             ){
-                Spacer(modifier = Modifier.height(20.dp))
                 Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                    LoadMoreButton(state = lovedHatedCollapsibleState.value) {
+                    LoadMoreButton(
+                        modifier = Modifier.padding(16.dp),
+                        state = lovedHatedCollapsibleState.value
+                    ) {
                         lovedHatedCollapsibleState.value = !lovedHatedCollapsibleState.value
                     }
                 }
@@ -266,15 +268,15 @@ fun TasteScreen(
                     pinnedRecordings.mapIndexed { index, recording: PinnedRecording ->
                         val metadata = Metadata(trackMetadata = recording.trackMetadata)
                         ListenCardSmall(
-                            blurbContent = {
-                                if (!recording.blurbContent.isNullOrEmpty()) {
+                            blurbContent = if (!recording.blurbContent.isNullOrBlank()) {
+                                { modifier ->
                                     Text(
-                                        modifier = it,
+                                        modifier = modifier,
                                         text = recording.blurbContent,
                                         color = ListenBrainzTheme.colorScheme.text,
                                     )
                                 }
-                            },
+                            } else null,
                             modifier = Modifier
                                 .padding(
                                     vertical = ListenBrainzTheme.paddings.lazyListAdjacent
@@ -344,9 +346,11 @@ fun TasteScreen(
         }
         item {
             if((uiState.tasteTabUIState.pins?.count ?: 0) > 5){
-                Spacer(modifier = Modifier.height(20.dp))
                 Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                    LoadMoreButton(state = pinsCollapsibleState.value) {
+                    LoadMoreButton(
+                        modifier = Modifier.padding(16.dp),
+                        state = pinsCollapsibleState.value
+                    ) {
                         pinsCollapsibleState.value = !pinsCollapsibleState.value
                     }
                 }

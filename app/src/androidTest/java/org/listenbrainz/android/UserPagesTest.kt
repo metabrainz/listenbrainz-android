@@ -91,23 +91,19 @@ class UserPagesTest {
             }
             val uiState by viewModel.uiState.collectAsState()
             ListenBrainzTheme {
-                Scaffold {
-                    it ->
+                Scaffold { it ->
                     BaseProfileScreen(
                         username = testUsername,
                         snackbarState = remember {
                             SnackbarHostState()
                         },
                         uiState = uiState,
-                        onFollowClick = {},
-                        onUnfollowClick = {},
                         goToUserProfile = { /*TODO*/ },
                         viewModel = viewModel,
                         feedViewModel = feedViewModel,
                         socialViewModel = socialViewModel,
                         listensViewModel = listensViewModel,
-                        goToUserPage = {},
-                        goToArtistPage = {}
+                        goToArtistPage = {},
                     )
                 }
 
