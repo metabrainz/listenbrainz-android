@@ -99,12 +99,12 @@ fun ListensScreen(
     socialViewModel: SocialViewModel,
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
-    snackbarState : SnackbarHostState,
+    snackbarState: SnackbarHostState,
     username: String?,
     goToArtistPage: (String) -> Unit,
     goToUserPage: (String?) -> Unit
 ) {
-    
+
     val uiState by userViewModel.uiState.collectAsState()
     val preferencesUiState by viewModel.preferencesUiState.collectAsState()
     val socialUiState by socialViewModel.uiState.collectAsState()
@@ -112,7 +112,7 @@ fun ListensScreen(
     ListensScreen(
         scrollRequestState = scrollRequestState,
         onScrollToTop = onScrollToTop,
-        username= username,
+        username = username,
         uiState = uiState,
         preferencesUiState = preferencesUiState,
         updateNotificationServicePermissionStatus = {
@@ -135,13 +135,11 @@ fun ListensScreen(
         onMessageShown = {
             socialViewModel.clearMsgFlow()
         },
-        onFollowButtonClick = {
-            it, status ->
-            if(!username.isNullOrEmpty()) {
-                if(!status){
+        onFollowButtonClick = { it, status ->
+            if (!username.isNullOrEmpty()) {
+                if (!status) {
                     userViewModel.followUser(it)
-                }
-                else{
+                } else {
                     userViewModel.unfollowUser(it)
                 }
             }
@@ -154,6 +152,7 @@ fun ListensScreen(
 enum class ListenDialogBundleKeys {
     PAGE,
     EVENT_INDEX;
+
     companion object {
         fun listenDialogBundle(page: Int, eventIndex: Int): Bundle {
             return Bundle().apply {
@@ -163,7 +162,6 @@ enum class ListenDialogBundleKeys {
         }
     }
 }
-
 
 
 @Composable
@@ -179,8 +177,8 @@ fun ListensScreen(
     playListen: (TrackMetadata) -> Unit,
     snackbarState: SnackbarHostState,
     socialUiState: SocialUiState,
-    onErrorShown : () -> Unit,
-    onMessageShown : () -> Unit,
+    onErrorShown: () -> Unit,
+    onMessageShown: () -> Unit,
     onFollowButtonClick: (String?, Boolean) -> Unit,
     goToArtistPage: (String) -> Unit,
     goToUserPage: (String?) -> Unit,
@@ -202,7 +200,7 @@ fun ListensScreen(
     val followersMenuCollapsibleState: MutableState<Boolean> = remember {
         mutableStateOf(true)
     }
-    
+
     // Scroll to the top when shouldScrollToTop becomes true
     LaunchedEffect(scrollRequestState) {
         onScrollToTop {
@@ -210,124 +208,188 @@ fun ListensScreen(
         }
     }
 
-        AnimatedVisibility(visible = !uiState.listensTabUiState.isLoading) {
-            LazyColumn(state = listState, modifier = Modifier.testTag("listensScreenScrollableContainer")) {
-                item {
-                    SongsListened(username = username, listenCount = uiState.listensTabUiState.listenCount, isSelf = uiState.isSelf)
-                }
-                item{
-                    FollowersInformation(followersCount = uiState.listensTabUiState.followersCount, followingCount = uiState.listensTabUiState.followingCount)
-                }
-                item{
-                    Spacer(modifier = Modifier.height(30.dp))
+    AnimatedVisibility(visible = !uiState.listensTabUiState.isLoading) {
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.testTag("listensScreenScrollableContainer")
+        ) {
+            item {
+                SongsListened(
+                    username = username,
+                    listenCount = uiState.listensTabUiState.listenCount,
+                    isSelf = uiState.isSelf
+                )
+            }
+            item {
+                FollowersInformation(
+                    followersCount = uiState.listensTabUiState.followersCount,
+                    followingCount = uiState.listensTabUiState.followingCount
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(30.dp))
 
-                    Text(
-                        text = "Recent Listens",
-                        color = ListenBrainzTheme.colorScheme.text,
-                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),
-                        modifier = Modifier.padding(start = 16.dp)
-                    )
+                Text(
+                    text = "Recent Listens",
+                    color = ListenBrainzTheme.colorScheme.text,
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),
+                    modifier = Modifier.padding(start = 16.dp)
+                )
 
-                    Spacer(modifier = Modifier.height(10.dp))
-                }
-                items(
-                    items = if(recentListensCollapsibleState) {
-                        uiState.listensTabUiState.recentListens?.take(5)
-                    } else {
-                        uiState.listensTabUiState.recentListens?.take(10)
-                    } ?: listOf()
-                ) { listen  ->
-                    val metadata = listen.toMetadata()
+                Spacer(modifier = Modifier.height(10.dp))
+            }
+            items(
+                items = if (recentListensCollapsibleState) {
+                    uiState.listensTabUiState.recentListens?.take(5)
+                } else {
+                    uiState.listensTabUiState.recentListens?.take(10)
+                } ?: listOf()
+            ) { listen ->
+                val metadata = listen.toMetadata()
 
-                    ListenCardSmallDefault(
-                        modifier = Modifier
-                            .padding(
-                                horizontal = 16.dp,
-                                vertical = ListenBrainzTheme.paddings.lazyListAdjacent
-                            ),
-                        metadata = metadata,
-                        coverArtUrl = getCoverArtUrl(
-                            caaReleaseMbid = listen.trackMetadata.mbidMapping?.caaReleaseMbid,
-                            caaId = listen.trackMetadata.mbidMapping?.caaId
+                ListenCardSmallDefault(
+                    modifier = Modifier
+                        .padding(
+                            horizontal = 16.dp,
+                            vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                         ),
-                        onDropdownError = { error ->
-                            snackbarState.showSnackbar(error.toast)
-                        },
-                        onDropdownSuccess = { message ->
-                            snackbarState.showSnackbar(message)
-                        },
-                        goToArtistPage = goToArtistPage,
-                    ) {
-                        playListen(listen.trackMetadata)
-                    }
+                    metadata = metadata,
+                    coverArtUrl = getCoverArtUrl(
+                        caaReleaseMbid = listen.trackMetadata.mbidMapping?.caaReleaseMbid,
+                        caaId = listen.trackMetadata.mbidMapping?.caaId
+                    ),
+                    onDropdownError = { error ->
+                        snackbarState.showSnackbar(error.toast)
+                    },
+                    onDropdownSuccess = { message ->
+                        snackbarState.showSnackbar(message)
+                    },
+                    goToArtistPage = goToArtistPage,
+                ) {
+                    playListen(listen.trackMetadata)
                 }
+            }
 
-                item {
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        LoadMoreButton(
-                            state = recentListensCollapsibleState,
-                            onClick = {
-                                recentListensCollapsibleState = !recentListensCollapsibleState
-                            }
-                        )
-                    }
-                }
-
-                if (!uiState.isSelf) {
-                    item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 30.dp)
-                                .background(ListenBrainzTheme.colorScheme.songsListenedToBG)
-                        ) {
-                            Column {
-                                Spacer(modifier = Modifier.height(30.dp))
-                                Text("Your Compatibility", color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(start = 16.dp))
-                                Spacer(modifier = Modifier.height(10.dp))
-                                CompatibilityCard(compatibility = uiState.listensTabUiState.compatibility ?: 0f, uiState.listensTabUiState.similarArtists, goToArtistPage = goToArtistPage)
-                            }
+            item {
+                Spacer(modifier = Modifier.height(20.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    LoadMoreButton(
+                        state = recentListensCollapsibleState,
+                        onClick = {
+                            recentListensCollapsibleState = !recentListensCollapsibleState
                         }
-                    }   
+                    )
                 }
+            }
 
+            if (!uiState.isSelf) {
                 item {
-                    Box(modifier = Modifier
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 30.dp)
+                            .background(ListenBrainzTheme.colorScheme.songsListenedToBG)
+                    ) {
+                        Column {
+                            Spacer(modifier = Modifier.height(30.dp))
+                            Text(
+                                "Your Compatibility",
+                                color = ListenBrainzTheme.colorScheme.text,
+                                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),
+                                modifier = Modifier.padding(start = 16.dp)
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            CompatibilityCard(
+                                compatibility = uiState.listensTabUiState.compatibility ?: 0f,
+                                uiState.listensTabUiState.similarArtists,
+                                goToArtistPage = goToArtistPage
+                            )
+                        }
+                    }
+                }
+            }
+
+            item {
+                Box(
+                    modifier = Modifier
                         .padding(top = 30.dp)
                         .fillMaxWidth()
                         .background(ListenBrainzTheme.colorScheme.songsListenedToBG)
+                ) {
+                    Column {
+                        FollowersCard(
+                            followersCount = uiState.listensTabUiState.followersCount,
+                            followingCount = uiState.listensTabUiState.followingCount,
+                            followers = when (followersMenuCollapsibleState.value) {
+                                true -> uiState.listensTabUiState.followers?.take(5) ?: emptyList()
+                                false -> uiState.listensTabUiState.followers ?: emptyList()
+                            },
+                            following = when (followersMenuCollapsibleState.value) {
+                                true -> uiState.listensTabUiState.following?.take(5) ?: emptyList()
+                                false -> uiState.listensTabUiState.following ?: emptyList()
+                            },
+                            followersState = followersMenuState.value,
+                            onStateChange = { newMenuState ->
+                                followersMenuState.value = !newMenuState
+                            },
+                            onFollowButtonClick = onFollowButtonClick,
+                            goToUserPage = goToUserPage
+                        )
+                        if ((uiState.listensTabUiState.followersCount
+                                ?: 0) > 5 || ((uiState.listensTabUiState.followingCount ?: 0) > 5)
+                        ) {
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                LoadMoreButton(
+                                    state = followersMenuCollapsibleState.value,
+                                    onClick = {
+                                        followersMenuCollapsibleState.value =
+                                            !followersMenuCollapsibleState.value
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            item {
+                if (!uiState.listensTabUiState.similarUsers.isNullOrEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .padding(top = 30.dp)
+                            .clip(shape = RoundedCornerShape(20.dp))
+                            .fillMaxWidth()
+                            .background(
+                                ListenBrainzTheme.colorScheme.songsListenedToBG
+                            )
                     ) {
                         Column {
-                            FollowersCard(
-                                followersCount = uiState.listensTabUiState.followersCount,
-                                followingCount = uiState.listensTabUiState.followingCount,
-                                followers = when(followersMenuCollapsibleState.value){
-                                    true -> uiState.listensTabUiState.followers?.take(5) ?: emptyList()
-                                    false -> uiState.listensTabUiState.followers ?: emptyList()
-                                },
-                                following = when(followersMenuCollapsibleState.value){
-                                    true -> uiState.listensTabUiState.following?.take(5) ?: emptyList()
-                                    false -> uiState.listensTabUiState.following ?: emptyList()
-                                },
-                                followersState = followersMenuState.value,
-                                onStateChange = {
-                                        newMenuState->
-                                    followersMenuState.value = !newMenuState
-                                },
-                                onFollowButtonClick = onFollowButtonClick,
-                                goToUserPage = goToUserPage
+                            SimilarUsersCard(
+                                similarUsers = when (similarUsersCollapsibleState.value) {
+                                    true -> uiState.listensTabUiState.similarUsers.take(5)
+
+                                    false -> uiState.listensTabUiState.similarUsers
+                                }, goToUserPage = goToUserPage
                             )
-                            if((uiState.listensTabUiState.followersCount ?: 0) > 5 || ((uiState.listensTabUiState.followingCount ?: 0) > 5)){
+
+                            if ((uiState.listensTabUiState.similarUsers.size) > 5) {
                                 Spacer(modifier = Modifier.height(20.dp))
-                                Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
                                     LoadMoreButton(
-                                        state = followersMenuCollapsibleState.value,
+                                        state = similarUsersCollapsibleState.value,
                                         onClick = {
-                                            followersMenuCollapsibleState.value = !followersMenuCollapsibleState.value
+                                            similarUsersCollapsibleState.value =
+                                                !similarUsersCollapsibleState.value
                                         }
                                     )
                                 }
@@ -335,52 +397,17 @@ fun ListensScreen(
                         }
                     }
                 }
-
-                item {
-                    if(!uiState.listensTabUiState.similarUsers.isNullOrEmpty()) {
-                        Box(
-                            modifier = Modifier
-                                .padding(top = 30.dp)
-                                .clip(shape = RoundedCornerShape(20.dp))
-                                .fillMaxWidth()
-                                .background(
-                                    ListenBrainzTheme.colorScheme.songsListenedToBG
-                                )
-                        ) {
-                            Column {
-                                SimilarUsersCard(
-                                    similarUsers = when (similarUsersCollapsibleState.value) {
-                                        true -> uiState.listensTabUiState.similarUsers.take(5)
-
-                                        false -> uiState.listensTabUiState.similarUsers
-                                    }, goToUserPage = goToUserPage
-                                )
-
-                                if ((uiState.listensTabUiState.similarUsers.size) > 5) {
-                                    Spacer(modifier = Modifier.height(20.dp))
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.Center
-                                    ) {
-                                        LoadMoreButton(
-                                            state = similarUsersCollapsibleState.value,
-                                            onClick = {
-                                                similarUsersCollapsibleState.value =
-                                                    !similarUsersCollapsibleState.value
-                                            }
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
             }
         }
+    }
 
-        ErrorBar(error = socialUiState.error, onErrorShown = onErrorShown)
+    ErrorBar(error = socialUiState.error, onErrorShown = onErrorShown)
 
-        SuccessBar(resId = socialUiState.successMsgId, onMessageShown = onMessageShown, snackbarState = snackbarState)
+    SuccessBar(
+        resId = socialUiState.successMsgId,
+        onMessageShown = onMessageShown,
+        snackbarState = snackbarState
+    )
 }
 
 @Composable
@@ -395,7 +422,7 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
                     append("You both listen to ")
                 }
                 topSimilarArtists.forEachIndexed { index, artist ->
-                    if(artist.artistMbid != null) {
+                    if (artist.artistMbid != null) {
                         pushStringAnnotation(tag = "ARTIST", annotation = artist.artistMbid)
                     }
                     withStyle(style = SpanStyle(color = lb_purple_night)) {
@@ -424,6 +451,7 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
                 }
             )
         }
+
         similarArtists.isEmpty() -> {
             Text(
                 "You have no common artists",
@@ -432,13 +460,14 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
                 style = MaterialTheme.typography.bodyMedium
             )
         }
+
         else -> {
             val text = buildAnnotatedString {
                 withStyle(style = SpanStyle(color = white)) {
                     append("You both listen to ")
                 }
                 similarArtists.forEachIndexed { index, artist ->
-                    if(artist.artistMbid != null) {
+                    if (artist.artistMbid != null) {
                         pushStringAnnotation(tag = "ARTIST", annotation = artist.artistMbid)
                     }
                     withStyle(style = SpanStyle(color = lb_purple_night)) {
@@ -473,13 +502,13 @@ fun Dialogs(
     deactivateDialog: () -> Unit,
     currentDialog: Dialog,
     feedUiState: FeedUiState,
-    currentIndex : Int?,
-    listens : List<Listen>,
-    onPin : (metadata: Metadata , blurbContent : String) -> Unit,
-    searchUsers : (String) -> Unit,
+    currentIndex: Int?,
+    listens: List<Listen>,
+    onPin: (metadata: Metadata, blurbContent: String) -> Unit,
+    searchUsers: (String) -> Unit,
     isCritiqueBrainzLinked: suspend () -> Boolean?,
-    onReview : (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String , metadata : Metadata) -> Unit,
-    onPersonallyRecommend : (metadata : Metadata , users : List<String> , blurbContent : String) -> Unit,
+    onReview: (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String, metadata: Metadata) -> Unit,
+    onPersonallyRecommend: (metadata: Metadata, users: List<String>, blurbContent: String) -> Unit,
     snackbarState: SnackbarHostState,
     socialUiState: SocialUiState,
     reviewEntityType: ReviewEntityType = ReviewEntityType.RECORDING
@@ -488,24 +517,27 @@ fun Dialogs(
     when (currentDialog) {
         Dialog.NONE -> Unit
         Dialog.PIN -> {
-            PinDialog(trackName = listens[currentIndex!!].trackMetadata.trackName, artistName = listens[currentIndex].trackMetadata.artistName, onDismiss = deactivateDialog, onSubmit = {
-                blurbContent ->
-                onPin(listens[currentIndex].toMetadata(), blurbContent)
-            })
-            LaunchedEffect(socialUiState.error){
-                if(socialUiState.error == null){
+            PinDialog(
+                trackName = listens[currentIndex!!].trackMetadata.trackName,
+                artistName = listens[currentIndex].trackMetadata.artistName,
+                onDismiss = deactivateDialog,
+                onSubmit = { blurbContent ->
+                    onPin(listens[currentIndex].toMetadata(), blurbContent)
+                })
+            LaunchedEffect(socialUiState.error) {
+                if (socialUiState.error == null) {
                     snackbarState.showSnackbar(context.getString(R.string.pin_greeting))
                 }
             }
         }
+
         Dialog.PERSONAL_RECOMMENDATION -> {
             PersonalRecommendationDialog(
                 trackName = listens[currentIndex!!].trackMetadata.trackName,
                 onDismiss = deactivateDialog,
                 searchResult = feedUiState.searchResult,
                 searchUsers = searchUsers,
-                onSubmit = {
-                    users, blurbContent ->
+                onSubmit = { users, blurbContent ->
                     onPersonallyRecommend(
                         listens[currentIndex].toMetadata(),
                         users,
@@ -514,6 +546,7 @@ fun Dialogs(
                 }
             )
         }
+
         Dialog.REVIEW -> {
             ReviewDialog(
                 trackName = listens[currentIndex!!].trackMetadata.trackName,
@@ -521,7 +554,7 @@ fun Dialogs(
                 releaseName = listens[currentIndex].trackMetadata.releaseName,
                 onDismiss = deactivateDialog,
                 isCritiqueBrainzLinked = isCritiqueBrainzLinked,
-                onSubmit  = { type, blurbContent, rating, locale ->
+                onSubmit = { type, blurbContent, rating, locale ->
                     onReview(
                         type,
                         blurbContent,
@@ -539,59 +572,102 @@ fun Dialogs(
 @Composable
 fun LoadMoreButton(
     state: Boolean,
-    onClick : () -> Unit,
-){
-    TextButton(onClick, modifier = Modifier.border(border = BorderStroke(1.dp,
-        app_bg_mid), shape = RoundedCornerShape(7.dp)
-    )) {
-        Text(when(state){
-            true -> "Load More"
-            false -> "Load Less"
-        }, color = app_bg_mid, style = MaterialTheme.typography.bodyMedium)
+    onClick: () -> Unit,
+) {
+    TextButton(
+        onClick, modifier = Modifier.border(
+            border = BorderStroke(
+                1.dp,
+                app_bg_mid
+            ), shape = RoundedCornerShape(7.dp)
+        )
+    ) {
+        Text(
+            when (state) {
+                true -> "Load More"
+                false -> "Load Less"
+            }, color = app_bg_mid, style = MaterialTheme.typography.bodyMedium
+        )
     }
 }
 
 
 @Composable
-private fun SongsListened(username: String? , listenCount: Int?, isSelf: Boolean){
-    Column (horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
-        .background(ListenBrainzTheme.colorScheme.songsListenedToBG)) {
+private fun SongsListened(username: String?, listenCount: Int?, isSelf: Boolean) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
+            .background(ListenBrainzTheme.colorScheme.songsListenedToBG)
+    ) {
         Spacer(modifier = Modifier.height(30.dp))
         Text(
-            when(isSelf){
+            when (isSelf) {
                 true -> "You have listened to"
                 false -> "$username has listened to"
-            }
-            , color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+            },
+            color = ListenBrainzTheme.colorScheme.text,
+            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp)
+        )
         Spacer(modifier = Modifier.height(15.dp))
-        HorizontalDivider(color = ListenBrainzTheme.colorScheme.dividerColor, modifier = Modifier.padding(start = 60.dp, end = 60.dp))
+        HorizontalDivider(
+            color = ListenBrainzTheme.colorScheme.dividerColor,
+            modifier = Modifier.padding(start = 60.dp, end = 60.dp)
+        )
         Spacer(modifier = Modifier.height(15.dp))
-        Text(listenCount.toString(), color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),  textAlign = TextAlign.Center)
-        Text("songs so far", color = app_bg_mid, style = MaterialTheme.typography.bodyLarge, textAlign = TextAlign.Center)
+        Text(
+            listenCount.toString(),
+            color = ListenBrainzTheme.colorScheme.text,
+            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),
+            textAlign = TextAlign.Center
+        )
+        Text(
+            "songs so far",
+            color = app_bg_mid,
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center
+        )
         Spacer(modifier = Modifier.height(30.dp))
     }
 
 }
 
 @Composable
-private fun FollowersInformation(followersCount: Int?, followingCount: Int?){
-    Box(modifier = Modifier
-        .background(
-            ListenBrainzTheme.colorScheme.userPageGradient
-        )
-    ){
-        Row (horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 30.dp, bottom = 30.dp)) {
-            Column (horizontalAlignment = Alignment.CenterHorizontally) {
-                Text((followersCount ?:0).toString(), style = MaterialTheme.typography.bodyLarge, color = ListenBrainzTheme.colorScheme.text)
+private fun FollowersInformation(followersCount: Int?, followingCount: Int?) {
+    Box(
+        modifier = Modifier
+            .background(
+                ListenBrainzTheme.colorScheme.userPageGradient
+            )
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 30.dp, bottom = 30.dp)
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    (followersCount ?: 0).toString(),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = ListenBrainzTheme.colorScheme.text
+                )
                 Spacer(modifier = Modifier.height(10.dp))
-                Text("Followers", style = MaterialTheme.typography.bodyLarge, color = ListenBrainzTheme.colorScheme.text)
+                Text(
+                    "Followers",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = ListenBrainzTheme.colorScheme.text
+                )
             }
-            Column (horizontalAlignment = Alignment.CenterHorizontally) {
-                Text((followingCount ?: 0).toString(), style = MaterialTheme.typography.bodyLarge, color = ListenBrainzTheme.colorScheme.text)
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    (followingCount ?: 0).toString(),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = ListenBrainzTheme.colorScheme.text
+                )
                 Spacer(modifier = Modifier.height(10.dp))
-                Text("Following", style = MaterialTheme.typography.bodyLarge, color = ListenBrainzTheme.colorScheme.text)
+                Text(
+                    "Following",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = ListenBrainzTheme.colorScheme.text
+                )
             }
         }
         Spacer(modifier = Modifier.height(10.dp))
@@ -601,28 +677,44 @@ private fun FollowersInformation(followersCount: Int?, followingCount: Int?){
 }
 
 @Composable
-fun CompatibilityCard(compatibility: Float, similarArtists: List<Artist>, goToArtistPage: (String) -> Unit){
-    Row (modifier = Modifier.padding(start = 16.dp)) {
-        LinearProgressIndicator(progress = {
-            compatibility
-        }, color = compatibilityMeterColor, modifier = Modifier
-            .height(17.dp)
-            .fillMaxWidth(0.7f), strokeCap = StrokeCap.Round, trackColor = Color(0xFF1C1C1C))
+fun CompatibilityCard(
+    compatibility: Float,
+    similarArtists: List<Artist>,
+    goToArtistPage: (String) -> Unit
+) {
+    Row(modifier = Modifier.padding(start = 16.dp)) {
+        LinearProgressIndicator(
+            progress = {
+                compatibility
+            }, color = compatibilityMeterColor, modifier = Modifier
+                .height(17.dp)
+                .fillMaxWidth(0.7f), strokeCap = StrokeCap.Round, trackColor = Color(0xFF1C1C1C)
+        )
         Spacer(modifier = Modifier.width(9.dp))
-        Text("${(compatibility*100).toInt()} %", color = app_bg_mid, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp))
+        Text(
+            "${(compatibility * 100).toInt()} %",
+            color = app_bg_mid,
+            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp)
+        )
     }
     Spacer(modifier = Modifier.height(10.dp))
-    BuildSimilarArtists(similarArtists = similarArtists, onArtistClick = {
-        mbid ->
+    BuildSimilarArtists(similarArtists = similarArtists, onArtistClick = { mbid ->
         goToArtistPage(mbid)
     })
 }
 
 @Composable
-private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers: List<Pair<String,Boolean>>,
-                          following: List<Pair<String,Boolean>>, followersState: Boolean, onStateChange: (Boolean) -> Unit,
-                          onFollowButtonClick: (String?, Boolean) -> Unit, goToUserPage: (String?) -> Unit) {
-    Column(modifier = Modifier.padding(start = 16.dp , top = 30.dp, end = 16.dp)) {
+private fun FollowersCard(
+    followersCount: Int?,
+    followingCount: Int?,
+    followers: List<Pair<String, Boolean>>,
+    following: List<Pair<String, Boolean>>,
+    followersState: Boolean,
+    onStateChange: (Boolean) -> Unit,
+    onFollowButtonClick: (String?, Boolean) -> Unit,
+    goToUserPage: (String?) -> Unit
+) {
+    Column(modifier = Modifier.padding(start = 16.dp, top = 30.dp, end = 16.dp)) {
         Text(
             "Followers",
             color = ListenBrainzTheme.colorScheme.text,
@@ -637,7 +729,7 @@ private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers:
                         false -> ListenBrainzTheme.colorScheme.followerChipUnselected
                     },
                 ),
-                border = when(followersState){
+                border = when (followersState) {
                     true -> null
                     false -> BorderStroke(width = 1.dp, color = lb_purple_night)
                 },
@@ -668,9 +760,9 @@ private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers:
                         false -> ListenBrainzTheme.colorScheme.followerChipSelected
                     },
                 ),
-                border = when(followersState){
+                border = when (followersState) {
                     true -> BorderStroke(width = 1.dp, color = lb_purple_night)
-                        false -> null
+                    false -> null
                 },
                 modifier = Modifier
                     .width(120.dp)
@@ -693,15 +785,24 @@ private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers:
             }
         }
         Spacer(modifier = Modifier.height(10.dp))
-        when(followersState){
-            true -> followers.map {
-                state ->
-                FollowCard(username = state.first, onFollowButtonClick = onFollowButtonClick, followStatus = state.second, goToUserPage = goToUserPage)
+        when (followersState) {
+            true -> followers.map { state ->
+                FollowCard(
+                    username = state.first,
+                    onFollowButtonClick = onFollowButtonClick,
+                    followStatus = state.second,
+                    goToUserPage = goToUserPage
+                )
                 Spacer(modifier = Modifier.height(10.dp))
             }
-            false -> following.map {
-                state ->
-                FollowCard(username = state.first, onFollowButtonClick = onFollowButtonClick, followStatus = state.second, goToUserPage = goToUserPage)
+
+            false -> following.map { state ->
+                FollowCard(
+                    username = state.first,
+                    onFollowButtonClick = onFollowButtonClick,
+                    followStatus = state.second,
+                    goToUserPage = goToUserPage
+                )
                 Spacer(modifier = Modifier.height(10.dp))
             }
         }
@@ -709,19 +810,33 @@ private fun FollowersCard(followersCount: Int?, followingCount: Int?, followers:
 }
 
 @Composable
-private fun SimilarUsersCard(similarUsers: List<SimilarUser>, goToUserPage: (String?) -> Unit){
+private fun SimilarUsersCard(similarUsers: List<SimilarUser>, goToUserPage: (String?) -> Unit) {
     Spacer(modifier = Modifier.height(20.dp))
-    Text("Similar Users", color = ListenBrainzTheme.colorScheme.text, style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp), modifier = Modifier.padding(horizontal = 16.dp))
+    Text(
+        "Similar Users",
+        color = ListenBrainzTheme.colorScheme.text,
+        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),
+        modifier = Modifier.padding(horizontal = 16.dp)
+    )
     Spacer(modifier = Modifier.height(20.dp))
-    similarUsers.mapIndexed{
-        index , item ->
-        SimilarUserCard(index = index, userName = item.username, similarity = item.similarity.toFloat(),
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp), goToUserPage = goToUserPage)
+    similarUsers.mapIndexed { index, item ->
+        SimilarUserCard(
+            index = index,
+            userName = item.username,
+            similarity = item.similarity.toFloat(),
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+            goToUserPage = goToUserPage
+        )
     }
 }
 
 @Composable
-private fun FollowCard(username: String?, onFollowButtonClick: (String?, Boolean) -> Unit, followStatus: Boolean, goToUserPage: (String?) -> Unit) {
+private fun FollowCard(
+    username: String?,
+    onFollowButtonClick: (String?, Boolean) -> Unit,
+    followStatus: Boolean,
+    goToUserPage: (String?) -> Unit
+) {
     Card(colors = CardDefaults.cardColors(containerColor = ListenBrainzTheme.colorScheme.followerCardColor)) {
         Row(
             modifier = Modifier
@@ -769,7 +884,7 @@ fun ListensScreenPreview() {
         onMessageShown = {},
         snackbarState = remember { SnackbarHostState() },
         username = "pranavkonidena",
-        onFollowButtonClick = {_,_ -> },
+        onFollowButtonClick = { _, _ -> },
         goToArtistPage = {},
         goToUserPage = {}
     )
