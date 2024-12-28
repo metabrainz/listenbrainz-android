@@ -7,6 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -27,11 +28,34 @@ fun AppNavigation(
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
     snackbarState: SnackbarHostState,
-    goToUserProfile: () -> Unit,
-    goToArtistPage: (String) -> Unit,
-    goToAlbumPage: (String) -> Unit,
-    goToUserPage: (String?) -> Unit,
 ) {
+    fun NavOptionsBuilder.defaultNavOptions() {
+        // Avoid building large backstack
+        popUpTo(AppNavigationItem.Feed.route) {
+            saveState = true
+        }
+        // Avoid copies
+        launchSingleTop = true
+        // Restore previous state
+        restoreState = true
+    }
+
+    fun goToUserProfile(username: String) {
+        navController.navigate("${AppNavigationItem.Profile.route}/${username}")
+    }
+
+    fun goToArtistPage(mbid: String) {
+        navController.navigate("artist/${mbid}") {
+            defaultNavOptions()
+        }
+    }
+
+    fun goToAlbumPage(mbid: String) {
+        navController.navigate("album/${mbid}") {
+            defaultNavOptions()
+        }
+    }
+
     NavHost(
         navController = navController as NavHostController,
         modifier = Modifier.fillMaxSize(),
@@ -41,21 +65,8 @@ fun AppNavigation(
             FeedScreen(
                 scrollToTopState = scrollRequestState,
                 onScrollToTop = onScrollToTop,
-                goToUserPage = { username: String? ->
-                    if (username != null) {
-                        navController.navigate("${AppNavigationItem.Profile.route}/$username") {
-                            // Avoid building large backstack
-                            popUpTo(AppNavigationItem.Feed.route) {
-                                saveState = true
-                            }
-                            // Avoid copies
-                            launchSingleTop = true
-                            // Restore previous state
-                            restoreState = true
-                        }
-                    }
-                },
-                goToArtistPage = goToArtistPage
+                goToUserPage = ::goToUserProfile,
+                goToArtistPage = ::goToArtistPage
             )
         }
         composable(route = AppNavigationItem.BrainzPlayer.route) {
@@ -79,9 +90,8 @@ fun AppNavigation(
                 scrollRequestState = scrollRequestState,
                 username = username,
                 snackbarState = snackbarState,
-                goToUserProfile = goToUserProfile,
-                goToArtistPage = goToArtistPage,
-                goToUserPage = goToUserPage
+                goToUserProfile = ::goToUserProfile,
+                goToArtistPage = ::goToArtistPage,
             )
         }
         composable(
@@ -105,10 +115,10 @@ fun AppNavigation(
             } else {
                 ArtistScreen(
                     artistMbid = artistMbid,
-                    goToArtistPage = goToArtistPage,
+                    goToArtistPage = ::goToArtistPage,
                     snackBarState = snackbarState,
-                    goToUserPage = goToUserPage,
-                    goToAlbumPage = goToAlbumPage
+                    goToUserPage = ::goToUserProfile,
+                    goToAlbumPage = ::goToAlbumPage
                 )
             }
         }

@@ -16,7 +16,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 fun NotificationFeedLayout(
     event: FeedEvent,
     onDeleteOrHide: () -> Unit,
-    goToUserPage: (String?) -> Unit,
+    goToUserPage: (String) -> Unit,
 ) {
     BaseFeedLayout(
         eventType = FeedEventType.NOTIFICATION,

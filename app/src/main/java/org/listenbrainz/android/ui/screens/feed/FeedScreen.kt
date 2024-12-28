@@ -82,7 +82,7 @@ fun FeedScreen(
     socialViewModel: SocialViewModel = hiltViewModel(),
     scrollToTopState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
-    goToUserPage: (String?) -> Unit,
+    goToUserPage: (String) -> Unit,
     goToArtistPage: (String) -> Unit
 ) {
     
@@ -111,11 +111,11 @@ fun FeedScreen(
         searchFollower = { query ->
             viewModel.searchUser(query)
         },
-        isCritiqueBrainzLinked = { viewModel.isCritiqueBrainzLinked() },
+        isCritiqueBrainzLinked = viewModel::isCritiqueBrainzLinked,
         onPlay = { event ->
             viewModel.play(event)
         },
-        goToUserPage =  goToUserPage,
+        goToUserPage = goToUserPage,
         goToArtistPage = goToArtistPage
     )
 }
@@ -136,7 +136,7 @@ fun FeedScreen(
     searchFollower: (String) -> Unit,
     isCritiqueBrainzLinked: suspend () -> Boolean?,
     onPlay: (event: FeedEvent) -> Unit,
-    goToUserPage: (String?) -> Unit,
+    goToUserPage: (String) -> Unit,
     goToArtistPage: (String) -> Unit
 ) {
     val myFeedPagingData = uiState.myFeedState.eventList.collectAsLazyPagingItems()
@@ -414,7 +414,7 @@ private fun MyFeed(
     review: (index: Int) -> Unit,
     pin: (index: Int) -> Unit,
     onPlay: (FeedEvent) -> Unit,
-    goToUserPage: (String?) -> Unit,
+    goToUserPage: (String) -> Unit,
     goToArtistPage: (String) -> Unit,
     uriHandler: UriHandler = LocalUriHandler.current
 ) {

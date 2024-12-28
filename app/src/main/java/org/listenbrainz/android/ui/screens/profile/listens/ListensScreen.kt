@@ -99,9 +99,8 @@ fun ListensScreen(
     snackbarState: SnackbarHostState,
     username: String?,
     goToArtistPage: (String) -> Unit,
-    goToUserPage: (String?) -> Unit
+    goToUserProfile: (String) -> Unit
 ) {
-
     val uiState by userViewModel.uiState.collectAsState()
     val preferencesUiState by viewModel.preferencesUiState.collectAsState()
     val socialUiState by socialViewModel.uiState.collectAsState()
@@ -142,7 +141,7 @@ fun ListensScreen(
             }
         },
         goToArtistPage = goToArtistPage,
-        goToUserPage = goToUserPage
+        goToUserProfile = goToUserProfile
     )
 }
 
@@ -178,7 +177,7 @@ fun ListensScreen(
     onMessageShown: () -> Unit,
     onFollowButtonClick: (username: String?, status: Boolean) -> Unit,
     goToArtistPage: (String) -> Unit,
-    goToUserPage: (String?) -> Unit,
+    goToUserProfile: (String) -> Unit,
 ) {
     val listState = rememberLazyListState()
 
@@ -381,7 +380,11 @@ fun ListensScreen(
                                 followersMenuState.value = !newMenuState
                             },
                             onFollowButtonClick = onFollowButtonClick,
-                            goToUserPage = goToUserPage
+                            goToUserPage = { name ->
+                                if (name != null) {
+                                    goToUserProfile(name)
+                                }
+                            }
                         )
                         if ((uiState.listensTabUiState.followersCount
                                 ?: 0) > 5 || ((uiState.listensTabUiState.followingCount ?: 0) > 5)
@@ -419,9 +422,12 @@ fun ListensScreen(
                             SimilarUsersCard(
                                 similarUsers = when (similarUsersCollapsibleState.value) {
                                     true -> uiState.listensTabUiState.similarUsers.take(5)
-
                                     false -> uiState.listensTabUiState.similarUsers
-                                }, goToUserPage = goToUserPage
+                                }, goToUserPage = { username ->
+                                    if (username != null) {
+                                        goToUserProfile(username)
+                                    }
+                                }
                             )
 
                             if ((uiState.listensTabUiState.similarUsers.size) > 5) {
@@ -473,12 +479,13 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
                     withStyle(style = SpanStyle(color = lb_purple_night)) {
                         append(artist.artistName)
                     }
-                    pop()
+                    if (artist.artistMbid != null) {
+                        pop()
+                    }
                     if (index < topSimilarArtists.size - 1) {
                         withStyle(style = SpanStyle(color = lb_purple_night)) {
                             append(", ")
                         }
-
                     }
                 }
                 withStyle(style = SpanStyle(color = lb_purple_night)) {
@@ -960,6 +967,6 @@ fun ListensScreenPreview() {
         username = "pranavkonidena",
         onFollowButtonClick = { _, _ -> },
         goToArtistPage = {},
-        goToUserPage = {}
+        goToUserProfile = {}
     )
 }

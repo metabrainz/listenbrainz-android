@@ -41,7 +41,7 @@ fun PersonalRecommendationFeedLayout(
     onRecommend: () -> Unit,
     onPersonallyRecommend: () -> Unit,
     onReview: () -> Unit,
-    goToUserPage: (String?) -> Unit,
+    goToUserPage: (String) -> Unit,
     goToArtistPage: (String) -> Unit,
 ) {
     BaseFeedLayout(

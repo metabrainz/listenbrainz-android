@@ -127,7 +127,7 @@ fun ArtistScreen(
     socialViewModel: SocialViewModel = hiltViewModel(),
     feedViewModel: FeedViewModel = hiltViewModel(),
     goToArtistPage: (String) -> Unit,
-    goToUserPage: (String?) -> Unit,
+    goToUserPage: (String) -> Unit,
     goToAlbumPage: (String) -> Unit,
     snackBarState: SnackbarHostState
 ) {
@@ -152,7 +152,7 @@ private fun ArtistScreen(
     artistMbid: String,
     uiState: ArtistUIState,
     goToArtistPage: (String) -> Unit,
-    goToUserPage: (String?) -> Unit,
+    goToUserPage: (String) -> Unit,
     socialViewModel: SocialViewModel,
     feedViewModel: FeedViewModel,
     snackBarState: SnackbarHostState,
@@ -853,7 +853,7 @@ private fun SimilarArtists(
 @Composable
 private fun TopListenersCard(
     uiState: ArtistUIState,
-    goToUserPage: (String?) -> Unit,
+    goToUserPage: (String) -> Unit,
 ) {
     val topListenersCollapsibleState: MutableState<Boolean> = remember {
         mutableStateOf(true)
@@ -880,7 +880,9 @@ private fun TopListenersCard(
                     artistName = it?.userName ?: "",
                     listenCountLabel = formatNumber(it?.listenCount ?: 0)
                 ) {
-                    goToUserPage(it?.userName)
+                    if (it?.userName != null) {
+                        goToUserPage(it.userName)
+                    }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
             }
@@ -908,7 +910,7 @@ fun ReviewsCard(
     feedViewModel: FeedViewModel,
     socialViewModel: SocialViewModel,
     snackBarState: SnackbarHostState,
-    goToUserPage: (String?) -> Unit,
+    goToUserPage: (String) -> Unit,
     artistMbid: String? = null,
     artistName: String? = null,
     onErrorShown: () -> Unit,
@@ -968,7 +970,9 @@ fun ReviewsCard(
                                 "By ${it?.user?.musicbrainzUsername ?: ""}",
                                 color = lb_purple_night,
                                 modifier = Modifier.clickable {
-                                    goToUserPage(it?.user?.musicbrainzUsername)
+                                    if (it?.user?.musicbrainzUsername != null) {
+                                        goToUserPage(it.user.musicbrainzUsername)
+                                    }
                                 })
                             Spacer(modifier = Modifier.height(10.dp))
                         }
