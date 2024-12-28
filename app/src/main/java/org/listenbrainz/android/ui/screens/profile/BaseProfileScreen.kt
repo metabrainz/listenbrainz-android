@@ -81,19 +81,7 @@ fun BaseProfileScreen(
     goToUserPage: (String?) -> Unit,
 ) {
     val pagerState = rememberPagerState { ProfileScreenTab.entries.size }
-    val isLoggedInUser = uiState.isSelf
-    val uriHandler = LocalUriHandler.current
-    var mbOpeningErrorState by remember {
-        mutableStateOf<String?>(null)
-    }
-
     val scope = rememberCoroutineScope()
-
-    LaunchedEffect(mbOpeningErrorState) {
-        if (mbOpeningErrorState != null) {
-            snackbarState.showSnackbar("Some Error Occurred", duration = SnackbarDuration.Short)
-        }
-    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         AnimatedVisibility(
@@ -203,42 +191,6 @@ fun BaseProfileScreen(
                     }
                 }
 
-
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.End)
-                        .padding(end = 20.dp, bottom = 4.dp)
-                ) {
-                    if (pagerState.currentPage == ProfileScreenTab.LISTENS.index) {
-                        when (isLoggedInUser) {
-                            true -> AddListensButton()
-                            false ->
-                                FollowButton(
-                                    modifier = Modifier,
-                                    isFollowedState = uiState.listensTabUiState.isFollowing,
-                                    onClick = {
-                                        if (uiState.listensTabUiState.isFollowing) {
-                                            onUnfollowClick(username ?: "")
-                                        } else {
-                                            onFollowClick(username ?: "")
-                                        }
-                                    }
-                                )
-                        }
-                        Spacer(modifier = Modifier.width(10.dp))
-                        MusicBrainzButton {
-                            try {
-                                uriHandler.openUri(Constants.MB_BASE_URL + "user/${username}")
-                            } catch (e: RuntimeException) {
-                                mbOpeningErrorState = e.message
-                            } catch (e: Exception) {
-                                mbOpeningErrorState = e.message
-                            }
-                        }
-                    }
-                }
-
-
                 HorizontalPager(
                     state = pagerState,
                     beyondViewportPageCount = 1,
@@ -276,72 +228,6 @@ fun BaseProfileScreen(
                     }
                 }
             }
-        }
-    }
-}
-
-
-@Composable
-private fun AddListensButton() {
-    IconButton(
-        onClick = { /*TODO*/ }, modifier = Modifier
-            .clip(RoundedCornerShape(4.dp))
-            .background(Color(0xFF353070))
-            .width(110.dp)
-            .height(30.dp)
-    ) {
-        Row(modifier = Modifier.padding(all = 4.dp)) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "",
-                tint = new_app_bg_light,
-                modifier = Modifier
-                    .width(10.dp)
-                    .height(20.dp)
-            )
-            Spacer(modifier = Modifier.width(5.dp))
-            Text(
-                "Add Listens",
-                color = new_app_bg_light,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-    }
-}
-
-@Composable
-private fun MusicBrainzButton(onClick: () -> Unit) {
-    IconButton(
-        onClick = onClick, modifier = Modifier
-            .clip(RoundedCornerShape(4.dp))
-            .background(Color(0xFF353070))
-            .width(140.dp)
-            .height(30.dp)
-    ) {
-        Row(modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)) {
-            Icon(
-                painter = painterResource(id = R.drawable.musicbrainz_logo),
-                contentDescription = "",
-                modifier = Modifier
-                    .width(20.dp)
-                    .height(30.dp),
-                tint = Color.Unspecified
-            )
-            Spacer(modifier = Modifier.width(5.dp))
-            Text(
-                "MusicBrainz",
-                color = new_app_bg_light,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Spacer(modifier = Modifier.width(5.dp))
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                contentDescription = "",
-                tint = new_app_bg_light,
-                modifier = Modifier
-                    .width(30.dp)
-                    .height(20.dp)
-            )
         }
     }
 }

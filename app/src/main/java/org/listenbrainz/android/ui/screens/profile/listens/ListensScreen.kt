@@ -21,15 +21,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarDefaults
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarVisuals
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -39,8 +41,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,7 +49,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -58,7 +57,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.Metadata
@@ -70,24 +68,23 @@ import org.listenbrainz.android.model.user.Artist
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.FollowButton
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
+import org.listenbrainz.android.ui.components.MusicBrainzButton
 import org.listenbrainz.android.ui.components.SimilarUserCard
 import org.listenbrainz.android.ui.components.SuccessBar
 import org.listenbrainz.android.ui.components.dialogs.Dialog
 import org.listenbrainz.android.ui.components.dialogs.PersonalRecommendationDialog
 import org.listenbrainz.android.ui.components.dialogs.PinDialog
 import org.listenbrainz.android.ui.components.dialogs.ReviewDialog
-import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
 import org.listenbrainz.android.ui.screens.feed.FeedUiState
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.app_bg_mid
 import org.listenbrainz.android.ui.theme.compatibilityMeterColor
-import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.ui.theme.new_app_bg_light
+import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
-import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
@@ -179,7 +176,7 @@ fun ListensScreen(
     socialUiState: SocialUiState,
     onErrorShown: () -> Unit,
     onMessageShown: () -> Unit,
-    onFollowButtonClick: (String?, Boolean) -> Unit,
+    onFollowButtonClick: (username: String?, status: Boolean) -> Unit,
     goToArtistPage: (String) -> Unit,
     goToUserPage: (String?) -> Unit,
 ) {
@@ -213,6 +210,54 @@ fun ListensScreen(
             state = listState,
             modifier = Modifier.testTag("listensScreenScrollableContainer")
         ) {
+            item {
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 20.dp, bottom = 4.dp)
+                    ) {
+                        if (uiState.isSelf) {
+                            AddListensButton()
+                        } else {
+                            FollowButton(
+                                modifier = Modifier,
+                                isFollowedState = uiState.listensTabUiState.isFollowing,
+                                onClick = {
+                                    if (uiState.listensTabUiState.isFollowing) {
+                                        onFollowButtonClick(username ?: "", false)
+                                    } else {
+                                        onFollowButtonClick(username ?: "", true)
+                                    }
+                                }
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(10.dp))
+
+                        val uriHandler = LocalUriHandler.current
+                        var mbOpeningErrorState by remember {
+                            mutableStateOf<String?>(null)
+                        }
+
+                        LaunchedEffect(mbOpeningErrorState) {
+                            if (mbOpeningErrorState != null) {
+                                snackbarState.showSnackbar("Some Error Occurred", duration = SnackbarDuration.Short)
+                            }
+                        }
+
+                        MusicBrainzButton {
+                            try {
+                                uriHandler.openUri(Constants.MB_BASE_URL + "user/${username}")
+                            } catch (e: RuntimeException) {
+                                mbOpeningErrorState = e.message
+                            } catch (e: Exception) {
+                                mbOpeningErrorState = e.message
+                            }
+                        }
+                    }
+                }
+            }
             item {
                 SongsListened(
                     username = username,
@@ -861,6 +906,34 @@ private fun FollowCard(
                 onClick = {
                     onFollowButtonClick(username, followStatus)
                 }
+            )
+        }
+    }
+}
+
+@Composable
+private fun AddListensButton() {
+    IconButton(
+        onClick = { /*TODO*/ }, modifier = Modifier
+            .clip(RoundedCornerShape(4.dp))
+            .background(Color(0xFF353070))
+            .width(110.dp)
+            .height(30.dp)
+    ) {
+        Row(modifier = Modifier.padding(all = 4.dp)) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "",
+                tint = new_app_bg_light,
+                modifier = Modifier
+                    .width(10.dp)
+                    .height(20.dp)
+            )
+            Spacer(modifier = Modifier.width(5.dp))
+            Text(
+                "Add Listens",
+                color = new_app_bg_light,
+                style = MaterialTheme.typography.bodyMedium
             )
         }
     }
