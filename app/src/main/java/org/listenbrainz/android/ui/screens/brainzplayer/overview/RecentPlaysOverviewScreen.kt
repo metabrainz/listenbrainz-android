@@ -87,14 +87,25 @@ private fun PlayedToday(
     )) {
         itemsIndexed(songsPlayedToday){
             index, it ->
-            BrainzPlayerListenCard(title = it.title, subTitle = it.artist, coverArtUrl = it.albumArt, errorAlbumArt = R.drawable.ic_erroralbumart, onPlayIconClick = {onPlayIconClick(it)}, onDropdownIconClick = {dropDownState.value = Pair(1,index)}, dropDownState = dropDownState.value == Pair(1,index),dropDown = {BrainzPlayerDropDownMenu(
-                expanded = dropDownState.value == Pair(1,index),
-                onDismiss = {dropDownState.value = Pair(-1,-1)},
-                onAddToQueue = {onAddToQueue(it)},
-                onPlayNext =  {onPlayNext(it)},
-                onAddToExistingPlaylist = {onAddToExistingPlaylist(it)},
-                onAddToNewPlaylist = {onAddToNewPlaylist(it)}
-            )})
+            BrainzPlayerListenCard(
+                title = it.title,
+                subTitle = it.artist,
+                coverArtUrl = it.albumArt,
+                errorAlbumArt = R.drawable.ic_erroralbumart,
+                onPlayIconClick = { onPlayIconClick(it) },
+                onDropdownIconClick = {dropDownState.value = Pair(1,index)},
+                dropDownState = dropDownState.value == Pair(1,index),
+                dropDown = {
+                    BrainzPlayerDropDownMenu(
+                        expanded = dropDownState.value == Pair(1,index),
+                        onDismiss = {dropDownState.value = Pair(-1,-1)},
+                        onAddToQueue = {onAddToQueue(it)},
+                        onPlayNext =  {onPlayNext(it)},
+                        onAddToExistingPlaylist = {onAddToExistingPlaylist(it)},
+                        onAddToNewPlaylist = {onAddToNewPlaylist(it)}
+                    )
+                }
+            )
             Spacer(modifier = Modifier.height(5.dp))
         }
 
@@ -118,14 +129,25 @@ private fun PlayedThisWeek(
     )) {
         itemsIndexed(songsPlayedThisWeek){
             index, it ->
-            BrainzPlayerListenCard(title = it.title, subTitle = it.artist, coverArtUrl = it.albumArt, errorAlbumArt = R.drawable.ic_erroralbumart, onPlayIconClick = {onPlayIconClick(it)}, onDropdownIconClick = {dropDownState.value = Pair(2,index)}, dropDownState = dropDownState.value == Pair(2,index),dropDown = {BrainzPlayerDropDownMenu(
-                expanded = dropDownState.value == Pair(2,index),
-                onDismiss = {dropDownState.value = Pair(-1,-1)},
-                onAddToQueue = {onAddToQueue(it)},
-                onPlayNext =  {onPlayNext(it)},
-                onAddToExistingPlaylist = {onAddToExistingPlaylist(it)},
-                onAddToNewPlaylist = {onAddToNewPlaylist(it)}
-            )})
+            BrainzPlayerListenCard(
+                title = it.title,
+                subTitle = it.artist,
+                coverArtUrl = it.albumArt,
+                errorAlbumArt = R.drawable.ic_erroralbumart,
+                onPlayIconClick = { onPlayIconClick(it) },
+                onDropdownIconClick = { dropDownState.value = Pair(2,index) },
+                dropDownState = dropDownState.value == Pair(2,index),
+                dropDown = {
+                    BrainzPlayerDropDownMenu(
+                        expanded = dropDownState.value == Pair(2,index),
+                        onDismiss = {dropDownState.value = Pair(-1,-1)},
+                        onAddToQueue = {onAddToQueue(it)},
+                        onPlayNext =  {onPlayNext(it)},
+                        onAddToExistingPlaylist = {onAddToExistingPlaylist(it)},
+                        onAddToNewPlaylist = {onAddToNewPlaylist(it)}
+                    )
+                }
+            )
             Spacer(modifier = Modifier.height(5.dp))
         }
     }

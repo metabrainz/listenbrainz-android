@@ -1,6 +1,11 @@
 package org.listenbrainz.android.ui.components
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,20 +20,26 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
 @Composable
 fun BrainzPlayerListenCard(
@@ -40,8 +51,17 @@ fun BrainzPlayerListenCard(
     onDropdownIconClick: () -> Unit = {},
     dropDown: @Composable () -> Unit = {},
     dropDownState: Boolean = false,
-    onPlayIconClick: () -> Unit
+    onPlayIconClick: () -> Unit,
+    viewModel: BrainzPlayerViewModel = hiltViewModel()
 ) {
+    val isPlaying by viewModel.isPlaying.collectAsState()
+    val currentlyPlayingTitle by viewModel.currentlyPlayingTitle.collectAsState()
+    val titleColor = if (currentlyPlayingTitle == title) {
+        Color(0xFFB94FE5)
+    } else {
+        ListenBrainzTheme.colorScheme.listenText
+    }
+
     Surface(
         modifier = modifier
             .fillMaxWidth(),
@@ -72,6 +92,7 @@ fun BrainzPlayerListenCard(
                         title = title,
                         goToArtistPage = {},
                         artists = listOf(FeedListenArtist(subTitle, null, "")),
+                        titleColor = titleColor
                     )
                 }
                 Box(modifier = Modifier
@@ -79,9 +100,11 @@ fun BrainzPlayerListenCard(
                     .align(Alignment.CenterEnd)){
                     DropdownButton (modifier = Modifier.align(Alignment.Center), onDropdownIconClick = onDropdownIconClick)
                     if(dropDownState) dropDown()
-                    PlayButton (modifier = Modifier.align(Alignment.CenterEnd)) {
-                        onPlayIconClick()
-                    }
+                    PlayButton(
+                        modifier = Modifier.align(Alignment.CenterEnd),
+                        isPlaying = currentlyPlayingTitle == title && isPlaying,
+                        onPlayIconClick = onPlayIconClick
+                    )
                 }
 
 
@@ -110,18 +133,24 @@ private fun DropdownButton(modifier: Modifier = Modifier, onDropdownIconClick: (
 }
 
 @Composable
-private fun PlayButton(modifier: Modifier = Modifier, onPlayIconClick: () -> Unit) {
-
+private fun PlayButton(modifier: Modifier = Modifier, onPlayIconClick: () -> Unit, isPlaying: Boolean) {
     IconButton(
         modifier = modifier,
         onClick = onPlayIconClick
     ) {
-        Icon(
-            painter = painterResource(id = R.drawable.brainz_player_play_button),
-            contentDescription = "",
-            tint = ListenBrainzTheme.colorScheme.hint,
-            modifier = Modifier.padding(horizontal = ListenBrainzTheme.paddings.insideCard)
-        )
+        AnimatedContent(
+            targetState = isPlaying,
+            transitionSpec = {
+                fadeIn(animationSpec = tween(200)) togetherWith fadeOut(animationSpec = tween(300))
+            }
+        ) { targetState ->
+            Icon(
+                painter = painterResource(id = if (targetState) R.drawable.ic_pause else R.drawable.brainz_player_play_button),
+                contentDescription = "",
+                tint = ListenBrainzTheme.colorScheme.hint,
+                modifier = Modifier.padding(horizontal = ListenBrainzTheme.paddings.insideCard)
+            )
+        }
     }
 }
 
