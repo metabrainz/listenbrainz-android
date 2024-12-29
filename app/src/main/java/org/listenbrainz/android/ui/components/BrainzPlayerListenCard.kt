@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -50,7 +51,8 @@ fun BrainzPlayerListenCard(
 ) {
     val currentlyPlayingTitle by viewModel.currentlyPlayingTitle.collectAsState()
     val titleColor = if (currentlyPlayingTitle == title) {
-        colorResource(id = R.color.bp_color_primary)
+        //Once color is confirmed, I will add to Color.kt (Temporarily hardcoded here)
+        Color(0xFFB94FE5)
     } else {
         ListenBrainzTheme.colorScheme.listenText
     }
