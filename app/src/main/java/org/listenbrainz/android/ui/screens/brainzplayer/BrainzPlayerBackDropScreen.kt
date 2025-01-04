@@ -421,17 +421,17 @@ fun PlayerScreen(
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
                     onClick = {
-                        checkedSongs.forEach { song ->
-                            brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()
-                                ?.remove(song)
+                        val currentPlayable = brainzPlayerViewModel.appPreferences.currentPlayable
+                        val updatedSongs = currentPlayable?.songs?.toMutableList()?.apply {
+                            removeAll(checkedSongs)
                         }
-                        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let {
+                        updatedSongs?.let {
                             brainzPlayerViewModel.changePlayable(
                                 it,
                                 PlayableType.ALL_SONGS,
-                                brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0,
-                                brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { it.mediaID == currentlyPlayingSong.mediaID }
-                                    ?: 0, brainzPlayerViewModel.songCurrentPosition.value
+                                currentPlayable.id,
+                                it.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }.coerceAtLeast(0),
+                                brainzPlayerViewModel.songCurrentPosition.value
                             )
                         }
                         brainzPlayerViewModel.queueChanged(
