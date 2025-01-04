@@ -29,6 +29,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 fun TopBar(
     navController: NavController = rememberNavController(),
     searchBarState: SearchBarState,
+    backgroundColor: Color=Color.Transparent,
     context: Context = LocalContext.current,
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -58,7 +59,7 @@ fun TopBar(
                     tint = Color.Unspecified)
             }
         },
-        backgroundColor = Color.Transparent,
+        backgroundColor =backgroundColor,
         contentColor = MaterialTheme.colorScheme.onSurface,
         elevation = 0.dp,
         actions = {

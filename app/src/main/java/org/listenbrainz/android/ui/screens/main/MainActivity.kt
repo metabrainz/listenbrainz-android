@@ -6,6 +6,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.captionBar
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -25,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -48,6 +52,7 @@ import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils.isServiceRunning
 import org.listenbrainz.android.util.Utils.openAppSystemSettings
+import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
 @AndroidEntryPoint
@@ -158,7 +163,11 @@ class MainActivity : ComponentActivity() {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
                 val username = dashBoardViewModel.username
-
+                val brainzPlayerViewModel: BrainzPlayerViewModel by viewModels()
+                val animatedBackgroundColor by animateColorAsState(
+                    targetValue = if (backdropScaffoldState.isConcealed) brainzPlayerViewModel.playerBackGroundColor else Color.Transparent,
+                    animationSpec = tween(durationMillis = 500)
+                )
                 Scaffold(
                     modifier = Modifier.safeDrawingPadding(),
                     topBar = {
@@ -167,7 +176,8 @@ class MainActivity : ComponentActivity() {
                             searchBarState = when (currentDestination?.route) {
                                 AppNavigationItem.BrainzPlayer.route -> brainzplayerSearchBarState
                                 else -> searchBarState
-                            }
+                            },
+                            backgroundColor = animatedBackgroundColor
                         )
                     },
                     bottomBar = {
@@ -199,6 +209,7 @@ class MainActivity : ComponentActivity() {
                         BrainzPlayerBackDropScreen(
                             backdropScaffoldState = backdropScaffoldState,
                             paddingValues = it,
+                            brainzPlayerViewModel = brainzPlayerViewModel
                         ) {
                             AppNavigation(
                                 navController = navController,

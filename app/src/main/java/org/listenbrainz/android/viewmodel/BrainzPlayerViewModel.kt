@@ -1,5 +1,8 @@
 package org.listenbrainz.android.viewmodel
 
+import android.content.Context
+import android.graphics.Color.parseColor
+import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ALL
@@ -12,8 +15,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.palette.graphics.Palette
+import coil.ImageLoader
+import coil.request.ImageRequest
+import coil.request.SuccessResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -67,6 +75,8 @@ class BrainzPlayerViewModel @Inject constructor(
     val repeatMode = brainzPlayerServiceConnection.repeatModeState
     var isSearching by mutableStateOf(false)
 
+    var playerBackGroundColor by mutableStateOf(Color.White)
+
     init {
         updatePlayerPosition()
         _mediaItems.value = Resource.loading()
@@ -91,6 +101,54 @@ class BrainzPlayerViewModel @Inject constructor(
                 _mediaItems.value = Resource(Resource.Status.SUCCESS, it)
                 currentlyPlaying.items.plus(it)
             }
+        }
+    }
+
+    fun getBackGroundColorForPlayer(
+        albumArtUrl: String?,
+        defaultColor: Color,
+        context: Context,
+        isSystemInDarkTheme: Boolean = true
+    ) {
+        viewModelScope.launch {
+            var dominantColor: Color = defaultColor
+            val loader = ImageLoader(context)
+            val request = ImageRequest.Builder(context)
+                .data(albumArtUrl)
+                .allowHardware(false)
+                .build()
+            val result = loader.execute(request)
+            val bitmap = (result as? SuccessResult)?.drawable?.let { drawable ->
+                (drawable as? BitmapDrawable)?.bitmap
+            }
+            bitmap?.let {
+                dominantColor = if (isSystemInDarkTheme)
+                    Color(
+                        parseColor(
+                            parseColorSwatch(
+                                Palette.from(it).generate().darkMutedSwatch
+                            )
+                        )
+                    )
+                else
+                    Color(
+                        parseColor(
+                            parseColorSwatch(
+                                Palette.from(it).generate().lightMutedSwatch
+                            )
+                        )
+                    )
+            }
+            playerBackGroundColor = dominantColor
+        }
+    }
+
+    private fun parseColorSwatch(color: Palette.Swatch?): String {
+        return if (color != null) {
+            val parsedColor = Integer.toHexString(color.rgb)
+            return "#$parsedColor"
+        } else {
+            "#FFFFFF"
         }
     }
 
