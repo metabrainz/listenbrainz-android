@@ -30,7 +30,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -55,7 +54,7 @@ fun BrainzPlayerListenCard(
     viewModel: BrainzPlayerViewModel = hiltViewModel()
 ) {
     val isPlaying by viewModel.isPlaying.collectAsState()
-    val currentlyPlayingTitle by viewModel.currentlyPlayingTitle.collectAsState()
+    val currentlyPlayingTitle by viewModel.currentlyPlayingTitle.collectAsState(initial = "")
     val titleColor = if (currentlyPlayingTitle == title) {
         Color(0xFFB94FE5)
     } else {

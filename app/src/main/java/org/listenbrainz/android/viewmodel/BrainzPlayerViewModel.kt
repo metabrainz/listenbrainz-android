@@ -21,6 +21,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.PlayableType
@@ -67,16 +68,10 @@ class BrainzPlayerViewModel @Inject constructor(
     val playButton = brainzPlayerServiceConnection.playButtonState
     val repeatMode = brainzPlayerServiceConnection.repeatModeState
     var isSearching by mutableStateOf(false)
-    private val _currentlyPlayingTitle = MutableStateFlow<String?>(null)
-    val currentlyPlayingTitle = _currentlyPlayingTitle.asStateFlow()
+    val currentlyPlayingTitle = brainzPlayerServiceConnection.currentPlayingSong.map { it.title }
 
     init {
         updatePlayerPosition()
-        viewModelScope.launch(Dispatchers.IO) {
-            brainzPlayerServiceConnection.currentPlayingSong.collectLatest { song ->
-                _currentlyPlayingTitle.value = song.title
-            }
-        }
         _mediaItems.value = Resource.loading()
         brainzPlayerServiceConnection.subscribe(
             MEDIA_ROOT_ID,
@@ -179,7 +174,6 @@ class BrainzPlayerViewModel @Inject constructor(
             viewModelScope.launch { songRepository.updateSong(mediaItem) }
             brainzPlayerServiceConnection.transportControls.playFromMediaId(mediaItem.mediaID.toString(), null)
         }
-        _currentlyPlayingTitle.value = mediaItem.title
     }
 
     fun queueChanged(mediaItem: Song, toggle: Boolean ) {
