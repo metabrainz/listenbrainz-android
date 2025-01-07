@@ -75,7 +75,7 @@ class BrainzPlayerViewModel @Inject constructor(
     val repeatMode = brainzPlayerServiceConnection.repeatModeState
     var isSearching by mutableStateOf(false)
 
-    var playerBackGroundColor by mutableStateOf(Color.White)
+    var playerBackGroundColor by mutableStateOf(Color.Transparent)
 
     init {
         updatePlayerPosition()
@@ -108,7 +108,7 @@ class BrainzPlayerViewModel @Inject constructor(
         albumArtUrl: String?,
         defaultColor: Color,
         context: Context,
-        isSystemInDarkTheme: Boolean = true
+        isDarkThemeEnabled: Boolean = true
     ) {
         viewModelScope.launch {
             var dominantColor: Color = defaultColor
@@ -122,7 +122,7 @@ class BrainzPlayerViewModel @Inject constructor(
                 (drawable as? BitmapDrawable)?.bitmap
             }
             bitmap?.let {
-                dominantColor = if (isSystemInDarkTheme)
+                dominantColor = if (isDarkThemeEnabled)
                     Color(
                         parseColor(
                             parseColorSwatch(

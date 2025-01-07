@@ -97,6 +97,7 @@ import org.listenbrainz.android.ui.components.PlayPauseIcon
 import org.listenbrainz.android.ui.components.SeekBar
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.CacheService
 import org.listenbrainz.android.util.Constants.RECENTLY_PLAYED_KEY
@@ -123,17 +124,17 @@ fun BrainzPlayerBackDropScreen(
     val repeatMode by brainzPlayerViewModel.repeatMode.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val defaultBackgroundColor = MaterialTheme.colorScheme.background
-    val isSystemInDarkTheme = isSystemInDarkTheme()
+    val isDarkThemeEnabled = onScreenUiModeIsDark()
 
     /** 56.dp is default bottom navigation height. 70.dp is our mini player's height. */
     val headerHeight by animateDpAsState(targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null") 56.dp else 126.dp)
     val isPlaying = brainzPlayerViewModel.isPlaying.collectAsState().value
-    LaunchedEffect(currentlyPlayingSong) {
+    LaunchedEffect(currentlyPlayingSong, isDarkThemeEnabled) {
         brainzPlayerViewModel.getBackGroundColorForPlayer(
             currentlyPlayingSong.albumArt,
             defaultBackgroundColor,
             context,
-            isSystemInDarkTheme = isSystemInDarkTheme
+            isDarkThemeEnabled = isDarkThemeEnabled
         )
     }
     BackdropScaffold(

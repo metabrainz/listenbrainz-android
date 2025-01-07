@@ -164,10 +164,6 @@ class MainActivity : ComponentActivity() {
                 val currentDestination = navBackStackEntry?.destination
                 val username = dashBoardViewModel.username
                 val brainzPlayerViewModel: BrainzPlayerViewModel by viewModels()
-                val animatedBackgroundColor by animateColorAsState(
-                    targetValue = if (backdropScaffoldState.isConcealed) brainzPlayerViewModel.playerBackGroundColor else Color.Transparent,
-                    animationSpec = tween(durationMillis = 500)
-                )
                 Scaffold(
                     modifier = Modifier.safeDrawingPadding(),
                     topBar = {
@@ -177,7 +173,7 @@ class MainActivity : ComponentActivity() {
                                 AppNavigationItem.BrainzPlayer.route -> brainzplayerSearchBarState
                                 else -> searchBarState
                             },
-                            backgroundColor = animatedBackgroundColor
+                            backgroundColor = if (backdropScaffoldState.isConcealed) brainzPlayerViewModel.playerBackGroundColor else Color.Transparent
                         )
                     },
                     bottomBar = {
