@@ -104,7 +104,8 @@ private fun PlayedToday(
                         onAddToExistingPlaylist = {onAddToExistingPlaylist(it)},
                         onAddToNewPlaylist = {onAddToNewPlaylist(it)}
                     )
-                }
+                },
+                mediaId = it.mediaID
             )
             Spacer(modifier = Modifier.height(5.dp))
         }

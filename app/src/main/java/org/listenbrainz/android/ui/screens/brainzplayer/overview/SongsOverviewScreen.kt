@@ -62,7 +62,8 @@ fun SongsOverviewScreen(
                             subTitle = songsStarting[startingLetter]!![j - 1].artist,
                             coverArtUrl = coverArt,
                             errorAlbumArt = R.drawable.ic_erroralbumart,
-                            onPlayIconClick = { onPlayIconClick(song, songsStarting[startingLetter]!!) }
+                            onPlayIconClick = { onPlayIconClick(song, songsStarting[startingLetter]!!) },
+                            mediaId = song.mediaID
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                     }

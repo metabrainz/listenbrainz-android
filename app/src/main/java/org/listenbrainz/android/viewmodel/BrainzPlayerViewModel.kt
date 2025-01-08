@@ -1,27 +1,22 @@
 package org.listenbrainz.android.viewmodel
 
-import android.os.Build
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ALL
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_NONE
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ONE
 import android.support.v4.media.session.PlaybackStateCompat.SHUFFLE_MODE_ALL
 import android.support.v4.media.session.PlaybackStateCompat.SHUFFLE_MODE_NONE
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.PlayableType
@@ -36,12 +31,9 @@ import org.listenbrainz.android.util.BrainzPlayerExtensions.currentPlaybackPosit
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlayEnabled
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlaying
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPrepared
-import org.listenbrainz.android.util.BrainzPlayerExtensions.title
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID
 import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.Transformer.toSongEntity
-import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
@@ -68,7 +60,6 @@ class BrainzPlayerViewModel @Inject constructor(
     val playButton = brainzPlayerServiceConnection.playButtonState
     val repeatMode = brainzPlayerServiceConnection.repeatModeState
     var isSearching by mutableStateOf(false)
-    val currentlyPlayingTitle = brainzPlayerServiceConnection.currentPlayingSong.map { it.title }
 
     init {
         updatePlayerPosition()

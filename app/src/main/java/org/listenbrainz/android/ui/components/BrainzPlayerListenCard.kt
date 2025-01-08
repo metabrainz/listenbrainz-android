@@ -33,11 +33,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
 @Composable
@@ -51,11 +53,12 @@ fun BrainzPlayerListenCard(
     dropDown: @Composable () -> Unit = {},
     dropDownState: Boolean = false,
     onPlayIconClick: () -> Unit,
+    mediaId: Long? = null,
     viewModel: BrainzPlayerViewModel = hiltViewModel()
 ) {
     val isPlaying by viewModel.isPlaying.collectAsState()
-    val currentlyPlayingTitle by viewModel.currentlyPlayingTitle.collectAsState(initial = "")
-    val titleColor = if (currentlyPlayingTitle == title) {
+    val currentlyPlayingSong = viewModel.currentlyPlayingSong.collectAsStateWithLifecycle().value.toSong
+    val titleColor = if (currentlyPlayingSong.mediaID == mediaId) {
         Color(0xFFB94FE5)
     } else {
         ListenBrainzTheme.colorScheme.listenText
@@ -101,7 +104,7 @@ fun BrainzPlayerListenCard(
                     if(dropDownState) dropDown()
                     PlayButton(
                         modifier = Modifier.align(Alignment.CenterEnd),
-                        isPlaying = currentlyPlayingTitle == title && isPlaying,
+                        isPlaying = currentlyPlayingSong.mediaID == mediaId && isPlaying,
                         onPlayIconClick = onPlayIconClick
                     )
                 }
