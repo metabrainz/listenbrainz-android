@@ -301,10 +301,21 @@ fun BrainzPlayerHomeScreen(
                     )
                 },
                 onAddToNewPlaylist = {
-                    artist ->  
+                    artist ->
                 },
                 onAddToExistingPlaylist = {
-                    artist ->  
+                    artist ->
+                },
+                onSongClick = {
+                    song ->
+                    brainzPlayerViewModel.changePlayable(
+                        listOf(song),
+                        PlayableType.SONG,
+                        song.mediaID,
+                        0,
+                        0L
+                    )
+                    brainzPlayerViewModel.playOrToggleSong(song, true)
                 }
             )
             3 -> AlbumsOverViewScreen(albums = albums, onPlayIconClick = {

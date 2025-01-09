@@ -1,8 +1,11 @@
 package org.listenbrainz.android.ui.screens.brainzplayer.overview
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -21,8 +24,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Artist
+import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.BrainzPlayerDropDownMenu
 import org.listenbrainz.android.ui.components.BrainzPlayerListenCard
+import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @Composable
@@ -33,11 +39,14 @@ fun ArtistsOverviewScreen(
     onAddToQueue : (Artist) -> Unit,
     onAddToExistingPlaylist : (Artist) -> Unit,
     onAddToNewPlaylist : (Artist) -> Unit,
+    onSongClick: (Song) -> Unit
 ) {
     val artistsStarting: MutableMap<Char, MutableList<Artist>> = mutableMapOf()
     var dropdownState by remember {
         mutableStateOf(Pair(-1,-1))
     }
+    var expandedArtist by remember { mutableStateOf<Artist?>(null) }
+
     for (i in 0..25) {
         artistsStarting['A' + i] = mutableListOf()
     }
@@ -68,15 +77,67 @@ fun ArtistsOverviewScreen(
                     )
                     for (j in 1..artistsStarting[startingLetter]!!.size) {
                         var coverArt: String? = null
-                        val artist = artistsStarting[startingLetter]!![j-1]
-                        if (artistsStarting[startingLetter]!![j - 1].albums.isNotEmpty())
-                            coverArt = artistsStarting[startingLetter]!![j - 1].albums[0].albumArt
-                        BrainzPlayerListenCard(title = artistsStarting[startingLetter]!![j - 1].name, subTitle = when (artistsStarting[startingLetter]!![j - 1].songs.size) {
-                            1 -> "1 track"
-                            else -> "${artistsStarting[startingLetter]!![j - 1].songs.size} tracks"
-                        }, coverArtUrl = coverArt, errorAlbumArt = R.drawable.ic_artist, onPlayIconClick = {
-                            onPlayClick(artistsStarting[startingLetter]!![j-1])
-                        }, modifier = Modifier.padding(start = 10.dp, end = 10.dp), dropDown = { BrainzPlayerDropDownMenu(onAddToNewPlaylist = {onAddToNewPlaylist(artist)}, onAddToExistingPlaylist = {onAddToExistingPlaylist(artist)},onAddToQueue = {onAddToQueue(artist)}, onPlayNext = {onPlayNext(artist)},expanded = dropdownState == Pair(i,j-1), onDismiss = {dropdownState = Pair(-1,-1)})}, onDropdownIconClick = {dropdownState = Pair(i,j-1)}, dropDownState = dropdownState == Pair(i,j-1))
+                        val artist = artistsStarting[startingLetter]!![j - 1]
+                        if (artist.albums.isNotEmpty())
+                            coverArt = artist.albums[0].albumArt
+                        Column {
+                            BrainzPlayerListenCard(
+                                title = artist.name,
+                                subTitle = when (artist.songs.size) {
+                                    1 -> "1 track"
+                                    else -> "${artist.songs.size} tracks"
+                                },
+                                coverArtUrl = coverArt,
+                                errorAlbumArt = R.drawable.ic_artist,
+                                onPlayIconClick = {
+                                    onPlayClick(artist)
+                                },
+                                modifier = Modifier
+                                    .padding(start = 10.dp, end = 10.dp)
+                                    .clickable {
+                                        expandedArtist =
+                                            if (expandedArtist == artist) null else artist
+                                    },
+                                dropDown = {
+                                    BrainzPlayerDropDownMenu(
+                                        onAddToNewPlaylist = { onAddToNewPlaylist(artist) },
+                                        onAddToExistingPlaylist = { onAddToExistingPlaylist(artist) },
+                                        onAddToQueue = { onAddToQueue(artist) },
+                                        onPlayNext = { onPlayNext(artist) },
+                                        expanded = dropdownState == Pair(i, j - 1),
+                                        onDismiss = { dropdownState = Pair(-1, -1) }
+                                    )
+                                },
+                                onDropdownIconClick = { dropdownState = Pair(i, j - 1) },
+                                dropDownState = dropdownState == Pair(i, j - 1)
+                            )
+                            if (expandedArtist == artist) {
+                                Row(modifier = Modifier.fillMaxWidth()) {
+                                    Spacer(modifier = Modifier.weight(0.5f))
+                                    Column(
+                                        modifier = Modifier
+                                            .weight(3.5f)
+                                            .padding(horizontal = ListenBrainzTheme.paddings.horizontal)
+                                    ) {
+                                        artist.songs.forEach { song ->
+                                            ListenCardSmall(
+                                                modifier = Modifier
+                                                    .padding(vertical = 6.dp)
+                                                    .fillMaxWidth(),
+                                                trackName = song.title,
+                                                artists = listOf(FeedListenArtist(song.artist, null, "")),
+                                                coverArtUrl = song.albumArt,
+                                                errorAlbumArt = R.drawable.ic_erroralbumart,
+                                                goToArtistPage = {}
+                                            ) {
+                                                onSongClick(song)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
                         Spacer(modifier = Modifier.height(10.dp))
                     }
                 }
