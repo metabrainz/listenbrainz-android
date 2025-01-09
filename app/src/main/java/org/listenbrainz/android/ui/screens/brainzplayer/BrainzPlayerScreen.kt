@@ -16,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SuggestionChipDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -134,7 +135,7 @@ fun BrainzPlayerHomeScreen(
                     shape = ListenBrainzTheme.shapes.chips,
                     elevation = SuggestionChipDefaults.elevatedSuggestionChipElevation(elevation = 4.dp),
                     label = {
-                        androidx.compose.material3.Text(
+                        Text(
                             text = when (position) {
                                 0 -> "Overview"
                                 1 -> "Recent"
@@ -318,33 +319,46 @@ fun BrainzPlayerHomeScreen(
                     brainzPlayerViewModel.playOrToggleSong(song, true)
                 }
             )
-            3 -> AlbumsOverViewScreen(albums = albums, onPlayIconClick = {
-                album ->
-                val albumSongs = albumSongsMap[album]!!
-                brainzPlayerViewModel.changePlayable(
-                    albumSongs.sortedBy { it.trackNumber },
-                    PlayableType.ALBUM,
-                    album.albumId,
-                    albumSongs
-                        .sortedBy { it.trackNumber }
-                        .indexOf (albumSongs[0]),
-                    0L
-                )
-                brainzPlayerViewModel.playOrToggleSong(albumSongs[0],true)
-
-
-            })
-            4 -> SongsOverviewScreen(songs = songs, onPlayIconClick = {
-                    song , newPlayables ->
-                brainzPlayerViewModel.changePlayable(
-                    newPlayables,
-                    PlayableType.ALL_SONGS,
-                    song.mediaID,
-                    newPlayables.sortedBy { it.discNumber }.indexOf(song),
-                    0L
-                )
-                brainzPlayerViewModel.playOrToggleSong(song,true)
-            })
+            3 -> AlbumsOverViewScreen(
+                albums = albums,
+                onPlayIconClick = { album ->
+                    val albumSongs = albumSongsMap[album]!!
+                    brainzPlayerViewModel.changePlayable(
+                        albumSongs.sortedBy { it.trackNumber },
+                        PlayableType.ALBUM,
+                        album.albumId,
+                        albumSongs
+                            .sortedBy { it.trackNumber }
+                            .indexOf(albumSongs[0]),
+                        0L
+                    )
+                    brainzPlayerViewModel.playOrToggleSong(albumSongs[0], true)
+                },
+                onSongClick = { song ->
+                    brainzPlayerViewModel.changePlayable(
+                        listOf(song),
+                        PlayableType.SONG,
+                        song.mediaID,
+                        0,
+                        0L
+                    )
+                    brainzPlayerViewModel.playOrToggleSong(song, true)
+                },
+                albumSongsMap = albumSongsMap
+            )
+            4 -> SongsOverviewScreen(
+                songs = songs,
+                onPlayIconClick = { song , newPlayables ->
+                    brainzPlayerViewModel.changePlayable(
+                        newPlayables,
+                        PlayableType.ALL_SONGS,
+                        song.mediaID,
+                        newPlayables.sortedBy { it.discNumber }.indexOf(song),
+                        0L
+                    )
+                   brainzPlayerViewModel.playOrToggleSong(song,true)
+                }
+            )
         }
     }
 }
