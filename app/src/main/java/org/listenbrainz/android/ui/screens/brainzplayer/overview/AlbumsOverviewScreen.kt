@@ -1,5 +1,10 @@
 package org.listenbrainz.android.ui.screens.brainzplayer.overview
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -88,7 +93,11 @@ fun AlbumsOverViewScreen(
                                 onPlayIconClick(album)
                             }
                         )
-                        if (expandedAlbum == album) {
+                        AnimatedVisibility(
+                            visible = expandedAlbum == album,
+                            enter = fadeIn() + expandVertically(),
+                            exit = fadeOut() + shrinkVertically()
+                        ) {
                             val albumSongs = albumSongsMap[album]!!.sortedBy { it.trackNumber }
                             Row(modifier = Modifier.fillMaxWidth()) {
                                 Spacer(modifier = Modifier.weight(0.5f))

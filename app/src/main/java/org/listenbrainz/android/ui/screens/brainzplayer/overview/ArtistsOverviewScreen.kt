@@ -1,5 +1,10 @@
 package org.listenbrainz.android.ui.screens.brainzplayer.overview
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -111,7 +116,11 @@ fun ArtistsOverviewScreen(
                                 onDropdownIconClick = { dropdownState = Pair(i, j - 1) },
                                 dropDownState = dropdownState == Pair(i, j - 1)
                             )
-                            if (expandedArtist == artist) {
+                            AnimatedVisibility(
+                                visible = expandedArtist == artist,
+                                enter = fadeIn() + expandVertically(),
+                                exit = fadeOut() + shrinkVertically()
+                            ) {
                                 Row(modifier = Modifier.fillMaxWidth()) {
                                     Spacer(modifier = Modifier.weight(0.5f))
                                     Column(
