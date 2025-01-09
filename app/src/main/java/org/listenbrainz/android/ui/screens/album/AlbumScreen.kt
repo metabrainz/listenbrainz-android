@@ -52,6 +52,7 @@ import org.listenbrainz.android.ui.screens.profile.listens.LoadMoreButton
 import org.listenbrainz.android.ui.screens.profile.stats.ArtistCard
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.new_app_bg_light
+import org.listenbrainz.android.util.LinkUtils.fetchLinks
 import org.listenbrainz.android.viewmodel.AlbumViewModel
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
@@ -124,8 +125,7 @@ private fun AlbumScreen(
                         false -> null
                     }
                     Links(
-                        artistMbid = artistMbid,
-                        links = links
+                        fetchLinks(artistMbid, links)
                     )
                 }
                 item {

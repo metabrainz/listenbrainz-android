@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import org.listenbrainz.android.repository.artist.ArtistRepository
 import org.listenbrainz.android.ui.screens.artist.ArtistUIState
+import org.listenbrainz.android.util.LinkUtils.fetchLinks
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,7 +25,7 @@ class ArtistViewModel @Inject constructor(
         val appearsOn = artistData?.releaseGroups?.filter { releaseGroup ->
             releaseGroup?.artists?.get(0)?.artistMbid != artistMbid
         }
-
+        val linksMap = fetchLinks(artistMbid, artistData?.artist?.rels)
         val artistUiState = ArtistUIState(
             isLoading = false,
             name = artistData?.artist?.name,
@@ -36,6 +37,7 @@ class ArtistViewModel @Inject constructor(
             wikiExtract = artistWikiExtract,
             tags = artistData?.artist?.tag,
             links = artistData?.artist?.rels,
+            linksMap = linksMap,
             popularTracks = artistData?.popularRecordings,
             albums = artistData?.releaseGroups,
             appearsOn = appearsOn,
