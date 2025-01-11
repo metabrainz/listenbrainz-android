@@ -6,11 +6,18 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.captionBar
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.BackdropValue
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Surface
 import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -19,12 +26,16 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -48,6 +59,8 @@ import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils.isServiceRunning
 import org.listenbrainz.android.util.Utils.openAppSystemSettings
+import org.listenbrainz.android.util.Utils.toPx
+import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
 @AndroidEntryPoint
@@ -158,16 +171,53 @@ class MainActivity : ComponentActivity() {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
                 val username = dashBoardViewModel.username
+                val brainzPlayerViewModel: BrainzPlayerViewModel by viewModels()
+
+                val isBackdropInitialised by remember {
+                    derivedStateOf {
+                        val currentOffset = runCatching {
+                            backdropScaffoldState.requireOffset()
+                        }.getOrNull()
+
+                        currentOffset != null
+                    }
+                }
+
+                var maxOffset by remember {
+                    mutableFloatStateOf(0f)
+                }
+
+                val playerHeight = ListenBrainzTheme.sizes.brainzPlayerPeekHeight.toPx()
+                LaunchedEffect(isBackdropInitialised) {
+                    if (isBackdropInitialised) {
+                        maxOffset = maxOf(maxOffset, backdropScaffoldState.requireOffset() - playerHeight)
+                        println(maxOffset)
+                    }
+                }
+
+                val desiredBackgroundColor by remember {
+                    derivedStateOf {
+                        brainzPlayerViewModel.playerBackGroundColor.copy(
+                            alpha = runCatching {
+                                1 - (backdropScaffoldState.requireOffset() / maxOffset).coerceIn(0f, 1f)
+                            }.getOrElse { 0f }
+                        )
+                    }
+                }
 
                 Scaffold(
-                    modifier = Modifier.safeDrawingPadding(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(ListenBrainzTheme.colorScheme.background)
+                        .background(desiredBackgroundColor),
                     topBar = {
                         TopBar(
+                            modifier = Modifier.statusBarsPadding(),
                             navController = navController,
                             searchBarState = when (currentDestination?.route) {
                                 AppNavigationItem.BrainzPlayer.route -> brainzplayerSearchBarState
                                 else -> searchBarState
-                            }
+                            },
                         )
                     },
                     bottomBar = {
@@ -179,7 +229,10 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     snackbarHost = {
-                        SnackbarHost(hostState = snackbarState) { snackbarData ->
+                        SnackbarHost(
+                            modifier = Modifier.safeDrawingPadding(),
+                            hostState = snackbarState
+                        ) { snackbarData ->
                             Snackbar(
                                 snackbarData = snackbarData,
                                 containerColor = MaterialTheme.colorScheme.background,
@@ -189,16 +242,15 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     },
-                    containerColor = MaterialTheme.colorScheme.background,
+                    containerColor = Color.Transparent,
                     contentWindowInsets = WindowInsets.captionBar
-
                 ) {
-
                     if (isGrantedPerms == PermissionStatus.GRANTED.name) {
-
                         BrainzPlayerBackDropScreen(
+                            modifier = Modifier.navigationBarsPadding(),
                             backdropScaffoldState = backdropScaffoldState,
                             paddingValues = it,
+                            brainzPlayerViewModel = brainzPlayerViewModel
                         ) {
                             AppNavigation(
                                 navController = navController,
