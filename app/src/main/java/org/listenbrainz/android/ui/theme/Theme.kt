@@ -242,7 +242,8 @@ val LocalPaddings = staticCompositionLocalOf { Paddings() }
 data class Sizes(
     val listenCardHeight: Dp = 60.dp,
     val listenCardCorner: Dp = 8.dp,
-    val dropdownItem: Dp = 20.dp
+    val dropdownItem: Dp = 20.dp,
+    val brainzPlayerPeekHeight: Dp = 70.dp
 )
 
 val LocalSizes = staticCompositionLocalOf { Sizes() }
@@ -343,7 +344,6 @@ fun ListenBrainzTheme(
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
-            (view.context as Activity).window.statusBarColor = localColorScheme.background.toArgb()
             val isDark = when (uiMode){
                 UiMode.DARK -> false
                 UiMode.LIGHT -> true
@@ -351,7 +351,6 @@ fun ListenBrainzTheme(
             }
             systemUiController.statusBarDarkContentEnabled = isDark
             systemUiController.navigationBarDarkContentEnabled = isDark
-            systemUiController.setNavigationBarColor(color = colorScheme.tertiaryContainer)
         }
     }
 

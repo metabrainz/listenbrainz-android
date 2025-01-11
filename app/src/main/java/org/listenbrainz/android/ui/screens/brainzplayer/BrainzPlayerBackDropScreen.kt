@@ -6,7 +6,6 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -85,22 +84,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
-import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.PlayableType
-import org.listenbrainz.android.model.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.CustomSeekBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.PlayPauseIcon
-import org.listenbrainz.android.ui.components.SeekBar
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
-import org.listenbrainz.android.util.CacheService
-import org.listenbrainz.android.util.Constants.RECENTLY_PLAYED_KEY
 import org.listenbrainz.android.util.SongViewPager
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
@@ -110,6 +104,7 @@ import kotlin.math.max
 @ExperimentalMaterialApi
 @Composable
 fun BrainzPlayerBackDropScreen(
+    modifier: Modifier = Modifier,
     backdropScaffoldState: BackdropScaffoldState,
     brainzPlayerViewModel: BrainzPlayerViewModel = viewModel(),
     paddingValues: PaddingValues,
@@ -123,14 +118,18 @@ fun BrainzPlayerBackDropScreen(
     }
     val repeatMode by brainzPlayerViewModel.repeatMode.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val defaultBackgroundColor = MaterialTheme.colorScheme.background
+    val defaultBackgroundColor = ListenBrainzTheme.colorScheme.background
     val isDarkThemeEnabled = onScreenUiModeIsDark()
 
-    /** 56.dp is default bottom navigation height. 70.dp is our mini player's height. */
-    val headerHeight by animateDpAsState(targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null") 56.dp else 126.dp)
-    val isPlaying = brainzPlayerViewModel.isPlaying.collectAsState().value
+    /** 56.dp is default bottom navigation height */
+    val headerHeight by animateDpAsState(
+        targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null")
+            56.dp
+        else
+            56.dp + ListenBrainzTheme.sizes.brainzPlayerPeekHeight
+    )
     LaunchedEffect(currentlyPlayingSong, isDarkThemeEnabled) {
-        brainzPlayerViewModel.getBackGroundColorForPlayer(
+        brainzPlayerViewModel.updateBackgroundColorForPlayer(
             currentlyPlayingSong.albumArt,
             defaultBackgroundColor,
             context,
@@ -138,18 +137,14 @@ fun BrainzPlayerBackDropScreen(
         )
     }
     BackdropScaffold(
-        modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
+        modifier = modifier.padding(top = paddingValues.calculateTopPadding()),
         frontLayerShape = RectangleShape,
-        backLayerBackgroundColor = MaterialTheme.colorScheme.background,
+        backLayerBackgroundColor = Color.Transparent,
         frontLayerScrimColor = Color.Unspecified,
         headerHeight = headerHeight, // 126.dp is optimal header height.
         peekHeight = 0.dp,
         scaffoldState = backdropScaffoldState,
-        backLayerContent = {
-            Surface(modifier = Modifier.fillMaxSize(), color = Color.Transparent) {
-                backLayerContent()
-            }
-        },
+        backLayerContent = backLayerContent,
         frontLayerBackgroundColor = defaultBackgroundColor,
         appBar = {},
         persistentAppBar = false,

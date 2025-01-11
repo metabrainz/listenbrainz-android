@@ -11,6 +11,7 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -27,9 +28,10 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @Composable
 fun TopBar(
+    modifier: Modifier = Modifier,
     navController: NavController = rememberNavController(),
     searchBarState: SearchBarState,
-    backgroundColor: Color=Color.Transparent,
+    backgroundColor: Color = Color.Transparent,
     context: Context = LocalContext.current,
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -43,32 +45,43 @@ fun TopBar(
             AppNavigationItem.Settings.route -> AppNavigationItem.Settings.title
             AppNavigationItem.About.route -> AppNavigationItem.About.title
             "${AppNavigationItem.Artist.route}/{mbid}" -> AppNavigationItem.Artist.title
-        "${AppNavigationItem.Album.route}/{mbid}" -> AppNavigationItem.Album.title
+            "${AppNavigationItem.Album.route}/{mbid}" -> AppNavigationItem.Album.title
             else -> ""
         }
     } ?: "ListenBrainz"
-    
+
     TopAppBar(
+        modifier = modifier,
         title = { Text(text = title) },
-        navigationIcon =  {
+        navigationIcon = {
             IconButton(onClick = {
-                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://listenbrainz.org")))
+                context.startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("https://listenbrainz.org")
+                    )
+                )
             }) {
-                Icon(painterResource(id = R.drawable.ic_listenbrainz_logo_icon),
+                Icon(
+                    painterResource(id = R.drawable.ic_listenbrainz_logo_icon),
                     "ListenBrainz",
-                    tint = Color.Unspecified)
+                    tint = Color.Unspecified
+                )
             }
         },
-        backgroundColor =backgroundColor,
+        backgroundColor = backgroundColor,
         contentColor = MaterialTheme.colorScheme.onSurface,
         elevation = 0.dp,
         actions = {
             IconButton(onClick = { searchBarState.activate() }) {
-                Icon(painterResource(id = R.drawable.ic_search), contentDescription = "Search users")
+                Icon(
+                    painterResource(id = R.drawable.ic_search),
+                    contentDescription = "Search users"
+                )
             }
 
             IconButton(onClick = {
-                if (navBackStackEntry?.destination?.route == AppNavigationItem.Settings.route){
+                if (navBackStackEntry?.destination?.route == AppNavigationItem.Settings.route) {
                     navController.popBackStack()
                 } else {
                     navController.navigate(AppNavigationItem.Settings.route) {
@@ -83,11 +96,11 @@ fun TopBar(
                     }
                 }
             }) {
-                Icon(painterResource(id = R.drawable.ic_settings),"Settings")
+                Icon(painterResource(id = R.drawable.ic_settings), "Settings")
             }
         }
     )
-    
+
 }
 
 @Preview
