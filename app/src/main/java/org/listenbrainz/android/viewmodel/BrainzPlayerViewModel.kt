@@ -1,21 +1,26 @@
 package org.listenbrainz.android.viewmodel
 
-import android.os.Build
+import android.content.Context
+import android.graphics.Color.parseColor
+import android.graphics.drawable.BitmapDrawable
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ALL
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_NONE
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ONE
 import android.support.v4.media.session.PlaybackStateCompat.SHUFFLE_MODE_ALL
 import android.support.v4.media.session.PlaybackStateCompat.SHUFFLE_MODE_NONE
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.palette.graphics.Palette
+import coil.ImageLoader
+import coil.request.ImageRequest
+import coil.request.SuccessResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,8 +43,6 @@ import org.listenbrainz.android.util.BrainzPlayerExtensions.isPrepared
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID
 import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.Transformer.toSongEntity
-import java.time.Instant
 import javax.inject.Inject
 
 @HiltViewModel
@@ -67,6 +70,8 @@ class BrainzPlayerViewModel @Inject constructor(
     val repeatMode = brainzPlayerServiceConnection.repeatModeState
     var isSearching by mutableStateOf(false)
 
+    var playerBackGroundColor by mutableStateOf(Color.Transparent)
+
     init {
         updatePlayerPosition()
         _mediaItems.value = Resource.loading()
@@ -91,6 +96,42 @@ class BrainzPlayerViewModel @Inject constructor(
                 _mediaItems.value = Resource(Resource.Status.SUCCESS, it)
                 currentlyPlaying.items.plus(it)
             }
+        }
+    }
+
+    fun updateBackgroundColorForPlayer(
+        albumArtUrl: String?,
+        defaultColor: Color,
+        context: Context,
+        isDarkThemeEnabled: Boolean
+    ) {
+        viewModelScope.launch {
+            var dominantColor: Color = defaultColor
+            val loader = ImageLoader(context)
+            val request = ImageRequest.Builder(context)
+                .data(albumArtUrl)
+                .allowHardware(false)
+                .build()
+            val result = loader.execute(request)
+            val bitmap = (result as? SuccessResult)?.drawable?.let { drawable ->
+                (drawable as? BitmapDrawable)?.bitmap
+            }
+            bitmap?.let { bitmap ->
+                val palette = Palette.from(bitmap).generate()
+                val swatch = run {
+                    if (isDarkThemeEnabled) {
+                        palette.darkMutedSwatch ?: palette.darkVibrantSwatch ?: palette.lightMutedSwatch ?: palette.swatches.firstOrNull()
+                    } else {
+                        palette.lightMutedSwatch ?: palette.lightVibrantSwatch ?: palette.darkMutedSwatch ?: palette.swatches.firstOrNull()
+                    }
+                }
+                dominantColor = if (swatch != null) {
+                    Color(swatch.rgb)
+                } else {
+                    defaultColor
+                }
+            }
+            playerBackGroundColor = dominantColor
         }
     }
 

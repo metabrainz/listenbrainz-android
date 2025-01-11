@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.navigation
 
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.BackdropScaffoldState
@@ -31,6 +32,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun BottomNavigationBar(
+    modifier: Modifier = Modifier,
     navController: NavController = rememberNavController(),
     backdropScaffoldState: BackdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed),
     scrollToTop: () -> Unit,
@@ -43,6 +45,7 @@ fun BottomNavigationBar(
         AppNavigationItem.Profile
     )
     BottomNavigation(
+        modifier = modifier,
         backgroundColor = ListenBrainzTheme.colorScheme.nav,
         elevation = 0.dp
     ) {
@@ -52,6 +55,7 @@ fun BottomNavigationBar(
             val currentDestination = navBackStackEntry?.destination
             val selected = currentDestination?.route?.startsWith("${item.route}/") == true || currentDestination?.route == item.route
             BottomNavigationItem(
+                modifier = Modifier.navigationBarsPadding(),
                 icon = {
                     Icon(
                         painterResource(id = selected

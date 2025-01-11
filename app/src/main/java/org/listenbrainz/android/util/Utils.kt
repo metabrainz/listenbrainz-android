@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
@@ -22,10 +23,28 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
-import androidx.compose.ui.geometry.Size
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.DisposableEffectResult
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationCompat
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import okhttp3.*
 import org.listenbrainz.android.R
@@ -128,6 +147,95 @@ object Utils {
             else -> "a"
         }
     }
+
+    @Composable
+    fun LaunchedEffectUnit(block: suspend CoroutineScope.() -> Unit) = LaunchedEffect(Unit, block)
+
+    @Composable
+    fun LaunchedEffectUnitMainThread(block: () -> Unit) = DisposableEffect(Unit) {
+        block()
+        EmptyDisposableEffectResult
+    }
+
+    @Composable
+    fun LaunchedEffectMainThread(vararg keys: Any?, block: () -> Unit) = DisposableEffect(*keys) {
+        block()
+        EmptyDisposableEffectResult
+    }
+
+    @Composable
+    fun LaunchedEffectMainThread(key1: Any?, block: () -> Unit) = DisposableEffect(key1) {
+        block()
+        EmptyDisposableEffectResult
+    }
+
+    private val EmptyDisposableEffectResult = object : DisposableEffectResult {
+        override fun dispose() = Unit
+    }
+
+    fun Context.getNavigationBarHeightInPixels(): Int {
+        val resourceId: Int = resources.getIdentifier("navigation_bar_height", "dimen", "android")
+        return if (resourceId > 0) {
+            resources.getDimensionPixelSize(resourceId)
+        } else {
+            0
+        }
+    }
+
+    /** Works for cases where the status bar may change, i.e., foldables.*/
+    fun Context.getStatusBarHeightInPixels(): Int {
+        val resourceId = resources.getIdentifier("status_bar_height", "dimen", "android")
+        return if (resourceId > 0) {
+            resources.getDimensionPixelSize(resourceId)
+        } else {
+            0
+        }
+    }
+
+    @Composable
+    fun getStatusBarHeight() =
+        androidx.compose.foundation.layout.WindowInsets.statusBars.asPaddingValues()
+            .calculateTopPadding()
+
+    @Composable
+    fun getDisplayCutoutHeight() =
+        if (LocalConfiguration.current.orientation == ORIENTATION_PORTRAIT) {
+            androidx.compose.foundation.layout.WindowInsets.displayCutout.asPaddingValues()
+                .calculateTopPadding()
+        } else {
+            androidx.compose.foundation.layout.WindowInsets.displayCutout.asPaddingValues()
+                .calculateStartPadding(LocalLayoutDirection.current)
+        }
+
+    @Composable
+    fun getNavigationBarHeight() =
+        androidx.compose.foundation.layout.WindowInsets.navigationBars.asPaddingValues()
+            .calculateBottomPadding()
+
+    @Composable
+    fun HorizontalSpacer(width: Dp) = Spacer(Modifier.width(width))
+
+    @Composable
+    fun VerticalSpacer(height: Dp) = Spacer(Modifier.height(height))
+
+    @Composable
+    fun Int.toDp() = with(LocalDensity.current) { this@toDp.toDp() }
+    @Composable
+    fun Float.toDp() = with(LocalDensity.current) { this@toDp.toDp() }
+
+    @Composable
+    fun Int.toSp() = with(LocalDensity.current) { this@toSp.toSp() }
+    @Composable
+    fun Float.toSp() = with(LocalDensity.current) { this@toSp.toSp() }
+
+    @Composable
+    fun Dp.toPx() = with(LocalDensity.current) { this@toPx.toPx() }
+
+    fun Number.toDp(context: Context) = (this.toFloat() / context.resources.displayMetrics.density).dp
+    fun Number.toDp(density: Int) = (this.toFloat() / density).dp
+
+    fun Dp.toPx(context: Context) = this.value * context.resources.displayMetrics.density
+    fun Dp.toPx(density: Int) = this.value * density
 
     fun emailIntent(recipient: String, subject: String?): Intent {
         val uri = Uri.parse("mailto:$recipient")

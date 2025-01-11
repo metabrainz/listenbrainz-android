@@ -63,10 +63,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -82,21 +84,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
-import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.PlayableType
-import org.listenbrainz.android.model.Playlist.Companion.recentlyPlayed
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.CustomSeekBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.PlayPauseIcon
-import org.listenbrainz.android.ui.components.SeekBar
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
-import org.listenbrainz.android.util.CacheService
-import org.listenbrainz.android.util.Constants.RECENTLY_PLAYED_KEY
 import org.listenbrainz.android.util.SongViewPager
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
@@ -106,6 +104,7 @@ import kotlin.math.max
 @ExperimentalMaterialApi
 @Composable
 fun BrainzPlayerBackDropScreen(
+    modifier: Modifier = Modifier,
     backdropScaffoldState: BackdropScaffoldState,
     brainzPlayerViewModel: BrainzPlayerViewModel = viewModel(),
     paddingValues: PaddingValues,
@@ -118,25 +117,35 @@ fun BrainzPlayerBackDropScreen(
         mutableFloatStateOf(0F)
     }
     val repeatMode by brainzPlayerViewModel.repeatMode.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val defaultBackgroundColor = ListenBrainzTheme.colorScheme.background
+    val isDarkThemeEnabled = onScreenUiModeIsDark()
 
-    /** 56.dp is default bottom navigation height. 70.dp is our mini player's height. */
-    val headerHeight by animateDpAsState(targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null") 56.dp else 126.dp)
-    val isPlaying = brainzPlayerViewModel.isPlaying.collectAsState().value
-
+    /** 56.dp is default bottom navigation height */
+    val headerHeight by animateDpAsState(
+        targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null")
+            56.dp
+        else
+            56.dp + ListenBrainzTheme.sizes.brainzPlayerPeekHeight
+    )
+    LaunchedEffect(currentlyPlayingSong, isDarkThemeEnabled) {
+        brainzPlayerViewModel.updateBackgroundColorForPlayer(
+            currentlyPlayingSong.albumArt,
+            defaultBackgroundColor,
+            context,
+            isDarkThemeEnabled = isDarkThemeEnabled
+        )
+    }
     BackdropScaffold(
-        modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
+        modifier = modifier.padding(top = paddingValues.calculateTopPadding()),
         frontLayerShape = RectangleShape,
-        backLayerBackgroundColor = MaterialTheme.colorScheme.background,
+        backLayerBackgroundColor = Color.Transparent,
         frontLayerScrimColor = Color.Unspecified,
         headerHeight = headerHeight, // 126.dp is optimal header height.
         peekHeight = 0.dp,
         scaffoldState = backdropScaffoldState,
-        backLayerContent = {
-            Surface(modifier = Modifier.fillMaxSize(), color = Color.Transparent) {
-                backLayerContent()
-            }
-        },
-        frontLayerBackgroundColor = MaterialTheme.colorScheme.background,
+        backLayerContent = backLayerContent,
+        frontLayerBackgroundColor = defaultBackgroundColor,
         appBar = {},
         persistentAppBar = false,
         frontLayerContent = {
@@ -149,7 +158,14 @@ fun BrainzPlayerBackDropScreen(
                 currentlyPlayingSong = currentlyPlayingSong,
                 isShuffled = isShuffled,
                 repeatMode = repeatMode,
-                backdropScaffoldState = backdropScaffoldState
+                backdropScaffoldState = backdropScaffoldState,
+                backgroundBrush = Brush.verticalGradient(
+                    colors = listOf(
+                        brainzPlayerViewModel.playerBackGroundColor,
+                        defaultBackgroundColor
+                    )
+                ),
+                dynamicBackground = brainzPlayerViewModel.playerBackGroundColor
             )
             val songList = brainzPlayerViewModel.mediaItem.collectAsState().value.data ?: listOf()
             SongViewPager(
@@ -172,6 +188,8 @@ fun PlayerScreen(
     isShuffled: Boolean,
     repeatMode: RepeatMode,
     backdropScaffoldState: BackdropScaffoldState,
+    backgroundBrush: Brush,
+    dynamicBackground: Color = MaterialTheme.colorScheme.background
 ) {
     val coroutineScope = rememberCoroutineScope()
     val playlistViewModel = hiltViewModel<PlaylistViewModel>()
@@ -189,17 +207,17 @@ fun PlayerScreen(
         println("Playlist is empty")
     }
 
-    if(backdropScaffoldState.isConcealed){
+    if (backdropScaffoldState.isConcealed) {
         BackHandler {
             coroutineScope.launch {
                 backdropScaffoldState.reveal()
             }
         }
     }
-    LazyColumn {
+    LazyColumn(modifier = Modifier.background(brush = backgroundBrush)) {
         item {
             songList.data?.let {
-                AlbumArtViewPager(currentlyPlayingSong, pagerState)
+                AlbumArtViewPager(currentlyPlayingSong, pagerState, dynamicBackground)
             }
         }
         item {
@@ -539,12 +557,15 @@ fun PlayerScreen(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun AlbumArtViewPager(currentlyPlayingSong: Song, pagerState: PagerState) {
+fun AlbumArtViewPager(
+    currentlyPlayingSong: Song,
+    pagerState: PagerState,
+    dynamicBackground: Color
+) {
     HorizontalPager(
         state = pagerState,
         modifier = Modifier
             .fillMaxWidth()
-            .background(ListenBrainzTheme.colorScheme.background),
     ) { page ->
         Column(
             Modifier
@@ -556,7 +577,7 @@ fun AlbumArtViewPager(currentlyPlayingSong: Song, pagerState: PagerState) {
                     .padding(top = 20.dp)
                     .width(300.dp)
                     .clip(RoundedCornerShape(20.dp))
-                    .background(MaterialTheme.colorScheme.background)
+                    .background(dynamicBackground)
                     .graphicsLayer {
                         // Calculate the absolute offset for the current page from the
                         // scroll position. We use the absolute value which allows us to mirror
@@ -583,7 +604,7 @@ fun AlbumArtViewPager(currentlyPlayingSong: Song, pagerState: PagerState) {
             ) {
                 AsyncImage(
                     modifier = Modifier
-                        .background(MaterialTheme.colorScheme.background)
+                        .background(dynamicBackground)
                         .fillMaxSize()
                         .padding()
                         .clip(shape = RoundedCornerShape(20.dp))
@@ -607,7 +628,8 @@ fun AlbumArtViewPager(currentlyPlayingSong: Song, pagerState: PagerState) {
 fun AlbumArtViewPagerPreview() {
     AlbumArtViewPager(
         currentlyPlayingSong = Song.preview(),
-        pagerState = rememberPagerState { 3 }
+        pagerState = rememberPagerState { 3 },
+        dynamicBackground = MaterialTheme.colorScheme.background
     )
 }
 
