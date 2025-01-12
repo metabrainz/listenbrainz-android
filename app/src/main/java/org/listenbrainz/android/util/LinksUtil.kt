@@ -8,7 +8,7 @@ import org.listenbrainz.android.ui.screens.artist.LinkCardData
 import org.listenbrainz.android.util.Constants.MB_BASE_URL
 
 object LinkUtils {
-    fun fetchLinks(artistMbid: String?, links: Rels?): Map<ArtistLinksEnum, List<LinkCardData>> {
+    fun parseLinks(artistMbid: String?, links: Rels?): Map<ArtistLinksEnum, List<LinkCardData>> {
         val allLinkCards: MutableList<LinkCardData> = mutableListOf()
         val mainLinkCards: MutableList<LinkCardData> = mutableListOf()
         val streamingLinkCards: MutableList<LinkCardData> = mutableListOf()
