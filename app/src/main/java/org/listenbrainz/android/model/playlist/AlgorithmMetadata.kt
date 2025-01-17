@@ -5,5 +5,5 @@ import com.google.gson.annotations.SerializedName
 
 data class AlgorithmMetadata(
     @SerializedName("source_patch")
-    val sourcePatch: String
+    val sourcePatch: String? = null
 )

@@ -5,13 +5,13 @@ import com.google.gson.annotations.SerializedName
 
 data class PlaylistExtensionData(
     @SerializedName("additional_metadata")
-    val additionalMetadata: AdditionalMetadata,
+    val additionalMetadata: AdditionalMetadata = AdditionalMetadata(),
     @SerializedName("created_for")
-    val createdFor: String,
+    val createdFor: String? = null,
     @SerializedName("creator")
-    val creator: String,
+    val creator: String? = null,
     @SerializedName("last_modified_at")
-    val lastModifiedAt: String,
+    val lastModifiedAt: String? = null,
     @SerializedName("public")
-    val `public`: Boolean
+    val `public`: Boolean? = null
 )

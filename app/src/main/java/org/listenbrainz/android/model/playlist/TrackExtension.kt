@@ -5,5 +5,5 @@ import com.google.gson.annotations.SerializedName
 
 data class TrackExtension(
     @SerializedName("https://musicbrainz.org/doc/jspf#track")
-    val trackExtensionData: TrackExtensionData
+    val trackExtensionData: TrackExtensionData = TrackExtensionData()
 )

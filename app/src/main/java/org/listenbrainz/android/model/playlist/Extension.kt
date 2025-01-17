@@ -5,5 +5,5 @@ import com.google.gson.annotations.SerializedName
 
 data class Extension(
     @SerializedName("https://musicbrainz.org/doc/jspf#playlist")
-    val playlistExtensionData: PlaylistExtensionData
+    val playlistExtensionData: PlaylistExtensionData = PlaylistExtensionData()
 )

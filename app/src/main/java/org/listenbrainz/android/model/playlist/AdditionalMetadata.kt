@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 
 data class AdditionalMetadata(
     @SerializedName("algorithm_metadata")
-    val algorithmMetadata: AlgorithmMetadata,
+    val algorithmMetadata: AlgorithmMetadata = AlgorithmMetadata(),
     @SerializedName("expires_at")
-    val expiresAt: String
+    val expiresAt: String? = null
 )

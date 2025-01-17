@@ -5,15 +5,15 @@ import com.google.gson.annotations.SerializedName
 
 data class Track(
     @SerializedName("album")
-    val album: String,
+    val album: String? = null,
     @SerializedName("creator")
-    val creator: String,
+    val creator: String? = null,
     @SerializedName("duration")
-    val duration: Int,
+    val duration: Int? = null,
     @SerializedName("extension")
-    val extension: TrackExtension,
+    val extension: TrackExtension = TrackExtension(),
     @SerializedName("identifier")
-    val identifier: List<String>,
+    val identifier: List<String> = listOf(),
     @SerializedName("title")
-    val title: String
+    val title: String? = null
 )
