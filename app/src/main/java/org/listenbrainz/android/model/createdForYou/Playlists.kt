@@ -5,5 +5,5 @@ import com.google.gson.annotations.SerializedName
 
 data class Playlists(
     @SerializedName("playlist")
-    val playlist: Playlist
+    val playlist: CreatedForYouPlaylist = CreatedForYouPlaylist()
 )

@@ -3,13 +3,13 @@ package org.listenbrainz.android.model.createdForYou
 
 import com.google.gson.annotations.SerializedName
 
-data class CreatedForYouPlaylists(
+data class CreatedForYouPayload(
     @SerializedName("count")
-    val count: Int,
+    val count: Int? = null,
     @SerializedName("offset")
-    val offset: Int,
+    val offset: Int? = null,
     @SerializedName("playlist_count")
-    val playlistCount: Int,
+    val playlistCount: Int? = null,
     @SerializedName("playlists")
-    val playlists: List<Playlists>
+    val playlists: List<Playlists> = listOf()
 )

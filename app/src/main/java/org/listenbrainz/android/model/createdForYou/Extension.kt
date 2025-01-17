@@ -5,5 +5,5 @@ import com.google.gson.annotations.SerializedName
 
 data class Extension(
     @SerializedName("https://musicbrainz.org/doc/jspf#playlist")
-    val httpsMusicbrainzOrgdocjspfplaylist: CreatedForYouExtensionData
+    val httpsMusicbrainzOrgdocjspfplaylist: CreatedForYouExtensionData = CreatedForYouExtensionData()
 )
