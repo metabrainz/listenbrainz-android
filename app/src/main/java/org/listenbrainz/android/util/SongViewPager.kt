@@ -38,6 +38,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -96,6 +97,18 @@ fun SongViewPager(
             } catch (e: Exception) {
                 Log.e(e)
             }
+        }
+    }
+
+    LaunchedEffect(viewModel.appPreferences.currentPlayable?.currentSongIndex) {
+        pagerState.scrollToPage(
+            viewModel.appPreferences.currentPlayable?.currentSongIndex ?: 0
+        )
+    }
+    LaunchedEffect(pagerState) {
+        // Collect from the a snapshotFlow reading the currentPage
+        snapshotFlow { pagerState.currentPage }.collect { page ->
+            viewModel.handleSongChangeFromPager(page)
         }
     }
 

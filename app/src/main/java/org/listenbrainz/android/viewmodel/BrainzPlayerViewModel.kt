@@ -1,7 +1,6 @@
 package org.listenbrainz.android.viewmodel
 
 import android.content.Context
-import android.graphics.Color.parseColor
 import android.graphics.drawable.BitmapDrawable
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ALL
@@ -9,11 +8,11 @@ import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_NONE
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ONE
 import android.support.v4.media.session.PlaybackStateCompat.SHUFFLE_MODE_ALL
 import android.support.v4.media.session.PlaybackStateCompat.SHUFFLE_MODE_NONE
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.palette.graphics.Palette
@@ -135,6 +134,16 @@ class BrainzPlayerViewModel @Inject constructor(
         }
     }
 
+    fun handleSongChangeFromPager(position:Int){
+        Log.d("PAGER", "handleSongChangeFromPager:$position , ${appPreferences.currentPlayable?.currentSongIndex} ")
+        if(position > appPreferences.currentPlayable?.currentSongIndex!!){
+            skipToNextSong()
+        }
+        else if(position < appPreferences.currentPlayable?.currentSongIndex!!){
+            skipToPreviousSong()
+        }
+    }
+
     fun skipToNextSong() {
         brainzPlayerServiceConnection.transportControls.skipToNext()
         // Updating currently playing song.
@@ -145,6 +154,7 @@ class BrainzPlayerViewModel @Inject constructor(
     }
 
     fun skipToPreviousSong() {
+        brainzPlayerServiceConnection.transportControls.seekTo(0) // Always reset to the start since the song won't change if playing time exceeds a certain threshold.
         brainzPlayerServiceConnection.transportControls.skipToPrevious()
         // Updating currently playing song.
         appPreferences.currentPlayable = appPreferences.currentPlayable

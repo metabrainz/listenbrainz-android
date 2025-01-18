@@ -7,17 +7,30 @@ import com.google.android.exoplayer2.Player
 import org.listenbrainz.android.util.Log
 
 class BrainzPlayerEventListener(
-    private val brainzPlayerService : BrainzPlayerService
+    private val brainzPlayerService: BrainzPlayerService
 ) : Player.Listener {
     override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
         if (reason == Player.STATE_IDLE && !playWhenReady) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 brainzPlayerService.stopForeground(STOP_FOREGROUND_DETACH)
-            }else {
+            } else {
                 brainzPlayerService.stopForeground(false)
             }
         }
         super.onPlayWhenReadyChanged(playWhenReady, reason)
+    }
+
+    override fun onPositionDiscontinuity(
+        oldPosition: Player.PositionInfo,
+        newPosition: Player.PositionInfo,
+        reason: Int
+    ) {
+        super.onPositionDiscontinuity(oldPosition, newPosition, reason)
+        //updating current playing index when song auto transitions
+        if (reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION) {
+            brainzPlayerService.appPreferences.currentPlayable =
+                brainzPlayerService.appPreferences.currentPlayable?.copy(currentSongIndex = newPosition.mediaItemIndex)
+        }
     }
 
     override fun onPlayerError(error: PlaybackException) {

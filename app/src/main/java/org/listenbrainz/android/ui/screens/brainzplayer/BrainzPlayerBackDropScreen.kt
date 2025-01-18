@@ -2,6 +2,7 @@ package org.listenbrainz.android.ui.screens.brainzplayer
 
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -59,6 +60,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -167,7 +169,7 @@ fun BrainzPlayerBackDropScreen(
                 ),
                 dynamicBackground = brainzPlayerViewModel.playerBackGroundColor
             )
-            val songList = brainzPlayerViewModel.mediaItem.collectAsState().value.data ?: listOf()
+            val songList = brainzPlayerViewModel.appPreferences.currentPlayable?.songs ?: listOf()
             SongViewPager(
                 modifier = Modifier.graphicsLayer {
                     alpha =
@@ -195,8 +197,8 @@ fun PlayerScreen(
     val playlistViewModel = hiltViewModel<PlaylistViewModel>()
     val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
     val playlist = playlists.filter { it.id == (1).toLong() }
-    val songList by brainzPlayerViewModel.mediaItem.collectAsState()
-    val pagerState = rememberPagerState { songList.data?.size ?: 0 }
+    val songList = brainzPlayerViewModel.appPreferences.currentPlayable?.songs
+    val pagerState = rememberPagerState { songList?.size ?: 0 }
     var listenLiked = false
     if (playlist.isNotEmpty()) {
         playlist[0].items.forEach {
@@ -206,7 +208,19 @@ fun PlayerScreen(
     } else {
         println("Playlist is empty")
     }
-
+    //For handling song change by list or buttons
+    LaunchedEffect(brainzPlayerViewModel.appPreferences.currentPlayable?.currentSongIndex) {
+        pagerState.scrollToPage(
+            brainzPlayerViewModel.appPreferences.currentPlayable?.currentSongIndex ?: 0
+        )
+    }
+    //For handling song change by pager
+    LaunchedEffect(pagerState) {
+        // Collect from the a snapshotFlow reading the currentPage
+        snapshotFlow { pagerState.currentPage }.collect { page ->
+            brainzPlayerViewModel.handleSongChangeFromPager(page)
+        }
+    }
     if (backdropScaffoldState.isConcealed) {
         BackHandler {
             coroutineScope.launch {
@@ -216,7 +230,7 @@ fun PlayerScreen(
     }
     LazyColumn(modifier = Modifier.background(brush = backgroundBrush)) {
         item {
-            songList.data?.let {
+            songList?.let {
                 AlbumArtViewPager(currentlyPlayingSong, pagerState, dynamicBackground)
             }
         }
@@ -448,7 +462,8 @@ fun PlayerScreen(
                                 it,
                                 PlayableType.ALL_SONGS,
                                 currentPlayable.id,
-                                it.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }.coerceAtLeast(0),
+                                it.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+                                    .coerceAtLeast(0),
                                 brainzPlayerViewModel.songCurrentPosition.value
                             )
                         }
@@ -582,7 +597,9 @@ fun AlbumArtViewPager(
                         // Calculate the absolute offset for the current page from the
                         // scroll position. We use the absolute value which allows us to mirror
                         // any effects for both directions
-                        val pageOffset = pagerState.getOffsetDistanceInPages(page).absoluteValue
+                        val pageOffset = pagerState.getOffsetDistanceInPages(
+                            page.coerceIn(0, pagerState.pageCount)
+                        ).absoluteValue
 
                         // We animate the scaleX + scaleY, between 85% and 100%
                         lerp(
@@ -602,20 +619,26 @@ fun AlbumArtViewPager(
                         )
                     }
             ) {
-                AsyncImage(
-                    modifier = Modifier
-                        .background(dynamicBackground)
-                        .fillMaxSize()
-                        .padding()
-                        .clip(shape = RoundedCornerShape(20.dp))
-                        .graphicsLayer { clip = true },
-                    model = currentlyPlayingSong.albumArt,
-                    contentDescription = "",
-                    error = painterResource(
-                        id = R.drawable.ic_erroralbumart
-                    ),
-                    contentScale = ContentScale.FillBounds
-                )
+                Crossfade(
+                    targetState = currentlyPlayingSong.albumArt,
+                    modifier = Modifier.background(dynamicBackground)
+                ) { albumArt ->
+                    AsyncImage(
+                        modifier = Modifier
+                            .background(dynamicBackground)
+                            .fillMaxSize()
+                            .padding()
+                            .clip(shape = RoundedCornerShape(20.dp))
+                            .graphicsLayer { clip = true },
+                        model = albumArt,
+                        contentDescription = "",
+                        error = painterResource(
+                            id = R.drawable.ic_erroralbumart
+                        ),
+                        contentScale = ContentScale.FillBounds
+                    )
+                }
+
             }
         }
     }
