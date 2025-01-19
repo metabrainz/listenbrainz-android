@@ -1,5 +1,7 @@
 package org.listenbrainz.android.ui.navigation
 
+import android.app.AlertDialog
+import android.content.Intent
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,9 +26,11 @@ import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AppNavigationItem
+import org.listenbrainz.android.ui.screens.profile.LoginActivity
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -89,16 +93,38 @@ fun BottomNavigationBar(
 
                         when (item.route) {
                             AppNavigationItem.Profile.route -> {
-                                navController.navigate("profile/${username}"){
-                                    // Avoid building large backstack
-                                    popUpTo(AppNavigationItem.Feed.route){
-                                        saveState = true
+                                if (username!=null && username.isNotBlank()) {
+                                    navController.navigate("profile/${username}") {
+                                        // Avoid building large backstack
+                                        popUpTo(AppNavigationItem.Feed.route) {
+                                            saveState = true
+                                        }
+                                        // Avoid copies
+                                        launchSingleTop = true
+                                        // Restore previous state
+                                        restoreState = true
                                     }
-                                    // Avoid copies
-                                    launchSingleTop = true
-                                    // Restore previous state
-                                    restoreState = true
                                 }
+
+                                else {
+                                    // Show the dialog if the user is not logged in
+                                    MaterialAlertDialogBuilder(navController.context)
+                                        .setTitle("Login Required")
+                                        .setMessage("You need to log in to access your profile. Would you like to log in now?")
+                                        .setPositiveButton("Login") { _, _ ->
+                                            val context = navController.context
+                                            val intent = Intent(context, LoginActivity::class.java)
+                                            context.startActivity(intent)
+                                        }
+                                        .setNegativeButton("Cancel", null)
+                                        .show()
+                                        .apply {
+                                            getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(android.graphics.Color.BLACK)
+                                            getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(android.graphics.Color.BLACK)
+                                        }
+                                }
+
+
                             }
                             AppNavigationItem.Feed.route -> {
                                 navController.navigate(AppNavigationItem.Feed.route)
