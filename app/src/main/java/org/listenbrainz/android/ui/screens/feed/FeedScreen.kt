@@ -6,6 +6,9 @@ import android.os.Bundle
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +25,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
@@ -44,13 +48,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.PagingData
@@ -709,17 +716,29 @@ fun StartingSpacer() {
 }
 
 @Composable
-private fun RetryButton(modifier: Modifier = Modifier, show: Boolean, onClick: () -> Unit) {
+fun RetryButton(modifier: Modifier = Modifier, show: Boolean, onClick: () -> Unit) {
     if (show) {
-        Button(
-            modifier = modifier,
-            onClick = onClick,
-            colors = ButtonDefaults.buttonColors(containerColor = ListenBrainzTheme.colorScheme.lbSignature)
+        Box(
+            modifier = modifier
+                .width(150.dp)
+                .height(50.dp)
+                .background(
+                    color = Color.White,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .border(
+                    width = 1.dp,
+                    color = Color.Black,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .clickable(onClick = onClick)
         ) {
             Text(
                 text = "Retry",
-                color = ListenBrainzTheme.colorScheme.onLbSignature,
-                fontWeight = FontWeight.Medium
+                color = Color.Black,
+                fontWeight = FontWeight.Medium,
+                style = TextStyle(fontSize = 23.sp),
+                modifier = Modifier.align(Alignment.Center)
             )
         }
     }

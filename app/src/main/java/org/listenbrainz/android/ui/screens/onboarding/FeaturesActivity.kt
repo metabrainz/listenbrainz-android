@@ -6,10 +6,8 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
-import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.limurse.onboard.OnboardAdvanced
@@ -89,12 +87,12 @@ class FeaturesActivity : OnboardAdvanced() {
                     backgroundColor = ContextCompat.getColor(applicationContext, R.color.app_bg),
                     titleColor = ContextCompat.getColor(applicationContext, R.color.text),
                     descriptionColor = ContextCompat.getColor(applicationContext, R.color.text),
-                    isLottie = true
+                    isLottie = true,
+
                 )
             )
         }
     }
-
     override fun onDonePressed(currentFragment: Fragment?) {
         super.onDonePressed(currentFragment)
         Log.d("Onboarding completed")
