@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.components
 
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,16 +20,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
+import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
 @Composable
 fun BrainzPlayerListenCard(
@@ -40,11 +46,21 @@ fun BrainzPlayerListenCard(
     onDropdownIconClick: () -> Unit = {},
     dropDown: @Composable () -> Unit = {},
     dropDownState: Boolean = false,
-    onPlayIconClick: () -> Unit
+    onPlayIconClick: () -> Unit,
+    mediaId: Long? = null,
+    viewModel: BrainzPlayerViewModel = hiltViewModel()
 ) {
+    val currentlyPlayingSong = viewModel.currentlyPlayingSong.collectAsStateWithLifecycle().value.toSong
+    val titleColor = if (currentlyPlayingSong.mediaID == mediaId) {
+        Color(0xFFB94FE5)
+    } else {
+        ListenBrainzTheme.colorScheme.listenText
+    }
+
     Surface(
         modifier = modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable { onPlayIconClick() },
         shape = ListenBrainzTheme.shapes.listenCardSmall,
         shadowElevation = 4.dp,
         color = ListenBrainzTheme.colorScheme.level1
@@ -72,22 +88,15 @@ fun BrainzPlayerListenCard(
                         title = title,
                         goToArtistPage = {},
                         artists = listOf(FeedListenArtist(subTitle, null, "")),
+                        titleColor = titleColor
                     )
                 }
                 Box(modifier = Modifier
                     .fillMaxWidth(0.275f)
                     .align(Alignment.CenterEnd)){
-                    DropdownButton (modifier = Modifier.align(Alignment.Center), onDropdownIconClick = onDropdownIconClick)
+                    DropdownButton (modifier = Modifier.align(Alignment.CenterEnd), onDropdownIconClick = onDropdownIconClick)
                     if(dropDownState) dropDown()
-                    PlayButton (modifier = Modifier.align(Alignment.CenterEnd)) {
-                        onPlayIconClick()
-                    }
                 }
-
-
-
-
-
             }
         }
     }
@@ -102,22 +111,6 @@ private fun DropdownButton(modifier: Modifier = Modifier, onDropdownIconClick: (
     ) {
         Icon(
             painter = painterResource(id = R.drawable.ic_options),
-            contentDescription = "",
-            tint = ListenBrainzTheme.colorScheme.hint,
-            modifier = Modifier.padding(horizontal = ListenBrainzTheme.paddings.insideCard)
-        )
-    }
-}
-
-@Composable
-private fun PlayButton(modifier: Modifier = Modifier, onPlayIconClick: () -> Unit) {
-
-    IconButton(
-        modifier = modifier,
-        onClick = onPlayIconClick
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.brainz_player_play_button),
             contentDescription = "",
             tint = ListenBrainzTheme.colorScheme.hint,
             modifier = Modifier.padding(horizontal = ListenBrainzTheme.paddings.insideCard)
@@ -148,5 +141,3 @@ private fun AlbumArt(
         contentDescription = "Album Cover Art"
     )
 }
-
-

@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,6 +35,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 fun BottomNavigationBar(
     modifier: Modifier = Modifier,
     navController: NavController = rememberNavController(),
+    backgroundColor: Color = ListenBrainzTheme.colorScheme.nav,
     backdropScaffoldState: BackdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed),
     scrollToTop: () -> Unit,
     username : String?,
@@ -46,7 +48,7 @@ fun BottomNavigationBar(
     )
     BottomNavigation(
         modifier = modifier,
-        backgroundColor = ListenBrainzTheme.colorScheme.nav,
+        backgroundColor = backgroundColor,
         elevation = 0.dp
     ) {
         val coroutineScope = rememberCoroutineScope()
