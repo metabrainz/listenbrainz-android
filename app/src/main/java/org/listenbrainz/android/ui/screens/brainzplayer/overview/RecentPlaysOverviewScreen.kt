@@ -43,7 +43,7 @@ fun RecentPlaysScreen(
                 .background(
                     brush = ListenBrainzTheme.colorScheme.gradientBrush
                 )
-                .padding(top = 15.dp, bottom = 15.dp, start = 10.dp)) {
+                .padding(top = 15.dp, bottom = 15.dp, start = 10.dp, end = 10.dp)) {
                 Text(
                     "Played Today",
                     color = ListenBrainzTheme.colorScheme.lbSignature,
@@ -58,7 +58,7 @@ fun RecentPlaysScreen(
                 .background(
                     brush = ListenBrainzTheme.colorScheme.gradientBrush
                 )
-                .padding(top = 15.dp, bottom = 15.dp, start = 10.dp)) {
+                .padding(top = 15.dp, bottom = 15.dp, start = 10.dp, end = 10.dp)) {
                 Text(
                     "Played This Week",
                     color = ListenBrainzTheme.colorScheme.lbSignature,
