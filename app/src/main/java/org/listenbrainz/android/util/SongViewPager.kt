@@ -105,11 +105,8 @@ fun SongViewPager(
             viewModel.appPreferences.currentPlayable?.currentSongIndex ?: 0
         )
     }
-    LaunchedEffect(pagerState) {
-        // Collect from the a snapshotFlow reading the currentPage
-        snapshotFlow { pagerState.currentPage }.collect { page ->
-            viewModel.handleSongChangeFromPager(page)
-        }
+    LaunchedEffect(pagerState.currentPage) {
+        viewModel.handleSongChangeFromPager(pagerState.currentPage)
     }
 
     HorizontalPager(
@@ -214,7 +211,7 @@ fun SongViewPager(
                         }
                         Text(
                             text = when {
-                                currentlyPlayingSong.artist == "null" && currentlyPlayingSong.title == "null"-> ""
+                                currentlyPlayingSong.artist == "null" && currentlyPlayingSong.title == "null" -> ""
                                 currentlyPlayingSong.artist == "null" -> currentlyPlayingSong.title
                                 currentlyPlayingSong.title == "null" -> currentlyPlayingSong.artist
                                 else -> currentlyPlayingSong.artist + "  -  " + currentlyPlayingSong.title

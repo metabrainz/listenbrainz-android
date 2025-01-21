@@ -215,11 +215,8 @@ fun PlayerScreen(
         )
     }
     //For handling song change by pager
-    LaunchedEffect(pagerState) {
-        // Collect from the a snapshotFlow reading the currentPage
-        snapshotFlow { pagerState.currentPage }.collect { page ->
-            brainzPlayerViewModel.handleSongChangeFromPager(page)
-        }
+    LaunchedEffect(pagerState.currentPage) {
+        brainzPlayerViewModel.handleSongChangeFromPager(pagerState.currentPage)
     }
     if (backdropScaffoldState.isConcealed) {
         BackHandler {
