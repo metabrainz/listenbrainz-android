@@ -4,6 +4,8 @@ import android.app.Service.STOP_FOREGROUND_DETACH
 import android.os.Build
 import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_AUTO_TRANSITION
+import com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT
 import org.listenbrainz.android.util.Log
 
 class BrainzPlayerEventListener(
@@ -26,10 +28,15 @@ class BrainzPlayerEventListener(
         reason: Int
     ) {
         super.onPositionDiscontinuity(oldPosition, newPosition, reason)
-        //updating current playing index when song auto transitions
-        if (reason == Player.DISCONTINUITY_REASON_AUTO_TRANSITION) {
-            brainzPlayerService.appPreferences.currentPlayable =
-                brainzPlayerService.appPreferences.currentPlayable?.copy(currentSongIndex = newPosition.mediaItemIndex)
+
+        //updating current playing index when song auto transitions or song change from notification
+        when (reason) {
+            DISCONTINUITY_REASON_SEEK_ADJUSTMENT, DISCONTINUITY_REASON_AUTO_TRANSITION -> {
+                brainzPlayerService.appPreferences.currentPlayable =
+                    brainzPlayerService.appPreferences.currentPlayable?.copy(currentSongIndex = newPosition.mediaItemIndex)
+            }
+
+            else -> {}
         }
     }
 
