@@ -89,7 +89,7 @@ fun BottomNavigationBar(
 
                         when (item.route) {
                             AppNavigationItem.Profile.route -> {
-                                navController.navigate("profile/${username}"){
+                                navController.navigate(if (!username.isNullOrBlank()) "profile/${username}" else "profile/guest"){
                                     // Avoid building large backstack
                                     popUpTo(AppNavigationItem.Feed.route){
                                         saveState = true
