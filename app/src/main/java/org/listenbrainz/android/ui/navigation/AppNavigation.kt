@@ -5,6 +5,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptionsBuilder
@@ -13,14 +14,19 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.navigation
+import kotlinx.coroutines.flow.first
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.screens.album.AlbumScreen
 import org.listenbrainz.android.ui.screens.artist.ArtistScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen
 import org.listenbrainz.android.ui.screens.explore.ExploreScreen
 import org.listenbrainz.android.ui.screens.feed.FeedScreen
+import org.listenbrainz.android.ui.screens.profile.LoginScreen
 import org.listenbrainz.android.ui.screens.profile.ProfileScreen
 import org.listenbrainz.android.ui.screens.settings.SettingsScreen
+import org.listenbrainz.android.viewmodel.DashBoardViewModel
+import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
 fun AppNavigation(
@@ -74,6 +80,17 @@ fun AppNavigation(
         }
         composable(route = AppNavigationItem.Explore.route) {
             ExploreScreen()
+        }
+        composable(
+            route = AppNavigationItem.Profile.route
+        ) {
+            val viewModel = hiltViewModel<DashBoardViewModel>()
+            LoginScreen {
+                val username = viewModel.usernameFlow.first()
+                if (username.isNotBlank()) {
+                    goToUserProfile(username)
+                }
+            }
         }
         composable(
             route = "${AppNavigationItem.Profile.route}/{username}",
