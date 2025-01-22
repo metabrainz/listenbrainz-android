@@ -35,8 +35,7 @@ class DashBoardViewModel @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : AndroidViewModel(application) {
 
-    var username by mutableStateOf("")
-    val job =  viewModelScope.launch { username = async {appPreferences.username.get() }.await() }
+    val usernameFlow = appPreferences.username.getFlow()
     // Sets Ui mode for XML layouts.
     fun setUiMode(){
         viewModelScope.launch {
