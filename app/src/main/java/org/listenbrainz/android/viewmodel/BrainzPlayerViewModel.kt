@@ -136,10 +136,10 @@ class BrainzPlayerViewModel @Inject constructor(
 
     fun handleSongChangeFromPager(position:Int){
         Log.d("PAGER", "handleSongChangeFromPager:$position , ${appPreferences.currentPlayable?.currentSongIndex} ")
-        if(position > appPreferences.currentPlayable?.currentSongIndex!!){
+        if(position > (appPreferences.currentPlayable?.currentSongIndex ?: 0)){
             skipToNextSong()
         }
-        else if(position < appPreferences.currentPlayable?.currentSongIndex!!){
+        else if(position < (appPreferences.currentPlayable?.currentSongIndex ?: 0)){
             skipToPreviousSong()
         }
     }
