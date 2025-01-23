@@ -38,6 +38,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -97,6 +98,15 @@ fun SongViewPager(
                 Log.e(e)
             }
         }
+    }
+
+    LaunchedEffect(viewModel.appPreferences.currentPlayable?.currentSongIndex) {
+        pagerState.scrollToPage(
+            viewModel.appPreferences.currentPlayable?.currentSongIndex ?: 0
+        )
+    }
+    LaunchedEffect(pagerState.currentPage) {
+        viewModel.handleSongChangeFromPager(pagerState.currentPage)
     }
 
     HorizontalPager(
@@ -201,7 +211,7 @@ fun SongViewPager(
                         }
                         Text(
                             text = when {
-                                currentlyPlayingSong.artist == "null" && currentlyPlayingSong.title == "null"-> ""
+                                currentlyPlayingSong.artist == "null" && currentlyPlayingSong.title == "null" -> ""
                                 currentlyPlayingSong.artist == "null" -> currentlyPlayingSong.title
                                 currentlyPlayingSong.title == "null" -> currentlyPlayingSong.artist
                                 else -> currentlyPlayingSong.artist + "  -  " + currentlyPlayingSong.title
