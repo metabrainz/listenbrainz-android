@@ -54,14 +54,21 @@ fun AlbumsOverViewScreen(
                     )
                     for (j in 1..albumsStarting[startingLetter]!!.size) {
                         val coverArt = albumsStarting[startingLetter]!![j - 1].albumArt
-                        BrainzPlayerListenCard(title = albumsStarting[startingLetter]!![j - 1].title, subTitle = albumsStarting[startingLetter]!![j - 1].artist, coverArtUrl = coverArt, errorAlbumArt = R.drawable.ic_erroralbumart, modifier = Modifier.padding(
-                            start = 10.dp,
-                            end = 10.dp,
-                            top = 3.dp,
-                            bottom = 3.dp
-                        ), onPlayIconClick = {
-                            onPlayIconClick(albumsStarting[startingLetter]!![j-1])
-                        })
+                        BrainzPlayerListenCard(
+                            title = albumsStarting[startingLetter]!![j - 1].title,
+                            subTitle = albumsStarting[startingLetter]!![j - 1].artist,
+                            coverArtUrl = coverArt,
+                            errorAlbumArt = R.drawable.ic_erroralbumart,
+                            modifier = Modifier.padding(
+                                start = 10.dp,
+                                end = 10.dp,
+                                top = 3.dp,
+                                bottom = 3.dp
+                            ),
+                            onPlayIconClick = {
+                                onPlayIconClick(albumsStarting[startingLetter]!![j-1])
+                            }
+                        )
                         Spacer(modifier = Modifier.height(10.dp))
                     }
                 }
