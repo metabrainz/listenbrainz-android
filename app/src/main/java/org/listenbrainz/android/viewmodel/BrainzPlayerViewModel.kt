@@ -70,6 +70,7 @@ class BrainzPlayerViewModel @Inject constructor(
     var isSearching by mutableStateOf(false)
 
     var playerBackGroundColor by mutableStateOf(Color.Transparent)
+        private set
 
     init {
         updatePlayerPosition()
@@ -86,7 +87,6 @@ class BrainzPlayerViewModel @Inject constructor(
                         it.toSong
                     }
                     _mediaItems.value = Resource(Resource.Status.SUCCESS, songs)
-
                 }
             })
         viewModelScope.launch(Dispatchers.IO) {

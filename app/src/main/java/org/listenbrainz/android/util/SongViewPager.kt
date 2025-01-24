@@ -113,7 +113,7 @@ fun SongViewPager(
         state = pagerState,
         modifier = modifier
             .fillMaxWidth()
-            .dynamicBackgroundFromAlbumArt(currentlyPlayingSong.albumArt)
+            .background(viewModel.playerBackGroundColor)
     ) {
         Column(
             modifier = Modifier
