@@ -11,5 +11,5 @@ data class CreatedForYouPayload(
     @SerializedName("playlist_count")
     val playlistCount: Int? = null,
     @SerializedName("playlists")
-    val playlists: List<Playlists> = listOf()
+    val playlists: List<CreatedForYouPlaylists> = listOf()
 )
