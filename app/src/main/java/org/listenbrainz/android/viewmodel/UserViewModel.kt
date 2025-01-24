@@ -8,17 +8,18 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.Listen
+import org.listenbrainz.android.model.playlist.PlaylistData
 import org.listenbrainz.android.repository.listens.ListensRepository
+import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.repository.user.UserRepository
+import org.listenbrainz.android.ui.screens.profile.CreatedForTabUIState
 import org.listenbrainz.android.ui.screens.profile.ListensTabUiState
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.screens.profile.StatsTabUIState
@@ -35,6 +36,7 @@ class UserViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val listensRepository: ListensRepository,
     private val socialRepository: SocialRepository,
+    private val playlistDataRepository: PlaylistDataRepository,
     @IoDispatcher val ioDispatcher: CoroutineDispatcher,
 ) : BaseViewModel<ProfileUiState>() {
 
@@ -50,6 +52,7 @@ class UserViewModel @Inject constructor(
     private val listenStateFlow : MutableStateFlow<ListensTabUiState> = MutableStateFlow(ListensTabUiState())
     private val statsStateFlow : MutableStateFlow<StatsTabUIState> = MutableStateFlow(StatsTabUIState())
     private val tasteStateFlow : MutableStateFlow<TasteTabUIState> = MutableStateFlow(TasteTabUIState())
+    private val createdForFlow: MutableStateFlow<CreatedForTabUIState> = MutableStateFlow(CreatedForTabUIState())
 
     private suspend fun getSimilarArtists(username: String?) : List<org.listenbrainz.android.model.user.Artist> {
         val currentUsername = appPreferences.username.get()
@@ -112,9 +115,11 @@ class UserViewModel @Inject constructor(
         val listensTabData = async { getUserListensData(inputUsername) }
         val statsTabData = async {getUserStatsData(inputUsername)}
         val tasteTabData = async {getUserTasteData(inputUsername)}
+        val createdForTabData = async {getCreatedForYouPlaylists(inputUsername)}
         listensTabData.await()
         statsTabData.await()
         tasteTabData.await()
+        createdForTabData.await()
     }
 
 
@@ -306,6 +311,32 @@ class UserViewModel @Inject constructor(
         tasteStateFlow.emit(tastesTabState)
     }
 
+    //This function gets the createdForYou playlists and fetches the playlist data for each playlist
+    private suspend fun getCreatedForYouPlaylists(inputUsername: String?) {
+        createdForFlow.value = createdForFlow.value.copy(isLoading = true)
+        val createdForYouPlaylists = userRepository.getCreatedForYouPlaylists(inputUsername).data
+        //Map to store the playlist data for each playlist
+        val createdForYouPlaylistData = mutableMapOf<String, PlaylistData>()
+        //Fetch the playlist data for each playlist
+        createdForYouPlaylists?.playlists?.forEach { data->
+            val playlistMbid = data.getPlaylistMBID()
+            if (playlistMbid != null) {
+                val playlistData = playlistDataRepository.fetchPlaylist(playlistMbid).data
+                if (playlistData != null) {
+                    createdForYouPlaylistData[playlistMbid] = playlistData.playlist
+                }
+            }
+
+        }
+        val createdForTabState = CreatedForTabUIState(
+            isLoading = false,
+            createdForYouPlaylists = createdForYouPlaylists?.playlists,
+            createdForYouPlaylistData = createdForYouPlaylistData
+        )
+
+        createdForFlow.emit(createdForTabState)
+    }
+
 
     override val uiState: StateFlow<ProfileUiState> = createUiStateFlow()
 
@@ -315,13 +346,15 @@ class UserViewModel @Inject constructor(
             listenStateFlow,
             statsStateFlow,
             tasteStateFlow,
+            createdForFlow
         ) {
-            listensUIState, statsUIState, tasteUIState ->
+            listensUIState, statsUIState, tasteUIState, createdForUIState ->
             ProfileUiState(
                 isSelf = isLoggedInUser,
                 listensTabUiState = listensUIState,
                 statsTabUIState = statsUIState,
                 tasteTabUIState = tasteUIState,
+                createdForTabUIState = createdForUIState
             )
         }.stateIn(
             viewModelScope,
