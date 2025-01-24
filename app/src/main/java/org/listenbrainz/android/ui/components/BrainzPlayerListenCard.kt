@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.GenericShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -43,9 +41,6 @@ fun BrainzPlayerListenCard(
     subTitle: String,
     coverArtUrl: String?,
     @DrawableRes errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
-    onDropdownIconClick: () -> Unit = {},
-    dropDown: @Composable () -> Unit = {},
-    dropDownState: Boolean = false,
     onPlayIconClick: () -> Unit,
     mediaId: Long? = null,
     viewModel: BrainzPlayerViewModel = hiltViewModel()
@@ -84,37 +79,15 @@ fun BrainzPlayerListenCard(
                     Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.coverArtAndTextGap))
 
                     TitleAndSubtitle(
-                        modifier = Modifier.padding(end = 6.dp),
+                        modifier = Modifier,
                         title = title,
                         goToArtistPage = {},
                         artists = listOf(FeedListenArtist(subTitle, null, "")),
                         titleColor = titleColor
                     )
                 }
-                Box(modifier = Modifier
-                    .fillMaxWidth(0.275f)
-                    .align(Alignment.CenterEnd)){
-                    DropdownButton (modifier = Modifier.align(Alignment.CenterEnd), onDropdownIconClick = onDropdownIconClick)
-                    if(dropDownState) dropDown()
-                }
             }
         }
-    }
-}
-
-@Composable
-private fun DropdownButton(modifier: Modifier = Modifier, onDropdownIconClick: () -> Unit) {
-
-    IconButton(
-        modifier = modifier,
-        onClick = onDropdownIconClick
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_options),
-            contentDescription = "",
-            tint = ListenBrainzTheme.colorScheme.hint,
-            modifier = Modifier.padding(horizontal = ListenBrainzTheme.paddings.insideCard)
-        )
     }
 }
 
