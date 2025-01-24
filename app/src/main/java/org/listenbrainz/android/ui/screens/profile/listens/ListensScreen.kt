@@ -57,6 +57,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.Metadata
@@ -85,6 +87,7 @@ import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.ui.theme.new_app_bg_light
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
+import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
@@ -769,7 +772,7 @@ private fun FollowersCard(
 ) {
     Column(modifier = Modifier.padding(start = 16.dp, top = 30.dp, end = 16.dp)) {
         Text(
-            "Followers",
+            text = if (followersState) "Followers" else "Followings",
             color = ListenBrainzTheme.colorScheme.text,
             style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp)
         )
@@ -838,9 +841,11 @@ private fun FollowersCard(
             }
         }
         Spacer(modifier = Modifier.height(10.dp))
+        val dashboardViewModel: DashBoardViewModel = hiltViewModel()
         when (followersState) {
             true -> followers.map { state ->
                 FollowCard(
+                    dashboardViewModel = dashboardViewModel,
                     username = state.first,
                     onFollowButtonClick = onFollowButtonClick,
                     followStatus = state.second,
@@ -851,6 +856,7 @@ private fun FollowersCard(
 
             false -> following.map { state ->
                 FollowCard(
+                    dashboardViewModel=dashboardViewModel,
                     username = state.first,
                     onFollowButtonClick = onFollowButtonClick,
                     followStatus = state.second,
@@ -885,6 +891,7 @@ private fun SimilarUsersCard(similarUsers: List<SimilarUser>, goToUserPage: (Str
 
 @Composable
 private fun FollowCard(
+    dashboardViewModel: DashBoardViewModel,
     username: String?,
     onFollowButtonClick: (String?, Boolean) -> Unit,
     followStatus: Boolean,
@@ -907,14 +914,16 @@ private fun FollowCard(
                     goToUserPage(username)
                 }
             )
-
-            FollowButton(
-                modifier = Modifier,
-                isFollowedState = followStatus,
-                onClick = {
-                    onFollowButtonClick(username, followStatus)
-                }
-            )
+            val currentUserName by dashboardViewModel.usernameFlow.collectAsStateWithLifecycle(initialValue = null)
+            if (username != currentUserName) {
+                FollowButton(
+                    modifier = Modifier,
+                    isFollowedState = followStatus,
+                    onClick = {
+                        onFollowButtonClick(username, followStatus)
+                    }
+                )
+            }
         }
     }
 }
