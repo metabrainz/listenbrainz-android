@@ -1,5 +1,7 @@
 package org.listenbrainz.android.ui.screens.profile.createdforyou
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -17,10 +19,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.createdForYou.CreatedForYouPlaylist
 import org.listenbrainz.android.model.playlist.PlaylistTrack
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
@@ -35,12 +40,20 @@ fun CreatedForYouScreen(
     goToArtistPage: (String) -> Unit,
 ) {
     val uiState by userViewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     CreatedForYouScreen(uiState = uiState, onPlaylistSaveClick = {
         //TODO: Implement this
     }, onPlayAllClick = {
 
     }, onShareClick = {
-
+        if (it?.identifier != null) {
+            shareLink(context, it.identifier)
+        } else {
+            scope.launch {
+                snackbarState.showSnackbar("Link not found")
+            }
+        }
     }, onTrackClick = {
 
     }, goToArtistPage = goToArtistPage
@@ -149,4 +162,13 @@ private fun CreatedForYouScreen(
 
 
     }
+}
+
+
+fun shareLink(context: Context, link: String) {
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT, link)
+    }
+    context.startActivity(Intent.createChooser(intent, "Share link via"))
 }
