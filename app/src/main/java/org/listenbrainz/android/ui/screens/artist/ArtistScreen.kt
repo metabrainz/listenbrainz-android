@@ -114,6 +114,7 @@ import org.listenbrainz.android.ui.theme.new_app_bg_light
 import org.listenbrainz.android.util.Constants.MB_BASE_URL
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.util.Utils.measureSize
+import org.listenbrainz.android.util.Utils.removeHtmlTags
 import org.listenbrainz.android.util.Utils.showToast
 import org.listenbrainz.android.viewmodel.ArtistViewModel
 import org.listenbrainz.android.viewmodel.FeedViewModel
@@ -1193,12 +1194,6 @@ fun SvgWithWebView(svgContent: String, width: Dp, height: Dp) {
     )
 }
 
-fun removeHtmlTags(input: String): String {
-    // Regular expression pattern to match HTML tags
-    val regex = "<[^>]*>".toRegex()
-    // Replace all matches of the pattern with an empty string
-    return input.replace(regex, "")
-}
 
 fun formatNumber(input: Int): String {
     return when {

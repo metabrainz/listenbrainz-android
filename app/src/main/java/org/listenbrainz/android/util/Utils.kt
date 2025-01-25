@@ -487,4 +487,12 @@ object Utils {
         
         return resultUrl
     }
+
+    // Function to remove HTML tags from a string
+    fun removeHtmlTags(input: String): String {
+        // Regular expression pattern to match HTML tags
+        val regex = "<[^>]*>".toRegex()
+        // Replace all matches of the pattern with an empty string
+        return input.replace(regex, "")
+    }
 }

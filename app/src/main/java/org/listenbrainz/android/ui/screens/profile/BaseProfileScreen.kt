@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.ui.components.LoadingAnimation
+import org.listenbrainz.android.ui.screens.profile.createdforyou.CreatedForYouScreen
 import org.listenbrainz.android.ui.screens.profile.listens.ListensScreen
 import org.listenbrainz.android.ui.screens.profile.stats.StatsScreen
 import org.listenbrainz.android.ui.screens.profile.taste.TasteScreen
@@ -212,6 +213,12 @@ fun BaseProfileScreen(
                             socialViewModel = socialViewModel,
                             feedViewModel = feedViewModel,
                             viewModel = viewModel,
+                            goToArtistPage = goToArtistPage
+                        )
+
+                        ProfileScreenTab.CREATED_FOR_YOU.index -> CreatedForYouScreen(
+                            snackbarState = snackbarState,
+                            userViewModel = viewModel,
                             goToArtistPage = goToArtistPage
                         )
                     }

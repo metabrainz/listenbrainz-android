@@ -3,7 +3,7 @@ package org.listenbrainz.android.model.playlist
 
 import com.google.gson.annotations.SerializedName
 
-data class Track(
+data class PlaylistTrack(
     @SerializedName("album")
     val album: String? = null,
     @SerializedName("creator")

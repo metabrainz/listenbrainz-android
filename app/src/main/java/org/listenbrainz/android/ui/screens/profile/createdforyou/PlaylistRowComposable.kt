@@ -41,6 +41,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 fun PlaylistRowComposable(
     modifier: Modifier,
     trackName: String,
+    durationInSeconds: Int ,
     artists: List<PlaylistArtist>,
     coverArtUrl: String? = null,
     @DrawableRes errorTrackImage: Int = R.drawable.ic_coverartarchive_logo_no_text,
@@ -53,7 +54,7 @@ fun PlaylistRowComposable(
     goToArtistPage: (String) -> Unit,
     onClick: () -> Unit,
     onPlayClick: () -> Unit,
-    onReorderClick: () -> Unit
+    onReorderClick: () -> Unit = {}
 ) {
     Surface(
         modifier = modifier
@@ -88,7 +89,7 @@ fun PlaylistRowComposable(
             ) {
                 TitleAndSubtitlePlaylist(
                     title = trackName,
-                    durationInSeconds = 0,
+                    durationInSeconds = durationInSeconds,
                     artists = artists,
                     titleColor = titleColor,
                     subtitleColor = subtitleColor,
@@ -293,7 +294,8 @@ fun PlaylistRowComposablePreview() {
             onClick = {},
             onPlayClick = {
             },
-            onReorderClick = {}
+            onReorderClick = {},
+            durationInSeconds = 50
         )
     }
 }
@@ -322,7 +324,8 @@ fun PlaylistRowComposablePreviewDark() {
             goToArtistPage = {},
             onClick = {},
             onPlayClick = {},
-            onReorderClick = {}
+            onReorderClick = {},
+            durationInSeconds = 50
         )
     }
 }

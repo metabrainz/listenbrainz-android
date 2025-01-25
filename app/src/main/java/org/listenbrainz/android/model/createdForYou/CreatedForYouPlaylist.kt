@@ -18,4 +18,12 @@ data class CreatedForYouPlaylist(
     val title: String? = null,
     @SerializedName("track")
     val track: List<Any> = listOf()
-)
+){
+    // Get the MBID of the playlist
+    fun getPlaylistMBID(): String? {
+        // Regex to extract the MBID from the identifier
+        val regex = """playlist/([a-f0-9\-]+)""".toRegex()
+        val matchResult = identifier?.let { regex.find(it) }
+        return matchResult?.groupValues?.get(1)
+    }
+}
