@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BackdropScaffold
 import androidx.compose.material.BackdropScaffoldState
@@ -56,6 +57,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -69,7 +71,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -98,6 +99,7 @@ import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.SongViewPager
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
+import java.util.Locale
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
@@ -293,11 +295,11 @@ fun PlayerScreen(
                         .fillMaxWidth(0.98F)
                         .padding(horizontal = 20.dp),
                     progress = progress,
+                    shape = CircleShape,
                     onValueChange = { newProgress ->
                         brainzPlayerViewModel.onSeek(newProgress)
                         brainzPlayerViewModel.onSeeked()
-                    },
-                    remainingProgressColor = colorResource(id = R.color.bp_color_primary)
+                    }
                 )
             }
             Row(
@@ -308,32 +310,44 @@ fun PlayerScreen(
                     .padding(start = 22.dp, top = 10.dp, end = 22.dp)
             ) {
                 val songCurrentPosition by brainzPlayerViewModel.songCurrentPosition.collectAsState()
-                val duration: String
-                val currentPosition: String
-                if (currentlyPlayingSong.duration / (1000 * 60 * 60) > 0 && songCurrentPosition / (1000 * 60 * 60) > 0) {
-                    duration = String.format(
-                        "%02d:%02d:%02d",
-                        currentlyPlayingSong.duration / (1000 * 60 * 60),
-                        currentlyPlayingSong.duration / (1000 * 60) % 60,
-                        currentlyPlayingSong.duration / 1000 % 60
-                    )
-                    currentPosition = String.format(
-                        "%02d:%02d:%02d",
-                        songCurrentPosition / (1000 * 60 * 60),
-                        songCurrentPosition / (1000 * 60) % 60,
-                        songCurrentPosition / 1000 % 60
-                    )
-                } else {
-                    duration = String.format(
-                        "%02d:%02d",
-                        currentlyPlayingSong.duration / (1000 * 60) % 60,
-                        currentlyPlayingSong.duration / 1000 % 60
-                    )
-                    currentPosition = String.format(
-                        "%02d:%02d",
-                        songCurrentPosition / (1000 * 60) % 60,
-                        songCurrentPosition / 1000 % 60
-                    )
+
+                val (duration, currentPosition) = remember(
+                    currentlyPlayingSong.duration,
+                    songCurrentPosition
+                ) {
+                    val duration: String
+                    val currentPosition: String
+                    if (currentlyPlayingSong.duration / (1000 * 60 * 60) > 0 && songCurrentPosition / (1000 * 60 * 60) > 0) {
+                        duration = String.format(
+                            Locale.getDefault(),
+                            "%02d:%02d:%02d",
+                            currentlyPlayingSong.duration / (1000 * 60 * 60),
+                            currentlyPlayingSong.duration / (1000 * 60) % 60,
+                            currentlyPlayingSong.duration / 1000 % 60
+                        )
+                        currentPosition = String.format(
+                            Locale.getDefault(),
+                            "%02d:%02d:%02d",
+                            songCurrentPosition / (1000 * 60 * 60),
+                            songCurrentPosition / (1000 * 60) % 60,
+                            songCurrentPosition / 1000 % 60
+                        )
+                    } else {
+                        duration = String.format(
+                            Locale.getDefault(),
+                            "%02d:%02d",
+                            currentlyPlayingSong.duration / (1000 * 60) % 60,
+                            currentlyPlayingSong.duration / 1000 % 60
+                        )
+                        currentPosition = String.format(
+                            Locale.getDefault(),
+                            "%02d:%02d",
+                            songCurrentPosition / (1000 * 60) % 60,
+                            songCurrentPosition / 1000 % 60
+                        )
+                    }
+
+                    return@remember duration to currentPosition
                 }
 
 

@@ -137,7 +137,8 @@ fun SongViewPager(
                     onValueChange = { newProgress ->
                         viewModel.onSeek(newProgress)
                         viewModel.onSeeked()
-                    }
+                    },
+                    remainingProgressColor = ListenBrainzTheme.colorScheme.hint
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
