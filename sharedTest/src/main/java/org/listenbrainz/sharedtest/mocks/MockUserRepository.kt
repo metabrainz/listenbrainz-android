@@ -2,6 +2,7 @@ package org.listenbrainz.sharedtest.mocks
 
 import org.listenbrainz.android.model.CurrentPins
 import org.listenbrainz.android.model.Listens
+import org.listenbrainz.android.model.createdForYou.CreatedForYouPayload
 import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.TopAlbums
 import org.listenbrainz.android.model.user.TopArtists
@@ -12,6 +13,7 @@ import org.listenbrainz.android.model.user.UserSimilarityPayload
 import org.listenbrainz.android.repository.user.UserRepository
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.sharedtest.testdata.UserRepositoryTestData.allPinsTestData
+import org.listenbrainz.sharedtest.testdata.UserRepositoryTestData.createdForYouPlaylistsTestData
 import org.listenbrainz.sharedtest.testdata.UserRepositoryTestData.currentPinsTestData
 import org.listenbrainz.sharedtest.testdata.UserRepositoryTestData.globalListeningActivityTestData
 import org.listenbrainz.sharedtest.testdata.UserRepositoryTestData.listenCountTestData
@@ -75,6 +77,10 @@ class MockUserRepository : UserRepository {
 
     override suspend fun getTopSongs(username: String?, rangeString: String): Resource<TopSongs> {
         return Resource(Resource.Status.SUCCESS, topSongsTestData)
+    }
+
+    override suspend fun getCreatedForYouPlaylists(username: String?): Resource<CreatedForYouPayload> {
+        return Resource(Resource.Status.SUCCESS, createdForYouPlaylistsTestData)
     }
 
 }
