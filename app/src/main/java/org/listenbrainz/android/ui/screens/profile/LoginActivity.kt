@@ -47,7 +47,9 @@ class LoginActivity : ComponentActivity() {
                     contentAlignment = Alignment.Center
                 ) {
                     // FIXME: Security certificate warning in API 24 and below.
-                    ListenBrainzLogin(viewModel)
+                    ListenBrainzLogin(viewModel) {
+                        finish()
+                    }
                 }
             }
         }
@@ -56,10 +58,9 @@ class LoginActivity : ComponentActivity() {
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun ListenBrainzLogin(viewModel: ListensViewModel) {
+fun ListenBrainzLogin(viewModel: ListensViewModel, onLoginSuccess: (String) -> Unit) {
     val url = "https://listenbrainz.org/login"
     val coroutineScope = rememberCoroutineScope()
-    val activity = LocalContext.current.getActivity()
     Row(modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
@@ -90,7 +91,7 @@ fun ListenBrainzLogin(viewModel: ListensViewModel) {
                     // Token is not null or empty.
                     coroutineScope.launch {
                         viewModel.saveUserDetails(token)
-                        activity?.finish()
+                        onLoginSuccess(token)
                     }
                 }
                 clearCookies()

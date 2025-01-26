@@ -75,52 +75,8 @@ fun ProfileScreen(
                 goToArtistPage = goToArtistPage
             )
         }
-        else -> {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-
-                val comp by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.login))
-                LottieAnimation(
-                    modifier = Modifier
-                        .fillMaxWidth(0.7f)
-                        .aspectRatio(1f),
-                    composition = comp,
-                    iterations = LottieConstants.IterateForever,
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Button(
-                    onClick = {
-                        context.startActivity(Intent(context, LoginActivity::class.java))
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .padding(horizontal = 10.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.onSurface)
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.login),
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
-                }
-
-                Text(
-                    text = stringResource(id = R.string.login_prompt),
-                    color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
-                    fontSize = 18.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(top = 16.dp, start = 10.dp, end = 10.dp)
-                )
-            }
+        else -> LoginScreen {
+            goToUserProfile(viewModel.appPreferences.username.get())
         }
     }
 }

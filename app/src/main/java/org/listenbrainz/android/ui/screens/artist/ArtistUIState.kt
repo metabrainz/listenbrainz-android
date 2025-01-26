@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.screens.artist
 
+import ArtistLinksEnum
 import org.listenbrainz.android.model.artist.CBReview
 import org.listenbrainz.android.model.artist.ArtistWikiExtract
 import org.listenbrainz.android.model.artist.Listeners
@@ -20,6 +21,7 @@ data class ArtistUIState(
     val wikiExtract: ArtistWikiExtract? = null,
     val tags: Tag? = null,
     val links: Rels? = null,
+    val linksMap: Map<ArtistLinksEnum, List<LinkCardData>> = emptyMap(),
     val popularTracks: List<PopularRecording?>? = listOf(),
     val albums: List<ReleaseGroup?>? = listOf(),
     val appearsOn: List<ReleaseGroup?>? = listOf(),
