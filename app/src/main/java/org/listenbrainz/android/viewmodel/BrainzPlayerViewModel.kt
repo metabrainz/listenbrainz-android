@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.palette.graphics.Palette
@@ -23,6 +24,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -191,18 +193,36 @@ class BrainzPlayerViewModel @Inject constructor(
         }
     }
 
-    fun searchSongs(query: String): List<Song>? {
-        val listToSearch = _mediaItems.value.data
+    private val _searchQuery = MutableStateFlow(TextFieldValue(""))
+    val searchQuery: StateFlow<TextFieldValue> = _searchQuery
 
+    private val _searchItems = MutableStateFlow<List<Song>>(emptyList())
+    val searchItems: StateFlow<List<Song>> = _searchItems
+
+    fun updateSearchQuery(newQuery: TextFieldValue) {
+        _searchQuery.value = newQuery
+    }
+
+    fun searchSongs(query: String) {
+        val listToSearch = _mediaItems.value.data
         if (query.isEmpty()) {
             isSearching = false
+            _searchItems.value = emptyList()
+        } else {
+            val result: List<Song>? = listToSearch?.filter {
+                it.title.contains(query.trim(), ignoreCase = true)
+            }
+            _searchItems.value = result ?: emptyList()
+            isSearching = true
         }
-        val result: List<Song>? = listToSearch?.filter {
-            it.title.contains(query.trim(), ignoreCase = true)
-        }
-        isSearching = true
-        return result
     }
+
+    fun clearSearchResults() {
+        _searchItems.value = emptyList()
+        _searchQuery.value = TextFieldValue("")
+    }
+
+
 
     fun playOrToggleSong(mediaItem: Song, toggle: Boolean = false) {
         val isPrepared = playbackState.value.isPrepared
