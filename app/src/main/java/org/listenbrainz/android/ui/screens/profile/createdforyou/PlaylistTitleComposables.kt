@@ -57,6 +57,9 @@ fun PlaylistHeadingAndDescription(
     var isHeadingExpanded by remember {
         mutableStateOf(false)
     }
+    var isReadMoreRequired by remember {
+        mutableStateOf<Boolean?>(null)
+    }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -89,6 +92,7 @@ fun PlaylistHeadingAndDescription(
         Spacer(modifier = Modifier.height(8.dp))
         Column(
             modifier = Modifier.clickable {
+                if(isReadMoreRequired == true)
                 isReadMoreEnabled = !isReadMoreEnabled
             }
         ) {
@@ -103,9 +107,12 @@ fun PlaylistHeadingAndDescription(
                 overflow = TextOverflow.Ellipsis,
                 onTextLayout = { onTextLayout ->
                     isReadMoreEnabled = onTextLayout.hasVisualOverflow
+                    if(isReadMoreRequired == null)
+                    isReadMoreRequired = onTextLayout.hasVisualOverflow
                 }
             )
             Spacer(modifier = Modifier.height(4.dp))
+            if(isReadMoreRequired == true)
             Text(
                 text = if (isReadMoreEnabled) "read more" else "read less",
                 style = TextStyle(

@@ -322,9 +322,12 @@ class UserViewModel @Inject constructor(
         createdForYouPlaylists?.playlists?.forEach { data->
             val playlistMbid = data.getPlaylistMBID()
             if (playlistMbid != null) {
-                val playlistData = playlistDataRepository.fetchPlaylist(playlistMbid).data
-                if (playlistData != null) {
-                    createdForYouPlaylistData[playlistMbid] = playlistData.playlist
+                val playlistData = playlistDataRepository.fetchPlaylist(playlistMbid)
+                if(playlistData.status == Resource.Status.FAILED){
+                    emitError(playlistData.error)
+                }
+                if (playlistData.data != null) {
+                    createdForYouPlaylistData[playlistMbid] = playlistData.data.playlist
                 }
             }
 

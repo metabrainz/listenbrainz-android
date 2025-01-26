@@ -26,8 +26,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.createdForYou.CreatedForYouPlaylist
 import org.listenbrainz.android.model.playlist.PlaylistTrack
+import org.listenbrainz.android.ui.components.ErrorBar
+import org.listenbrainz.android.ui.components.SuccessBar
 import org.listenbrainz.android.ui.screens.feed.SocialDropdownDefault
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -45,6 +48,7 @@ fun CreatedForYouScreen(
     val uiState by userViewModel.uiState.collectAsState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val socialUiState by socialViewModel.uiState.collectAsState()
     CreatedForYouScreen(uiState = uiState,
         onPlaylistSaveClick = { playlist ->
             userViewModel.saveCreatedForPlaylist(playlist?.getPlaylistMBID()) {
@@ -65,7 +69,14 @@ fun CreatedForYouScreen(
         }, onTrackClick = {
             it.toMetadata().trackMetadata?.let { it1 -> socialViewModel.playListen(it1) }
         }, goToArtistPage = goToArtistPage,
-        snackbarState = snackbarState
+        snackbarState = snackbarState,
+        socialUiState = socialUiState,
+        onErrorShown = {
+            socialViewModel.clearErrorFlow()
+        },
+        onMessageShown = {
+            socialViewModel.clearMsgFlow()
+        }
     )
 }
 
@@ -73,11 +84,14 @@ fun CreatedForYouScreen(
 private fun CreatedForYouScreen(
     uiState: ProfileUiState,
     snackbarState: SnackbarHostState,
+    socialUiState: SocialUiState,
     onPlaylistSaveClick: (CreatedForYouPlaylist?) -> Unit,
     onPlayAllClick: () -> Unit,
     onShareClick: (CreatedForYouPlaylist?) -> Unit,
     onTrackClick: (PlaylistTrack) -> Unit,
-    goToArtistPage: (String) -> Unit
+    goToArtistPage: (String) -> Unit,
+    onErrorShown: () -> Unit,
+    onMessageShown: () -> Unit
 ) {
     var selectedPlaylist by remember {
         mutableStateOf<CreatedForYouPlaylist?>(
@@ -190,9 +204,15 @@ private fun CreatedForYouScreen(
                 }
             }
         }
-
-
     }
+
+    ErrorBar(error = socialUiState.error, onErrorShown = onErrorShown)
+
+    SuccessBar(
+        resId = socialUiState.successMsgId,
+        onMessageShown = onMessageShown,
+        snackbarState = snackbarState
+    )
 }
 
 // Function to share a link
