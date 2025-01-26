@@ -41,6 +41,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
 
+// PlaylistHeadingAndDescription composable is used to display the heading and description of a playlist.
 @Composable
 fun PlaylistHeadingAndDescription(
     title: String,
@@ -124,6 +125,7 @@ fun PlaylistHeadingAndDescription(
     }
 }
 
+// PlayAndShareButtons composable is used to display the Play All and Share buttons.
 @Composable
 fun PlayAndShareButtons(
     modifier: Modifier = Modifier,
@@ -168,6 +170,7 @@ fun PlayAndShareButtons(
     }
 }
 
+// formatDateLegacy function is used to format the date in MMM dd, h:mm a format.Eg: Jan 06, 12:14 AM
 fun formatDateLegacy(inputDate: String): String {
     // Parse the input date string
     val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.ENGLISH)

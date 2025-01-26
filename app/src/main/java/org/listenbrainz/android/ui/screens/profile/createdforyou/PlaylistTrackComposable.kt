@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,7 +32,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
@@ -43,11 +41,30 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.playlist.PlaylistArtist
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
+/**
+ * A composable that displays a track in a playlist.
+ * @param modifier Modifier to be applied to the composable.
+ * @param trackName Name of the track.
+ * @param durationInSeconds Duration of the track in seconds.
+ * @param artists List of artists who contributed to the track.
+ * @param coverArtUrl URL of the cover art of the track.
+ * @param errorTrackImage Drawable resource to be used in case the cover art is not available.
+ * @param onDropdownIconClick Lambda to be executed when the dropdown icon is clicked.
+ * @param dropDown Composable to be displayed when the dropdown icon is clicked.
+ * @param isReorderButtonVisible Boolean to determine if the reorder button should be visible.
+ * @param color Color of the composable.
+ * @param titleColor Color of the title of the track.
+ * @param subtitleColor Color of the subtitle of the track.
+ * @param goToArtistPage Lambda to be executed when an artist is clicked.
+ * @param onClick Lambda to be executed when the composable is clicked.
+ * @param onPlayClick Lambda to be executed when the play button is clicked.
+ * @param onReorderClick Lambda to be executed when the reorder button is clicked.
+ */
 @Composable
 fun PlaylistTrackComposable(
     modifier: Modifier,
     trackName: String,
-    durationInSeconds: Int ,
+    durationInSeconds: Int,
     artists: List<PlaylistArtist>,
     coverArtUrl: String? = null,
     @DrawableRes errorTrackImage: Int = R.drawable.ic_coverartarchive_logo_no_text,
@@ -136,8 +153,7 @@ fun TitleAndSubtitlePlaylist(
         Row {
             Text(
                 modifier = Modifier
-                    .widthIn(max = LocalConfiguration.current.screenWidthDp*0.35f.dp)
-                ,
+                    .widthIn(max = LocalConfiguration.current.screenWidthDp * 0.35f.dp),
                 text = title,
                 style = ListenBrainzTheme.textStyles.listenTitle.copy(fontSize = 18.sp),
                 color = titleColor,
@@ -186,7 +202,11 @@ fun TitleAndSubtitlePlaylist(
     }
 }
 
-
+/**
+ * A composable that displays the cover art of a track in a playlist.
+ * @param coverArtUrl URL of the cover art of the track.
+ * @param errorAlbumArt Drawable resource to be used in case the cover art is not available.
+ */
 @Composable
 private fun PlaylistArt(
     coverArtUrl: String?,
@@ -212,6 +232,11 @@ private fun PlaylistArt(
 }
 
 
+/**
+ * A composable that displays the buttons for a track in a playlist.
+ * @param onPlayClick Lambda to be executed when the play button is clicked.
+ * @param onDropdownIconClick Lambda to be executed when the dropdown icon is clicked.
+ */
 @Composable
 private fun Buttons(
     modifier: Modifier = Modifier,
@@ -243,6 +268,8 @@ private fun Buttons(
     }
 }
 
+
+//A composable that displays the reorder button for a track in a playlist.
 @Composable
 private fun OrderButton(
     modifier: Modifier = Modifier,

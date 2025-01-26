@@ -195,7 +195,7 @@ private fun CreatedForYouScreen(
     }
 }
 
-
+// Function to share a link
 fun shareLink(context: Context, link: String) {
     val intent = Intent(Intent.ACTION_SEND).apply {
         type = "text/plain"
