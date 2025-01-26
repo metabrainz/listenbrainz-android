@@ -79,11 +79,7 @@ fun BrainzPlayerScreen() {
         albumSongsMap[albums[i - 1]] = albumSongs
     }
 
-    val songsPlayedThisWeek =
-        brainzPlayerViewModel.songsPlayedThisWeek.collectAsState(initial = listOf()).value
-    topRecents.add(Song())
-    topArtists.add(Artist())
-    topAlbums.add(Album())
+    val songsPlayedThisWeek by brainzPlayerViewModel.songsPlayedThisWeek.collectAsState(initial = listOf())
 
     Column(
         modifier = Modifier.fillMaxSize()
