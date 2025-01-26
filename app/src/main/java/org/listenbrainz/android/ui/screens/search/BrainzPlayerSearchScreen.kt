@@ -78,7 +78,6 @@ fun BrainzPlayerSearchScreen(
             onQueryChange = { newValue: String ->
                 val updatedQuery = TextFieldValue(newValue, selection = brainzplayerQueryState.selection)
                 viewModel.updateSearchQuery(updatedQuery)
-                viewModel.searchSongs(newValue)
             },
             onClear = {
                 viewModel.clearSearchResults()

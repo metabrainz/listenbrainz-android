@@ -27,6 +27,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.PlayableType
@@ -73,6 +76,12 @@ class BrainzPlayerViewModel @Inject constructor(
 
     var playerBackGroundColor by mutableStateOf(Color.Transparent)
 
+    private val _searchQuery = MutableStateFlow(TextFieldValue(""))
+    val searchQuery: StateFlow<TextFieldValue> = _searchQuery
+
+    private val _searchItems = MutableStateFlow<List<Song>>(emptyList())
+    val searchItems: StateFlow<List<Song>> = _searchItems
+
     init {
         updatePlayerPosition()
         _mediaItems.value = Resource.loading()
@@ -97,6 +106,16 @@ class BrainzPlayerViewModel @Inject constructor(
                 _mediaItems.value = Resource(Resource.Status.SUCCESS, it)
                 currentlyPlaying.items.plus(it)
             }
+        }
+
+        viewModelScope.launch {
+            _searchQuery
+                .map { it.text }
+                .debounce(200) // 0.2 Seconds
+                .distinctUntilChanged()
+                .collect { query ->
+                    SearchSong(query)
+                }
         }
     }
 
@@ -193,35 +212,28 @@ class BrainzPlayerViewModel @Inject constructor(
         }
     }
 
-    private val _searchQuery = MutableStateFlow(TextFieldValue(""))
-    val searchQuery: StateFlow<TextFieldValue> = _searchQuery
-
-    private val _searchItems = MutableStateFlow<List<Song>>(emptyList())
-    val searchItems: StateFlow<List<Song>> = _searchItems
-
     fun updateSearchQuery(newQuery: TextFieldValue) {
         _searchQuery.value = newQuery
     }
 
-    fun searchSongs(query: String) {
+    private fun SearchSong(query: String) {
         val listToSearch = _mediaItems.value.data
         if (query.isEmpty()) {
             isSearching = false
             _searchItems.value = emptyList()
-        } else {
-            val result: List<Song>? = listToSearch?.filter {
-                it.title.contains(query.trim(), ignoreCase = true)
-            }
-            _searchItems.value = result ?: emptyList()
-            isSearching = true
+            return
         }
+        isSearching = true
+        val result: List<Song>? = listToSearch?.filter {
+            it.title.contains(query.trim(), ignoreCase = true)
+        }
+        _searchItems.value = result ?: emptyList()
     }
 
     fun clearSearchResults() {
         _searchItems.value = emptyList()
         _searchQuery.value = TextFieldValue("")
     }
-
 
 
     fun playOrToggleSong(mediaItem: Song, toggle: Boolean = false) {
