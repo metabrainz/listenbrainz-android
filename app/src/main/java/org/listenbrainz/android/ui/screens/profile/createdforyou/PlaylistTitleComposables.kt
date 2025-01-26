@@ -38,7 +38,6 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.util.Utils.removeHtmlTags
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
@@ -65,8 +64,8 @@ fun PlaylistHeadingAndDescription(
         Text(
             text = title,
             style = TextStyle(
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 26.sp,
+                fontWeight = FontWeight.ExtraBold
             ),
             maxLines = if (isHeadingExpanded) Int.MAX_VALUE else 1,
             color = ListenBrainzTheme.colorScheme.listenText,
@@ -93,7 +92,7 @@ fun PlaylistHeadingAndDescription(
             }
         ) {
             Text(
-                text = removeHtmlTags(description).trim(),
+                text = removeExcessiveSpaces(removeHtmlTags(description)).trim(),
                 color = ListenBrainzTheme.colorScheme.listenText.copy(0.5f),
                 fontStyle = FontStyle.Italic,
                 fontWeight = FontWeight.SemiBold,
@@ -180,6 +179,11 @@ fun formatDateLegacy(inputDate: String): String {
     outputFormat.timeZone = TimeZone.getDefault() // Adjust to local time zone
     return outputFormat.format(date!!)
 }
+
+fun removeExcessiveSpaces(input: String): String {
+    return input.trim().replace(Regex("\\s+"), " ")
+}
+
 
 @Preview(showBackground = true)
 @Composable

@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,14 +26,17 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import org.listenbrainz.android.R
@@ -130,7 +135,9 @@ fun TitleAndSubtitlePlaylist(
     ) {
         Row {
             Text(
-                modifier = Modifier,
+                modifier = Modifier
+                    .widthIn(max = LocalConfiguration.current.screenWidthDp*0.35f.dp)
+                ,
                 text = title,
                 style = ListenBrainzTheme.textStyles.listenTitle.copy(fontSize = 18.sp),
                 color = titleColor,
@@ -275,7 +282,7 @@ fun PlaylistRowComposablePreview() {
     ListenBrainzTheme {
         PlaylistTrackComposable(
             modifier = Modifier,
-            trackName = "Track Name",
+            trackName = "Track Name Track Name Track Name",
             artists = listOf(
                 PlaylistArtist(
                     artistCreditName = "Artist Name",
