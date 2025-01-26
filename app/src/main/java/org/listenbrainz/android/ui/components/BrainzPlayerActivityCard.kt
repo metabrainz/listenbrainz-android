@@ -26,13 +26,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import org.listenbrainz.android.R
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @Composable
-fun BrainzPlayerActivityCards(icon: String, errorIcon : Int, title: String, subtitle : String,modifier : Modifier = Modifier) {
+fun BrainzPlayerActivityCards(
+    modifier: Modifier = Modifier,
+    icon: String,
+    errorIcon: Int,
+    title: String,
+    subtitle: String,
+) {
     Box(
         modifier = modifier
             .padding(4.dp)
@@ -100,8 +109,19 @@ fun BrainzPlayerActivityCards(icon: String, errorIcon : Int, title: String, subt
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
-
-
         }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun CardsPreview() {
+    ListenBrainzTheme {
+        BrainzPlayerActivityCards(
+            icon = "",
+            errorIcon = R.drawable.ic_album,
+            title = "Title",
+            subtitle = "Subtitle"
+        )
     }
 }
