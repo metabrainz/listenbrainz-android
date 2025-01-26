@@ -341,6 +341,21 @@ class UserViewModel @Inject constructor(
         createdForFlow.emit(createdForTabState)
     }
 
+
+    fun retryFetchAPlaylist(playlistMbid: String?){
+        viewModelScope.launch(ioDispatcher) {
+            val playlistData = playlistDataRepository.fetchPlaylist(playlistMbid)
+            if(playlistData.status == Resource.Status.FAILED){
+                emitError(playlistData.error)
+            }
+            if (playlistMbid!= null && playlistData.data != null) {
+                val currentData = createdForFlow.value.createdForYouPlaylistData?.toMutableMap()
+                currentData?.set(playlistMbid, playlistData.data.playlist)
+                createdForFlow.emit(createdForFlow.value.copy(createdForYouPlaylistData = currentData))
+            }
+        }
+    }
+
     //This function saves the createdForYou playlist to the user's account
     fun saveCreatedForPlaylist(playlistMbid: String?,
                                onCompletion: (String)->Unit

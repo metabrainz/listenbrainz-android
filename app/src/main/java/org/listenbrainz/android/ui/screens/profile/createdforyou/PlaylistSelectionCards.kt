@@ -63,7 +63,7 @@ fun PlaylistSelectionCardRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        playlists.forEach { playlist ->
+        playlists.forEachIndexed { index, playlist->
             PlaylistTitleCard(
                 title = modifyTitle(playlist),
                 fractionLeft = getFractionLeft(
@@ -71,6 +71,7 @@ fun PlaylistSelectionCardRow(
                     playlist.extension.createdForYouExtensionData.additionalMetadata.expiresAt
                 ),
                 isSelected = selectedPlaylist == playlist,
+                cardBg = getCardBg(index),
                 alignment = Alignment.Center,
                 onSaveClick = { onSaveClick(playlist) },
                 onPlaylistSelect = { onPlaylistSelect(playlist) }
@@ -210,6 +211,15 @@ fun ProgressCircle(
     }
 }
 
+//This function provides a background for the card based on the index.
+fun getCardBg(index: Int): Int{
+    return when(index%3){
+        0 -> R.drawable.playlist_card_bg1
+        1 -> R.drawable.playlist_card_bg2
+        2 -> R.drawable.playlist_card_bg3
+        else -> R.drawable.playlist_card_bg1
+    }
+}
 
 @Preview(showBackground = true)
 @Composable

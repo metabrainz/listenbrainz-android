@@ -5,6 +5,7 @@ import android.content.Intent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -76,6 +78,9 @@ fun CreatedForYouScreen(
         },
         onMessageShown = {
             socialViewModel.clearMsgFlow()
+        },
+        onRetryDataFetch = {
+            userViewModel.retryFetchAPlaylist(it.getPlaylistMBID())
         }
     )
 }
@@ -91,7 +96,8 @@ private fun CreatedForYouScreen(
     onTrackClick: (PlaylistTrack) -> Unit,
     goToArtistPage: (String) -> Unit,
     onErrorShown: () -> Unit,
-    onMessageShown: () -> Unit
+    onMessageShown: () -> Unit,
+    onRetryDataFetch: (CreatedForYouPlaylist)-> Unit
 ) {
     var selectedPlaylist by remember {
         mutableStateOf<CreatedForYouPlaylist?>(
@@ -106,9 +112,11 @@ private fun CreatedForYouScreen(
         uiState.createdForTabUIState.createdForYouPlaylistData?.get(selectedPlaylist?.getPlaylistMBID())
 
     if (uiState.createdForTabUIState.createdForYouPlaylists.isNullOrEmpty()) {
-        Text(
-            text = "No playlists found", color = ListenBrainzTheme.colorScheme.onBackground
-        )
+        Column(modifier = Modifier.padding(ListenBrainzTheme.paddings.horizontal)) {
+            Text(
+                text = "No playlists found", color = ListenBrainzTheme.colorScheme.onBackground
+            )
+        }
     } else {
         Box(
             modifier = Modifier
@@ -147,10 +155,19 @@ private fun CreatedForYouScreen(
                                 color = ListenBrainzTheme.colorScheme.onBackground
                             )
                         } else if (playlistData == null) {
-                            Text(
-                                text = "Playlist data could not be loaded",
-                                color = ListenBrainzTheme.colorScheme.onBackground
-                            )
+                            Column(modifier = Modifier.padding(ListenBrainzTheme.paddings.horizontal)) {
+                                Text(
+                                    text = "Playlist data could not be loaded",
+                                    color = ListenBrainzTheme.colorScheme.onBackground
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Button(onClick = {
+                                    onRetryDataFetch(playlist)
+                                }) {
+                                    Text(text = "Retry",
+                                        color = ListenBrainzTheme.colorScheme.onBackground)
+                                }
+                            }
                         } else {
                             PlaylistHeadingAndDescription(title = playlistData.title ?: "No title",
                                 tracksCount = playlistData.track.size ?: 0,
