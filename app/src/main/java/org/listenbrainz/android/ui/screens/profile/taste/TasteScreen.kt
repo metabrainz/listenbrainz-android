@@ -189,7 +189,6 @@ fun TasteScreen(
                     caaReleaseMbid = feedback.trackMetadata?.mbidMapping?.caaReleaseMbid,
                     caaId = feedback.trackMetadata?.mbidMapping?.caaId
                 ),
-                enableDropdownIcon = true,
                 onDropdownIconClick = {
                     dropdownItemIndex.value = index
                 },
@@ -286,7 +285,6 @@ fun TasteScreen(
                                 caaReleaseMbid = recording.trackMetadata?.mbidMapping?.caaReleaseMbid,
                                 caaId = recording.trackMetadata?.mbidMapping?.caaId
                             ),
-                            enableDropdownIcon = true,
                             onDropdownIconClick = {
                                 dropdownItemIndex.value = index
                             },

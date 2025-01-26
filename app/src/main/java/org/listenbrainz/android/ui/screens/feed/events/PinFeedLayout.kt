@@ -52,7 +52,6 @@ fun PinFeedLayout(
                     caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
                 )
             },
-            enableDropdownIcon = true,
             onDropdownIconClick = onDropdownClick,
             dropDown = {
                 SocialDropdown(
@@ -80,7 +79,6 @@ fun PinFeedLayout(
             goToArtistPage = goToArtistPage,
             onClick = onClick
         )
-        
     }
 }
 

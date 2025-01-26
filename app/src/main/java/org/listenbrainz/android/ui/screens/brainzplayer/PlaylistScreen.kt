@@ -415,7 +415,6 @@ fun OnPlaylistClickScreen(playlistID: Long) {
                     artists = listOf(FeedListenArtist(it.artist, null, "")),
                     coverArtUrl = it.albumArt,
                     errorAlbumArt = R.drawable.ic_erroralbumart,
-                    enableDropdownIcon = true,
                     goToArtistPage = {},
                     onDropdownIconClick = {
                         selectedPlaylistItemIndex = selectedPlaylist.items.indexOf(it)

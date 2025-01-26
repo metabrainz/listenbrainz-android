@@ -526,7 +526,6 @@ fun FollowListens(
                             caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
                             caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
                         ),
-                    enableDropdownIcon = true,
                     onDropdownIconClick = {
                         dropdownItemIndex.value = if (dropdownItemIndex.value == null) index else null
                     },
@@ -630,7 +629,6 @@ fun SimilarListens(
                             caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
                             caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
                         ),
-                    enableDropdownIcon = true,
                     onDropdownIconClick = {
                         dropdownItemIndex.value = if (dropdownItemIndex.value == null){
                              index

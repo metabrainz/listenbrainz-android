@@ -1,6 +1,5 @@
 package org.listenbrainz.android.ui.theme
 
-import android.app.Activity
 import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -22,7 +21,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
@@ -108,7 +106,7 @@ private val colorSchemeDark = ColorScheme(
     onBackground = Color.White,
     nav = bp_bottom_song_viewpager_dark,
     level1 = app_bottom_nav_dark,
-    level2 = Color(0xFF4E4E4E),
+    level2 = Color(0xFF3B3B3B),
     lbSignature = Color(0xFF9AABD1),
     lbSignatureSecondary = lb_yellow,
     lbSignatureInverse = lb_orange,
@@ -146,7 +144,7 @@ private val colorSchemeLight = ColorScheme(
     onBackground = Color.Black,
     nav = bp_bottom_song_viewpager_day,
     level1 = app_bottom_nav_day,
-    level2 = Color(0xFF1E1E1E),
+    level2 = Color(0xFFE3E3E3),
     lbSignature = lb_purple,
     lbSignatureSecondary = lb_yellow,
     lbSignatureInverse = Color(0xFFE5743E),
