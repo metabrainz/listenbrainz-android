@@ -42,7 +42,7 @@ object BrainzPlayerExtensions {
     inline val MediaMetadataCompat?.toSong
         get() = this?.description?.let {
             Song(
-                mediaID = (if(it.mediaId!="") it.mediaId?.toLong() else  Song.emptySong.mediaID)!!,
+                mediaID = (if (it.mediaId!="") it.mediaId?.toLong() else Song.emptySong.mediaID)!!,
                 title = it.title.toString(),
                 artist = it.subtitle.toString(),
                 uri = it.mediaUri.toString(),

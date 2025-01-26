@@ -5,7 +5,6 @@ import android.text.TextUtils
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -63,7 +62,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
@@ -477,7 +475,6 @@ fun StatsScreen(
                                        subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),
                                        enableTrailingContent = true,
                                        listenCount = topAlbum.listenCount,
-                                       enableDropdownIcon = true,
                                        goToArtistPage = goToArtistPage
                                        )
                                    {
@@ -512,7 +509,6 @@ fun StatsScreen(
                                        color = app_bg_secondary_dark,
                                        titleColor = ListenBrainzTheme.colorScheme.followerChipSelected,
                                        subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),
-                                       enableDropdownIcon = true,
                                        onDropdownIconClick = {
                                            dropdownItemIndex.value = index
                                        },
