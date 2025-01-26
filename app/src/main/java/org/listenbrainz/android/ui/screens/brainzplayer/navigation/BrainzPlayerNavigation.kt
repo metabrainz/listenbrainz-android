@@ -25,7 +25,6 @@ import org.listenbrainz.android.ui.screens.brainzplayer.PlaylistScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.SongScreen
 
 
-@RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalMaterial3Api
 @Composable
 fun Navigation(
@@ -41,9 +40,6 @@ fun Navigation(
     albumSongsMap: MutableMap<Album,List<Song>>,
     navHostController: NavHostController = rememberNavController()
 ) {
-    
-    fun goTo(destination: BrainzPlayerNavigationItem) = navHostController.navigate(destination.route)
-    
     NavHost(navController = navHostController, startDestination = BrainzPlayerNavigationItem.Home.route) {
         
         composable(route = BrainzPlayerNavigationItem.Home.route) {

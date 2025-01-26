@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.screens.brainzplayer.overview
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,11 +19,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.ui.components.BrainzPlayerDropDownMenu
-import org.listenbrainz.android.ui.components.BrainzPlayerListenCard
+import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
+import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
 @Composable
 fun RecentPlaysScreen(
@@ -43,14 +48,14 @@ fun RecentPlaysScreen(
                 .background(
                     brush = ListenBrainzTheme.colorScheme.gradientBrush
                 )
-                .padding(top = 15.dp, bottom = 15.dp, start = 10.dp)) {
+                .padding(top = 15.dp, bottom = 15.dp, start = 10.dp, end = 10.dp)) {
                 Text(
                     "Played Today",
                     color = ListenBrainzTheme.colorScheme.lbSignature,
                     fontSize = 25.sp
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-                PlayedToday(songsPlayedToday = songsPlayedToday, onPlayIconClick = onPlayIconClick, dropDownState = dropdownState,  onAddToQueue = onAddToQueue, onAddToNewPlaylist = onAddToNewPlaylist, onAddToExistingPlaylist = onAddToExistingPlaylist, onPlayNext = onPlayNext)
+                PlayedThisWeek(songsPlayed = songsPlayedToday, onPlayIconClick = onPlayIconClick, dropDownState = dropdownState,  onAddToQueue = onAddToQueue, onAddToNewPlaylist = onAddToNewPlaylist, onAddToExistingPlaylist = onAddToExistingPlaylist, onPlayNext = onPlayNext)
             }
         }
         if(songsPlayedThisWeek.isNotEmpty()) {
@@ -58,52 +63,23 @@ fun RecentPlaysScreen(
                 .background(
                     brush = ListenBrainzTheme.colorScheme.gradientBrush
                 )
-                .padding(top = 15.dp, bottom = 15.dp, start = 10.dp)) {
+                .padding(top = 15.dp, bottom = 15.dp, start = 10.dp, end = 10.dp)) {
                 Text(
                     "Played This Week",
                     color = ListenBrainzTheme.colorScheme.lbSignature,
                     fontSize = 25.sp
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-                PlayedThisWeek(songsPlayedThisWeek = songsPlayedThisWeek, onPlayIconClick = onPlayIconClick, dropDownState = dropdownState, onAddToQueue = onAddToQueue, onAddToNewPlaylist = onAddToNewPlaylist, onAddToExistingPlaylist = onAddToExistingPlaylist, onPlayNext = onPlayNext)
+                PlayedThisWeek(songsPlayed = songsPlayedThisWeek, onPlayIconClick = onPlayIconClick, dropDownState = dropdownState, onAddToQueue = onAddToQueue, onAddToNewPlaylist = onAddToNewPlaylist, onAddToExistingPlaylist = onAddToExistingPlaylist, onPlayNext = onPlayNext)
             }
         }
     }
 }
-@Composable
-private fun PlayedToday(
-    songsPlayedToday: List<Song>,
-    onPlayIconClick: (Song) -> Unit,
-    dropDownState : MutableState<Pair<Int,Int>>,
-    onAddToQueue: (Song) -> Unit,
-    onPlayNext: (Song) -> Unit,
-    onAddToExistingPlaylist: (Song) -> Unit,
-    onAddToNewPlaylist: (Song) -> Unit
-){
-    var heightConstraint = ListenBrainzTheme.sizes.listenCardHeight * songsPlayedToday.size + 20.dp
-    if(songsPlayedToday.size > 4) heightConstraint = 250.dp
-    LazyColumn (modifier = Modifier.height(
-       heightConstraint
-    )) {
-        itemsIndexed(songsPlayedToday){
-            index, it ->
-            BrainzPlayerListenCard(title = it.title, subTitle = it.artist, coverArtUrl = it.albumArt, errorAlbumArt = R.drawable.ic_erroralbumart, onPlayIconClick = {onPlayIconClick(it)}, onDropdownIconClick = {dropDownState.value = Pair(1,index)}, dropDownState = dropDownState.value == Pair(1,index),dropDown = {BrainzPlayerDropDownMenu(
-                expanded = dropDownState.value == Pair(1,index),
-                onDismiss = {dropDownState.value = Pair(-1,-1)},
-                onAddToQueue = {onAddToQueue(it)},
-                onPlayNext =  {onPlayNext(it)},
-                onAddToExistingPlaylist = {onAddToExistingPlaylist(it)},
-                onAddToNewPlaylist = {onAddToNewPlaylist(it)}
-            )})
-            Spacer(modifier = Modifier.height(5.dp))
-        }
 
-    }
-}
 
 @Composable
 private fun PlayedThisWeek(
-    songsPlayedThisWeek: List<Song>,
+    songsPlayed: List<Song>,
     onPlayIconClick: (Song) -> Unit,
     dropDownState : MutableState<Pair<Int,Int>>,
     onAddToQueue: (Song) -> Unit,
@@ -111,22 +87,36 @@ private fun PlayedThisWeek(
     onAddToExistingPlaylist: (Song) -> Unit,
     onAddToNewPlaylist: (Song) -> Unit
 ){
-    var heightConstraint = ListenBrainzTheme.sizes.listenCardHeight * songsPlayedThisWeek.size + 20.dp
-    if(songsPlayedThisWeek.size > 4) heightConstraint = 250.dp
-    LazyColumn (modifier = Modifier.height(
-        heightConstraint
-    )) {
-        itemsIndexed(songsPlayedThisWeek){
-            index, it ->
-            BrainzPlayerListenCard(title = it.title, subTitle = it.artist, coverArtUrl = it.albumArt, errorAlbumArt = R.drawable.ic_erroralbumart, onPlayIconClick = {onPlayIconClick(it)}, onDropdownIconClick = {dropDownState.value = Pair(2,index)}, dropDownState = dropDownState.value == Pair(2,index),dropDown = {BrainzPlayerDropDownMenu(
-                expanded = dropDownState.value == Pair(2,index),
-                onDismiss = {dropDownState.value = Pair(-1,-1)},
-                onAddToQueue = {onAddToQueue(it)},
-                onPlayNext =  {onPlayNext(it)},
-                onAddToExistingPlaylist = {onAddToExistingPlaylist(it)},
-                onAddToNewPlaylist = {onAddToNewPlaylist(it)}
-            )})
-            Spacer(modifier = Modifier.height(5.dp))
+    val viewModel: BrainzPlayerViewModel = hiltViewModel()
+    val currentlyPlayingSong = viewModel.currentlyPlayingSong.collectAsStateWithLifecycle().value.toSong
+    var heightConstraint = ListenBrainzTheme.sizes.listenCardHeight * songsPlayed.size + 20.dp
+    if (songsPlayed.size > 4)
+        heightConstraint = 250.dp
+    LazyColumn (
+        modifier = Modifier.height(heightConstraint),
+        verticalArrangement = Arrangement.spacedBy(ListenBrainzTheme.paddings.lazyListAdjacent)
+    ) {
+        itemsIndexed(songsPlayed){ index, it ->
+            ListenCardSmall(
+                trackName = it.title,
+                artist = it.artist,
+                coverArtUrl = it.albumArt,
+                errorAlbumArt = R.drawable.ic_erroralbumart,
+                onClick = { onPlayIconClick(it) },
+                goToArtistPage = {},
+                onDropdownIconClick = { dropDownState.value = Pair(2,index) },
+                dropDown = {
+                    BrainzPlayerDropDownMenu(
+                        expanded = dropDownState.value == Pair(2,index),
+                        onDismiss = {dropDownState.value = Pair(-1,-1)},
+                        onAddToQueue = {onAddToQueue(it)},
+                        onPlayNext =  {onPlayNext(it)},
+                        onAddToExistingPlaylist = {onAddToExistingPlaylist(it)},
+                        onAddToNewPlaylist = {onAddToNewPlaylist(it)}
+                    )
+                },
+                isPlaying = it.mediaID == currentlyPlayingSong.mediaID
+            )
         }
     }
 }
