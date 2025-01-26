@@ -5,11 +5,6 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,18 +13,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidthIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -68,7 +59,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -79,7 +69,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.gowtham.ratingbar.RatingBar
 import com.gowtham.ratingbar.RatingBarStyle
-import com.patrykandpatrick.vico.compose.cartesian.fullWidth
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.MbidMapping
@@ -111,7 +100,6 @@ import org.listenbrainz.android.ui.theme.app_bg_mid
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.ui.theme.new_app_bg_light
-import org.listenbrainz.android.util.Constants.MB_BASE_URL
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.util.Utils.measureSize
 import org.listenbrainz.android.util.Utils.removeHtmlTags
@@ -184,7 +172,7 @@ private fun ArtistScreen(
                     )
                 }
                 item {
-                    Links(artistMbid = artistMbid, links = uiState.links)
+                    Links(uiState.linksMap)
                 }
                 item {
                     PopularTracks(uiState = uiState, goToArtistPage = goToArtistPage)
@@ -500,77 +488,12 @@ private fun BioTag(tag: String, count: Int) {
     }
 }
 
-class LinkCardData(val iconResId: ImageVector, val label: String, val url: String) {}
+class LinkCardData(val iconResId: Int, val label: String, val url: String) {}
 
 @Composable
 fun Links(
-    artistMbid: String?,
-    links: Rels? = null,
+    linksMap: Map<ArtistLinksEnum, List<LinkCardData>>
 ) {
-    //TODO: Move this logic to vm and get map to ui state
-    val allLinkCards: MutableList<LinkCardData> = mutableListOf()
-    val mainLinkCards: MutableList<LinkCardData> = mutableListOf()
-    val streamingLinkCards: MutableList<LinkCardData> = mutableListOf()
-    val socialMediaLinkCards: MutableList<LinkCardData> = mutableListOf()
-    val lyricsLinkCards: MutableList<LinkCardData> = mutableListOf()
-    if (links?.wikidata != null) {
-        val wikidata = LinkCardData(
-            ImageVector.vectorResource(id = R.drawable.wiki_data),
-            "Wikidata",
-            links.wikidata
-        )
-        allLinkCards.add(wikidata)
-        mainLinkCards.add(wikidata)
-    }
-    if (links?.lyrics != null) {
-        val lyrics = LinkCardData(Icons.Default.SettingsVoice, "Lyrics", links.lyrics)
-        allLinkCards.add(lyrics)
-        lyricsLinkCards.add(lyrics)
-    }
-    if (links?.officialHomePage != null) {
-        val homePage = LinkCardData(
-            ImageVector.vectorResource(id = R.drawable.home_icon),
-            "Homepage",
-            links.officialHomePage
-        )
-        allLinkCards.add(homePage)
-        mainLinkCards.add(homePage)
-    }
-    if (links?.purchaseForDownload != null) {
-        val purchase = LinkCardData(
-            ImageVector.vectorResource(id = R.drawable.mail_order),
-            "Purchase for Download",
-            links.purchaseForDownload
-        )
-        allLinkCards.add(purchase)
-        streamingLinkCards.add(purchase)
-    }
-    if (links?.purchaseForMailOrder != null) {
-        val mailOrder = LinkCardData(
-            ImageVector.vectorResource(id = R.drawable.mail_order),
-            "Purchase for mail order",
-            links.purchaseForMailOrder
-        )
-        allLinkCards.add(mailOrder)
-        streamingLinkCards.add(mailOrder)
-    }
-    if (artistMbid != null) {
-        mainLinkCards.add(
-            LinkCardData(
-                ImageVector.vectorResource(id = R.drawable.musicbrainz_logo),
-                "Edit",
-                MB_BASE_URL + "artist/${artistMbid}"
-            )
-        )
-    }
-
-    val linksMap: Map<ArtistLinksEnum, List<LinkCardData>> = mapOf(
-        ArtistLinksEnum.ALL to allLinkCards,
-        ArtistLinksEnum.MAIN to mainLinkCards,
-        ArtistLinksEnum.LYRICS to lyricsLinkCards,
-        ArtistLinksEnum.STREAMING to streamingLinkCards,
-        ArtistLinksEnum.SOCIAL_MEDIA to socialMediaLinkCards
-    )
     val linkOptionSelectionState: MutableState<ArtistLinksEnum> = remember {
         mutableStateOf(ArtistLinksEnum.MAIN)
     }
@@ -654,7 +577,7 @@ fun Links(
                     ) {
                         rowItems.forEach { item ->
                             LinkCard(
-                                icon = item.iconResId,
+                                icon = ImageVector.vectorResource(item.iconResId),
                                 label = item.label,
                                 url = item.url,
                             )
