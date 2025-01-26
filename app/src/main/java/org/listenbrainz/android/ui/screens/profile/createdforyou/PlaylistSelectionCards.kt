@@ -10,7 +10,6 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -32,7 +31,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.UiMode
 import androidx.compose.ui.unit.dp
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.createdForYou.AdditionalMetadata
@@ -42,7 +40,6 @@ import org.listenbrainz.android.model.createdForYou.Extension
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.TimeZone
 
@@ -54,7 +51,7 @@ import java.util.TimeZone
  * [onPlaylistSelect] is the action to be performed when the card is selected.
  */
 @Composable
-fun PlaylistTitleCardRow(
+fun PlaylistSelectionCardRow(
     modifier: Modifier,
     selectedPlaylist: CreatedForYouPlaylist? = null,
     playlists: List<CreatedForYouPlaylist>,
@@ -259,7 +256,7 @@ fun PlaylistTitleCardRowPreview() {
                 )
             )
         )
-        PlaylistTitleCardRow(
+        PlaylistSelectionCardRow(
             modifier = Modifier.padding(16.dp),
             playlists = listOf(
                 playlist1,

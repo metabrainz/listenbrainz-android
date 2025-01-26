@@ -3,6 +3,7 @@ package org.listenbrainz.android.ui.screens.profile.createdforyou
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -38,7 +39,7 @@ import org.listenbrainz.android.model.playlist.PlaylistArtist
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @Composable
-fun PlaylistRowComposable(
+fun PlaylistTrackComposable(
     modifier: Modifier,
     trackName: String,
     durationInSeconds: Int ,
@@ -63,48 +64,47 @@ fun PlaylistRowComposable(
         shadowElevation = 4.dp,
         color = color,
     ) {
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { onClick() }
-        ) {
-
-            if (isReorderButtonVisible) {
-                OrderButton {
-                    onReorderClick()
-                }
-            }
-
-            PlaylistArt(
-                coverArtUrl = coverArtUrl,
-                errorAlbumArt = errorTrackImage
-            )
-
-            Column(
-                modifier = Modifier
-                    .padding(
-                        ListenBrainzTheme.paddings.insideCard
-                    )
-                    .weight(100f)
+        Box {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.clickable { onClick() }
             ) {
-                TitleAndSubtitlePlaylist(
-                    title = trackName,
-                    durationInSeconds = durationInSeconds,
-                    artists = artists,
-                    titleColor = titleColor,
-                    subtitleColor = subtitleColor,
-                    goToArtistPage = goToArtistPage
+
+                if (isReorderButtonVisible) {
+                    OrderButton {
+                        onReorderClick()
+                    }
+                }
+
+                PlaylistArt(
+                    coverArtUrl = coverArtUrl,
+                    errorAlbumArt = errorTrackImage
+                )
+
+                Column(
+                    modifier = Modifier
+                        .padding(
+                            ListenBrainzTheme.paddings.insideCard
+                        )
+                        .weight(100f)
+                ) {
+                    TitleAndSubtitlePlaylist(
+                        title = trackName,
+                        durationInSeconds = durationInSeconds,
+                        artists = artists,
+                        titleColor = titleColor,
+                        subtitleColor = subtitleColor,
+                        goToArtistPage = goToArtistPage
+                    )
+                }
+
+
+                Buttons(
+                    onPlayClick = onPlayClick,
+                    onDropdownIconClick = onDropdownIconClick
                 )
             }
-
-
-            Buttons(
-                onPlayClick = onPlayClick,
-                onDropdownIconClick = onDropdownIconClick
-            )
             dropDown()
-
-
         }
     }
 }
@@ -273,7 +273,7 @@ fun formatSeconds(seconds: Int): String {
 @Composable
 fun PlaylistRowComposablePreview() {
     ListenBrainzTheme {
-        PlaylistRowComposable(
+        PlaylistTrackComposable(
             modifier = Modifier,
             trackName = "Track Name",
             artists = listOf(
@@ -304,7 +304,7 @@ fun PlaylistRowComposablePreview() {
 @Composable
 fun PlaylistRowComposablePreviewDark() {
     ListenBrainzTheme {
-        PlaylistRowComposable(
+        PlaylistTrackComposable(
             modifier = Modifier,
             trackName = "Track Name",
             artists = listOf(

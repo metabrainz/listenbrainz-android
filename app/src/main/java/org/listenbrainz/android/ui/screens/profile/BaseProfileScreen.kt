@@ -219,7 +219,8 @@ fun BaseProfileScreen(
                         ProfileScreenTab.CREATED_FOR_YOU.index -> CreatedForYouScreen(
                             snackbarState = snackbarState,
                             userViewModel = viewModel,
-                            goToArtistPage = goToArtistPage
+                            goToArtistPage = goToArtistPage,
+                            socialViewModel = socialViewModel
                         )
                     }
                 }
