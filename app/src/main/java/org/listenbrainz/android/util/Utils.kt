@@ -35,15 +35,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.DisposableEffectResult
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationCompat
+import androidx.core.view.WindowCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import okhttp3.*
@@ -236,6 +239,22 @@ object Utils {
 
     fun Dp.toPx(context: Context) = this.value * context.resources.displayMetrics.density
     fun Dp.toPx(density: Int) = this.value * density
+
+    @Composable
+    fun SetSystemBarsForegroundAppearance(lightAppearance: Boolean) {
+        val view = LocalView.current
+
+        if (!view.isInEditMode) {
+            val activity = view.context.getActivity() ?: return
+            SideEffect {
+                WindowCompat.getInsetsController(activity.window, view).run {
+                    // turn left to go right
+                    isAppearanceLightStatusBars = !lightAppearance
+                    isAppearanceLightNavigationBars = !lightAppearance
+                }
+            }
+        }
+    }
 
     fun emailIntent(recipient: String, subject: String?): Intent {
         val uri = Uri.parse("mailto:$recipient")

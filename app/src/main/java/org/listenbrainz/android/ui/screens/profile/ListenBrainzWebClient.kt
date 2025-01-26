@@ -4,8 +4,11 @@ import android.net.Uri
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.limurse.logger.Logger
+import org.listenbrainz.android.util.Resource
 
-class ListenBrainzWebClient(private val setLBAuthToken: (String) -> Unit) : WebViewClient() {
+class ListenBrainzWebClient(
+    private val onLoad: (Resource<String>) -> Unit,
+) : WebViewClient() {
 
     private var attemptedSettingsNavigation = false
 
@@ -30,22 +33,28 @@ class ListenBrainzWebClient(private val setLBAuthToken: (String) -> Unit) : WebV
                     view?.loadUrl("https://listenbrainz.org/settings")
                 }
                 uri.path?.contains("/settings") == true -> {
+                    onLoad(Resource.loading())
                     Logger.d("ListenBrainzWebClient", "On settings page, waiting to extract token...")
-                    view?.postDelayed({
-                        view.evaluateJavascript(
-                            "(function() { return document.getElementById('auth-token') ? document.getElementById('auth-token').value : 'not found'; })();"
-                        ) { value ->
-                            val token = value.removePrefix("\"").removeSuffix("\"")
-                            when {
-                                token.isNotEmpty() && token != "not found" -> {
-                                    setLBAuthToken(token)
-                                }
-                                else -> {
-                                    Logger.d("ListenBrainzWebClient", "Token not found or empty")
+
+                    view?.postDelayed(
+                        /*action = */{
+                            view.evaluateJavascript(
+                                "(function() { return document.getElementById('auth-token') ? document.getElementById('auth-token').value : 'not found'; })();"
+                            ) { value ->
+                                val token = value.removePrefix("\"").removeSuffix("\"")
+                                when {
+                                    token.isNotEmpty() && token != "not found" -> {
+                                        onLoad(Resource.success(token))
+                                    }
+                                    else -> {
+                                        Logger.d("ListenBrainzWebClient", "Token not found or empty")
+                                        onLoad(Resource.failure())
+                                    }
                                 }
                             }
-                        }
-                    }, 2000)
+                        },
+                        /*delayMillis =*/2000
+                    )
                 }
             }
         }
