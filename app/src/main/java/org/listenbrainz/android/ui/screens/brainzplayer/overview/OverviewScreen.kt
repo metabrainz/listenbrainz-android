@@ -130,7 +130,6 @@ private fun RecentlyPlayedOverview(
                         onClick(song)
                     }
                 )
-
             }
             if (recentlyPlayedSongs.isNotEmpty())
                 item {
@@ -168,6 +167,9 @@ private fun ArtistsOverview(
         ) {
             items(items = artists) { artist ->
                 BrainzPlayerActivityCards(
+                    modifier = Modifier.clickable {
+                        onClick(artist)
+                    },
                     icon = "",
                     errorIcon = R.drawable.ic_artist,
                     title = "",
@@ -211,6 +213,9 @@ private fun AlbumsOverview(
         ) {
             items(items = albums) { album ->
                 BrainzPlayerActivityCards(
+                    modifier = Modifier.clickable {
+                        onClick(album)
+                    },
                     icon = album.albumArt,
                     errorIcon = R.drawable.ic_album,
                     title = album.artist,
