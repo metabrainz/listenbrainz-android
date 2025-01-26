@@ -272,6 +272,7 @@ fun PlaylistTitleCardRowPreview() {
     }
 }
 
+//This function provides a shorter title to created for playlists.
 fun modifyTitle(createdForYouPlaylist: CreatedForYouPlaylist): String{
     if(createdForYouPlaylist.title == null) return "No title"
     if(!createdForYouPlaylist.title.contains("Weekly Exploration")) return createdForYouPlaylist.title
@@ -281,6 +282,7 @@ fun modifyTitle(createdForYouPlaylist: CreatedForYouPlaylist): String{
     return "Last Week's Exploration"
 }
 
+//This function converts an ISO timestamp to milliseconds.
 fun convertISOTimeStampToMillis(timeStamp: String): Long {
     val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
     sdf.timeZone = TimeZone.getTimeZone("UTC")
@@ -288,6 +290,7 @@ fun convertISOTimeStampToMillis(timeStamp: String): Long {
     return date?.time ?: 0L
 }
 
+//This function calculates the fraction of time left for a task to be completed.
 fun getFractionLeft(createdTimeStamp: String?, expiryTimeStamp: String?): Float {
     if (createdTimeStamp == null || expiryTimeStamp == null) return 0.0f
     val currentTime = System.currentTimeMillis()
