@@ -266,4 +266,69 @@ class BrainzPlayerViewModel @Inject constructor(
             }
         }
     }
+
+    fun playNext(songs: List<Song>) {
+        if (songs.isEmpty()) return
+
+        val currentSongIndex =
+            appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.value.toSong.mediaID }
+                ?.plus(1)
+        if (isPlaying.value && currentSongIndex != null) {
+            val currentSongs =
+                appPreferences.currentPlayable?.songs?.toMutableList()
+            currentSongs?.addAll(currentSongIndex, songs)
+            appPreferences.currentPlayable =
+                appPreferences.currentPlayable?.copy(
+                    songs = currentSongs ?: emptyList()
+                )
+            appPreferences.currentPlayable?.songs?.let {
+                changePlayable(
+                    it,
+                    PlayableType.ALL_SONGS,
+                    appPreferences.currentPlayable?.id ?: 0,
+                    appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.value.toSong.mediaID }
+                        ?: 0, songCurrentPosition.value
+                )
+            }
+            queueChanged(
+                currentlyPlayingSong.value.toSong,
+                isPlaying.value
+            )
+        } else {
+            // No song is playing, so start playing the selected song
+            changePlayable(
+                songs,
+                PlayableType.SONG,
+                songs.first().mediaID,
+                0,
+                0L
+            )
+            playOrToggleSong(songs.first(), true)
+        }
+    }
+
+    fun addToQueue(
+        songs: List<Song>
+    ) {
+        val currentSongs =
+            appPreferences.currentPlayable?.songs?.toMutableList()
+        currentSongs?.addAll(songs)
+        appPreferences.currentPlayable =
+            appPreferences.currentPlayable?.copy(
+                songs = currentSongs ?: emptyList()
+            )
+        appPreferences.currentPlayable?.songs?.let {
+            changePlayable(
+                it,
+                PlayableType.ALL_SONGS,
+                appPreferences.currentPlayable?.id ?: 0,
+                appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.value.toSong.mediaID }
+                    ?: 0, songCurrentPosition.value
+            )
+        }
+        queueChanged(
+            currentlyPlayingSong.value.toSong,
+            isPlaying.value
+        )
+    }
 }

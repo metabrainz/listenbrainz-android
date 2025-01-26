@@ -65,13 +65,17 @@ fun ListenCardSmall(
     coverArtUrl: String?,
     listenCount: Int? = null,
     @DrawableRes errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
-    enableDropdownIcon: Boolean = false,
     onDropdownIconClick: () -> Unit = {},
-    dropDown: @Composable () -> Unit = {},
+    dropDown: @Composable (() -> Unit)? = null,
     enableTrailingContent: Boolean = false,
     trailingContent: @Composable (modifier: Modifier) -> Unit = {},
     blurbContent: @Composable (ColumnScope.(modifier: Modifier) -> Unit)? = null,
-    color: Color = ListenBrainzTheme.colorScheme.level1,
+    isPlaying: Boolean = false,
+    color: Color = if (isPlaying) {
+        ListenBrainzTheme.colorScheme.level2
+    } else {
+        ListenBrainzTheme.colorScheme.level1
+    },
     titleColor: Color = ListenBrainzTheme.colorScheme.listenText,
     subtitleColor: Color = titleColor.copy(alpha = 0.7f),
     goToArtistPage: (String) -> Unit,
@@ -94,7 +98,8 @@ fun ListenCardSmall(
                 contentAlignment = Alignment.CenterStart
             ) {
         
-                val (mainContentFraction, trailingContentFraction, dropDownButtonFraction) = remember(enableDropdownIcon, enableTrailingContent) {
+                val (mainContentFraction, trailingContentFraction, dropDownButtonFraction) = remember(dropDown != null, enableTrailingContent) {
+                    val enableDropdownIcon = dropDown != null
                     when {
                         enableDropdownIcon && enableTrailingContent -> Triple(0.60f, 0.80f, 0.20f)    // 0.20f (0.08f in whole) for dropdown and 0.80f (0.32f in whole) for trailing content
                         enableDropdownIcon && !enableTrailingContent -> Triple(0.92f, 0f, 1f) // 0.10f for dropdown
@@ -153,7 +158,7 @@ fun ListenCardSmall(
                     }
             
                     // Dropdown Icon
-                    if (enableDropdownIcon) {
+                    if (dropDown != null) {
                         DropdownButton(
                             modifier = Modifier
                                 .fillMaxWidth(dropDownButtonFraction)
@@ -177,24 +182,68 @@ fun ListenCardSmall(
     }
 }
 
-@Suppress("NOTHING_TO_INLINE")
 @Composable
-inline fun ListenCardSmallDefault(
+fun ListenCardSmall(
+    modifier: Modifier = Modifier,
+    trackName: String,
+    artist: String,
+    coverArtUrl: String?,
+    listenCount: Int? = null,
+    @DrawableRes errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
+    onDropdownIconClick: () -> Unit = {},
+    dropDown: @Composable () -> Unit = {},
+    enableTrailingContent: Boolean = false,
+    trailingContent: @Composable (modifier: Modifier) -> Unit = {},
+    blurbContent: @Composable (ColumnScope.(modifier: Modifier) -> Unit)? = null,
+    isPlaying: Boolean = false,
+    color: Color = if (isPlaying) {
+        ListenBrainzTheme.colorScheme.level2
+    } else {
+        ListenBrainzTheme.colorScheme.level1
+    },
+    titleColor: Color = ListenBrainzTheme.colorScheme.listenText,
+    subtitleColor: Color = titleColor.copy(alpha = 0.7f),
+    goToArtistPage: (String) -> Unit,
+    onClick: () -> Unit,
+) {
+    ListenCardSmall(
+        modifier = modifier,
+        trackName = trackName,
+        artists = listOf(FeedListenArtist(artist, null, "")),
+        coverArtUrl = coverArtUrl,
+        listenCount = listenCount,
+        errorAlbumArt = errorAlbumArt,
+        onDropdownIconClick = onDropdownIconClick,
+        dropDown = dropDown,
+        enableTrailingContent = enableTrailingContent,
+        trailingContent = trailingContent,
+        blurbContent = blurbContent,
+        isPlaying = isPlaying,
+        color = color,
+        titleColor = titleColor,
+        subtitleColor = subtitleColor,
+        goToArtistPage = goToArtistPage,
+        onClick = onClick
+    )
+}
+
+@Composable
+fun ListenCardSmallDefault(
     modifier: Modifier = Modifier,
     metadata: Metadata,
     coverArtUrl: String?,
     listenCount: Int? = null,
     @DrawableRes errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
     enableTrailingContent: Boolean = false,
-    noinline trailingContent: @Composable (modifier: Modifier) -> Unit = {},
-    noinline blurbContent: @Composable (ColumnScope.(modifier: Modifier) -> Unit)? = null,
+    trailingContent: @Composable (modifier: Modifier) -> Unit = {},
+    blurbContent: @Composable (ColumnScope.(modifier: Modifier) -> Unit)? = null,
     color: Color = ListenBrainzTheme.colorScheme.level1,
     titleColor: Color = ListenBrainzTheme.colorScheme.listenText,
     subtitleColor: Color = titleColor.copy(alpha = 0.7f),
-    noinline onDropdownError: suspend CoroutineScope.(error: ResponseError) -> Unit,
-    noinline onDropdownSuccess: suspend CoroutineScope.(message: String) -> Unit,
-    noinline goToArtistPage: (String) -> Unit,
-    noinline onClick: () -> Unit,
+    onDropdownError: suspend CoroutineScope.(error: ResponseError) -> Unit,
+    onDropdownSuccess: suspend CoroutineScope.(message: String) -> Unit,
+    goToArtistPage: (String) -> Unit,
+    onClick: () -> Unit,
 ) {
     metadata.trackMetadata?.let {
         var isDropdownExpanded by remember { mutableStateOf(false) }
@@ -208,7 +257,6 @@ inline fun ListenCardSmallDefault(
             coverArtUrl = coverArtUrl,
             listenCount = listenCount,
             errorAlbumArt = errorAlbumArt,
-            enableDropdownIcon = true,
             onDropdownIconClick = {
                 isDropdownExpanded = !isDropdownExpanded
             },
@@ -331,7 +379,6 @@ private fun ListenCardSmallPreview() {
             trackName = "Title",
             artists = listOf(FeedListenArtist("Artist", "", "")),
             coverArtUrl = "",
-            enableDropdownIcon = true,
             enableTrailingContent = true,
             trailingContent = { modifier ->
                 Column(modifier = modifier) {
@@ -357,7 +404,6 @@ private fun ListenCardSmallNoBlurbContentPreview() {
             trackName = "Title",
             artists = listOf(FeedListenArtist("Artist", "", "")),
             coverArtUrl = "",
-            enableDropdownIcon = true,
             enableTrailingContent = true,
             trailingContent = { modifier ->
                 Column(modifier = modifier) {
@@ -378,7 +424,6 @@ private fun ListenCardSmallSimplePreview() {
             trackName = "Title",
             artists = listOf(FeedListenArtist("Artist", "", "")),
             coverArtUrl = "",
-            enableDropdownIcon = true,
             enableTrailingContent = false,
             goToArtistPage = {},
         ) {}

@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Album
-import org.listenbrainz.android.ui.components.BrainzPlayerListenCard
+import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @Composable
@@ -54,9 +54,9 @@ fun AlbumsOverViewScreen(
                     )
                     for (j in 1..albumsStarting[startingLetter]!!.size) {
                         val coverArt = albumsStarting[startingLetter]!![j - 1].albumArt
-                        BrainzPlayerListenCard(
-                            title = albumsStarting[startingLetter]!![j - 1].title,
-                            subTitle = albumsStarting[startingLetter]!![j - 1].artist,
+                        ListenCardSmall(
+                            trackName = albumsStarting[startingLetter]!![j - 1].title,
+                            artist = albumsStarting[startingLetter]!![j - 1].artist,
                             coverArtUrl = coverArt,
                             errorAlbumArt = R.drawable.ic_erroralbumart,
                             modifier = Modifier.padding(
@@ -65,10 +65,10 @@ fun AlbumsOverViewScreen(
                                 top = 3.dp,
                                 bottom = 3.dp
                             ),
-                            onPlayIconClick = {
-                                onPlayIconClick(albumsStarting[startingLetter]!![j-1])
-                            }
+                            goToArtistPage = { onPlayIconClick(albumsStarting[startingLetter]!![j-1]) },
+                            onClick = { onPlayIconClick(albumsStarting[startingLetter]!![j-1]) }
                         )
+
                         Spacer(modifier = Modifier.height(10.dp))
                     }
                 }

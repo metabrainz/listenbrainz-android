@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Artist
 import org.listenbrainz.android.ui.components.BrainzPlayerDropDownMenu
-import org.listenbrainz.android.ui.components.BrainzPlayerListenCard
+import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @Composable
@@ -71,17 +71,14 @@ fun ArtistsOverviewScreen(
                         val artist = artistsStarting[startingLetter]!![j-1]
                         if (artistsStarting[startingLetter]!![j - 1].albums.isNotEmpty())
                             coverArt = artistsStarting[startingLetter]!![j - 1].albums[0].albumArt
-                        BrainzPlayerListenCard(
-                            title = artistsStarting[startingLetter]!![j - 1].name,
-                            subTitle = when (artistsStarting[startingLetter]!![j - 1].songs.size) {
+                        ListenCardSmall(
+                            trackName = artistsStarting[startingLetter]!![j - 1].name,
+                            artist = when (artistsStarting[startingLetter]!![j - 1].songs.size) {
                                 1 -> "1 track"
                                 else -> "${artistsStarting[startingLetter]!![j - 1].songs.size} tracks"
                             },
                             coverArtUrl = coverArt,
                             errorAlbumArt = R.drawable.ic_artist,
-                            onPlayIconClick = {
-                                onPlayClick(artistsStarting[startingLetter]!![j-1])
-                            },
                             modifier = Modifier.padding(start = 10.dp, end = 10.dp),
                             dropDown = {
                                 BrainzPlayerDropDownMenu(
@@ -93,7 +90,11 @@ fun ArtistsOverviewScreen(
                                     onDismiss = {dropdownState = Pair(-1,-1)}
                                 )
                             },
-                            onDropdownIconClick = {dropdownState = Pair(i,j-1)}, dropDownState = dropdownState == Pair(i,j-1)
+                            onDropdownIconClick = { dropdownState = Pair(i,j-1) },
+                            goToArtistPage = {},
+                            onClick = {
+                                onPlayClick(artistsStarting[startingLetter]!![j-1])
+                            },
                         )
                         Spacer(modifier = Modifier.height(10.dp))
                     }
