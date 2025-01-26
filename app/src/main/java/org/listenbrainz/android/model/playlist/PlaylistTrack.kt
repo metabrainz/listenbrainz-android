@@ -39,6 +39,7 @@ data class PlaylistTrack(
                             it.joinPhrase
                         )
                     },
+                    recordingMbid = getRecordingMBID(),
                     recordingName = title?:""
                 ),
                 additionalInfo = AdditionalInfo(
