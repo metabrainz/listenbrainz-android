@@ -140,8 +140,27 @@ fun PlayAndShareButtons(
     onShareClick: () -> Unit
 ) {
     Row(modifier = modifier) {
+        //Hiding play all button for now
+//        Button(
+//            onClick = onPlayAllClick,
+//            colors = ButtonColors(
+//                contentColor = Color.White,
+//                containerColor = lb_purple,
+//                disabledContentColor = Color.Gray,
+//                disabledContainerColor = Color.Gray
+//            )
+//        ) {
+//            Image(
+//                painter = painterResource(R.drawable.playlist_play_btn),
+//                contentDescription = "Play All",
+//                modifier = Modifier.size(20.dp)
+//            )
+//            Spacer(modifier = Modifier.width(8.dp))
+//            Text(text = "Play All")
+//        }
+//        Spacer(modifier = Modifier.width(8.dp))
         Button(
-            onClick = onPlayAllClick,
+            onShareClick,
             colors = ButtonColors(
                 contentColor = Color.White,
                 containerColor = lb_purple,
@@ -149,29 +168,15 @@ fun PlayAndShareButtons(
                 disabledContainerColor = Color.Gray
             )
         ) {
-            Image(
-                painter = painterResource(R.drawable.playlist_play_btn),
-                contentDescription = "Play All",
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text = "Play All")
-        }
-        Spacer(modifier = Modifier.width(8.dp))
-        IconButton(
-            onShareClick,
-            colors = IconButtonColors(
-                contentColor = Color.White,
-                containerColor = lb_purple,
-                disabledContentColor = Color.Gray,
-                disabledContainerColor = Color.Gray
-            )
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.playlist_share_btn),
-                contentDescription = "Share",
-                modifier = Modifier.size(20.dp)
-            )
+            Row {
+                Icon(
+                    painter = painterResource(R.drawable.playlist_share_btn),
+                    contentDescription = "Share",
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Share")
+            }
         }
 
     }
