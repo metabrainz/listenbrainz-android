@@ -27,6 +27,7 @@ import org.listenbrainz.android.ui.screens.profile.TasteTabUIState
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
 import org.listenbrainz.android.ui.screens.profile.stats.UserGlobal
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
+import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
 
@@ -337,6 +338,21 @@ class UserViewModel @Inject constructor(
         createdForFlow.emit(createdForTabState)
     }
 
+    //This function saves the createdForYou playlist to the user's account
+    fun saveCreatedForPlaylist(playlistMbid: String?,
+                               onCompletion: (String)->Unit
+    ){
+        viewModelScope.launch(ioDispatcher) {
+            val result = playlistDataRepository.copyPlaylist(playlistMbid)
+            if (result.status == Resource.Status.SUCCESS){
+                //Show a snackbar with the playlist id
+                onCompletion("Playlist saved successfully with id ${result.data?.playlistMbid}")
+            }
+            else{
+                emitError(result.error)
+            }
+        }
+    }
 
     override val uiState: StateFlow<ProfileUiState> = createUiStateFlow()
 

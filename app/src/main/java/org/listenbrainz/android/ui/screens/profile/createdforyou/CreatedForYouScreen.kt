@@ -31,7 +31,6 @@ import org.listenbrainz.android.model.playlist.PlaylistTrack
 import org.listenbrainz.android.ui.screens.feed.SocialDropdownDefault
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
@@ -47,21 +46,25 @@ fun CreatedForYouScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     CreatedForYouScreen(uiState = uiState,
-        onPlaylistSaveClick = {
-        //TODO: Implement this
-    }, onPlayAllClick = {
-        //TODO: Implement this
-    }, onShareClick = {
-        if (it?.identifier != null) {
-            shareLink(context, it.identifier)
-        } else {
-            scope.launch {
-                snackbarState.showSnackbar("Link not found")
+        onPlaylistSaveClick = { playlist ->
+            userViewModel.saveCreatedForPlaylist(playlist?.getPlaylistMBID()) {
+                scope.launch {
+                    snackbarState.showSnackbar(it)
+                }
             }
-        }
-    }, onTrackClick = {
-        it.toMetadata().trackMetadata?.let { it1 -> socialViewModel.playListen(it1) }
-    }, goToArtistPage = goToArtistPage,
+        }, onPlayAllClick = {
+            //TODO: Implement this
+        }, onShareClick = {
+            if (it?.identifier != null) {
+                shareLink(context, it.identifier)
+            } else {
+                scope.launch {
+                    snackbarState.showSnackbar("Link not found")
+                }
+            }
+        }, onTrackClick = {
+            it.toMetadata().trackMetadata?.let { it1 -> socialViewModel.playListen(it1) }
+        }, goToArtistPage = goToArtistPage,
         snackbarState = snackbarState
     )
 }
