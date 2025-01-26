@@ -42,7 +42,8 @@ fun OverviewScreen(
     recentlyPlayedSongs: List<Song>,
     brainzPlayerViewModel: BrainzPlayerViewModel = hiltViewModel(),
     artists: List<Artist>,
-    albums: List<Album>
+    albums: List<Album>,
+    albumSongsMap: Map<Album, List<Song>>
 ) {
     Column(
         modifier = Modifier
@@ -53,17 +54,49 @@ fun OverviewScreen(
             modifier = Modifier.fillMaxWidth(),
             recentlyPlayedSongs = recentlyPlayedSongs,
             goToRecentScreen = goToRecentScreen,
-            brainzPlayerViewModel = brainzPlayerViewModel
+            onClick = { song ->
+                brainzPlayerViewModel.changePlayable(
+                    recentlyPlayedSongs,
+                    PlayableType.ALL_SONGS,
+                    song.mediaID,
+                    recentlyPlayedSongs.indexOf(song),
+                    0L
+                )
+                brainzPlayerViewModel.playOrToggleSong(song, true)
+            }
         )
         ArtistsOverview(
             modifier = Modifier.fillMaxWidth(),
             artists = artists,
-            goToArtistScreen = goToArtistScreen
+            goToArtistScreen = goToArtistScreen,
+            onClick = { artist ->
+                brainzPlayerViewModel.changePlayable(
+                    artist.songs,
+                    PlayableType.ARTIST,
+                    artist.id,
+                    0,
+                    0L
+                )
+                brainzPlayerViewModel.playOrToggleSong(artist.songs[0], true)
+            }
         )
         AlbumsOverview(
             modifier = Modifier.fillMaxWidth(),
             albums = albums,
-            goToAlbumScreen = goToAlbumScreen
+            goToAlbumScreen = goToAlbumScreen,
+            onClick = { album ->
+                val albumSongs = albumSongsMap[album]?.sortedBy { it.trackNumber }
+                if (!albumSongs.isNullOrEmpty()) {
+                    brainzPlayerViewModel.changePlayable(
+                        albumSongs,
+                        PlayableType.ALBUM,
+                        album.albumId,
+                        0,
+                        0L
+                    )
+                    brainzPlayerViewModel.playOrToggleSong(albumSongs[0], true)
+                }
+            }
         )
     }
 }
@@ -72,8 +105,8 @@ fun OverviewScreen(
 private fun RecentlyPlayedOverview(
     modifier: Modifier = Modifier,
     recentlyPlayedSongs: List<Song>,
-    brainzPlayerViewModel: BrainzPlayerViewModel,
-    goToRecentScreen: () -> Unit
+    goToRecentScreen: () -> Unit,
+    onClick: (Song) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -93,20 +126,14 @@ private fun RecentlyPlayedOverview(
         ) {
             items(items = recentlyPlayedSongs) { song ->
                 if (song.title != "") {
-                    BrainzPlayerActivityCards(icon = song.albumArt,
+                    BrainzPlayerActivityCards(
+                        icon = song.albumArt,
                         errorIcon = R.drawable.ic_song,
                         title = song.artist,
                         subtitle = song.title,
                         modifier = Modifier
                             .clickable {
-                                brainzPlayerViewModel.changePlayable(
-                                    recentlyPlayedSongs,
-                                    PlayableType.ALL_SONGS,
-                                    song.mediaID,
-                                    recentlyPlayedSongs.indexOf(song),
-                                    0L
-                                )
-                                brainzPlayerViewModel.playOrToggleSong(song, true)
+                                onClick(song)
                             }
                     )
                 } else {
@@ -143,13 +170,12 @@ private fun RecentlyPlayedOverview(
 private fun ArtistsOverview(
     modifier: Modifier = Modifier,
     artists: List<Artist>,
-    goToArtistScreen: () -> Unit
+    goToArtistScreen: () -> Unit,
+    onClick: (Artist) -> Unit
 ) {
     Column(
         modifier = modifier
-            .background(
-                brush = ListenBrainzTheme.colorScheme.gradientBrush
-            )
+            .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
             .padding(top = 15.dp, bottom = 15.dp)
     ) {
         Text(
@@ -170,6 +196,10 @@ private fun ArtistsOverview(
                         errorIcon = R.drawable.ic_artist,
                         title = "",
                         subtitle = artist.name,
+                        modifier = Modifier
+                            .clickable {
+                                onClick(artist)
+                            }
                     )
                 } else {
                     Box(
@@ -205,7 +235,8 @@ private fun ArtistsOverview(
 private fun AlbumsOverview(
     modifier: Modifier = Modifier,
     albums: List<Album>,
-    goToAlbumScreen: () -> Unit
+    goToAlbumScreen: () -> Unit,
+    onClick: (Album) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -230,6 +261,10 @@ private fun AlbumsOverview(
                         errorIcon = R.drawable.ic_album,
                         title = album.artist,
                         subtitle = album.title,
+                        modifier = Modifier
+                            .clickable {
+                                onClick(album)
+                            }
                     )
                 } else {
                     Box(

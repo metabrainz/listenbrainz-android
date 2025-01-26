@@ -160,7 +160,8 @@ fun BrainzPlayerHomeScreen(
                 goToAlbumScreen = {currentTab.value = 3},
                 brainzPlayerViewModel = brainzPlayerViewModel,
                 artists = previewArtists,
-                albums = previewAlbums
+                albums = previewAlbums,
+                albumSongsMap = albumSongsMap
             )
             1 -> RecentPlaysScreen(
                 songsPlayedToday = songsPlayedToday,
