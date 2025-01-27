@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.screens.profile.listens
 
 import android.os.Bundle
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -37,6 +38,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -183,7 +185,7 @@ fun ListensScreen(
     goToUserProfile: (String) -> Unit,
 ) {
     val listState = rememberLazyListState()
-
+    val dashboardViewModel: DashBoardViewModel = hiltViewModel()
     var recentListensCollapsibleState by remember {
         mutableStateOf(true)
     }
@@ -368,6 +370,7 @@ fun ListensScreen(
                 ) {
                     Column {
                         FollowersCard(
+                            currentName =dashboardViewModel.usernameFlow.collectAsStateWithLifecycle(initialValue = null),
                             followersCount = uiState.listensTabUiState.followersCount,
                             followingCount = uiState.listensTabUiState.followingCount,
                             followers = when (followersMenuCollapsibleState.value) {
@@ -761,6 +764,7 @@ fun CompatibilityCard(
 
 @Composable
 private fun FollowersCard(
+    currentName: State<String?>,
     followersCount: Int?,
     followingCount: Int?,
     followers: List<Pair<String, Boolean>>,
@@ -769,7 +773,10 @@ private fun FollowersCard(
     onStateChange: (Boolean) -> Unit,
     onFollowButtonClick: (String?, Boolean) -> Unit,
     goToUserPage: (String?) -> Unit
-) {
+)
+
+{
+    val actualCurrentName = currentName.value ?: ""
     Column(modifier = Modifier.padding(start = 16.dp, top = 30.dp, end = 16.dp)) {
         Text(
             text = if (followersState) "Followers" else "Followings",
@@ -841,11 +848,10 @@ private fun FollowersCard(
             }
         }
         Spacer(modifier = Modifier.height(10.dp))
-        val dashboardViewModel: DashBoardViewModel = hiltViewModel()
         when (followersState) {
             true -> followers.map { state ->
                 FollowCard(
-                    dashboardViewModel = dashboardViewModel,
+                    currentUserName = actualCurrentName,
                     username = state.first,
                     onFollowButtonClick = onFollowButtonClick,
                     followStatus = state.second,
@@ -856,7 +862,7 @@ private fun FollowersCard(
 
             false -> following.map { state ->
                 FollowCard(
-                    dashboardViewModel=dashboardViewModel,
+                    currentUserName = actualCurrentName,
                     username = state.first,
                     onFollowButtonClick = onFollowButtonClick,
                     followStatus = state.second,
@@ -891,7 +897,7 @@ private fun SimilarUsersCard(similarUsers: List<SimilarUser>, goToUserPage: (Str
 
 @Composable
 private fun FollowCard(
-    dashboardViewModel: DashBoardViewModel,
+    currentUserName : String,
     username: String?,
     onFollowButtonClick: (String?, Boolean) -> Unit,
     followStatus: Boolean,
@@ -914,7 +920,6 @@ private fun FollowCard(
                     goToUserPage(username)
                 }
             )
-            val currentUserName by dashboardViewModel.usernameFlow.collectAsStateWithLifecycle(initialValue = null)
             if (username != currentUserName) {
                 FollowButton(
                     modifier = Modifier,
