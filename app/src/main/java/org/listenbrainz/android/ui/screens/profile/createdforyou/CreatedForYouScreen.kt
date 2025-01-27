@@ -1,7 +1,5 @@
 package org.listenbrainz.android.ui.screens.profile.createdforyou
 
-import android.content.Context
-import android.content.Intent
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -29,15 +27,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.createdForYou.CreatedForYouPlaylist
+import org.listenbrainz.android.model.createdForYou.CreatedForYouPlaylists
+import org.listenbrainz.android.model.playlist.AdditionalMetadataTrack
+import org.listenbrainz.android.model.playlist.PlaylistData
 import org.listenbrainz.android.model.playlist.PlaylistTrack
+import org.listenbrainz.android.model.playlist.TrackExtension
+import org.listenbrainz.android.model.playlist.TrackExtensionData
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
 import org.listenbrainz.android.ui.components.SuccessBar
+import org.listenbrainz.android.ui.screens.profile.CreatedForTabUIState
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils.formatDurationSeconds
@@ -110,9 +115,6 @@ private fun CreatedForYouScreen(
             if (uiState.createdForTabUIState.createdForYouPlaylists.isNullOrEmpty()) null
             else uiState.createdForTabUIState.createdForYouPlaylists[0].playlist
         )
-    }
-    var dropdownItemIndex by remember {
-        mutableStateOf<Int?>(null)
     }
     val playlistData =
         uiState.createdForTabUIState.createdForYouPlaylistData?.get(selectedPlaylist?.getPlaylistMBID())
@@ -244,3 +246,71 @@ private fun CreatedForYouScreen(
     )
 }
 
+
+@Preview(showBackground = true)
+@Composable
+fun CreatedForScreenPreview() {
+    ListenBrainzTheme {
+        val playlistTrack = PlaylistTrack(
+            title = "Goodbyes",
+            identifier = listOf("https://musicbrainz.org/recording/c8162486-f1a6-4673-88a2-e70c2112c221"),
+            duration = 174853,
+            extension = TrackExtension(
+                trackExtensionData = TrackExtensionData(
+                    additionalMetadata = AdditionalMetadataTrack(
+                        caaId = 24593316652,
+                        caaReleaseMbid = "0b751b1b-f420-46e9-b2b5-108615b8427f"
+                    )
+                )
+            )
+        )
+        CreatedForYouScreen(
+            uiState = ProfileUiState(
+                createdForTabUIState = CreatedForTabUIState(
+                    createdForYouPlaylists = listOf(
+                        CreatedForYouPlaylists(
+                            playlist = CreatedForYouPlaylist(
+                                annotation = "\"<p>The ListenBrainz Weekly Exploration playlist helps you discover new music! \\n    It may require active listening and skips. The playlist features tracks you haven't heard before, \\n    selected by a collaborative filtering algorithm.</p>\\n\\n    <p>Updated every Monday morning based on your timezone.</p>\\n\"",
+                                creator = "listenbrainz",
+                                date = "2025-01-20T00:09:28.012627+00:00",
+                                identifier = "\"https://listenbrainz.org/playlist/66d1b8fb-f5ed-4f82-b8e2-eac48f2fd278\"",
+                                title = "Weekly Exploration for hemang-mishra, week of 2025-01-20 Mon"
+                            )
+                        ),
+                        CreatedForYouPlaylists(
+                            playlist = CreatedForYouPlaylist(
+                                annotation = "\"<p>The ListenBrainz Weekly Exploration playlist helps you discover new music! \\n    It may require active listening and skips. The playlist features tracks you haven't heard before, \\n    selected by a collaborative filtering algorithm.</p>\\n\\n    <p>Updated every Monday morning based on your timezone.</p>\\n\"",
+                                creator = "listenbrainz",
+                                date = "2025-01-20T00:09:28.012627+00:00",
+                                identifier = "\"https://listenbrainz.org/playlist/66d1b8fb-f5ed-4f82-b8e2-eac48f2fd279\"",
+                                title = "Weekly Exploration for hemang-mishra, week of 2025-01-20 Mon"
+                            )
+                        ),
+                    ),
+                    createdForYouPlaylistData = mapOf(
+                        "66d1b8fb-f5ed-4f82-b8e2-eac48f2fd278" to PlaylistData(
+                            title = "Playlist 1",
+                            track = listOf(
+                                playlistTrack,
+                                playlistTrack,
+                                playlistTrack
+                            ),
+                            date = "2025-01-13T00:07:44.741098+00:00",
+                            annotation = "<p>The ListenBrainz Weekly Exploration playlist helps you discover new music! \\n    It may require active listening and skips. The playlist features tracks you haven't heard before, \\n    selected by a collaborative filtering algorithm.</p>\\n\\n    <p>Updated every Monday morning based on your timezone.</p>"
+                        )
+                    )
+                )
+            ),
+            snackbarState = SnackbarHostState(),
+            socialUiState = SocialUiState(),
+            onPlaylistSaveClick = {},
+            onPlayAllClick = {},
+            onShareClick = {},
+            onTrackClick = {},
+            goToArtistPage = {},
+            onErrorShown = {},
+            onMessageShown = {},
+            onRetryDataFetch = {}
+        )
+    }
+}
