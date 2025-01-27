@@ -40,7 +40,9 @@ import org.listenbrainz.android.ui.components.ListenCardSmallDefault
 import org.listenbrainz.android.ui.components.SuccessBar
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.Utils.formatDurationSeconds
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
+import org.listenbrainz.android.util.Utils.shareLink
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 
@@ -242,23 +244,3 @@ private fun CreatedForYouScreen(
     )
 }
 
-// Function to share a link
-fun shareLink(context: Context, link: String) {
-    val intent = Intent(Intent.ACTION_SEND).apply {
-        type = "text/plain"
-        putExtra(Intent.EXTRA_TEXT, link)
-    }
-    context.startActivity(Intent.createChooser(intent, "Share link via"))
-}
-
-fun formatDurationSeconds(seconds: Int): String {
-    val hours = seconds / 3600
-    val minutes = (seconds % 3600) / 60
-    val secs = seconds % 60
-
-    return if (hours > 0) {
-        String.format("%02d:%02d:%02d", hours, minutes, secs)
-    } else {
-        String.format("%02d:%02d", minutes, secs)
-    }
-}
