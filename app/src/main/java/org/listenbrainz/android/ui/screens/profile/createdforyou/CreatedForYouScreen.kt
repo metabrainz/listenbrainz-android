@@ -26,14 +26,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.createdForYou.CreatedForYouPlaylist
 import org.listenbrainz.android.model.playlist.PlaylistTrack
 import org.listenbrainz.android.ui.components.ErrorBar
+import org.listenbrainz.android.ui.components.ListenCardSmallDefault
 import org.listenbrainz.android.ui.components.SuccessBar
-import org.listenbrainz.android.ui.screens.feed.SocialDropdownDefault
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
@@ -97,7 +101,7 @@ private fun CreatedForYouScreen(
     goToArtistPage: (String) -> Unit,
     onErrorShown: () -> Unit,
     onMessageShown: () -> Unit,
-    onRetryDataFetch: (CreatedForYouPlaylist)-> Unit
+    onRetryDataFetch: (CreatedForYouPlaylist) -> Unit
 ) {
     var selectedPlaylist by remember {
         mutableStateOf<CreatedForYouPlaylist?>(
@@ -164,8 +168,10 @@ private fun CreatedForYouScreen(
                                 Button(onClick = {
                                     onRetryDataFetch(playlist)
                                 }) {
-                                    Text(text = "Retry",
-                                        color = ListenBrainzTheme.colorScheme.onBackground)
+                                    Text(
+                                        text = "Retry",
+                                        color = ListenBrainzTheme.colorScheme.onBackground
+                                    )
                                 }
                             }
                         } else {
@@ -183,40 +189,44 @@ private fun CreatedForYouScreen(
                     }
                 }
                 items(playlistData?.track?.size ?: 0) { trackIndex ->
-                    if (playlistData != null) PlaylistTrackComposable(modifier = Modifier.padding(
-                        horizontal = ListenBrainzTheme.paddings.horizontal
-                    ),
-                        trackName = playlistData.track[trackIndex].title ?: "No title",
-
-                        artists = playlistData.track[trackIndex].extension.trackExtensionData.additionalMetadata.artists,
-                        goToArtistPage = goToArtistPage,
-                        coverArtUrl = getCoverArtUrl(
-                            caaReleaseMbid = playlistData.track[trackIndex].extension.trackExtensionData.additionalMetadata.caaReleaseMbid,
-                            caaId = playlistData.track[trackIndex].extension.trackExtensionData.additionalMetadata.caaId
-                        ),
-                        isReorderButtonVisible = false,
-                        onClick = { onTrackClick(playlistData.track[trackIndex]) },
-                        onPlayClick = { onTrackClick(playlistData.track[trackIndex]) },
-                        durationInSeconds = (playlistData.track[trackIndex].duration?.div(1000))
-                            ?: 0,
-                        dropDown = {
-                            SocialDropdownDefault(
-                                isExpanded = (dropdownItemIndex == trackIndex),
-                                onDropdownDismiss = {
-                                    dropdownItemIndex = null
-                                },
-                                metadata = playlistData.track[trackIndex].toMetadata(),
-                                onError = { error ->
-                                    snackbarState.showSnackbar(error.toast)
-                                },
-                                onSuccess = { message ->
-                                    snackbarState.showSnackbar(message)
-                                }
-                            )
-                        },
-                        onDropdownIconClick = {
-                            dropdownItemIndex = trackIndex
-                        })
+                    if (playlistData != null) {
+                        val playlist = playlistData.track[trackIndex]
+                        ListenCardSmallDefault(
+                            modifier = Modifier.padding(
+                                horizontal = ListenBrainzTheme.paddings.horizontal
+                            ),
+                            metadata = (playlist.toMetadata()),
+                            coverArtUrl = getCoverArtUrl(
+                                caaReleaseMbid = playlist.extension.trackExtensionData.additionalMetadata.caaReleaseMbid,
+                                caaId = playlist.extension.trackExtensionData.additionalMetadata.caaId
+                            ),
+                            onDropdownSuccess = { messsage ->
+                                snackbarState.showSnackbar(messsage)
+                            },
+                            onDropdownError = { error ->
+                                snackbarState.showSnackbar(error.toast)
+                            },
+                            goToArtistPage = goToArtistPage,
+                            onClick = {
+                                onTrackClick(playlist)
+                            },
+                            trailingContent = {
+                                Text(
+                                    modifier = Modifier
+                                        .padding(bottom = 4.dp),
+                                    text = formatDurationSeconds(playlist.duration?.div(1000) ?: 0),
+                                    style = TextStyle(
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Medium
+                                    ),
+                                    color = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.8f),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            },
+                            enableTrailingContent = true
+                        )
+                    }
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
@@ -239,4 +249,16 @@ fun shareLink(context: Context, link: String) {
         putExtra(Intent.EXTRA_TEXT, link)
     }
     context.startActivity(Intent.createChooser(intent, "Share link via"))
+}
+
+fun formatDurationSeconds(seconds: Int): String {
+    val hours = seconds / 3600
+    val minutes = (seconds % 3600) / 60
+    val secs = seconds % 60
+
+    return if (hours > 0) {
+        String.format("%02d:%02d:%02d", hours, minutes, secs)
+    } else {
+        String.format("%02d:%02d", minutes, secs)
+    }
 }
