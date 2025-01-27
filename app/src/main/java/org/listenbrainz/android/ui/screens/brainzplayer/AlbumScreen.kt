@@ -290,7 +290,6 @@ fun OnAlbumClickScreen(albumID: Long) {
                     artists = listOf(FeedListenArtist(it.artist, null, "")),
                     coverArtUrl = it.albumArt,
                     errorAlbumArt = R.drawable.ic_erroralbumart,
-                    enableDropdownIcon = true,
                     goToArtistPage = {},
                     onDropdownIconClick = {
                         albumCardMoreOptionsDropMenuExpanded = albumSongs.indexOf(it)

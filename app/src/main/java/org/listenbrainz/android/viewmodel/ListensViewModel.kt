@@ -156,14 +156,17 @@ class ListensViewModel @Inject constructor(
             appPreferences.lbAccessToken.set(token)
         }
     }
-    
-    suspend fun saveUserDetails(token: String) {
+
+    /** Returns if token is valid.*/
+    suspend fun saveUserDetails(token: String): Boolean {
         val result = repository.validateToken(token)
-        if (result.status.isSuccessful() && result.data?.valid == true) {
+        return if (result.status.isSuccessful() && result.data?.valid == true) {
             appPreferences.username.set(result.data.username ?: "")
             appPreferences.lbAccessToken.set(token)
+            true
         } else {
             errorFlow.emit(result.error)
+            false
         }
     }
     

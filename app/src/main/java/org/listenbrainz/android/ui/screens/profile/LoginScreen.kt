@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -37,6 +38,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.viewmodel.ListensViewModel
 
 @Composable
 fun LoginScreen(
@@ -90,15 +92,12 @@ fun LoginScreen(
     }
 
     if (startLogin) {
-        ListenBrainzLogin(
-            viewModel = hiltViewModel(),
-            onLoginSuccess = {
-                scope.launch {
-                    navigateToUserProfile()
-                    startLogin = false
-                }
+        ListenBrainzLogin {
+            scope.launch {
+                navigateToUserProfile()
+                startLogin = false
             }
-        )
+        }
     }
 }
 
