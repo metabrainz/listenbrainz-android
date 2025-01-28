@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.PlayableType
@@ -46,21 +48,15 @@ fun BrainzPlayerSearchScreen(
     deactivate: () -> Unit,
 ) {
     val context = LocalContext.current
-    var brainzplayerQueryState by remember {
-        mutableStateOf("")
-    }
-
-    val searchItems = remember {
-        mutableStateListOf<Song>()
-    }
+    val brainzplayerQueryState by viewModel.searchQuery.collectAsState()
+    val searchItems by viewModel.searchItems.collectAsState()
 
     var error by remember {
         mutableStateOf<ResponseError?>(null)
     }
 
     fun onDismiss() {
-        searchItems.clear()
-        brainzplayerQueryState = ""
+        viewModel.clearSearchResults()
         error = null
         deactivate()
     }
@@ -71,20 +67,21 @@ fun BrainzPlayerSearchScreen(
         exit = fadeOut()
     ) {
         SearchScreen(
-            uiState = remember(searchItems, brainzplayerQueryState, error) {
+            uiState = remember(searchItems, brainzplayerQueryState.text, error) {
                 SearchUiState(
-                    query = brainzplayerQueryState,
+                    query = brainzplayerQueryState.text,
                     result = searchItems,
                     error = error
                 )
             },
             onDismiss = ::onDismiss,
-            onQueryChange = { newValue  ->
-                brainzplayerQueryState = newValue
-                searchItems.clear()
-                searchItems.addAll(viewModel.searchSongs(brainzplayerQueryState) ?: emptyList())
+            onQueryChange = { newValue: String ->
+                val updatedQuery = TextFieldValue(newValue, selection = brainzplayerQueryState.selection)
+                viewModel.updateSearchQuery(updatedQuery)
             },
-            onClear = searchItems::clear,
+            onClear = {
+                viewModel.clearSearchResults()
+            },
             onErrorShown = { error = null },
             placeholderText = "Search your music library"
         ) {
@@ -102,7 +99,12 @@ fun BrainzPlayerSearchScreen(
                         onDropdownSuccess = { context.showToast(it) },
                         onDropdownError = { error = it }
                     ) {
-                        viewModel.changePlayable(listOf(song), PlayableType.SONG, song.mediaID, 0)
+                        viewModel.changePlayable(
+                            listOf(song),
+                            PlayableType.SONG,
+                            song.mediaID,
+                            0
+                        )
                         viewModel.playOrToggleSong(song, true)
                         onDismiss()
                     }
