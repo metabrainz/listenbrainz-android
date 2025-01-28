@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.palette.graphics.Palette
@@ -23,8 +24,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.PlayableType
@@ -67,10 +72,15 @@ class BrainzPlayerViewModel @Inject constructor(
     val isPlaying = brainzPlayerServiceConnection.isPlaying
     val playButton = brainzPlayerServiceConnection.playButtonState
     val repeatMode = brainzPlayerServiceConnection.repeatModeState
-    var isSearching by mutableStateOf(false)
 
     var playerBackGroundColor by mutableStateOf(Color.Transparent)
         private set
+
+    private val _searchQuery = MutableStateFlow(TextFieldValue(""))
+    val searchQuery: StateFlow<TextFieldValue> = _searchQuery
+
+    private val _searchItems = MutableStateFlow<List<Song>>(emptyList())
+    val searchItems: StateFlow<List<Song>> = _searchItems
 
     init {
         updatePlayerPosition()
@@ -95,6 +105,16 @@ class BrainzPlayerViewModel @Inject constructor(
                 _mediaItems.value = Resource(Resource.Status.SUCCESS, it)
                 currentlyPlaying.items.plus(it)
             }
+        }
+
+        viewModelScope.launch {
+            _searchQuery
+                .map { it.text }
+                .debounce(200) // 0.2 Seconds
+                .distinctUntilChanged()
+                .collect { query ->
+                    SearchSong(query)
+                }
         }
     }
 
@@ -191,18 +211,27 @@ class BrainzPlayerViewModel @Inject constructor(
         }
     }
 
-    fun searchSongs(query: String): List<Song>? {
-        val listToSearch = _mediaItems.value.data
+    fun updateSearchQuery(newQuery: TextFieldValue) {
+        _searchQuery.value = newQuery
+    }
 
+    private fun SearchSong(query: String) {
+        val listToSearch = _mediaItems.value.data
         if (query.isEmpty()) {
-            isSearching = false
+            _searchItems.value = emptyList()
+            return
         }
         val result: List<Song>? = listToSearch?.filter {
             it.title.contains(query.trim(), ignoreCase = true)
         }
-        isSearching = true
-        return result
+        _searchItems.value = result ?: emptyList()
     }
+
+    fun clearSearchResults() {
+        _searchItems.value = emptyList()
+        _searchQuery.value = TextFieldValue("")
+    }
+
 
     fun playOrToggleSong(mediaItem: Song, toggle: Boolean = false) {
         val isPrepared = playbackState.value.isPrepared

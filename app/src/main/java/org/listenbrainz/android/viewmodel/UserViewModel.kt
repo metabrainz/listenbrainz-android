@@ -1,7 +1,10 @@
 package org.listenbrainz.android.viewmodel
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -41,7 +44,7 @@ class UserViewModel @Inject constructor(
     @IoDispatcher val ioDispatcher: CoroutineDispatcher,
 ) : BaseViewModel<ProfileUiState>() {
 
-    private var isLoggedInUser = false
+    private var isLoggedInUser by mutableStateOf(false)
     val loginStatusFlow: StateFlow<Int> =
         appPreferences
             .getLoginStatusFlow()

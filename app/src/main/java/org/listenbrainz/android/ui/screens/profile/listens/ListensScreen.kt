@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -180,7 +181,6 @@ fun ListensScreen(
     goToUserProfile: (String) -> Unit,
 ) {
     val listState = rememberLazyListState()
-
     var recentListensCollapsibleState by remember {
         mutableStateOf(true)
     }
@@ -365,6 +365,7 @@ fun ListensScreen(
                 ) {
                     Column {
                         FollowersCard(
+                            parentUsername = preferencesUiState.username,
                             followersCount = uiState.listensTabUiState.followersCount,
                             followingCount = uiState.listensTabUiState.followingCount,
                             followers = when (followersMenuCollapsibleState.value) {
@@ -758,6 +759,7 @@ fun CompatibilityCard(
 
 @Composable
 private fun FollowersCard(
+    parentUsername: String,
     followersCount: Int?,
     followingCount: Int?,
     followers: List<Pair<String, Boolean>>,
@@ -769,7 +771,7 @@ private fun FollowersCard(
 ) {
     Column(modifier = Modifier.padding(start = 16.dp, top = 30.dp, end = 16.dp)) {
         Text(
-            "Followers",
+            text = if (followersState) "Followers" else "Followings",
             color = ListenBrainzTheme.colorScheme.text,
             style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp)
         )
@@ -841,6 +843,7 @@ private fun FollowersCard(
         when (followersState) {
             true -> followers.map { state ->
                 FollowCard(
+                    parentUsername = parentUsername,
                     username = state.first,
                     onFollowButtonClick = onFollowButtonClick,
                     followStatus = state.second,
@@ -851,6 +854,7 @@ private fun FollowersCard(
 
             false -> following.map { state ->
                 FollowCard(
+                    parentUsername = parentUsername,
                     username = state.first,
                     onFollowButtonClick = onFollowButtonClick,
                     followStatus = state.second,
@@ -885,6 +889,7 @@ private fun SimilarUsersCard(similarUsers: List<SimilarUser>, goToUserPage: (Str
 
 @Composable
 private fun FollowCard(
+    parentUsername: String,
     username: String?,
     onFollowButtonClick: (String?, Boolean) -> Unit,
     followStatus: Boolean,
@@ -895,26 +900,30 @@ private fun FollowCard(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth()
-                .height(60.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .heightIn(min = 60.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                username ?: "",
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        goToUserPage(username)
+                    },
+                text = username ?: "",
                 color = ListenBrainzTheme.colorScheme.followerCardTextColor,
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.clickable {
-                    goToUserPage(username)
-                }
+                maxLines = 2,
             )
-
-            FollowButton(
-                modifier = Modifier,
-                isFollowedState = followStatus,
-                onClick = {
-                    onFollowButtonClick(username, followStatus)
-                }
-            )
+            if (parentUsername != username) {
+                FollowButton(
+                    modifier = Modifier,
+                    isFollowedState = followStatus,
+                    onClick = {
+                        onFollowButtonClick(username, followStatus)
+                    }
+                )
+            }
         }
     }
 }
