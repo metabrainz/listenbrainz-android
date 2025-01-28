@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.screens.profile.listens
 
 import android.os.Bundle
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -15,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,7 +38,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,8 +58,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.Metadata
@@ -89,7 +86,6 @@ import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.ui.theme.new_app_bg_light
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
-import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
@@ -185,7 +181,6 @@ fun ListensScreen(
     goToUserProfile: (String) -> Unit,
 ) {
     val listState = rememberLazyListState()
-    val dashboardViewModel: DashBoardViewModel = hiltViewModel()
     var recentListensCollapsibleState by remember {
         mutableStateOf(true)
     }
@@ -370,7 +365,7 @@ fun ListensScreen(
                 ) {
                     Column {
                         FollowersCard(
-                            currentName =dashboardViewModel.usernameFlow.collectAsStateWithLifecycle(initialValue = null),
+                            parentUsername = preferencesUiState.username,
                             followersCount = uiState.listensTabUiState.followersCount,
                             followingCount = uiState.listensTabUiState.followingCount,
                             followers = when (followersMenuCollapsibleState.value) {
@@ -764,7 +759,7 @@ fun CompatibilityCard(
 
 @Composable
 private fun FollowersCard(
-    currentName: State<String?>,
+    parentUsername: String,
     followersCount: Int?,
     followingCount: Int?,
     followers: List<Pair<String, Boolean>>,
@@ -773,10 +768,7 @@ private fun FollowersCard(
     onStateChange: (Boolean) -> Unit,
     onFollowButtonClick: (String?, Boolean) -> Unit,
     goToUserPage: (String?) -> Unit
-)
-
-{
-    val actualCurrentName = currentName.value ?: ""
+) {
     Column(modifier = Modifier.padding(start = 16.dp, top = 30.dp, end = 16.dp)) {
         Text(
             text = if (followersState) "Followers" else "Followings",
@@ -851,7 +843,7 @@ private fun FollowersCard(
         when (followersState) {
             true -> followers.map { state ->
                 FollowCard(
-                    currentUserName = actualCurrentName,
+                    parentUsername = parentUsername,
                     username = state.first,
                     onFollowButtonClick = onFollowButtonClick,
                     followStatus = state.second,
@@ -862,7 +854,7 @@ private fun FollowersCard(
 
             false -> following.map { state ->
                 FollowCard(
-                    currentUserName = actualCurrentName,
+                    parentUsername = parentUsername,
                     username = state.first,
                     onFollowButtonClick = onFollowButtonClick,
                     followStatus = state.second,
@@ -897,7 +889,7 @@ private fun SimilarUsersCard(similarUsers: List<SimilarUser>, goToUserPage: (Str
 
 @Composable
 private fun FollowCard(
-    currentUserName : String,
+    parentUsername: String,
     username: String?,
     onFollowButtonClick: (String?, Boolean) -> Unit,
     followStatus: Boolean,
@@ -908,19 +900,22 @@ private fun FollowCard(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth()
-                .height(60.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .heightIn(min = 60.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                username ?: "",
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        goToUserPage(username)
+                    },
+                text = username ?: "",
                 color = ListenBrainzTheme.colorScheme.followerCardTextColor,
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.clickable {
-                    goToUserPage(username)
-                }
+                maxLines = 2,
             )
-            if (username != currentUserName) {
+            if (parentUsername != username) {
                 FollowButton(
                     modifier = Modifier,
                     isFollowedState = followStatus,
