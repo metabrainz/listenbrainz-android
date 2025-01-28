@@ -4,6 +4,9 @@ import com.google.gson.Gson
 import org.listenbrainz.android.model.CurrentPins
 import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.Payload
+import org.listenbrainz.android.model.createdForYou.CreatedForYouPayload
+import org.listenbrainz.android.model.createdForYou.CreatedForYouPlaylist
+import org.listenbrainz.android.model.createdForYou.CreatedForYouPlaylists
 import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.TopAlbums
 import org.listenbrainz.android.model.user.TopArtists
@@ -28,6 +31,16 @@ object UserRepositoryTestData {
             latest_listen_ts = 0,
             listens = listOf(),
             user_id = "Jasjeet"
+        )
+    )
+
+    val createdForYouPlaylistsTestData: CreatedForYouPayload = CreatedForYouPayload(
+        playlists = listOf(
+            CreatedForYouPlaylists(
+                playlist = CreatedForYouPlaylist(
+                title = "Playlist 1",
+                )
+            )
         )
     )
 

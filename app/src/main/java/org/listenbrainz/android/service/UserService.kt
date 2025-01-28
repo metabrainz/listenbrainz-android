@@ -2,6 +2,7 @@ package org.listenbrainz.android.service
 
 import org.listenbrainz.android.model.CurrentPins
 import org.listenbrainz.android.model.Listens
+import org.listenbrainz.android.model.createdForYou.CreatedForYouPayload
 import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.TopAlbums
 import org.listenbrainz.android.model.user.TopArtists
@@ -45,4 +46,6 @@ interface UserService {
     @GET("stats/user/{user_name}/recordings")
     suspend fun getTopSongsOfUser(@Path("user_name") username: String?, @Query("range") rangeString: String?): Response<TopSongs>
 
+    @GET("user/{user_name}/playlists/createdfor")
+    suspend fun getCreatedForYouPlaylists(@Path("user_name") username: String?): Response<CreatedForYouPayload>
 }

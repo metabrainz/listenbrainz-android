@@ -21,6 +21,7 @@ import org.listenbrainz.android.service.CBService
 import org.listenbrainz.android.service.FeedService
 import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.service.MBService
+import org.listenbrainz.android.service.PlaylistService
 import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.service.UserService
 import org.listenbrainz.android.service.Yim23Service
@@ -91,6 +92,12 @@ class ServiceModule {
     fun providesUserService(appPreferences: AppPreferences) : UserService =
         constructRetrofit(appPreferences)
         .create(UserService::class.java)
+
+    @Singleton
+    @Provides
+    fun providesPlaylistService(appPreferences: AppPreferences) : PlaylistService =
+        constructRetrofit(appPreferences)
+            .create(PlaylistService::class.java)
 
     @Singleton
     @Provides

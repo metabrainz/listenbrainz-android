@@ -4,6 +4,7 @@ import org.listenbrainz.android.model.CurrentPins
 import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.android.model.createdForYou.CreatedForYouPayload
 import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.TopAlbums
 import org.listenbrainz.android.model.user.TopArtists
@@ -78,6 +79,13 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun getTopSongs(username: String?, rangeString: String): Resource<TopSongs>  = parseResponse{
         if(username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
         service.getTopSongsOfUser(username, rangeString)
+    }
+
+    override suspend fun getCreatedForYouPlaylists(username: String?): Resource<CreatedForYouPayload> {
+        return parseResponse {
+            if(username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
+            service.getCreatedForYouPlaylists(username)
+        }
     }
 
 }

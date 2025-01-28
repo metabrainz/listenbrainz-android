@@ -506,4 +506,34 @@ object Utils {
         
         return resultUrl
     }
+
+    // Function to remove HTML tags from a string
+    fun removeHtmlTags(input: String): String {
+        // Regular expression pattern to match HTML tags
+        val regex = "<[^>]*>".toRegex()
+        // Replace all matches of the pattern with an empty string
+        return input.replace(regex, "")
+    }
+
+    // Function to share a link
+    fun shareLink(context: Context, link: String) {
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, link)
+        }
+        context.startActivity(Intent.createChooser(intent, "Share link via"))
+    }
+
+    //Format duration in seconds to HH:MM:SS format or MM:SS format
+    fun formatDurationSeconds(seconds: Int): String {
+        val hours = seconds / 3600
+        val minutes = (seconds % 3600) / 60
+        val secs = seconds % 60
+
+        return if (hours > 0) {
+            String.format("%02d:%02d:%02d", hours, minutes, secs)
+        } else {
+            String.format("%02d:%02d", minutes, secs)
+        }
+    }
 }
