@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.screens.profile.createdforyou
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -64,6 +65,7 @@ fun PlaylistHeadingAndDescription(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
+            .animateContentSize()
     ) {
         Text(
             text = title,
@@ -85,7 +87,9 @@ fun PlaylistHeadingAndDescription(
                 color = ListenBrainzTheme.colorScheme.onBackground
             )
             Text(
-                text = " | Updated ${formatDateLegacy(lastUpdatedDate)}",
+                text = remember(lastUpdatedDate) {
+                    " | Updated ${formatDateLegacy(lastUpdatedDate)}"
+                },
                 color = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.6f)
             )
         }
@@ -97,7 +101,9 @@ fun PlaylistHeadingAndDescription(
             }
         ) {
             Text(
-                text = removeExcessiveSpaces(removeHtmlTags(description)).trim(),
+                text = remember(description) {
+                    removeExcessiveSpaces(removeHtmlTags(description)).trim()
+                },
                 color = ListenBrainzTheme.colorScheme.listenText.copy(0.5f),
                 fontStyle = FontStyle.Italic,
                 fontWeight = FontWeight.SemiBold,

@@ -10,11 +10,15 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -58,25 +62,37 @@ fun PlaylistSelectionCardRow(
     onSaveClick: (CreatedForYouPlaylist) -> Unit,
     onPlaylistSelect: (CreatedForYouPlaylist) -> Unit
 ) {
-    Row(
-        modifier = modifier.horizontalScroll(rememberScrollState()),
+    LazyRow(
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        playlists.forEachIndexed { index, playlist->
+        itemsIndexed(playlists) { index, playlist->
+            if (index == 0) {
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+
             PlaylistTitleCard(
-                title = modifyTitle(playlist),
-                fractionLeft = getFractionLeft(
-                    playlist.date,
-                    playlist.extension.createdForYouExtensionData.additionalMetadata.expiresAt
-                ),
+                modifier = Modifier.size(140.dp),
+                title = remember(playlist) {
+                    modifyTitle(playlist)
+                },
+                fractionLeft = remember(playlist) {
+                    getFractionLeft(
+                        playlist.date,
+                        playlist.extension.createdForYouExtensionData.additionalMetadata.expiresAt
+                    )
+                },
                 isSelected = selectedPlaylist == playlist,
-                cardBg = getCardBg(index),
+                cardBg = remember(index) { getCardBg(index) },
                 alignment = Alignment.Center,
                 onSaveClick = { onSaveClick(playlist) },
                 onPlaylistSelect = { onPlaylistSelect(playlist) }
             )
-            
+
+            if (index == playlists.lastIndex) {
+                Spacer(modifier = Modifier.width(8.dp))
+            }
         }
     }
 }
@@ -98,11 +114,9 @@ fun PlaylistSelectionCardRow(
  */
 @Composable
 fun PlaylistTitleCard(
-    title: String,
     modifier: Modifier = Modifier,
+    title: String,
     fractionLeft: Float = 0.0f,
-    height: Int = 140,
-    width: Int = 140,
     sizeIncrementOnSelect: Int = 10,
     alignment: Alignment = Alignment.TopStart,
     cardBg: Int = R.drawable.playlist_card_bg1,
@@ -110,24 +124,21 @@ fun PlaylistTitleCard(
     onSaveClick: () -> Unit,
     onPlaylistSelect: () -> Unit
 ) {
-    val actualHeight = if (isSelected) height + sizeIncrementOnSelect else height
-    val actualWidth = if (isSelected) width + sizeIncrementOnSelect else width
     Box(
         modifier = modifier
-            .height(actualHeight.dp)
-            .width(actualWidth.dp)
             .clip(shape = ListenBrainzTheme.shapes.listenCardSmall)
             .border(
-                if (isSelected) 3.dp else 0.dp,
-                lb_purple,
+                width = if (isSelected) 3.dp else 0.dp,
+                color = ListenBrainzTheme.colorScheme.lbSignature,
                 shape = ListenBrainzTheme.shapes.listenCardSmall
             )
             .animateContentSize(),
         contentAlignment = alignment
     ) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .clickable { onPlaylistSelect() }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable { onPlaylistSelect() }
         ) {
             Image(
                 painter = painterResource(cardBg),
@@ -225,6 +236,7 @@ fun getCardBg(index: Int): Int{
 @Composable
 fun PlaylistTitleCardPreview() {
     PlaylistTitleCard(
+        modifier = Modifier.size(140.dp),
         title = "Last Week's Exploration",
         fractionLeft = 0.4f,
         alignment = Alignment.Center,

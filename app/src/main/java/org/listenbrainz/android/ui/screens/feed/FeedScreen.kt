@@ -193,14 +193,14 @@ fun FeedScreen(
             .fillMaxSize()
             .pullRefresh(state = pullRefreshState)
     ) {
-    
-        RetryButton(
-            modifier = Modifier.align(Alignment.Center),
-            show = myFeedPagingData.itemCount == 0 && myFeedPagingData.loadState.refresh is LoadState.Error,
-        ) {
-            myFeedPagingData.retry()
-            similarListensPagingData.retry()
-            followListensPagingData.retry()
+        if (myFeedPagingData.itemCount == 0 && myFeedPagingData.loadState.refresh is LoadState.Error) {
+            RetryButton(
+                modifier = Modifier.align(Alignment.Center),
+            ) {
+                myFeedPagingData.retry()
+                similarListensPagingData.retry()
+                followListensPagingData.retry()
+            }
         }
     
         HorizontalPager(
@@ -707,19 +707,17 @@ fun StartingSpacer() {
 }
 
 @Composable
-private fun RetryButton(modifier: Modifier = Modifier, show: Boolean, onClick: () -> Unit) {
-    if (show) {
-        Button(
-            modifier = modifier,
-            onClick = onClick,
-            colors = ButtonDefaults.buttonColors(containerColor = ListenBrainzTheme.colorScheme.lbSignature)
-        ) {
-            Text(
-                text = "Retry",
-                color = ListenBrainzTheme.colorScheme.onLbSignature,
-                fontWeight = FontWeight.Medium
-            )
-        }
+fun RetryButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Button(
+        modifier = modifier,
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(containerColor = ListenBrainzTheme.colorScheme.lbSignature)
+    ) {
+        Text(
+            text = "Retry",
+            color = ListenBrainzTheme.colorScheme.onLbSignature,
+            fontWeight = FontWeight.Medium
+        )
     }
 }
 
@@ -749,7 +747,6 @@ private fun PagerRearLoadingIndicator(pagingData: LazyPagingItems<FeedUiEventIte
                 modifier = Modifier
                     .align(Alignment.Center)
                     .padding(vertical = 24.dp),
-                show = true,
                 onClick = {
                     pagingData.retry()
                 }

@@ -21,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -42,9 +43,11 @@ import org.listenbrainz.android.model.playlist.TrackExtensionData
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
 import org.listenbrainz.android.ui.components.SuccessBar
+import org.listenbrainz.android.ui.screens.feed.RetryButton
 import org.listenbrainz.android.ui.screens.profile.CreatedForTabUIState
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.Utils.VerticalSpacer
 import org.listenbrainz.android.util.Utils.formatDurationSeconds
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.util.Utils.shareLink
@@ -120,9 +123,16 @@ private fun CreatedForYouScreen(
         uiState.createdForTabUIState.createdForYouPlaylistData?.get(selectedPlaylist?.getPlaylistMBID())
 
     if (uiState.createdForTabUIState.createdForYouPlaylists.isNullOrEmpty()) {
-        Column(modifier = Modifier.padding(ListenBrainzTheme.paddings.horizontal)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(ListenBrainzTheme.paddings.horizontal),
+            contentAlignment = Alignment.Center
+        ) {
             Text(
-                text = "No playlists found", color = ListenBrainzTheme.colorScheme.onBackground
+                text = "No playlists found",
+                fontWeight = FontWeight.Medium,
+                color = ListenBrainzTheme.colorScheme.onBackground
             )
         }
     } else {
@@ -141,9 +151,7 @@ private fun CreatedForYouScreen(
                     ) {
                         Spacer(modifier = Modifier.height(32.dp))
                         PlaylistSelectionCardRow(
-                            modifier = Modifier.padding(
-                                horizontal = 8.dp, vertical = 8.dp
-                            ),
+                            modifier = Modifier.padding(vertical = 8.dp),
                             playlists = uiState.createdForTabUIState.createdForYouPlaylists.map { it.playlist },
                             selectedPlaylist = selectedPlaylist,
                             onPlaylistSelect = {
@@ -153,34 +161,53 @@ private fun CreatedForYouScreen(
                         )
                     }
                 }
+
                 item {
                     AnimatedContent(
                         selectedPlaylist
                     ) { playlist ->
                         if (playlist == null) {
-                            Text(
-                                text = "No playlist selected",
-                                color = ListenBrainzTheme.colorScheme.onBackground
-                            )
-                        } else if (playlistData == null) {
-                            Column(modifier = Modifier.padding(ListenBrainzTheme.paddings.horizontal)) {
+                            Box(
+                                modifier = Modifier
+                                    .fillParentMaxWidth()
+                                    .padding(
+                                        horizontal = ListenBrainzTheme.paddings.horizontal,
+                                        vertical = 40.dp
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
                                 Text(
-                                    text = "Playlist data could not be loaded",
+                                    text = "No playlist selected",
+                                    fontWeight = FontWeight.Medium,
                                     color = ListenBrainzTheme.colorScheme.onBackground
                                 )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Button(onClick = {
+                            }
+                        } else if (playlistData == null) {
+                            Column(
+                                modifier = Modifier
+                                    .fillParentMaxWidth()
+                                    .padding(
+                                        horizontal = ListenBrainzTheme.paddings.horizontal,
+                                        vertical = 40.dp
+                                    ),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "Playlist data could not be loaded :(",
+                                    fontWeight = FontWeight.Medium,
+                                    color = ListenBrainzTheme.colorScheme.onBackground
+                                )
+
+                                VerticalSpacer(8.dp)
+
+                                RetryButton {
                                     onRetryDataFetch(playlist)
-                                }) {
-                                    Text(
-                                        text = "Retry",
-                                        color = ListenBrainzTheme.colorScheme.onBackground
-                                    )
                                 }
                             }
                         } else {
-                            PlaylistHeadingAndDescription(title = playlistData.title ?: "No title",
-                                tracksCount = playlistData.track.size ?: 0,
+                            PlaylistHeadingAndDescription(
+                                title = playlistData.title ?: "No title",
+                                tracksCount = playlistData.track.size,
                                 lastUpdatedDate = playlistData.date ?: "No date",
                                 description = playlistData.annotation ?: "No description",
                                 onPlayAllClick = {
@@ -188,16 +215,19 @@ private fun CreatedForYouScreen(
                                 },
                                 onShareClick = {
                                     onShareClick(playlist)
-                                })
+                                }
+                            )
                         }
                     }
                 }
+
                 items(playlistData?.track?.size ?: 0) { trackIndex ->
                     if (playlistData != null) {
                         val playlist = playlistData.track[trackIndex]
                         ListenCardSmallDefault(
                             modifier = Modifier.padding(
-                                horizontal = ListenBrainzTheme.paddings.horizontal
+                                horizontal = ListenBrainzTheme.paddings.horizontal,
+                                vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                             ),
                             metadata = (playlist.toMetadata()),
                             coverArtUrl = getCoverArtUrl(
@@ -231,7 +261,6 @@ private fun CreatedForYouScreen(
                             enableTrailingContent = true
                         )
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
                 }
             }
         }
