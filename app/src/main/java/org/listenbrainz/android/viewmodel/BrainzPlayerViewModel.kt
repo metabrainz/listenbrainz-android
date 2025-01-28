@@ -72,7 +72,6 @@ class BrainzPlayerViewModel @Inject constructor(
     val isPlaying = brainzPlayerServiceConnection.isPlaying
     val playButton = brainzPlayerServiceConnection.playButtonState
     val repeatMode = brainzPlayerServiceConnection.repeatModeState
-    var isSearching by mutableStateOf(false)
 
     var playerBackGroundColor by mutableStateOf(Color.Transparent)
 
@@ -219,11 +218,9 @@ class BrainzPlayerViewModel @Inject constructor(
     private fun SearchSong(query: String) {
         val listToSearch = _mediaItems.value.data
         if (query.isEmpty()) {
-            isSearching = false
             _searchItems.value = emptyList()
             return
         }
-        isSearching = true
         val result: List<Song>? = listToSearch?.filter {
             it.title.contains(query.trim(), ignoreCase = true)
         }
