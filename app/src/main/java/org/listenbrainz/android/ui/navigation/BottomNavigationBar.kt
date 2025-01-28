@@ -22,7 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
@@ -38,7 +38,7 @@ fun BottomNavigationBar(
     backgroundColor: Color = ListenBrainzTheme.colorScheme.nav,
     backdropScaffoldState: BackdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed),
     scrollToTop: () -> Unit,
-    username : String?,
+    username: String?,
 ) {
     val items = listOf(
         AppNavigationItem.Feed,
@@ -55,7 +55,8 @@ fun BottomNavigationBar(
         items.forEach { item ->
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
-            val selected = currentDestination?.route?.startsWith("${item.route}/") == true || currentDestination?.route == item.route
+            val selected =
+                currentDestination?.route?.startsWith("${item.route}/") == true || currentDestination?.route == item.route
             BottomNavigationItem(
                 modifier = Modifier.navigationBarsPadding(),
                 icon = {
@@ -66,7 +67,9 @@ fun BottomNavigationBar(
                             ?: item.iconUnselected),
                         modifier = Modifier
                             .size(24.dp)
-                            .padding(vertical = 4.dp), contentDescription = item.title, tint = MaterialTheme.colorScheme.onSurface
+                            .padding(vertical = 4.dp),
+                        contentDescription = item.title,
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 },
                 label = {
@@ -91,9 +94,9 @@ fun BottomNavigationBar(
 
                         when (item.route) {
                             AppNavigationItem.Profile.route -> {
-                                navController.navigate(AppNavigationItem.Profile.route + if (!username.isNullOrBlank()) "/${username}" else ""){
+                                navController.navigate(AppNavigationItem.Profile.route + if (!username.isNullOrBlank()) "/${username}" else "") {
                                     // Avoid building large backstack
-                                    popUpTo(AppNavigationItem.Feed.route){
+                                    popUpTo(navController.graph.findStartDestination().id){
                                         if (username.isNullOrBlank()) {
                                             inclusive = true
                                         }
@@ -106,23 +109,18 @@ fun BottomNavigationBar(
                                     restoreState = true
                                 }
                             }
-                            AppNavigationItem.Feed.route -> {
-                                navController.navigate(AppNavigationItem.Feed.route)
-                            }
-                            else -> navController.navigate(item.route){
-                                    // Avoid building large backstack
-                                    popUpTo(AppNavigationItem.Feed.route){
-                                        saveState = true
-                                    }
-                                    // Avoid copies
-                                    launchSingleTop = false
-                                    // Restore previous state
-                                    restoreState = true
-                                }
-                        }
 
+                            else -> navController.navigate(item.route) {
+                                popUpTo(navController.graph.findStartDestination().id){
+                                    saveState = true
+                                }
+                                // Avoid copies
+                                launchSingleTop = true
+                                // Restore previous state
+                                restoreState = true
+                            }
+                        }
                     }
-                    
                 }
             )
         }
@@ -134,5 +132,8 @@ fun BottomNavigationBar(
 @Preview
 @Composable
 fun BottomNavigationBarPreview() {
-    BottomNavigationBar(navController = rememberNavController() , scrollToTop = {} ,username = "pranavkonidena")
+    BottomNavigationBar(
+        navController = rememberNavController(),
+        scrollToTop = {},
+        username = "pranavkonidena")
 }

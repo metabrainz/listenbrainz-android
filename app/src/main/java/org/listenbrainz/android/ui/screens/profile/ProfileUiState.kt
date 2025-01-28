@@ -5,6 +5,9 @@ import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.SimilarUser
+import org.listenbrainz.android.model.createdForYou.CreatedForYouPlaylists
+import org.listenbrainz.android.model.playlist.PlaylistData
+import org.listenbrainz.android.model.playlist.PlaylistPayload
 import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.Artist
 import org.listenbrainz.android.model.user.ListeningActivity
@@ -21,6 +24,7 @@ data class ProfileUiState(
     val listensTabUiState: ListensTabUiState = ListensTabUiState(),
     val statsTabUIState: StatsTabUIState = StatsTabUIState(),
     val tasteTabUIState: TasteTabUIState = TasteTabUIState(),
+    val createdForTabUIState: CreatedForTabUIState = CreatedForTabUIState()
 )
 
 data class ListensTabUiState (
@@ -52,6 +56,12 @@ data class StatsTabUIState(
     val topArtists: Map<StatsRange, TopArtists?>? = null,
     val topAlbums: Map<StatsRange ,TopAlbums?>? = null,
     val topSongs: Map<StatsRange, TopSongs?>? = null,
+)
+
+data class CreatedForTabUIState(
+    val isLoading: Boolean = true,
+    val createdForYouPlaylists: List<CreatedForYouPlaylists>? = emptyList(),
+    val createdForYouPlaylistData: Map<String, PlaylistData?>? = null
 )
 
 data class ListeningNowUiState(

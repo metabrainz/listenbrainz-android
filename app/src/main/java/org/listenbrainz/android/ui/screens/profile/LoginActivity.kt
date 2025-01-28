@@ -39,7 +39,6 @@ import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.LaunchedEffectUnit
-import org.listenbrainz.android.util.Utils.SetSystemBarsForegroundAppearance
 import org.listenbrainz.android.viewmodel.ListensViewModel
 import kotlin.time.Duration.Companion.seconds
 

@@ -15,6 +15,7 @@ import org.listenbrainz.android.ui.screens.profile.stats.UserGlobal
 import org.listenbrainz.android.viewmodel.UserViewModel
 import org.listenbrainz.sharedtest.mocks.MockAppPreferences
 import org.listenbrainz.sharedtest.mocks.MockListensRepository
+import org.listenbrainz.sharedtest.mocks.MockPlaylistDataRepository
 import org.listenbrainz.sharedtest.mocks.MockSocialRepository
 import org.listenbrainz.sharedtest.mocks.MockUserRepository
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername
@@ -25,7 +26,7 @@ class UserViewModelTest {
     @Before
     fun setup(){
         Dispatchers.setMain(StandardTestDispatcher())
-        viewModel = UserViewModel(MockAppPreferences(), MockUserRepository(), MockListensRepository(), MockSocialRepository(), Dispatchers.Default)
+        viewModel = UserViewModel(MockAppPreferences(), MockUserRepository(), MockListensRepository(), MockSocialRepository(),MockPlaylistDataRepository(), Dispatchers.Default)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
