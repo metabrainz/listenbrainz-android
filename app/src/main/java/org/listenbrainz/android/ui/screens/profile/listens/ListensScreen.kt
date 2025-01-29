@@ -223,7 +223,7 @@ fun ListensScreen(
                                 modifier = Modifier,
                                 isFollowedState = uiState.listensTabUiState.isFollowing,
                                 onClick = {
-                                    if (uiState.listensTabUiState.isFollowing) {
+                                    if (!uiState.listensTabUiState.isFollowing) {
                                         onFollowButtonClick(username ?: "", false)
                                     } else {
                                         onFollowButtonClick(username ?: "", true)
