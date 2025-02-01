@@ -1,6 +1,11 @@
 package org.listenbrainz.android.ui.screens.brainzplayer.overview
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,10 +16,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -42,7 +49,6 @@ fun SongsOverviewScreen(
     onAddToExistingPlaylist: (Song) -> Unit,
     onAddToNewPlaylist: (Song) -> Unit,
 ) {
-
     val songsStarting = remember { mutableStateOf<Map<Char, List<Song>>>(emptyMap()) }
 
     LaunchedEffect(songs) {
@@ -57,76 +63,100 @@ fun SongsOverviewScreen(
                 groupedSongs[firstChar]?.add(song)
             }
 
-            withContext(Dispatchers.IO) {
-                songsStarting.value = groupedSongs
-            }
+            songsStarting.value = groupedSongs
         }
     }
 
     val viewModel: BrainzPlayerViewModel = hiltViewModel()
     val currentlyPlayingSong =
         viewModel.currentlyPlayingSong.collectAsStateWithLifecycle().value.toSong
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
-    ) {
-        songsStarting.value.forEach { (startingLetter, songList) ->
-            if (songList.isNotEmpty()) {
-                item {
-                    Column(
-                        modifier = Modifier.padding(top = 15.dp, bottom = 15.dp)
-                    ) {
-                        Text(
-                            startingLetter.toString(),
-                            modifier = Modifier.padding(start = 10.dp, top = 10.dp, bottom = 5.dp),
-                            style = TextStyle(
-                                color = ListenBrainzTheme.colorScheme.lbSignature,
-                                fontSize = 20.sp,
-                                fontFamily = FontFamily(Font(R.font.roboto_bold)),
+
+    val areSongsLoaded by remember {
+        derivedStateOf {
+            songsStarting.value.isNotEmpty()
+        }
+    }
+
+    AnimatedContent(
+        modifier = Modifier.fillMaxSize(),
+        targetState = areSongsLoaded,
+        transitionSpec = { fadeIn() togetherWith fadeOut() }
+    ) { areSongsLoaded ->
+        if (areSongsLoaded) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
+            ) {
+                songsStarting.value.forEach { (startingLetter, songList) ->
+                    if (songList.isNotEmpty()) {
+                        item {
+                            Column(
+                                modifier = Modifier.padding(top = 15.dp, bottom = 15.dp)
+                            ) {
+                                Text(
+                                    startingLetter.toString(),
+                                    modifier = Modifier.padding(start = 10.dp, top = 10.dp, bottom = 5.dp),
+                                    style = TextStyle(
+                                        color = ListenBrainzTheme.colorScheme.lbSignature,
+                                        fontSize = 20.sp,
+                                        fontFamily = FontFamily(Font(R.font.roboto_bold)),
+                                    )
+                                )
+                            }
+                        }
+
+                        items(songList) { song ->
+                            val coverArt = song.albumArt
+                            var showDropdown by remember { mutableStateOf(false) }
+                            ListenCardSmall(
+                                modifier = Modifier.padding(start = 10.dp, end = 10.dp),
+                                trackName = song.title,
+                                artist = song.artist,
+                                coverArtUrl = coverArt,
+                                errorAlbumArt = R.drawable.ic_erroralbumart,
+                                onClick = {
+                                    onPlayIconClick(song, songList)
+                                },
+                                onDropdownIconClick = {
+                                    showDropdown = !showDropdown
+                                },
+                                goToArtistPage = { },
+                                isPlaying = song.mediaID == currentlyPlayingSong.mediaID,
+                                dropDown = {
+                                    BrainzPlayerDropDownMenu(
+                                        onAddToNewPlaylist = {
+                                            onAddToNewPlaylist(song)
+                                        },
+                                        onAddToExistingPlaylist = {
+                                            onAddToExistingPlaylist(song)
+                                        },
+                                        onAddToQueue = {
+                                            onAddToQueue(song)
+                                        },
+                                        onPlayNext = {
+                                            onPlayNext(song)
+                                        },
+                                        expanded = showDropdown,
+                                        onDismiss = { showDropdown = false }
+                                    )
+                                }
                             )
-                        )
+                            Spacer(modifier = Modifier.height(10.dp))
+                        }
                     }
                 }
-
-                items(songList) { song ->
-                    val coverArt = song.albumArt
-                    var showDropdown by remember { mutableStateOf(false) }
-                    ListenCardSmall(
-                        modifier = Modifier.padding(start = 10.dp, end = 10.dp),
-                        trackName = song.title,
-                        artist = song.artist,
-                        coverArtUrl = coverArt,
-                        errorAlbumArt = R.drawable.ic_erroralbumart,
-                        onClick = {
-                            onPlayIconClick(song, songList)
-                        },
-                        onDropdownIconClick = {
-                            showDropdown = !showDropdown
-                        },
-                        goToArtistPage = { },
-                        isPlaying = song.mediaID == currentlyPlayingSong.mediaID,
-                        dropDown = {
-                            BrainzPlayerDropDownMenu(
-                                onAddToNewPlaylist = {
-                                    onAddToNewPlaylist(song)
-                                },
-                                onAddToExistingPlaylist = {
-                                    onAddToExistingPlaylist(song)
-                                },
-                                onAddToQueue = {
-                                    onAddToQueue(song)
-                                },
-                                onPlayNext = {
-                                    onPlayNext(song)
-                                },
-                                expanded = showDropdown,
-                                onDismiss = { showDropdown = false }
-                            )
-                        }
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                }
+            }
+        } else {
+            Box(
+                modifier =  Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    modifier = Modifier.padding(12.dp),
+                    text = "Loading songs...",
+                    color = ListenBrainzTheme.colorScheme.text
+                )
             }
         }
     }
