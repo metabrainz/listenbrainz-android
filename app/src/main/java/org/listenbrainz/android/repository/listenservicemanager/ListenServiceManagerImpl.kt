@@ -47,7 +47,7 @@ class ListenServiceManagerImpl @Inject constructor(
     
     /** Used to avoid repetitive submissions.*/
     private var lastNotificationPostTs = System.currentTimeMillis()
-    private lateinit var whitelist: List<String>
+    private var whitelist: List<String> = emptyList()
     private var isListeningAllowed: Boolean = true
     
     init {

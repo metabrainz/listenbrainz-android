@@ -12,8 +12,12 @@ import androidx.work.Configuration
 import com.limurse.logger.Logger
 import com.limurse.logger.config.Config
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
 import org.listenbrainz.android.repository.preferences.AppPreferences
@@ -32,6 +36,7 @@ class App : Application(), Configuration.Provider {
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
         super.onCreate()
         val logDirectory = applicationContext.getExternalFilesDir(null)?.path.orEmpty()
@@ -49,15 +54,9 @@ class App : Application(), Configuration.Provider {
         }
 
         context = this
-        
-        MainScope().launch {
-            if(
-                appPreferences.isNotificationServiceAllowed &&
-                appPreferences.lbAccessToken.get().isNotEmpty() &&
-                appPreferences.isListeningAllowed.get()
-            ) {
-                startListenService()
-            }
+
+        GlobalScope.launch {
+            startListenService(appPreferences)
         }
 
         createChannels()
@@ -143,17 +142,29 @@ class App : Application(), Configuration.Provider {
         lateinit var context: App
             private set
 
-        fun startListenService() {
-            val intent = Intent(context, ListenSubmissionService::class.java)
-            if (!context.isServiceRunning(ListenSubmissionService::class.java)) {
-                val component = context.startService(intent)
-                if (component == null) {
-                    Log.d("No running instances found, starting service.")
+        suspend fun startListenService(appPreferences: AppPreferences) = withContext(Dispatchers.Main) {
+            if (
+                appPreferences.isNotificationServiceAllowed &&
+                appPreferences.lbAccessToken.get().isNotEmpty() &&
+                appPreferences.isListeningAllowed.get()
+            ) {
+                val intent = Intent(context, ListenSubmissionService::class.java)
+                if (!context.isServiceRunning(ListenSubmissionService::class.java)) {
+                    val component = runCatching {
+                         context.startService(intent)
+                    }.getOrElse { error ->
+                        Log.d(error)
+                        null
+                    }
+
+                    if (component == null) {
+                        Log.d("No running instances found, starting service.")
+                    } else {
+                        Log.d("Service already running with name: $component")
+                    }
                 } else {
-                    Log.d("Service already running with name: $component")
+                    Log.d("Service already running")
                 }
-            } else {
-                Log.d("Service already running")
             }
         }
     }
