@@ -32,6 +32,11 @@ data class Song (
         )
     )
 
+    /** @return whether this track is nothing or not.
+     * @see [org.listenbrainz.android.service.NOTHING_PLAYING]
+     */
+    fun isNothing() = mediaID == 0L && duration == 0L
+
     companion object {
         val emptySong = Song(
             mediaID = 0L,

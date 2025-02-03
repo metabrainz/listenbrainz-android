@@ -321,12 +321,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        lifecycleScope.launch(Dispatchers.Main) {
-            if (dashBoardViewModel.isNotificationListenerServiceAllowed()) {
-                if (!isServiceRunning(ListenSubmissionService::class.java)) {
-                    App.startListenService()
-                }
-            }
+        lifecycleScope.launch {
+            App.startListenService(appPreferences = dashBoardViewModel.appPreferences)
         }
     }
 }

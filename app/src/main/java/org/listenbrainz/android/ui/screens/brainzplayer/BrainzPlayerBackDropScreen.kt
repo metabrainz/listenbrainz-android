@@ -55,9 +55,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -91,6 +93,7 @@ import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.model.feed.FeedListenArtist
+import org.listenbrainz.android.service.NOTHING_PLAYING
 import org.listenbrainz.android.ui.components.CustomSeekBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.PlayPauseIcon
@@ -126,10 +129,20 @@ fun BrainzPlayerBackDropScreen(
     val defaultBackgroundColor = ListenBrainzTheme.colorScheme.background
     val isDarkThemeEnabled = onScreenUiModeIsDark()
 
+    LaunchedEffect(currentlyPlayingSong) {
+        println(currentlyPlayingSong)
+    }
+
+    val isNothingPlaying = remember(currentlyPlayingSong) {
+        currentlyPlayingSong.title == "null"
+                && currentlyPlayingSong.artist == "null"
+                || brainzPlayerViewModel.appPreferences.currentPlayable?.songs.isNullOrEmpty()
+    }
+
     /** 56.dp is default bottom navigation height */
     val headerHeight by animateDpAsState(
         targetValue = if (isLandscape) 0.dp else
-            if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null")
+            if (isNothingPlaying)
                 56.dp
             else
                 56.dp + ListenBrainzTheme.sizes.brainzPlayerPeekHeight

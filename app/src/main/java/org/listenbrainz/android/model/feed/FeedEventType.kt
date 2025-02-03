@@ -299,8 +299,10 @@ enum class FeedEventType (
                                 Log.d(stringAnnotation.item)
                                 uriHandler.openUri(stringAnnotation.item)
                             }
-                    } catch (e: ActivityNotFoundException) {
+                    } catch (e: IllegalArgumentException) {
                         Log.w("MyFeed: Notification link invalid.")
+                        e.printStackTrace()
+                    } catch (e: Exception) {
                         e.printStackTrace()
                     }
                 }

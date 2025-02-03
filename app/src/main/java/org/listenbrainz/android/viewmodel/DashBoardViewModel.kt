@@ -29,7 +29,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashBoardViewModel @Inject constructor(
-    private val appPreferences: AppPreferences,
+    val appPreferences: AppPreferences,
     private val application: Application,
     private val remotePlaybackHandler: RemotePlaybackHandler,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
