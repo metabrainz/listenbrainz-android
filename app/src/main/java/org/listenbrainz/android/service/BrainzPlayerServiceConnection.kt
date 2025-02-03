@@ -54,7 +54,7 @@ class BrainzPlayerServiceConnection(
     private var previousPlaybackState: Boolean = false
     private val mediaBrowserConnectionCallback = MediaBrowserConnectionCallback(context)
 
-    var mediaController: MediaControllerCompat?
+    var mediaController: MediaControllerCompat? = null
 
     private val mediaBrowser = MediaBrowserCompat(
         context,
