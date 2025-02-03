@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.Playable
+import org.listenbrainz.android.model.Playable.Companion.EMPTY_PLAYABLE
 import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.Playlist.Companion.currentlyPlaying
 import org.listenbrainz.android.model.RepeatMode
@@ -40,6 +41,7 @@ import org.listenbrainz.android.repository.brainzplayer.SongRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.BrainzPlayerService
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
+import org.listenbrainz.android.service.NOTHING_PLAYING
 import org.listenbrainz.android.util.BrainzPlayerExtensions.currentPlaybackPosition
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlayEnabled
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlaying
@@ -59,7 +61,7 @@ class BrainzPlayerViewModel @Inject constructor(
     private val _songDuration = MutableStateFlow(0L)
     private val _songCurrentPosition = MutableStateFlow(0L)
     private val _progress = MutableStateFlow(0F)
-    val mediaItem = _mediaItems.asStateFlow()
+    val mediaItems = _mediaItems.asStateFlow()
     val progress = _progress.asStateFlow()
     val songCurrentPosition = _songCurrentPosition.asStateFlow()
     val songs = songRepository.getSongsStream()
@@ -83,6 +85,10 @@ class BrainzPlayerViewModel @Inject constructor(
     val searchItems: StateFlow<List<Song>> = _searchItems
 
     init {
+        if (!isPlaying.value) {
+            appPreferences.currentPlayable = EMPTY_PLAYABLE
+        }
+
         updatePlayerPosition()
         _mediaItems.value = Resource.loading()
         brainzPlayerServiceConnection.subscribe(
@@ -92,7 +98,6 @@ class BrainzPlayerViewModel @Inject constructor(
                     parentId: String,
                     children: MutableList<MediaBrowserCompat.MediaItem>
                 ) {
-                    super.onChildrenLoaded(parentId, children)
                     val songs = children.map {
                         it.toSong
                     }
