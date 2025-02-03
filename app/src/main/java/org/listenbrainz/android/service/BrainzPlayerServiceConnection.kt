@@ -54,7 +54,7 @@ class BrainzPlayerServiceConnection(
     private var previousPlaybackState: Boolean = false
     private val mediaBrowserConnectionCallback = MediaBrowserConnectionCallback(context)
 
-    lateinit var mediaController: MediaControllerCompat
+    var mediaController: MediaControllerCompat? = null
 
     private val mediaBrowser = MediaBrowserCompat(
         context,
@@ -69,8 +69,8 @@ class BrainzPlayerServiceConnection(
     }
 
     //To skip, pause, resume etc in player
-    val transportControls: MediaControllerCompat.TransportControls
-        get() = mediaController.transportControls
+    val transportControls: MediaControllerCompat.TransportControls?
+        get() = mediaController?.transportControls
 
     //subscribe and unsubscribe will be called from ViewModel to subscribe and unsubscribe from a mediaID to get access of mediaItems from local
     fun subscribe(parentId: String, callback: MediaBrowserCompat.SubscriptionCallback) {

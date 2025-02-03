@@ -16,6 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import org.listenbrainz.android.model.Playable
+import org.listenbrainz.android.model.Playable.Companion.EMPTY_PLAYABLE
 import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
@@ -159,16 +160,19 @@ class BrainzPlayerService : MediaBrowserServiceCompat() {
         playNow: Boolean
     ) {
         serviceScope.launch(Dispatchers.Main) {
-            val songs = appPreferences.currentPlayable?.songs?.map {
+            val playable = appPreferences.currentPlayable ?: EMPTY_PLAYABLE
+            val songs = playable.songs.map {
                 it.toMediaMetadataCompat
-            }?.toMutableList() ?: mutableListOf()
+            }.toMutableList()
             localMusicSource.setMediaSource(songs)
-            val currentSongIndex = appPreferences.currentPlayable?.currentSongIndex ?: 0
+            val currentSongIndex = playable.currentSongIndex
             exoPlayer.setMediaItems(localMusicSource.asMediaSource())
             exoPlayer.prepare()
-            exoPlayer.seekTo(currentSongIndex,appPreferences.currentPlayable?.seekTo ?: 0L)
+            exoPlayer.seekTo(currentSongIndex, playable.seekTo)
             exoPlayer.playWhenReady = playNow
-            brainzPlayerNotificationManager.showNotification(exoPlayer)
+            if (playable != EMPTY_PLAYABLE) {
+                brainzPlayerNotificationManager.showNotification(exoPlayer)
+            }
         }
     }
 

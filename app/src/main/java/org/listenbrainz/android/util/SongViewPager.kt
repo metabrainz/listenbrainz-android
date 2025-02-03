@@ -89,9 +89,13 @@ fun SongViewPager(
             .takeIf { it != -1 } ?: 0
     ) { songList.size }
 
-    LaunchedEffect(pagerState.settledPage) {
-        val newSong = songList[pagerState.settledPage]
-        if (currentlyPlayingSong.mediaID != 0L && newSong != currentlyPlayingSong) {
+    LaunchedEffect(pagerState.currentPage) {
+        val newSong = songList[pagerState.currentPage]
+        if (
+            !newSong.isNothing()
+            && newSong != currentlyPlayingSong
+            && pagerState.currentPage != pagerState.settledPage
+        ) {
             try {
                 viewModel.playOrToggleSong(newSong)
             } catch (e: Exception) {
