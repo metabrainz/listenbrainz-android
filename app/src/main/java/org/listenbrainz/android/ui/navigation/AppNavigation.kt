@@ -1,12 +1,21 @@
 package org.listenbrainz.android.ui.navigation
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NamedNavArgument
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.NavType
@@ -16,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import kotlinx.coroutines.flow.first
+import okhttp3.Route
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.screens.album.AlbumScreen
 import org.listenbrainz.android.ui.screens.artist.ArtistScreen
@@ -67,7 +77,7 @@ fun AppNavigation(
         modifier = Modifier.fillMaxSize(),
         startDestination = AppNavigationItem.Feed.route
     ) {
-        composable(route = AppNavigationItem.Feed.route) {
+        appComposable(route = AppNavigationItem.Feed.route) {
             FeedScreen(
                 scrollToTopState = scrollRequestState,
                 onScrollToTop = onScrollToTop,
@@ -75,13 +85,13 @@ fun AppNavigation(
                 goToArtistPage = ::goToArtistPage
             )
         }
-        composable(route = AppNavigationItem.BrainzPlayer.route) {
+        appComposable(route = AppNavigationItem.BrainzPlayer.route) {
             BrainzPlayerScreen()
         }
-        composable(route = AppNavigationItem.Explore.route) {
+        appComposable(route = AppNavigationItem.Explore.route) {
             ExploreScreen()
         }
-        composable(
+        appComposable(
             route = AppNavigationItem.Profile.route
         ) {
             val viewModel = hiltViewModel<DashBoardViewModel>()
@@ -92,7 +102,7 @@ fun AppNavigation(
                 }
             }
         }
-        composable(
+        appComposable(
             route = "${AppNavigationItem.Profile.route}/{username}",
             arguments = listOf(
                 navArgument("username") {
@@ -111,12 +121,12 @@ fun AppNavigation(
                 goToArtistPage = ::goToArtistPage,
             )
         }
-        composable(
+        appComposable(
             route = AppNavigationItem.Settings.route
         ) {
             SettingsScreen()
         }
-        composable(
+        appComposable(
             route = "${AppNavigationItem.Artist.route}/{mbid}",
             arguments = listOf(
                 navArgument("mbid") {
@@ -139,7 +149,7 @@ fun AppNavigation(
                 )
             }
         }
-        composable(
+        appComposable(
             route = "${AppNavigationItem.Album.route}/{mbid}",
             arguments = listOf(
                 navArgument("mbid") {
@@ -157,4 +167,28 @@ fun AppNavigation(
             }
         }
     }
+}
+
+fun NavGraphBuilder.appComposable(
+    route: String,
+    arguments: List<NamedNavArgument> = emptyList(),
+    content: @Composable (AnimatedContentScope.(NavBackStackEntry) -> Unit)
+) {
+    composable(
+        route = route,
+        arguments = arguments,
+        enterTransition = {
+            fadeIn(tween(200))
+        },
+        exitTransition = {
+            fadeOut(tween(200))
+        },
+        popExitTransition = {
+            fadeOut(tween(200))
+        },
+        popEnterTransition = {
+            fadeIn(tween(200))
+        },
+        content = content
+    )
 }
