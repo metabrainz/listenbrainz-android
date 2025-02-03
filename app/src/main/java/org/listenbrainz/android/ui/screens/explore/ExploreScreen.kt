@@ -11,9 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -40,34 +40,41 @@ fun ExploreScreen() {
         modifier = Modifier.fillMaxSize(),
         color = ListenBrainzTheme.colorScheme.background
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(300.dp),
             modifier = Modifier
-                .verticalScroll(rememberScrollState())
                 .fillMaxWidth()
         ) {
-            ExploreScreenCard(
-                nextActivity = YearInMusic23Activity::class.java,
-                iconId = R.drawable.yim23_explore_tile,
-                title = "Your Year in Music 2023",
-                subTitle = "Review"
-            )
+            item {
+                ExploreScreenCard(
+                    nextActivity = YearInMusic23Activity::class.java,
+                    iconId = R.drawable.yim23_explore_tile,
+                    title = "Your Year in Music 2023",
+                    subTitle = "Review"
+                )
+            }
+            item {
+                ExploreScreenCard(
+                    nextActivity = YearInMusicActivity::class.java,
+                    iconId = R.drawable.yim2022,
+                    title = "Your Year in Music 2022",
+                    subTitle = "Review"
+                )
+            }
             // Yim Card
-            ExploreScreenCard(
-                nextActivity = YearInMusicActivity::class.java,
-                iconId = R.drawable.yim2022,
-                title = "Your Year in Music 2022",
-                subTitle = "Review"
-            )
-            
+
+            item {
+                ExploreScreenCard(
+                    nextActivity = NewsBrainzActivity::class.java,
+                    iconId = R.drawable.all_projects,
+                    title = "News",
+                    subTitle = stringResource(id = R.string.news_card)
+                )
+            }
             // NewsBrainz Card
-            ExploreScreenCard(
-                nextActivity = NewsBrainzActivity::class.java,
-                iconId = R.drawable.all_projects,
-                title = "News",
-                subTitle = stringResource(id = R.string.news_card)
-            )
-            
+
+
         }
     }
 }
@@ -110,7 +117,7 @@ private fun ExploreScreenCard(
                 modifier = Modifier
                     .fillMaxWidth()
             )
-            
+
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
@@ -134,7 +141,7 @@ private fun ExploreScreenCard(
                 color = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),
                 style = MaterialTheme.typography.caption
             )
-    
+
             Spacer(modifier = Modifier.height(12.dp))
         }
     }

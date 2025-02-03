@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.screens.brainzplayer
 
 
+import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateDpAsState
@@ -70,6 +71,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -118,6 +120,7 @@ fun BrainzPlayerBackDropScreen(
     var maxDelta by rememberSaveable {
         mutableFloatStateOf(0F)
     }
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val repeatMode by brainzPlayerViewModel.repeatMode.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val defaultBackgroundColor = ListenBrainzTheme.colorScheme.background
@@ -125,10 +128,11 @@ fun BrainzPlayerBackDropScreen(
 
     /** 56.dp is default bottom navigation height */
     val headerHeight by animateDpAsState(
-        targetValue = if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null")
-            56.dp
-        else
-            56.dp + ListenBrainzTheme.sizes.brainzPlayerPeekHeight
+        targetValue = if (isLandscape) 0.dp else
+            if (currentlyPlayingSong.title == "null" && currentlyPlayingSong.artist == "null")
+                56.dp
+            else
+                56.dp + ListenBrainzTheme.sizes.brainzPlayerPeekHeight
     )
     LaunchedEffect(currentlyPlayingSong, isDarkThemeEnabled) {
         brainzPlayerViewModel.updateBackgroundColorForPlayer(
