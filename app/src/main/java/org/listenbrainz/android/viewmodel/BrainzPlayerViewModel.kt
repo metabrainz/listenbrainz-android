@@ -165,7 +165,7 @@ class BrainzPlayerViewModel @Inject constructor(
     }
 
     fun skipToNextSong() {
-        brainzPlayerServiceConnection.transportControls.skipToNext()
+        brainzPlayerServiceConnection.transportControls?.skipToNext() ?: return
         // Updating currently playing song.
         appPreferences.currentPlayable = appPreferences.currentPlayable
             ?.copy(currentSongIndex = ( appPreferences.currentPlayable?.currentSongIndex!! + 1)   // Since BP won't be visible to users with no songs, we don't need to worry.
@@ -174,8 +174,8 @@ class BrainzPlayerViewModel @Inject constructor(
     }
 
     fun skipToPreviousSong() {
-        brainzPlayerServiceConnection.transportControls.seekTo(0) // Always reset to the start since the song won't change if playing time exceeds a certain threshold.
-        brainzPlayerServiceConnection.transportControls.skipToPrevious()
+        brainzPlayerServiceConnection.transportControls?.seekTo(0) ?: return // Always reset to the start since the song won't change if playing time exceeds a certain threshold.
+        brainzPlayerServiceConnection.transportControls?.skipToPrevious() ?: return
         // Updating currently playing song.
         appPreferences.currentPlayable = appPreferences.currentPlayable
             ?.copy(currentSongIndex = ( appPreferences.currentPlayable?.currentSongIndex!! - 1)   // Since BP won't be visible to users with no songs, we don't need to worry.
@@ -189,23 +189,23 @@ class BrainzPlayerViewModel @Inject constructor(
     }
 
     fun onSeeked() {
-        brainzPlayerServiceConnection.transportControls.seekTo((_songDuration.value * progress.value).toLong())
+        brainzPlayerServiceConnection.transportControls?.seekTo((_songDuration.value * progress.value).toLong())
     }
 
     fun shuffle() {
         val transportControls = brainzPlayerServiceConnection.transportControls
-        transportControls.setShuffleMode(if (isShuffled.value) SHUFFLE_MODE_NONE else SHUFFLE_MODE_ALL)
+        transportControls?.setShuffleMode(if (isShuffled.value) SHUFFLE_MODE_NONE else SHUFFLE_MODE_ALL)
     }
 
     fun repeatMode() {
         when (repeatMode.value) {
-            RepeatMode.REPEAT_MODE_OFF -> brainzPlayerServiceConnection.transportControls.setRepeatMode(
+            RepeatMode.REPEAT_MODE_OFF -> brainzPlayerServiceConnection.transportControls?.setRepeatMode(
                 REPEAT_MODE_ONE
             )
-            RepeatMode.REPEAT_MODE_ALL -> brainzPlayerServiceConnection.transportControls.setRepeatMode(
+            RepeatMode.REPEAT_MODE_ALL -> brainzPlayerServiceConnection.transportControls?.setRepeatMode(
                 REPEAT_MODE_NONE
             )
-            RepeatMode.REPEAT_MODE_ONE -> brainzPlayerServiceConnection.transportControls.setRepeatMode(
+            RepeatMode.REPEAT_MODE_ONE -> brainzPlayerServiceConnection.transportControls?.setRepeatMode(
                 REPEAT_MODE_ALL
             )
         }
@@ -234,15 +234,18 @@ class BrainzPlayerViewModel @Inject constructor(
 
 
     fun playOrToggleSong(mediaItem: Song, toggle: Boolean = false) {
+
+        if (brainzPlayerServiceConnection.transportControls == null) return
+
         val isPrepared = playbackState.value.isPrepared
         if (isPrepared && mediaItem.mediaID == currentlyPlayingSong.value.toSong.mediaID) {
             playbackState.value.let { playbackState ->
                 when {
-                    playbackState.isPlaying -> if (toggle) brainzPlayerServiceConnection.transportControls.pause()
+                    playbackState.isPlaying -> if (toggle) brainzPlayerServiceConnection.transportControls?.pause()
                     playbackState.isPlayEnabled -> {
                         mediaItem.lastListenedTo = System.currentTimeMillis()
                         viewModelScope.launch { songRepository.updateSong(mediaItem) }
-                        brainzPlayerServiceConnection.transportControls.play()
+                        brainzPlayerServiceConnection.transportControls?.play()
                     }
                     else -> Unit
                 }
@@ -250,16 +253,16 @@ class BrainzPlayerViewModel @Inject constructor(
         } else {
             mediaItem.lastListenedTo = System.currentTimeMillis()
             viewModelScope.launch { songRepository.updateSong(mediaItem) }
-            brainzPlayerServiceConnection.transportControls.playFromMediaId(mediaItem.mediaID.toString(), null)
+            brainzPlayerServiceConnection.transportControls?.playFromMediaId(mediaItem.mediaID.toString(), null)
         }
     }
 
     fun queueChanged(mediaItem: Song, toggle: Boolean ) {
-        brainzPlayerServiceConnection.transportControls.playFromMediaId(mediaItem.mediaID.toString(), null)
+        brainzPlayerServiceConnection.transportControls?.playFromMediaId(mediaItem.mediaID.toString(), null) ?: return
         playbackState.value.let { playbackState ->
             when {
-                playbackState.isPlaying -> if (!toggle) brainzPlayerServiceConnection.transportControls.pause()
-                playbackState.isPlayEnabled -> brainzPlayerServiceConnection.transportControls.play()
+                playbackState.isPlaying -> if (!toggle) brainzPlayerServiceConnection.transportControls?.pause()
+                playbackState.isPlayEnabled -> brainzPlayerServiceConnection.transportControls?.play()
                 else -> Unit
             }
         }
