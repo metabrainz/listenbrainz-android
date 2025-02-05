@@ -2,6 +2,7 @@ package org.listenbrainz.android.ui.screens.brainzplayer
 
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -28,6 +29,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import org.listenbrainz.android.application.App.Companion.context
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.Artist
 import org.listenbrainz.android.model.PlayableType
@@ -223,21 +225,27 @@ fun BrainzPlayerHomeScreen(
                 }
             )
 
-            3 -> AlbumsOverViewScreen(albums = albums, onPlayIconClick = { album ->
-                val albumSongs = albumSongsMap[album]!!
-                brainzPlayerViewModel.changePlayable(
-                    albumSongs.sortedBy { it.trackNumber },
-                    PlayableType.ALBUM,
-                    album.albumId,
-                    albumSongs
-                        .sortedBy { it.trackNumber }
-                        .indexOf(albumSongs[0]),
-                    0L
-                )
-                brainzPlayerViewModel.playOrToggleSong(albumSongs[0], true)
-
-
-            })
+            3 -> AlbumsOverViewScreen(
+                albums = albums,
+                onPlayIconClick = { album ->
+                    album?.let { nonNullAlbum ->
+                        val albumSongs = albumSongsMap[nonNullAlbum]
+                        if (albumSongs != null && albumSongs.isNotEmpty()) {
+                            val sortedSongs = albumSongs.sortedBy { it.trackNumber }
+                            brainzPlayerViewModel.changePlayable(
+                                sortedSongs,
+                                PlayableType.ALBUM,
+                                nonNullAlbum.albumId,
+                                sortedSongs.indexOf(sortedSongs.firstOrNull() ?: return@let),
+                                0L
+                            )
+                            brainzPlayerViewModel.playOrToggleSong(sortedSongs.firstOrNull() ?: return@let, true)
+                        } else {
+                            Toast.makeText(context, "No songs available for this album.", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            )
 
             4 -> SongsOverviewScreen(
                 songs = songs,
