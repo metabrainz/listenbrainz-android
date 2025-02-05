@@ -19,6 +19,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +31,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -124,19 +127,22 @@ fun ListenBrainzLogin(
                                 Resource.Status.LOADING -> {
                                     LoadingAnimation()
                                     Text(
+                                        modifier = Modifier.padding(horizontal = 8.dp),
                                         text = "Verifying token...",
                                         color = Color.White,
                                         fontSize = 22.sp,
-                                        fontWeight = FontWeight.Medium
+                                        fontWeight = FontWeight.Medium,
+                                        textAlign = TextAlign.Center
                                     )
                                 }
                                 Resource.Status.SUCCESS -> {
                                     LaunchedEffectUnit {
-                                        delay(1.seconds)
+                                        delay(1.5.seconds)
                                         onLoginFinished()
                                     }
 
                                     Text(
+                                        modifier = Modifier.padding(horizontal = 8.dp),
                                         text = "Login successful!",
                                         color = Color.White,
                                         fontSize = 22.sp,
@@ -145,11 +151,12 @@ fun ListenBrainzLogin(
                                 }
                                 Resource.Status.FAILED -> {
                                     LaunchedEffectUnit {
-                                        delay(1.seconds)
+                                        delay(1.5.seconds)
                                         onLoginFinished()
                                     }
 
                                     Text(
+                                        modifier = Modifier.padding(horizontal = 8.dp),
                                         text = "Login failed.",
                                         color = Color.White,
                                         fontSize = 22.sp,
@@ -162,7 +169,7 @@ fun ListenBrainzLogin(
                 }
                 Resource.Status.FAILED -> {
                     LaunchedEffectUnit {
-                        delay(1.seconds)
+                        delay(1.5.seconds)
                         onLoginFinished()
                     }
 
@@ -173,10 +180,12 @@ fun ListenBrainzLogin(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
+                            modifier = Modifier.padding(horizontal = 8.dp),
                             text = "Something went wrong, please try again later.",
                             color = Color.White,
                             fontSize = 22.sp,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.Medium,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
