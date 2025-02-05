@@ -22,23 +22,28 @@ import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.remember
 
 @Composable
 fun AlbumsOverViewScreen(
     albums: List<Album>,
     onPlayIconClick: (Album) -> Unit
 ) {
-    val albumsStarting: MutableMap<Char, MutableList<Album>> = mutableMapOf()
+    val albumsStarting = remember(albums) {
+        val albumsStarting = mutableMapOf<Char, MutableList<Album>>()
 
-    for (i in 0..25) {
-        albumsStarting['A' + i] = mutableListOf()
-    }
-    albumsStarting['#'] = mutableListOf()
+        for (i in 0..25) {
+            albumsStarting['A' + i] = mutableListOf()
+        }
+        albumsStarting['#'] = mutableListOf()
 
-    for (album in albums) {
-        val title = album.title.trim()
-        val startingLetter = title.firstOrNull()?.uppercaseChar()?.takeIf { it.isLetter() } ?: '#'
-        albumsStarting[startingLetter]?.add(album)
+        for (album in albums) {
+            val title = album.title.trim()
+            val startingLetter = title.firstOrNull()?.uppercaseChar()?.takeIf { it.isLetter() } ?: '#'
+            albumsStarting[startingLetter]?.add(album)
+        }
+
+        albumsStarting as Map<Char, List<Album>>
     }
 
     LazyColumn(
