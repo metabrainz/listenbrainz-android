@@ -87,7 +87,8 @@ fun ArtistsOverviewScreen(
                                     onAddToQueue = {onAddToQueue(artist)},
                                     onPlayNext = {onPlayNext(artist)},
                                     expanded = dropdownState == Pair(i,j-1),
-                                    onDismiss = {dropdownState = Pair(-1,-1)}
+                                    onDismiss = {dropdownState = Pair(-1,-1)},
+                                    isSongOverviewScreen = false
                                 )
                             },
                             onDropdownIconClick = { dropdownState = Pair(i,j-1) },

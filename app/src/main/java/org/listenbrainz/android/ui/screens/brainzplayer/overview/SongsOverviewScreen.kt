@@ -1,5 +1,8 @@
 package org.listenbrainz.android.ui.screens.brainzplayer.overview
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -33,6 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.R
+import org.listenbrainz.android.application.App.Companion.context
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.ui.components.BrainzPlayerDropDownMenu
 import org.listenbrainz.android.ui.components.ListenCardSmall
@@ -137,8 +141,13 @@ fun SongsOverviewScreen(
                                         onPlayNext = {
                                             onPlayNext(song)
                                         },
+                                        onShareAudio = {
+                                            val uri = Uri.parse(song.uri)
+                                            shareAudio(context,uri)
+                                        },
                                         expanded = showDropdown,
-                                        onDismiss = { showDropdown = false }
+                                        onDismiss = { showDropdown = false },
+                                        isSongOverviewScreen = true
                                     )
                                 }
                             )
@@ -161,3 +170,16 @@ fun SongsOverviewScreen(
         }
     }
 }
+fun shareAudio(context: Context, audioUri: Uri) {
+    if (audioUri != Uri.EMPTY) {
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "audio/*"
+            putExtra(Intent.EXTRA_STREAM, audioUri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.applicationContext.startActivity(Intent.createChooser(shareIntent, "Share audio").apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    }
+}
+
