@@ -187,6 +187,7 @@ fun BrainzPlayerBackDropScreen(
                 dynamicBackground = brainzPlayerViewModel.playerBackGroundColor
             )
             val songList = brainzPlayerViewModel.appPreferences.currentPlayable?.songs ?: listOf()
+
             SongViewPager(
                 modifier = Modifier.graphicsLayer {
                     alpha =

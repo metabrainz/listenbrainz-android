@@ -2,7 +2,6 @@ package org.listenbrainz.android.util
 
 import android.graphics.drawable.BitmapDrawable
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BackdropScaffoldState
 import androidx.compose.material.BackdropValue
@@ -38,7 +36,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -47,6 +44,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -61,6 +59,7 @@ import coil.ImageLoader
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import coil.request.SuccessResult
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Song
@@ -70,14 +69,14 @@ import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarqu
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun SongViewPager(
     modifier: Modifier = Modifier,
     backdropScaffoldState: BackdropScaffoldState,
     currentlyPlayingSong: Song,
     songList: List<Song>,
-    viewModel: BrainzPlayerViewModel = hiltViewModel()
+    viewModel: BrainzPlayerViewModel = hiltViewModel(),
+    isLandscape: Boolean = false
 ) {
     if (songList.isEmpty())
         return
@@ -88,70 +87,104 @@ fun SongViewPager(
             .indexOfFirst { it.mediaID == currentlyPlayingSong.mediaID }
             .takeIf { it != -1 } ?: 0
     ) { songList.size }
-
-    LaunchedEffect(pagerState.currentPage) {
-        val newSong = songList[pagerState.currentPage]
-        if (
-            !newSong.isNothing()
-            && newSong != currentlyPlayingSong
-            && pagerState.currentPage != pagerState.settledPage
-        ) {
-            try {
-                viewModel.playOrToggleSong(newSong)
-            } catch (e: Exception) {
-                Log.e(e)
+    if (!isLandscape) {
+        LaunchedEffect(pagerState.currentPage) {
+            val newSong = songList[pagerState.currentPage]
+            if (
+                !newSong.isNothing()
+                && newSong != currentlyPlayingSong
+                && pagerState.currentPage != pagerState.settledPage
+            ) {
+                try {
+                    viewModel.playOrToggleSong(newSong)
+                } catch (e: Exception) {
+                    Log.e(e)
+                }
             }
         }
-    }
 
-    LaunchedEffect(viewModel.appPreferences.currentPlayable?.currentSongIndex) {
-        pagerState.scrollToPage(
-            viewModel.appPreferences.currentPlayable?.currentSongIndex ?: 0
+        LaunchedEffect(viewModel.appPreferences.currentPlayable?.currentSongIndex) {
+            pagerState.scrollToPage(
+                viewModel.appPreferences.currentPlayable?.currentSongIndex ?: 0
+            )
+        }
+        LaunchedEffect(pagerState.currentPage) {
+            viewModel.handleSongChangeFromPager(pagerState.currentPage)
+        }
+    }
+    if (isLandscape) {
+        PlayerContent(
+            coroutineScope = coroutineScope,
+            backdropScaffoldState = backdropScaffoldState,
+            viewModel = viewModel,
+            pagerState = pagerState,
+            currentlyPlayingSong = currentlyPlayingSong,
+            isLandscape = true
         )
+    } else {
+        HorizontalPager(
+            state = pagerState,
+            modifier = modifier
+                .fillMaxWidth()
+                .background(viewModel.playerBackGroundColor)
+        ) {
+            PlayerContent(
+                coroutineScope = coroutineScope,
+                backdropScaffoldState = backdropScaffoldState,
+                viewModel = viewModel,
+                pagerState = pagerState,
+                currentlyPlayingSong = currentlyPlayingSong,
+                isLandscape = false
+            )
+        }
     }
-    LaunchedEffect(pagerState.currentPage) {
-        viewModel.handleSongChangeFromPager(pagerState.currentPage)
-    }
+}
 
-    HorizontalPager(
-        state = pagerState,
+@Composable
+fun PlayerContent(
+    modifier: Modifier = Modifier,
+    coroutineScope: CoroutineScope,
+    backdropScaffoldState: BackdropScaffoldState,
+    viewModel: BrainzPlayerViewModel,
+    isLandscape: Boolean,
+    currentlyPlayingSong: Song,
+    pagerState: PagerState
+) {
+    Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(viewModel.playerBackGroundColor)
+            .clickable {
+                coroutineScope.launch {
+                    // Click anywhere to open the front layer.
+                    backdropScaffoldState.conceal()
+                }
+            },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Column(
+        Box {
+            val progress by viewModel.progress.collectAsState()
+            CustomSeekBar(
+                modifier = Modifier
+                    .height(10.dp)
+                    .fillMaxWidth(),
+                progress = progress,
+                onValueChange = { newProgress ->
+                    viewModel.onSeek(newProgress)
+                    viewModel.onSeeked()
+                },
+                remainingProgressColor = ListenBrainzTheme.colorScheme.hint
+            )
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable {
-                    coroutineScope.launch {
-                        // Click anywhere to open the front layer.
-                        backdropScaffoldState.conceal()
-                    }
-                },
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .height(if (isLandscape) 80.dp else 56.dp)
         ) {
-            Box {
-                val progress by viewModel.progress.collectAsState()
-                CustomSeekBar(
-                    modifier = Modifier
-                        .height(10.dp)
-                        .fillMaxWidth(),
-                    progress = progress,
-                    onValueChange = { newProgress ->
-                        viewModel.onSeek(newProgress)
-                        viewModel.onSeeked()
-                    },
-                    remainingProgressColor = ListenBrainzTheme.colorScheme.hint
-                )
-            }
-            Spacer(modifier = Modifier.height(4.dp))
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-            ) {
-                Row {
+            val playIcon by viewModel.playButton.collectAsState()
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
                             .padding(start = 5.dp, end = 5.dp)
@@ -171,67 +204,98 @@ fun SongViewPager(
                             contentScale = ContentScale.Crop
                         )
                     }
-                    val playIcon by viewModel.playButton.collectAsState()
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(end = 35.dp),
+                            .padding(end = if (!isLandscape) 35.dp else 16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.SkipPrevious,
-                                contentDescription = "",
-                                Modifier
-                                    .size(35.dp)
-                                    .clickable {
-                                        coroutineScope.launch {
-                                            pagerState.animateScrollToPage(
-                                                (pagerState.currentPage - 1).coerceAtLeast(0)
-                                            )
-                                        }
-                                        viewModel.skipToPreviousSong()
-                                    },
-                                tint = MaterialTheme.colorScheme.onSurface
+                        if (!isLandscape)
+                            PlayerControls(
+                                playIcon = playIcon,
+                                viewModel = viewModel,
+                                pagerState = pagerState,
+                                coroutineScope = coroutineScope
                             )
-
-                            PlayPauseIcon(
-                                playIcon,
-                                viewModel,
-                                Modifier.size(35.dp),
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-
-                            Icon(
-                                imageVector = Icons.Rounded.SkipNext,
-                                contentDescription = "",
-                                Modifier
-                                    .size(35.dp)
-                                    .clickable { viewModel.skipToNextSong() },
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                        Text(
-                            text = when {
-                                currentlyPlayingSong.artist == "null" && currentlyPlayingSong.title == "null" -> ""
-                                currentlyPlayingSong.artist == "null" -> currentlyPlayingSong.title
-                                currentlyPlayingSong.title == "null" -> currentlyPlayingSong.artist
-                                else -> currentlyPlayingSong.artist + "  -  " + currentlyPlayingSong.title
-                            },
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.basicMarquee()
-                        )
+                        SongInfo(currentlyPlayingSong = currentlyPlayingSong)
                     }
                 }
+                if (isLandscape) {
+                    PlayerControls(
+                        coroutineScope = coroutineScope,
+                        pagerState = null,
+                        viewModel = viewModel,
+                        playIcon = playIcon
+                    )
+                }
+
             }
         }
     }
+}
+
+@Composable
+fun PlayerControls(
+    playIcon: ImageVector,
+    viewModel: BrainzPlayerViewModel,
+    pagerState: PagerState?,
+    coroutineScope: CoroutineScope
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.SkipPrevious,
+            contentDescription = "",
+            modifier = Modifier
+                .size(35.dp)
+                .clickable {
+                    if (pagerState != null) {
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(
+                                (pagerState.currentPage - 1).coerceAtLeast(0)
+                            )
+                        }
+                    }
+                    viewModel.skipToPreviousSong()
+                },
+            tint = MaterialTheme.colorScheme.onSurface
+        )
+
+        PlayPauseIcon(
+            playIcon,
+            viewModel,
+            Modifier.size(35.dp),
+            tint = MaterialTheme.colorScheme.onSurface
+        )
+
+        Icon(
+            imageVector = Icons.Rounded.SkipNext,
+            contentDescription = "",
+            Modifier
+                .size(35.dp)
+                .clickable { viewModel.skipToNextSong() },
+            tint = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+@Composable
+fun SongInfo(currentlyPlayingSong: Song) {
+    Text(
+        text = when {
+            currentlyPlayingSong.artist == "null" && currentlyPlayingSong.title == "null" -> ""
+            currentlyPlayingSong.artist == "null" -> currentlyPlayingSong.title
+            currentlyPlayingSong.title == "null" -> currentlyPlayingSong.artist
+            else -> currentlyPlayingSong.artist + "  -  " + currentlyPlayingSong.title
+        },
+        fontSize = 13.sp,
+        fontWeight = FontWeight.Bold,
+        textAlign = TextAlign.Center,
+        color = MaterialTheme.colorScheme.onSurface,
+        modifier = Modifier.basicMarquee()
+    )
 }
 
 @Composable

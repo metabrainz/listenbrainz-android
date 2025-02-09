@@ -45,23 +45,19 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.PermissionStatus
-import org.listenbrainz.android.service.ListenSubmissionService
 import org.listenbrainz.android.ui.components.DialogLB
+import org.listenbrainz.android.ui.navigation.AdaptiveNavigationBar
 import org.listenbrainz.android.ui.navigation.AppNavigation
-import org.listenbrainz.android.ui.navigation.BottomNavigationBar
-import org.listenbrainz.android.ui.navigation.SideNavigationBar
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
 import org.listenbrainz.android.ui.screens.search.BrainzPlayerSearchScreen
 import org.listenbrainz.android.ui.screens.search.UserSearchScreen
 import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.Utils.isServiceRunning
 import org.listenbrainz.android.util.Utils.openAppSystemSettings
 import org.listenbrainz.android.util.Utils.toPx
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
@@ -241,11 +237,13 @@ class MainActivity : ComponentActivity() {
                     },
                     bottomBar = {
                         if (!isLandScape)
-                            BottomNavigationBar(
+                            AdaptiveNavigationBar(
                                 navController = navController,
                                 backdropScaffoldState = backdropScaffoldState,
                                 scrollToTop = { scrollToTopState = true },
-                                username = username
+                                username = username,
+                                isLandscape = isLandScape,
+                                brainzPlayerViewModel = brainzPlayerViewModel
                             )
                     },
                     snackbarHost = {
@@ -267,11 +265,13 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Row {
                         if (isLandScape) {
-                            SideNavigationBar(
+                            AdaptiveNavigationBar(
                                 navController = navController,
                                 backdropScaffoldState = backdropScaffoldState,
                                 scrollToTop = { scrollToTopState = true },
-                                username = username
+                                username = username,
+                                isLandscape = isLandScape,
+                                brainzPlayerViewModel = brainzPlayerViewModel
                             )
                         }
                         if (isGrantedPerms == PermissionStatus.GRANTED.name) {
