@@ -246,7 +246,7 @@ class BrainzPlayerViewModel @Inject constructor(
         if (isPrepared && mediaItem.mediaID == currentlyPlayingSong.value.toSong.mediaID) {
             playbackState.value.let { playbackState ->
                 when {
-                    playbackState.isPlaying -> if (toggle) brainzPlayerServiceConnection.transportControls?.pause()
+                    playbackState.isPlaying -> if (toggle) brainzPlayerServiceConnection.transportControls?.pause() else {}
                     playbackState.isPlayEnabled -> {
                         mediaItem.lastListenedTo = System.currentTimeMillis()
                         viewModelScope.launch { songRepository.updateSong(mediaItem) }
@@ -266,7 +266,7 @@ class BrainzPlayerViewModel @Inject constructor(
         brainzPlayerServiceConnection.transportControls?.playFromMediaId(mediaItem.mediaID.toString(), null) ?: return
         playbackState.value.let { playbackState ->
             when {
-                playbackState.isPlaying -> if (!toggle) brainzPlayerServiceConnection.transportControls?.pause()
+                playbackState.isPlaying -> if (!toggle) brainzPlayerServiceConnection.transportControls?.pause() else {}
                 playbackState.isPlayEnabled -> brainzPlayerServiceConnection.transportControls?.play()
                 else -> Unit
             }
