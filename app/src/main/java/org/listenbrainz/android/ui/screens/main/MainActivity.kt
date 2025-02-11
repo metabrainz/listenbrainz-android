@@ -37,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
@@ -62,6 +63,7 @@ import org.listenbrainz.android.util.Utils.openAppSystemSettings
 import org.listenbrainz.android.util.Utils.toPx
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
+import org.listenbrainz.android.R
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -227,7 +229,7 @@ class MainActivity : ComponentActivity() {
                         TopBar(
                             modifier = Modifier
                                 .statusBarsPadding()
-                                .padding(start = if (isLandScape) 200.dp else 0.dp),
+                                .padding(start = if (isLandScape) dimensionResource(R.dimen.navigation_rail_width) else 0.dp),
                             navController = navController,
                             searchBarState = when (currentDestination?.route) {
                                 AppNavigationItem.BrainzPlayer.route -> brainzplayerSearchBarState

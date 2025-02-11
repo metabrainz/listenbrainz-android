@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -196,7 +197,7 @@ fun AdaptiveNavigationBar(
         val currentlyPlayingSong by brainzPlayerViewModel.currentlyPlayingSong.collectAsStateWithLifecycle()
         NavigationRail(
             modifier = modifier
-                .widthIn(max = 200.dp)
+                .widthIn(max = dimensionResource(R.dimen.navigation_rail_width))
                 .background(backgroundColor)
                 .statusBarsPadding(),
             backgroundColor = backgroundColor,
