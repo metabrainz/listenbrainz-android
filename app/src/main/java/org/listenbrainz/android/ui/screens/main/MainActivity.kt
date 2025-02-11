@@ -270,16 +270,17 @@ class MainActivity : ComponentActivity() {
                                 backdropScaffoldState = backdropScaffoldState,
                                 scrollToTop = { scrollToTopState = true },
                                 username = username,
-                                isLandscape = isLandScape,
+                                isLandscape = true,
                                 brainzPlayerViewModel = brainzPlayerViewModel
                             )
                         }
                         if (isGrantedPerms == PermissionStatus.GRANTED.name) {
                             BrainzPlayerBackDropScreen(
-                                modifier = Modifier.navigationBarsPadding(),
+                                modifier = Modifier.then(if (!isLandScape) Modifier.navigationBarsPadding() else Modifier),
                                 backdropScaffoldState = backdropScaffoldState,
                                 paddingValues = it,
-                                brainzPlayerViewModel = brainzPlayerViewModel
+                                brainzPlayerViewModel = brainzPlayerViewModel,
+                                isLandscape = isLandScape,
                             ) {
                                 AppNavigation(
                                     navController = navController,

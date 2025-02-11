@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.BackdropScaffoldState
 import androidx.compose.material.BackdropValue
 import androidx.compose.material.BottomNavigation
@@ -194,7 +196,7 @@ fun AdaptiveNavigationBar(
         val currentlyPlayingSong by brainzPlayerViewModel.currentlyPlayingSong.collectAsStateWithLifecycle()
         NavigationRail(
             modifier = modifier
-                .width(200.dp)
+                .widthIn(max = 200.dp)
                 .background(backgroundColor)
                 .statusBarsPadding(),
             backgroundColor = backgroundColor,

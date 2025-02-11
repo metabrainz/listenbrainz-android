@@ -102,6 +102,8 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.SongViewPager
+import org.listenbrainz.android.util.Utils.getNavigationBarHeight
+import org.listenbrainz.android.util.Utils.getStatusBarHeight
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import java.util.Locale
@@ -115,6 +117,7 @@ fun BrainzPlayerBackDropScreen(
     backdropScaffoldState: BackdropScaffoldState,
     brainzPlayerViewModel: BrainzPlayerViewModel = viewModel(),
     paddingValues: PaddingValues,
+    isLandscape: Boolean = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE,
     backLayerContent: @Composable () -> Unit
 ) {
     val isShuffled by brainzPlayerViewModel.isShuffled.collectAsStateWithLifecycle()
@@ -123,15 +126,10 @@ fun BrainzPlayerBackDropScreen(
     var maxDelta by rememberSaveable {
         mutableFloatStateOf(0F)
     }
-    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val repeatMode by brainzPlayerViewModel.repeatMode.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val defaultBackgroundColor = ListenBrainzTheme.colorScheme.background
     val isDarkThemeEnabled = onScreenUiModeIsDark()
-
-    LaunchedEffect(currentlyPlayingSong) {
-        println(currentlyPlayingSong)
-    }
 
     val isNothingPlaying = remember(currentlyPlayingSong) {
         currentlyPlayingSong.title == "null"
@@ -188,15 +186,18 @@ fun BrainzPlayerBackDropScreen(
             )
             val songList = brainzPlayerViewModel.appPreferences.currentPlayable?.songs ?: listOf()
 
-            SongViewPager(
-                modifier = Modifier.graphicsLayer {
-                    alpha =
-                        (backdropScaffoldState.requireOffset() / (maxDelta - headerHeight.toPx()))
-                },
-                songList = songList,
-                backdropScaffoldState = backdropScaffoldState,
-                currentlyPlayingSong = currentlyPlayingSong
-            )
+            if (!isLandscape) {
+                SongViewPager(
+                    modifier = Modifier.graphicsLayer {
+                        alpha =
+                            (backdropScaffoldState.requireOffset() / (maxDelta - headerHeight.toPx()))
+                    },
+                    songList = songList,
+                    backdropScaffoldState = backdropScaffoldState,
+                    currentlyPlayingSong = currentlyPlayingSong,
+                    isLandscape = false
+                )
+            }
         })
 }
 
