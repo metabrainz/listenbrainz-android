@@ -113,7 +113,7 @@ private fun PlayedThisWeek(
                         onPlayNext =  {onPlayNext(it)},
                         onAddToExistingPlaylist = {onAddToExistingPlaylist(it)},
                         onAddToNewPlaylist = {onAddToNewPlaylist(it)},
-                        isSongOverviewScreen = false
+                        showShareOption = false
                     )
                 },
                 isPlaying = it.mediaID == currentlyPlayingSong.mediaID

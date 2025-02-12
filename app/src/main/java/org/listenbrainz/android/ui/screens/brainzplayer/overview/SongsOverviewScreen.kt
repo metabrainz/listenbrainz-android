@@ -147,7 +147,7 @@ fun SongsOverviewScreen(
                                         },
                                         expanded = showDropdown,
                                         onDismiss = { showDropdown = false },
-                                        isSongOverviewScreen = true
+                                        showShareOption = true
                                     )
                                 }
                             )

@@ -15,7 +15,7 @@ fun BrainzPlayerDropDownMenu(
     onPlayNext: () -> Unit = {},
     onAddToQueue: () -> Unit = {},
     onShareAudio: () -> Unit = {},
-    isSongOverviewScreen: Boolean = false
+    showShareOption: Boolean = false
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
         DropdownMenuItem(onClick = {
@@ -37,7 +37,7 @@ fun BrainzPlayerDropDownMenu(
             onAddToQueue()
             onDismiss()
         }, text = { Text(text = "Add to queue") })
-        if (isSongOverviewScreen) {
+        if (showShareOption) {
             DropdownMenuItem(onClick = {
                 onShareAudio()
                 onDismiss()
