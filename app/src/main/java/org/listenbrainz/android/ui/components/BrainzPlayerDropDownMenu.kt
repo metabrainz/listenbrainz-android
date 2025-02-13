@@ -8,30 +8,41 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun BrainzPlayerDropDownMenu(
-    expanded : Boolean ,
-    onDismiss : () -> Unit = {},
-    onAddToNewPlaylist : () -> Unit = {},
-    onAddToExistingPlaylist : () -> Unit = {},
-    onPlayNext : () -> Unit = {},
-    onAddToQueue : () -> Unit = {},
-){
+    expanded: Boolean,
+    onDismiss: () -> Unit = {},
+    onAddToNewPlaylist: () -> Unit = {},
+    onAddToExistingPlaylist: () -> Unit = {},
+    onPlayNext: () -> Unit = {},
+    onAddToQueue: () -> Unit = {},
+    onShareAudio: () -> Unit = {},
+    showShareOption: Boolean = false
+) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
         DropdownMenuItem(onClick = {
             onAddToNewPlaylist()
             onDismiss()
-        }, text = {Text(text = "Add to new playlist")})
+        }, text = { Text(text = "Add to new playlist") })
+
         DropdownMenuItem(onClick = {
             onAddToExistingPlaylist()
             onDismiss()
-        }, text = {Text(text = "Add to existing playlist")})
+        }, text = { Text(text = "Add to existing playlist") })
+
         DropdownMenuItem(onClick = {
             onPlayNext()
             onDismiss()
-        }, text = {Text(text = "Play next")})
+        }, text = { Text(text = "Play next") })
+
         DropdownMenuItem(onClick = {
             onAddToQueue()
             onDismiss()
-        }, text = {Text(text = "Add to queue")})
+        }, text = { Text(text = "Add to queue") })
+        if (showShareOption) {
+            DropdownMenuItem(onClick = {
+                onShareAudio()
+                onDismiss()
+            }, text = { Text(text = "Share") })
+        }
     }
-
 }
+

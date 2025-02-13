@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -115,7 +116,7 @@ fun BrainzPlayerHomeScreen(
     albumSongsMap: MutableMap<Album, List<Song>>,
     brainzPlayerViewModel: BrainzPlayerViewModel = hiltViewModel(),
 ) {
-    val currentTab = remember { mutableIntStateOf(0) }
+    val currentTab = rememberSaveable { mutableIntStateOf(0) }
 
     Column {
         Row(
