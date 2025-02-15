@@ -8,16 +8,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -180,58 +176,55 @@ fun PlayerContent(
                 remainingProgressColor = ListenBrainzTheme.colorScheme.hint
             )
         }
-        Spacer(modifier = Modifier.height(4.dp))
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(if (isLandscape) 80.dp else 56.dp)
+                .wrapContentHeight()
         ) {
             val playIcon by viewModel.playButton.collectAsState()
-            Column {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .padding(horizontal = 5.dp, vertical = 4.dp)
+                        .size(if (isLandscape) 30.dp else 45.dp)
+                ) {
+                    AsyncImage(
                         modifier = Modifier
-                            .padding(start = 5.dp, end = 5.dp)
-                            .size(if (isLandscape) 30.dp else 45.dp)
-                    ) {
-                        AsyncImage(
-                            modifier = Modifier
-                                .matchParentSize()
-                                .clip(shape = RoundedCornerShape(8.dp))
-                                .graphicsLayer { clip = true },
-                            model = currentlyPlayingSong.albumArt,
-                            contentDescription = "",
-                            error = painterResource(
-                                id = R.drawable.ic_erroralbumart
-                            ),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(end = if (!isLandscape) 35.dp else 12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        if (!isLandscape)
-                            PlayerControls(
-                                playIcon = playIcon,
-                                viewModel = viewModel,
-                                pagerState = pagerState,
-                                coroutineScope = coroutineScope
-                            )
-                        SongInfo(currentlyPlayingSong = currentlyPlayingSong)
-                    }
-                }
-                if (isLandscape) {
-                    PlayerControls(
-                        coroutineScope = coroutineScope,
-                        pagerState = null,
-                        viewModel = viewModel,
-                        playIcon = playIcon
+                            .matchParentSize()
+                            .clip(shape = RoundedCornerShape(8.dp))
+                            .graphicsLayer { clip = true },
+                        model = currentlyPlayingSong.albumArt,
+                        contentDescription = "",
+                        error = painterResource(
+                            id = R.drawable.ic_erroralbumart
+                        ),
+                        contentScale = ContentScale.Crop
                     )
                 }
-
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(end = if (!isLandscape) 35.dp else 12.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if (!isLandscape)
+                        PlayerControls(
+                            playIcon = playIcon,
+                            viewModel = viewModel,
+                            pagerState = pagerState,
+                            coroutineScope = coroutineScope
+                        )
+                    SongInfo(currentlyPlayingSong = currentlyPlayingSong)
+                }
+            }
+            if (isLandscape) {
+                PlayerControls(
+                    coroutineScope = coroutineScope,
+                    pagerState = null,
+                    viewModel = viewModel,
+                    playIcon = playIcon
+                )
             }
         }
     }
