@@ -1,14 +1,18 @@
 package org.listenbrainz.android.ui.navigation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContent
+import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
@@ -91,7 +95,6 @@ fun AdaptiveNavigationBar(
             Text(
                 text = item.title,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding()
             )
         }
 
@@ -101,7 +104,7 @@ fun AdaptiveNavigationBar(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .windowInsetsPadding(WindowInsets.safeContent)
+                            .safeContentPadding()
                             .fillMaxWidth()
                     ) {
                         navIcon()
@@ -199,6 +202,7 @@ fun AdaptiveNavigationBar(
             contentColor = MaterialTheme.colorScheme.onSurface,
             elevation = 0.dp
         ) {
+            Spacer(modifier = Modifier.height(12.dp))
             CommonNavigationLogic()
             Spacer(modifier = Modifier.weight(1f))
             if (currentlyPlayingSong.mediaID != 0L)
@@ -221,7 +225,7 @@ fun AdaptiveNavigationBar(
     }
 }
 
-@Preview(showSystemUi = true)
+@Preview(showSystemUi = true, device = "spec:parent=pixel_5,orientation=landscape")
 @Composable
 fun AdaptiveNavigationBarPreview() {
     AdaptiveNavigationBar(
