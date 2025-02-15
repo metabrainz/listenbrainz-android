@@ -48,4 +48,10 @@ interface UserService {
 
     @GET("user/{user_name}/playlists/createdfor")
     suspend fun getCreatedForYouPlaylists(@Path("user_name") username: String?): Response<UserPlaylistPayload>
+
+    @GET("user/{user_name}/playlists")
+    suspend fun getUserPlaylists(@Path("user_name") username: String?): Response<UserPlaylistPayload>
+
+    @GET("user/{user_name}/playlists/collaborator")
+    suspend fun getUserCollabPlaylists(@Path("user_name") username: String?): Response<UserPlaylistPayload>
 }

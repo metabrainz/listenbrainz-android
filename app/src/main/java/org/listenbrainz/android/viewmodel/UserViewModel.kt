@@ -24,13 +24,13 @@ import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.repository.user.UserRepository
 import org.listenbrainz.android.ui.screens.profile.CreatedForTabUIState
 import org.listenbrainz.android.ui.screens.profile.ListensTabUiState
+import org.listenbrainz.android.ui.screens.profile.PlaylistTabUIState
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.screens.profile.StatsTabUIState
 import org.listenbrainz.android.ui.screens.profile.TasteTabUIState
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
 import org.listenbrainz.android.ui.screens.profile.stats.UserGlobal
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
-import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
 
@@ -57,6 +57,7 @@ class UserViewModel @Inject constructor(
     private val statsStateFlow : MutableStateFlow<StatsTabUIState> = MutableStateFlow(StatsTabUIState())
     private val tasteStateFlow : MutableStateFlow<TasteTabUIState> = MutableStateFlow(TasteTabUIState())
     private val createdForFlow: MutableStateFlow<CreatedForTabUIState> = MutableStateFlow(CreatedForTabUIState())
+    private val playlistFlow : MutableStateFlow<PlaylistTabUIState> = MutableStateFlow(PlaylistTabUIState())
 
     private suspend fun getSimilarArtists(username: String?) : List<org.listenbrainz.android.model.user.Artist> {
         val currentUsername = appPreferences.username.get()
@@ -120,10 +121,12 @@ class UserViewModel @Inject constructor(
         val statsTabData = async {getUserStatsData(inputUsername)}
         val tasteTabData = async {getUserTasteData(inputUsername)}
         val createdForTabData = async {getCreatedForYouPlaylists(inputUsername)}
+        val playlistTabData = async { getPlaylists(inputUsername) }
         listensTabData.await()
         statsTabData.await()
         tasteTabData.await()
         createdForTabData.await()
+        playlistTabData.await()
     }
 
 
@@ -344,6 +347,47 @@ class UserViewModel @Inject constructor(
         createdForFlow.emit(createdForTabState)
     }
 
+    //This function fetches user and collab playlists
+    private suspend fun getPlaylists(inputUsername: String?){
+        playlistFlow.value = playlistFlow.value.copy(isLoading = true)
+        val userPlaylists = userRepository.getUserPlaylists(inputUsername).data
+        val collabPlaylists = userRepository.getUserCollabPlaylists(inputUsername).data
+        //Map to store the playlist data for each playlist
+        val playlistDataMap = mutableMapOf<String, PlaylistData>()
+        //Fetch the playlist data for each playlist
+        userPlaylists?.playlists?.forEach { data->
+            val playlistMbid = data.getPlaylistMBID()
+            if (playlistMbid != null) {
+                val playlistData = playlistDataRepository.fetchPlaylist(playlistMbid)
+                if(playlistData.status == Resource.Status.FAILED){
+                    emitError(playlistData.error)
+                }
+                if (playlistData.data != null) {
+                    playlistDataMap[playlistMbid] = playlistData.data.playlist
+                }
+            }
+        }
+        collabPlaylists?.playlists?.forEach { data->
+            val playlistMbid = data.getPlaylistMBID()
+            if (playlistMbid != null) {
+                val playlistData = playlistDataRepository.fetchPlaylist(playlistMbid)
+                if(playlistData.status == Resource.Status.FAILED){
+                    emitError(playlistData.error)
+                }
+                if (playlistData.data != null) {
+                    playlistDataMap[playlistMbid] = playlistData.data.playlist
+                }
+            }
+        }
+        val playlistTabUIState = PlaylistTabUIState(
+            isLoading = false,
+            playlists = userPlaylists?.playlists,
+            collaboratorPlaylists = collabPlaylists?.playlists,
+            playlistData = playlistDataMap
+        )
+
+        playlistFlow.emit(playlistTabUIState)
+    }
 
     fun retryFetchAPlaylist(playlistMbid: String?){
         viewModelScope.launch(ioDispatcher) {
@@ -383,15 +427,17 @@ class UserViewModel @Inject constructor(
             listenStateFlow,
             statsStateFlow,
             tasteStateFlow,
-            createdForFlow
+            createdForFlow,
+            playlistFlow
         ) {
-            listensUIState, statsUIState, tasteUIState, createdForUIState ->
+            listensUIState, statsUIState, tasteUIState, createdForUIState, playlistUIState ->
             ProfileUiState(
                 isSelf = isLoggedInUser,
                 listensTabUiState = listensUIState,
                 statsTabUIState = statsUIState,
                 tasteTabUIState = tasteUIState,
-                createdForTabUIState = createdForUIState
+                createdForTabUIState = createdForUIState,
+                playlistTabUIState = playlistUIState
             )
         }.stateIn(
             viewModelScope,

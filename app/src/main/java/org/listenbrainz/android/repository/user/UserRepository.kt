@@ -25,4 +25,6 @@ interface UserRepository {
     suspend fun getTopAlbums(username: String?, rangeString: String = "all_time" ,count: Int = 25): Resource<TopAlbums>
     suspend fun getTopSongs(username: String?, rangeString: String = "all_time"): Resource<TopSongs>
     suspend fun getCreatedForYouPlaylists(username: String?): Resource<UserPlaylistPayload>
+    suspend fun getUserPlaylists(username: String?): Resource<UserPlaylistPayload>
+    suspend fun getUserCollabPlaylists(username: String?): Resource<UserPlaylistPayload>
 }

@@ -23,7 +23,8 @@ data class ProfileUiState(
     val listensTabUiState: ListensTabUiState = ListensTabUiState(),
     val statsTabUIState: StatsTabUIState = StatsTabUIState(),
     val tasteTabUIState: TasteTabUIState = TasteTabUIState(),
-    val createdForTabUIState: CreatedForTabUIState = CreatedForTabUIState()
+    val createdForTabUIState: CreatedForTabUIState = CreatedForTabUIState(),
+    val playlistTabUIState: PlaylistTabUIState = PlaylistTabUIState()
 )
 
 data class ListensTabUiState (
@@ -61,6 +62,13 @@ data class CreatedForTabUIState(
     val isLoading: Boolean = true,
     val createdForYouPlaylists: List<UserPlaylists>? = emptyList(),
     val createdForYouPlaylistData: Map<String, PlaylistData?>? = null
+)
+
+data class PlaylistTabUIState(
+    val isLoading: Boolean = true,
+    val playlists: List<UserPlaylists>? = emptyList(),
+    val collaboratorPlaylists : List<UserPlaylists>? = emptyList(),
+    val playlistData: Map<String, PlaylistData?>? = null
 )
 
 data class ListeningNowUiState(
