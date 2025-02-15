@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.screens.brainzplayer
 
 
+import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateDpAsState
@@ -72,6 +73,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -100,6 +102,8 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.SongViewPager
+import org.listenbrainz.android.util.Utils.getNavigationBarHeight
+import org.listenbrainz.android.util.Utils.getStatusBarHeight
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import java.util.Locale
@@ -113,6 +117,7 @@ fun BrainzPlayerBackDropScreen(
     backdropScaffoldState: BackdropScaffoldState,
     brainzPlayerViewModel: BrainzPlayerViewModel = viewModel(),
     paddingValues: PaddingValues,
+    isLandscape: Boolean = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE,
     backLayerContent: @Composable () -> Unit
 ) {
     val isShuffled by brainzPlayerViewModel.isShuffled.collectAsStateWithLifecycle()
@@ -126,10 +131,6 @@ fun BrainzPlayerBackDropScreen(
     val defaultBackgroundColor = ListenBrainzTheme.colorScheme.background
     val isDarkThemeEnabled = onScreenUiModeIsDark()
 
-    LaunchedEffect(currentlyPlayingSong) {
-        println(currentlyPlayingSong)
-    }
-
     val isNothingPlaying = remember(currentlyPlayingSong) {
         currentlyPlayingSong.title == "null"
                 && currentlyPlayingSong.artist == "null"
@@ -138,10 +139,11 @@ fun BrainzPlayerBackDropScreen(
 
     /** 56.dp is default bottom navigation height */
     val headerHeight by animateDpAsState(
-        targetValue = if (isNothingPlaying)
-            56.dp
-        else
-            56.dp + ListenBrainzTheme.sizes.brainzPlayerPeekHeight
+        targetValue = if (isLandscape) 0.dp else
+            if (isNothingPlaying)
+                56.dp
+            else
+                56.dp + ListenBrainzTheme.sizes.brainzPlayerPeekHeight
     )
     LaunchedEffect(currentlyPlayingSong, isDarkThemeEnabled) {
         brainzPlayerViewModel.updateBackgroundColorForPlayer(
@@ -183,15 +185,19 @@ fun BrainzPlayerBackDropScreen(
                 dynamicBackground = brainzPlayerViewModel.playerBackGroundColor
             )
             val songList = brainzPlayerViewModel.appPreferences.currentPlayable?.songs ?: listOf()
-            SongViewPager(
-                modifier = Modifier.graphicsLayer {
-                    alpha =
-                        (backdropScaffoldState.requireOffset() / (maxDelta - headerHeight.toPx()))
-                },
-                songList = songList,
-                backdropScaffoldState = backdropScaffoldState,
-                currentlyPlayingSong = currentlyPlayingSong
-            )
+
+            if (!isLandscape) {
+                SongViewPager(
+                    modifier = Modifier.graphicsLayer {
+                        alpha =
+                            (backdropScaffoldState.requireOffset() / (maxDelta - headerHeight.toPx()))
+                    },
+                    songList = songList,
+                    backdropScaffoldState = backdropScaffoldState,
+                    currentlyPlayingSong = currentlyPlayingSong,
+                    isLandscape = false
+                )
+            }
         })
 }
 
