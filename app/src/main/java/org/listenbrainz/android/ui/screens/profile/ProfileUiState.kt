@@ -5,9 +5,8 @@ import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.SimilarUser
-import org.listenbrainz.android.model.createdForYou.CreatedForYouPlaylists
+import org.listenbrainz.android.model.createdForYou.UserPlaylists
 import org.listenbrainz.android.model.playlist.PlaylistData
-import org.listenbrainz.android.model.playlist.PlaylistPayload
 import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.Artist
 import org.listenbrainz.android.model.user.ListeningActivity
@@ -60,7 +59,7 @@ data class StatsTabUIState(
 
 data class CreatedForTabUIState(
     val isLoading: Boolean = true,
-    val createdForYouPlaylists: List<CreatedForYouPlaylists>? = emptyList(),
+    val createdForYouPlaylists: List<UserPlaylists>? = emptyList(),
     val createdForYouPlaylistData: Map<String, PlaylistData?>? = null
 )
 

@@ -2,10 +2,7 @@ package org.listenbrainz.android.repository.user
 
 import org.listenbrainz.android.model.CurrentPins
 import org.listenbrainz.android.model.Listens
-import org.listenbrainz.android.model.PinnedRecording
-import org.listenbrainz.android.model.createdForYou.CreatedForYouPayload
-import org.listenbrainz.android.model.createdForYou.CreatedForYouPlaylist
-import org.listenbrainz.android.model.createdForYou.CreatedForYouPlaylists
+import org.listenbrainz.android.model.createdForYou.UserPlaylistPayload
 import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.TopAlbums
 import org.listenbrainz.android.model.user.TopArtists
@@ -27,5 +24,5 @@ interface UserRepository {
     suspend fun getGlobalListeningActivity(rangeString: String = "all_time"): Resource<UserListeningActivity?>
     suspend fun getTopAlbums(username: String?, rangeString: String = "all_time" ,count: Int = 25): Resource<TopAlbums>
     suspend fun getTopSongs(username: String?, rangeString: String = "all_time"): Resource<TopSongs>
-    suspend fun getCreatedForYouPlaylists(username: String?): Resource<CreatedForYouPayload>
+    suspend fun getCreatedForYouPlaylists(username: String?): Resource<UserPlaylistPayload>
 }
