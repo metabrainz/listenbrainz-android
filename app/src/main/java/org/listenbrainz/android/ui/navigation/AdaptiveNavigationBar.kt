@@ -11,10 +11,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.BackdropScaffoldState
 import androidx.compose.material.BackdropValue
 import androidx.compose.material.BottomNavigation
@@ -37,8 +35,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -46,10 +42,9 @@ import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AppNavigationItem
+import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.SongViewPager
-import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
 @Composable
 fun AdaptiveNavigationBar(
@@ -60,7 +55,8 @@ fun AdaptiveNavigationBar(
     scrollToTop: () -> Unit,
     username: String?,
     isLandscape: Boolean,
-    brainzPlayerViewModel: BrainzPlayerViewModel = hiltViewModel()
+    currentlyPlayingSong: Song,
+    songList: List<Song>,
 ) {
     val items = listOf(
         AppNavigationItem.Feed,
@@ -194,7 +190,6 @@ fun AdaptiveNavigationBar(
     }
 
     if (isLandscape) {
-        val currentlyPlayingSong by brainzPlayerViewModel.currentlyPlayingSong.collectAsStateWithLifecycle()
         NavigationRail(
             modifier = modifier
                 .widthIn(max = dimensionResource(R.dimen.navigation_rail_width))
@@ -206,13 +201,12 @@ fun AdaptiveNavigationBar(
         ) {
             CommonNavigationLogic()
             Spacer(modifier = Modifier.weight(1f))
-            if (currentlyPlayingSong.toSong.mediaID != 0L)
+            if (currentlyPlayingSong.mediaID != 0L)
                 SongViewPager(
                     modifier = modifier,
-                    songList = brainzPlayerViewModel.appPreferences.currentPlayable?.songs
-                        ?: emptyList(),
+                    songList = songList,
                     backdropScaffoldState = backdropScaffoldState,
-                    currentlyPlayingSong = currentlyPlayingSong.toSong,
+                    currentlyPlayingSong = currentlyPlayingSong,
                     isLandscape = true
                 )
         }
@@ -227,13 +221,15 @@ fun AdaptiveNavigationBar(
     }
 }
 
-@Preview
+@Preview(showSystemUi = true)
 @Composable
 fun AdaptiveNavigationBarPreview() {
     AdaptiveNavigationBar(
         navController = rememberNavController(),
         scrollToTop = {},
         username = "pranavkonidena",
-        isLandscape = false
+        isLandscape = true,
+        currentlyPlayingSong = Song(),
+        songList = emptyList()
     )
 }

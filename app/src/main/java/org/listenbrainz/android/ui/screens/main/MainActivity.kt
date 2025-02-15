@@ -64,6 +64,7 @@ import org.listenbrainz.android.util.Utils.toPx
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.R
+import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -183,6 +184,8 @@ class MainActivity : ComponentActivity() {
                     initialValue = null
                 )
                 val brainzPlayerViewModel: BrainzPlayerViewModel by viewModels()
+                val currentlyPlayingSong by brainzPlayerViewModel.currentlyPlayingSong.collectAsStateWithLifecycle()
+                val songList = brainzPlayerViewModel.appPreferences.currentPlayable?.songs
                 val isLandScape =
                     LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
                 val isBackdropInitialised by remember {
@@ -245,7 +248,8 @@ class MainActivity : ComponentActivity() {
                                 scrollToTop = { scrollToTopState = true },
                                 username = username,
                                 isLandscape = isLandScape,
-                                brainzPlayerViewModel = brainzPlayerViewModel
+                                currentlyPlayingSong = currentlyPlayingSong.toSong,
+                                songList = songList ?: emptyList()
                             )
                     },
                     snackbarHost = {
@@ -273,7 +277,8 @@ class MainActivity : ComponentActivity() {
                                 scrollToTop = { scrollToTopState = true },
                                 username = username,
                                 isLandscape = true,
-                                brainzPlayerViewModel = brainzPlayerViewModel
+                                currentlyPlayingSong = currentlyPlayingSong.toSong,
+                                songList = songList ?: emptyList()
                             )
                         }
                         if (isGrantedPerms == PermissionStatus.GRANTED.name) {
