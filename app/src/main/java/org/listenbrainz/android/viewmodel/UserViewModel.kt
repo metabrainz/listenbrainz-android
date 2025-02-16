@@ -35,6 +35,7 @@ import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.screens.profile.StatsTabUIState
 import org.listenbrainz.android.ui.screens.profile.TasteTabUIState
 import org.listenbrainz.android.ui.screens.profile.playlists.CollabPlaylistPagingSource
+import org.listenbrainz.android.ui.screens.profile.playlists.PlaylistSortType
 import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistPagingSource
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
 import org.listenbrainz.android.ui.screens.profile.stats.UserGlobal
@@ -179,7 +180,10 @@ class UserViewModel @Inject constructor(
         createdForTabData.await()
 //        playlistTabData.await()
     }
-
+    fun changeSortType(sortType: PlaylistSortType) {
+        playlistFlow.value = playlistFlow.value.copy(currentSortType = sortType)
+        //TODO
+    }
 
     private suspend fun getUserListensData(inputUsername: String?) {
         val username = inputUsername ?: appPreferences.username.get()

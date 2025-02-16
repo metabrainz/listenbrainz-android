@@ -19,6 +19,7 @@ import org.listenbrainz.android.model.user.TopSongs
 import org.listenbrainz.android.model.user.UserFeedback
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningNowUiState
+import org.listenbrainz.android.ui.screens.profile.playlists.PlaylistSortType
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
 import org.listenbrainz.android.ui.screens.profile.stats.UserGlobal
 
@@ -72,7 +73,8 @@ data class PlaylistTabUIState(
     val isLoading: Boolean = true,
     val userPlaylists: Flow<PagingData<UserPlaylist>> = emptyFlow(),
     val collabPlaylists: Flow<PagingData<UserPlaylist>> = emptyFlow(),
-    val playlistData: Map<String, PlaylistData?>? = null
+    val playlistData: Map<String, PlaylistData?>? = null,
+    val currentSortType: PlaylistSortType = PlaylistSortType.RANDOM
 )
 
 data class ListeningNowUiState(
