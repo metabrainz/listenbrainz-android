@@ -32,8 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.SocialUiState
-import org.listenbrainz.android.model.createdForYou.UserPlaylist
-import org.listenbrainz.android.model.createdForYou.UserPlaylists
+import org.listenbrainz.android.model.userPlaylist.UserPlaylist
+import org.listenbrainz.android.model.userPlaylist.UserPlaylists
 import org.listenbrainz.android.model.playlist.AdditionalMetadataTrack
 import org.listenbrainz.android.model.playlist.PlaylistData
 import org.listenbrainz.android.model.playlist.PlaylistTrack

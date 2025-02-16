@@ -4,9 +4,9 @@ import com.google.gson.Gson
 import org.listenbrainz.android.model.CurrentPins
 import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.Payload
-import org.listenbrainz.android.model.createdForYou.UserPlaylistPayload
-import org.listenbrainz.android.model.createdForYou.UserPlaylist
-import org.listenbrainz.android.model.createdForYou.UserPlaylists
+import org.listenbrainz.android.model.userPlaylist.UserPlaylistPayload
+import org.listenbrainz.android.model.userPlaylist.UserPlaylist
+import org.listenbrainz.android.model.userPlaylist.UserPlaylists
 import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.TopAlbums
 import org.listenbrainz.android.model.user.TopArtists

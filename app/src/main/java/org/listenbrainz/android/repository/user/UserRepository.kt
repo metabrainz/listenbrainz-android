@@ -2,7 +2,7 @@ package org.listenbrainz.android.repository.user
 
 import org.listenbrainz.android.model.CurrentPins
 import org.listenbrainz.android.model.Listens
-import org.listenbrainz.android.model.createdForYou.UserPlaylistPayload
+import org.listenbrainz.android.model.userPlaylist.UserPlaylistPayload
 import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.TopAlbums
 import org.listenbrainz.android.model.user.TopArtists
@@ -25,6 +25,11 @@ interface UserRepository {
     suspend fun getTopAlbums(username: String?, rangeString: String = "all_time" ,count: Int = 25): Resource<TopAlbums>
     suspend fun getTopSongs(username: String?, rangeString: String = "all_time"): Resource<TopSongs>
     suspend fun getCreatedForYouPlaylists(username: String?): Resource<UserPlaylistPayload>
-    suspend fun getUserPlaylists(username: String?): Resource<UserPlaylistPayload>
-    suspend fun getUserCollabPlaylists(username: String?): Resource<UserPlaylistPayload>
+    suspend fun getUserPlaylists(username: String?, offset: Int, count: Int = USER_PLAYLISTS_FETCH_COUNT): Resource<UserPlaylistPayload>
+    suspend fun getUserCollabPlaylists(username: String?, offset: Int, count: Int = COLLAB_PLAYLISTS_FETCH_COUNT): Resource<UserPlaylistPayload>
+
+    companion object{
+        const val USER_PLAYLISTS_FETCH_COUNT = 25
+        const val COLLAB_PLAYLISTS_FETCH_COUNT = 25
+    }
 }

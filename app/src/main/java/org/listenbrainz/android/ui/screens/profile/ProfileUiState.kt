@@ -1,11 +1,14 @@
 package org.listenbrainz.android.ui.screens.profile
 
+import androidx.paging.PagingData
 import com.spotify.protocol.types.PlayerState
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.SimilarUser
-import org.listenbrainz.android.model.createdForYou.UserPlaylists
+import org.listenbrainz.android.model.userPlaylist.UserPlaylists
 import org.listenbrainz.android.model.playlist.PlaylistData
 import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.Artist
@@ -14,6 +17,7 @@ import org.listenbrainz.android.model.user.TopAlbums
 import org.listenbrainz.android.model.user.TopArtists
 import org.listenbrainz.android.model.user.TopSongs
 import org.listenbrainz.android.model.user.UserFeedback
+import org.listenbrainz.android.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningNowUiState
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
 import org.listenbrainz.android.ui.screens.profile.stats.UserGlobal
@@ -66,8 +70,8 @@ data class CreatedForTabUIState(
 
 data class PlaylistTabUIState(
     val isLoading: Boolean = true,
-    val playlists: List<UserPlaylists>? = emptyList(),
-    val collaboratorPlaylists : List<UserPlaylists>? = emptyList(),
+    val userPlaylists: Flow<PagingData<UserPlaylist>> = emptyFlow(),
+    val collabPlaylists: Flow<PagingData<UserPlaylist>> = emptyFlow(),
     val playlistData: Map<String, PlaylistData?>? = null
 )
 

@@ -33,10 +33,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.createdForYou.AdditionalMetadata
-import org.listenbrainz.android.model.createdForYou.UserPlaylistExtensionData
-import org.listenbrainz.android.model.createdForYou.UserPlaylist
-import org.listenbrainz.android.model.createdForYou.Extension
+import org.listenbrainz.android.model.userPlaylist.AdditionalMetadata
+import org.listenbrainz.android.model.userPlaylist.UserPlaylistExtensionData
+import org.listenbrainz.android.model.userPlaylist.UserPlaylist
+import org.listenbrainz.android.model.userPlaylist.Extension
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import java.text.SimpleDateFormat

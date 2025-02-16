@@ -3,7 +3,7 @@ package org.listenbrainz.android.repository.user
 import org.listenbrainz.android.model.CurrentPins
 import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.ResponseError
-import org.listenbrainz.android.model.createdForYou.UserPlaylistPayload
+import org.listenbrainz.android.model.userPlaylist.UserPlaylistPayload
 import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.TopAlbums
 import org.listenbrainz.android.model.user.TopArtists
@@ -87,17 +87,17 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getUserPlaylists(username: String?): Resource<UserPlaylistPayload> {
+    override suspend fun getUserPlaylists(username: String?, offset: Int, count: Int): Resource<UserPlaylistPayload> {
         return parseResponse {
             if(username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
-            service.getUserPlaylists(username)
+            service.getUserPlaylists(username, offset, count)
         }
     }
 
-    override suspend fun getUserCollabPlaylists(username: String?): Resource<UserPlaylistPayload> {
+    override suspend fun getUserCollabPlaylists(username: String?, offset: Int, count: Int): Resource<UserPlaylistPayload> {
         return parseResponse {
             if (username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
-            service.getUserCollabPlaylists(username)
+            service.getUserCollabPlaylists(username, offset, count)
         }
     }
 

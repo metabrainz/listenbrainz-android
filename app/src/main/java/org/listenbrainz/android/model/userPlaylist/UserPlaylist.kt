@@ -1,4 +1,4 @@
-package org.listenbrainz.android.model.createdForYou
+package org.listenbrainz.android.model.userPlaylist
 
 
 import com.google.gson.annotations.SerializedName

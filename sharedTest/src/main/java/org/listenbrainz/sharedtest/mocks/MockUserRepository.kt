@@ -2,7 +2,7 @@ package org.listenbrainz.sharedtest.mocks
 
 import org.listenbrainz.android.model.CurrentPins
 import org.listenbrainz.android.model.Listens
-import org.listenbrainz.android.model.createdForYou.UserPlaylistPayload
+import org.listenbrainz.android.model.userPlaylist.UserPlaylistPayload
 import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.TopAlbums
 import org.listenbrainz.android.model.user.TopArtists

@@ -41,6 +41,7 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.createdforyou.CreatedForYouScreen
 import org.listenbrainz.android.ui.screens.profile.listens.ListensScreen
+import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistScreen
 import org.listenbrainz.android.ui.screens.profile.stats.StatsScreen
 import org.listenbrainz.android.ui.screens.profile.taste.TasteScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -221,6 +222,11 @@ fun BaseProfileScreen(
                             userViewModel = viewModel,
                             goToArtistPage = goToArtistPage,
                             socialViewModel = socialViewModel
+                        )
+
+                        ProfileScreenTab.PLAYLISTS.index -> UserPlaylistScreen(
+                            snackbarState = snackbarState,
+                            userViewModel = viewModel
                         )
                     }
                 }
