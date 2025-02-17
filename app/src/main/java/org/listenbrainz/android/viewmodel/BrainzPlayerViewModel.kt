@@ -354,13 +354,18 @@ class BrainzPlayerViewModel @Inject constructor(
             appPreferences.currentPlayable?.copy(
                 songs = currentSongs ?: emptyList()
             )
+        var currentSongIndex = appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.value.toSong.mediaID } ?: 0
+        if (currentSongIndex == -1) {
+            currentSongIndex = 0
+        }
+
         appPreferences.currentPlayable?.songs?.let {
             changePlayable(
                 it,
                 PlayableType.ALL_SONGS,
                 appPreferences.currentPlayable?.id ?: 0,
-                appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.value.toSong.mediaID }
-                    ?: 0, songCurrentPosition.value
+                currentSongIndex,
+                songCurrentPosition.value
             )
         }
         queueChanged(
