@@ -101,14 +101,16 @@ class UserViewModel @Inject constructor(
         username = currentUser.value,
         onError = { error -> emitError(error) },
         userRepository = userRepository,
-        ioDispatcher = ioDispatcher
+        ioDispatcher = ioDispatcher,
+        playlistRepository = playlistDataRepository
     )
 
     private fun createNewCollabPlaylistPagingSource() = CollabPlaylistPagingSource(
         username = currentUser.value,
         onError = { error -> emitError(error) },
         userRepository = userRepository,
-        ioDispatcher = ioDispatcher
+        ioDispatcher = ioDispatcher,
+        playlistDataRepository = playlistDataRepository
     )
 
     private suspend fun getSimilarArtists(username: String?): List<org.listenbrainz.android.model.user.Artist> {

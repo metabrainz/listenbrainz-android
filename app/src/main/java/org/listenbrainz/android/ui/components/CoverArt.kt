@@ -1,7 +1,8 @@
-package org.listenbrainz.android.ui.components.dialogs
+package org.listenbrainz.android.ui.components
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,32 +33,43 @@ import kotlin.math.ceil
 @Composable
 fun CoverArtComposable(
     modifier: Modifier = Modifier,
-    coverArt: String,
+    coverArt: String?,
     gridSize: Int,
     errorImage: Int = R.drawable.playlist_card_bg1,
     areImagesClickable: Boolean = false,
 ) {
-    val context = LocalContext.current
-    val imageLinks = CoverArtImageLinkExtractor.extractImageLinks(coverArt).toMutableList()
-    val anchorLinks = CoverArtImageLinkExtractor.extractImageLinks(coverArt).toMutableList()
-    val noOfImages = CoverArtImageLinkExtractor.getImageCount(coverArt)
-    //Handling cases where number of images is less than the grid size required
-    if (noOfImages < gridSize * gridSize) {
-        for (i in 0 until gridSize * gridSize - noOfImages) {
-            imageLinks.add("")
-            anchorLinks.add("")
+    if (coverArt == null) {
+        Box(modifier) {
+            Image(
+                painterResource(errorImage),
+                contentDescription = "Error Image",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )
         }
-    }
-    Box(modifier) {
-        ImageGridCover(
-            imageUrls = imageLinks, columns = gridSize, errorImage = errorImage,
-            anchorLinks = anchorLinks,
-            isClickable = areImagesClickable,
-            onClickImage = {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it))
-                context.startActivity(intent)
+    } else {
+        val context = LocalContext.current
+        val imageLinks = CoverArtImageLinkExtractor.extractImageLinks(coverArt).toMutableList()
+        val anchorLinks = CoverArtImageLinkExtractor.extractAnchorLinks(coverArt).toMutableList()
+        val noOfImages = CoverArtImageLinkExtractor.getImageCount(coverArt)
+        //Handling cases where number of images is less than the grid size required
+        if (noOfImages < gridSize * gridSize) {
+            for (i in 0 until gridSize * gridSize - noOfImages) {
+                imageLinks.add("")
+                anchorLinks.add("")
             }
-        )
+        }
+        Box(modifier) {
+            ImageGridCover(
+                imageUrls = imageLinks, columns = gridSize, errorImage = errorImage,
+                anchorLinks = anchorLinks,
+                isClickable = areImagesClickable,
+                onClickImage = {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it))
+                    context.startActivity(intent)
+                }
+            )
+        }
     }
 }
 

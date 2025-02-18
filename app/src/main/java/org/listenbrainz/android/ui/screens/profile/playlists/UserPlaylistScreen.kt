@@ -168,12 +168,12 @@ private fun UserPlaylistScreenBase(
                                     if (playlist != null) {
                                         PlaylistGridViewCard(
                                             modifier = Modifier,
-                                            coverArtURL = null,
                                             title = playlist.title ?: "",
                                             trackCount = 5,
                                             updatedDate = "5 days ago",
                                             onClickOptionsButton = {},
-                                            onClickCard = { }
+                                            onClickCard = { },
+                                            coverArt = playlist.coverArt,
                                         )
                                     }
                                 }

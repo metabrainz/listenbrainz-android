@@ -11,4 +11,16 @@ interface PlaylistDataRepository {
 
     //Duplicates the playlist with the given MBID and returns the new playlist MBID
     suspend fun copyPlaylist(playlistMbid: String?): Resource<CopyPlaylistResponse?>
+
+    //Gets cover art of a particular playlist
+    suspend fun getPlaylistCoverArt(
+        playlistMBID: String,
+        dimension: Int = DEFAULT_PLAYLIST_GRID_SIZE,
+        layout: Int = DEFAULT_LAYOUT
+    ): Resource<String?>
+
+    companion object {
+        const val DEFAULT_PLAYLIST_GRID_SIZE = 3
+        const val DEFAULT_LAYOUT = 0
+    }
 }

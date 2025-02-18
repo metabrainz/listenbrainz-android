@@ -17,7 +17,8 @@ data class UserPlaylist(
     @SerializedName("title")
     val title: String? = null,
     @SerializedName("track")
-    val track: List<Any> = listOf()
+    val track: List<Any> = listOf(),
+    val coverArt: String? = null
 ){
     // Get the MBID of the playlist
     fun getPlaylistMBID(): String? {
