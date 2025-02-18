@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.PullRefreshState
@@ -16,7 +18,6 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,7 +32,6 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
-import org.listenbrainz.android.ui.components.NavigationChips
 import org.listenbrainz.android.ui.components.ToggleChips
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.UserViewModel
@@ -93,13 +93,13 @@ fun UserPlaylistScreen(
             isCurrentScreenCollab = true
         },
         onClickPlaylistViewChange = {
-            if(currentPlaylistView == PlaylistView.LIST){
+            if (currentPlaylistView == PlaylistView.LIST) {
                 currentPlaylistView = PlaylistView.GRID
-            }else{
+            } else {
                 currentPlaylistView = PlaylistView.LIST
             }
         },
-        onSortTypeChange = {sortType->
+        onSortTypeChange = { sortType ->
             userViewModel.changeSortType(sortType)
         }
     )
@@ -118,8 +118,8 @@ private fun UserPlaylistScreenBase(
     getCollabPlaylist: (Int) -> UserPlaylist?,
     currentPlaylistView: PlaylistView,
     currentSortType: PlaylistSortType,
-    onPlaylistSectionClick: ()->Unit,
-    onCollabSectionClick: ()->Unit,
+    onPlaylistSectionClick: () -> Unit,
+    onCollabSectionClick: () -> Unit,
     onClickPlaylistViewChange: () -> Unit,
     onSortTypeChange: (PlaylistSortType) -> Unit
 ) {
@@ -128,15 +128,9 @@ private fun UserPlaylistScreenBase(
             .fillMaxSize()
             .pullRefresh(pullRefreshState)
     ) {
-        LazyColumn {
-            items(userPlaylistDataSize) { index ->
-                val playlist = getUserPlaylist(index)
-                if (playlist != null) {
-                    Text(text = playlist.title.toString())
-                }
-            }
-        }
-        Column {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
             PlaylistScreenTopSection(
                 modifier = Modifier.fillMaxWidth(),
                 playlistType = if (isCurrentScreenCollab) PlaylistType.COLLABORATIVE else PlaylistType.USER_PLAYLIST,
@@ -147,14 +141,57 @@ private fun UserPlaylistScreenBase(
                 onClickPlaylistViewChange = onClickPlaylistViewChange,
                 onSortTypeChange = onSortTypeChange
             )
-            PullRefreshIndicator(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                refreshing = isRefreshing,
-                contentColor = ListenBrainzTheme.colorScheme.lbSignatureInverse,
-                backgroundColor = ListenBrainzTheme.colorScheme.level1,
-                state = pullRefreshState
-            )
+            AnimatedContent(isCurrentScreenCollab) { isCurrentScreenCollab ->
+                AnimatedContent(currentPlaylistView) { currentPlaylistView ->
+                    when (currentPlaylistView) {
+                        PlaylistView.LIST -> {
+                            LazyColumn {
+                                items(if (isCurrentScreenCollab) collabPlaylistDataSize else userPlaylistDataSize) { index ->
+                                    val playlist =
+                                        if (isCurrentScreenCollab) getCollabPlaylist(index) else getUserPlaylist(
+                                            index
+                                        )
+                                    if (playlist != null) {
+
+                                    }
+                                }
+                            }
+                        }
+
+                        PlaylistView.GRID -> {
+                            LazyVerticalGrid(columns = GridCells.Fixed(2)) {
+                                items(if (isCurrentScreenCollab) collabPlaylistDataSize else userPlaylistDataSize) { index ->
+                                    val playlist =
+                                        if (isCurrentScreenCollab) getCollabPlaylist(index) else getUserPlaylist(
+                                            index
+                                        )
+                                    if (playlist != null) {
+                                        PlaylistGridViewCard(
+                                            modifier = Modifier,
+                                            coverArtURL = null,
+                                            title = playlist.title ?: "",
+                                            trackCount = 5,
+                                            updatedDate = "5 days ago",
+                                            onClickOptionsButton = {},
+                                            onClickCard = { }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
         }
+        PullRefreshIndicator(
+            modifier = Modifier.align(Alignment.TopCenter),
+            refreshing = isRefreshing,
+            contentColor = ListenBrainzTheme.colorScheme.lbSignatureInverse,
+            backgroundColor = ListenBrainzTheme.colorScheme.level1,
+            state = pullRefreshState
+        )
+
     }
 }
 
@@ -166,14 +203,18 @@ private fun PlaylistScreenTopSection(
     currentSortType: PlaylistSortType = PlaylistSortType.RANDOM,
     onUserPlaylistClick: () -> Unit,
     onCollabPlaylistClick: () -> Unit,
-    onClickPlaylistViewChange: ()-> Unit,
-    onSortTypeChange: (PlaylistSortType)->Unit
+    onClickPlaylistViewChange: () -> Unit,
+    onSortTypeChange: (PlaylistSortType) -> Unit
 ) {
-    Box(modifier = modifier
-        .fillMaxWidth()) {
-        Box(modifier = Modifier
-            .fillMaxWidth(0.7f)
-            .align(Alignment.CenterStart)) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.7f)
+                .align(Alignment.CenterStart)
+        ) {
             ToggleChips(
                 modifier = Modifier,
                 currentPageStateProvider = { if (playlistType == PlaylistType.USER_PLAYLIST) 0 else 1 },
@@ -194,10 +235,10 @@ private fun PlaylistScreenTopSection(
                 onClick = {}
             ) { }
             IconButton(
-                onClick = {onClickPlaylistViewChange()}
+                onClick = { onClickPlaylistViewChange() }
             ) {
                 AnimatedContent(playlistView) {
-                    when(it){
+                    when (it) {
                         PlaylistView.LIST -> {
                             Icon(
                                 painter = painterResource(R.drawable.playlist_listview),
@@ -205,6 +246,7 @@ private fun PlaylistScreenTopSection(
                                 contentDescription = "List View of Playlist Screen"
                             )
                         }
+
                         PlaylistView.GRID -> {
                             Icon(
                                 painter = painterResource(R.drawable.playlist_gridview),
@@ -249,8 +291,8 @@ fun UserPlaylistScreenPreview() {
             currentSortType = PlaylistSortType.RANDOM,
             onPlaylistSectionClick = {},
             onCollabSectionClick = {},
-            onClickPlaylistViewChange = {  },
-            onSortTypeChange = {  }
+            onClickPlaylistViewChange = { },
+            onSortTypeChange = { }
         )
     }
 }
