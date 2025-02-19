@@ -21,6 +21,7 @@ import coil.request.ImageRequest
 import org.listenbrainz.android.R
 import org.listenbrainz.android.util.CoverArtImageLinkExtractor
 import kotlin.math.ceil
+import kotlin.math.min
 
 /**
  * Composable to display cover art images in a grid layout.
@@ -84,8 +85,15 @@ private fun ImageGridCover(
     isClickable: Boolean,
     onClickImage: (String) -> Unit
 ) {
-    val rows = ceil(imageUrls.size / columns.toFloat()).toInt() // Calculate number of rows
-
+    val rows = min(ceil(imageUrls.size / columns.toFloat()).toInt(), columns) // Calculate number of rows
+    val getModifier:(Int) -> Modifier = {index->
+        if(isClickable)
+            Modifier.clickable {
+                onClickImage(anchorLinks[index])
+            }
+        else
+            Modifier
+    }
     Column(
         modifier = modifier.fillMaxSize()
     ) {
@@ -97,12 +105,9 @@ private fun ImageGridCover(
                     val imageIndex = rowIndex * columns + colIndex
                     if (imageIndex < imageUrls.size) {
                         Box(
-                            modifier = Modifier
+                            modifier = getModifier(imageIndex)
                                 .weight(1f) // Distribute space equally in the row
                                 .aspectRatio(1f) // Keeps images square
-                                .clickable(enabled = isClickable) {
-                                    onClickImage(anchorLinks[imageIndex])
-                                }
                         ) {
                             AsyncImage(
                                 model = ImageRequest.Builder(LocalContext.current)
@@ -116,7 +121,7 @@ private fun ImageGridCover(
                             )
                         }
                     } else {
-                        Spacer(modifier = Modifier.weight(1f)) // Add empty space for alignment
+                        Spacer(modifier = Modifier.weight(1f))
                     }
                 }
             }

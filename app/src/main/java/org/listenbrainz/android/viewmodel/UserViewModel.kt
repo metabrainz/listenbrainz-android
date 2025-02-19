@@ -503,48 +503,6 @@ class UserViewModel @Inject constructor(
         createdForFlow.emit(createdForTabState)
     }
 
-    //This function fetches user and collab playlists
-//    private suspend fun getPlaylists(inputUsername: String?){
-//        playlistFlow.value = playlistFlow.value.copy(isLoading = true)
-//        val userPlaylists = userRepository.getUserPlaylists(inputUsername).data
-//        val collabPlaylists = userRepository.getUserCollabPlaylists(inputUsername).data
-//        //Map to store the playlist data for each playlist
-//        val playlistDataMap = mutableMapOf<String, PlaylistData>()
-//        //Fetch the playlist data for each playlist
-//        userPlaylists?.playlists?.forEach { data->
-//            val playlistMbid = data.getPlaylistMBID()
-//            if (playlistMbid != null) {
-//                val playlistData = playlistDataRepository.fetchPlaylist(playlistMbid)
-//                if(playlistData.status == Resource.Status.FAILED){
-//                    emitError(playlistData.error)
-//                }
-//                if (playlistData.data != null) {
-//                    playlistDataMap[playlistMbid] = playlistData.data.playlist
-//                }
-//            }
-//        }
-//        collabPlaylists?.playlists?.forEach { data->
-//            val playlistMbid = data.getPlaylistMBID()
-//            if (playlistMbid != null) {
-//                val playlistData = playlistDataRepository.fetchPlaylist(playlistMbid)
-//                if(playlistData.status == Resource.Status.FAILED){
-//                    emitError(playlistData.error)
-//                }
-//                if (playlistData.data != null) {
-//                    playlistDataMap[playlistMbid] = playlistData.data.playlist
-//                }
-//            }
-//        }
-//        val playlistTabUIState = PlaylistTabUIState(
-//            isLoading = false,
-//            playlists = userPlaylists?.playlists,
-//            collaboratorPlaylists = collabPlaylists?.playlists,
-//            playlistData = playlistDataMap
-//        )
-//
-//        playlistFlow.emit(playlistTabUIState)
-//    }
-
     fun retryFetchAPlaylist(playlistMbid: String?) {
         viewModelScope.launch(ioDispatcher) {
             val playlistData = playlistDataRepository.fetchPlaylist(playlistMbid)

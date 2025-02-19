@@ -21,6 +21,7 @@ interface PlaylistDataRepository {
 
     companion object {
         const val DEFAULT_PLAYLIST_GRID_SIZE = 3
+        const val DEFAULT_PLAYLIST_LIST_VIEW_GRID_SIZE = 2
         const val DEFAULT_LAYOUT = 0
     }
 }

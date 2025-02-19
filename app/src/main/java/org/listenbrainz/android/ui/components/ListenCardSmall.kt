@@ -70,6 +70,8 @@ fun ListenCardSmall(
     enableTrailingContent: Boolean = false,
     trailingContent: @Composable (modifier: Modifier) -> Unit = {},
     blurbContent: @Composable (ColumnScope.(modifier: Modifier) -> Unit)? = null,
+    alternateTitleAndSubtitle: @Composable ((modifier: Modifier) -> Unit)? = null,
+    alternateCoverArt: @Composable ((modifier: Modifier) -> Unit)? = null,
     isPlaying: Boolean = false,
     color: Color = if (isPlaying) {
         ListenBrainzTheme.colorScheme.level2
@@ -112,11 +114,16 @@ fun ListenCardSmall(
                     modifier = Modifier.fillMaxWidth(mainContentFraction),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-            
+                    alternateCoverArt?.let {
+                        it(Modifier.size(ListenBrainzTheme.sizes.listenCardHeight))
+                    } ?:
                     AlbumArt(coverArtUrl, errorAlbumArt)
             
                     Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.coverArtAndTextGap))
-            
+
+                    alternateTitleAndSubtitle?.let {
+                        it(Modifier.weight(1f))
+                    } ?:
                     TitleAndSubtitle(
                         modifier = Modifier.padding(end = 6.dp),
                         title = trackName,
