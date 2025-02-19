@@ -83,4 +83,20 @@ class MockUserRepository : UserRepository {
         return Resource(Resource.Status.SUCCESS, createdForYouPlaylistsTestData)
     }
 
+    override suspend fun getUserPlaylists(
+        username: String?,
+        offset: Int,
+        count: Int
+    ): Resource<UserPlaylistPayload> {
+        return Resource(Resource.Status.SUCCESS, createdForYouPlaylistsTestData)
+    }
+
+    override suspend fun getUserCollabPlaylists(
+        username: String?,
+        offset: Int,
+        count: Int
+    ): Resource<UserPlaylistPayload> {
+        return Resource(Resource.Status.FAILED, createdForYouPlaylistsTestData)
+    }
+
 }

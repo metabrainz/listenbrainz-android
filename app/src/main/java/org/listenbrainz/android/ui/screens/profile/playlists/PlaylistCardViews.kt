@@ -35,6 +35,17 @@ import org.listenbrainz.android.ui.components.CoverArtComposable
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
+/**
+ * Composable for Playlist Grid View Card
+ * @param modifier Modifier
+ * @param coverArt String? - Cover Art URL
+ * @param title String - Title of the playlist
+ * @param updatedDate String - The date when playlist was last updated
+ * @param errorCoverArt Int - Image to display when cover art could not be loaded
+ * @param onClickCard () -> Unit - Function to be called when card is clicked
+ * @param onDropdownClick (PlaylistDropdownItems) -> Unit - Function to be called when dropdown item is clicked
+ * @param isUserSelf Tells whether the current profile belongs to the logged in user
+ */
 @Composable
 fun PlaylistGridViewCard(
     modifier: Modifier,
@@ -43,7 +54,7 @@ fun PlaylistGridViewCard(
     updatedDate: String,
     @DrawableRes errorCoverArt: Int = R.drawable.playlist_card_bg1,
     onClickCard: () -> Unit,
-    onDropdownClick: (PlaylistDropdownItems)->Unit,
+    onDropdownClick: (PlaylistDropdownItems) -> Unit,
     isUserSelf: Boolean
 ) {
     var isDropdownEnabled by remember {
@@ -107,7 +118,7 @@ fun PlaylistGridViewCard(
                         expanded = isDropdownEnabled,
                         onDismiss = { isDropdownEnabled = false },
                         onItemClick = {
-                        onDropdownClick(it)
+                            onDropdownClick(it)
                             isDropdownEnabled = false
                         },
                         isPrivateAllowed = isUserSelf
@@ -118,6 +129,18 @@ fun PlaylistGridViewCard(
     }
 }
 
+
+/**
+ * Composable for Playlist Grid View Card
+ * @param modifier Modifier
+ * @param coverArt String? - Cover Art URL
+ * @param title String - Title of the playlist
+ * @param updatedDate String - The date when playlist was last updated
+ * @param errorCoverArt Int - Image to display when cover art could not be loaded
+ * @param onClickCard () -> Unit - Function to be called when card is clicked
+ * @param onDropdownClick (PlaylistDropdownItems) -> Unit - Function to be called when dropdown item is clicked
+ * @param isUserSelf Tells whether the current profile belongs to the logged in user
+ */
 @Composable
 fun PlaylistListViewCard(
     modifier: Modifier,
@@ -134,7 +157,7 @@ fun PlaylistListViewCard(
     }
     ListenCardSmall(
         modifier = modifier,
-        trackName="",
+        trackName = "",
         artists = emptyList(),
         coverArtUrl = null,
         goToArtistPage = {},
@@ -196,7 +219,7 @@ fun PlaylistGridViewCardPreview() {
             coverArt = null,
             title = "Copy of weekly exploration of hemang-mishra",
             updatedDate = "Feb 9",
-            onClickCard = {  },
+            onClickCard = { },
             onDropdownClick = { },
             isUserSelf = false
         )
@@ -209,7 +232,8 @@ fun PlaylistGridViewCardPreview() {
 @Composable
 fun PlaylistListViewCardPreview() {
     ListenBrainzTheme {
-        PlaylistListViewCard(modifier = Modifier,
+        PlaylistListViewCard(
+            modifier = Modifier,
             coverArt = null,
             title = "Copy of weekly exploration of hemang-mishra",
             updatedDate = "Feb 9",
