@@ -8,7 +8,6 @@ import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.SimilarUser
-import org.listenbrainz.android.model.userPlaylist.UserPlaylists
 import org.listenbrainz.android.model.playlist.PlaylistData
 import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.Artist
@@ -18,8 +17,8 @@ import org.listenbrainz.android.model.user.TopArtists
 import org.listenbrainz.android.model.user.TopSongs
 import org.listenbrainz.android.model.user.UserFeedback
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
+import org.listenbrainz.android.model.userPlaylist.UserPlaylists
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningNowUiState
-import org.listenbrainz.android.ui.screens.profile.playlists.PlaylistSortType
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
 import org.listenbrainz.android.ui.screens.profile.stats.UserGlobal
 
@@ -32,7 +31,7 @@ data class ProfileUiState(
     val playlistTabUIState: PlaylistTabUIState = PlaylistTabUIState()
 )
 
-data class ListensTabUiState (
+data class ListensTabUiState(
     val isLoading: Boolean = true,
     val listenCount: Int? = null,
     val followersCount: Int? = null,
@@ -41,25 +40,25 @@ data class ListensTabUiState (
     val pinnedSong: PinnedRecording? = null,
     val compatibility: Float? = null,
     val recentListens: List<Listen>? = emptyList(),
-    val followers: List<Pair<String,Boolean>>? = emptyList(),
-    val following: List<Pair<String,Boolean>>? = emptyList(),
+    val followers: List<Pair<String, Boolean>>? = emptyList(),
+    val following: List<Pair<String, Boolean>>? = emptyList(),
     val similarUsers: List<SimilarUser>? = emptyList(),
     val similarArtists: List<Artist> = emptyList(),
     val isFollowing: Boolean = false
 )
 
-data class TasteTabUIState (
+data class TasteTabUIState(
     val isLoading: Boolean = true,
     val lovedSongs: UserFeedback? = null,
     val hatedSongs: UserFeedback? = null,
     val pins: AllPinnedRecordings? = null,
-    )
+)
 
 data class StatsTabUIState(
     val isLoading: Boolean = true,
     val userListeningActivity: Map<Pair<UserGlobal, StatsRange>, List<ListeningActivity?>> = mapOf(),
     val topArtists: Map<StatsRange, TopArtists?>? = null,
-    val topAlbums: Map<StatsRange ,TopAlbums?>? = null,
+    val topAlbums: Map<StatsRange, TopAlbums?>? = null,
     val topSongs: Map<StatsRange, TopSongs?>? = null,
 )
 
@@ -74,7 +73,6 @@ data class PlaylistTabUIState(
     val userPlaylists: Flow<PagingData<UserPlaylist>> = emptyFlow(),
     val collabPlaylists: Flow<PagingData<UserPlaylist>> = emptyFlow(),
     val playlistData: Map<String, PlaylistData?>? = null,
-    val currentSortType: PlaylistSortType = PlaylistSortType.RANDOM
 )
 
 data class ListeningNowUiState(

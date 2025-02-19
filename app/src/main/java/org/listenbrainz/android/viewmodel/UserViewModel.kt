@@ -35,7 +35,6 @@ import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.screens.profile.StatsTabUIState
 import org.listenbrainz.android.ui.screens.profile.TasteTabUIState
 import org.listenbrainz.android.ui.screens.profile.playlists.CollabPlaylistPagingSource
-import org.listenbrainz.android.ui.screens.profile.playlists.PlaylistSortType
 import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistPagingSource
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
 import org.listenbrainz.android.ui.screens.profile.stats.UserGlobal
@@ -56,7 +55,8 @@ class UserViewModel @Inject constructor(
     private var isLoggedInUser by mutableStateOf(false)
     private val currentUser: MutableStateFlow<String?> = MutableStateFlow(null)
     private val userPlaylistPager: Flow<PagingData<UserPlaylist>> = Pager(
-        PagingConfig(pageSize = UserRepository.USER_PLAYLISTS_FETCH_COUNT),
+        PagingConfig(pageSize = UserRepository.USER_PLAYLISTS_FETCH_COUNT,
+            enablePlaceholders = true),
         initialKey = null,
     ) {
         createNewUserPlaylistPagingSource()
@@ -65,7 +65,8 @@ class UserViewModel @Inject constructor(
         .cachedIn(viewModelScope)
 
     private val collabPlaylistPager: Flow<PagingData<UserPlaylist>> = Pager(
-        PagingConfig(pageSize = UserRepository.COLLAB_PLAYLISTS_FETCH_COUNT),
+        PagingConfig(pageSize = UserRepository.COLLAB_PLAYLISTS_FETCH_COUNT,
+            enablePlaceholders = true),
         initialKey = null,
     ) {
         createNewCollabPlaylistPagingSource()
@@ -174,17 +175,10 @@ class UserViewModel @Inject constructor(
         val statsTabData = async { getUserStatsData(inputUsername) }
         val tasteTabData = async { getUserTasteData(inputUsername) }
         val createdForTabData = async { getCreatedForYouPlaylists(inputUsername) }
-
-//        val playlistTabData = async { getPlaylists(inputUsername) }
         listensTabData.await()
         statsTabData.await()
         tasteTabData.await()
         createdForTabData.await()
-//        playlistTabData.await()
-    }
-    fun changeSortType(sortType: PlaylistSortType) {
-        playlistFlow.value = playlistFlow.value.copy(currentSortType = sortType)
-        //TODO
     }
 
     private suspend fun getUserListensData(inputUsername: String?) {

@@ -20,6 +20,7 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.PullRefreshState
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.SnackbarHostState
@@ -29,6 +30,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,11 +40,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
+import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.ui.components.ToggleChips
+import org.listenbrainz.android.ui.screens.feed.RetryButton
 import org.listenbrainz.android.ui.screens.profile.createdforyou.formatDateLegacy
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.Utils.shareLink
 import org.listenbrainz.android.viewmodel.UserViewModel
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -52,6 +57,7 @@ fun UserPlaylistScreen(
     userViewModel: UserViewModel
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val uiState by userViewModel.uiState.collectAsState()
     val userPlaylistsData = uiState.playlistTabUIState.userPlaylists.collectAsLazyPagingItems()
     val collabPlaylistsData = uiState.playlistTabUIState.collabPlaylists.collectAsLazyPagingItems()
@@ -95,7 +101,6 @@ fun UserPlaylistScreen(
         },
         isCurrentScreenCollab = isCurrentScreenCollab,
         currentPlaylistView = currentPlaylistView,
-        currentSortType = uiState.playlistTabUIState.currentSortType,
         onPlaylistSectionClick = {
             isCurrentScreenCollab = false
         },
@@ -109,15 +114,59 @@ fun UserPlaylistScreen(
                 currentPlaylistView = PlaylistView.LIST
             }
         },
-        onSortTypeChange = { sortType ->
-            userViewModel.changeSortType(sortType)
-        },
         onClickPlaylist = { playlist ->
             Toast.makeText(
                 context,
                 "Yet to be implemented",
                 Toast.LENGTH_SHORT
             ).show()
+        },
+        onRetry = {
+            collabPlaylistsData.refresh()
+            userPlaylistsData.refresh()
+        },
+        isUserSelf = uiState.isSelf,
+        onDropdownItemClick = { menuItem, playlist ->
+            when (menuItem) {
+                PlaylistDropdownItems.DUPLICATE -> {
+                    userViewModel.saveCreatedForPlaylist(
+                        playlist.getPlaylistMBID(),
+                        onCompletion = {
+                            scope.launch {
+                                snackbarState.showSnackbar(it)
+                            }
+                            collabPlaylistsData.refresh()
+                            userPlaylistsData.refresh()
+                        }
+                    )
+                }
+
+                PlaylistDropdownItems.DELETE -> {
+                    Toast.makeText(
+                        context,
+                        "Yet to be implemented",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+
+                PlaylistDropdownItems.SHARE -> {
+                    if (playlist.identifier != null) {
+                        shareLink(context, playlist.identifier)
+                    } else {
+                        scope.launch {
+                            snackbarState.showSnackbar("Link not found")
+                        }
+                    }
+                }
+
+                PlaylistDropdownItems.EDIT -> {
+                    Toast.makeText(
+                        context,
+                        "Yet to be implemented",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
         }
     )
 }
@@ -128,18 +177,19 @@ fun UserPlaylistScreen(
 private fun UserPlaylistScreenBase(
     pullRefreshState: PullRefreshState,
     isRefreshing: Boolean,
+    isUserSelf: Boolean,
     userPlaylistDataSize: Int,
     collabPlaylistDataSize: Int,
     isCurrentScreenCollab: Boolean,
     getUserPlaylist: (Int) -> UserPlaylist?,
     getCollabPlaylist: (Int) -> UserPlaylist?,
     currentPlaylistView: PlaylistView,
-    currentSortType: PlaylistSortType,
     onPlaylistSectionClick: () -> Unit,
     onCollabSectionClick: () -> Unit,
     onClickPlaylistViewChange: () -> Unit,
-    onSortTypeChange: (PlaylistSortType) -> Unit,
-    onClickPlaylist: (UserPlaylist) -> Unit
+    onClickPlaylist: (UserPlaylist) -> Unit,
+    onRetry: () -> Unit,
+    onDropdownItemClick: (PlaylistDropdownItems, UserPlaylist) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -153,11 +203,9 @@ private fun UserPlaylistScreenBase(
                 modifier = Modifier.fillMaxWidth(),
                 playlistType = if (isCurrentScreenCollab) PlaylistType.COLLABORATIVE else PlaylistType.USER_PLAYLIST,
                 playlistView = currentPlaylistView,
-                currentSortType = currentSortType,
                 onUserPlaylistClick = onPlaylistSectionClick,
                 onCollabPlaylistClick = onCollabSectionClick,
                 onClickPlaylistViewChange = onClickPlaylistViewChange,
-                onSortTypeChange = onSortTypeChange
             )
             AnimatedContent(isCurrentScreenCollab) { isCurrentScreenCollab ->
                 if ((isCurrentScreenCollab && collabPlaylistDataSize != 0) || (!isCurrentScreenCollab && userPlaylistDataSize != 0)) {
@@ -179,12 +227,16 @@ private fun UserPlaylistScreenBase(
                                                 modifier = Modifier,
                                                 title = playlist.title ?: "",
                                                 updatedDate = formatDateLegacy(
-                                                    playlist.extension.createdForYouExtensionData.lastModifiedAt ?: "",
+                                                    playlist.extension.createdForYouExtensionData.lastModifiedAt
+                                                        ?: "",
                                                     showTime = false
                                                 ),
-                                                onClickOptionsButton = {},
-                                                onClickCard = { onClickPlaylist(playlist)},
+                                                onClickCard = { onClickPlaylist(playlist) },
                                                 coverArt = playlist.coverArt,
+                                                onDropdownClick = {
+                                                    onDropdownItemClick(it, playlist)
+                                                },
+                                                isUserSelf = isUserSelf
                                             )
                                             Spacer(modifier = Modifier.height(8.dp))
                                         }
@@ -207,11 +259,17 @@ private fun UserPlaylistScreenBase(
                                             PlaylistGridViewCard(
                                                 modifier = Modifier,
                                                 title = playlist.title ?: "",
-                                                updatedDate = formatDateLegacy(playlist.extension.createdForYouExtensionData.lastModifiedAt ?: "",
-                                                    showTime = false),
-                                                onClickOptionsButton = {},
+                                                updatedDate = formatDateLegacy(
+                                                    playlist.extension.createdForYouExtensionData.lastModifiedAt
+                                                        ?: "",
+                                                    showTime = false
+                                                ),
                                                 onClickCard = { onClickPlaylist(playlist) },
                                                 coverArt = playlist.coverArt,
+                                                onDropdownClick = {
+                                                    onDropdownItemClick(it, playlist)
+                                                },
+                                                isUserSelf = isUserSelf
                                             )
                                         }
                                     }
@@ -219,16 +277,27 @@ private fun UserPlaylistScreenBase(
                             }
                         }
                     }
-                }else{
+                } else {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "No Playlists Found",
-                            color = ListenBrainzTheme.colorScheme.listenText,
-                            style = ListenBrainzTheme.textStyles.listenTitle
-                        )
+                        if (!isRefreshing) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "No Playlists Found",
+                                    color = ListenBrainzTheme.colorScheme.listenText,
+                                    style = ListenBrainzTheme.textStyles.listenTitle
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                RetryButton {
+                                    onRetry()
+                                }
+                            }
+
+                        }
                     }
                 }
             }
@@ -250,11 +319,9 @@ private fun PlaylistScreenTopSection(
     modifier: Modifier,
     playlistType: PlaylistType,
     playlistView: PlaylistView,
-    currentSortType: PlaylistSortType = PlaylistSortType.RANDOM,
     onUserPlaylistClick: () -> Unit,
     onCollabPlaylistClick: () -> Unit,
     onClickPlaylistViewChange: () -> Unit,
-    onSortTypeChange: (PlaylistSortType) -> Unit
 ) {
     Box(
         modifier = modifier
@@ -281,9 +348,6 @@ private fun PlaylistScreenTopSection(
         Row(
             modifier = Modifier.align(Alignment.CenterEnd)
         ) {
-            IconButton(
-                onClick = {}
-            ) { }
             IconButton(
                 onClick = { onClickPlaylistViewChange() }
             ) {
@@ -338,12 +402,14 @@ fun UserPlaylistScreenPreview() {
             collabPlaylistDataSize = 20,
             isCurrentScreenCollab = true,
             currentPlaylistView = PlaylistView.GRID,
-            currentSortType = PlaylistSortType.RANDOM,
             onPlaylistSectionClick = {},
             onCollabSectionClick = {},
             onClickPlaylistViewChange = { },
-            onSortTypeChange = { },
-            onClickPlaylist = { }
+            onClickPlaylist = { },
+            onRetry = {},
+            onDropdownItemClick = { it, it2 ->
+            },
+            isUserSelf = true
         )
     }
 }

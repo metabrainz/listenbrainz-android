@@ -18,6 +18,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
@@ -38,9 +42,13 @@ fun PlaylistGridViewCard(
     title: String,
     updatedDate: String,
     @DrawableRes errorCoverArt: Int = R.drawable.playlist_card_bg1,
-    onClickOptionsButton: () -> Unit,
-    onClickCard: () -> Unit
+    onClickCard: () -> Unit,
+    onDropdownClick: (PlaylistDropdownItems)->Unit,
+    isUserSelf: Boolean
 ) {
+    var isDropdownEnabled by remember {
+        mutableStateOf(false)
+    }
     Card(
         onClick = onClickCard,
         shape = ListenBrainzTheme.shapes.listenCardSmall,
@@ -86,7 +94,7 @@ fun PlaylistGridViewCard(
                             modifier = Modifier.weight(1f)
                         )
                         IconButton(modifier = Modifier.width(40.dp), onClick = {
-                            onClickOptionsButton()
+                            isDropdownEnabled = !isDropdownEnabled
                         }) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_options),
@@ -95,7 +103,14 @@ fun PlaylistGridViewCard(
                         }
 
                     }
-
+                    PlaylistDropdownMenu(
+                        expanded = isDropdownEnabled,
+                        onDismiss = { isDropdownEnabled = false },
+                        onItemClick = {
+                        onDropdownClick(it)
+                        },
+                        isPrivateAllowed = isUserSelf
+                    )
                 }
             }
         }
@@ -109,9 +124,13 @@ fun PlaylistListViewCard(
     title: String,
     updatedDate: String,
     @DrawableRes errorCoverArt: Int = R.drawable.playlist_card_bg1,
-    onClickOptionsButton: () -> Unit,
-    onClickCard: () -> Unit
+    onDropdownClick: (PlaylistDropdownItems) -> Unit,
+    onClickCard: () -> Unit,
+    isUserSelf: Boolean
 ) {
+    var isDropdownEnabled by remember {
+        mutableStateOf(false)
+    }
     ListenCardSmall(
         modifier = modifier,
         trackName="",
@@ -149,7 +168,17 @@ fun PlaylistListViewCard(
             onClickCard()
         },
         dropDown = {
-
+            PlaylistDropdownMenu(
+                expanded = isDropdownEnabled,
+                onDismiss = { isDropdownEnabled = false },
+                onItemClick = {
+                    onDropdownClick(it)
+                },
+                isPrivateAllowed = isUserSelf
+            )
+        },
+        onDropdownIconClick = {
+            isDropdownEnabled = !isDropdownEnabled
         }
     )
 }
@@ -160,11 +189,15 @@ fun PlaylistListViewCard(
 @Composable
 fun PlaylistGridViewCardPreview() {
     ListenBrainzTheme {
-        PlaylistGridViewCard(modifier = Modifier,
+        PlaylistGridViewCard(
+            modifier = Modifier,
             coverArt = null,
             title = "Copy of weekly exploration of hemang-mishra",
             updatedDate = "Feb 9",
-            onClickOptionsButton = {}) {}
+            onClickCard = {  },
+            onDropdownClick = { },
+            isUserSelf = false
+        )
     }
 }
 
@@ -178,6 +211,9 @@ fun PlaylistListViewCardPreview() {
             coverArt = null,
             title = "Copy of weekly exploration of hemang-mishra",
             updatedDate = "Feb 9",
-            onClickOptionsButton = {}) {}
+            onClickCard = {},
+            onDropdownClick = {},
+            isUserSelf = false
+        )
     }
 }
