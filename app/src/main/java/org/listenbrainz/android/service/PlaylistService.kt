@@ -23,4 +23,7 @@ interface PlaylistService {
         @Path("dimension") dimension: Int,
         @Path("layout") layout: Int
     ): Call<ResponseBody>
+
+    @POST("playlist/{playlist_mbid}/delete")
+    suspend fun deletePlaylist(@Path("playlist_mbid") playlistMbid: String): Response<Unit>
 }

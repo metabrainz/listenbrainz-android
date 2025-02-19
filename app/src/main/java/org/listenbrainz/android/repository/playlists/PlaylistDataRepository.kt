@@ -12,6 +12,8 @@ interface PlaylistDataRepository {
     //Duplicates the playlist with the given MBID and returns the new playlist MBID
     suspend fun copyPlaylist(playlistMbid: String?): Resource<CopyPlaylistResponse?>
 
+    suspend fun deletePlaylist(playlistMbid: String?): Resource<Unit>
+
     //Gets cover art of a particular playlist
     suspend fun getPlaylistCoverArt(
         playlistMBID: String,

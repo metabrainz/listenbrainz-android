@@ -527,6 +527,20 @@ class UserViewModel @Inject constructor(
         }
     }
 
+    fun deleltePlaylist(
+        playlistMbid: String?,
+        onCompletion: (String) -> Unit
+    ){
+        viewModelScope.launch(ioDispatcher) {
+            val result = playlistDataRepository.deletePlaylist(playlistMbid)
+            if(result.status == Resource.Status.SUCCESS){
+                onCompletion("Playlist deleted successfully")
+            } else {
+                emitError(result.error)
+            }
+        }
+    }
+
     override val uiState: StateFlow<ProfileUiState> = createUiStateFlow()
 
 

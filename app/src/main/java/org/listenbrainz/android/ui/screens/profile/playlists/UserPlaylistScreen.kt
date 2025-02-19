@@ -142,11 +142,16 @@ fun UserPlaylistScreen(
                 }
 
                 PlaylistDropdownItems.DELETE -> {
-                    Toast.makeText(
-                        context,
-                        "Yet to be implemented",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    userViewModel.deleltePlaylist(
+                        playlist.getPlaylistMBID(),
+                        onCompletion = {
+                            scope.launch {
+                                snackbarState.showSnackbar(it)
+                            }
+                            collabPlaylistsData.refresh()
+                            userPlaylistsData.refresh()
+                        }
+                    )
                 }
 
                 PlaylistDropdownItems.SHARE -> {

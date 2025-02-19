@@ -25,6 +25,12 @@ class PlaylistDataRepositoryImpl @Inject constructor(
             playlistService.copyPlaylist(playlistMbid)
         }
 
+    override suspend fun deletePlaylist(playlistMbid: String?): Resource<Unit> =
+        parseResponse {
+            if (playlistMbid.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
+            playlistService.deletePlaylist(playlistMbid)
+        }
+
     override suspend fun getPlaylistCoverArt(
         playlistMBID: String,
         dimension: Int,

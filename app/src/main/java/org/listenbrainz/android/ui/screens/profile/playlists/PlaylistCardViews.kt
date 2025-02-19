@@ -108,6 +108,7 @@ fun PlaylistGridViewCard(
                         onDismiss = { isDropdownEnabled = false },
                         onItemClick = {
                         onDropdownClick(it)
+                            isDropdownEnabled = false
                         },
                         isPrivateAllowed = isUserSelf
                     )
@@ -173,6 +174,7 @@ fun PlaylistListViewCard(
                 onDismiss = { isDropdownEnabled = false },
                 onItemClick = {
                     onDropdownClick(it)
+                    isDropdownEnabled = false
                 },
                 isPrivateAllowed = isUserSelf
             )
