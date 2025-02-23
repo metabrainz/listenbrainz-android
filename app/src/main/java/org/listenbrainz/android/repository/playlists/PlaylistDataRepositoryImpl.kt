@@ -2,7 +2,8 @@ package org.listenbrainz.android.repository.playlists
 
 import jakarta.inject.Inject
 import org.listenbrainz.android.model.ResponseError
-import org.listenbrainz.android.model.playlist.CopyPlaylistResponse
+import org.listenbrainz.android.model.playlist.AddCopyPlaylistResponse
+import org.listenbrainz.android.model.playlist.EditPlaylistResponse
 import org.listenbrainz.android.model.playlist.PlaylistPayload
 import org.listenbrainz.android.service.PlaylistService
 import org.listenbrainz.android.util.Resource
@@ -19,7 +20,7 @@ class PlaylistDataRepositoryImpl @Inject constructor(
             playlistService.getPlaylist(playlistMbid)
         }
 
-    override suspend fun copyPlaylist(playlistMbid: String?): Resource<CopyPlaylistResponse?> =
+    override suspend fun copyPlaylist(playlistMbid: String?): Resource<AddCopyPlaylistResponse?> =
         parseResponse {
             if (playlistMbid.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
             playlistService.copyPlaylist(playlistMbid)
@@ -47,6 +48,25 @@ class PlaylistDataRepositoryImpl @Inject constructor(
             }
         } catch (e: Exception) {
             Resource(Resource.Status.FAILED, null)
+        }
+    }
+
+    override suspend fun addPlaylist(playlistPayload: PlaylistPayload): Resource<AddCopyPlaylistResponse?> {
+        return parseResponse {
+            if(playlistPayload.playlist.title.isNullOrEmpty())
+                return ResponseError.BAD_REQUEST.asResource()
+            playlistService.createPlaylist(playlistPayload)
+        }
+    }
+
+    override suspend fun editPlaylist(
+        playlistPayload: PlaylistPayload,
+        playlistMbid: String?
+    ): Resource<EditPlaylistResponse?> {
+        return parseResponse {
+            if(playlistMbid.isNullOrEmpty())
+                return ResponseError.BAD_REQUEST.asResource()
+            playlistService.editPlaylist(playlistPayload, playlistMbid)
         }
     }
 
