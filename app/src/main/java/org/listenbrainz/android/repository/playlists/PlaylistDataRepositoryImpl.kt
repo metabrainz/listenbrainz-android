@@ -7,6 +7,7 @@ import org.listenbrainz.android.model.playlist.PlaylistPayload
 import org.listenbrainz.android.service.PlaylistService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.parseResponse
+import retrofit2.awaitResponse
 
 class PlaylistDataRepositoryImpl @Inject constructor(
     private val playlistService: PlaylistService
@@ -18,8 +19,35 @@ class PlaylistDataRepositoryImpl @Inject constructor(
             playlistService.getPlaylist(playlistMbid)
         }
 
-    override suspend fun copyPlaylist(playlistMbid: String?): Resource<CopyPlaylistResponse?> = parseResponse {
-        if (playlistMbid.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
-        playlistService.copyPlaylist(playlistMbid)
+    override suspend fun copyPlaylist(playlistMbid: String?): Resource<CopyPlaylistResponse?> =
+        parseResponse {
+            if (playlistMbid.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
+            playlistService.copyPlaylist(playlistMbid)
+        }
+
+    override suspend fun deletePlaylist(playlistMbid: String?): Resource<Unit> =
+        parseResponse {
+            if (playlistMbid.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
+            playlistService.deletePlaylist(playlistMbid)
+        }
+
+    override suspend fun getPlaylistCoverArt(
+        playlistMBID: String,
+        dimension: Int,
+        layout: Int
+    ): Resource<String?> {
+        return try {
+            val response =
+                playlistService.getPlaylistCoverArt(playlistMBID, dimension, layout).awaitResponse()
+            if (response.isSuccessful) {
+                val svgData = response.body()?.string()
+                Resource(Resource.Status.SUCCESS, svgData, null)
+            } else {
+                Resource(Resource.Status.FAILED, null)
+            }
+        } catch (e: Exception) {
+            Resource(Resource.Status.FAILED, null)
+        }
     }
+
 }

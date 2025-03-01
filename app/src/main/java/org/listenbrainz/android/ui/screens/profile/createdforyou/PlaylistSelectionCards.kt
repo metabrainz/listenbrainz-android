@@ -6,10 +6,8 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -17,9 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -37,10 +33,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.createdForYou.AdditionalMetadata
-import org.listenbrainz.android.model.createdForYou.CreatedForYouExtensionData
-import org.listenbrainz.android.model.createdForYou.CreatedForYouPlaylist
-import org.listenbrainz.android.model.createdForYou.Extension
+import org.listenbrainz.android.model.userPlaylist.AdditionalMetadata
+import org.listenbrainz.android.model.userPlaylist.UserPlaylistExtensionData
+import org.listenbrainz.android.model.userPlaylist.UserPlaylist
+import org.listenbrainz.android.model.userPlaylist.Extension
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import java.text.SimpleDateFormat
@@ -57,10 +53,10 @@ import java.util.TimeZone
 @Composable
 fun PlaylistSelectionCardRow(
     modifier: Modifier,
-    selectedPlaylist: CreatedForYouPlaylist? = null,
-    playlists: List<CreatedForYouPlaylist>,
-    onSaveClick: (CreatedForYouPlaylist) -> Unit,
-    onPlaylistSelect: (CreatedForYouPlaylist) -> Unit
+    selectedPlaylist: UserPlaylist? = null,
+    playlists: List<UserPlaylist>,
+    onSaveClick: (UserPlaylist) -> Unit,
+    onPlaylistSelect: (UserPlaylist) -> Unit
 ) {
     LazyRow(
         modifier = modifier,
@@ -254,24 +250,24 @@ fun ProgressCirclePreview() {
 @Preview(showBackground = true, uiMode =  UI_MODE_NIGHT_YES)
 @Composable
 fun PlaylistTitleCardRowPreview() {
-    var selectedPlaylist by remember { mutableStateOf<CreatedForYouPlaylist?>(null) }
+    var selectedPlaylist by remember { mutableStateOf<UserPlaylist?>(null) }
     ListenBrainzTheme {
-        val playlist1 = CreatedForYouPlaylist(
+        val playlist1 = UserPlaylist(
             title = "Weekly Exploration for hemang-mishra, week of 2025-01-13 Mon",
             date = "2025-01-13T00:07:44.741098+00:00",
             extension = Extension(
-                createdForYouExtensionData = CreatedForYouExtensionData(
+                createdForYouExtensionData = UserPlaylistExtensionData(
                     additionalMetadata = AdditionalMetadata(
                         expiresAt = "2025-01-27T00:07:41.737783"
                     )
                 )
             )
         )
-        val playlist2 = CreatedForYouPlaylist(
+        val playlist2 = UserPlaylist(
             title = "Weekly Exploration for hemang-mishra, week of 2025-01-06 Mon",
             date = "2025-01-06T00:14:18.151711+00:00",
             extension = Extension(
-                createdForYouExtensionData = CreatedForYouExtensionData(
+                createdForYouExtensionData = UserPlaylistExtensionData(
                     additionalMetadata = AdditionalMetadata(
                         expiresAt = "2025-01-20T00:14:15.895660"
                     )
@@ -283,7 +279,7 @@ fun PlaylistTitleCardRowPreview() {
             playlists = listOf(
                 playlist1,
                 playlist2,
-                CreatedForYouPlaylist(title = "Last Week's Exploration")
+                UserPlaylist(title = "Last Week's Exploration")
             ),
             selectedPlaylist = selectedPlaylist,
             onSaveClick = {},
@@ -295,7 +291,7 @@ fun PlaylistTitleCardRowPreview() {
 }
 
 //This function provides a shorter title to created for playlists.
-fun modifyTitle(createdForYouPlaylist: CreatedForYouPlaylist): String{
+fun modifyTitle(createdForYouPlaylist: UserPlaylist): String{
     if(createdForYouPlaylist.title == null) return "No title"
     if(!createdForYouPlaylist.title.contains("Weekly Exploration")) return createdForYouPlaylist.title
     val millis = convertISOTimeStampToMillis(createdForYouPlaylist.date ?: "")

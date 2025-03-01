@@ -2,7 +2,7 @@ package org.listenbrainz.sharedtest.mocks
 
 import org.listenbrainz.android.model.CurrentPins
 import org.listenbrainz.android.model.Listens
-import org.listenbrainz.android.model.createdForYou.CreatedForYouPayload
+import org.listenbrainz.android.model.userPlaylist.UserPlaylistPayload
 import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.TopAlbums
 import org.listenbrainz.android.model.user.TopArtists
@@ -79,8 +79,24 @@ class MockUserRepository : UserRepository {
         return Resource(Resource.Status.SUCCESS, topSongsTestData)
     }
 
-    override suspend fun getCreatedForYouPlaylists(username: String?): Resource<CreatedForYouPayload> {
+    override suspend fun getCreatedForYouPlaylists(username: String?): Resource<UserPlaylistPayload> {
         return Resource(Resource.Status.SUCCESS, createdForYouPlaylistsTestData)
+    }
+
+    override suspend fun getUserPlaylists(
+        username: String?,
+        offset: Int,
+        count: Int
+    ): Resource<UserPlaylistPayload> {
+        return Resource(Resource.Status.SUCCESS, createdForYouPlaylistsTestData)
+    }
+
+    override suspend fun getUserCollabPlaylists(
+        username: String?,
+        offset: Int,
+        count: Int
+    ): Resource<UserPlaylistPayload> {
+        return Resource(Resource.Status.FAILED, createdForYouPlaylistsTestData)
     }
 
 }
