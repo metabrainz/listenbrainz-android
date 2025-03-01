@@ -44,6 +44,7 @@ fun AppNavigation(
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
     snackbarState: SnackbarHostState,
+    user: String
 ) {
     fun NavOptionsBuilder.defaultNavOptions() {
         // Avoid building large backstack
@@ -57,7 +58,7 @@ fun AppNavigation(
     }
 
     fun goToUserProfile(username: String) {
-        navController.navigate("${AppNavigationItem.Profile.route}/${username}")
+        navController.navigate("${AppNavigationItem.Profile.route}/${if(username=="You")user else username}")
     }
 
     fun goToArtistPage(mbid: String) {

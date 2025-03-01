@@ -372,19 +372,21 @@ private fun Dialogs(
         }
         Dialog.REVIEW -> {
             val metadata = pagingSource[currentEventIndex!!]?.event?.metadata
-            ReviewDialog(
-                trackName = metadata?.trackMetadata?.trackName
-                    ?: if (metadata?.entityType == ReviewEntityType.RECORDING.code) metadata.entityName else return,
-                artistName = metadata.trackMetadata?.artistName
-                    ?: if (metadata.entityType == ReviewEntityType.ARTIST.code) metadata.entityName else null,
-                releaseName = metadata.trackMetadata?.releaseName
-                    ?: if (metadata.entityType == ReviewEntityType.RELEASE_GROUP.code) metadata.entityName else null,
-                onDismiss = deactivateDialog,
-                isCritiqueBrainzLinked = callbacks.isCritiqueBrainzLinked,
-                onSubmit = { type, blurbContent, rating, locale ->
-                    callbacks.onReview(pagingSource[currentEventIndex]?.event!!, type, blurbContent, rating, locale)
-                }
-            )
+            if (metadata != null) {
+                ReviewDialog(
+                    trackName = metadata.trackMetadata?.trackName
+                        ?: if (metadata.entityType == ReviewEntityType.RECORDING.code) metadata.entityName else return,
+                    artistName = metadata.trackMetadata?.artistName
+                        ?: if (metadata.entityType == ReviewEntityType.ARTIST.code) metadata.entityName else null,
+                    releaseName = metadata.trackMetadata?.releaseName
+                        ?: if (metadata.entityType == ReviewEntityType.RELEASE_GROUP.code) metadata.entityName else null,
+                    onDismiss = deactivateDialog,
+                    isCritiqueBrainzLinked = callbacks.isCritiqueBrainzLinked,
+                    onSubmit = { type, blurbContent, rating, locale ->
+                        callbacks.onReview(pagingSource[currentEventIndex]?.event!!, type, blurbContent, rating, locale)
+                    }
+                )
+            }
         }
     }
 }
