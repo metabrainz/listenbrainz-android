@@ -314,7 +314,6 @@ private fun UserPlaylistScreenBase(
             backgroundColor = ListenBrainzTheme.colorScheme.level1,
             state = pullRefreshState
         )
-
     }
 }
 
@@ -327,51 +326,44 @@ private fun PlaylistScreenTopSection(
     onCollabPlaylistClick: () -> Unit,
     onClickPlaylistViewChange: () -> Unit,
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth(0.7f)
-                .align(Alignment.CenterStart)
+    Row(modifier = modifier) {
+        ToggleChips(
+            modifier = Modifier.weight(1f),
+            currentPageStateProvider = { if (playlistType == PlaylistType.USER_PLAYLIST) 0 else 1 },
+            chips = remember {
+                listOf("User Playlist", "Collaborative")
+            },
+            onClick = {
+                when (it) {
+                    0 -> onUserPlaylistClick()
+                    1 -> onCollabPlaylistClick()
+                }
+            },
+            icons = remember {
+                listOf(null, R.drawable.playlist_collab)
+            }
+        )
+        
+        IconButton(
+            modifier = Modifier,
+            onClick = onClickPlaylistViewChange
         ) {
-            ToggleChips(
-                modifier = Modifier,
-                currentPageStateProvider = { if (playlistType == PlaylistType.USER_PLAYLIST) 0 else 1 },
-                chips = listOf("User Playlist", "Collaborative"),
-                onClick = {
-                    when (it) {
-                        0 -> onUserPlaylistClick()
-                        1 -> onCollabPlaylistClick()
+            AnimatedContent(playlistView) {
+                when (it) {
+                    PlaylistView.GRID -> {
+                        Icon(
+                            painter = painterResource(R.drawable.playlist_listview),
+                            tint = ListenBrainzTheme.colorScheme.followerChipSelected,
+                            contentDescription = "List View of Playlist Screen"
+                        )
                     }
-                },
-                icons = listOf(null, R.drawable.playlist_collab)
-            )
-        }
-        Row(
-            modifier = Modifier.align(Alignment.CenterEnd)
-        ) {
-            IconButton(
-                onClick = { onClickPlaylistViewChange() }
-            ) {
-                AnimatedContent(playlistView) {
-                    when (it) {
-                        PlaylistView.GRID -> {
-                            Icon(
-                                painter = painterResource(R.drawable.playlist_listview),
-                                tint = ListenBrainzTheme.colorScheme.followerChipSelected,
-                                contentDescription = "List View of Playlist Screen"
-                            )
-                        }
 
-                        PlaylistView.LIST -> {
-                            Icon(
-                                painter = painterResource(R.drawable.playlist_gridview),
-                                tint = ListenBrainzTheme.colorScheme.followerChipSelected,
-                                contentDescription = "Grid View of Playlist Screen"
-                            )
-                        }
+                    PlaylistView.LIST -> {
+                        Icon(
+                            painter = painterResource(R.drawable.playlist_gridview),
+                            tint = ListenBrainzTheme.colorScheme.followerChipSelected,
+                            contentDescription = "Grid View of Playlist Screen"
+                        )
                     }
                 }
             }

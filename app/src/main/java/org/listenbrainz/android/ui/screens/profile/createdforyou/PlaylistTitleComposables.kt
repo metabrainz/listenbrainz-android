@@ -194,7 +194,9 @@ fun formatDateLegacy(inputDate: String, showTime: Boolean = true): String {
     // Parse the input date string
     val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.ENGLISH)
     isoFormat.timeZone = TimeZone.getTimeZone("UTC")
-    val date = isoFormat.parse(inputDate) ?: return ""
+    val date = runCatching {
+        isoFormat.parse(inputDate) ?: return ""
+    }.getOrElse { return "" }
 
     // Get current year and the year from the input date
     val calendar = Calendar.getInstance()
