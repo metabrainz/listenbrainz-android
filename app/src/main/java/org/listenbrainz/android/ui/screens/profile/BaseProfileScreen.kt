@@ -64,6 +64,7 @@ fun BaseProfileScreen(
     listensViewModel: ListensViewModel = hiltViewModel(),
     socialViewModel: SocialViewModel = hiltViewModel(),
     goToArtistPage: (String) -> Unit,
+    goToAddEditPlaylistScreen: (String?)->Unit
 ) {
     val pagerState = rememberPagerState { ProfileScreenTab.entries.size }
     val scope = rememberCoroutineScope()
@@ -226,7 +227,8 @@ fun BaseProfileScreen(
 
                         ProfileScreenTab.PLAYLISTS.index -> UserPlaylistScreen(
                             snackbarState = snackbarState,
-                            userViewModel = viewModel
+                            userViewModel = viewModel,
+                            goToAddEditPlaylistScreen = goToAddEditPlaylistScreen
                         )
                     }
                 }
