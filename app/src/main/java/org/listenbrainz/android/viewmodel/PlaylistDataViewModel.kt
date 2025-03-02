@@ -2,7 +2,6 @@ package org.listenbrainz.android.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,19 +22,22 @@ import org.listenbrainz.android.model.playlist.PlaylistData
 import org.listenbrainz.android.model.playlist.PlaylistExtensionData
 import org.listenbrainz.android.model.playlist.PlaylistPayload
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.ui.screens.playlist.CreateEditScreenUIState
 import org.listenbrainz.android.ui.screens.playlist.PlaylistDataUIState
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils
+import javax.inject.Inject
 
 @HiltViewModel
 class PlaylistDataViewModel @Inject constructor(
+    val appPreferences: AppPreferences,
     private val repository: PlaylistDataRepository,
     private val socialRepository: SocialRepository,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : BaseViewModel<PlaylistDataUIState>() {
-
+    private var username: String? = null
     private val inputQueryFlow = MutableStateFlow("")
 
     @OptIn(FlowPreview::class)
@@ -68,8 +70,8 @@ class PlaylistDataViewModel @Inject constructor(
 
     fun getInitialData(mbid: String?) {
         var playlist = PlaylistData()
-
         viewModelScope.launch(ioDispatcher) {
+            username = appPreferences.username.get()
             if (mbid == null) {
                 createEditScreenUIStateFlow.emit(createEditScreenUIStateFlow.value.copy(isLoading = false))
                 return@launch
@@ -93,8 +95,7 @@ class PlaylistDataViewModel @Inject constructor(
                 //Fetch data from API
                 getDataOfPlaylist(mbid, onError = {
                     emitError(it)
-                }, onSuccess = {
-                    playlist->
+                }, onSuccess = { playlist ->
                     createEditScreenUIStateFlow.emit(
                         createEditScreenUIStateFlow.value.copy(
                             playlistData = playlist,
@@ -143,7 +144,7 @@ class PlaylistDataViewModel @Inject constructor(
                     name = name ?: createEditScreenUIStateFlow.value.name,
                     description = description ?: createEditScreenUIStateFlow.value.description,
                     isPublic = isPublic ?: createEditScreenUIStateFlow.value.isPublic,
-                    collaboratorSelected = collaborators
+                    collaboratorSelected = collaborators?.distinct()?.filter { it != username }
                         ?: createEditScreenUIStateFlow.value.collaboratorSelected,
                     emptyTitleFieldError = false
                 )
@@ -159,8 +160,12 @@ class PlaylistDataViewModel @Inject constructor(
 
     fun saveNewOrEditedPlaylist(onSuccess: (String) -> Unit) {
         viewModelScope.launch(ioDispatcher) {
-            if(createEditScreenUIStateFlow.value.name.isEmpty()){
-                createEditScreenUIStateFlow.emit(createEditScreenUIStateFlow.value.copy(emptyTitleFieldError = true))
+            if (createEditScreenUIStateFlow.value.name.isEmpty()) {
+                createEditScreenUIStateFlow.emit(
+                    createEditScreenUIStateFlow.value.copy(
+                        emptyTitleFieldError = true
+                    )
+                )
                 return@launch
             }
             createEditScreenUIStateFlow.emit(createEditScreenUIStateFlow.value.copy(isSaving = true))

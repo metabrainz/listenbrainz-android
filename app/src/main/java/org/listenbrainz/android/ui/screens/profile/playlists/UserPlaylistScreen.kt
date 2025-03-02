@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.icons.Icons
@@ -246,7 +247,7 @@ private fun UserPlaylistScreenBase(
                                                 onDropdownClick = {
                                                     onDropdownItemClick(it, playlist)
                                                 },
-                                                isUserSelf = isUserSelf
+                                                canUserEdit = isUserSelf && !isCurrentScreenCollab
                                             )
                                             Spacer(modifier = Modifier.height(8.dp))
                                         }
@@ -279,7 +280,7 @@ private fun UserPlaylistScreenBase(
                                                 onDropdownClick = {
                                                     onDropdownItemClick(it, playlist)
                                                 },
-                                                isUserSelf = isUserSelf
+                                                canUserEdit = isUserSelf &&!isCurrentScreenCollab
                                             )
                                         }
                                     }
@@ -326,7 +327,9 @@ private fun UserPlaylistScreenBase(
                 onCreatePlaylistClick()
             },
             backgroundColor = lb_purple_night,
+            shape = RoundedCornerShape(16.dp),
             modifier = Modifier.align(Alignment.BottomEnd)
+                .padding(ListenBrainzTheme.paddings.defaultPadding)
         ) {
             Icon(Icons.Default.Add,
                 contentDescription = "Floating action button to create playlist",
