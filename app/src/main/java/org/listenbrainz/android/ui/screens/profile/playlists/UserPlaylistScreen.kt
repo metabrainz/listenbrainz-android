@@ -15,7 +15,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.PullRefreshState
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -33,6 +37,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,6 +51,7 @@ import org.listenbrainz.android.ui.components.ToggleChips
 import org.listenbrainz.android.ui.screens.feed.RetryButton
 import org.listenbrainz.android.ui.screens.profile.createdforyou.formatDateLegacy
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.util.Utils.shareLink
 import org.listenbrainz.android.viewmodel.UserViewModel
 
@@ -53,7 +59,8 @@ import org.listenbrainz.android.viewmodel.UserViewModel
 @Composable
 fun UserPlaylistScreen(
     snackbarState: SnackbarHostState,
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    goToAddEditPlaylistScreen: (String?)->Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -125,6 +132,9 @@ fun UserPlaylistScreen(
             userPlaylistsData.refresh()
         },
         isUserSelf = uiState.isSelf,
+        onCreatePlaylistClick = {
+            goToAddEditPlaylistScreen(null)
+        },
         onDropdownItemClick = { menuItem, playlist ->
             when (menuItem) {
                 PlaylistDropdownItems.DUPLICATE -> {
@@ -164,11 +174,7 @@ fun UserPlaylistScreen(
                 }
 
                 PlaylistDropdownItems.EDIT -> {
-                    Toast.makeText(
-                        context,
-                        "Yet to be implemented",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    goToAddEditPlaylistScreen(playlist.getPlaylistMBID())
                 }
             }
         }
@@ -193,7 +199,8 @@ private fun UserPlaylistScreenBase(
     onClickPlaylistViewChange: () -> Unit,
     onClickPlaylist: (UserPlaylist) -> Unit,
     onRetry: () -> Unit,
-    onDropdownItemClick: (PlaylistDropdownItems, UserPlaylist) -> Unit
+    onDropdownItemClick: (PlaylistDropdownItems, UserPlaylist) -> Unit,
+    onCreatePlaylistClick: ()->Unit
 ) {
     Box(
         modifier = Modifier
@@ -240,7 +247,7 @@ private fun UserPlaylistScreenBase(
                                                 onDropdownClick = {
                                                     onDropdownItemClick(it, playlist)
                                                 },
-                                                isUserSelf = isUserSelf
+                                                canUserEdit = isUserSelf && !isCurrentScreenCollab
                                             )
                                             Spacer(modifier = Modifier.height(8.dp))
                                         }
@@ -273,7 +280,7 @@ private fun UserPlaylistScreenBase(
                                                 onDropdownClick = {
                                                     onDropdownItemClick(it, playlist)
                                                 },
-                                                isUserSelf = isUserSelf
+                                                canUserEdit = isUserSelf &&!isCurrentScreenCollab
                                             )
                                         }
                                     }
@@ -314,6 +321,21 @@ private fun UserPlaylistScreenBase(
             backgroundColor = ListenBrainzTheme.colorScheme.level1,
             state = pullRefreshState
         )
+        
+        FloatingActionButton(
+            onClick = {
+                onCreatePlaylistClick()
+            },
+            backgroundColor = lb_purple_night,
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.align(Alignment.BottomEnd)
+                .padding(ListenBrainzTheme.paddings.defaultPadding)
+        ) {
+            Icon(Icons.Default.Add,
+                contentDescription = "Floating action button to create playlist",
+                tint = Color.White)
+        }
+
     }
 }
 
@@ -405,7 +427,8 @@ fun UserPlaylistScreenPreview() {
             onRetry = {},
             onDropdownItemClick = { it, it2 ->
             },
-            isUserSelf = true
+            isUserSelf = true,
+            onCreatePlaylistClick = { },
         )
     }
 }

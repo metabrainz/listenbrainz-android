@@ -1,6 +1,6 @@
 package org.listenbrainz.sharedtest.mocks
 
-import org.listenbrainz.android.model.playlist.CopyPlaylistResponse
+import org.listenbrainz.android.model.playlist.AddCopyPlaylistResponse
 import org.listenbrainz.android.model.playlist.PlaylistPayload
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.android.util.Resource
@@ -13,10 +13,10 @@ class MockPlaylistDataRepository : PlaylistDataRepository {
         return Resource(Resource.Status.SUCCESS, playlistDetailsTestData)
     }
 
-    override suspend fun copyPlaylist(playlistMbid: String?): Resource<CopyPlaylistResponse?> {
+    override suspend fun copyPlaylist(playlistMbid: String?): Resource<AddCopyPlaylistResponse?> {
         return Resource(
             Resource.Status.SUCCESS,
-            CopyPlaylistResponse("new_playlist_mbid", "Playlist copied successfully")
+            AddCopyPlaylistResponse("new_playlist_mbid", "Playlist copied successfully")
         )
     }
 

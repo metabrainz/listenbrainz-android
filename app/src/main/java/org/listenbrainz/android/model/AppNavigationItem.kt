@@ -12,5 +12,6 @@ sealed class AppNavigationItem(val route: String, @DrawableRes val iconUnselecte
     object About: AppNavigationItem("about", R.drawable.ic_info, R.drawable.ic_info, "About")
     object Artist: AppNavigationItem("artist", R.drawable.ic_artist, R.drawable.ic_artist,"Artist")
     object Album: AppNavigationItem("album", R.drawable.ic_album, R.drawable.ic_album, "Artist > Album")
+    object AddEditPlaylistScreen: AppNavigationItem("addEditPlaylistScreen", R.drawable.ic_queue_music, R.drawable.ic_queue_music, "Playlist")
 }
 

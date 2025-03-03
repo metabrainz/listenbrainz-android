@@ -1,6 +1,7 @@
 package org.listenbrainz.android.repository.playlists
 
-import org.listenbrainz.android.model.playlist.CopyPlaylistResponse
+import org.listenbrainz.android.model.playlist.AddCopyPlaylistResponse
+import org.listenbrainz.android.model.playlist.EditPlaylistResponse
 import org.listenbrainz.android.model.playlist.PlaylistPayload
 import org.listenbrainz.android.util.Resource
 
@@ -10,7 +11,7 @@ interface PlaylistDataRepository {
     suspend fun fetchPlaylist(playlistMbid: String?): Resource<PlaylistPayload?>
 
     //Duplicates the playlist with the given MBID and returns the new playlist MBID
-    suspend fun copyPlaylist(playlistMbid: String?): Resource<CopyPlaylistResponse?>
+    suspend fun copyPlaylist(playlistMbid: String?): Resource<AddCopyPlaylistResponse?>
 
     suspend fun deletePlaylist(playlistMbid: String?): Resource<Unit>
 
@@ -20,6 +21,14 @@ interface PlaylistDataRepository {
         dimension: Int = DEFAULT_PLAYLIST_GRID_SIZE,
         layout: Int = DEFAULT_LAYOUT
     ): Resource<String?>
+
+    //Function to add a playlist
+    suspend fun addPlaylist(playlistPayload: PlaylistPayload):
+            Resource<AddCopyPlaylistResponse?>
+
+    //Edit a playlist
+    suspend fun editPlaylist(playlistPayload: PlaylistPayload, playlistMbid: String?):
+            Resource<EditPlaylistResponse?>
 
     companion object {
         const val DEFAULT_PLAYLIST_GRID_SIZE = 3

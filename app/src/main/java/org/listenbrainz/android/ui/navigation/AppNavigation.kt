@@ -1,8 +1,6 @@
 package org.listenbrainz.android.ui.navigation
 
 import androidx.compose.animation.AnimatedContentScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -23,20 +21,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.navigation.navigation
 import kotlinx.coroutines.flow.first
-import okhttp3.Route
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.screens.album.AlbumScreen
 import org.listenbrainz.android.ui.screens.artist.ArtistScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen
 import org.listenbrainz.android.ui.screens.explore.ExploreScreen
 import org.listenbrainz.android.ui.screens.feed.FeedScreen
+import org.listenbrainz.android.ui.screens.playlist.CreateEditPlaylistScreen
 import org.listenbrainz.android.ui.screens.profile.LoginScreen
 import org.listenbrainz.android.ui.screens.profile.ProfileScreen
 import org.listenbrainz.android.ui.screens.settings.SettingsScreen
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
-import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
 fun AppNavigation(
@@ -68,6 +64,12 @@ fun AppNavigation(
 
     fun goToAlbumPage(mbid: String) {
         navController.navigate("album/${mbid}") {
+            defaultNavOptions()
+        }
+    }
+
+    fun goToAddEditPlaylistScreen(mbid: String?) {
+        navController.navigate("${AppNavigationItem.AddEditPlaylistScreen.route}/${mbid}"){
             defaultNavOptions()
         }
     }
@@ -119,6 +121,7 @@ fun AppNavigation(
                 snackbarState = snackbarState,
                 goToUserProfile = ::goToUserProfile,
                 goToArtistPage = ::goToArtistPage,
+                goToAddEditPlaylistScreen = ::goToAddEditPlaylistScreen
             )
         }
         appComposable(
@@ -165,6 +168,25 @@ fun AppNavigation(
             } else {
                 AlbumScreen(albumMbid = albumMbid, snackBarState = snackbarState)
             }
+        }
+
+        appComposable(
+            route = "${AppNavigationItem.AddEditPlaylistScreen.route}/{mbid}",
+            arguments = listOf(
+                navArgument("mbid") {
+                    type = NavType.StringType
+                    nullable = true
+                }
+            )
+        ) {
+            val playlistMbid = it.arguments?.getString("mbid")
+            CreateEditPlaylistScreen(
+                mbid = playlistMbid,
+                onNavigateUP = {
+                    navController.navigateUp()
+                },
+                snackbarHostState = snackbarState
+            )
         }
     }
 }
