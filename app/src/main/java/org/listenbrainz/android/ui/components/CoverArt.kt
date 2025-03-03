@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -50,16 +51,22 @@ fun CoverArtComposable(
         }
     } else {
         val context = LocalContext.current
-        val imageLinks = CoverArtImageLinkExtractor.extractImageLinks(coverArt).toMutableList()
-        val anchorLinks = CoverArtImageLinkExtractor.extractAnchorLinks(coverArt).toMutableList()
-        val noOfImages = CoverArtImageLinkExtractor.getImageCount(coverArt)
-        //Handling cases where number of images is less than the grid size required
-        if (noOfImages < gridSize * gridSize) {
-            for (i in 0 until gridSize * gridSize - noOfImages) {
-                imageLinks.add("")
-                anchorLinks.add("")
+        val (imageLinks, anchorLinks) = remember(coverArt) {
+            val noOfImages = CoverArtImageLinkExtractor.getImageCount(coverArt)
+            val imageLinks = CoverArtImageLinkExtractor.extractImageLinks(coverArt).toMutableList()
+            val anchorLinks = CoverArtImageLinkExtractor.extractAnchorLinks(coverArt).toMutableList()
+
+            //Handling cases where number of images is less than the grid size required
+            if (noOfImages < gridSize * gridSize) {
+                for (i in 0 until gridSize * gridSize - noOfImages) {
+                    imageLinks.add("")
+                    anchorLinks.add("")
+                }
             }
+
+            imageLinks.toList() to anchorLinks.toList()
         }
+
         Box(modifier) {
             ImageGridCover(
                 imageUrls = imageLinks, columns = gridSize, errorImage = errorImage,
