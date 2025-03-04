@@ -292,7 +292,7 @@ class MainActivity : ComponentActivity() {
                                 AppNavigation(
                                     navController = navController,
                                     scrollRequestState = scrollToTopState,
-                                    user = username?:"",
+                                    loggedInUsername = username ?: "",
                                     onScrollToTop = { scrollToTop ->
                                         scope.launch {
                                             if (scrollToTopState) {
