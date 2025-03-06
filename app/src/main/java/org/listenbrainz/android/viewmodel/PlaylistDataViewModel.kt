@@ -73,7 +73,7 @@ class PlaylistDataViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             username = appPreferences.username.get()
             if (mbid == null) {
-                createEditScreenUIStateFlow.emit(createEditScreenUIStateFlow.value.copy(isLoading = false))
+                createEditScreenUIStateFlow.emit(CreateEditScreenUIState(isLoading = false))
                 return@launch
             }
             createEditScreenUIStateFlow.emit(createEditScreenUIStateFlow.value.copy(isLoading = true))
