@@ -1,6 +1,5 @@
 package org.listenbrainz.android.model.feed
 
-import android.content.ActivityNotFoundException
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.runtime.Composable
@@ -355,10 +354,10 @@ enum class FeedEventType (
             withStyle(style = linkStyle){
                 append("$firstUsername ")
             }
-            
+            val annotation = feedEvent.metadata.user0 ?: feedEvent.username
             addStringAnnotation(
                 tag = "user0",
-                annotation = firstUsername,
+                annotation = annotation,
                 start = 0,
                 end = firstUsername.lastIndex + 1
             )
