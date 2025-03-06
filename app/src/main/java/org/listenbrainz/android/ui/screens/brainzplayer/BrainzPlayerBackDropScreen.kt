@@ -139,7 +139,7 @@ fun BrainzPlayerBackDropScreen(
 
     /** 56.dp is default bottom navigation height */
     val headerHeight by animateDpAsState(
-        targetValue = if (isLandscape) 0.dp else
+        targetValue = if (isLandscape) 28.dp else
             if (isNothingPlaying)
                 56.dp
             else
@@ -189,8 +189,10 @@ fun BrainzPlayerBackDropScreen(
             if (!isLandscape) {
                 SongViewPager(
                     modifier = Modifier.graphicsLayer {
-                        alpha =
-                            (backdropScaffoldState.requireOffset() / (maxDelta - headerHeight.toPx()))
+                        val safeMaxDelta = maxDelta.coerceAtLeast(1f)
+                        val safeHeaderHeight = headerHeight.toPx().coerceAtLeast(1f) 
+                        alpha = (backdropScaffoldState.requireOffset() / (safeMaxDelta - safeHeaderHeight))
+                            .coerceIn(0f, 1f)
                     },
                     songList = songList,
                     backdropScaffoldState = backdropScaffoldState,
@@ -198,6 +200,7 @@ fun BrainzPlayerBackDropScreen(
                     isLandscape = false
                 )
             }
+
         })
 }
 
