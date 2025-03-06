@@ -24,16 +24,20 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.PullRefreshState
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,18 +53,20 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.ui.components.ToggleChips
 import org.listenbrainz.android.ui.screens.feed.RetryButton
+import org.listenbrainz.android.ui.screens.playlist.CreateEditPlaylistScreen
 import org.listenbrainz.android.ui.screens.profile.createdforyou.formatDateLegacy
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.util.Utils.shareLink
+import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun UserPlaylistScreen(
     snackbarState: SnackbarHostState,
     userViewModel: UserViewModel,
-    goToAddEditPlaylistScreen: (String?)->Unit
+    playlistViewModel: PlaylistDataViewModel
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -82,6 +88,8 @@ fun UserPlaylistScreen(
             userPlaylistsData.loadState.refresh is LoadState.Loading
         }
     }
+    val sheetState = rememberModalBottomSheetState()
+    var isBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
 
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
@@ -93,6 +101,9 @@ fun UserPlaylistScreen(
             }
         }
     )
+    var currentMBID by remember {
+        mutableStateOf<String?>(null)
+    }
 
     UserPlaylistScreenBase(
         pullRefreshState = pullRefreshState,
@@ -133,7 +144,7 @@ fun UserPlaylistScreen(
         },
         isUserSelf = uiState.isSelf,
         onCreatePlaylistClick = {
-            goToAddEditPlaylistScreen(null)
+            isBottomSheetVisible = true
         },
         onDropdownItemClick = { menuItem, playlist ->
             when (menuItem) {
@@ -174,11 +185,34 @@ fun UserPlaylistScreen(
                 }
 
                 PlaylistDropdownItems.EDIT -> {
-                    goToAddEditPlaylistScreen(playlist.getPlaylistMBID())
+                    currentMBID = playlist.getPlaylistMBID()
+                    isBottomSheetVisible = true
                 }
             }
         }
     )
+
+    if (isBottomSheetVisible)
+        ModalBottomSheet(
+            onDismissRequest = {
+                currentMBID = null
+                isBottomSheetVisible = false
+            },
+            sheetState = sheetState
+        ) {
+            CreateEditPlaylistScreen(
+                viewModel = playlistViewModel,
+                snackbarHostState = snackbarState,
+                bottomSheetState = sheetState,
+                mbid = currentMBID
+            ) {
+                currentMBID = null
+                scope.launch {
+                    sheetState.hide()
+                    isBottomSheetVisible = false
+                }
+            }
+        }
 }
 
 
@@ -200,7 +234,7 @@ private fun UserPlaylistScreenBase(
     onClickPlaylist: (UserPlaylist) -> Unit,
     onRetry: () -> Unit,
     onDropdownItemClick: (PlaylistDropdownItems, UserPlaylist) -> Unit,
-    onCreatePlaylistClick: ()->Unit
+    onCreatePlaylistClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -280,7 +314,7 @@ private fun UserPlaylistScreenBase(
                                                 onDropdownClick = {
                                                     onDropdownItemClick(it, playlist)
                                                 },
-                                                canUserEdit = isUserSelf &&!isCurrentScreenCollab
+                                                canUserEdit = isUserSelf && !isCurrentScreenCollab
                                             )
                                         }
                                     }
@@ -321,19 +355,22 @@ private fun UserPlaylistScreenBase(
             backgroundColor = ListenBrainzTheme.colorScheme.level1,
             state = pullRefreshState
         )
-        
+
         FloatingActionButton(
             onClick = {
                 onCreatePlaylistClick()
             },
             backgroundColor = lb_purple_night,
             shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.align(Alignment.BottomEnd)
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
                 .padding(ListenBrainzTheme.paddings.defaultPadding)
         ) {
-            Icon(Icons.Default.Add,
+            Icon(
+                Icons.Default.Add,
                 contentDescription = "Floating action button to create playlist",
-                tint = Color.White)
+                tint = Color.White
+            )
         }
 
     }
@@ -365,7 +402,7 @@ private fun PlaylistScreenTopSection(
                 listOf(null, R.drawable.playlist_collab)
             }
         )
-        
+
         IconButton(
             modifier = Modifier,
             onClick = onClickPlaylistViewChange

@@ -50,6 +50,7 @@ import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.new_app_bg_light
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
+import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 
@@ -63,8 +64,8 @@ fun BaseProfileScreen(
     feedViewModel: FeedViewModel = hiltViewModel(),
     listensViewModel: ListensViewModel = hiltViewModel(),
     socialViewModel: SocialViewModel = hiltViewModel(),
-    goToArtistPage: (String) -> Unit,
-    goToAddEditPlaylistScreen: (String?)->Unit
+    playlistDataViewModel: PlaylistDataViewModel = hiltViewModel(),
+    goToArtistPage: (String) -> Unit
 ) {
     val pagerState = rememberPagerState { ProfileScreenTab.entries.size }
     val scope = rememberCoroutineScope()
@@ -228,7 +229,7 @@ fun BaseProfileScreen(
                         ProfileScreenTab.PLAYLISTS.index -> UserPlaylistScreen(
                             snackbarState = snackbarState,
                             userViewModel = viewModel,
-                            goToAddEditPlaylistScreen = goToAddEditPlaylistScreen
+                            playlistViewModel = playlistDataViewModel
                         )
                     }
                 }

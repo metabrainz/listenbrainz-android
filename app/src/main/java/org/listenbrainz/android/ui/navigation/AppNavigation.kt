@@ -28,7 +28,6 @@ import org.listenbrainz.android.ui.screens.artist.ArtistScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen
 import org.listenbrainz.android.ui.screens.explore.ExploreScreen
 import org.listenbrainz.android.ui.screens.feed.FeedScreen
-import org.listenbrainz.android.ui.screens.playlist.CreateEditPlaylistScreen
 import org.listenbrainz.android.ui.screens.profile.LoginScreen
 import org.listenbrainz.android.ui.screens.profile.ProfileScreen
 import org.listenbrainz.android.ui.screens.settings.SettingsScreen
@@ -64,12 +63,6 @@ fun AppNavigation(
 
     fun goToAlbumPage(mbid: String) {
         navController.navigate("album/${mbid}") {
-            defaultNavOptions()
-        }
-    }
-
-    fun goToAddEditPlaylistScreen(mbid: String?) {
-        navController.navigate("${AppNavigationItem.AddEditPlaylistScreen.route}/${mbid}"){
             defaultNavOptions()
         }
     }
@@ -121,7 +114,6 @@ fun AppNavigation(
                 snackbarState = snackbarState,
                 goToUserProfile = ::goToUserProfile,
                 goToArtistPage = ::goToArtistPage,
-                goToAddEditPlaylistScreen = ::goToAddEditPlaylistScreen
             )
         }
         appComposable(
@@ -168,25 +160,6 @@ fun AppNavigation(
             } else {
                 AlbumScreen(albumMbid = albumMbid, snackBarState = snackbarState)
             }
-        }
-
-        appComposable(
-            route = "${AppNavigationItem.AddEditPlaylistScreen.route}/{mbid}",
-            arguments = listOf(
-                navArgument("mbid") {
-                    type = NavType.StringType
-                    nullable = true
-                }
-            )
-        ) {
-            val playlistMbid = it.arguments?.getString("mbid")
-            CreateEditPlaylistScreen(
-                mbid = playlistMbid,
-                onNavigateUP = {
-                    navController.navigateUp()
-                },
-                snackbarHostState = snackbarState
-            )
         }
     }
 }

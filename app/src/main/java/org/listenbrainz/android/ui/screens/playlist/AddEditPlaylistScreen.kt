@@ -32,10 +32,12 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,10 +66,12 @@ import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEditPlaylistScreen(
     viewModel: PlaylistDataViewModel = hiltViewModel(),
     snackbarHostState: SnackbarHostState,
+    bottomSheetState: SheetState,
     mbid: String?,
     onNavigateUP: () -> Unit
 ) {
@@ -83,6 +87,10 @@ fun CreateEditPlaylistScreen(
             if (uiState.error != null)
                 snackbarHostState.showSnackbar(uiState.error?.toast ?: "Some error occurred")
         }
+    }
+
+    LaunchedEffect(uiState.createEditScreenUIState.isSearching) {
+        bottomSheetState.expand()
     }
 
     AnimatedContent(uiState.createEditScreenUIState.isLoading) { isLoading ->
@@ -135,7 +143,12 @@ fun CreateEditPlaylistScreen(
                 }
             }
         } else {
-            LoadingAnimation()
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                LoadingAnimation()
+            }
         }
     }
 }
