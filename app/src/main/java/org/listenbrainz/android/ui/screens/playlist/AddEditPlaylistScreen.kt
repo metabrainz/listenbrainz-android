@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AssistChip
@@ -50,9 +52,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -167,11 +172,13 @@ private fun CreateEditPlaylistScreenBase(
     onUsernameQueryChange: (String) -> Unit,
     onCancel: () -> Unit
 ) {
+    val localFocusManager = LocalFocusManager.current
     val lazyListState = rememberLazyListState()
 
     LaunchedEffect(uiState.isSearching) {
         lazyListState.animateScrollToItem(
-            lazyListState.layoutInfo.totalItemsCount - 1
+            //Here 4 is the index of the Collaborator Input Field.
+            4
         )
     }
 
@@ -196,7 +203,15 @@ private fun CreateEditPlaylistScreenBase(
                 placeholderText = "Enter playlist name",
                 modifier = Modifier
                     .widthIn(max = 400.dp)
-                    .fillMaxWidth(), isError = uiState.emptyTitleFieldError
+                    .fillMaxWidth(), isError = uiState.emptyTitleFieldError,
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions  = KeyboardActions(
+                    onNext = {
+                        localFocusManager.moveFocus(FocusDirection.Down)
+                    }
+                )
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -233,7 +248,8 @@ private fun CreateEditPlaylistScreenBase(
                     checked = uiState.isPublic,
                     onCheckedChange = onVisibilityChange,
                     colors = CheckboxDefaults.colors().copy(
-                        checkedBoxColor = lb_purple_night
+                        checkedBoxColor = lb_purple_night,
+                        checkedBorderColor = ListenBrainzTheme.colorScheme.listenText
                     )
                 )
                 Text(
@@ -279,7 +295,15 @@ private fun CreateEditPlaylistScreenBase(
                 username = uiState.collaboratorQueryText,
                 onCollaboratorAdded = { onCollaboratorAdded(it) },
                 onUsernameQueryChange = { onUsernameQueryChange(it) },
-                isSearching = uiState.isSearching
+                isSearching = uiState.isSearching,
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        localFocusManager.clearFocus()
+                    }
+                )
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -379,7 +403,9 @@ fun CollaboratorInputField(
     allUsers: List<String>,
     onCollaboratorAdded: (String) -> Unit,
     onUsernameQueryChange: (String) -> Unit,
-    isSearching: Boolean
+    isSearching: Boolean,
+    keyboardActions: KeyboardActions,
+    keyboardOptions: KeyboardOptions
 ) {
     var expanded by remember { mutableStateOf(false) }
     Column(
@@ -399,7 +425,9 @@ fun CollaboratorInputField(
                 .onFocusChanged {
                     if (!it.hasFocus)
                         expanded = false
-                }
+                },
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions
         )
         if (expanded) {
             if (!isSearching)
@@ -438,7 +466,9 @@ private fun PlaylistTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholderText: String,
-    isError: Boolean = false
+    isError: Boolean = false,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
     OutlinedTextField(
         modifier = modifier,
@@ -455,7 +485,9 @@ private fun PlaylistTextField(
         supportingText = {
             if (isError)
                 Text("Playlist title must not be empty.")
-        }
+        },
+        keyboardActions = keyboardActions,
+        keyboardOptions = keyboardOptions
     )
 }
 
