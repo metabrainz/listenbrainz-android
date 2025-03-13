@@ -4,21 +4,74 @@ package org.listenbrainz.android.util
 //This class extracts the image links from the SVG
 object CoverArtImageLinkExtractor {
 
-    // Function to count the number of images inside anchor tags
+    //We are extracting no of images by counting <image> tags inside anchor tags.
     fun getImageCount(svg: String): Int {
-        val regex = "<a\\s+href=.*?>\\s*<image\\s+".toRegex()
-        return regex.findAll(svg).count()
+        var count = 0
+        var index = 0
+
+        while (true) {
+            index = svg.indexOf("<a", index)
+            if (index == -1) break  // No more <a> tags
+
+            val endIndex = svg.indexOf("</a>", index)
+            if (endIndex == -1) break  // Invalid tag structure
+
+            // Look for <image> tags within the <a> tag
+            var imageIndex = index
+            while (true) {
+                imageIndex = svg.indexOf("<image", imageIndex)
+                if (imageIndex == -1 || imageIndex > endIndex) break
+                count++
+                imageIndex++
+            }
+
+            index = endIndex
+        }
+
+        return count
     }
 
-    // Function to extract image links inside <a> tags
+    // In this function, we are extracting image links from <image> tags
     fun extractImageLinks(svg: String): List<String> {
-        val regex = """<a\s+href=.*?>\s*<image[^>]+?href=["'](.*?)["']""".toRegex()
-        return regex.findAll(svg).map { it.groupValues[1] }.toList()
+        val imageLinks = mutableListOf<String>()
+        var index = 0
+
+        while (true) {
+            index = svg.indexOf("<image", index)
+            if (index == -1) break  // No more <image> tags, exit the loop
+
+            val hrefIndex = svg.indexOf("href=\"", index)
+            if (hrefIndex != -1) {
+                val start = hrefIndex + 6  // Skip 'href="', i.e. move to start of the link
+                val end = svg.indexOf("\"", start)
+                if (end != -1) {
+                    imageLinks.add(svg.substring(start, end))
+                }
+            }
+            index++ // Move to the next occurrence of image tag
+        }
+
+        return imageLinks
     }
 
-    // Function to extract anchor links from <a> tags
+    //In this function we are extracting anchor links from <a> tags, which is used to make the images clickable
     fun extractAnchorLinks(svg: String): List<String> {
-        val regex = """<a\s+href=["'](.*?)["']""".toRegex()
-        return regex.findAll(svg).map { it.groupValues[1] }.toList()
+        val anchorLinks = mutableListOf<String>()
+        var index = 0
+        while (true) {
+            index = svg.indexOf("<a", index)
+            if (index == -1) break  // No more <a> tags
+
+            val hrefIndex = svg.indexOf("href=\"", index)
+            if (hrefIndex != -1) {
+                val start = hrefIndex + 6  // Skip 'href="'
+                val end = svg.indexOf("\"", start)
+                if (end != -1) {
+                    anchorLinks.add(svg.substring(start, end))
+                }
+            }
+            index++
+        }
+        return anchorLinks
     }
 }

@@ -12,24 +12,33 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.PullRefreshState
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,16 +53,20 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.ui.components.ToggleChips
 import org.listenbrainz.android.ui.screens.feed.RetryButton
+import org.listenbrainz.android.ui.screens.playlist.CreateEditPlaylistScreen
 import org.listenbrainz.android.ui.screens.profile.createdforyou.formatDateLegacy
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.util.Utils.shareLink
+import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun UserPlaylistScreen(
     snackbarState: SnackbarHostState,
-    userViewModel: UserViewModel
+    userViewModel: UserViewModel,
+    playlistViewModel: PlaylistDataViewModel
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -75,6 +88,10 @@ fun UserPlaylistScreen(
             userPlaylistsData.loadState.refresh is LoadState.Loading
         }
     }
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
+    )
+    var isBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
 
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
@@ -86,6 +103,9 @@ fun UserPlaylistScreen(
             }
         }
     )
+    var currentMBID by remember {
+        mutableStateOf<String?>(null)
+    }
 
     UserPlaylistScreenBase(
         pullRefreshState = pullRefreshState,
@@ -125,6 +145,9 @@ fun UserPlaylistScreen(
             userPlaylistsData.refresh()
         },
         isUserSelf = uiState.isSelf,
+        onCreatePlaylistClick = {
+            isBottomSheetVisible = true
+        },
         onDropdownItemClick = { menuItem, playlist ->
             when (menuItem) {
                 PlaylistDropdownItems.DUPLICATE -> {
@@ -164,15 +187,35 @@ fun UserPlaylistScreen(
                 }
 
                 PlaylistDropdownItems.EDIT -> {
-                    Toast.makeText(
-                        context,
-                        "Yet to be implemented",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    currentMBID = playlist.getPlaylistMBID()
+                    isBottomSheetVisible = true
                 }
             }
         }
     )
+
+    if (isBottomSheetVisible)
+        ModalBottomSheet(
+            onDismissRequest = {
+                currentMBID = null
+                isBottomSheetVisible = false
+            },
+            sheetState = sheetState,
+            modifier = Modifier.statusBarsPadding(),
+        ) {
+            CreateEditPlaylistScreen(
+                viewModel = playlistViewModel,
+                snackbarHostState = snackbarState,
+                bottomSheetState = sheetState,
+                mbid = currentMBID
+            ) {
+                currentMBID = null
+                scope.launch {
+                    sheetState.hide()
+                    isBottomSheetVisible = false
+                }
+            }
+        }
 }
 
 
@@ -193,7 +236,8 @@ private fun UserPlaylistScreenBase(
     onClickPlaylistViewChange: () -> Unit,
     onClickPlaylist: (UserPlaylist) -> Unit,
     onRetry: () -> Unit,
-    onDropdownItemClick: (PlaylistDropdownItems, UserPlaylist) -> Unit
+    onDropdownItemClick: (PlaylistDropdownItems, UserPlaylist) -> Unit,
+    onCreatePlaylistClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -240,7 +284,7 @@ private fun UserPlaylistScreenBase(
                                                 onDropdownClick = {
                                                     onDropdownItemClick(it, playlist)
                                                 },
-                                                isUserSelf = isUserSelf
+                                                canUserEdit = isUserSelf && !isCurrentScreenCollab
                                             )
                                             Spacer(modifier = Modifier.height(8.dp))
                                         }
@@ -273,7 +317,7 @@ private fun UserPlaylistScreenBase(
                                                 onDropdownClick = {
                                                     onDropdownItemClick(it, playlist)
                                                 },
-                                                isUserSelf = isUserSelf
+                                                canUserEdit = isUserSelf && !isCurrentScreenCollab
                                             )
                                         }
                                     }
@@ -314,6 +358,24 @@ private fun UserPlaylistScreenBase(
             backgroundColor = ListenBrainzTheme.colorScheme.level1,
             state = pullRefreshState
         )
+
+        FloatingActionButton(
+            onClick = {
+                onCreatePlaylistClick()
+            },
+            backgroundColor = lb_purple_night,
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(ListenBrainzTheme.paddings.defaultPadding)
+        ) {
+            Icon(
+                Icons.Default.Add,
+                contentDescription = "Floating action button to create playlist",
+                tint = ListenBrainzTheme.colorScheme.onLbSignature
+            )
+        }
+
     }
 }
 
@@ -343,7 +405,7 @@ private fun PlaylistScreenTopSection(
                 listOf(null, R.drawable.playlist_collab)
             }
         )
-        
+
         IconButton(
             modifier = Modifier,
             onClick = onClickPlaylistViewChange
@@ -405,7 +467,8 @@ fun UserPlaylistScreenPreview() {
             onRetry = {},
             onDropdownItemClick = { it, it2 ->
             },
-            isUserSelf = true
+            isUserSelf = true,
+            onCreatePlaylistClick = { },
         )
     }
 }

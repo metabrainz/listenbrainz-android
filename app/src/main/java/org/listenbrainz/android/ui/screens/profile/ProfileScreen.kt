@@ -48,7 +48,7 @@ fun ProfileScreen(
     username: String?,
     snackbarState: SnackbarHostState,
     goToUserProfile: (String) -> Unit,
-    goToArtistPage: (String) -> Unit,
+    goToArtistPage: (String) -> Unit
 ) {
     val scrollState = rememberScrollState()
     val uiState = viewModel.uiState.collectAsState()
