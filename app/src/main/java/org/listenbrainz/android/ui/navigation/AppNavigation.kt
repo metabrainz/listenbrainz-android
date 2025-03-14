@@ -28,6 +28,7 @@ import org.listenbrainz.android.ui.screens.artist.ArtistScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen
 import org.listenbrainz.android.ui.screens.explore.ExploreScreen
 import org.listenbrainz.android.ui.screens.feed.FeedScreen
+import org.listenbrainz.android.ui.screens.playlist.PlaylistDetailScreen
 import org.listenbrainz.android.ui.screens.profile.LoginScreen
 import org.listenbrainz.android.ui.screens.profile.ProfileScreen
 import org.listenbrainz.android.ui.screens.settings.SettingsScreen
@@ -63,6 +64,12 @@ fun AppNavigation(
 
     fun goToAlbumPage(mbid: String) {
         navController.navigate("album/${mbid}") {
+            defaultNavOptions()
+        }
+    }
+
+    fun goToPlaylist(mbid: String){
+        navController.navigate("${AppNavigationItem.PlaylistScreen.route}/${mbid}"){
             defaultNavOptions()
         }
     }
@@ -114,6 +121,7 @@ fun AppNavigation(
                 snackbarState = snackbarState,
                 goToUserProfile = ::goToUserProfile,
                 goToArtistPage = ::goToArtistPage,
+                goToPlaylist = ::goToPlaylist
             )
         }
         appComposable(
@@ -159,6 +167,27 @@ fun AppNavigation(
                 }
             } else {
                 AlbumScreen(albumMbid = albumMbid, snackBarState = snackbarState)
+            }
+        }
+        appComposable(
+            route = "${AppNavigationItem.PlaylistScreen.route}/{mbid}",
+            arguments = listOf(
+                navArgument("mbid") {
+                    type = NavType.StringType
+                }
+            )
+        ){
+            val playlistMbid = it.arguments?.getString("mbid")
+            if (playlistMbid == null){
+                LaunchedEffect(Unit){
+                    snackbarState.showSnackbar("The playlist page can't be loaded")
+                }
+            } else {
+                 PlaylistDetailScreen(
+                    playlistMBID = playlistMbid,
+                    snackbarState = snackbarState,
+                    goToArtistPage = ::goToArtistPage
+                 )
             }
         }
     }
