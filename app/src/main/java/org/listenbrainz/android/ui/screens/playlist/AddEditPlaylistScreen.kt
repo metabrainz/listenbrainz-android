@@ -85,7 +85,7 @@ fun CreateEditPlaylistScreen(
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        viewModel.getInitialData(mbid)
+        viewModel.getInitialDataInCreatePlaylistScreen(mbid)
     }
     LaunchedEffect(uiState.error) {
         scope.launch {
@@ -143,7 +143,7 @@ fun CreateEditPlaylistScreen(
                     RetryButton(
                         modifier = Modifier.align(Alignment.Center)
                     ) {
-                        viewModel.getInitialData(mbid)
+                        viewModel.getInitialDataInCreatePlaylistScreen(mbid)
                     }
                 }
             }

@@ -74,7 +74,7 @@ fun ProfileScreen(
                 uiState = uiState.value,
                 goToUserProfile = goToUserProfile,
                 goToArtistPage = goToArtistPage,
-                goToPlaylist = goToPlaylist
+                goToPlaylist = goToPlaylist,
             )
         }
         else -> LoginScreen {

@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -26,6 +27,8 @@ import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.ui.screens.playlist.CreateEditScreenUIState
 import org.listenbrainz.android.ui.screens.playlist.PlaylistDataUIState
+import org.listenbrainz.android.ui.screens.playlist.PlaylistDetailUIState
+import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils
 import javax.inject.Inject
@@ -50,7 +53,13 @@ class PlaylistDataViewModel @Inject constructor(
             CreateEditScreenUIState()
         )
 
+    private val playlistScreenUIStateFlow: MutableStateFlow<PlaylistDetailUIState> =
+        MutableStateFlow(
+            PlaylistDetailUIState()
+        )
+
     init {
+        Log.d("Hemang: PlaylistDataViewModel recreated")
         viewModelScope.launch(ioDispatcher) {
             queryFlow.collectLatest { username ->
                 if (username.isEmpty()) {
@@ -68,7 +77,27 @@ class PlaylistDataViewModel @Inject constructor(
         }
     }
 
-    fun getInitialData(mbid: String?) {
+    fun getInitialDataInPlaylistScreen(mbid: String){
+        var playlist = PlaylistData()
+        viewModelScope.launch(ioDispatcher) {
+            username = appPreferences.username.get()
+            playlistScreenUIStateFlow.emit(playlistScreenUIStateFlow.value.copy(isLoading = true))
+            //First check if data is already fetched
+            if(playlistData.value.containsKey(mbid)){
+                playlist = playlistData.value[mbid]!!
+                playlistScreenUIStateFlow.emit(playlistScreenUIStateFlow.value.copy(playlistData = playlist, isLoading = false, playlistMBID = mbid))
+            }else{
+                //Fetch data from API
+                getDataOfPlaylist(mbid, onError = {
+                    emitError(it)
+                }, onSuccess = { playlist ->
+                    playlistScreenUIStateFlow.emit(playlistScreenUIStateFlow.value.copy(playlistData = playlist, isLoading = false, playlistMBID = mbid))
+                })
+            }
+        }
+    }
+
+    fun getInitialDataInCreatePlaylistScreen(mbid: String?) {
         var playlist = PlaylistData()
         viewModelScope.launch(ioDispatcher) {
             username = appPreferences.username.get()
@@ -117,12 +146,26 @@ class PlaylistDataViewModel @Inject constructor(
         onSuccess: suspend (PlaylistData) -> Unit
     ) {
         viewModelScope.launch(ioDispatcher) {
+            val coverArtDeferred = async {
+                if (mbid != null) {
+                    val result = repository.getPlaylistCoverArt(mbid)
+                    if (result.status == Resource.Status.SUCCESS) result.data
+                    else {
+                        onError(result.error)
+                        null
+                    }
+                }else null
+            }
+            Log.d("Hemang: Fetching Playlist data ${playlistData.value.values}")
             val result = repository.fetchPlaylist(mbid)
+            val coverArt = coverArtDeferred.await()
+            val playlist = result.data?.playlist?.copy(coverArt = coverArt)
             when (result.status) {
                 Resource.Status.SUCCESS -> {
                     if (mbid == null) return@launch
-                    if (result.data?.playlist == null) onError(ResponseError.UNKNOWN)
-                    playlistData.emit(playlistData.value + (mbid to result.data?.playlist!!))
+                    if (playlist == null) onError(ResponseError.UNKNOWN)
+                    playlistData.emit(playlistData.value + (mbid to playlist!!))
+                    Log.d("Hemang: 2 Fetching Playlist data ${playlistData.value.values}")
                     onSuccess(result.data.playlist)
                 }
 
@@ -274,12 +317,14 @@ class PlaylistDataViewModel @Inject constructor(
     override fun createUiStateFlow(): StateFlow<PlaylistDataUIState> {
         return combine(
             createEditScreenUIStateFlow,
+            playlistScreenUIStateFlow,
             inputQueryFlow,
             userListFlow,
             errorFlow
-        ) { createUiState, inputQuery, users, errorFlow ->
+        ) { createUiState,playlistUIState, inputQuery, users, errorFlow ->
             PlaylistDataUIState(
                 error = errorFlow,
+                playlistDetailUIState = playlistUIState,
                 createEditScreenUIState = createUiState.copy(
                     collaboratorQueryText = inputQuery,
                     usersSearched = users

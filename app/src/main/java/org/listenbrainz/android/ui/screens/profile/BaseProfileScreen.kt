@@ -231,7 +231,7 @@ fun BaseProfileScreen(
                             snackbarState = snackbarState,
                             userViewModel = viewModel,
                             playlistViewModel = playlistDataViewModel,
-                            goToPlaylist = goToPlaylist
+                            goToPlaylist
                         )
                     }
                 }

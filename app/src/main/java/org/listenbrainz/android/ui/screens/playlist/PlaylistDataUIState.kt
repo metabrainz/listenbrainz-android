@@ -7,6 +7,7 @@ import org.listenbrainz.android.model.playlist.PlaylistData
 data class PlaylistDataUIState(
     val isLoading: Boolean = false,
     val createEditScreenUIState: CreateEditScreenUIState = CreateEditScreenUIState(),
+    val playlistDetailUIState: PlaylistDetailUIState = PlaylistDetailUIState(),
     val error: ResponseError? = null
 )
 
@@ -23,4 +24,14 @@ data class CreateEditScreenUIState(
     val usersSearched: List<User> = emptyList(),
     val playlistMBID: String? = null,
     val emptyTitleFieldError: Boolean = false
+)
+
+data class PlaylistDetailUIState(
+    val isLoading: Boolean = true,
+    val playlistData: PlaylistData? = null,
+    val isRefreshing: Boolean = false,
+    val isCoverArtLoading: Boolean = false,
+    val playlistMBID: String? = null,
+    val isPlaylistEditable: Boolean = false,
+    val error: ResponseError? = null
 )
