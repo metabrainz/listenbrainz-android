@@ -8,7 +8,8 @@ data class PlaylistDataUIState(
     val isLoading: Boolean = false,
     val createEditScreenUIState: CreateEditScreenUIState = CreateEditScreenUIState(),
     val playlistDetailUIState: PlaylistDetailUIState = PlaylistDetailUIState(),
-    val error: ResponseError? = null
+    val error: ResponseError? = null,
+    val successMsg: Int? = null
 )
 
 data class CreateEditScreenUIState(

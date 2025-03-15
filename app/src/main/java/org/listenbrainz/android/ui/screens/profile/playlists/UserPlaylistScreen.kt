@@ -352,7 +352,7 @@ private fun UserPlaylistScreenBase(
             modifier = Modifier.align(Alignment.TopCenter),
             refreshing = isRefreshing,
             contentColor = ListenBrainzTheme.colorScheme.lbSignatureInverse,
-            backgroundColor = ListenBrainzTheme.colorScheme.level1,
+                backgroundColor = ListenBrainzTheme.colorScheme.level1,
             state = pullRefreshState
         )
 

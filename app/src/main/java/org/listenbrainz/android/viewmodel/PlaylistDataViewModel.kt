@@ -28,7 +28,6 @@ import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.ui.screens.playlist.CreateEditScreenUIState
 import org.listenbrainz.android.ui.screens.playlist.PlaylistDataUIState
 import org.listenbrainz.android.ui.screens.playlist.PlaylistDetailUIState
-import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils
 import javax.inject.Inject
@@ -59,7 +58,6 @@ class PlaylistDataViewModel @Inject constructor(
         )
 
     init {
-        Log.d("Hemang: PlaylistDataViewModel recreated")
         viewModelScope.launch(ioDispatcher) {
             queryFlow.collectLatest { username ->
                 if (username.isEmpty()) {
@@ -77,21 +75,44 @@ class PlaylistDataViewModel @Inject constructor(
         }
     }
 
-    fun getInitialDataInPlaylistScreen(mbid: String){
+    fun getDataInPlaylistScreen(mbid: String, isRefresh: Boolean = false) {
         var playlist = PlaylistData()
         viewModelScope.launch(ioDispatcher) {
             username = appPreferences.username.get()
-            playlistScreenUIStateFlow.emit(playlistScreenUIStateFlow.value.copy(isLoading = true))
+            if (isRefresh)
+                playlistScreenUIStateFlow.emit(playlistScreenUIStateFlow.value.copy(isRefreshing = true))
+            else
+                playlistScreenUIStateFlow.emit(playlistScreenUIStateFlow.value.copy(isLoading = true))
             //First check if data is already fetched
-            if(playlistData.value.containsKey(mbid)){
+            if (playlistData.value.containsKey(mbid) && !isRefresh) {
                 playlist = playlistData.value[mbid]!!
-                playlistScreenUIStateFlow.emit(playlistScreenUIStateFlow.value.copy(playlistData = playlist, isLoading = false, playlistMBID = mbid))
-            }else{
+                playlistScreenUIStateFlow.emit(
+                    playlistScreenUIStateFlow.value.copy(
+                        playlistData = playlist,
+                        isLoading = false,
+                        playlistMBID = mbid,
+                        isRefreshing = false
+                    )
+                )
+            } else {
                 //Fetch data from API
                 getDataOfPlaylist(mbid, onError = {
                     emitError(it)
+                    playlistScreenUIStateFlow.emit(
+                        playlistScreenUIStateFlow.value.copy(
+                            isLoading = false,
+                            isRefreshing = false
+                        )
+                    )
                 }, onSuccess = { playlist ->
-                    playlistScreenUIStateFlow.emit(playlistScreenUIStateFlow.value.copy(playlistData = playlist, isLoading = false, playlistMBID = mbid))
+                    playlistScreenUIStateFlow.emit(
+                        playlistScreenUIStateFlow.value.copy(
+                            playlistData = playlist,
+                            isLoading = false,
+                            playlistMBID = mbid,
+                            isRefreshing = false
+                        )
+                    )
                 })
             }
         }
@@ -154,9 +175,8 @@ class PlaylistDataViewModel @Inject constructor(
                         onError(result.error)
                         null
                     }
-                }else null
+                } else null
             }
-            Log.d("Hemang: Fetching Playlist data ${playlistData.value.values}")
             val result = repository.fetchPlaylist(mbid)
             val coverArt = coverArtDeferred.await()
             val playlist = result.data?.playlist?.copy(coverArt = coverArt)
@@ -165,7 +185,6 @@ class PlaylistDataViewModel @Inject constructor(
                     if (mbid == null) return@launch
                     if (playlist == null) onError(ResponseError.UNKNOWN)
                     playlistData.emit(playlistData.value + (mbid to playlist!!))
-                    Log.d("Hemang: 2 Fetching Playlist data ${playlistData.value.values}")
                     onSuccess(result.data.playlist)
                 }
 
@@ -225,14 +244,15 @@ class PlaylistDataViewModel @Inject constructor(
             )
 
             if (createEditScreenUIStateFlow.value.playlistMBID == null)
-                createPlaylist(playlist, onSuccess = {
-                    createEditScreenUIStateFlow.emit(
-                        createEditScreenUIStateFlow.value.copy(
-                            isSaving = false
+                createPlaylist(
+                    playlist, onSuccess = {
+                        createEditScreenUIStateFlow.emit(
+                            createEditScreenUIStateFlow.value.copy(
+                                isSaving = false
+                            )
                         )
-                    )
-                    onSuccess("Playlist Saved Successfully!!")
-                },
+                        onSuccess("Playlist Saved Successfully!!")
+                    },
                     onError = {
                         createEditScreenUIStateFlow.emit(
                             createEditScreenUIStateFlow.value.copy(
@@ -316,19 +336,21 @@ class PlaylistDataViewModel @Inject constructor(
 
     override fun createUiStateFlow(): StateFlow<PlaylistDataUIState> {
         return combine(
+            successMsgFlow,
             createEditScreenUIStateFlow,
             playlistScreenUIStateFlow,
             inputQueryFlow,
             userListFlow,
             errorFlow
-        ) { createUiState,playlistUIState, inputQuery, users, errorFlow ->
+        ) { array ->
             PlaylistDataUIState(
-                error = errorFlow,
-                playlistDetailUIState = playlistUIState,
-                createEditScreenUIState = createUiState.copy(
-                    collaboratorQueryText = inputQuery,
-                    usersSearched = users
-                )
+                error = array[5] as ResponseError?,
+                playlistDetailUIState = array[2] as PlaylistDetailUIState,
+                createEditScreenUIState = (array[1] as CreateEditScreenUIState).copy(
+                    collaboratorQueryText = array[3] as String,
+                    usersSearched = array[4] as List<User>
+                ),
+                successMsg = array[0] as Int?
             )
         }.stateIn(
             scope = viewModelScope,

@@ -1,9 +1,15 @@
 package org.listenbrainz.android.ui.screens.playlist
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -11,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -20,13 +27,18 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.playlist.PlaylistTrack
+import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
+import org.listenbrainz.android.ui.components.LoadingAnimation
+import org.listenbrainz.android.ui.components.SuccessBar
+import org.listenbrainz.android.ui.screens.feed.RetryButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils.formatDurationSeconds
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PlaylistDetailScreen(
     playlistMBID: String,
@@ -36,22 +48,77 @@ fun PlaylistDetailScreen(
     goToArtistPage: (String) -> Unit
 ) {
     val uiState by playlistViewModel.uiState.collectAsState()
+    val socialUiState by socialViewModel.uiState.collectAsState()
     val scope = rememberCoroutineScope()
-
-    LaunchedEffect(Unit) {
-        playlistViewModel.getInitialDataInPlaylistScreen(playlistMBID)
-    }
-
-    PlaylistDetailContent(
-        playlistDetailUIState = uiState.playlistDetailUIState,
-        goToArtistPage = goToArtistPage,
-        onTrackClick = { it.toMetadata().trackMetadata?.let { it1 -> socialViewModel.playListen(it1) } },
-        showsnackbar = {
-            scope.launch {
-                snackbarState.showSnackbar(it)
-            }
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = uiState.playlistDetailUIState.isRefreshing,
+        onRefresh = {
+            playlistViewModel.getDataInPlaylistScreen(playlistMBID, isRefresh = true)
         }
     )
+
+    LaunchedEffect(Unit) {
+        playlistViewModel.getDataInPlaylistScreen(playlistMBID)
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pullRefresh(pullRefreshState)
+    ) {
+        AnimatedContent(
+            uiState.playlistDetailUIState.isLoading and !uiState.playlistDetailUIState.isRefreshing,
+            modifier = Modifier.fillMaxSize()
+        ) { isLoading ->
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (isLoading) {
+                    Box(
+                        modifier = Modifier.align(Alignment.Center)
+                    ) {
+                        LoadingAnimation()
+                    }
+
+                } else {
+                    if (uiState.playlistDetailUIState.playlistData != null) {
+                        PlaylistDetailContent(
+                            playlistDetailUIState = uiState.playlistDetailUIState,
+                            goToArtistPage = goToArtistPage,
+                            onTrackClick = {
+                                it.toMetadata().trackMetadata?.let { it1 ->
+                                    socialViewModel.playListen(
+                                        it1
+                                    )
+                                }
+                            },
+                            showsnackbar = {
+                                scope.launch {
+                                    snackbarState.showSnackbar(it)
+                                }
+                            }
+                        )
+                    } else {
+                        Column(modifier = Modifier.align(Alignment.Center)) {
+                            HelperText(modifier = Modifier.padding(16.dp),
+                                text = "Couldn't load the playlist data")
+                            RetryButton() {
+                                playlistViewModel.getDataInPlaylistScreen(playlistMBID)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        PullRefreshIndicator(
+            modifier = Modifier.align(Alignment.TopCenter),
+            refreshing = uiState.playlistDetailUIState.isRefreshing,
+            contentColor = ListenBrainzTheme.colorScheme.lbSignatureInverse,
+            backgroundColor = ListenBrainzTheme.colorScheme.level1,
+            state = pullRefreshState
+        )
+        ErrorBar(socialUiState.error, socialViewModel::clearErrorFlow)
+        SuccessBar(socialUiState.successMsgId, socialViewModel::clearMsgFlow, snackbarState)
+        ErrorBar(uiState.error, playlistViewModel::clearErrorFlow)
+        SuccessBar(uiState.successMsg, playlistViewModel::clearMsgFlow, snackbarState)
+    }
 }
 
 @Composable
@@ -107,19 +174,30 @@ private fun PlaylistDetailContent(
                 }
             }
             item {
-                if(playlistDetailUIState.playlistData?.track?.size == 0) {
-                    Text(
-                        text = "No tracks found",
+                if (playlistDetailUIState.playlistData?.track?.size == 0) {
+                    HelperText(
                         modifier = Modifier.padding(16.dp),
-                        style = TextStyle(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Medium
-                        ),
-                        color = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.8f)
+                        text = "No tracks found"
                     )
                 }
             }
         }
 
     }
+}
+
+@Composable
+fun HelperText(
+    modifier: Modifier,
+    text: String
+) {
+    Text(
+        text = text,
+        modifier = modifier,
+        style = TextStyle(
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium
+        ),
+        color = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.8f)
+    )
 }

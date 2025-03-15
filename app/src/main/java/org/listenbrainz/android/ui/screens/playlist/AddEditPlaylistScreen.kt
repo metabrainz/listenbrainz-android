@@ -89,8 +89,10 @@ fun CreateEditPlaylistScreen(
     }
     LaunchedEffect(uiState.error) {
         scope.launch {
-            if (uiState.error != null)
+            if (uiState.error != null) {
                 snackbarHostState.showSnackbar(uiState.error?.toast ?: "Some error occurred")
+                viewModel.clearErrorFlow()
+            }
         }
     }
 
