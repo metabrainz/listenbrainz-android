@@ -35,7 +35,7 @@ interface PlaylistDataRepository {
             Resource<EditPlaylistResponse?>
 
     //Search for a recording
-    suspend fun searchRecording(searchQuery: String): Resource<RecordingSearchPayload?>
+    suspend fun searchRecording(searchQuery: String?, mbid: String? = null): Resource<RecordingSearchPayload?>
 
     //Move a track in a playlist
     suspend fun moveTrack(playlistMbid: String?, moveTrack: MoveTrack): Resource<EditPlaylistResponse?>

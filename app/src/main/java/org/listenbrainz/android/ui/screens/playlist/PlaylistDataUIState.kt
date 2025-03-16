@@ -3,6 +3,7 @@ package org.listenbrainz.android.ui.screens.playlist
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.model.playlist.PlaylistData
+import org.listenbrainz.android.model.recordingSearch.RecordingData
 
 data class PlaylistDataUIState(
     val isLoading: Boolean = false,
@@ -34,5 +35,7 @@ data class PlaylistDetailUIState(
     val isCoverArtLoading: Boolean = false,
     val playlistMBID: String? = null,
     val isPlaylistEditable: Boolean = false,
-    val error: ResponseError? = null
+    val queryText: String = "",
+    val isSearching: Boolean = false,
+    val queriedRecordings: List<RecordingData> = emptyList()
 )

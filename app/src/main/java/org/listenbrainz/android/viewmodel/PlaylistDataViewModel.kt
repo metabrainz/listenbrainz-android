@@ -22,6 +22,7 @@ import org.listenbrainz.android.model.playlist.Extension
 import org.listenbrainz.android.model.playlist.PlaylistData
 import org.listenbrainz.android.model.playlist.PlaylistExtensionData
 import org.listenbrainz.android.model.playlist.PlaylistPayload
+import org.listenbrainz.android.model.recordingSearch.RecordingData
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.social.SocialRepository
@@ -30,6 +31,7 @@ import org.listenbrainz.android.ui.screens.playlist.PlaylistDataUIState
 import org.listenbrainz.android.ui.screens.playlist.PlaylistDetailUIState
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils
+import org.listenbrainz.android.util.Utils.isValidMbidFormat
 import javax.inject.Inject
 
 @HiltViewModel
@@ -40,10 +42,13 @@ class PlaylistDataViewModel @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : BaseViewModel<PlaylistDataUIState>() {
     private var username: String? = null
-    private val inputQueryFlow = MutableStateFlow("")
+    private val userInputQueryFlow = MutableStateFlow("")
 
     @OptIn(FlowPreview::class)
-    private val queryFlow = inputQueryFlow.asStateFlow().debounce(500).distinctUntilChanged()
+    private val userQueryFlow = userInputQueryFlow.asStateFlow().debounce(500).distinctUntilChanged()
+    private val recordingInputQueryFlow = MutableStateFlow("")
+    @OptIn(FlowPreview::class)
+    private val recordingQueryFlow = recordingInputQueryFlow.asStateFlow().debounce(500).distinctUntilChanged()
     private val userListFlow = MutableStateFlow<List<User>>(emptyList())
     private val playlistData = MutableStateFlow<Map<String, PlaylistData>>(emptyMap())
 
@@ -59,7 +64,26 @@ class PlaylistDataViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(ioDispatcher) {
-            queryFlow.collectLatest { username ->
+            recordingQueryFlow.collectLatest { title->
+                if(title.isEmpty()){
+                    return@collectLatest
+                }
+                    playlistScreenUIStateFlow.emit(playlistScreenUIStateFlow.value.copy(isSearching = true))
+                    val result = if(isValidMbidFormat(title)) repository.searchRecording(null, title)
+                    else repository.searchRecording(title)
+                    playlistScreenUIStateFlow.emit(playlistScreenUIStateFlow.value.copy(isSearching = false))
+                    when (result.status) {
+                        Resource.Status.SUCCESS -> playlistScreenUIStateFlow.emit(
+                            playlistScreenUIStateFlow.value.copy(
+                                isSearching = false,
+                                queriedRecordings = result.data?.recordings ?: emptyList()
+                            )
+                        )
+                        Resource.Status.FAILED -> emitError(result.error)
+                        else -> return@collectLatest
+                    }
+            }
+            userQueryFlow.collectLatest { username ->
                 if (username.isEmpty()) {
                     return@collectLatest
                 }
@@ -216,7 +240,7 @@ class PlaylistDataViewModel @Inject constructor(
 
     fun queryCollaborators(query: String) {
         viewModelScope.launch {
-            inputQueryFlow.emit(query)
+            userInputQueryFlow.emit(query)
         }
     }
 
@@ -332,6 +356,59 @@ class PlaylistDataViewModel @Inject constructor(
         }
     }
 
+    fun addTrackToPlaylist(recordingData: RecordingData){
+        viewModelScope.launch {
+            //Check whether recording is already added
+            if(playlistScreenUIStateFlow.value.playlistData?.track?.any { it.getRecordingMBID() == recordingData.id } == true){
+                emitError(ResponseError.BAD_REQUEST.apply {
+                    actualResponse = "Recording already added to the playlist"
+                })
+                return@launch
+            }
+
+            //Adding the recording to the UI intially
+            val playlist = playlistScreenUIStateFlow.value.playlistData?.track?.plus(
+                recordingData.toPlaylistTrack()
+            )?.let {
+                playlistScreenUIStateFlow.value.playlistData?.copy(
+                    track = it
+                )
+            }
+            playlistScreenUIStateFlow.emit(playlistScreenUIStateFlow.value.copy(playlistData = playlist))
+
+            //Adding the recording to the API
+            val result = repository.addTracks(
+                playlistScreenUIStateFlow.value.playlistMBID,
+                listOf(recordingData.toPlaylistTrack())
+            )
+            when(result.status){
+                Resource.Status.SUCCESS -> {
+                    //Updating the playlist data in the UI
+                    if(result.data?.status != "ok"){
+                        emitError(ResponseError.UNKNOWN.apply {
+                            actualResponse = "Some error occurred while adding the track"
+                        })
+                    }else{
+                        //Refresh screen (to fetch cover art)
+                        getInitialDataInCreatePlaylistScreen(playlistScreenUIStateFlow.value.playlistMBID)
+                    }
+                }
+                Resource.Status.FAILED -> {
+                    emitError(result.error)
+                    //Removing if unsuccessful
+                    val updatedPlaylist = playlistScreenUIStateFlow.value.playlistData?.track?.filter { it.getRecordingMBID() != recordingData.id }
+                        ?.let {
+                            playlistScreenUIStateFlow.value.playlistData?.copy(
+                                track = it
+                            )
+                        }
+                    playlistScreenUIStateFlow.emit(playlistScreenUIStateFlow.value.copy(playlistData = updatedPlaylist))
+                }
+                else -> return@launch
+            }
+        }
+    }
+
     override val uiState: StateFlow<PlaylistDataUIState> = createUiStateFlow()
 
     override fun createUiStateFlow(): StateFlow<PlaylistDataUIState> {
@@ -339,7 +416,7 @@ class PlaylistDataViewModel @Inject constructor(
             successMsgFlow,
             createEditScreenUIStateFlow,
             playlistScreenUIStateFlow,
-            inputQueryFlow,
+            userInputQueryFlow,
             userListFlow,
             errorFlow
         ) { array ->

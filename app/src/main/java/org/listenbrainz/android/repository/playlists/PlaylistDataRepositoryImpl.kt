@@ -77,11 +77,14 @@ class PlaylistDataRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun searchRecording(searchQuery: String): Resource<RecordingSearchPayload?> {
+    override suspend fun searchRecording(searchQuery: String?, mbid: String?): Resource<RecordingSearchPayload?> {
         return parseResponse {
-            if (searchQuery.isEmpty())
+            if(!mbid.isNullOrEmpty())
+                mbService.searchRecording("rid:$mbid")
+            else if(!searchQuery.isNullOrEmpty())
+                mbService.searchRecording(searchQuery)
+            else
                 return ResponseError.BAD_REQUEST.asResource()
-            mbService.searchRecording(searchQuery)
         }
     }
 
