@@ -5,9 +5,9 @@ import com.google.gson.annotations.SerializedName
 
 data class ArtistCredit(
     @SerializedName("artist")
-    val artist: RecordingArtist?,
+    val artist: RecordingArtist? = null,
     @SerializedName("joinphrase")
-    val joinphrase: String?,
+    val joinphrase: String? = null,
     @SerializedName("name")
-    val name: String?
+    val name: String? = null
 )

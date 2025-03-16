@@ -5,13 +5,13 @@ import com.google.gson.annotations.SerializedName
 
 data class ReleaseMedia(
     @SerializedName("format")
-    val format: String?,
+    val format: String? = null,
     @SerializedName("position")
-    val position: Int?,
+    val position: Int? = null,
     @SerializedName("track")
-    val track: List<ReleaseTrack?>?,
+    val track: List<ReleaseTrack?> = emptyList(),
     @SerializedName("track-count")
-    val trackCount: Int?,
+    val trackCount: Int? = null,
     @SerializedName("track-offset")
-    val trackOffset: Int?
+    val trackOffset: Int? = null
 )

@@ -10,23 +10,23 @@ import org.listenbrainz.android.model.playlist.TrackExtensionData
 
 data class RecordingData(
     @SerializedName("artist-credit")
-    val artistCredit: List<ArtistCredit>?,
+    val artistCredit: List<ArtistCredit> = emptyList(),
     @SerializedName("first-release-date")
-    val firstReleaseDate: String?,
+    val firstReleaseDate: String? = null,
     @SerializedName("id")
-    val id: String?,
+    val id: String? = null,
     @SerializedName("length")
-    val length: Int?,
+    val length: Int? = null,
     @SerializedName("releases")
-    val releases: List<RecordingRelease>?,
+    val releases: List<RecordingRelease> = emptyList(),
     @SerializedName("score")
-    val score: Int?,
+    val score: Int? = null,
     @SerializedName("tags")
-    val tags: List<RecordingTag>?,
+    val tags: List<RecordingTag> = emptyList(),
     @SerializedName("title")
-    val title: String?,
+    val title: String? = null,
     @SerializedName("video")
-    val video: Any?
+    val video: Any? = null
 ){
     fun toPlaylistTrack(): PlaylistTrack{
         val artistIdentifier: MutableList<String> = mutableListOf()

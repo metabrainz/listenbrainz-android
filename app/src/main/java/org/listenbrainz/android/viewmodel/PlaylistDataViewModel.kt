@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.listenbrainz.android.R
 import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.User
@@ -66,6 +67,7 @@ class PlaylistDataViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             recordingQueryFlow.collectLatest { title->
                 if(title.isEmpty()){
+                    playlistScreenUIStateFlow.emit(playlistScreenUIStateFlow.value.copy(queriedRecordings = emptyList()))
                     return@collectLatest
                 }
                     playlistScreenUIStateFlow.emit(playlistScreenUIStateFlow.value.copy(isSearching = true))
@@ -115,7 +117,8 @@ class PlaylistDataViewModel @Inject constructor(
                         playlistData = playlist,
                         isLoading = false,
                         playlistMBID = mbid,
-                        isRefreshing = false
+                        isRefreshing = false,
+                        isUserPlaylistOwner = username == playlist.creator || playlist.extension.playlistExtensionData.collaborators.contains(username)
                     )
                 )
             } else {
@@ -134,7 +137,8 @@ class PlaylistDataViewModel @Inject constructor(
                             playlistData = playlist,
                             isLoading = false,
                             playlistMBID = mbid,
-                            isRefreshing = false
+                            isRefreshing = false,
+                            isUserPlaylistOwner = username == playlist.creator || playlist.extension.playlistExtensionData.collaborators.contains(username)
                         )
                     )
                 })
@@ -390,7 +394,9 @@ class PlaylistDataViewModel @Inject constructor(
                         })
                     }else{
                         //Refresh screen (to fetch cover art)
-                        getInitialDataInCreatePlaylistScreen(playlistScreenUIStateFlow.value.playlistMBID)
+                        emitMsg(R.string.track_added_successfully)
+                        if(playlistScreenUIStateFlow.value.playlistMBID != null)
+                        getDataInPlaylistScreen(playlistScreenUIStateFlow.value.playlistMBID!!, isRefresh = true)
                     }
                 }
                 Resource.Status.FAILED -> {
@@ -409,6 +415,18 @@ class PlaylistDataViewModel @Inject constructor(
         }
     }
 
+    fun changeAddTrackBottomSheetState(isVisible: Boolean){
+        viewModelScope.launch {
+            playlistScreenUIStateFlow.emit(playlistScreenUIStateFlow.value.copy(isAddTrackBottomSheetVisible = isVisible))
+        }
+    }
+
+    fun queryRecordings(query: String){
+        viewModelScope.launch {
+            recordingInputQueryFlow.emit(query)
+        }
+    }
+
     override val uiState: StateFlow<PlaylistDataUIState> = createUiStateFlow()
 
     override fun createUiStateFlow(): StateFlow<PlaylistDataUIState> {
@@ -418,11 +436,14 @@ class PlaylistDataViewModel @Inject constructor(
             playlistScreenUIStateFlow,
             userInputQueryFlow,
             userListFlow,
-            errorFlow
+            errorFlow,
+            recordingInputQueryFlow
         ) { array ->
             PlaylistDataUIState(
                 error = array[5] as ResponseError?,
-                playlistDetailUIState = array[2] as PlaylistDetailUIState,
+                playlistDetailUIState = (array[2] as PlaylistDetailUIState).copy(
+                    queryText = array[6] as String?
+                ),
                 createEditScreenUIState = (array[1] as CreateEditScreenUIState).copy(
                     collaboratorQueryText = array[3] as String,
                     usersSearched = array[4] as List<User>

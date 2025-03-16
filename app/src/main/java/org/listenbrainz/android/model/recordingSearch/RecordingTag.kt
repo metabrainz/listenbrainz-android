@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 
 data class RecordingTag(
     @SerializedName("count")
-    val count: Int?,
+    val count: Int? = null,
     @SerializedName("name")
-    val name: String?
+    val name: String? = null
 )

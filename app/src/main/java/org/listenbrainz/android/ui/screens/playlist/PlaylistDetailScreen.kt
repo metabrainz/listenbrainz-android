@@ -3,15 +3,20 @@ package org.listenbrainz.android.ui.screens.playlist
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -38,7 +43,7 @@ import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun PlaylistDetailScreen(
     playlistMBID: String,
@@ -55,6 +60,9 @@ fun PlaylistDetailScreen(
         onRefresh = {
             playlistViewModel.getDataInPlaylistScreen(playlistMBID, isRefresh = true)
         }
+    )
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true
     )
 
     LaunchedEffect(Unit) {
@@ -93,10 +101,14 @@ fun PlaylistDetailScreen(
                                 scope.launch {
                                     snackbarState.showSnackbar(it)
                                 }
+                            },
+                            onAddTrackClick = {
+                                playlistViewModel.changeAddTrackBottomSheetState(true)
                             }
                         )
                     } else {
-                        Column(modifier = Modifier.align(Alignment.Center)) {
+                        Column(modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally) {
                             HelperText(modifier = Modifier.padding(16.dp),
                                 text = "Couldn't load the playlist data")
                             RetryButton() {
@@ -114,6 +126,35 @@ fun PlaylistDetailScreen(
             backgroundColor = ListenBrainzTheme.colorScheme.level1,
             state = pullRefreshState
         )
+
+        if(uiState.playlistDetailUIState.isAddTrackBottomSheetVisible){
+            ModalBottomSheet(
+                onDismissRequest = {
+                    playlistViewModel.changeAddTrackBottomSheetState(false)
+                },
+                sheetState = sheetState,
+                modifier = Modifier.statusBarsPadding()
+            ) {
+                AddTrackToPlaylist(
+                    modifier = Modifier.fillMaxSize(),
+                    playlistDetailUIState = uiState.playlistDetailUIState,
+                    onTrackSelect = { recordingData ->
+                       playlistViewModel.addTrackToPlaylist(
+                            recordingData
+                        )
+                        playlistViewModel.changeAddTrackBottomSheetState(false)
+                    },
+                    onQueryChange = {
+                        playlistViewModel.queryRecordings(it)
+                    },
+                    onDismiss = {
+                        playlistViewModel.changeAddTrackBottomSheetState(false)
+                        playlistViewModel.queryRecordings("")
+                    }
+                )
+            }
+        }
+
         ErrorBar(socialUiState.error, socialViewModel::clearErrorFlow)
         SuccessBar(socialUiState.successMsgId, socialViewModel::clearMsgFlow, snackbarState)
         ErrorBar(uiState.error, playlistViewModel::clearErrorFlow)
@@ -126,10 +167,24 @@ private fun PlaylistDetailContent(
     playlistDetailUIState: PlaylistDetailUIState,
     goToArtistPage: (String) -> Unit,
     showsnackbar: (String) -> Unit,
+    onAddTrackClick: () -> Unit,
     onTrackClick: (PlaylistTrack) -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
+            if(playlistDetailUIState.isUserPlaylistOwner) {
+                item {
+                    AddTrackCard(
+                        modifier = Modifier.padding(
+                            horizontal = ListenBrainzTheme.paddings.horizontal,
+                            vertical = ListenBrainzTheme.paddings.lazyListAdjacent
+                        ),
+                        onClick = {
+                            onAddTrackClick()
+                        }
+                    )
+                }
+            }
             items(playlistDetailUIState.playlistData?.track?.size ?: 0) { index ->
                 val playlist = playlistDetailUIState.playlistData?.track?.get(index)
                 if (playlist != null) {

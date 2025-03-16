@@ -5,13 +5,13 @@ import com.google.gson.annotations.SerializedName
 
 data class RecordingArtist(
     @SerializedName("aliases")
-    val aliases: List<Aliase?>?,
+    val aliases: List<Aliase?> = emptyList(),
     @SerializedName("disambiguation")
-    val disambiguation: String?,
+    val disambiguation: String? = null,
     @SerializedName("id")
-    val id: String?,
+    val id: String? = null,
     @SerializedName("name")
-    val name: String?,
+    val name: String? = null,
     @SerializedName("sort-name")
-    val sortName: String?
+    val sortName: String? = null
 )

@@ -35,7 +35,9 @@ data class PlaylistDetailUIState(
     val isCoverArtLoading: Boolean = false,
     val playlistMBID: String? = null,
     val isPlaylistEditable: Boolean = false,
-    val queryText: String = "",
+    val queryText: String? = "",
     val isSearching: Boolean = false,
-    val queriedRecordings: List<RecordingData> = emptyList()
+    val queriedRecordings: List<RecordingData> = emptyList(),
+    val isAddTrackBottomSheetVisible : Boolean = false,
+    val isUserPlaylistOwner: Boolean = false
 )

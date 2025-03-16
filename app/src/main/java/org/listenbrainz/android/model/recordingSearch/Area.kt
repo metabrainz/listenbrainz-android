@@ -5,11 +5,11 @@ import com.google.gson.annotations.SerializedName
 
 data class Area(
     @SerializedName("id")
-    val id: String?,
+    val id: String? = null,
     @SerializedName("iso-3166-1-codes")
-    val iso31661Codes: List<String?>?,
+    val iso31661Codes: List<String?> = emptyList(),
     @SerializedName("name")
-    val name: String?,
+    val name: String? = null,
     @SerializedName("sort-name")
-    val sortName: String?
+    val sortName: String? = null
 )

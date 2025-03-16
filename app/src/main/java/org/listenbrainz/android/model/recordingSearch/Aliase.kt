@@ -5,19 +5,19 @@ import com.google.gson.annotations.SerializedName
 
 data class Aliase(
     @SerializedName("begin-date")
-    val beginDate: String?,
+    val beginDate: String? = null,
     @SerializedName("end-date")
-    val endDate: String?,
+    val endDate: String? = null,
     @SerializedName("locale")
-    val locale: String?,
+    val locale: String? = null,
     @SerializedName("name")
-    val name: String?,
+    val name: String? = null,
     @SerializedName("primary")
-    val primary: Any?,
+    val primary: Any? = null,
     @SerializedName("sort-name")
-    val sortName: String?,
+    val sortName: String? = null,
     @SerializedName("type")
-    val type: String?,
+    val type: String? = null,
     @SerializedName("type-id")
-    val typeId: String?
+    val typeId: String? = null
 )

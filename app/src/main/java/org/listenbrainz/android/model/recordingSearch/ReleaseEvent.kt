@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 
 data class ReleaseEvent(
     @SerializedName("area")
-    val area: Area?,
+    val area: Area? = null,
     @SerializedName("date")
-    val date: String?
+    val date: String? = null
 )

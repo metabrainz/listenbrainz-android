@@ -5,17 +5,17 @@ import com.google.gson.annotations.SerializedName
 
 data class RecordingReleaseGroup(
     @SerializedName("id")
-    val id: String?,
+    val id: String? = null,
     @SerializedName("primary-type")
-    val primaryType: String?,
+    val primaryType: String? = null,
     @SerializedName("primary-type-id")
-    val primaryTypeId: String?,
+    val primaryTypeId: String? = null,
     @SerializedName("secondary-type-ids")
-    val secondaryTypeIds: List<String?>?,
+    val secondaryTypeIds: List<String?> = emptyList(),
     @SerializedName("secondary-types")
-    val secondaryTypes: List<String?>?,
+    val secondaryTypes: List<String?> = emptyList(),
     @SerializedName("title")
-    val title: String?,
+    val title: String? = null,
     @SerializedName("type-id")
-    val typeId: String?
+    val typeId: String? = null
 )

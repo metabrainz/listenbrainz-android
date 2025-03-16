@@ -5,11 +5,11 @@ import com.google.gson.annotations.SerializedName
 
 data class ReleaseTrack(
     @SerializedName("id")
-    val id: String?,
+    val id: String? = null,
     @SerializedName("length")
-    val length: Int?,
+    val length: Int? = null,
     @SerializedName("number")
-    val number: String?,
+    val number: String? = null,
     @SerializedName("title")
-    val title: String?
+    val title: String? = null
 )

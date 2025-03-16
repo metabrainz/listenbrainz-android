@@ -5,11 +5,11 @@ import com.google.gson.annotations.SerializedName
 
 data class RecordingSearchPayload(
     @SerializedName("count")
-    val count: Int?,
+    val count: Int? = null,
     @SerializedName("created")
-    val created: String?,
+    val created: String? = null,
     @SerializedName("offset")
-    val offset: Int?,
+    val offset: Int? = null,
     @SerializedName("recordings")
-    val recordings: List<RecordingData>?
+    val recordings: List<RecordingData> = emptyList()
 )
