@@ -44,7 +44,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
  * @param errorCoverArt Int - Image to display when cover art could not be loaded
  * @param onClickCard () -> Unit - Function to be called when card is clicked
  * @param onDropdownClick (PlaylistDropdownItems) -> Unit - Function to be called when dropdown item is clicked
- * @param isUserSelf Tells whether the current profile belongs to the logged in user
+ * @param canUserEdit Tells whether the current profile belongs to the logged in user
  */
 @Composable
 fun PlaylistGridViewCard(
@@ -55,7 +55,7 @@ fun PlaylistGridViewCard(
     @DrawableRes errorCoverArt: Int = R.drawable.playlist_card_bg1,
     onClickCard: () -> Unit,
     onDropdownClick: (PlaylistDropdownItems) -> Unit,
-    isUserSelf: Boolean
+    canUserEdit: Boolean
 ) {
     var isDropdownEnabled by remember {
         mutableStateOf(false)
@@ -121,7 +121,7 @@ fun PlaylistGridViewCard(
                             onDropdownClick(it)
                             isDropdownEnabled = false
                         },
-                        isPrivateAllowed = isUserSelf
+                        isPrivateAllowed = canUserEdit
                     )
                 }
             }
@@ -150,7 +150,7 @@ fun PlaylistListViewCard(
     @DrawableRes errorCoverArt: Int = R.drawable.playlist_card_bg1,
     onDropdownClick: (PlaylistDropdownItems) -> Unit,
     onClickCard: () -> Unit,
-    isUserSelf: Boolean
+    canUserEdit: Boolean
 ) {
     var isDropdownEnabled by remember {
         mutableStateOf(false)
@@ -199,7 +199,7 @@ fun PlaylistListViewCard(
                     onDropdownClick(it)
                     isDropdownEnabled = false
                 },
-                isPrivateAllowed = isUserSelf
+                isPrivateAllowed = canUserEdit
             )
         },
         onDropdownIconClick = {
@@ -221,7 +221,7 @@ fun PlaylistGridViewCardPreview() {
             updatedDate = "Feb 9",
             onClickCard = { },
             onDropdownClick = { },
-            isUserSelf = false
+            canUserEdit = false
         )
     }
 }
@@ -239,7 +239,7 @@ fun PlaylistListViewCardPreview() {
             updatedDate = "Feb 9",
             onClickCard = {},
             onDropdownClick = {},
-            isUserSelf = false
+            canUserEdit = false
         )
     }
 }
