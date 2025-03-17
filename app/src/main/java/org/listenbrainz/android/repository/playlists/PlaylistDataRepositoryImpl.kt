@@ -41,22 +41,25 @@ class PlaylistDataRepositoryImpl @Inject constructor(
 
     override suspend fun getPlaylistCoverArt(
         playlistMBID: String,
-        dimension: Int,
         layout: Int
     ): Resource<String?> {
+        //First try if cover art of dimension 3 is available, then 2 and then 1
+        val dimensions = listOf(3, 2, 1)
+
         return try {
-            val response =
-                playlistService.getPlaylistCoverArt(playlistMBID, dimension, layout).awaitResponse()
-            if (response.isSuccessful) {
-                val svgData = response.body()?.string()
-                Resource(Resource.Status.SUCCESS, svgData, null)
-            } else {
-                Resource(Resource.Status.FAILED, null)
+            for (dimension in dimensions) {
+                val response = playlistService.getPlaylistCoverArt(playlistMBID, dimension, layout).awaitResponse()
+                if (response.isSuccessful) {
+                    val svgData = response.body()?.string()
+                    return Resource(Resource.Status.SUCCESS, svgData, null)
+                }
             }
+            Resource(Resource.Status.FAILED, null)
         } catch (e: Exception) {
             Resource(Resource.Status.FAILED, null)
         }
     }
+
 
     override suspend fun addPlaylist(playlistPayload: PlaylistPayload): Resource<AddCopyPlaylistResponse?> {
         return parseResponse {

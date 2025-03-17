@@ -22,13 +22,14 @@ import coil.request.ImageRequest
 import org.listenbrainz.android.R
 import org.listenbrainz.android.util.CoverArtImageLinkExtractor
 import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.math.min
 
 /**
  * Composable to display cover art images in a grid layout.
  * @param modifier Modifier to be applied to the layout.
  * @param coverArt Cover art svg link.
- * @param gridSize Number of images to be displayed in each row and column.
+ * @param maxGridSize Number of images to be displayed in each row and column.
  * @param errorImage Drawable resource to be displayed in case of error.
  * @param areImagesClickable Boolean to determine if images are clickable.
  */
@@ -36,7 +37,7 @@ import kotlin.math.min
 fun CoverArtComposable(
     modifier: Modifier = Modifier,
     coverArt: String?,
-    gridSize: Int,
+    maxGridSize: Int,
     errorImage: Int = R.drawable.playlist_card_bg1,
     areImagesClickable: Boolean = false,
 ) {
@@ -51,25 +52,20 @@ fun CoverArtComposable(
         }
     } else {
         val context = LocalContext.current
-        val (imageLinks, anchorLinks) = remember(coverArt) {
+        val (imageLinks, anchorLinks, actualGridSize) = remember(coverArt) {
             val noOfImages = CoverArtImageLinkExtractor.getImageCount(coverArt)
             val imageLinks = CoverArtImageLinkExtractor.extractImageLinks(coverArt).toMutableList()
             val anchorLinks = CoverArtImageLinkExtractor.extractAnchorLinks(coverArt).toMutableList()
-
-            //Handling cases where number of images is less than the grid size required
-            if (noOfImages < gridSize * gridSize) {
-                for (i in 0 until gridSize * gridSize - noOfImages) {
-                    imageLinks.add("")
-                    anchorLinks.add("")
-                }
+            var gridSize = maxGridSize
+            if(noOfImages < maxGridSize * maxGridSize) {
+                gridSize = floor(Math.sqrt(noOfImages.toDouble())).toInt()
             }
-
-            imageLinks.toList() to anchorLinks.toList()
+            Triple(imageLinks.toList(), anchorLinks.toList(), gridSize)
         }
 
         Box(modifier) {
             ImageGridCover(
-                imageUrls = imageLinks, columns = gridSize, errorImage = errorImage,
+                imageUrls = imageLinks, columns = actualGridSize, errorImage = errorImage,
                 anchorLinks = anchorLinks,
                 isClickable = areImagesClickable,
                 onClickImage = {
