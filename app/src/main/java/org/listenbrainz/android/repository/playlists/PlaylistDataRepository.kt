@@ -22,7 +22,6 @@ interface PlaylistDataRepository {
     //Gets cover art of a particular playlist
     suspend fun getPlaylistCoverArt(
         playlistMBID: String,
-        dimension: Int = DEFAULT_PLAYLIST_GRID_SIZE,
         layout: Int = DEFAULT_LAYOUT
     ): Resource<String?>
 

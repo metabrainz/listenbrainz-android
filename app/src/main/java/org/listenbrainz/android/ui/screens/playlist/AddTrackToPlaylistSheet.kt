@@ -173,7 +173,7 @@ fun AddTrackCard(
             .height(sizes.listenCardHeight)
             .clickable { onClick() },
         shape = RoundedCornerShape(sizes.listenCardCorner),
-        colors = CardDefaults.cardColors(containerColor = themeColors.background),
+        colors = CardDefaults.cardColors(containerColor = themeColors.level1),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
