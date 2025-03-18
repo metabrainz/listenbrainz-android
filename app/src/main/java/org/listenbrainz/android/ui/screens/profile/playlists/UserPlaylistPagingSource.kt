@@ -3,6 +3,9 @@ package org.listenbrainz.android.ui.screens.profile.playlists
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
@@ -44,10 +47,14 @@ class UserPlaylistPagingSource(
         return when (result.status) {
             Resource.Status.SUCCESS -> {
                 val data = (result.data?.playlists ?: emptyList()).map { it.playlist }
-                val dataWithCoverArt = data.map {
-                    val coverArtResult = it.getPlaylistMBID()
-                        ?.let { it1 -> playlistRepository.getPlaylistCoverArt(it1) }
-                    it.copy(coverArt = coverArtResult?.data)
+                val dataWithCoverArt = withContext(ioDispatcher) {
+                    data.map { playlist ->
+                        async {
+                            val coverArtResult = playlist.getPlaylistMBID()
+                                ?.let { it1 -> playlistRepository.getPlaylistCoverArt(it1) }
+                            playlist.copy(coverArt = coverArtResult?.data)
+                        }
+                    }.awaitAll()
                 }
                 val nextKey = if (data.isEmpty()) null else params.key?.plus(params.loadSize)
                 LoadResult.Page(

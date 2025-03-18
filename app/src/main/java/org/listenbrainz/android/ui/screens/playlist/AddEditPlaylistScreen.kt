@@ -85,12 +85,14 @@ fun CreateEditPlaylistScreen(
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        viewModel.getInitialData(mbid)
+        viewModel.getInitialDataInCreatePlaylistScreen(mbid)
     }
     LaunchedEffect(uiState.error) {
         scope.launch {
-            if (uiState.error != null)
+            if (uiState.error != null) {
                 snackbarHostState.showSnackbar(uiState.error?.toast ?: "Some error occurred")
+                viewModel.clearErrorFlow()
+            }
         }
     }
 
@@ -143,7 +145,7 @@ fun CreateEditPlaylistScreen(
                     RetryButton(
                         modifier = Modifier.align(Alignment.Center)
                     ) {
-                        viewModel.getInitialData(mbid)
+                        viewModel.getInitialDataInCreatePlaylistScreen(mbid)
                     }
                 }
             }
@@ -369,7 +371,9 @@ fun CollaboratorAssistChip(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
         onClick = { onRemove() },
-        colors = AssistChipDefaults.assistChipColors().copy(
+        border = null,
+        colors =
+            AssistChipDefaults.assistChipColors().copy(
             containerColor = lb_purple_night,
             labelColor = Color.White
         ),

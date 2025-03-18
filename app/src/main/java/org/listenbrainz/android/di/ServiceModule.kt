@@ -115,6 +115,7 @@ class ServiceModule {
                 val original = chain.request()
                 val request = original.newBuilder()
                     .header("user-agent", "ListenBrainz Android")
+                    .header("accept", "application/json")
                     .method(original.method, original.body)
                     .build()
                 chain.proceed(request)

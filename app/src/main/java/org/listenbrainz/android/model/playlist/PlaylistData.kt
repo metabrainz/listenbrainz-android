@@ -17,5 +17,6 @@ data class PlaylistData(
     @SerializedName("title")
     val title: String? = null,
     @SerializedName("track")
-    val track: List<PlaylistTrack> = listOf()
+    val track: List<PlaylistTrack> = listOf(),
+    val coverArt: String? = null
 )

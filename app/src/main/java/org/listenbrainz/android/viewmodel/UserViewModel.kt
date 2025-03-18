@@ -39,6 +39,7 @@ import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistPagingS
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
 import org.listenbrainz.android.ui.screens.profile.stats.UserGlobal
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
+import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
 
@@ -170,7 +171,7 @@ class UserViewModel @Inject constructor(
     suspend fun getUserDataFromRemote(
         inputUsername: String?
     ) = coroutineScope {
-        currentUser.value = inputUsername
+        currentUser.emit(inputUsername)
         val listensTabData = async { getUserListensData(inputUsername) }
         val statsTabData = async { getUserStatsData(inputUsername) }
         val tasteTabData = async { getUserTasteData(inputUsername) }

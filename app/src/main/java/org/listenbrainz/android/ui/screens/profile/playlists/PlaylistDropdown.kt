@@ -54,7 +54,7 @@ enum class PlaylistDropdownItems(
     val image: Int,
     val isPrivate: Boolean
 ) {
-    DUPLICATE(title = "Duplicate", image = R.drawable.playlist_save, isPrivate = false),
+    DUPLICATE(title = "Duplicate", image = R.drawable.playlist_duplicate_svg, isPrivate = false),
     DELETE(title = "Delete", image = R.drawable.ic_delete, isPrivate = true),
     SHARE(title = "Share", image = R.drawable.playlist_share_btn, isPrivate = false),
     EDIT(title = "Edit", image = R.drawable.ic_review, isPrivate = true),

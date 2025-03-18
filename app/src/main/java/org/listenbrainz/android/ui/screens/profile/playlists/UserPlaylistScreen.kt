@@ -66,7 +66,8 @@ import org.listenbrainz.android.viewmodel.UserViewModel
 fun UserPlaylistScreen(
     snackbarState: SnackbarHostState,
     userViewModel: UserViewModel,
-    playlistViewModel: PlaylistDataViewModel
+    playlistViewModel: PlaylistDataViewModel,
+    goToPlaylist: (String)->Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -134,11 +135,7 @@ fun UserPlaylistScreen(
             }
         },
         onClickPlaylist = { playlist ->
-            Toast.makeText(
-                context,
-                "Yet to be implemented",
-                Toast.LENGTH_SHORT
-            ).show()
+            playlist.getPlaylistMBID()?.let { goToPlaylist(it) }
         },
         onRetry = {
             collabPlaylistsData.refresh()
@@ -355,7 +352,7 @@ private fun UserPlaylistScreenBase(
             modifier = Modifier.align(Alignment.TopCenter),
             refreshing = isRefreshing,
             contentColor = ListenBrainzTheme.colorScheme.lbSignatureInverse,
-            backgroundColor = ListenBrainzTheme.colorScheme.level1,
+                backgroundColor = ListenBrainzTheme.colorScheme.level1,
             state = pullRefreshState
         )
 
