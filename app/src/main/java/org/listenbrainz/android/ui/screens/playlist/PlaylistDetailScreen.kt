@@ -600,6 +600,7 @@ fun PlaylistCard(
                         .size(130.dp)
                         .clip(RoundedCornerShape(8.dp)),
                     coverArt = coverArt,
+                    areImagesClickable = true,
                     maxGridSize = 3
                 )
 
@@ -720,6 +721,7 @@ fun PlaylistButton(
     Box(
         modifier = modifier
             .then(if (isCircular) Modifier.size(48.dp) else Modifier)
+            .clip(if (isCircular) CircleShape else RoundedCornerShape(16.dp))
             .background(
                 color = if (enabled) lb_purple else Color.Gray,
                 shape = if (isCircular) CircleShape else RoundedCornerShape(16.dp)

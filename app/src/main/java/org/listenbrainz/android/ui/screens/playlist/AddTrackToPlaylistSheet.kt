@@ -216,7 +216,7 @@ fun AddTrackCard(
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun AddToPlaylistPreview() {
-    ListenBrainzTheme{
+    ListenBrainzTheme {
         AddTrackToPlaylist(
             playlistDetailUIState = PlaylistDetailUIState(),
             onTrackSelect = {},

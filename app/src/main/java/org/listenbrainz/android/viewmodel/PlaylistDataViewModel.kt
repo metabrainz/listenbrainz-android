@@ -449,7 +449,7 @@ class PlaylistDataViewModel @Inject constructor(
 
     fun reorderPlaylist(moveTrack: MoveTrack){
         viewModelScope.launch {
-            if(!playlistScreenUIStateFlow.value.isUserPlaylistOwner)
+            if(!playlistScreenUIStateFlow.value.isUserPlaylistOwner || (moveTrack.from == moveTrack.to))
                 return@launch
             val result = repository.moveTrack(
                 playlistScreenUIStateFlow.value.playlistMBID,
