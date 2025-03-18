@@ -8,8 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -176,8 +178,8 @@ fun AppNavigation(
                     type = NavType.StringType
                 }
             )
-        ){
-            val playlistMbid = it.arguments?.getString("mbid")
+        ){ backStackTrace ->
+            val playlistMbid = backStackTrace.arguments?.getString("mbid")
             if (playlistMbid == null){
                 LaunchedEffect(Unit){
                     snackbarState.showSnackbar("The playlist page can't be loaded")
@@ -186,7 +188,8 @@ fun AppNavigation(
                  PlaylistDetailScreen(
                     playlistMBID = playlistMbid,
                     snackbarState = snackbarState,
-                    goToArtistPage = ::goToArtistPage
+                    goToArtistPage = ::goToArtistPage,
+                     goToUserPage = ::goToUserProfile
                  )
             }
         }
