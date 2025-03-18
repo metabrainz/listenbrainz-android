@@ -4,6 +4,8 @@ import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +21,9 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListItemInfo
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
@@ -37,6 +42,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -47,6 +54,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextLayoutResult
@@ -57,9 +66,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.playlist.MoveTrack
 import org.listenbrainz.android.model.playlist.PlaylistData
 import org.listenbrainz.android.model.playlist.PlaylistTrack
 import org.listenbrainz.android.ui.components.CoverArtComposable
@@ -71,6 +82,7 @@ import org.listenbrainz.android.ui.screens.feed.RetryButton
 import org.listenbrainz.android.ui.screens.profile.createdforyou.formatDateLegacy
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
+import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.util.Utils.formatDurationSeconds
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
@@ -159,6 +171,12 @@ fun PlaylistDetailScreen(
                                         context,
                                         uiState.playlistDetailUIState.playlistData?.identifier!!
                                     )
+                            },
+                            onPermanentlyMoveTrack = {
+                                playlistViewModel.reorderPlaylist(it)
+                            },
+                            onTemporarilyMoveTrack = { fromIndex, toIndex ->
+                                playlistViewModel.temporarilyMoveTrack(fromIndex, toIndex)
                             }
                         )
                     } else {
@@ -252,10 +270,125 @@ private fun PlaylistDetailContent(
     onTrackClick: (PlaylistTrack) -> Unit,
     onEditPlaylistClick: () -> Unit,
     onSharePlaylistClick: () -> Unit,
-    onDuplicatePlaylistClick: () -> Unit
+    onDuplicatePlaylistClick: () -> Unit,
+    onPermanentlyMoveTrack: (MoveTrack) -> Unit,
+    onTemporarilyMoveTrack: (fromIndex: Int, toIndex: Int) -> Unit
 ) {
+    val playlists = playlistDetailUIState.playlistData?.track ?: emptyList()
+    val listState = rememberLazyListState()
+
+    //Store the current index of item being dragged
+    var draggingItemIndex: Int? by remember {
+        mutableStateOf(null)
+    }
+
+    //Store the initial index of item being dragged
+    var draggingItemInitialIndex by remember {
+        mutableIntStateOf(0)
+    }
+    var targetIndex: Int by remember { mutableIntStateOf(0) }
+
+    var delta: Float by remember {
+        mutableFloatStateOf(0f)
+    }
+
+    var draggingItem: LazyListItemInfo? by remember {
+        mutableStateOf(null)
+    }
+
+    val scope = rememberCoroutineScope()
+
+
     Box(modifier = Modifier.fillMaxSize()) {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(key1 = listState) {
+                    detectDragGesturesAfterLongPress(
+                        onDragStart = { offset ->
+                            listState.layoutInfo.visibleItemsInfo
+                                .firstOrNull { item -> offset.y.toInt() in item.offset..(item.offset + item.size) }
+                                ?.also {
+                                    (it.contentType as? DraggableItem)?.let { draggableItem ->
+                                        draggingItem = it
+                                        draggingItemIndex = draggableItem.index
+                                        draggingItemInitialIndex = draggingItemIndex ?: 0
+                                    }
+                                }
+                        },
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+                            delta += dragAmount.y
+
+                            val currentDraggingItemIndex =
+                                draggingItemIndex ?: return@detectDragGesturesAfterLongPress
+                            val currentDraggingItem =
+                                draggingItem ?: return@detectDragGesturesAfterLongPress
+
+                            val startOffset = currentDraggingItem.offset + delta
+                            val endOffset =
+                                currentDraggingItem.offset + currentDraggingItem.size + delta
+                            val middleOffset = startOffset + (endOffset - startOffset) / 2
+
+                            val targetItem =
+                                listState.layoutInfo.visibleItemsInfo.find { item ->
+                                    middleOffset.toInt() in item.offset..item.offset + item.size &&
+                                            currentDraggingItem.index != item.index &&
+                                            item.contentType is DraggableItem
+                                }
+
+                            if (targetItem != null) {
+                                targetIndex = (targetItem.contentType as DraggableItem).index
+                                onTemporarilyMoveTrack(currentDraggingItemIndex, targetIndex)
+                                draggingItemIndex = targetIndex
+                                delta += currentDraggingItem.offset - targetItem.offset
+                                draggingItem = targetItem
+                            } else {
+                                val startOffsetToTop =
+                                    startOffset - listState.layoutInfo.viewportStartOffset
+                                val endOffsetToBottom =
+                                    endOffset - listState.layoutInfo.viewportEndOffset
+                                val scroll =
+                                    when {
+                                        startOffsetToTop < 0 -> startOffsetToTop.coerceAtMost(0f)
+                                        endOffsetToBottom > 0 -> endOffsetToBottom.coerceAtLeast(0f)
+                                        else -> 0f
+                                    }
+                                val canScrollDown =
+                                    currentDraggingItemIndex != playlists.size - 1 && endOffsetToBottom > 0
+                                val canScrollUp =
+                                    currentDraggingItemIndex != 0 && startOffsetToTop < 0
+                                if (scroll != 0f && (canScrollUp || canScrollDown)) {
+                                    scope.launch {
+                                        listState.scrollBy(scroll)
+                                    }
+                                }
+                            }
+                        },
+                        onDragEnd = {
+
+                            if (playlistDetailUIState.playlistMBID != null)
+                                onPermanentlyMoveTrack(
+                                    MoveTrack(
+                                        playlistDetailUIState.playlistMBID,
+                                        from = draggingItemInitialIndex,
+                                        to = targetIndex,
+                                        count = 1
+                                    )
+                                )
+                            draggingItem = null
+                            draggingItemIndex = null
+                            delta = 0f
+                        },
+                        onDragCancel = {
+                            draggingItem = null
+                            draggingItemIndex = null
+                            delta = 0f
+                        },
+                    )
+                },
+            state = listState
+        ) {
 
             item {
                 PlaylistCard(
@@ -349,48 +482,62 @@ private fun PlaylistDetailContent(
                     )
                 }
             }
-            items(playlistDetailUIState.playlistData?.track?.size ?: 0) { index ->
-                val playlist = playlistDetailUIState.playlistData?.track?.get(index)
-                if (playlist != null) {
-                    ListenCardSmallDefault(
-                        modifier = Modifier.padding(
-                            horizontal = ListenBrainzTheme.paddings.horizontal,
-                            vertical = ListenBrainzTheme.paddings.lazyListAdjacent
-                        ),
-                        metadata = (playlist.toMetadata()),
-                        coverArtUrl = getCoverArtUrl(
-                            caaReleaseMbid = playlist.extension.trackExtensionData.additionalMetadata.caaReleaseMbid,
-                            caaId = playlist.extension.trackExtensionData.additionalMetadata.caaId
-                        ),
-                        onDropdownSuccess = { messsage ->
-                            showsnackbar(messsage)
-                        },
-                        onDropdownError = { error ->
-                            showsnackbar(error.toast)
-                        },
-                        goToArtistPage = goToArtistPage,
-                        onClick = {
-                            onTrackClick(playlist)
-                        },
-                        trailingContent = {
-                            Text(
-                                modifier = Modifier
-                                    .padding(bottom = 4.dp),
-                                text = formatDurationSeconds(playlist.duration?.div(1000) ?: 0),
-                                style = TextStyle(
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Medium
-                                ),
-                                color = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.8f),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        },
-                        enableTrailingContent = true
-                    )
-
-
+            itemsIndexed(
+                playlists,
+                contentType = { index, _ -> DraggableItem(index = index) }) { index, playlistTrack ->
+                val modifier = if (draggingItemIndex == index && playlistDetailUIState.isUserPlaylistOwner) {
+                    Modifier
+                        .zIndex(1f)
+                        .graphicsLayer {
+                            translationY = delta
+                        }
+                } else {
+                    Modifier
                 }
+                ListenCardSmallDefault(
+                    modifier = modifier.padding(
+                        horizontal = ListenBrainzTheme.paddings.horizontal,
+                        vertical = ListenBrainzTheme.paddings.lazyListAdjacent
+                    ),
+                    metadata = (playlistTrack.toMetadata()),
+                    coverArtUrl = getCoverArtUrl(
+                        caaReleaseMbid = playlistTrack.extension.trackExtensionData.additionalMetadata.caaReleaseMbid,
+                        caaId = playlistTrack.extension.trackExtensionData.additionalMetadata.caaId
+                    ),
+                    onDropdownSuccess = { messsage ->
+                        showsnackbar(messsage)
+                    },
+                    onDropdownError = { error ->
+                        showsnackbar(error.toast)
+                    },
+                    goToArtistPage = goToArtistPage,
+                    onClick = {
+                        onTrackClick(playlistTrack)
+                    },
+                    trailingContent = {
+                        Text(
+                            modifier = Modifier
+                                .padding(bottom = 4.dp),
+                            text = formatDurationSeconds(playlistTrack.duration?.div(1000) ?: 0),
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Medium
+                            ),
+                            color = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.8f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                    enableTrailingContent = true,
+                    preCoverArtContent = if (playlistDetailUIState.isUserPlaylistOwner) { modifier2 ->
+                        Icon(
+                            modifier = modifier2.padding(horizontal = 4.dp),
+                            painter = painterResource(R.drawable.playlist_reorder),
+                            tint = ListenBrainzTheme.colorScheme.listenText,
+                            contentDescription = "Reorder Icon"
+                        )
+                    } else null
+                )
             }
             item {
                 if (playlistDetailUIState.playlistData?.track?.size == 0) {
@@ -585,6 +732,8 @@ fun PlaylistButton(
     }
 }
 
+data class DraggableItem(val index: Int)
+
 
 @Composable
 fun HelperText(
@@ -624,7 +773,9 @@ fun PlaylistDetailScreenPreview() {
             onEditPlaylistClick = {},
             goToUserPage = {},
             onDuplicatePlaylistClick = {},
-            onSharePlaylistClick = {}
+            onSharePlaylistClick = {},
+            onPermanentlyMoveTrack = {},
+            onTemporarilyMoveTrack = { _, _ -> }
         )
     }
 }

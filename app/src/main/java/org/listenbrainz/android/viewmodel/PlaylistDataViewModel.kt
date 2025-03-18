@@ -20,6 +20,7 @@ import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.model.playlist.Extension
+import org.listenbrainz.android.model.playlist.MoveTrack
 import org.listenbrainz.android.model.playlist.PlaylistData
 import org.listenbrainz.android.model.playlist.PlaylistExtensionData
 import org.listenbrainz.android.model.playlist.PlaylistPayload
@@ -426,6 +427,62 @@ class PlaylistDataViewModel @Inject constructor(
                                 )
                             }
                     playlistScreenUIStateFlow.emit(playlistScreenUIStateFlow.value.copy(playlistData = updatedPlaylist))
+                }
+
+                else -> return@launch
+            }
+        }
+    }
+
+    fun temporarilyMoveTrack(fromIndex: Int, toIndex: Int){
+        viewModelScope.launch {
+            if(!playlistScreenUIStateFlow.value.isUserPlaylistOwner)
+                return@launch
+            val playlist = playlistScreenUIStateFlow.value.playlistData
+            val track = playlist?.track?.get(fromIndex)
+            val updatedTrack = playlist?.track?.toMutableList()
+            updatedTrack?.removeAt(fromIndex)
+            updatedTrack?.add(toIndex, track!!)
+            playlistScreenUIStateFlow.emit(playlistScreenUIStateFlow.value.copy(playlistData = playlist?.copy(track = updatedTrack?.toList()?:emptyList())))
+        }
+    }
+
+    fun reorderPlaylist(moveTrack: MoveTrack){
+        viewModelScope.launch {
+            if(!playlistScreenUIStateFlow.value.isUserPlaylistOwner)
+                return@launch
+            val result = repository.moveTrack(
+                playlistScreenUIStateFlow.value.playlistMBID,
+                moveTrack
+            )
+            when(result.status){
+                Resource.Status.SUCCESS -> {
+                    if(result.data?.status != "ok"){
+                        emitError(ResponseError.UNKNOWN.apply {
+                            actualResponse = "Some error occurred while moving the track"
+                        })
+                        if (playlistScreenUIStateFlow.value.playlistMBID != null)
+                            getDataInPlaylistScreen(
+                                playlistScreenUIStateFlow.value.playlistMBID!!,
+                                isRefresh = true
+                            )
+                    } else {
+                        emitMsg(R.string.track_moved_successfully)
+                        if (playlistScreenUIStateFlow.value.playlistMBID != null)
+                            getDataInPlaylistScreen(
+                                playlistScreenUIStateFlow.value.playlistMBID!!,
+                                isRefresh = true
+                            )
+                    }
+                }
+
+                Resource.Status.FAILED -> {
+                    emitError(result.error)
+                    if (playlistScreenUIStateFlow.value.playlistMBID != null)
+                        getDataInPlaylistScreen(
+                            playlistScreenUIStateFlow.value.playlistMBID!!,
+                            isRefresh = true
+                        )
                 }
 
                 else -> return@launch
