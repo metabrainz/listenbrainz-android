@@ -371,7 +371,9 @@ fun CollaboratorAssistChip(
         modifier = modifier,
         shape = RoundedCornerShape(16.dp),
         onClick = { onRemove() },
-        colors = AssistChipDefaults.assistChipColors().copy(
+        border = null,
+        colors =
+            AssistChipDefaults.assistChipColors().copy(
             containerColor = lb_purple_night,
             labelColor = Color.White
         ),
