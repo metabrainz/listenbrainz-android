@@ -1,7 +1,12 @@
 package org.listenbrainz.sharedtest.mocks
 
 import org.listenbrainz.android.model.playlist.AddCopyPlaylistResponse
+import org.listenbrainz.android.model.playlist.DeleteTracks
+import org.listenbrainz.android.model.playlist.EditPlaylistResponse
+import org.listenbrainz.android.model.playlist.MoveTrack
 import org.listenbrainz.android.model.playlist.PlaylistPayload
+import org.listenbrainz.android.model.playlist.PlaylistTrack
+import org.listenbrainz.android.model.recordingSearch.RecordingSearchPayload
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.sharedtest.testdata.PlaylistDataRepositoryTestData.playlistDetailsTestData
@@ -27,14 +32,67 @@ class MockPlaylistDataRepository : PlaylistDataRepository {
         )
     }
 
-    override suspend fun getPlaylistCoverArt(
-        playlistMBID: String,
-        dimension: Int,
-        layout: Int
-    ): Resource<String?> {
+    override suspend fun getPlaylistCoverArt(playlistMBID: String, layout: Int): Resource<String?> {
         return Resource(
             Resource.Status.SUCCESS,
             samplePlaylistCoverArt
+        )
+    }
+
+    override suspend fun addPlaylist(playlistPayload: PlaylistPayload): Resource<AddCopyPlaylistResponse?> {
+        return Resource(
+            Resource.Status.SUCCESS,
+            AddCopyPlaylistResponse("new_playlist_mbid", "Playlist copied successfully")
+        )
+    }
+
+    override suspend fun editPlaylist(
+        playlistPayload: PlaylistPayload,
+        playlistMbid: String?
+    ): Resource<EditPlaylistResponse?> {
+        return Resource(
+            Resource.Status.SUCCESS,
+            EditPlaylistResponse("Ok")
+        )
+    }
+
+    override suspend fun searchRecording(
+        searchQuery: String?,
+        mbid: String?
+    ): Resource<RecordingSearchPayload?> {
+        return Resource(
+            Resource.Status.SUCCESS,
+            RecordingSearchPayload()
+        )
+    }
+
+    override suspend fun moveTrack(
+        playlistMbid: String?,
+        moveTrack: MoveTrack
+    ): Resource<EditPlaylistResponse?> {
+        return Resource(
+            Resource.Status.SUCCESS,
+            EditPlaylistResponse("Ok")
+        )
+    }
+
+    override suspend fun addTracks(
+        playlistMbid: String?,
+        playlistTracks: List<PlaylistTrack>
+    ): Resource<EditPlaylistResponse?> {
+        return Resource(
+            Resource.Status.SUCCESS,
+            EditPlaylistResponse("Ok")
+        )
+    }
+
+    override suspend fun deleteTracks(
+        playlistMbid: String?,
+        deleteTracks: DeleteTracks
+    ): Resource<EditPlaylistResponse?> {
+        return Resource(
+            Resource.Status.SUCCESS,
+            EditPlaylistResponse("Ok")
         )
     }
 

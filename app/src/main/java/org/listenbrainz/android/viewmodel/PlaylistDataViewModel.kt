@@ -94,6 +94,8 @@ class PlaylistDataViewModel @Inject constructor(
                     else -> return@collectLatest
                 }
             }
+        }
+        viewModelScope.launch(ioDispatcher) {
             userQueryFlow.collectLatest { username ->
                 if (username.isEmpty()) {
                     return@collectLatest
