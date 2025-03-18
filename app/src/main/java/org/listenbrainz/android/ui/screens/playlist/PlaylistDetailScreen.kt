@@ -2,6 +2,7 @@ package org.listenbrainz.android.ui.screens.playlist
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -578,14 +579,7 @@ fun PlaylistCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp))
             .background(
-                brush = Brush.verticalGradient(
-                    listOf(
-                        ListenBrainzTheme.colorScheme.background,
-                        ListenBrainzTheme.colorScheme.level2.copy(0.2f),
-                        ListenBrainzTheme.colorScheme.level2.copy(0.4f),
-                        ListenBrainzTheme.colorScheme.level2.copy(0.6f)
-                    )
-                )
+                brush = ListenBrainzTheme.colorScheme.playlistScreenGradient
             )
     ) {
         Column(
@@ -683,6 +677,7 @@ fun PlaylistCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { isReadMoreEnabled = !isReadMoreEnabled }
+                        .animateContentSize()
                 ) {
                     Text(
                         text = description,
@@ -697,6 +692,14 @@ fun PlaylistCard(
                     if (isTextOverflowing && !isReadMoreEnabled) {
                         Text(
                             text = "Read more",
+                            color = themeColors.listenText,
+                            fontStyle = FontStyle.Italic,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }else if(isTextOverflowing){
+                        Text(
+                            text = "Read less",
                             color = themeColors.listenText,
                             fontStyle = FontStyle.Italic,
                             fontSize = 14.sp,

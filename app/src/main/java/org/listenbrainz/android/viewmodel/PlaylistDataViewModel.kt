@@ -110,7 +110,7 @@ class PlaylistDataViewModel @Inject constructor(
         }
     }
 
-    fun getDataInPlaylistScreen(mbid: String, isRefresh: Boolean = false) {
+    fun getDataInPlaylistScreen(mbid: String?, isRefresh: Boolean = false) {
         var playlist = PlaylistData()
         viewModelScope.launch(ioDispatcher) {
             username = appPreferences.username.get()
@@ -263,6 +263,9 @@ class PlaylistDataViewModel @Inject constructor(
 
     fun saveNewOrEditedPlaylist(onSuccess: (String) -> Unit) {
         viewModelScope.launch(ioDispatcher) {
+            val refreshPlaylistScreen = {
+                getDataInPlaylistScreen(mbid = createEditScreenUIStateFlow.value.playlistMBID)
+            }
             if (createEditScreenUIStateFlow.value.name.isEmpty()) {
                 createEditScreenUIStateFlow.emit(
                     createEditScreenUIStateFlow.value.copy(
@@ -293,6 +296,7 @@ class PlaylistDataViewModel @Inject constructor(
                             )
                         )
                         onSuccess("Playlist Saved Successfully!!")
+                        refreshPlaylistScreen()
                     },
                     onError = {
                         createEditScreenUIStateFlow.emit(
@@ -317,6 +321,7 @@ class PlaylistDataViewModel @Inject constructor(
                         val playlists = playlistData.value.toMutableMap()
                         playlists[createEditScreenUIStateFlow.value.playlistMBID!!] = playlist
                         playlistData.emit(playlists)
+                        refreshPlaylistScreen()
                     },
                     onError = {
                         emitError(it)
@@ -434,55 +439,56 @@ class PlaylistDataViewModel @Inject constructor(
         }
     }
 
-    fun temporarilyMoveTrack(fromIndex: Int, toIndex: Int){
+    fun temporarilyMoveTrack(fromIndex: Int, toIndex: Int) {
         viewModelScope.launch {
-            if(!playlistScreenUIStateFlow.value.isUserPlaylistOwner)
+            if (!playlistScreenUIStateFlow.value.isUserPlaylistOwner)
                 return@launch
             val playlist = playlistScreenUIStateFlow.value.playlistData
             val track = playlist?.track?.get(fromIndex)
             val updatedTrack = playlist?.track?.toMutableList()
             updatedTrack?.removeAt(fromIndex)
             updatedTrack?.add(toIndex, track!!)
-            playlistScreenUIStateFlow.emit(playlistScreenUIStateFlow.value.copy(playlistData = playlist?.copy(track = updatedTrack?.toList()?:emptyList())))
+            playlistScreenUIStateFlow.emit(
+                playlistScreenUIStateFlow.value.copy(
+                    playlistData = playlist?.copy(
+                        track = updatedTrack?.toList() ?: emptyList()
+                    )
+                )
+            )
         }
     }
 
-    fun reorderPlaylist(moveTrack: MoveTrack){
+    fun reorderPlaylist(moveTrack: MoveTrack) {
         viewModelScope.launch {
-            if(!playlistScreenUIStateFlow.value.isUserPlaylistOwner || (moveTrack.from == moveTrack.to))
+            val refreshPlaylistScreen = {
+                if (playlistScreenUIStateFlow.value.playlistMBID != null)
+                    getDataInPlaylistScreen(
+                        playlistScreenUIStateFlow.value.playlistMBID!!,
+                        isRefresh = true
+                    )
+            }
+            if (!playlistScreenUIStateFlow.value.isUserPlaylistOwner || (moveTrack.from == moveTrack.to))
                 return@launch
             val result = repository.moveTrack(
                 playlistScreenUIStateFlow.value.playlistMBID,
                 moveTrack
             )
-            when(result.status){
+            when (result.status) {
                 Resource.Status.SUCCESS -> {
-                    if(result.data?.status != "ok"){
+                    if (result.data?.status != "ok") {
                         emitError(ResponseError.UNKNOWN.apply {
                             actualResponse = "Some error occurred while moving the track"
                         })
-                        if (playlistScreenUIStateFlow.value.playlistMBID != null)
-                            getDataInPlaylistScreen(
-                                playlistScreenUIStateFlow.value.playlistMBID!!,
-                                isRefresh = true
-                            )
+                        refreshPlaylistScreen()
                     } else {
                         emitMsg(R.string.track_moved_successfully)
-                        if (playlistScreenUIStateFlow.value.playlistMBID != null)
-                            getDataInPlaylistScreen(
-                                playlistScreenUIStateFlow.value.playlistMBID!!,
-                                isRefresh = true
-                            )
+                        refreshPlaylistScreen()
                     }
                 }
 
                 Resource.Status.FAILED -> {
                     emitError(result.error)
-                    if (playlistScreenUIStateFlow.value.playlistMBID != null)
-                        getDataInPlaylistScreen(
-                            playlistScreenUIStateFlow.value.playlistMBID!!,
-                            isRefresh = true
-                        )
+                    refreshPlaylistScreen()
                 }
 
                 else -> return@launch
