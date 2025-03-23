@@ -79,6 +79,11 @@ import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.components.SuccessBar
+import org.listenbrainz.android.ui.components.dialogs.BaseDialog
+import org.listenbrainz.android.ui.components.dialogs.DialogNegativeButton
+import org.listenbrainz.android.ui.components.dialogs.DialogPositiveButton
+import org.listenbrainz.android.ui.components.dialogs.DialogText
+import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
 import org.listenbrainz.android.ui.screens.feed.RetryButton
 import org.listenbrainz.android.ui.screens.profile.createdforyou.formatDateLegacy
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -118,6 +123,7 @@ fun PlaylistDetailScreen(
         skipPartiallyExpanded = true
     )
     var isEditPlaylistBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
+    var isDuplicatePlaylistDialogVisible by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         playlistViewModel.getDataInPlaylistScreen(playlistMBID)
@@ -164,7 +170,7 @@ fun PlaylistDetailScreen(
                             },
                             goToUserPage = goToUserPage,
                             onDuplicatePlaylistClick = {
-                                playlistViewModel.duplicatePlaylist(playlistMBID)
+                                isDuplicatePlaylistDialogVisible = true
                             },
                             onSharePlaylistClick = {
                                 if (uiState.playlistDetailUIState.playlistData?.identifier != null)
@@ -252,6 +258,18 @@ fun PlaylistDetailScreen(
                     }
                 )
             }
+        }
+
+        if(isDuplicatePlaylistDialogVisible){
+            PlaylistDuplicateConfirmationDialog(
+                onDismiss = {
+                    isDuplicatePlaylistDialogVisible = false
+                },
+                onSave = {
+                    playlistViewModel.duplicatePlaylist(playlistMBID)
+                    isDuplicatePlaylistDialogVisible = false
+                }
+            )
         }
 
         ErrorBar(socialUiState.error, socialViewModel::clearErrorFlow)
@@ -581,6 +599,7 @@ fun PlaylistCard(
             .background(
                 brush = ListenBrainzTheme.colorScheme.playlistScreenGradient
             )
+            .padding(top = ListenBrainzTheme.paddings.defaultPadding)
     ) {
         Column(
             modifier = Modifier.padding(horizontal = 12.dp)
@@ -682,6 +701,7 @@ fun PlaylistCard(
                     Text(
                         text = description,
                         color = themeColors.text,
+                        fontWeight = FontWeight.Bold,
                         fontStyle = FontStyle.Italic,
                         fontSize = 14.sp,
                         maxLines = if (isReadMoreEnabled) Int.MAX_VALUE else 2,
@@ -735,6 +755,38 @@ fun PlaylistButton(
     ) {
         buttonContent()
     }
+}
+
+@Composable
+fun PlaylistDuplicateConfirmationDialog(onDismiss: () -> Unit, onSave: () -> Unit) {
+    BaseDialog(
+        title = {
+            DialogText(
+                text = "Duplicate Playlist Confirmation",
+                bold = true
+            )
+        },
+        content = {
+            DialogText(
+                text = "Are you sure you want to create a duplicate of this playlist? This action " +
+                        "will create an identical copy and will be added to your playlists."
+            )
+        },
+        footer = {
+            Row(horizontalArrangement = Arrangement.End,
+                modifier = Modifier.padding(4.dp)
+                    .fillMaxWidth()) {
+                DialogNegativeButton(text = "Cancel") {
+                    onDismiss()
+                }
+                Spacer(modifier = Modifier.width(4.dp))
+                DialogPositiveButton(text = "Confirm") {
+                    onSave()
+                }
+            }
+        },
+        onDismiss = onDismiss,
+    )
 }
 
 data class DraggableItem(val index: Int)

@@ -139,7 +139,7 @@ fun ListenCardSmall(
                 }
 
                 Box(
-                    modifier = modifier
+                    modifier = Modifier
                         .fillMaxWidth(1f - mainContentFraction)
                         .align(Alignment.CenterEnd),
                     contentAlignment = Alignment.Center
