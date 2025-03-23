@@ -700,8 +700,8 @@ fun PlaylistCard(
                 ) {
                     Text(
                         text = description,
-                        color = themeColors.text,
-                        fontWeight = FontWeight.Bold,
+                        color = themeColors.text.copy(alpha = 0.75f),
+                        fontWeight = FontWeight.SemiBold,
                         fontStyle = FontStyle.Italic,
                         fontSize = 14.sp,
                         maxLines = if (isReadMoreEnabled) Int.MAX_VALUE else 2,

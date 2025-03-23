@@ -174,7 +174,7 @@ fun AddTrackToPlaylist(
                     color = ListenBrainzTheme.colorScheme.listenText,
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .padding(8.dp)
+                        .padding(top = 32.dp)
                 )
             }
         }
