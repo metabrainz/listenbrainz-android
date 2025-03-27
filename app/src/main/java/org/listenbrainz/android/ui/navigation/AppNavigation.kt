@@ -44,10 +44,6 @@ fun AppNavigation(
     snackbarState: SnackbarHostState,
 ) {
     fun NavOptionsBuilder.defaultNavOptions() {
-        // Avoid building large backstack
-        popUpTo(AppNavigationItem.Feed.route) {
-            saveState = true
-        }
         // Avoid copies
         launchSingleTop = true
         // Restore previous state
