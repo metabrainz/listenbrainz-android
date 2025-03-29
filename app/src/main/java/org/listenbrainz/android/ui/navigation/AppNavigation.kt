@@ -44,6 +44,10 @@ fun AppNavigation(
     snackbarState: SnackbarHostState,
 ) {
     fun NavOptionsBuilder.defaultNavOptions() {
+        // Avoid building large backstack
+        popUpTo(AppNavigationItem.Feed.route) {
+            saveState = true
+        }
         // Avoid copies
         launchSingleTop = true
         // Restore previous state
@@ -55,22 +59,26 @@ fun AppNavigation(
     }
 
     fun goToArtistPage(mbid: String) {
-        navController.navigate("artist/${mbid}") {
-            defaultNavOptions()
+        navController.navigate("artist/$mbid") {
+            launchSingleTop = true
+            restoreState = true
         }
     }
 
     fun goToAlbumPage(mbid: String) {
-        navController.navigate("album/${mbid}") {
-            defaultNavOptions()
+        navController.navigate("album/$mbid") {
+            launchSingleTop = true
+            restoreState = true
         }
     }
 
-    fun goToPlaylist(mbid: String){
-        navController.navigate("${AppNavigationItem.PlaylistScreen.route}/${mbid}"){
-            defaultNavOptions()
+    fun goToPlaylist(mbid: String) {
+        navController.navigate("${AppNavigationItem.PlaylistScreen.route}/$mbid") {
+            launchSingleTop = true
+            restoreState = true
         }
     }
+
 
     NavHost(
         navController = navController as NavHostController,
