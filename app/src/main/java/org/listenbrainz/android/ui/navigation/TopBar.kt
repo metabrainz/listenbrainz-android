@@ -46,7 +46,7 @@ fun TopBar(
             AppNavigationItem.About.route -> AppNavigationItem.About.title
             "${AppNavigationItem.Artist.route}/{mbid}" -> AppNavigationItem.Artist.title
             "${AppNavigationItem.Album.route}/{mbid}" -> AppNavigationItem.Album.title
-            "${AppNavigationItem.AddEditPlaylistScreen.route}/{mbid}" -> AppNavigationItem.AddEditPlaylistScreen.title
+            "${AppNavigationItem.PlaylistScreen.route}/{mbid}" -> AppNavigationItem.PlaylistScreen.title
             else -> ""
         }
     } ?: "ListenBrainz"

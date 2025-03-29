@@ -80,7 +80,7 @@ fun PlaylistGridViewCard(
                 CoverArtComposable(
                     modifier = Modifier.aspectRatio(1f),
                     coverArt = coverArt,
-                    gridSize = PlaylistDataRepository.DEFAULT_PLAYLIST_GRID_SIZE,
+                    maxGridSize = PlaylistDataRepository.DEFAULT_PLAYLIST_GRID_SIZE,
                     errorImage = errorCoverArt,
                     areImagesClickable = false
                 )
@@ -165,7 +165,7 @@ fun PlaylistListViewCard(
             CoverArtComposable(
                 modifier = it.aspectRatio(1f),
                 coverArt = coverArt,
-                gridSize = PlaylistDataRepository.DEFAULT_PLAYLIST_LIST_VIEW_GRID_SIZE,
+                maxGridSize = PlaylistDataRepository.DEFAULT_PLAYLIST_LIST_VIEW_GRID_SIZE,
                 errorImage = errorCoverArt,
                 areImagesClickable = false
             )

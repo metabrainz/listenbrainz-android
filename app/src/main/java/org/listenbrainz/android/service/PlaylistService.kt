@@ -2,7 +2,9 @@ package org.listenbrainz.android.service
 
 import okhttp3.ResponseBody
 import org.listenbrainz.android.model.playlist.AddCopyPlaylistResponse
+import org.listenbrainz.android.model.playlist.DeleteTracks
 import org.listenbrainz.android.model.playlist.EditPlaylistResponse
+import org.listenbrainz.android.model.playlist.MoveTrack
 import org.listenbrainz.android.model.playlist.PlaylistPayload
 import retrofit2.Call
 import retrofit2.Response
@@ -36,5 +38,23 @@ interface PlaylistService {
     suspend fun editPlaylist(
         @Body playlistPayload: PlaylistPayload,
         @Path("playlist_mbid") playlistMbid: String
+    ): Response<EditPlaylistResponse?>
+
+    @POST("playlist/{playlist_mbid}/item/move")
+    suspend fun moveTrack(
+        @Path("playlist_mbid") playlistMbid: String,
+        @Body moveTrack: MoveTrack
+    ): Response<EditPlaylistResponse?>
+
+    @POST("playlist/{playlist_mbid}/item/add")
+    suspend fun addTracks(
+        @Path("playlist_mbid") playlistMbid: String,
+        @Body playlistPayload: PlaylistPayload
+    ): Response<EditPlaylistResponse?>
+
+    @POST("playlist/{playlist_mbid}/item/delete")
+    suspend fun deleteTracks(
+        @Path("playlist_mbid") playlistMbid: String,
+        @Body deleteTracks: DeleteTracks
     ): Response<EditPlaylistResponse?>
 }
