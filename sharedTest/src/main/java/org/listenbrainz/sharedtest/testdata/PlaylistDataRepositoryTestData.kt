@@ -1,5 +1,6 @@
 package org.listenbrainz.sharedtest.testdata
 
+import org.listenbrainz.android.model.playlist.AddCopyPlaylistResponse
 import org.listenbrainz.android.model.playlist.PlaylistData
 import org.listenbrainz.android.model.playlist.PlaylistPayload
 
@@ -11,6 +12,11 @@ object PlaylistDataRepositoryTestData {
             date= "2025-01-12T11:05:24.966018+00:00",
             creator = "hemang-mishra"
         )
+    )
+
+    val samplePlaylistAddCopyResponse = AddCopyPlaylistResponse(
+        playlistMbid = "07e04cc7-4a55-4978-b225-cea524aec3dd" ,
+        status="ok"
     )
 
     val samplePlaylistCoverArt = """

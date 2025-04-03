@@ -10,6 +10,7 @@ import org.listenbrainz.android.model.recordingSearch.RecordingSearchPayload
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.sharedtest.testdata.PlaylistDataRepositoryTestData.playlistDetailsTestData
+import org.listenbrainz.sharedtest.testdata.PlaylistDataRepositoryTestData.samplePlaylistAddCopyResponse
 import org.listenbrainz.sharedtest.testdata.PlaylistDataRepositoryTestData.samplePlaylistCoverArt
 
 
@@ -21,7 +22,7 @@ class MockPlaylistDataRepository : PlaylistDataRepository {
     override suspend fun copyPlaylist(playlistMbid: String?): Resource<AddCopyPlaylistResponse?> {
         return Resource(
             Resource.Status.SUCCESS,
-            AddCopyPlaylistResponse("new_playlist_mbid", "Playlist copied successfully")
+            samplePlaylistAddCopyResponse
         )
     }
 
@@ -42,7 +43,7 @@ class MockPlaylistDataRepository : PlaylistDataRepository {
     override suspend fun addPlaylist(playlistPayload: PlaylistPayload): Resource<AddCopyPlaylistResponse?> {
         return Resource(
             Resource.Status.SUCCESS,
-            AddCopyPlaylistResponse("new_playlist_mbid", "Playlist copied successfully")
+            samplePlaylistAddCopyResponse
         )
     }
 
