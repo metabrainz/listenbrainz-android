@@ -2,9 +2,8 @@ package org.listenbrainz.android.repository.user
 
 import org.listenbrainz.android.model.CurrentPins
 import org.listenbrainz.android.model.Listens
-import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.ResponseError
-import org.listenbrainz.android.model.createdForYou.CreatedForYouPayload
+import org.listenbrainz.android.model.userPlaylist.UserPlaylistPayload
 import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.TopAlbums
 import org.listenbrainz.android.model.user.TopArtists
@@ -81,10 +80,24 @@ class UserRepositoryImpl @Inject constructor(
         service.getTopSongsOfUser(username, rangeString)
     }
 
-    override suspend fun getCreatedForYouPlaylists(username: String?): Resource<CreatedForYouPayload> {
+    override suspend fun getCreatedForYouPlaylists(username: String?): Resource<UserPlaylistPayload> {
         return parseResponse {
             if(username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
             service.getCreatedForYouPlaylists(username)
+        }
+    }
+
+    override suspend fun getUserPlaylists(username: String?, offset: Int, count: Int): Resource<UserPlaylistPayload> {
+        return parseResponse {
+            if(username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
+            service.getUserPlaylists(username, offset, count)
+        }
+    }
+
+    override suspend fun getUserCollabPlaylists(username: String?, offset: Int, count: Int): Resource<UserPlaylistPayload> {
+        return parseResponse {
+            if (username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
+            service.getUserCollabPlaylists(username, offset, count)
         }
     }
 

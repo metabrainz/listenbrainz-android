@@ -39,6 +39,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.util.Utils.removeHtmlTags
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
 
@@ -188,18 +189,36 @@ fun PlayAndShareButtons(
     }
 }
 
-// formatDateLegacy function is used to format the date in MMM dd, h:mm a format.Eg: Jan 06, 12:14 AM
-fun formatDateLegacy(inputDate: String): String {
+
+fun formatDateLegacy(inputDate: String, showTime: Boolean = true): String {
     // Parse the input date string
     val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.ENGLISH)
     isoFormat.timeZone = TimeZone.getTimeZone("UTC")
-    val date = isoFormat.parse(inputDate)
+    val date = runCatching {
+        isoFormat.parse(inputDate) ?: return ""
+    }.getOrElse { return "" }
 
-    // Format to the desired output pattern
-    val outputFormat = SimpleDateFormat("MMM dd, h:mm a", Locale.ENGLISH)
+    // Get current year and the year from the input date
+    val calendar = Calendar.getInstance()
+    val currentYear = calendar.get(Calendar.YEAR)
+
+    calendar.time = date
+    val inputYear = calendar.get(Calendar.YEAR)
+
+    // Determine the date format based on year difference and time preference
+    val pattern = when {
+        inputYear != currentYear && showTime -> "MMM dd, yyyy, h:mm a"
+        inputYear != currentYear -> "MMM dd, yyyy"
+        showTime -> "MMM dd, h:mm a"
+        else -> "MMM dd"
+    }
+
+    val outputFormat = SimpleDateFormat(pattern, Locale.ENGLISH)
     outputFormat.timeZone = TimeZone.getDefault() // Adjust to local time zone
-    return outputFormat.format(date!!)
+
+    return outputFormat.format(date)
 }
+
 
 fun removeExcessiveSpaces(input: String): String {
     return input.trim().replace(Regex("\\s+"), " ")

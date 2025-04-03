@@ -41,6 +41,7 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.createdforyou.CreatedForYouScreen
 import org.listenbrainz.android.ui.screens.profile.listens.ListensScreen
+import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistScreen
 import org.listenbrainz.android.ui.screens.profile.stats.StatsScreen
 import org.listenbrainz.android.ui.screens.profile.taste.TasteScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -49,6 +50,7 @@ import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.new_app_bg_light
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
+import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 
@@ -62,7 +64,9 @@ fun BaseProfileScreen(
     feedViewModel: FeedViewModel = hiltViewModel(),
     listensViewModel: ListensViewModel = hiltViewModel(),
     socialViewModel: SocialViewModel = hiltViewModel(),
-    goToArtistPage: (String) -> Unit,
+    playlistDataViewModel: PlaylistDataViewModel = hiltViewModel(),
+    goToPlaylist: (String) -> Unit,
+    goToArtistPage: (String) -> Unit
 ) {
     val pagerState = rememberPagerState { ProfileScreenTab.entries.size }
     val scope = rememberCoroutineScope()
@@ -221,6 +225,13 @@ fun BaseProfileScreen(
                             userViewModel = viewModel,
                             goToArtistPage = goToArtistPage,
                             socialViewModel = socialViewModel
+                        )
+
+                        ProfileScreenTab.PLAYLISTS.index -> UserPlaylistScreen(
+                            snackbarState = snackbarState,
+                            userViewModel = viewModel,
+                            playlistViewModel = playlistDataViewModel,
+                            goToPlaylist
                         )
                     }
                 }

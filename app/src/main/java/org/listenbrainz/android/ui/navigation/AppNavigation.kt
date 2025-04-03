@@ -1,8 +1,6 @@
 package org.listenbrainz.android.ui.navigation
 
 import androidx.compose.animation.AnimatedContentScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -10,8 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -23,20 +23,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.navigation.navigation
 import kotlinx.coroutines.flow.first
-import okhttp3.Route
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.screens.album.AlbumScreen
 import org.listenbrainz.android.ui.screens.artist.ArtistScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen
 import org.listenbrainz.android.ui.screens.explore.ExploreScreen
 import org.listenbrainz.android.ui.screens.feed.FeedScreen
+import org.listenbrainz.android.ui.screens.playlist.PlaylistDetailScreen
 import org.listenbrainz.android.ui.screens.profile.LoginScreen
 import org.listenbrainz.android.ui.screens.profile.ProfileScreen
 import org.listenbrainz.android.ui.screens.settings.SettingsScreen
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
-import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
 fun AppNavigation(
@@ -61,16 +59,26 @@ fun AppNavigation(
     }
 
     fun goToArtistPage(mbid: String) {
-        navController.navigate("artist/${mbid}") {
-            defaultNavOptions()
+        navController.navigate("artist/$mbid") {
+            launchSingleTop = true
+            restoreState = true
         }
     }
 
     fun goToAlbumPage(mbid: String) {
-        navController.navigate("album/${mbid}") {
-            defaultNavOptions()
+        navController.navigate("album/$mbid") {
+            launchSingleTop = true
+            restoreState = true
         }
     }
+
+    fun goToPlaylist(mbid: String) {
+        navController.navigate("${AppNavigationItem.PlaylistScreen.route}/$mbid") {
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
 
     NavHost(
         navController = navController as NavHostController,
@@ -119,6 +127,7 @@ fun AppNavigation(
                 snackbarState = snackbarState,
                 goToUserProfile = ::goToUserProfile,
                 goToArtistPage = ::goToArtistPage,
+                goToPlaylist = ::goToPlaylist
             )
         }
         appComposable(
@@ -164,6 +173,28 @@ fun AppNavigation(
                 }
             } else {
                 AlbumScreen(albumMbid = albumMbid, snackBarState = snackbarState)
+            }
+        }
+        appComposable(
+            route = "${AppNavigationItem.PlaylistScreen.route}/{mbid}",
+            arguments = listOf(
+                navArgument("mbid") {
+                    type = NavType.StringType
+                }
+            )
+        ){ backStackTrace ->
+            val playlistMbid = backStackTrace.arguments?.getString("mbid")
+            if (playlistMbid == null){
+                LaunchedEffect(Unit){
+                    snackbarState.showSnackbar("The playlist page can't be loaded")
+                }
+            } else {
+                 PlaylistDetailScreen(
+                    playlistMBID = playlistMbid,
+                    snackbarState = snackbarState,
+                    goToArtistPage = ::goToArtistPage,
+                     goToUserPage = ::goToUserProfile
+                 )
             }
         }
     }

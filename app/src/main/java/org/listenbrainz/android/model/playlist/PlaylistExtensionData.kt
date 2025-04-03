@@ -13,5 +13,7 @@ data class PlaylistExtensionData(
     @SerializedName("last_modified_at")
     val lastModifiedAt: String? = null,
     @SerializedName("public")
-    val `public`: Boolean? = null
+    val `public`: Boolean? = null,
+    @SerializedName("collaborators")
+    val collaborators: List<String> = emptyList(),
 )

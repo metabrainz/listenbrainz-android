@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,8 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.SocialUiState
-import org.listenbrainz.android.model.createdForYou.CreatedForYouPlaylist
-import org.listenbrainz.android.model.createdForYou.CreatedForYouPlaylists
+import org.listenbrainz.android.model.userPlaylist.UserPlaylist
+import org.listenbrainz.android.model.userPlaylist.UserPlaylists
 import org.listenbrainz.android.model.playlist.AdditionalMetadataTrack
 import org.listenbrainz.android.model.playlist.PlaylistData
 import org.listenbrainz.android.model.playlist.PlaylistTrack
@@ -104,17 +103,17 @@ private fun CreatedForYouScreen(
     uiState: ProfileUiState,
     snackbarState: SnackbarHostState,
     socialUiState: SocialUiState,
-    onPlaylistSaveClick: (CreatedForYouPlaylist?) -> Unit,
+    onPlaylistSaveClick: (UserPlaylist?) -> Unit,
     onPlayAllClick: () -> Unit,
-    onShareClick: (CreatedForYouPlaylist?) -> Unit,
+    onShareClick: (UserPlaylist?) -> Unit,
     onTrackClick: (PlaylistTrack) -> Unit,
     goToArtistPage: (String) -> Unit,
     onErrorShown: () -> Unit,
     onMessageShown: () -> Unit,
-    onRetryDataFetch: (CreatedForYouPlaylist) -> Unit
+    onRetryDataFetch: (UserPlaylist) -> Unit
 ) {
     var selectedPlaylist by remember {
-        mutableStateOf<CreatedForYouPlaylist?>(
+        mutableStateOf<UserPlaylist?>(
             if (uiState.createdForTabUIState.createdForYouPlaylists.isNullOrEmpty()) null
             else uiState.createdForTabUIState.createdForYouPlaylists[0].playlist
         )
@@ -297,8 +296,8 @@ fun CreatedForScreenPreview() {
             uiState = ProfileUiState(
                 createdForTabUIState = CreatedForTabUIState(
                     createdForYouPlaylists = listOf(
-                        CreatedForYouPlaylists(
-                            playlist = CreatedForYouPlaylist(
+                        UserPlaylists(
+                            playlist = UserPlaylist(
                                 annotation = "\"<p>The ListenBrainz Weekly Exploration playlist helps you discover new music! \\n    It may require active listening and skips. The playlist features tracks you haven't heard before, \\n    selected by a collaborative filtering algorithm.</p>\\n\\n    <p>Updated every Monday morning based on your timezone.</p>\\n\"",
                                 creator = "listenbrainz",
                                 date = "2025-01-20T00:09:28.012627+00:00",
@@ -306,8 +305,8 @@ fun CreatedForScreenPreview() {
                                 title = "Weekly Exploration for hemang-mishra, week of 2025-01-20 Mon"
                             )
                         ),
-                        CreatedForYouPlaylists(
-                            playlist = CreatedForYouPlaylist(
+                        UserPlaylists(
+                            playlist = UserPlaylist(
                                 annotation = "\"<p>The ListenBrainz Weekly Exploration playlist helps you discover new music! \\n    It may require active listening and skips. The playlist features tracks you haven't heard before, \\n    selected by a collaborative filtering algorithm.</p>\\n\\n    <p>Updated every Monday morning based on your timezone.</p>\\n\"",
                                 creator = "listenbrainz",
                                 date = "2025-01-20T00:09:28.012627+00:00",

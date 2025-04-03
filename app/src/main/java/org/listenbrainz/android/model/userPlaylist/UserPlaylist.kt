@@ -1,9 +1,9 @@
-package org.listenbrainz.android.model.createdForYou
+package org.listenbrainz.android.model.userPlaylist
 
 
 import com.google.gson.annotations.SerializedName
 
-data class CreatedForYouPlaylist(
+data class UserPlaylist(
     @SerializedName("annotation")
     val annotation: String? = null,
     @SerializedName("creator")
@@ -17,7 +17,8 @@ data class CreatedForYouPlaylist(
     @SerializedName("title")
     val title: String? = null,
     @SerializedName("track")
-    val track: List<Any> = listOf()
+    val track: List<Any> = listOf(),
+    val coverArt: String? = null
 ){
     // Get the MBID of the playlist
     fun getPlaylistMBID(): String? {

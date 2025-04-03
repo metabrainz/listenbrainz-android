@@ -536,4 +536,20 @@ object Utils {
             String.format("%02d:%02d", minutes, secs)
         }
     }
+
+    //Checking if a string is a valid mbid or not
+    fun isValidMbidFormat(mbid: String): Boolean{
+        //Must be 36 characters long (32 characters + 4 hyphens)
+        if(mbid.length != 36) return false
+
+        //Check if the 9th, 14th, 19th and 24th characters are hyphens
+        if(mbid[8] != '-' || mbid[13] != '-' || mbid[18] != '-' || mbid[23] != '-') return false
+
+        //Check if the rest of the characters are hexadecimal
+        for(i in 0 until 36){
+            if(i == 8 || i == 13 || i == 18 || i == 23) continue
+            if(mbid[i] !in '0'..'9' && mbid[i] !in 'a'..'f' && mbid[i] !in 'A'..'F') return false
+        }
+        return true
+    }
 }

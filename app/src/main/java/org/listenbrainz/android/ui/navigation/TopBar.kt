@@ -37,7 +37,6 @@ fun TopBar(
     backgroundColor: Color = Color.Transparent,
     context: Context = LocalContext.current,
 ) {
-
     AnimatedVisibility(
         visible = !searchBarState.isActive,
         enter = fadeIn(),
@@ -55,6 +54,7 @@ fun TopBar(
                 AppNavigationItem.About.route -> AppNavigationItem.About.title
                 "${AppNavigationItem.Artist.route}/{mbid}" -> AppNavigationItem.Artist.title
                 "${AppNavigationItem.Album.route}/{mbid}" -> AppNavigationItem.Album.title
+                "${AppNavigationItem.PlaylistScreen.route}/{mbid}" -> AppNavigationItem.PlaylistScreen.title
                 else -> ""
             }
         } ?: "ListenBrainz"
