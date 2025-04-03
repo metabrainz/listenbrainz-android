@@ -3,11 +3,14 @@ package org.listenbrainz.android.ui.screens.playlist
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.model.playlist.PlaylistData
+import org.listenbrainz.android.model.recordingSearch.RecordingData
 
 data class PlaylistDataUIState(
     val isLoading: Boolean = false,
     val createEditScreenUIState: CreateEditScreenUIState = CreateEditScreenUIState(),
-    val error: ResponseError? = null
+    val playlistDetailUIState: PlaylistDetailUIState = PlaylistDetailUIState(),
+    val error: ResponseError? = null,
+    val successMsg: Int? = null
 )
 
 data class CreateEditScreenUIState(
@@ -23,4 +26,17 @@ data class CreateEditScreenUIState(
     val usersSearched: List<User> = emptyList(),
     val playlistMBID: String? = null,
     val emptyTitleFieldError: Boolean = false
+)
+
+data class PlaylistDetailUIState(
+    val isLoading: Boolean = true,
+    val playlistData: PlaylistData? = null,
+    val isRefreshing: Boolean = false,
+    val isCoverArtLoading: Boolean = false,
+    val playlistMBID: String? = null,
+    val queryText: String? = "",
+    val isSearching: Boolean = false,
+    val queriedRecordings: List<RecordingData> = emptyList(),
+    val isAddTrackBottomSheetVisible : Boolean = false,
+    val isUserPlaylistOwner: Boolean = false
 )
