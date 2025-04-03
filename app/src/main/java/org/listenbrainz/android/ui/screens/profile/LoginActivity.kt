@@ -103,10 +103,10 @@ fun ListenBrainzLogin(
                             isTokenValidRes = Resource.loading()
                             val isTokenValid = viewModel.saveUserDetails(state.data!!)
 
-                            if (!isTokenValid) {
-                                loadState = Resource.failure()
+                            isTokenValidRes = if (!isTokenValid) {
+                                Resource.failure()
                             } else {
-                                isTokenValidRes = Resource.success(Unit)
+                                Resource.success(Unit)
                             }
                         }
                     }
