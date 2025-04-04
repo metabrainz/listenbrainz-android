@@ -101,13 +101,7 @@ fun ListenBrainzLogin(
                     if (state.isSuccess) {
                         LaunchedEffectUnit {
                             isTokenValidRes = Resource.loading()
-                            val isTokenValid = viewModel.saveUserDetails(state.data!!)
-
-                            if (!isTokenValid) {
-                                loadState = Resource.failure()
-                            } else {
-                                isTokenValidRes = Resource.success(Unit)
-                            }
+                            isTokenValidRes = viewModel.saveUserDetails(state.data!!)
                         }
                     }
 
@@ -151,13 +145,13 @@ fun ListenBrainzLogin(
                                 }
                                 Resource.Status.FAILED -> {
                                     LaunchedEffectUnit {
-                                        delay(1.5.seconds)
+                                        delay(2.seconds)
                                         onLoginFinished()
                                     }
 
                                     Text(
                                         modifier = Modifier.padding(horizontal = 8.dp),
-                                        text = "Login failed.",
+                                        text = "Login failed. Reason: ${isTokenValidRes?.error ?: "Unknown error"}",
                                         color = Color.White,
                                         fontSize = 22.sp,
                                         fontWeight = FontWeight.Medium

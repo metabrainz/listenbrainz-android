@@ -12,6 +12,9 @@ import dagger.Provides
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
+import kotlinx.coroutines.CoroutineDispatcher
+import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
+import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManagerImpl
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
 import org.listenbrainz.sharedtest.mocks.MockAppPreferences
@@ -50,5 +53,15 @@ class TestAppModule {
     @Singleton
     @Provides
     fun providesAppPreferences() : AppPreferences = MockAppPreferences()
+
+    @Singleton
+    @Provides
+    fun providesListenServiceManager(
+        workManager: WorkManager,
+        appPreferences: AppPreferences,
+        @DefaultDispatcher defaultDispatcher: CoroutineDispatcher,
+        @ApplicationContext context: Context
+    ): ListenServiceManager =
+        ListenServiceManagerImpl(workManager, appPreferences, defaultDispatcher, context)
     
 }

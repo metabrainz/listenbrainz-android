@@ -26,6 +26,7 @@ import org.listenbrainz.android.ui.screens.profile.listens.ListeningNowUiState
 import org.listenbrainz.android.ui.screens.profile.listens.ListensUiState
 import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.android.util.LinkedService
+import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Resource.Status.FAILED
 import org.listenbrainz.android.util.Resource.Status.SUCCESS
 import javax.inject.Inject
@@ -158,15 +159,15 @@ class ListensViewModel @Inject constructor(
     }
 
     /** Returns if token is valid.*/
-    suspend fun saveUserDetails(token: String): Boolean {
+    suspend fun saveUserDetails(token: String): Resource<Unit> {
         val result = repository.validateToken(token)
         return if (result.status.isSuccessful() && result.data?.valid == true) {
             appPreferences.username.set(result.data.username ?: "")
             appPreferences.lbAccessToken.set(token)
-            true
+            Resource.success(Unit)
         } else {
             errorFlow.emit(result.error)
-            false
+            Resource.failure(result.error)
         }
     }
     

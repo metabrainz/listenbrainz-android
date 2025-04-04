@@ -26,7 +26,7 @@ class Resource<T>(val status: Status, val data: T?, val error: ResponseError? = 
             Resource(Status.SUCCESS, data)
         
         /** Return [ResponseError] if any.*/
-        fun <S> failure(data: S? = null, error: ResponseError? = null): Resource<S> =
+        fun <S> failure(error: ResponseError? = null, data: S? = null): Resource<S> =
             Resource(Status.FAILED, data, error)
         
         fun <S> loading(data: S? = null): Resource<S> =

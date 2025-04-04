@@ -30,6 +30,7 @@ import org.listenbrainz.android.viewmodel.UserViewModel
 import org.listenbrainz.sharedtest.mocks.MockAppPreferences
 import org.listenbrainz.sharedtest.mocks.MockFeedRepository
 import org.listenbrainz.sharedtest.mocks.MockListensRepository
+import org.listenbrainz.sharedtest.mocks.MockPlaylistDataRepository
 import org.listenbrainz.sharedtest.mocks.MockRemotePlaybackHandler
 import org.listenbrainz.sharedtest.mocks.MockSocialRepository
 import org.listenbrainz.sharedtest.mocks.MockSocketRepository
@@ -59,6 +60,7 @@ class UserPagesTest {
             MockUserRepository(),
             MockListensRepository(),
             MockSocialRepository(),
+            MockPlaylistDataRepository(),
             testDispatcher
         )
         feedViewModel = FeedViewModel(
@@ -81,7 +83,9 @@ class UserPagesTest {
             repository = MockSocialRepository(),
             appPreferences = MockAppPreferences(),
             remotePlaybackHandler = MockRemotePlaybackHandler(),
-            testDispatcher
+            listensRepository = MockListensRepository(),
+            ioDispatcher = testDispatcher,
+            defaultDispatcher = testDispatcher
         )
 
         rule.setContent {
@@ -104,6 +108,7 @@ class UserPagesTest {
                         socialViewModel = socialViewModel,
                         listensViewModel = listensViewModel,
                         goToArtistPage = {},
+                        goToPlaylist = {}
                     )
                 }
 
