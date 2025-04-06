@@ -1,0 +1,5 @@
+Changelog:
+1. App size is now cut in half!
+2. Login has been fixed.
+3. Performance improvements.
+
