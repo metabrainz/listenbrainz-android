@@ -156,8 +156,7 @@ fun ListenBrainzLogin(
                                     }
                                     Resource.Status.FAILED -> {
                                         LaunchedEffectUnit {
-                                            Log.e("LoginActivity", "Token validation failed: ${isTokenValidRes?.error}")
-                                            isTokenValidRes?.error
+                                            Log.e("LoginActivity", "Token validation failed: ${isTokenValidRes?.error?.toast}")
                                             delay(2.seconds)
                                             onLoginFinished()
                                         }
