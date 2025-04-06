@@ -1,6 +1,7 @@
 package org.listenbrainz.android.di
 
 import android.content.Context
+import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonDeserializationContext
@@ -12,6 +13,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
+import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.yimdata.YimData
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.AlbumService
@@ -43,7 +45,12 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 class ServiceModule {
     
-    private val okHttpClient by lazy { OkHttpClient() }
+    private val okHttpClient by lazy {
+        OkHttpClient
+            .Builder()
+            .addInterceptor(ChuckerInterceptor(App.context))
+            .build()
+    }
     
     private fun constructRetrofit(appPreferences: AppPreferences): Retrofit =
         Retrofit.Builder()
@@ -57,7 +64,6 @@ class ServiceModule {
             .baseUrl(LISTENBRAINZ_API_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-    
     
     @get:Singleton
     @get:Provides

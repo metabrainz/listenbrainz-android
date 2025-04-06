@@ -244,4 +244,8 @@ dependencies {
 
     implementation(libs.androidx.test.ext.junit.ktx)
     implementation(libs.turbine)
+
+    // Chucker
+    debugImplementation(libs.chucker)
+    releaseImplementation(libs.chucker.noop)
 }
