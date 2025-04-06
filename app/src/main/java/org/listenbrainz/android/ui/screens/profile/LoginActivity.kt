@@ -101,8 +101,6 @@ fun ListenBrainzLogin(
             mutableStateOf<Resource<Unit>?>(null)
         }
 
-        val context = LocalContext.current
-
         LaunchedEffectMainThread(loadState) {
             val tokenFetchState = loadState ?: return@LaunchedEffectMainThread
             if (tokenFetchState.isSuccess && isTokenValidRes == null) {
@@ -111,7 +109,6 @@ fun ListenBrainzLogin(
                     isTokenValidRes = withContext(NonCancellable) {
                         viewModel.validateAndSaveUserDetails(tokenFetchState.data!!)
                     }
-                    Toast.makeText(context, isTokenValidRes?.status.toString(), Toast.LENGTH_SHORT).show()
                 }
             }
         }

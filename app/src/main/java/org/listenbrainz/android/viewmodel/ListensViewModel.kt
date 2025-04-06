@@ -164,7 +164,6 @@ class ListensViewModel @Inject constructor(
     /** Returns if token is valid.*/
     suspend fun validateAndSaveUserDetails(token: String): Resource<Unit> {
         val result = repository.validateToken(token)
-        println(result.toString())
         return if (result.isSuccess && result.data != null) {
             if (result.data.valid) {
                 appPreferences.username.set(result.data.username ?: "")
