@@ -38,7 +38,9 @@ class App : Application(), Configuration.Provider {
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
+        context = this
         super.onCreate()
+
         val logDirectory = applicationContext.getExternalFilesDir(null)?.path.orEmpty()
         val config = Config.Builder(logDirectory)
             .setDefaultTag(Constants.TAG)
@@ -52,8 +54,6 @@ class App : Application(), Configuration.Provider {
         if (BuildConfig.DEBUG) {
             enableStrictMode()
         }
-
-        context = this
 
         GlobalScope.launch {
             startListenService(appPreferences)

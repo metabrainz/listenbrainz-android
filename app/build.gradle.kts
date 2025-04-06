@@ -22,8 +22,8 @@ android {
         applicationId = "org.listenbrainz.android"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 60
-        versionName = "2.8.3"
+        versionCode = 61
+        versionName = "2.8.4"
         multiDexEnabled = true
         testInstrumentationRunner = "org.listenbrainz.android.di.CustomTestRunner"
         vectorDrawables {
@@ -46,48 +46,40 @@ android {
 
     buildTypes {
         debug {
-            if (localPropertiesFile.exists()) {
-                val localProperties = Properties()
-                localProperties.load(FileInputStream(localPropertiesFile))
+            val localProperties = Properties()
+                .takeIf { localPropertiesFile.exists() }
+                ?.apply { load(FileInputStream(localPropertiesFile)) }
 
-                if (localProperties.getProperty("youtubeApiKey") != null && localProperties.getProperty("youtubeApiKey").isNotEmpty()) {
-                    resValue("string", "youtubeApiKey", localProperties.getProperty("youtubeApiKey"))
-                } else {
-                    resValue("string", "youtubeApiKey", "test")
-                }
+            fun addStringRes(name: String) =
+                resValue("string", name, localProperties?.getProperty(name)?.toString().toString())
 
-                if (localProperties.getProperty("spotifyClientId") != null && localProperties.getProperty("spotifyClientId").isNotEmpty()) {
-                    resValue("string", "spotifyClientId", localProperties.getProperty("spotifyClientId"))
-                } else {
-                    resValue("string", "spotifyClientId", "test")
-                }
-            } else {
-                resValue("string", "youtubeApiKey", "test")
-                resValue("string", "spotifyClientId", "test")
-            }
-            resValue("string", "sentryDsn", "")
+            addStringRes("youtubeApiKey")
+            addStringRes("spotifyClientId")
+            addStringRes("sentryDsn")
 
             applicationIdSuffix = ".debug"
             versionNameSuffix = ".debug"
         }
 
         release {
-            if (keystorePropertiesFile.exists()) {
-                val keystoreProperties = Properties()
-                keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-                resValue("string", "youtubeApiKey", keystoreProperties.getProperty("youtubeApiKey"))
-                resValue("string", "spotifyClientId", keystoreProperties.getProperty("spotifyClientId"))
-                resValue("string", "sentryDsn", keystoreProperties.getProperty("sentryDsn"))
+            val keystoreProperties = Properties()
+                .takeIf { keystorePropertiesFile.exists() }
+                ?.apply { load(FileInputStream(keystorePropertiesFile)) }
 
+            fun addStringRes(name: String) =
+                resValue("string", name, keystoreProperties?.getProperty(name)?.toString().toString())
+
+            addStringRes("youtubeApiKey")
+            addStringRes("spotifyClientId")
+            addStringRes("sentryDsn")
+
+            if (keystorePropertiesFile.exists()) {
                 signingConfig = signingConfigs.getByName("release")
-            } else {
-                resValue("string", "youtubeApiKey", "")
-                resValue("string", "spotifyClientId", "")
-                resValue("string", "sentryDsn", "")
             }
-            isMinifyEnabled = false
-            // isShrinkResources = true
-            // proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 
@@ -118,6 +110,17 @@ android {
         includeInApk = false
         includeInBundle = true
     }
+}
+
+sentry {
+    org.set("metabrainz")
+    projectName.set("android")
+
+    // this will upload your source code to Sentry to show it as part of the stack traces
+    // disable if you don't want to expose your sources
+    includeSourceContext.set(true)
+    // TODO: Enable when server upload body max size is increased.
+    autoUploadProguardMapping.set(false)
 }
 
 dependencies {
@@ -241,4 +244,8 @@ dependencies {
 
     implementation(libs.androidx.test.ext.junit.ktx)
     implementation(libs.turbine)
+
+    // Chucker
+    debugImplementation(libs.chucker)
+    releaseImplementation(libs.chucker.noop)
 }

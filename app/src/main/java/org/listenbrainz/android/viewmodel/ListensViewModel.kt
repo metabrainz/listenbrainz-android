@@ -1,5 +1,6 @@
 package org.listenbrainz.android.viewmodel
 
+import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.lifecycle.viewModelScope
 import com.spotify.protocol.types.PlayerState
@@ -17,6 +18,7 @@ import kotlinx.coroutines.withContext
 import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.ListenBitmap
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
@@ -29,6 +31,7 @@ import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Resource.Status.FAILED
 import org.listenbrainz.android.util.Resource.Status.SUCCESS
+import org.listenbrainz.android.util.Utils.showToast
 import javax.inject.Inject
 
 @HiltViewModel
@@ -159,14 +162,22 @@ class ListensViewModel @Inject constructor(
     }
 
     /** Returns if token is valid.*/
-    suspend fun saveUserDetails(token: String): Resource<Unit> {
+    suspend fun validateAndSaveUserDetails(token: String): Resource<Unit> {
         val result = repository.validateToken(token)
-        return if (result.status.isSuccessful() && result.data?.valid == true) {
-            appPreferences.username.set(result.data.username ?: "")
-            appPreferences.lbAccessToken.set(token)
-            Resource.success(Unit)
+        return if (result.isSuccess && result.data != null) {
+            if (result.data.valid) {
+                appPreferences.username.set(result.data.username ?: "")
+                appPreferences.lbAccessToken.set(token)
+                Resource.success(Unit)
+            } else {
+                emitError(result.error)
+                Resource.failure(
+                    ResponseError.UNAUTHORISED
+                        .apply { actualResponse = result.data.message }
+                )
+            }
         } else {
-            errorFlow.emit(result.error)
+            emitError(result.error)
             Resource.failure(result.error)
         }
     }
