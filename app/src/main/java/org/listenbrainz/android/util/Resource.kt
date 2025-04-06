@@ -4,7 +4,7 @@ import org.listenbrainz.android.model.ResponseError
 
 /**Use this class to pass [data] and [status] to view-model.
  * @param error Whenever an error is occurred, the error must be passed to view-model through this parameter. *null* means no error.*/
-class Resource<T>(val status: Status, val data: T?, val error: ResponseError? = null) {
+data class Resource<T>(val status: Status, val data: T?, val error: ResponseError? = null) {
 
     inline val isSuccess get() = status.isSuccessful()
     inline val isFailed get() = status.isFailed()

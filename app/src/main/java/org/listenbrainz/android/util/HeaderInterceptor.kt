@@ -18,16 +18,18 @@ class HeaderInterceptor (
         var request: Request = chain.request()
         
         return runBlocking {
-            runCatching {
-                withTimeoutOrNull(3000){
-                    val accessToken = appPreferences.lbAccessToken.get()
-                    if (accessToken.isNotEmpty()){
-                        request = request.newBuilder()
-                            .addHeader(AUTHORIZATION, "Token $accessToken")
-                            .build()
+            if (request.headers[AUTHORIZATION].isNullOrEmpty()) {
+                runCatching {
+                    withTimeoutOrNull(3000){
+                        val accessToken = appPreferences.lbAccessToken.get()
+                        if (accessToken.isNotEmpty()) {
+                            request = request.newBuilder()
+                                .addHeader(AUTHORIZATION, "Token $accessToken")
+                                .build()
+                        }
                     }
-                }
-            }.getOrElse { it.printStackTrace() }
+                }.getOrElse { it.printStackTrace() }
+            }
             chain.proceed(request)
         }
     }

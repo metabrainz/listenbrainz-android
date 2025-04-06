@@ -8,13 +8,11 @@ import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.CookieSyncManager
 import android.webkit.WebView
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,10 +29,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -42,11 +41,15 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource
+import org.listenbrainz.android.util.Utils.LaunchedEffectMainThread
 import org.listenbrainz.android.util.Utils.LaunchedEffectUnit
 import org.listenbrainz.android.viewmodel.ListensViewModel
 import kotlin.time.Duration.Companion.seconds
@@ -87,7 +90,30 @@ fun ListenBrainzLogin(
     ) {
         // FIXME: Security certificate warning in API 24 and below.
         ListenBrainzClient {
+            if (loadState?.isSuccess == true) {
+                return@ListenBrainzClient
+            }
             loadState = it
+        }
+
+        val scope = rememberCoroutineScope()
+        var isTokenValidRes by remember {
+            mutableStateOf<Resource<Unit>?>(null)
+        }
+
+        val context = LocalContext.current
+
+        LaunchedEffectMainThread(loadState) {
+            val tokenFetchState = loadState ?: return@LaunchedEffectMainThread
+            if (tokenFetchState.isSuccess && isTokenValidRes == null) {
+                isTokenValidRes = Resource.loading()
+                scope.launch {
+                    isTokenValidRes = withContext(NonCancellable) {
+                        viewModel.validateAndSaveUserDetails(tokenFetchState.data!!)
+                    }
+                    Toast.makeText(context, isTokenValidRes?.status.toString(), Toast.LENGTH_SHORT).show()
+                }
+            }
         }
 
         AnimatedContent(
@@ -95,23 +121,9 @@ fun ListenBrainzLogin(
                 .fillMaxSize()
                 .align(Alignment.Center),
             targetState = loadState,
-            transitionSpec = {
-                fadeIn() togetherWith fadeOut()
-            }
         ) { state ->
             when (state?.status) {
                 Resource.Status.LOADING, Resource.Status.SUCCESS -> {
-                    var isTokenValidRes by remember {
-                        mutableStateOf<Resource<Unit>?>(null)
-                    }
-
-                    if (state.isSuccess) {
-                        LaunchedEffectUnit {
-                            isTokenValidRes = Resource.loading()
-                            isTokenValidRes = viewModel.saveUserDetails(state.data!!)
-                        }
-                    }
-
                     BasicAlertDialog(
                         onDismissRequest = {},
                         content = {
@@ -163,7 +175,7 @@ fun ListenBrainzLogin(
 
                                         Text(
                                             modifier = Modifier.padding(horizontal = 8.dp),
-                                            text = "Login failed.\nReason: ${isTokenValidRes?.error?.toast ?: "Unknown error"}",
+                                            text = "Login failed.\n\nReason: ${isTokenValidRes?.error?.toast ?: "Unknown error"}",
                                             color = ListenBrainzTheme.colorScheme.text,
                                             fontSize = 22.sp,
                                             fontWeight = FontWeight.Medium,
@@ -197,7 +209,7 @@ fun ListenBrainzLogin(
                         }
                     )
                 }
-                else -> {}
+                else -> Unit
             }
         }
     }
