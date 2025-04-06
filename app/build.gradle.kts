@@ -85,9 +85,9 @@ android {
                 resValue("string", "spotifyClientId", "")
                 resValue("string", "sentryDsn", "")
             }
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            isMinifyEnabled = false
+            // isShrinkResources = true
+            // proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 
