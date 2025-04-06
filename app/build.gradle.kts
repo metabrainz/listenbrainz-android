@@ -119,6 +119,8 @@ sentry {
     // this will upload your source code to Sentry to show it as part of the stack traces
     // disable if you don't want to expose your sources
     includeSourceContext.set(true)
+    // TODO: Enable when server upload body max size is increased.
+    autoUploadProguardMapping.set(false)
 }
 
 dependencies {
