@@ -22,8 +22,8 @@ android {
         applicationId = "org.listenbrainz.android"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 59
-        versionName = "2.8.2"
+        versionCode = 60
+        versionName = "2.8.3"
         multiDexEnabled = true
         testInstrumentationRunner = "org.listenbrainz.android.di.CustomTestRunner"
         vectorDrawables {
