@@ -17,6 +17,7 @@ import kotlinx.coroutines.withContext
 import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.ListenBitmap
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
@@ -161,10 +162,17 @@ class ListensViewModel @Inject constructor(
     /** Returns if token is valid.*/
     suspend fun saveUserDetails(token: String): Resource<Unit> {
         val result = repository.validateToken(token)
-        return if (result.status.isSuccessful() && result.data?.valid == true) {
-            appPreferences.username.set(result.data.username ?: "")
-            appPreferences.lbAccessToken.set(token)
-            Resource.success(Unit)
+        return if (result.status.isSuccessful() && result.data != null) {
+            if (result.data.valid) {
+                appPreferences.username.set(result.data.username ?: "")
+                appPreferences.lbAccessToken.set(token)
+                Resource.success(Unit)
+            } else {
+                Resource.failure(
+                    ResponseError.UNAUTHORISED
+                        .apply { actualResponse = "Token is invalid." }
+                )
+            }
         } else {
             errorFlow.emit(result.error)
             Resource.failure(result.error)

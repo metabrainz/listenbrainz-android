@@ -82,7 +82,8 @@
             android:theme="@style/Theme.Material3.DayNight.NoActionBar" />
         <activity
             android:name=".ui.screens.main.MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
