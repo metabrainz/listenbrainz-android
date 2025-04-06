@@ -111,10 +111,8 @@ class ListenServiceManagerImpl @Inject constructor(
             
             // Only CATEGORY_TRANSPORT contain media player metadata.
             if (sbn?.notification?.category != Notification.CATEGORY_TRANSPORT) {
-                Log.d("Notification category is ${sbn?.notification?.category} not transport")
                 return@post
             }
-
     
             val newTrack = PlayingTrack(
                 title = sbn.notification.extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()
@@ -122,7 +120,7 @@ class ListenServiceManagerImpl @Inject constructor(
                     //?: (sbn.notification.extras.get(Notification.EXTRA_TITLE) as? SpannableString)?.toString()
                     //?: sbn.notification.extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()
                     ?: run {
-                        Log.d("Notification title is null")
+                        Log.d("Notification title for ${sbn.packageName} is null")
                         return@post
                     },
                 artist = sbn.notification.extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()
@@ -130,7 +128,7 @@ class ListenServiceManagerImpl @Inject constructor(
                     //?: (sbn.notification.extras.get(Notification.EXTRA_TEXT) as? SpannableString)?.toString()
                     //?: sbn.notification.extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()
                     ?: run {
-                        Log.d("Notification artist is null")
+                        Log.d("Notification artist for ${sbn.packageName} is null")
                         return@post
                     },
                 pkgName = sbn.packageName,
