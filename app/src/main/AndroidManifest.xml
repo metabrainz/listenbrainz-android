@@ -98,17 +98,6 @@
             android:name="org.listenbrainz.android.ui.screens.profile.LoginActivity"
             android:theme="@style/AppTheme"/>
 
-        <!-- Sentry Setup -->
-      
-        <meta-data
-            android:name="io.sentry.dsn"
-            android:value="@string/sentryDsn" />
-        <meta-data
-            android:name="io.sentry.traces.sample-rate"
-            android:value="1.0" />
-        <meta-data
-            android:name="io.sentry.traces.user-interaction.enable"
-            android:value="true" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
