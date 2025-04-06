@@ -156,14 +156,14 @@ fun ListenBrainzLogin(
                                     }
                                     Resource.Status.FAILED -> {
                                         LaunchedEffectUnit {
-                                            Log.e("LoginActivity", "Token validation failed: ${isTokenValidRes?.error?.toast}")
+                                            Log.e("LoginActivity", "Token validation failed: ${isTokenValidRes?.error?.toString()}")
                                             delay(2.seconds)
                                             onLoginFinished()
                                         }
 
                                         Text(
                                             modifier = Modifier.padding(horizontal = 8.dp),
-                                            text = "Login failed.\nReason: ${isTokenValidRes?.error ?: "Unknown error"}",
+                                            text = "Login failed.\nReason: ${isTokenValidRes?.error?.toast ?: "Unknown error"}",
                                             color = ListenBrainzTheme.colorScheme.text,
                                             fontSize = 22.sp,
                                             fontWeight = FontWeight.Medium,
