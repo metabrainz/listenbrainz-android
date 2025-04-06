@@ -160,26 +160,22 @@ fun PlayerContent(
                 }
             },
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
     ) {
-        Box {
-            val progress by viewModel.progress.collectAsState()
-            CustomSeekBar(
-                modifier = Modifier
-                    .height(10.dp)
-                    .fillMaxWidth(),
-                progress = progress,
-                onValueChange = { newProgress ->
-                    viewModel.onSeek(newProgress)
-                    viewModel.onSeeked()
-                },
-                remainingProgressColor = ListenBrainzTheme.colorScheme.hint
-            )
-        }
-        Column(
+        val progress by viewModel.progress.collectAsState()
+        CustomSeekBar(
             modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
+                .height(10.dp)
+                .fillMaxWidth(),
+            progress = progress,
+            onValueChange = { newProgress ->
+                viewModel.onSeek(newProgress)
+                viewModel.onSeeked()
+            },
+            remainingProgressColor = ListenBrainzTheme.colorScheme.hint
+        )
+
+        Column(
+            modifier = Modifier.fillMaxWidth()
         ) {
             val playIcon by viewModel.playButton.collectAsState()
 

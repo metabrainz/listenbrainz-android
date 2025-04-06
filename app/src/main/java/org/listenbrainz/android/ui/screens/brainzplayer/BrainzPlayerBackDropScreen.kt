@@ -188,7 +188,9 @@ fun BrainzPlayerBackDropScreen(
 
             if (!isLandscape) {
                 SongViewPager(
-                    modifier = Modifier.graphicsLayer {
+                    modifier = Modifier
+                        .height(ListenBrainzTheme.sizes.brainzPlayerPeekHeight)
+                        .graphicsLayer {
                         alpha =
                             (backdropScaffoldState.requireOffset() / (maxDelta - headerHeight.toPx()))
                     },
