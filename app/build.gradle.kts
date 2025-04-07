@@ -57,6 +57,8 @@ android {
             addStringRes("spotifyClientId")
             addStringRes("sentryDsn")
 
+            resValue("string", "environment", "debug")
+
             applicationIdSuffix = ".debug"
             versionNameSuffix = ".debug"
         }
@@ -72,6 +74,8 @@ android {
             addStringRes("youtubeApiKey")
             addStringRes("spotifyClientId")
             addStringRes("sentryDsn")
+
+            resValue("string", "environment", "production")
 
             if (keystorePropertiesFile.exists()) {
                 signingConfig = signingConfigs.getByName("release")
