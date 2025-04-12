@@ -29,6 +29,7 @@ import org.listenbrainz.android.ui.screens.album.AlbumScreen
 import org.listenbrainz.android.ui.screens.artist.ArtistScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen
 import org.listenbrainz.android.ui.screens.explore.ExploreScreen
+import org.listenbrainz.android.ui.screens.explore.HueSoundScreen
 import org.listenbrainz.android.ui.screens.feed.FeedScreen
 import org.listenbrainz.android.ui.screens.playlist.PlaylistDetailScreen
 import org.listenbrainz.android.ui.screens.profile.LoginScreen
@@ -97,7 +98,7 @@ fun AppNavigation(
             BrainzPlayerScreen()
         }
         appComposable(route = AppNavigationItem.Explore.route) {
-            ExploreScreen()
+            ExploreScreen(goToHueSoundScreen = { navController.navigate(AppNavigationItem.HueSound.route) })
         }
         appComposable(
             route = AppNavigationItem.Profile.route
@@ -196,6 +197,10 @@ fun AppNavigation(
                      goToUserPage = ::goToUserProfile
                  )
             }
+        }
+
+        appComposable(route = AppNavigationItem.HueSound.route) {
+            HueSoundScreen()
         }
     }
 }
