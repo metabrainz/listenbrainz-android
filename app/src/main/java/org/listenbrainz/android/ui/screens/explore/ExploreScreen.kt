@@ -35,7 +35,7 @@ import org.listenbrainz.android.ui.screens.yim23.YearInMusic23Activity
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @Composable
-fun ExploreScreen() {
+fun ExploreScreen(goToHueSoundScreen: () -> Unit = {}) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = ListenBrainzTheme.colorScheme.background
@@ -46,6 +46,17 @@ fun ExploreScreen() {
             modifier = Modifier
                 .fillMaxWidth()
         ) {
+            //HueSound
+            item {
+                ExploreScreenCard(
+                    nextActivity = null,
+                    iconId = R.drawable.huesound_cover,
+                    title = "HueSound",
+                    subTitle = stringResource(id = R.string.discover),
+                    nextScreen = goToHueSoundScreen
+                )
+            }
+
             item {
                 ExploreScreenCard(
                     nextActivity = YearInMusic23Activity::class.java,
@@ -81,11 +92,12 @@ fun ExploreScreen() {
 
 @Composable
 private fun ExploreScreenCard(
-    nextActivity: Class<out ComponentActivity>,
+    nextActivity: Class<out ComponentActivity>?,
     iconId: Int,
     title: String,
     subTitle: String,
-    context: Context = LocalContext.current
+    context: Context = LocalContext.current,
+    nextScreen: () -> Unit = {}
 ) {
     Surface(
         modifier = Modifier
@@ -95,12 +107,16 @@ private fun ExploreScreenCard(
                 vertical = 10.dp
             )
             .clickable {
-                context.startActivity(
-                    Intent(
-                        context,
-                        nextActivity
+                if (nextActivity != null)
+                    context.startActivity(
+                        Intent(
+                            context,
+                            nextActivity
+                        )
                     )
-                )
+                else {
+                    nextScreen()
+                }
             },
         color = ListenBrainzTheme.colorScheme.level1,
         elevation = 6.dp,
