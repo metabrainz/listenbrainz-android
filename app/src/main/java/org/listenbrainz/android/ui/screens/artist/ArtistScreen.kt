@@ -83,6 +83,7 @@ import org.listenbrainz.android.model.artist.Rels
 import org.listenbrainz.android.model.artist.Tag
 import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.model.feed.ReviewEntityType
+import org.listenbrainz.android.ui.components.CoverArtComposable
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.LoadingAnimation
@@ -316,10 +317,13 @@ fun BioCard(
                 Row {
                     if (coverArt != null) {
                         if (useWebView) {
-                            SvgWithWebView(
-                                svgContent = coverArt,
-                                width = 150.dp,
-                                height = 150.dp
+                            CoverArtComposable(
+                                coverArt = coverArt,
+                                maxGridSize = 3,
+                                modifier = Modifier
+                                    .height(150.dp)
+                                    .width(150.dp)
+                                    .clip(RoundedCornerShape(8.dp))
                             )
                         } else {
                             AsyncImage(
@@ -1061,56 +1065,6 @@ private fun LbRadioButton(
             )
         }
     }
-}
-
-@Composable
-fun SvgWithWebView(svgContent: String, width: Dp, height: Dp) {
-    val context = LocalContext.current
-    val webView = remember { WebView(context) }
-
-    LaunchedEffect(svgContent) {
-        webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
-                // Optionally, handle size adjustments or interactions if needed
-            }
-        }
-
-        val htmlContent = """
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <style>
-                    body {
-                        margin: 0;
-                        padding: 0;
-                        overflow: auto; /* Ensure scrollbars appear if necessary */
-                    }
-                    svg {
-                        width: 100%;
-                        height: auto; /* Adjust to fit content */
-                    }
-                </style>
-            </head>
-            <body>
-                <div id="svg-container">
-                    $svgContent
-                </div>
-            </body>
-            </html>
-        """
-
-        webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
-    }
-
-    AndroidView(
-        factory = { webView },
-        update = { view -> },
-        modifier = Modifier
-            .width(width)
-            .height(height)
-            .clip(RoundedCornerShape(8.dp))
-    )
 }
 
 
