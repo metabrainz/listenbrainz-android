@@ -73,7 +73,6 @@ data class ColorScheme(
     val followingButtonBorder: BorderStroke?,
     /** Used for Artist Pages **/
     val artistBioColor: Color,
-    val playlistScreenGradient: Brush
 )
 
 
@@ -130,14 +129,6 @@ private val colorSchemeDark = ColorScheme(
             Color.Transparent
         )
     ),
-    playlistScreenGradient = Brush.verticalGradient(
-        listOf(
-            Color(0xFF282828),
-            Color(0xFF313131),
-            Color(0xFF393939),
-            Color(0xFF404040),
-        )
-    ),
     followerChipSelected = lb_purple_night,
     followerChipUnselected = app_bg_dark,
     followerCardColor = app_bg_secondary_dark,
@@ -178,14 +169,6 @@ private val colorSchemeLight = ColorScheme(
             Color(0xFFF4F4F4),
             Color(0xFFF5F5F5),
             Color.Transparent
-        )
-    ),
-    playlistScreenGradient = Brush.verticalGradient(
-        listOf(
-            Color(0xFFFEFEFE),
-            Color(0xFFF5F5F5),
-            Color(0xFFE9E9E9),
-            Color(0xFFDFDFDF),
         )
     ),
     followerChipSelected = lb_purple,
