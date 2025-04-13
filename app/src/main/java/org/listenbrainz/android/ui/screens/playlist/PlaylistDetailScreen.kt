@@ -318,7 +318,9 @@ private fun PlaylistDetailContent(
     val scope = rememberCoroutineScope()
 
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()
+        .background(brush = ListenBrainzTheme.colorScheme.userPageGradient)
+    ) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -437,8 +439,11 @@ private fun PlaylistDetailContent(
             item {
                 Row(
                     modifier = Modifier
+                        .background(brush = ListenBrainzTheme.colorScheme.userPageGradient)
                         .padding(vertical = 16.dp)
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+
+                    ,
                     horizontalArrangement = Arrangement.End
                 ) {
                     //Duplicate button
@@ -595,9 +600,8 @@ fun PlaylistCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp))
             .background(
-                brush = ListenBrainzTheme.colorScheme.playlistScreenGradient
+                color= ListenBrainzTheme.colorScheme.background
             )
             .padding(top = ListenBrainzTheme.paddings.defaultPadding)
     ) {

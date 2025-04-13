@@ -138,15 +138,14 @@ private fun CreatedForYouScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
         ) {
             LazyColumn {
                 item {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp))
                             .background(ListenBrainzTheme.colorScheme.background)
+                            .padding(bottom = 12.dp)
                     ) {
                         Spacer(modifier = Modifier.height(32.dp))
                         PlaylistSelectionCardRow(
@@ -163,7 +162,9 @@ private fun CreatedForYouScreen(
 
                 item {
                     AnimatedContent(
-                        selectedPlaylist
+                        selectedPlaylist,
+                        modifier = Modifier
+                        .background(brush = ListenBrainzTheme.colorScheme.userPageGradient)
                     ) { playlist ->
                         if (playlist == null) {
                             Box(
