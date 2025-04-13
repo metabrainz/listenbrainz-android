@@ -236,15 +236,11 @@ fun BioCard(
 ) {
     //Surface is added to make the rounded corner shape of Box visible
     Surface(
-        modifier = Modifier
-            .background(ListenBrainzTheme.colorScheme.background)
+        modifier = Modifier,
+        color = MaterialTheme.colorScheme.background
     ) {
         Box(
             modifier = Modifier
-                .background(
-                    ListenBrainzTheme.colorScheme.artistBioColor,
-                    shape = RoundedCornerShape(bottomStart = 18.dp, bottomEnd = 18.dp)
-                )
                 .fillMaxWidth()
                 .padding(ListenBrainzTheme.paddings.largePadding)
         ) {
@@ -499,7 +495,7 @@ fun Links(
     }
     Box(
         modifier = Modifier
-            .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
+            .background(brush = ListenBrainzTheme.colorScheme.userPageGradient)
             .fillMaxWidth()
             .padding(ListenBrainzTheme.paddings.largePadding)
     ) {
