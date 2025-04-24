@@ -1067,6 +1067,74 @@ private fun LbRadioButton(
     }
 }
 
+/**
+ * A Composable function that renders an SVG string using a WebView.
+ *
+ * Previously used to display cover art in Artist and Album screens.
+ * Although currently unused, this function can be reused for rendering inline SVG content
+ * with flexible dimensions in the future.
+ *
+ * @param svgContent The raw SVG markup as a string.
+ * @param width The desired width of the WebView.
+ * @param height The desired height of the WebView.
+ */
+@Composable
+fun SvgWithWebView(svgContent: String, width: Dp, height: Dp) {
+    val context = LocalContext.current
+    val webView = remember { WebView(context) }
+
+    LaunchedEffect(svgContent) {
+        webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                // Optionally, handle size adjustments or interactions if needed
+            }
+        }
+
+        val htmlContent = """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body {
+                        margin: 0;
+                        padding: 0;
+                        overflow: auto; /* Ensure scrollbars appear if necessary */
+                    }
+                    svg {
+                        width: 100%;
+                        height: auto; /* Adjust to fit content */
+                    }
+                </style>
+            </head>
+            <body>
+                <div id="svg-container">
+                    $svgContent
+                </div>
+            </body>
+            </html>
+        """
+
+        webView.loadDataWithBaseURL(
+            null,
+            htmlContent,
+            "text/html",
+            "UTF-8",
+            null
+        )
+    }
+
+    AndroidView(
+        factory = { webView },
+        update = { view -> },
+        modifier = Modifier
+            .width(width)
+            .height(height)
+            .clip(RoundedCornerShape(8.dp))
+    )
+}
+
+
 
 fun formatNumber(input: Int): String {
     return when {
