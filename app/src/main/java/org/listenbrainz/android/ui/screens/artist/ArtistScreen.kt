@@ -26,8 +26,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.SettingsVoice
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.HorizontalDivider
@@ -79,10 +77,10 @@ import org.listenbrainz.android.model.artist.Artist
 import org.listenbrainz.android.model.artist.ArtistWikiExtract
 import org.listenbrainz.android.model.artist.CBReview
 import org.listenbrainz.android.model.artist.ReleaseGroup
-import org.listenbrainz.android.model.artist.Rels
 import org.listenbrainz.android.model.artist.Tag
 import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.model.feed.ReviewEntityType
+import org.listenbrainz.android.ui.components.CoverArtComposable
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.LoadingAnimation
@@ -236,15 +234,11 @@ fun BioCard(
 ) {
     //Surface is added to make the rounded corner shape of Box visible
     Surface(
-        modifier = Modifier
-            .background(ListenBrainzTheme.colorScheme.background)
+        modifier = Modifier,
+        color = ListenBrainzTheme.colorScheme.background
     ) {
         Box(
             modifier = Modifier
-                .background(
-                    ListenBrainzTheme.colorScheme.artistBioColor,
-                    shape = RoundedCornerShape(bottomStart = 18.dp, bottomEnd = 18.dp)
-                )
                 .fillMaxWidth()
                 .padding(ListenBrainzTheme.paddings.largePadding)
         ) {
@@ -320,10 +314,13 @@ fun BioCard(
                 Row {
                     if (coverArt != null) {
                         if (useWebView) {
-                            SvgWithWebView(
-                                svgContent = coverArt,
-                                width = 150.dp,
-                                height = 150.dp
+                            CoverArtComposable(
+                                coverArt = coverArt,
+                                maxGridSize = 3,
+                                modifier = Modifier
+                                    .height(150.dp)
+                                    .width(150.dp)
+                                    .clip(RoundedCornerShape(8.dp))
                             )
                         } else {
                             AsyncImage(
@@ -499,7 +496,7 @@ fun Links(
     }
     Box(
         modifier = Modifier
-            .background(brush = ListenBrainzTheme.colorScheme.gradientBrush)
+            .background(brush = ListenBrainzTheme.colorScheme.userPageGradient)
             .fillMaxWidth()
             .padding(ListenBrainzTheme.paddings.largePadding)
     ) {
@@ -1067,6 +1064,17 @@ private fun LbRadioButton(
     }
 }
 
+/**
+ * A Composable function that renders an SVG string using a WebView.
+ *
+ * Previously used to display cover art in Artist and Album screens.
+ * Although currently unused, this function can be reused for rendering inline SVG content
+ * with flexible dimensions in the future.
+ *
+ * @param svgContent The raw SVG markup as a string.
+ * @param width The desired width of the WebView.
+ * @param height The desired height of the WebView.
+ */
 @Composable
 fun SvgWithWebView(svgContent: String, width: Dp, height: Dp) {
     val context = LocalContext.current
@@ -1104,7 +1112,13 @@ fun SvgWithWebView(svgContent: String, width: Dp, height: Dp) {
             </html>
         """
 
-        webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null)
+        webView.loadDataWithBaseURL(
+            null,
+            htmlContent,
+            "text/html",
+            "UTF-8",
+            null
+        )
     }
 
     AndroidView(
@@ -1116,6 +1130,7 @@ fun SvgWithWebView(svgContent: String, width: Dp, height: Dp) {
             .clip(RoundedCornerShape(8.dp))
     )
 }
+
 
 
 fun formatNumber(input: Int): String {
