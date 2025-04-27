@@ -26,8 +26,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.SettingsVoice
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.HorizontalDivider
@@ -79,7 +77,6 @@ import org.listenbrainz.android.model.artist.Artist
 import org.listenbrainz.android.model.artist.ArtistWikiExtract
 import org.listenbrainz.android.model.artist.CBReview
 import org.listenbrainz.android.model.artist.ReleaseGroup
-import org.listenbrainz.android.model.artist.Rels
 import org.listenbrainz.android.model.artist.Tag
 import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.model.feed.ReviewEntityType
@@ -238,7 +235,7 @@ fun BioCard(
     //Surface is added to make the rounded corner shape of Box visible
     Surface(
         modifier = Modifier,
-        color = MaterialTheme.colorScheme.background
+        color = ListenBrainzTheme.colorScheme.background
     ) {
         Box(
             modifier = Modifier
