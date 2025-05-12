@@ -30,6 +30,7 @@ import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.repository.listens.ListensRepository
+import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
@@ -43,6 +44,7 @@ class SocialViewModel @Inject constructor(
     private val listensRepository: ListensRepository,
     private val appPreferences: AppPreferences,
     private val remotePlaybackHandler: RemotePlaybackHandler,
+    private val playlistDataRepository: PlaylistDataRepository,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
 ): FollowUnfollowModel<SocialUiState>(repository, ioDispatcher) {
@@ -72,6 +74,9 @@ class SocialViewModel @Inject constructor(
                     emitError(error = result.error)
                 }
             }
+        }
+        viewModelScope.launch(defaultDispatcher) {
+
         }
     }
 

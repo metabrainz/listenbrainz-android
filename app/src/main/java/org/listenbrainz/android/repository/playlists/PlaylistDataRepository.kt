@@ -7,6 +7,7 @@ import org.listenbrainz.android.model.playlist.MoveTrack
 import org.listenbrainz.android.model.playlist.PlaylistPayload
 import org.listenbrainz.android.model.playlist.PlaylistTrack
 import org.listenbrainz.android.model.recordingSearch.RecordingSearchPayload
+import org.listenbrainz.android.model.userPlaylist.UserPlaylistPayload
 import org.listenbrainz.android.util.Resource
 
 interface PlaylistDataRepository {
@@ -44,6 +45,12 @@ interface PlaylistDataRepository {
 
     //Delete tracks from a playlist
     suspend fun deleteTracks(playlistMbid: String?, deleteTracks: DeleteTracks): Resource<EditPlaylistResponse?>
+
+    //Fetch the playlists of a user
+    suspend fun getUserPlaylists(username: String?, offset: Int, count: Int): Resource<UserPlaylistPayload>
+
+    //Fetch collab playlists of a user
+    suspend fun getUserCollabPlaylists(username: String?, offset: Int, count: Int): Resource<UserPlaylistPayload>
 
     companion object {
         const val DEFAULT_PLAYLIST_GRID_SIZE = 3
