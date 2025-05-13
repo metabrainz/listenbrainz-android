@@ -76,7 +76,6 @@ class SocialViewModel @Inject constructor(
             }
         }
         viewModelScope.launch(defaultDispatcher) {
-
         }
     }
 
