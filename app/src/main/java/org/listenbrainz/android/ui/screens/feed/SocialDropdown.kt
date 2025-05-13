@@ -6,13 +6,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -31,11 +34,14 @@ import org.listenbrainz.android.ui.components.dialogs.PersonalRecommendationDial
 import org.listenbrainz.android.ui.components.dialogs.PinDialog
 import org.listenbrainz.android.ui.components.dialogs.ReviewDialog
 import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
+import org.listenbrainz.android.ui.screens.playlist.CreateEditPlaylistScreen
+import org.listenbrainz.android.ui.screens.playlist.SelectPlaylist
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils.getActivity
 import org.listenbrainz.android.viewmodel.SocialViewModel
 
 /** This layer tries to define what options in the dropdown menu are to be shown.*/
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SocialDropdownDefault(
     isExpanded: Boolean,
@@ -51,6 +57,7 @@ fun SocialDropdownDefault(
     val uriHandler = LocalUriHandler.current
     val dialogsState = rememberDialogsState()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var isSelectPlaylistBottomSheetOpen by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.error) {
         uiState.error?.let { error ->
@@ -85,6 +92,9 @@ fun SocialDropdownDefault(
         },
         onReview = {
             dialogsState.activateDialog(Dialog.REVIEW)
+        },
+        onAddToPlaylist = {
+            isSelectPlaylistBottomSheetOpen = true
         }
     )
 
@@ -141,6 +151,19 @@ fun SocialDropdownDefault(
             )
         }
     }
+
+    if(isSelectPlaylistBottomSheetOpen){
+        SelectPlaylist(
+            trackMetadata = metadata,
+            onCreateNewPlaylist = {
+                isSelectPlaylistBottomSheetOpen = false
+                //TODO
+            },
+            onDismiss = {
+                isSelectPlaylistBottomSheetOpen = false
+            }
+        )
+    }
 }
 
 
@@ -155,7 +178,8 @@ fun SocialDropdown(
     onRecommend: (() -> Unit)? = null,
     onPersonallyRecommend: (() -> Unit)? = null,
     onReview: (() -> Unit)? = null,
-    
+    onAddToPlaylist: (() -> Unit)? = null,
+
     // TODO: Implement these
     onLink: (() -> Unit)? = null,
     onDelete: (() -> Unit)? = null,
@@ -173,8 +197,10 @@ fun SocialDropdown(
             ?: metadata.trackMetadata?.additionalInfo?.recordingMbid
     
         mutableListOf<SocialDropdownItem>().apply {
-            if (recordingMbid != null)
+            if (recordingMbid != null) {
                 add(SocialDropdownItem.OPEN_IN_MUSICBRAINZ(onOpenInMusicBrainz))
+                add(SocialDropdownItem.ADD_TO_PLAYLIST(onAddToPlaylist))
+            }
         
             if (trackName != null && artistName != null){
                 add(SocialDropdownItem.PIN(onPin))
@@ -263,6 +289,7 @@ fun SocialDropDownPreview(){
                         SocialDropdownItem.LINK{},
                         SocialDropdownItem.REVIEW{},
                         SocialDropdownItem.DELETE{},
+                        SocialDropdownItem.ADD_TO_PLAYLIST{},
                         SocialDropdownItem.INSPECT{}
                     )
                 )

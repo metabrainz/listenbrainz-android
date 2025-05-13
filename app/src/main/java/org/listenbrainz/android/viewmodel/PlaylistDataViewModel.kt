@@ -1,10 +1,15 @@
 package org.listenbrainz.android.viewmodel
 
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -17,6 +22,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.di.IoDispatcher
+import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.model.playlist.Extension
@@ -24,13 +30,17 @@ import org.listenbrainz.android.model.playlist.MoveTrack
 import org.listenbrainz.android.model.playlist.PlaylistData
 import org.listenbrainz.android.model.playlist.PlaylistExtensionData
 import org.listenbrainz.android.model.playlist.PlaylistPayload
+import org.listenbrainz.android.model.playlist.PlaylistTrack
 import org.listenbrainz.android.model.recordingSearch.RecordingData
+import org.listenbrainz.android.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.ui.screens.playlist.CreateEditScreenUIState
 import org.listenbrainz.android.ui.screens.playlist.PlaylistDataUIState
 import org.listenbrainz.android.ui.screens.playlist.PlaylistDetailUIState
+import org.listenbrainz.android.ui.screens.profile.playlists.CollabPlaylistPagingSource
+import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistPagingSource
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.util.Utils.isValidMbidFormat
@@ -69,6 +79,7 @@ class PlaylistDataViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(ioDispatcher) {
+            username = appPreferences.username.get()
             recordingQueryFlow.collectLatest { title ->
                 if (title.isEmpty()) {
                     playlistScreenUIStateFlow.emit(
@@ -557,5 +568,72 @@ class PlaylistDataViewModel @Inject constructor(
             started = SharingStarted.Eagerly,
             PlaylistDataUIState()
         )
+    }
+
+    //Select playlist bottom sheet functions
+
+    val userPlaylistPager: Flow<PagingData<UserPlaylist>> = Pager(
+        PagingConfig(
+            pageSize = PlaylistDataRepository.USER_PLAYLISTS_FETCH_COUNT,
+            enablePlaceholders = false
+        )
+    ){
+        UserPlaylistPagingSource(
+            username = username,
+            onError = {
+                emitError(it)
+            },
+            shouldFetchCoverArt = false,
+            playlistRepository = repository,
+            ioDispatcher = ioDispatcher
+        )
+    }   .flow
+        .cachedIn(viewModelScope)
+
+    val collabPlaylistPager: Flow<PagingData<UserPlaylist>> = Pager(
+        PagingConfig(
+            pageSize = PlaylistDataRepository.COLLAB_PLAYLISTS_FETCH_COUNT,
+            enablePlaceholders = false
+        )
+    ){
+        CollabPlaylistPagingSource(
+            username = username,
+            onError = {emitError(it)},
+            shouldFetchCoverArt = false,
+            playlistDataRepository = repository,
+            ioDispatcher = ioDispatcher
+        )
+
+    }
+        .flow
+        .cachedIn(viewModelScope)
+
+    fun addTrackToPlaylistFromSelectPlaylist(
+        songMetadata: Metadata,
+        playlistMbid: String?
+    ) {
+        viewModelScope.launch {
+            if (playlistMbid == null) return@launch
+            val result = repository.addTracks(
+                playlistMbid,
+                listOf(
+                    PlaylistTrack.fromMetadata(songMetadata)
+                )
+            )
+            when (result.status) {
+                Resource.Status.SUCCESS -> {
+                    if (result.data?.status != "ok") {
+                        emitError(ResponseError.UNKNOWN.apply {
+                            actualResponse = "Some error occurred while adding the track"
+                        })
+                    } else {
+                        emitMsg(R.string.track_added_successfully)
+                    }
+                }
+
+                Resource.Status.FAILED -> emitError(result.error)
+                else -> return@launch
+            }
+        }
     }
 }

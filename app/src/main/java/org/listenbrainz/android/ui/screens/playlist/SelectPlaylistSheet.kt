@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CreateNewFolder
@@ -25,14 +27,81 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
+import org.listenbrainz.android.model.Metadata
+import org.listenbrainz.android.model.playlist.PlaylistTrack
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
+import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
+import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@Composable
+fun SelectPlaylist(
+    modifier: Modifier = Modifier,
+    viewModel: PlaylistDataViewModel = hiltViewModel(),
+    trackMetadata: Metadata,
+    onCreateNewPlaylist: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val userPlaylistData = viewModel.userPlaylistPager.collectAsLazyPagingItems()
+    val uiState by viewModel.uiState.collectAsState()
+    val collabPlaylistData = viewModel.collabPlaylistPager.collectAsLazyPagingItems()
+    val isRefreshing = remember(
+        userPlaylistData.loadState.refresh,
+        collabPlaylistData.loadState.refresh
+    ) {
+        userPlaylistData.loadState.refresh is LoadState.Loading ||
+                collabPlaylistData.loadState.refresh is LoadState.Loading
+    }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isRefreshing,
+        onRefresh = {
+            userPlaylistData.refresh()
+            collabPlaylistData.refresh()
+        }
+    )
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState
+    ) {
+        Box(modifier = modifier.fillMaxSize()) {
+            SelectPlaylistBase(
+                modifier = Modifier,
+                songName = trackMetadata.trackMetadata?.trackName ?: "",
+                onSelect = { playlist ->
+                    viewModel.addTrackToPlaylistFromSelectPlaylist(
+                        trackMetadata,
+                        playlist.getPlaylistMBID()
+                    )
+                },
+                onCreateNewPlaylist = onCreateNewPlaylist,
+                getUserPlaylist = { userPlaylistData.get(it) },
+                getCollabPlaylist = { collabPlaylistData.get(it) },
+                userPlaylistDataSize = userPlaylistData.itemCount,
+                collabPlaylistDataSize = collabPlaylistData.itemCount,
+                isRefreshing = isRefreshing,
+                pullRefreshState = pullRefreshState,
+                onCloseButtonClick = {
+                    onDismiss()
+                }
+            )
+
+            ErrorBar(uiState.error) {
+                viewModel.clearErrorFlow()
+            }
+        }
+    }
+}
 
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun SelectPlaylistBase(
+private fun SelectPlaylistBase(
     songName: String,
     modifier: Modifier = Modifier,
     onSelect: (UserPlaylist) -> Unit,
@@ -83,7 +152,7 @@ fun SelectPlaylistBase(
                 modifier = Modifier.padding(16.dp),
                 text = buildAnnotatedString {
                     append("Add the track ")
-                    withStyle(style = SpanStyle(fontStyle = FontStyle.Italic)){
+                    withStyle(style = SpanStyle(fontStyle = FontStyle.Italic)) {
                         append(songName)
                     }
                     append(" to one or more of your playlists below:")
@@ -163,7 +232,7 @@ fun PlaylistItem(playlist: UserPlaylist, onClick: () -> Unit) {
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         Text(
-            text = playlist.title?: "Title not available",
+            text = playlist.title ?: "Title not available",
             style = MaterialTheme.typography.bodyLarge,
             color = ListenBrainzTheme.colorScheme.text
         )

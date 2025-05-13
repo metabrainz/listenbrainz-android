@@ -202,7 +202,6 @@ fun UserPlaylistScreen(
         ) {
             CreateEditPlaylistScreen(
                 viewModel = playlistViewModel,
-                snackbarHostState = snackbarState,
                 bottomSheetState = sheetState,
                 mbid = currentMBID
             ) {

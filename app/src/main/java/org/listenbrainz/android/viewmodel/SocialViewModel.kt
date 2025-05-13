@@ -53,7 +53,6 @@ class SocialViewModel @Inject constructor(
     private val listensRepository: ListensRepository,
     private val appPreferences: AppPreferences,
     private val remotePlaybackHandler: RemotePlaybackHandler,
-    private val playlistDataRepository: PlaylistDataRepository,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
 ): FollowUnfollowModel<SocialUiState>(repository, ioDispatcher) {
@@ -89,41 +88,6 @@ class SocialViewModel @Inject constructor(
         }
     }
 
-    val userPlaylistPager: Flow<PagingData<UserPlaylist>> = Pager(
-        PagingConfig(
-            pageSize = PlaylistDataRepository.USER_PLAYLISTS_FETCH_COUNT,
-            enablePlaceholders = false
-        )
-    ){
-        UserPlaylistPagingSource(
-            username = currentUser.value,
-            onError = {
-                emitError(it)
-            },
-            shouldFetchCoverArt = false,
-            playlistRepository = playlistDataRepository,
-            ioDispatcher = ioDispatcher
-        )
-    }   .flow
-        .cachedIn(viewModelScope)
-
-    val collabPlaylistPager: Flow<PagingData<UserPlaylist>> = Pager(
-        PagingConfig(
-            pageSize = PlaylistDataRepository.COLLAB_PLAYLISTS_FETCH_COUNT,
-            enablePlaceholders = false
-        )
-    ){
-            CollabPlaylistPagingSource(
-                username = currentUser.value,
-                onError = {emitError(it)},
-                shouldFetchCoverArt = false,
-                playlistDataRepository = playlistDataRepository,
-                ioDispatcher = ioDispatcher
-            )
-
-        }
-        .flow
-        .cachedIn(viewModelScope)
 
     override fun createUiStateFlow(): StateFlow<SocialUiState> =
         combine(

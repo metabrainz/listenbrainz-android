@@ -63,6 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
+import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.feed.RetryButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -75,7 +76,6 @@ import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 @Composable
 fun CreateEditPlaylistScreen(
     viewModel: PlaylistDataViewModel = hiltViewModel(),
-    snackbarHostState: SnackbarHostState,
     bottomSheetState: SheetState,
     mbid: String?,
     onNavigateUP: () -> Unit
@@ -87,75 +87,72 @@ fun CreateEditPlaylistScreen(
     LaunchedEffect(Unit) {
         viewModel.getInitialDataInCreatePlaylistScreen(mbid)
     }
-    LaunchedEffect(uiState.error) {
-        scope.launch {
-            if (uiState.error != null) {
-                snackbarHostState.showSnackbar(uiState.error?.toast ?: "Some error occurred")
-                viewModel.clearErrorFlow()
-            }
-        }
-    }
 
     LaunchedEffect(uiState.createEditScreenUIState.isSearching) {
         bottomSheetState.expand()
     }
 
-    AnimatedContent(uiState.createEditScreenUIState.isLoading) { isLoading ->
-        if (!isLoading) {
-            if (uiState.createEditScreenUIState.playlistData != null || uiState.createEditScreenUIState.playlistMBID == null)
-                CreateEditPlaylistScreenBase(
-                    collaborators = uiState.createEditScreenUIState.collaboratorSelected,
-                    onCollaboratorAdded = {
-                        viewModel.editPlaylistScreenData(
-                            collaborators = uiState.createEditScreenUIState.collaboratorSelected + it
-                        )
-                    },
-                    onSave = {
-                        viewModel.saveNewOrEditedPlaylist {
-                            scope.launch {
-                                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-                                onNavigateUP()
+    Box(modifier = Modifier.fillMaxSize()) {
+        AnimatedContent(uiState.createEditScreenUIState.isLoading) { isLoading ->
+            if (!isLoading) {
+                if (uiState.createEditScreenUIState.playlistData != null || uiState.createEditScreenUIState.playlistMBID == null)
+                    CreateEditPlaylistScreenBase(
+                        collaborators = uiState.createEditScreenUIState.collaboratorSelected,
+                        onCollaboratorAdded = {
+                            viewModel.editPlaylistScreenData(
+                                collaborators = uiState.createEditScreenUIState.collaboratorSelected + it
+                            )
+                        },
+                        onSave = {
+                            viewModel.saveNewOrEditedPlaylist {
+                                scope.launch {
+                                    Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                                    onNavigateUP()
+                                }
                             }
+                        },
+                        uiState = uiState.createEditScreenUIState,
+                        onCollaboratorRemove = { user ->
+                            viewModel.editPlaylistScreenData(
+                                collaborators = uiState.createEditScreenUIState.collaboratorSelected.filter { it != user }
+                            )
+                        },
+                        onNameChange = {
+                            viewModel.editPlaylistScreenData(name = it)
+                        },
+                        onDescriptionChange = {
+                            viewModel.editPlaylistScreenData(description = it)
+                        },
+                        onVisibilityChange = {
+                            viewModel.editPlaylistScreenData(isPublic = it)
+                        },
+                        onCancel = {
+                            onNavigateUP()
+                        },
+                        onUsernameQueryChange = {
+                            viewModel.queryCollaborators(it)
                         }
-                    },
-                    uiState = uiState.createEditScreenUIState,
-                    onCollaboratorRemove = { user ->
-                        viewModel.editPlaylistScreenData(
-                            collaborators = uiState.createEditScreenUIState.collaboratorSelected.filter { it != user }
-                        )
-                    },
-                    onNameChange = {
-                        viewModel.editPlaylistScreenData(name = it)
-                    },
-                    onDescriptionChange = {
-                        viewModel.editPlaylistScreenData(description = it)
-                    },
-                    onVisibilityChange = {
-                        viewModel.editPlaylistScreenData(isPublic = it)
-                    },
-                    onCancel = {
-                        onNavigateUP()
-                    },
-                    onUsernameQueryChange = {
-                        viewModel.queryCollaborators(it)
-                    }
-                )
-            else {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    RetryButton(
-                        modifier = Modifier.align(Alignment.Center)
-                    ) {
-                        viewModel.getInitialDataInCreatePlaylistScreen(mbid)
+                    )
+                else {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        RetryButton(
+                            modifier = Modifier.align(Alignment.Center)
+                        ) {
+                            viewModel.getInitialDataInCreatePlaylistScreen(mbid)
+                        }
                     }
                 }
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LoadingAnimation()
+                }
             }
-        } else {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                LoadingAnimation()
-            }
+        }
+        ErrorBar(uiState.error) {
+            viewModel.clearErrorFlow()
         }
     }
 }
