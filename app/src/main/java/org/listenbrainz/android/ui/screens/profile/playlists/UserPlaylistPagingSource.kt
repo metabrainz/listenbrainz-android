@@ -6,6 +6,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.flow.lastOrNull
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
@@ -16,8 +19,8 @@ import org.listenbrainz.android.util.Resource
 class UserPlaylistPagingSource(
     private val username: String?,
     private val onError: (error: ResponseError?) -> Unit,
-    private val userRepository: UserRepository,
     private val playlistRepository: PlaylistDataRepository,
+    private val shouldFetchCoverArt: Boolean = true,
     private val ioDispatcher: CoroutineDispatcher
 ) : PagingSource<Int, UserPlaylist>() {
     override fun getRefreshKey(state: PagingState<Int, UserPlaylist>): Int? {
@@ -37,7 +40,7 @@ class UserPlaylistPagingSource(
         }
 
         val result = withContext(ioDispatcher) {
-            userRepository.getUserPlaylists(
+            playlistRepository.getUserPlaylists(
                 username = username,
                 offset = params.key ?: 0,
                 count = params.loadSize
@@ -47,18 +50,18 @@ class UserPlaylistPagingSource(
         return when (result.status) {
             Resource.Status.SUCCESS -> {
                 val data = (result.data?.playlists ?: emptyList()).map { it.playlist }
-                val dataWithCoverArt = withContext(ioDispatcher) {
-                    data.map { playlist ->
-                        async {
-                            val coverArtResult = playlist.getPlaylistMBID()
-                                ?.let { it1 -> playlistRepository.getPlaylistCoverArt(it1) }
-                            playlist.copy(coverArt = coverArtResult?.data)
-                        }
-                    }.awaitAll()
-                }
                 val nextKey = if (data.isEmpty()) null else params.key?.plus(params.loadSize)
                 LoadResult.Page(
-                    data = dataWithCoverArt,
+                    data = if (shouldFetchCoverArt) withContext(ioDispatcher) {
+                        data.map { playlist ->
+                            async {
+                                val coverArtResult = playlist.getPlaylistMBID()
+                                    ?.let { it1 -> playlistRepository.getPlaylistCoverArt(it1) }
+                                playlist.copy(coverArt = coverArtResult?.data)
+                            }
+                        }.awaitAll()
+                    }
+                    else data,
                     prevKey = null,
                     nextKey = nextKey
                 )

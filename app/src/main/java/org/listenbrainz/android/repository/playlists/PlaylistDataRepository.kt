@@ -35,26 +35,49 @@ interface PlaylistDataRepository {
             Resource<EditPlaylistResponse?>
 
     //Search for a recording
-    suspend fun searchRecording(searchQuery: String?, mbid: String? = null): Resource<RecordingSearchPayload?>
+    suspend fun searchRecording(
+        searchQuery: String?,
+        mbid: String? = null
+    ): Resource<RecordingSearchPayload?>
 
     //Move a track in a playlist
-    suspend fun moveTrack(playlistMbid: String?, moveTrack: MoveTrack): Resource<EditPlaylistResponse?>
+    suspend fun moveTrack(
+        playlistMbid: String?,
+        moveTrack: MoveTrack
+    ): Resource<EditPlaylistResponse?>
 
     //Add tracks to a playlist
-    suspend fun addTracks(playlistMbid: String?, playlistTracks: List<PlaylistTrack>): Resource<EditPlaylistResponse?>
+    suspend fun addTracks(
+        playlistMbid: String?,
+        playlistTracks: List<PlaylistTrack>
+    ): Resource<EditPlaylistResponse?>
 
     //Delete tracks from a playlist
-    suspend fun deleteTracks(playlistMbid: String?, deleteTracks: DeleteTracks): Resource<EditPlaylistResponse?>
+    suspend fun deleteTracks(
+        playlistMbid: String?,
+        deleteTracks: DeleteTracks
+    ): Resource<EditPlaylistResponse?>
 
     //Fetch the playlists of a user
-    suspend fun getUserPlaylists(username: String?, offset: Int, count: Int): Resource<UserPlaylistPayload>
+    suspend fun getUserPlaylists(
+        username: String?,
+        offset: Int,
+        count: Int
+    ): Resource<UserPlaylistPayload>
 
     //Fetch collab playlists of a user
-    suspend fun getUserCollabPlaylists(username: String?, offset: Int, count: Int): Resource<UserPlaylistPayload>
+    suspend fun getUserCollabPlaylists(
+        username: String?,
+        offset: Int,
+        count: Int
+    ): Resource<UserPlaylistPayload>
 
     companion object {
         const val DEFAULT_PLAYLIST_GRID_SIZE = 3
         const val DEFAULT_PLAYLIST_LIST_VIEW_GRID_SIZE = 2
         const val DEFAULT_LAYOUT = 0
+        const val USER_PLAYLISTS_FETCH_COUNT = 25
+        const val COLLAB_PLAYLISTS_FETCH_COUNT = 25
+
     }
 }

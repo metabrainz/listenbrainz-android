@@ -3,9 +3,14 @@ package org.listenbrainz.android.viewmodel
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -14,6 +19,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -29,11 +35,14 @@ import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.feed.ReviewEntityType
+import org.listenbrainz.android.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
+import org.listenbrainz.android.ui.screens.profile.playlists.CollabPlaylistPagingSource
+import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistPagingSource
 import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
@@ -50,7 +59,7 @@ class SocialViewModel @Inject constructor(
 ): FollowUnfollowModel<SocialUiState>(repository, ioDispatcher) {
 
     private val inputSearchFollowerQuery = MutableStateFlow("")
-
+    private val currentUser = MutableStateFlow<String?>(null)
     @OptIn(FlowPreview::class)
     private val searchFollowerQuery = inputSearchFollowerQuery.asStateFlow().debounce(500).distinctUntilChanged()
     private val searchFollowerResult = MutableStateFlow<List<String>>(emptyList())
@@ -59,6 +68,7 @@ class SocialViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(defaultDispatcher) {
+            currentUser.emit(appPreferences.username.get())
             searchFollowerQuery.collectLatest { query ->
                 if (query.isEmpty()) return@collectLatest
 
@@ -78,6 +88,42 @@ class SocialViewModel @Inject constructor(
         viewModelScope.launch(defaultDispatcher) {
         }
     }
+
+    val userPlaylistPager: Flow<PagingData<UserPlaylist>> = Pager(
+        PagingConfig(
+            pageSize = PlaylistDataRepository.USER_PLAYLISTS_FETCH_COUNT,
+            enablePlaceholders = false
+        )
+    ){
+        UserPlaylistPagingSource(
+            username = currentUser.value,
+            onError = {
+                emitError(it)
+            },
+            shouldFetchCoverArt = false,
+            playlistRepository = playlistDataRepository,
+            ioDispatcher = ioDispatcher
+        )
+    }   .flow
+        .cachedIn(viewModelScope)
+
+    val collabPlaylistPager: Flow<PagingData<UserPlaylist>> = Pager(
+        PagingConfig(
+            pageSize = PlaylistDataRepository.COLLAB_PLAYLISTS_FETCH_COUNT,
+            enablePlaceholders = false
+        )
+    ){
+            CollabPlaylistPagingSource(
+                username = currentUser.value,
+                onError = {emitError(it)},
+                shouldFetchCoverArt = false,
+                playlistDataRepository = playlistDataRepository,
+                ioDispatcher = ioDispatcher
+            )
+
+        }
+        .flow
+        .cachedIn(viewModelScope)
 
     override fun createUiStateFlow(): StateFlow<SocialUiState> =
         combine(

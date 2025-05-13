@@ -184,7 +184,7 @@ fun SelectPlaylistBasePreview() {
 
     ListenBrainzTheme {
         SelectPlaylistBase(
-            songName = "Budhhu Sa Mann",
+            songName = "Mannat",
             onSelect = {},
             onCreateNewPlaylist = {},
             getUserPlaylist = { index -> userPlaylists.getOrNull(index) },

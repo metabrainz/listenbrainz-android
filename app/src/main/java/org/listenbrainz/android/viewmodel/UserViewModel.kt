@@ -56,7 +56,7 @@ class UserViewModel @Inject constructor(
     private var isLoggedInUser by mutableStateOf(false)
     private val currentUser: MutableStateFlow<String?> = MutableStateFlow(null)
     private val userPlaylistPager: Flow<PagingData<UserPlaylist>> = Pager(
-        PagingConfig(pageSize = UserRepository.USER_PLAYLISTS_FETCH_COUNT,
+        PagingConfig(pageSize = PlaylistDataRepository.USER_PLAYLISTS_FETCH_COUNT,
             enablePlaceholders = true),
         initialKey = null,
     ) {
@@ -66,7 +66,7 @@ class UserViewModel @Inject constructor(
         .cachedIn(viewModelScope)
 
     private val collabPlaylistPager: Flow<PagingData<UserPlaylist>> = Pager(
-        PagingConfig(pageSize = UserRepository.COLLAB_PLAYLISTS_FETCH_COUNT,
+        PagingConfig(pageSize = PlaylistDataRepository.COLLAB_PLAYLISTS_FETCH_COUNT,
             enablePlaceholders = true),
         initialKey = null,
     ) {
@@ -102,7 +102,6 @@ class UserViewModel @Inject constructor(
     private fun createNewUserPlaylistPagingSource() = UserPlaylistPagingSource(
         username = currentUser.value,
         onError = { error -> emitError(error) },
-        userRepository = userRepository,
         ioDispatcher = ioDispatcher,
         playlistRepository = playlistDataRepository
     )
@@ -110,7 +109,6 @@ class UserViewModel @Inject constructor(
     private fun createNewCollabPlaylistPagingSource() = CollabPlaylistPagingSource(
         username = currentUser.value,
         onError = { error -> emitError(error) },
-        userRepository = userRepository,
         ioDispatcher = ioDispatcher,
         playlistDataRepository = playlistDataRepository
     )
@@ -171,7 +169,9 @@ class UserViewModel @Inject constructor(
     suspend fun getUserDataFromRemote(
         inputUsername: String?
     ) = coroutineScope {
-        currentUser.emit(inputUsername)
+        if (inputUsername != null) {
+            currentUser.emit(inputUsername)
+        }
         val listensTabData = async { getUserListensData(inputUsername) }
         val statsTabData = async { getUserStatsData(inputUsername) }
         val tasteTabData = async { getUserTasteData(inputUsername) }
