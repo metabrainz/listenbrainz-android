@@ -25,6 +25,7 @@ import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.User
+import org.listenbrainz.android.model.playlist.DeleteTracks
 import org.listenbrainz.android.model.playlist.Extension
 import org.listenbrainz.android.model.playlist.MoveTrack
 import org.listenbrainz.android.model.playlist.PlaylistData
@@ -495,6 +496,43 @@ class PlaylistDataViewModel @Inject constructor(
                         refreshPlaylistScreen()
                     } else {
                         emitMsg(R.string.track_moved_successfully)
+                        refreshPlaylistScreen()
+                    }
+                }
+
+                Resource.Status.FAILED -> {
+                    emitError(result.error)
+                    refreshPlaylistScreen()
+                }
+
+                else -> return@launch
+            }
+        }
+    }
+    
+    fun deleteTrackFromPlaylist(index: Int) {
+        val refreshPlaylistScreen = {
+            if (playlistScreenUIStateFlow.value.playlistMBID != null)
+                getDataInPlaylistScreen(
+                    playlistScreenUIStateFlow.value.playlistMBID!!,
+                    isRefresh = true
+                )
+        }
+        viewModelScope.launch {
+            if (!playlistScreenUIStateFlow.value.isUserPlaylistOwner || index < 0 || playlistScreenUIStateFlow.value.playlistMBID == null)
+                return@launch
+            val result = repository.deleteTracks(playlistScreenUIStateFlow.value.playlistMBID, DeleteTracks(
+                index, 1
+            ))
+            when (result.status) {
+                Resource.Status.SUCCESS -> {
+                    if (result.data?.status != "ok") {
+                        emitError(ResponseError.UNKNOWN.apply {
+                            actualResponse = "Some error occurred while deleting the track"
+                        })
+                        refreshPlaylistScreen()
+                    } else {
+                        emitMsg(R.string.track_removed_from_playlist_successfully)
                         refreshPlaylistScreen()
                     }
                 }

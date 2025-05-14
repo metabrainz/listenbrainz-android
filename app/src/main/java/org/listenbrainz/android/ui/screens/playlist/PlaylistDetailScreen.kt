@@ -181,6 +181,9 @@ fun PlaylistDetailScreen(
                             },
                             onTemporarilyMoveTrack = { fromIndex, toIndex ->
                                 playlistViewModel.temporarilyMoveTrack(fromIndex, toIndex)
+                            },
+                            onRemoveTrackFromPlaylist = {index ->
+                                playlistViewModel.deleteTrackFromPlaylist(index)
                             }
                         )
                     } else {
@@ -274,6 +277,7 @@ private fun PlaylistDetailContent(
     showsnackbar: (String) -> Unit,
     onAddTrackClick: () -> Unit,
     onTrackClick: (PlaylistTrack) -> Unit,
+    onRemoveTrackFromPlaylist: (index: Int)->Unit,
     onEditPlaylistClick: () -> Unit,
     onSharePlaylistClick: () -> Unit,
     onDuplicatePlaylistClick: () -> Unit,
@@ -526,6 +530,11 @@ private fun PlaylistDetailContent(
                     onClick = {
                         onTrackClick(playlistTrack)
                     },
+                    onRemoveFromPlaylist = if(playlistDetailUIState.isUserPlaylistOwner) {
+                        {
+                            onRemoveTrackFromPlaylist(index)
+                        }
+                    } else null,
                     trailingContent = {
                         Text(
                             modifier = Modifier
@@ -827,7 +836,8 @@ fun PlaylistDetailScreenPreview() {
             onDuplicatePlaylistClick = {},
             onSharePlaylistClick = {},
             onPermanentlyMoveTrack = {},
-            onTemporarilyMoveTrack = { _, _ -> }
+            onTemporarilyMoveTrack = { _, _ -> },
+            onRemoveTrackFromPlaylist = {}
         )
     }
 }

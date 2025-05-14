@@ -48,6 +48,7 @@ fun SocialDropdownDefault(
     metadata: Metadata?,
     onError: suspend CoroutineScope.(ResponseError) -> Unit,
     onSuccess: suspend CoroutineScope.(message: String) -> Unit,
+    onRemoveFromPlaylist: (() -> Unit)? = null,
     onDropdownDismiss: () -> Unit,
 ) {
     if (metadata == null || LocalView.current.isInEditMode) return
@@ -96,7 +97,13 @@ fun SocialDropdownDefault(
         onAddToPlaylist = {
             currentSheet = SocialDropdownSheets.SELECT_PLAYLIST_TO_ADD_TRACK
             onDropdownDismiss()
-        }
+        },
+        onRemoveFromPlaylist = if(onRemoveFromPlaylist != null) {
+            {
+                onRemoveFromPlaylist()
+                onDropdownDismiss()
+            }
+        } else null,
     )
 
     LaunchedEffect(key1 = dialogsState.currentDialog) {
@@ -188,6 +195,7 @@ fun SocialDropdown(
     onPersonallyRecommend: (() -> Unit)? = null,
     onReview: (() -> Unit)? = null,
     onAddToPlaylist: (() -> Unit)? = null,
+    onRemoveFromPlaylist: (() -> Unit)? = null,
 
     // TODO: Implement these
     onLink: (() -> Unit)? = null,
@@ -225,6 +233,9 @@ fun SocialDropdown(
 
             if (recordingMbid != null && trackName != null)
                 add(SocialDropdownItem.ADD_TO_PLAYLIST(onAddToPlaylist))
+
+            if(onRemoveFromPlaylist != null)
+                add(SocialDropdownItem.REMOVE_FROM_PLAYLIST(onRemoveFromPlaylist))
 
             // TODO: Add these in future once we have its metadata conditions.
             //add(SocialDropdownItem.LINK(onLink))
@@ -302,7 +313,8 @@ fun SocialDropDownPreview() {
                         SocialDropdownItem.REVIEW {},
                         SocialDropdownItem.DELETE {},
                         SocialDropdownItem.ADD_TO_PLAYLIST {},
-                        SocialDropdownItem.INSPECT {}
+                        SocialDropdownItem.INSPECT {},
+                        SocialDropdownItem.REMOVE_FROM_PLAYLIST {},
                     )
                 )
             }
