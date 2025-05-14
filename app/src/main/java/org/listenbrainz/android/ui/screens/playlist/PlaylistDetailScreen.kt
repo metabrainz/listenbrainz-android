@@ -119,9 +119,6 @@ fun PlaylistDetailScreen(
     val addTrackSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
     var isEditPlaylistBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
     var isDuplicatePlaylistDialogVisible by rememberSaveable { mutableStateOf(false) }
 
@@ -211,25 +208,16 @@ fun PlaylistDetailScreen(
             state = pullRefreshState
         )
 
-        if (isEditPlaylistBottomSheetVisible)
-            ModalBottomSheet(
-                onDismissRequest = {
-                    isEditPlaylistBottomSheetVisible = false
-                },
-                sheetState = sheetState,
-                modifier = Modifier.statusBarsPadding(),
-            ) {
-                CreateEditPlaylistScreen(
-                    viewModel = playlistViewModel,
-                    bottomSheetState = sheetState,
-                    mbid = playlistMBID
-                ) {
-                    scope.launch {
-                        sheetState.hide()
-                        isEditPlaylistBottomSheetVisible = false
-                    }
-                }
-            }
+
+        CreateEditPlaylistScreen(
+            viewModel = playlistViewModel,
+            isVisible = isEditPlaylistBottomSheetVisible,
+            mbid = playlistMBID
+        ) {
+            isEditPlaylistBottomSheetVisible = false
+
+        }
+
 
         if (uiState.playlistDetailUIState.isAddTrackBottomSheetVisible) {
             ModalBottomSheet(
@@ -259,7 +247,7 @@ fun PlaylistDetailScreen(
             }
         }
 
-        if(isDuplicatePlaylistDialogVisible){
+        if (isDuplicatePlaylistDialogVisible) {
             PlaylistDuplicateConfirmationDialog(
                 onDismiss = {
                     isDuplicatePlaylistDialogVisible = false
@@ -317,8 +305,10 @@ private fun PlaylistDetailContent(
     val scope = rememberCoroutineScope()
 
 
-    Box(modifier = Modifier.fillMaxSize()
-        .background(brush = ListenBrainzTheme.colorScheme.userPageGradient)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(brush = ListenBrainzTheme.colorScheme.userPageGradient)
     ) {
         LazyColumn(
             modifier = Modifier
@@ -440,9 +430,7 @@ private fun PlaylistDetailContent(
                     modifier = Modifier
                         .background(brush = ListenBrainzTheme.colorScheme.userPageGradient)
                         .padding(vertical = 16.dp)
-                        .fillMaxWidth()
-
-                    ,
+                        .fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
                     //Duplicate button
@@ -508,15 +496,16 @@ private fun PlaylistDetailContent(
             itemsIndexed(
                 playlists,
                 contentType = { index, _ -> DraggableItem(index = index) }) { index, playlistTrack ->
-                val modifier = if (draggingItemIndex == index && playlistDetailUIState.isUserPlaylistOwner) {
-                    Modifier
-                        .zIndex(1f)
-                        .graphicsLayer {
-                            translationY = delta
-                        }
-                } else {
-                    Modifier
-                }
+                val modifier =
+                    if (draggingItemIndex == index && playlistDetailUIState.isUserPlaylistOwner) {
+                        Modifier
+                            .zIndex(1f)
+                            .graphicsLayer {
+                                translationY = delta
+                            }
+                    } else {
+                        Modifier
+                    }
                 ListenCardSmallDefault(
                     modifier = modifier.padding(
                         horizontal = ListenBrainzTheme.paddings.horizontal,
@@ -600,7 +589,7 @@ fun PlaylistCard(
         modifier = modifier
             .fillMaxWidth()
             .background(
-                color= ListenBrainzTheme.colorScheme.background
+                color = ListenBrainzTheme.colorScheme.background
             )
             .padding(top = ListenBrainzTheme.paddings.defaultPadding)
     ) {
@@ -720,7 +709,7 @@ fun PlaylistCard(
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
                         )
-                    }else if(isTextOverflowing){
+                    } else if (isTextOverflowing) {
                         Text(
                             text = "Read less",
                             color = themeColors.listenText,
@@ -776,9 +765,12 @@ fun PlaylistDuplicateConfirmationDialog(onDismiss: () -> Unit, onSave: () -> Uni
             )
         },
         footer = {
-            Row(horizontalArrangement = Arrangement.End,
-                modifier = Modifier.padding(4.dp)
-                    .fillMaxWidth()) {
+            Row(
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier
+                    .padding(4.dp)
+                    .fillMaxWidth()
+            ) {
                 DialogNegativeButton(text = "Cancel") {
                     onDismiss()
                 }

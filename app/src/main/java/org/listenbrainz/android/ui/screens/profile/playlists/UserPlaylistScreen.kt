@@ -67,7 +67,7 @@ fun UserPlaylistScreen(
     snackbarState: SnackbarHostState,
     userViewModel: UserViewModel,
     playlistViewModel: PlaylistDataViewModel,
-    goToPlaylist: (String)->Unit
+    goToPlaylist: (String) -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -89,9 +89,6 @@ fun UserPlaylistScreen(
             userPlaylistsData.loadState.refresh is LoadState.Loading
         }
     }
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
     var isBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
 
     val pullRefreshState = rememberPullRefreshState(
@@ -191,27 +188,15 @@ fun UserPlaylistScreen(
         }
     )
 
-    if (isBottomSheetVisible)
-        ModalBottomSheet(
-            onDismissRequest = {
-                currentMBID = null
-                isBottomSheetVisible = false
-            },
-            sheetState = sheetState,
-            modifier = Modifier.statusBarsPadding(),
-        ) {
-            CreateEditPlaylistScreen(
-                viewModel = playlistViewModel,
-                bottomSheetState = sheetState,
-                mbid = currentMBID
-            ) {
-                currentMBID = null
-                scope.launch {
-                    sheetState.hide()
-                    isBottomSheetVisible = false
-                }
-            }
-        }
+    CreateEditPlaylistScreen(
+        viewModel = playlistViewModel,
+        isVisible = isBottomSheetVisible,
+        mbid = currentMBID
+    ) {
+        currentMBID = null
+        isBottomSheetVisible = false
+    }
+
 }
 
 
@@ -351,7 +336,7 @@ private fun UserPlaylistScreenBase(
             modifier = Modifier.align(Alignment.TopCenter),
             refreshing = isRefreshing,
             contentColor = ListenBrainzTheme.colorScheme.lbSignatureInverse,
-                backgroundColor = ListenBrainzTheme.colorScheme.level1,
+            backgroundColor = ListenBrainzTheme.colorScheme.level1,
             state = pullRefreshState
         )
 

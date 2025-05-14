@@ -33,6 +33,7 @@ import org.listenbrainz.android.ui.components.dialogs.Dialog
 import org.listenbrainz.android.ui.components.dialogs.PersonalRecommendationDialog
 import org.listenbrainz.android.ui.components.dialogs.PinDialog
 import org.listenbrainz.android.ui.components.dialogs.ReviewDialog
+import org.listenbrainz.android.ui.components.dialogs.SocialDropdownSheets
 import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
 import org.listenbrainz.android.ui.screens.playlist.CreateEditPlaylistScreen
 import org.listenbrainz.android.ui.screens.playlist.SelectPlaylist
@@ -41,7 +42,6 @@ import org.listenbrainz.android.util.Utils.getActivity
 import org.listenbrainz.android.viewmodel.SocialViewModel
 
 /** This layer tries to define what options in the dropdown menu are to be shown.*/
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SocialDropdownDefault(
     isExpanded: Boolean,
@@ -57,7 +57,7 @@ fun SocialDropdownDefault(
     val uriHandler = LocalUriHandler.current
     val dialogsState = rememberDialogsState()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var isSelectPlaylistBottomSheetOpen by remember { mutableStateOf(false) }
+    var currentSheet by remember { mutableStateOf(SocialDropdownSheets.NONE) }
 
     LaunchedEffect(uiState.error) {
         uiState.error?.let { error ->
@@ -94,7 +94,8 @@ fun SocialDropdownDefault(
             dialogsState.activateDialog(Dialog.REVIEW)
         },
         onAddToPlaylist = {
-            isSelectPlaylistBottomSheetOpen = true
+            currentSheet = SocialDropdownSheets.SELECT_PLAYLIST_TO_ADD_TRACK
+            onDropdownDismiss()
         }
     )
 
@@ -104,7 +105,7 @@ fun SocialDropdownDefault(
         }
     }
 
-    when (dialogsState.currentDialog){
+    when (dialogsState.currentDialog) {
         Dialog.NONE -> Unit
         Dialog.PIN -> {
             PinDialog(
@@ -117,6 +118,7 @@ fun SocialDropdownDefault(
                 }
             )
         }
+
         Dialog.PERSONAL_RECOMMENDATION -> {
             PersonalRecommendationDialog(
                 trackName = metadata.trackMetadata?.trackName
@@ -129,6 +131,7 @@ fun SocialDropdownDefault(
                 }
             )
         }
+
         Dialog.REVIEW -> {
             ReviewDialog(
                 trackName = metadata.trackMetadata?.trackName
@@ -152,18 +155,24 @@ fun SocialDropdownDefault(
         }
     }
 
-    if(isSelectPlaylistBottomSheetOpen){
-        SelectPlaylist(
-            trackMetadata = metadata,
-            onCreateNewPlaylist = {
-                isSelectPlaylistBottomSheetOpen = false
-                //TODO
-            },
-            onDismiss = {
-                isSelectPlaylistBottomSheetOpen = false
-            }
-        )
-    }
+    SelectPlaylist(
+        trackMetadata = metadata,
+        isSheetVisible = currentSheet == SocialDropdownSheets.SELECT_PLAYLIST_TO_ADD_TRACK,
+        onCreateNewPlaylist = {
+            currentSheet = SocialDropdownSheets.CREATE_NEW_PLAYLIST
+        },
+        onDismiss = {
+            currentSheet = SocialDropdownSheets.NONE
+        }
+    )
+    CreateEditPlaylistScreen(
+        onDismiss = {
+                    currentSheet = SocialDropdownSheets.SELECT_PLAYLIST_TO_ADD_TRACK
+        },
+        isVisible = currentSheet == SocialDropdownSheets.CREATE_NEW_PLAYLIST,
+        mbid = null
+    )
+
 }
 
 
@@ -195,33 +204,35 @@ fun SocialDropdown(
         val recordingMbid = metadata.trackMetadata?.mbidMapping?.recordingMbid
             ?: metadata.reviewMbid
             ?: metadata.trackMetadata?.additionalInfo?.recordingMbid
-    
+
         mutableListOf<SocialDropdownItem>().apply {
             if (recordingMbid != null) {
                 add(SocialDropdownItem.OPEN_IN_MUSICBRAINZ(onOpenInMusicBrainz))
-                add(SocialDropdownItem.ADD_TO_PLAYLIST(onAddToPlaylist))
             }
-        
-            if (trackName != null && artistName != null){
+
+            if (trackName != null && artistName != null) {
                 add(SocialDropdownItem.PIN(onPin))
-                
+
                 // Mbid or msid
                 if (recordingMbid != null || metadata.trackMetadata?.additionalInfo?.recordingMsid != null) {
                     add(SocialDropdownItem.RECOMMEND(onRecommend))
                     add(SocialDropdownItem.PERSONALLY_RECOMMEND(onPersonallyRecommend))
                 }
             }
-            
+
             if (trackName != null || artistName != null || releaseName != null)
                 add(SocialDropdownItem.REVIEW(onReview))
-            
+
+            if (recordingMbid != null && trackName != null)
+                add(SocialDropdownItem.ADD_TO_PLAYLIST(onAddToPlaylist))
+
             // TODO: Add these in future once we have its metadata conditions.
             //add(SocialDropdownItem.LINK(onLink))
             //add(SocialDropdownItem.DELETE(onDelete)),
             //add(SocialDropdownItem.INSPECT(onInspect))
         }
     }
-    
+
     SocialDropdown(
         isExpanded = isExpanded,
         onDismiss = onDismiss,
@@ -234,13 +245,14 @@ private fun SocialDropdown(
     isExpanded: Boolean,
     onDismiss: () -> Unit,
     itemList: List<SocialDropdownItem>
-){
+) {
     DropdownMenu(expanded = isExpanded, onDismissRequest = onDismiss) {
         itemList.forEach { item ->
             DropdownItem(
                 icon = item.icon,
                 title = item.title,
-                onClick = item.onClick ?: return@forEach   // We are sure that we would get the same result everytime.
+                onClick = item.onClick
+                    ?: return@forEach   // We are sure that we would get the same result everytime.
             )
         }
     }
@@ -273,24 +285,24 @@ private fun DropdownItem(
 
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
-fun SocialDropDownPreview(){
+fun SocialDropDownPreview() {
     ListenBrainzTheme {
         Surface {
             Box {
-                Surface(modifier = Modifier.size(20.dp)){}
+                Surface(modifier = Modifier.size(20.dp)) {}
                 SocialDropdown(
                     isExpanded = true,
                     onDismiss = {},
                     itemList = listOf(
                         SocialDropdownItem.OPEN_IN_MUSICBRAINZ {},
-                        SocialDropdownItem.PIN{},
-                        SocialDropdownItem.RECOMMEND{},
-                        SocialDropdownItem.PERSONALLY_RECOMMEND{},
-                        SocialDropdownItem.LINK{},
-                        SocialDropdownItem.REVIEW{},
-                        SocialDropdownItem.DELETE{},
-                        SocialDropdownItem.ADD_TO_PLAYLIST{},
-                        SocialDropdownItem.INSPECT{}
+                        SocialDropdownItem.PIN {},
+                        SocialDropdownItem.RECOMMEND {},
+                        SocialDropdownItem.PERSONALLY_RECOMMEND {},
+                        SocialDropdownItem.LINK {},
+                        SocialDropdownItem.REVIEW {},
+                        SocialDropdownItem.DELETE {},
+                        SocialDropdownItem.ADD_TO_PLAYLIST {},
+                        SocialDropdownItem.INSPECT {}
                     )
                 )
             }

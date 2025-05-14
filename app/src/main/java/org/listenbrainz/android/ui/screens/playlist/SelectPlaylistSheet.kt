@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.screens.playlist
 
 import android.content.res.Configuration
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -21,6 +22,7 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.PullRefreshState
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -30,10 +32,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
+import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.playlist.PlaylistTrack
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.ui.components.ErrorBar
+import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
@@ -42,11 +46,14 @@ import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 @Composable
 fun SelectPlaylist(
     modifier: Modifier = Modifier,
+    isSheetVisible: Boolean,
     viewModel: PlaylistDataViewModel = hiltViewModel(),
     trackMetadata: Metadata,
     onCreateNewPlaylist: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val userPlaylistData = viewModel.userPlaylistPager.collectAsLazyPagingItems()
     val uiState by viewModel.uiState.collectAsState()
     val collabPlaylistData = viewModel.collabPlaylistPager.collectAsLazyPagingItems()
@@ -65,37 +72,69 @@ fun SelectPlaylist(
             collabPlaylistData.refresh()
         }
     )
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState
-    ) {
-        Box(modifier = modifier.fillMaxSize()) {
-            SelectPlaylistBase(
-                modifier = Modifier,
-                songName = trackMetadata.trackMetadata?.trackName ?: "",
-                onSelect = { playlist ->
-                    viewModel.addTrackToPlaylistFromSelectPlaylist(
-                        trackMetadata,
-                        playlist.getPlaylistMBID()
-                    )
-                },
-                onCreateNewPlaylist = onCreateNewPlaylist,
-                getUserPlaylist = { userPlaylistData.get(it) },
-                getCollabPlaylist = { collabPlaylistData.get(it) },
-                userPlaylistDataSize = userPlaylistData.itemCount,
-                collabPlaylistDataSize = collabPlaylistData.itemCount,
-                isRefreshing = isRefreshing,
-                pullRefreshState = pullRefreshState,
-                onCloseButtonClick = {
-                    onDismiss()
-                }
-            )
+    val isAddingTrack by viewModel.isLoadingWhileAddingTrack.collectAsState()
 
-            ErrorBar(uiState.error) {
-                viewModel.clearErrorFlow()
-            }
+    val dismissWithAnimation: () -> Unit = {
+        scope.launch {
+            sheetState.hide()
+            onDismiss()
         }
     }
+
+    LaunchedEffect(isSheetVisible) {
+        userPlaylistData.refresh()
+        collabPlaylistData.refresh()
+    }
+
+    if (isSheetVisible)
+        ModalBottomSheet(
+            modifier = Modifier.statusBarsPadding(),
+            onDismissRequest = dismissWithAnimation,
+            sheetState = sheetState,
+            containerColor = ListenBrainzTheme.colorScheme.background
+        ) {
+            Box(modifier = modifier.fillMaxSize()) {
+                SelectPlaylistBase(
+                    modifier = Modifier,
+                    songName = trackMetadata.trackMetadata?.trackName ?: "",
+                    onSelect = { playlist ->
+                        viewModel.addTrackToPlaylistFromSelectPlaylist(
+                            trackMetadata,
+                            playlist.getPlaylistMBID()
+                        ) {
+                            dismissWithAnimation()
+                            Toast.makeText(context, "Track added to playlist", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                    },
+                    onCreateNewPlaylist = onCreateNewPlaylist,
+                    getUserPlaylist = { userPlaylistData.get(it) },
+                    getCollabPlaylist = { collabPlaylistData.get(it) },
+                    userPlaylistDataSize = userPlaylistData.itemCount,
+                    collabPlaylistDataSize = collabPlaylistData.itemCount,
+                    isRefreshing = isRefreshing,
+                    pullRefreshState = pullRefreshState,
+                    onCloseButtonClick = {
+                        dismissWithAnimation()
+                    }
+                )
+
+                ErrorBar(uiState.error) {
+                    viewModel.clearErrorFlow()
+                }
+
+                if (isAddingTrack) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(ListenBrainzTheme.colorScheme.background.copy(alpha = 0.75f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        LoadingAnimation()
+                    }
+                }
+            }
+        }
 }
 
 
@@ -229,15 +268,16 @@ fun PlaylistItem(playlist: UserPlaylist, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(horizontal = 16.dp)
     ) {
         Text(
             text = playlist.title ?: "Title not available",
             style = MaterialTheme.typography.bodyLarge,
-            color = ListenBrainzTheme.colorScheme.text
+            color = ListenBrainzTheme.colorScheme.text,
+            modifier = Modifier.padding(vertical = 12.dp)
         )
         Spacer(Modifier.height(12.dp))
-        HorizontalDivider(color = ListenBrainzTheme.colorScheme.dividerColor)
+        HorizontalDivider(color = ListenBrainzTheme.colorScheme.text.copy(0.2f))
     }
 }
 

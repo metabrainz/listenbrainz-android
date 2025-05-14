@@ -308,8 +308,8 @@ class PlaylistDataViewModel @Inject constructor(
                                 isSaving = false
                             )
                         )
+//                        refreshPlaylistScreen()
                         onSuccess("Playlist Saved Successfully!!")
-                        refreshPlaylistScreen()
                     },
                     onError = {
                         createEditScreenUIStateFlow.emit(
@@ -571,6 +571,7 @@ class PlaylistDataViewModel @Inject constructor(
     }
 
     //Select playlist bottom sheet functions
+    val isLoadingWhileAddingTrack = MutableStateFlow(false)
 
     val userPlaylistPager: Flow<PagingData<UserPlaylist>> = Pager(
         PagingConfig(
@@ -610,16 +611,19 @@ class PlaylistDataViewModel @Inject constructor(
 
     fun addTrackToPlaylistFromSelectPlaylist(
         songMetadata: Metadata,
-        playlistMbid: String?
+        playlistMbid: String?,
+        onSuccess: ()->Unit
     ) {
         viewModelScope.launch {
             if (playlistMbid == null) return@launch
+            isLoadingWhileAddingTrack.emit(true)
             val result = repository.addTracks(
                 playlistMbid,
                 listOf(
                     PlaylistTrack.fromMetadata(songMetadata)
                 )
             )
+            isLoadingWhileAddingTrack.emit(false)
             when (result.status) {
                 Resource.Status.SUCCESS -> {
                     if (result.data?.status != "ok") {
@@ -628,6 +632,7 @@ class PlaylistDataViewModel @Inject constructor(
                         })
                     } else {
                         emitMsg(R.string.track_added_successfully)
+                        onSuccess()
                     }
                 }
 

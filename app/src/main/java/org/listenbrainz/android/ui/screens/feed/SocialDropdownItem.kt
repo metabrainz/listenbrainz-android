@@ -60,7 +60,7 @@ interface SocialDropdownItem {
     }
 
     class ADD_TO_PLAYLIST(onClick: (() -> Unit)?): SocialDropdownItem {
-        override val icon: Int = R.drawable.ic_queue_music_playing
+        override val icon: Int = R.drawable.add_track_to_playlist
         override val title: String = "Add to playlist"
         override val onClick: (() -> Unit)? = onClick
     }
