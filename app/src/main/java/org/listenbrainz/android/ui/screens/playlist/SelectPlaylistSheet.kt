@@ -3,6 +3,7 @@ package org.listenbrainz.android.ui.screens.playlist
 import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,6 +24,7 @@ import androidx.compose.material.pullrefresh.PullRefreshState
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -33,6 +35,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.launch
+import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.playlist.PlaylistTrack
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
@@ -86,7 +89,7 @@ fun SelectPlaylist(
         collabPlaylistData.refresh()
     }
 
-    if (isSheetVisible)
+    if (isSheetVisible) {
         ModalBottomSheet(
             modifier = Modifier.statusBarsPadding(),
             onDismissRequest = dismissWithAnimation,
@@ -108,33 +111,34 @@ fun SelectPlaylist(
                         }
                     },
                     onCreateNewPlaylist = onCreateNewPlaylist,
-                    getUserPlaylist = { userPlaylistData.get(it) },
-                    getCollabPlaylist = { collabPlaylistData.get(it) },
+                    getUserPlaylist = userPlaylistData::get,
+                    getCollabPlaylist = collabPlaylistData::get,
                     userPlaylistDataSize = userPlaylistData.itemCount,
                     collabPlaylistDataSize = collabPlaylistData.itemCount,
                     isRefreshing = isRefreshing,
                     pullRefreshState = pullRefreshState,
-                    onCloseButtonClick = {
-                        dismissWithAnimation()
-                    }
                 )
 
-                ErrorBar(uiState.error) {
-                    viewModel.clearErrorFlow()
-                }
+                Column {
+                    ErrorBar(uiState.error) {
+                        viewModel.clearErrorFlow()
+                    }
 
-                if (isAddingTrack) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(ListenBrainzTheme.colorScheme.background.copy(alpha = 0.75f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        LoadingAnimation()
+                    if (isAddingTrack) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(ListenBrainzTheme.colorScheme.background.copy(alpha = 0.75f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            LoadingAnimation()
+                        }
                     }
                 }
             }
+
         }
+    }
 }
 
 
@@ -151,7 +155,6 @@ private fun SelectPlaylistBase(
     collabPlaylistDataSize: Int,
     isRefreshing: Boolean,
     pullRefreshState: PullRefreshState,
-    onCloseButtonClick: () -> Unit
 ) {
     Box(
         modifier = modifier
@@ -167,17 +170,15 @@ private fun SelectPlaylistBase(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 12.dp)
+                    .padding(top = 12.dp),
+                horizontalArrangement = Arrangement.Center
             ) {
-                IconButton(
-                    onClick = onCloseButtonClick
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBackIosNew,
-                        contentDescription = null,
-                        tint = ListenBrainzTheme.colorScheme.listenText
-                    )
-                }
+                Icon(
+                    painter = painterResource(R.drawable.add_track_to_playlist),
+                    contentDescription = "Add to playlist icon",
+                    tint = ListenBrainzTheme.colorScheme.listenText
+                )
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "Add to playlist",
                     fontSize = 20.sp,
@@ -185,6 +186,9 @@ private fun SelectPlaylistBase(
                     color = ListenBrainzTheme.colorScheme.listenText
                 )
             }
+            Spacer(Modifier.height(16.dp))
+
+            HorizontalDivider()
 
 
             Text(
@@ -199,7 +203,9 @@ private fun SelectPlaylistBase(
                 color = ListenBrainzTheme.colorScheme.text
             )
 
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(modifier = Modifier.fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .border(1.dp, ListenBrainzTheme.colorScheme.level2)) {
                 item {
                     Box(
                         modifier = Modifier
@@ -268,13 +274,12 @@ fun PlaylistItem(playlist: UserPlaylist, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(horizontal = 16.dp)
     ) {
         Text(
             text = playlist.title ?: "Title not available",
             style = MaterialTheme.typography.bodyLarge,
             color = ListenBrainzTheme.colorScheme.text,
-            modifier = Modifier.padding(vertical = 12.dp)
+            modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)
         )
         Spacer(Modifier.height(12.dp))
         HorizontalDivider(color = ListenBrainzTheme.colorScheme.text.copy(0.2f))
@@ -302,7 +307,6 @@ fun SelectPlaylistBasePreview() {
             collabPlaylistDataSize = collabPlaylists.size,
             isRefreshing = isRefreshing,
             pullRefreshState = pullRefreshState,
-            onCloseButtonClick = {},
         )
     }
 }
