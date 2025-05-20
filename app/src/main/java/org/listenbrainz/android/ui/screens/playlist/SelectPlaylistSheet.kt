@@ -250,10 +250,6 @@ private fun SelectPlaylistBase(
                         PlaylistItem(playlist = playlist, onClick = { onSelect(playlist) })
                     }
                 }
-
-                item {
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
             }
         }
 
@@ -279,9 +275,8 @@ fun PlaylistItem(playlist: UserPlaylist, onClick: () -> Unit) {
             text = playlist.title ?: "Title not available",
             style = MaterialTheme.typography.bodyLarge,
             color = ListenBrainzTheme.colorScheme.text,
-            modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp)
+            modifier = Modifier.padding(vertical = 16.dp, horizontal = 16.dp)
         )
-        Spacer(Modifier.height(12.dp))
         HorizontalDivider(color = ListenBrainzTheme.colorScheme.text.copy(0.2f))
     }
 }
