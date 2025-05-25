@@ -128,21 +128,28 @@ enum class PermissionEnum(
         }
     }
 
-
-    fun requestPermission(context: Context, dangerousPermissionLauncher: (permission: String)->Unit) {
+    //Requests permission and also handles situation if the permission is permanently declined
+    fun requestPermission(activity: Activity, dangerousPermissionLauncher: (permission: String)->Unit) {
         if(!isPermissionApplicable()) return
 
         when(this){
             SEND_NOTIFICATIONS, ACCESS_MUSIC_AUDIO, READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE ->{
-                dangerousPermissionLauncher(permission)
+                if(isPermissionPermanentlyDeclined(activity)){
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = "package:${activity.packageName}".toUri()
+                    }
+                    activity.startActivity(intent)
+                }else {
+                    dangerousPermissionLauncher(permission)
+                }
             }
             READ_NOTIFICATIONS -> {
                 val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-                context.startActivity(intent)
+                activity.startActivity(intent)
             }
             BATTERY_OPTIMIZATION -> {
                 val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
-                context.startActivity(intent)
+                activity.startActivity(intent)
             }
         }
     }
