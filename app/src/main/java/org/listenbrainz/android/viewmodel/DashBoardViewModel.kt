@@ -16,6 +16,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.di.IoDispatcher
@@ -36,6 +37,7 @@ class DashBoardViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
 
     val usernameFlow = appPreferences.username.getFlow()
+
     // Sets Ui mode for XML layouts.
     fun setUiMode(){
         viewModelScope.launch {
@@ -66,12 +68,12 @@ class DashBoardViewModel @Inject constructor(
     
     
     fun beginOnboarding(activity: ComponentActivity) {
-        Log.d("Onboarding status: ${appPreferences.onboardingCompleted}")
-        if (!appPreferences.onboardingCompleted){
-            // TODO: Convert onboarding to a nav component.
-            activity.startActivity(Intent(activity, FeaturesActivity::class.java))
-            activity.finish()
-        }
+//        Log.d("Onboarding status: ${appPreferences.onboardingCompleted}")
+//        if (!appPreferences.onboardingCompleted){
+//            // TODO: Convert onboarding to a nav component.
+//            activity.startActivity(Intent(activity, FeaturesActivity::class.java))
+//            activity.finish()
+//        }
     }
     
     // Permissions required by the app.

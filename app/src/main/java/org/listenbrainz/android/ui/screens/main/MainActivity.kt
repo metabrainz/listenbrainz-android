@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.screens.main
 
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -51,6 +52,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.AppNavigationItem
@@ -71,6 +73,9 @@ import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.navigation.NavigationItem
 import org.listenbrainz.android.ui.screens.onboarding.IntroductionScreens
+import org.listenbrainz.android.ui.screens.onboarding.OnboardingLoginScreen
+import org.listenbrainz.android.ui.screens.profile.LoginActivity
+import org.listenbrainz.android.ui.screens.profile.LoginScreen
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 
 @AndroidEntryPoint
@@ -79,7 +84,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var _dashBoardViewModel: DashBoardViewModel
     private val dashBoardViewModel get() = _dashBoardViewModel
 
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
@@ -111,7 +116,25 @@ class MainActivity : ComponentActivity() {
                     entryProvider = entryProvider {
                         entry<NavigationItem.IntroductionScreen>{
                             IntroductionScreens {
-                                backStack.add(NavigationItem.HomeScreen)
+                                backStack.add(NavigationItem.LoginScreen)
+                            }
+                        }
+                        entry<NavigationItem.LoginScreen> {
+                            LaunchedEffect(Unit) {
+                                if(dashBoardViewModel.appPreferences.isUserLoggedIn()){
+                                    backStack.remove(NavigationItem.LoginScreen)
+                                    backStack.add(NavigationItem.HomeScreen)
+                                }
+
+                              dashBoardViewModel.appPreferences.getLoginStatusFlow().collectLatest {
+                                  if(dashBoardViewModel.appPreferences.isUserLoggedIn()){
+                                      backStack.remove(NavigationItem.LoginScreen)
+                                      backStack.add(NavigationItem.HomeScreen)
+                                  }
+                              }
+                            }
+                            OnboardingLoginScreen {
+                                startActivity(Intent(this@MainActivity, LoginActivity::class.java))
                             }
                         }
                         entry<NavigationItem.HomeScreen>{
