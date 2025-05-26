@@ -45,6 +45,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.entry
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.ui.NavDisplay
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.application.App
@@ -64,6 +69,8 @@ import org.listenbrainz.android.util.Utils.toPx
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.R
+import org.listenbrainz.android.ui.navigation.NavigationItem
+import org.listenbrainz.android.ui.screens.onboarding.IntroductionScreens
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 
 @AndroidEntryPoint
@@ -72,7 +79,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var _dashBoardViewModel: DashBoardViewModel
     private val dashBoardViewModel get() = _dashBoardViewModel
 
-    @OptIn(ExperimentalMaterialApi::class)
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
@@ -97,231 +104,21 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                var isGrantedPerms: String? by remember {
-                    mutableStateOf(null)
-                }
-
-                LaunchedEffect(Unit) {
-                    isGrantedPerms = dashBoardViewModel.getPermissionsPreference()
-                }
-
-                val launcher = rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.RequestMultiplePermissions()
-                ) { permission ->
-                    val isGranted = permission.values.any { it }
-                    when {
-                        isGranted -> {
-                            isGrantedPerms = PermissionStatus.GRANTED.name
-                            dashBoardViewModel.setPermissionsPreference(PermissionStatus.GRANTED.name)
-                        }
-
-                        else -> {
-                            isGrantedPerms = when (isGrantedPerms) {
-                                PermissionStatus.NOT_REQUESTED.name -> {
-                                    PermissionStatus.DENIED_ONCE.name
-                                }
-
-                                PermissionStatus.DENIED_ONCE.name -> {
-                                    PermissionStatus.DENIED_TWICE.name
-                                }
-
-                                else -> {
-                                    PermissionStatus.DENIED_TWICE.name
-                                }
+                val backStack =
+                    rememberNavBackStack<NavigationItem>(NavigationItem.IntroductionScreen)
+                NavDisplay(
+                    backStack = backStack,
+                    entryProvider = entryProvider {
+                        entry<NavigationItem.IntroductionScreen>{
+                            IntroductionScreens {
+                                backStack.add(NavigationItem.HomeScreen)
                             }
-                            dashBoardViewModel.setPermissionsPreference(isGrantedPerms)
+                        }
+                        entry<NavigationItem.HomeScreen>{
+                            HomeScreen()
                         }
                     }
-                }
-
-                LaunchedEffect(isGrantedPerms) {
-                    if (isGrantedPerms == PermissionStatus.NOT_REQUESTED.name) {
-                        launcher.launch(dashBoardViewModel.neededPermissions)
-                    }
-                }
-
-                when (isGrantedPerms) {
-                    PermissionStatus.DENIED_ONCE.name -> {
-                        DialogLB(
-                            options = arrayOf("Grant"),
-                            firstOptionListener = {
-                                launcher.launch(dashBoardViewModel.neededPermissions)
-                            },
-                            title = "Permissions required",
-                            description = "BrainzPlayer requires local storage permission to play local songs.",
-                            dismissOnBackPress = false,
-                            dismissOnClickOutside = false,
-                            onDismiss = {}
-                        )
-                    }
-
-                    PermissionStatus.DENIED_TWICE.name -> {
-                        DialogLB(
-                            title = "Permissions required",
-                            description = "Please grant storage permissions from settings for the app to function.",
-                            options = arrayOf("Open Settings"),
-                            firstOptionListener = {
-                                openAppSystemSettings()
-                            },
-                            dismissOnBackPress = false,
-                            dismissOnClickOutside = false,
-                            onDismiss = {}
-                        )
-                    }
-                }
-
-                val navController = rememberNavController()
-                val backdropScaffoldState =
-                    rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
-                var scrollToTopState by remember { mutableStateOf(false) }
-                val snackbarState = remember { SnackbarHostState() }
-                val searchBarState = rememberSearchBarState()
-                val brainzplayerSearchBarState = rememberSearchBarState()
-                val scope = rememberCoroutineScope()
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentDestination = navBackStackEntry?.destination
-                val username by dashBoardViewModel.usernameFlow.collectAsStateWithLifecycle(
-                    initialValue = null
                 )
-                val brainzPlayerViewModel: BrainzPlayerViewModel by viewModels()
-                val currentlyPlayingSong by brainzPlayerViewModel.currentlyPlayingSong.collectAsStateWithLifecycle()
-                val songList = brainzPlayerViewModel.appPreferences.currentPlayable?.songs
-                val isLandScape =
-                    LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-                val isBackdropInitialised by remember {
-                    derivedStateOf {
-                        val currentOffset = runCatching {
-                            backdropScaffoldState.requireOffset()
-                        }.getOrNull()
-
-                        currentOffset != null
-                    }
-                }
-
-                var maxOffset by remember {
-                    mutableFloatStateOf(0f)
-                }
-
-                val playerHeight = ListenBrainzTheme.sizes.brainzPlayerPeekHeight.toPx()
-                LaunchedEffect(isBackdropInitialised) {
-                    if (isBackdropInitialised) {
-                        maxOffset =
-                            maxOf(maxOffset, backdropScaffoldState.requireOffset() - playerHeight)
-                        println(maxOffset)
-                    }
-                }
-
-                val desiredBackgroundColor by remember {
-                    derivedStateOf {
-                        brainzPlayerViewModel.playerBackGroundColor.copy(
-                            alpha = runCatching {
-                                1 - (backdropScaffoldState.requireOffset() / maxOffset).coerceIn(
-                                    0f,
-                                    1f
-                                )
-                            }.getOrElse { 0f }
-                        )
-                    }
-                }
-                Scaffold(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(ListenBrainzTheme.colorScheme.background)
-                        .background(desiredBackgroundColor),
-                    topBar = {
-                        TopBar(
-                            modifier = Modifier
-                                .statusBarsPadding()
-                                .padding(start = if (isLandScape) dimensionResource(R.dimen.navigation_rail_width) else 0.dp),
-                            navController = navController,
-                            searchBarState = when (currentDestination?.route) {
-                                AppNavigationItem.BrainzPlayer.route -> brainzplayerSearchBarState
-                                else -> searchBarState
-                            },
-                        )
-                    },
-                    bottomBar = {
-                        if (!isLandScape)
-                            AdaptiveNavigationBar(
-                                navController = navController,
-                                backdropScaffoldState = backdropScaffoldState,
-                                scrollToTop = { scrollToTopState = true },
-                                username = username,
-                                isLandscape = isLandScape,
-                                currentlyPlayingSong = currentlyPlayingSong.toSong,
-                                songList = songList ?: emptyList()
-                            )
-                    },
-                    snackbarHost = {
-                        SnackbarHost(
-                            modifier = Modifier.safeDrawingPadding(),
-                            hostState = snackbarState
-                        ) { snackbarData ->
-                            Snackbar(
-                                snackbarData = snackbarData,
-                                containerColor = MaterialTheme.colorScheme.background,
-                                contentColor = MaterialTheme.colorScheme.onSurface,
-                                actionColor = MaterialTheme.colorScheme.inverseOnSurface,
-                                dismissActionContentColor = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    },
-                    containerColor = Color.Transparent,
-                    contentWindowInsets = WindowInsets.captionBar
-                ) {
-                    Row {
-                        if (isLandScape) {
-                            AdaptiveNavigationBar(
-                                navController = navController,
-                                backdropScaffoldState = backdropScaffoldState,
-                                scrollToTop = { scrollToTopState = true },
-                                username = username,
-                                isLandscape = true,
-                                currentlyPlayingSong = currentlyPlayingSong.toSong,
-                                songList = songList ?: emptyList()
-                            )
-                        }
-                        if (isGrantedPerms == PermissionStatus.GRANTED.name) {
-                            BrainzPlayerBackDropScreen(
-                                modifier = Modifier.then(if (!isLandScape) Modifier.navigationBarsPadding() else Modifier),
-                                backdropScaffoldState = backdropScaffoldState,
-                                paddingValues = it,
-                                brainzPlayerViewModel = brainzPlayerViewModel,
-                                isLandscape = isLandScape,
-                            ) {
-                                AppNavigation(
-                                    navController = navController,
-                                    scrollRequestState = scrollToTopState,
-                                    onScrollToTop = { scrollToTop ->
-                                        scope.launch {
-                                            if (scrollToTopState) {
-                                                scrollToTop()
-                                                scrollToTopState = false
-                                            }
-                                        }
-                                    },
-                                    snackbarState = snackbarState,
-                                )
-                            }
-                        }
-                    }
-
-                    when (currentDestination?.route) {
-                        AppNavigationItem.BrainzPlayer.route -> BrainzPlayerSearchScreen(
-                            isActive = brainzplayerSearchBarState.isActive,
-                            deactivate = brainzplayerSearchBarState::deactivate,
-                        )
-
-                        else -> UserSearchScreen(
-                            isActive = searchBarState.isActive,
-                            deactivate = searchBarState::deactivate,
-                            goToUserPage = { username ->
-                                searchBarState.deactivate()
-                                navController.navigate("${AppNavigationItem.Profile.route}/$username")
-                            }
-                        )
-                    }
-                }
 
             }
         }

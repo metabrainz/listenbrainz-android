@@ -23,11 +23,11 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 @Composable
 fun IntroductionScreens(onOnboardingComplete: () -> Unit) {
     val screenCount = IntroScreenDataEnum.entries.size
-    var currentScreen by rememberSaveable { mutableIntStateOf(0) }
+    var currentScreen by rememberSaveable { mutableIntStateOf(1) }
 
-    if (currentScreen < screenCount) {
+    if (currentScreen <= screenCount) {
         IntroductionScreenUI(currentScreen) {
-            if (currentScreen == screenCount - 1) {
+            if (currentScreen == screenCount) {
                 onOnboardingComplete()
             } else {
                 currentScreen++
