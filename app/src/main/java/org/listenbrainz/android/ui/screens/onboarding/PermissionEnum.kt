@@ -8,11 +8,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.PowerManager
 import android.provider.Settings
-import androidx.activity.compose.ManagedActivityResultLauncher
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
-import androidx.compose.runtime.Composable
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import org.listenbrainz.android.R
@@ -99,11 +94,12 @@ enum class PermissionEnum(
         }
     }
 
+    //This function assumes that permission was requested atleast one time (according to working of shouldShowRequestPermissionRationale)
     fun isPermissionPermanentlyDeclined(activity: Activity): Boolean{
         if(!isPermissionApplicable()) return false
         return when(this){
             SEND_NOTIFICATIONS, ACCESS_MUSIC_AUDIO, READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE ->{
-                !activity.shouldShowRequestPermissionRationale(permission) && ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED
+              !activity.shouldShowRequestPermissionRationale(permission) && ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED
             }
             READ_NOTIFICATIONS, BATTERY_OPTIMIZATION->false
         }

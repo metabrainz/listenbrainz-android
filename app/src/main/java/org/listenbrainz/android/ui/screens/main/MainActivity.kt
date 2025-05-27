@@ -28,6 +28,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -74,6 +75,7 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.navigation.NavigationItem
 import org.listenbrainz.android.ui.screens.onboarding.IntroductionScreens
 import org.listenbrainz.android.ui.screens.onboarding.OnboardingLoginScreen
+import org.listenbrainz.android.ui.screens.onboarding.PermissionScreen
 import org.listenbrainz.android.ui.screens.profile.LoginActivity
 import org.listenbrainz.android.ui.screens.profile.LoginScreen
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
@@ -93,8 +95,7 @@ class MainActivity : ComponentActivity() {
         _dashBoardViewModel = ViewModelProvider(this)[DashBoardViewModel::class.java]
 
         dashBoardViewModel.setUiMode()
-        dashBoardViewModel.beginOnboarding(this)
-        dashBoardViewModel.updatePermissionPreference()
+        dashBoardViewModel.getPermissionStatus(this)
 
         setContent {
             ListenBrainzTheme {
@@ -116,7 +117,7 @@ class MainActivity : ComponentActivity() {
                     entryProvider = entryProvider {
                         entry<NavigationItem.IntroductionScreen>{
                             IntroductionScreens {
-                                backStack.add(NavigationItem.LoginScreen)
+                                backStack.add(NavigationItem.PermissionScreen)
                             }
                         }
                         entry<NavigationItem.LoginScreen> {
@@ -129,13 +130,17 @@ class MainActivity : ComponentActivity() {
                               dashBoardViewModel.appPreferences.getLoginStatusFlow().collectLatest {
                                   if(dashBoardViewModel.appPreferences.isUserLoggedIn()){
                                       backStack.remove(NavigationItem.LoginScreen)
-                                      backStack.add(NavigationItem.HomeScreen)
+                                      backStack.add(NavigationItem.PermissionScreen)
                                   }
                               }
                             }
                             OnboardingLoginScreen {
                                 startActivity(Intent(this@MainActivity, LoginActivity::class.java))
                             }
+                        }
+                        entry<NavigationItem.PermissionScreen> {
+                            val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
+                            PermissionScreen(permissions)
                         }
                         entry<NavigationItem.HomeScreen>{
                             HomeScreen()
@@ -149,6 +154,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        dashBoardViewModel.getPermissionStatus(this)
         lifecycleScope.launch {
             App.startListenService(appPreferences = dashBoardViewModel.appPreferences)
         }
