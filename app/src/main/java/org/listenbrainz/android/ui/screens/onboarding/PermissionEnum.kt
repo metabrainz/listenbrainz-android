@@ -95,11 +95,13 @@ enum class PermissionEnum(
     }
 
     //This function assumes that permission was requested atleast one time (according to working of shouldShowRequestPermissionRationale)
-    fun isPermissionPermanentlyDeclined(activity: Activity): Boolean{
+    fun isPermissionPermanentlyDeclined(activity: Activity, permissionsRequestedOnce: List<String>): Boolean{
         if(!isPermissionApplicable()) return false
         return when(this){
             SEND_NOTIFICATIONS, ACCESS_MUSIC_AUDIO, READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE ->{
-              !activity.shouldShowRequestPermissionRationale(permission) && ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED
+                if(permissionsRequestedOnce.contains(permission))
+                  !activity.shouldShowRequestPermissionRationale(permission) && ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED
+                else false
             }
             READ_NOTIFICATIONS, BATTERY_OPTIMIZATION->false
         }
@@ -125,12 +127,12 @@ enum class PermissionEnum(
     }
 
     //Requests permission and also handles situation if the permission is permanently declined
-    fun requestPermission(activity: Activity, dangerousPermissionLauncher: (permission: String)->Unit) {
+    fun requestPermission(activity: Activity, permissionsRequestedOnce: List<String>, dangerousPermissionLauncher: (permission: String)->Unit) {
         if(!isPermissionApplicable()) return
 
         when(this){
             SEND_NOTIFICATIONS, ACCESS_MUSIC_AUDIO, READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE ->{
-                if(isPermissionPermanentlyDeclined(activity)){
+                if(isPermissionPermanentlyDeclined(activity, permissionsRequestedOnce)){
                     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                         data = "package:${activity.packageName}".toUri()
                     }

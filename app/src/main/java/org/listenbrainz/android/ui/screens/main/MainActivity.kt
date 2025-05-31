@@ -86,6 +86,9 @@ class MainActivity : ComponentActivity() {
     private lateinit var _dashBoardViewModel: DashBoardViewModel
     private val dashBoardViewModel get() = _dashBoardViewModel
 
+    //Queue to manage navigation between onboarding screens and keep the implementation clean
+    private val onboardingNavigationQueue: MutableList<NavigationItem> = mutableListOf()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,16 +114,16 @@ class MainActivity : ComponentActivity() {
                 }
 
                 val backStack =
-                    rememberNavBackStack<NavigationItem>(NavigationItem.IntroductionScreen)
+                    rememberNavBackStack<NavigationItem>(NavigationItem.OnboardingScreens.PermissionScreen)
                 NavDisplay(
                     backStack = backStack,
                     entryProvider = entryProvider {
-                        entry<NavigationItem.IntroductionScreen>{
+                        entry<NavigationItem.OnboardingScreens.IntroductionScreen>{
                             IntroductionScreens {
-                                backStack.add(NavigationItem.PermissionScreen)
+//                                backStack.add(NavigationItem.PermissionScreen)
                             }
                         }
-                        entry<NavigationItem.LoginScreen> {
+                        entry<NavigationItem.OnboardingScreens.LoginScreen> {
                             LaunchedEffect(Unit) {
                                 if(dashBoardViewModel.appPreferences.isUserLoggedIn()){
                                     backStack.remove(NavigationItem.LoginScreen)
@@ -138,9 +141,10 @@ class MainActivity : ComponentActivity() {
                                 startActivity(Intent(this@MainActivity, LoginActivity::class.java))
                             }
                         }
-                        entry<NavigationItem.PermissionScreen> {
-                            val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
-                            PermissionScreen(permissions)
+                        entry<NavigationItem.OnboardingScreens.PermissionScreen> {
+                            PermissionScreen(onExit = {
+
+                            })
                         }
                         entry<NavigationItem.HomeScreen>{
                             HomeScreen()

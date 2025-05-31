@@ -17,6 +17,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.di.IoDispatcher
@@ -40,6 +45,10 @@ class DashBoardViewModel @Inject constructor(
     val usernameFlow = appPreferences.username.getFlow()
     val permissionStatusFlow = MutableStateFlow(emptyMap<PermissionEnum, PermissionStatus>())
 
+    val permissionsRequestedAteastOnce = appPreferences.requestedPermissionsList.getFlow()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+
     // Sets Ui mode for XML layouts.
     fun setUiMode(){
         viewModelScope.launch {
@@ -56,34 +65,42 @@ class DashBoardViewModel @Inject constructor(
             }
         }
     }
-    
-    suspend fun getPermissionsPreference(): String? =
-        withContext(ioDispatcher) {
-            appPreferences.permissionsPreference
-        }
-    
-    fun setPermissionsPreference(value: String?) =
-        viewModelScope.launch(ioDispatcher) {
-            appPreferences.permissionsPreference = value
-        }
+
         
     fun getPermissionStatus(activity: ComponentActivity){
-        val requiredPermissions = PermissionEnum.getRequiredPermissionsList()
-        val permissionMap = mutableMapOf<PermissionEnum, PermissionStatus>()
-        requiredPermissions.forEach { permission->
-            if(permission.isGranted(activity)){
-                permissionMap[permission] = PermissionStatus.GRANTED
-            }else if(permission.isPermissionPermanentlyDeclined(activity)){
-                permissionMap[permission] = PermissionStatus.DENIED_TWICE
-            }else{
-                permissionMap[permission] = PermissionStatus.NOT_REQUESTED
+        viewModelScope.launch(ioDispatcher) {
+            val requiredPermissions = PermissionEnum.getRequiredPermissionsList()
+            val permissionMap = mutableMapOf<PermissionEnum, PermissionStatus>()
+            val permissionsReqeustedOnce = appPreferences.requestedPermissionsList.getFlow().first()
+            requiredPermissions.forEach { permission ->
+                if (permission.isGranted(activity)) {
+                    permissionMap[permission] = PermissionStatus.GRANTED
+                    //This is to ensure that the permission is marked as requested (for devices which already gave permission before any prompt)
+                    markPermissionAsRequested(permission)
+                } else if (permission.isPermissionPermanentlyDeclined(
+                        activity,
+                        permissionsReqeustedOnce
+                    )
+                ) {
+                    permissionMap[permission] = PermissionStatus.DENIED_TWICE
+                } else {
+                    permissionMap[permission] = PermissionStatus.NOT_REQUESTED
+                }
             }
-        }
-        viewModelScope.launch {
             permissionStatusFlow.emit(permissionMap)
+
         }
     }
 
+    fun markPermissionAsRequested(permission: PermissionEnum) {
+        viewModelScope.launch(ioDispatcher) {
+            val permissions = appPreferences.requestedPermissionsList.getFlow().firstOrNull()?.toMutableList()
+            if (permissions != null && !permissions.contains(permission.permission)) {
+                permissions.add(permission.permission)
+                appPreferences.requestedPermissionsList.set(permissions)
+            }
+        }
+    }
     
     suspend fun isNotificationListenerServiceAllowed(): Boolean {
         return withContext(ioDispatcher) {

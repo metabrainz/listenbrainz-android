@@ -13,31 +13,45 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_orange
 import org.listenbrainz.android.ui.theme.lb_purple
+import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
 @Composable
-fun PermissionScreen(permissions: Map<PermissionEnum, PermissionStatus>){
+fun PermissionScreen(dashBoardViewModel: DashBoardViewModel = hiltViewModel(), onExit : () -> Unit) {
     val activity = LocalActivity.current
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+    val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
+    val permissionsRequestedOnce by dashBoardViewModel.permissionsRequestedAteastOnce.collectAsState()
 
+    LaunchedEffect(permissions) {
+        if(permissions.isEmpty() || permissions.all { it.value == PermissionStatus.GRANTED }) {
+            onExit() // Exit if all permissions are granted
+        }
+    }
+
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {perm->
     }
     PermissionScreenBase(permissions,
         onGrantPermissionClick = {permission->
                 if(activity != null){
-                    permission.requestPermission(activity, {
+                    permission.requestPermission(activity, permissionsRequestedOnce ,{
+                        dashBoardViewModel.markPermissionAsRequested(permission)
                         launcher.launch(permission.permission)
                     })
                 }
         },
         onRejectPermissionClick = {
-
+            onExit() // Continue without accepting permissions
         })
 }
 

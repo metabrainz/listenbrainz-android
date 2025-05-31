@@ -40,6 +40,7 @@ import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_BLAC
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_WHITELIST
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTEN_NEW_PLAYERS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_PERMS
+import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_REQUESTED_PERMISSIONS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SONGS_ON_DEVICE
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SUBMIT_LISTENS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SYSTEM_THEME
@@ -108,6 +109,7 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
             val LISTENING_APPS = stringPreferencesKey(PREFERENCE_LISTENING_APPS)
             val IS_LISTENING_ALLOWED = booleanPreferencesKey(PREFERENCE_SUBMIT_LISTENS)
             val SHOULD_LISTEN_NEW_PLAYERS = booleanPreferencesKey(PREFERENCE_LISTEN_NEW_PLAYERS)
+            val PERMISSIONS_REQUESTED = stringPreferencesKey(PREFERENCE_REQUESTED_PERMISSIONS)
         }
         
         fun String?.asStringList(): List<String> {
@@ -146,7 +148,23 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
         get() = context.dataStore.data
     
     // Preferences Implementation
-    
+
+    override val requestedPermissionsList: DataStorePreference<List<String>>
+        get() = object : DataStorePreference<List<String>> {
+            override fun getFlow(): Flow<List<String>> {
+                return datastore.map { prefs->
+                    prefs[PreferenceKeys.PERMISSIONS_REQUESTED].asStringList()
+                }
+            }
+
+            override suspend fun set(value: List<String>) {
+                context.dataStore.edit { prefs ->
+                    prefs[PreferenceKeys.PERMISSIONS_REQUESTED] = gson.toJson(value)
+                }
+            }
+        }
+
+
     override val themePreference: DataStorePreference<UiMode>
         get() = object : DataStorePreference<UiMode> {
             override fun getFlow(): Flow<UiMode> =
@@ -156,10 +174,7 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
                 context.dataStore.edit { it[THEME] = value.name }
             }
         }
-    
-    override var permissionsPreference: String?
-        get() = preferences.getString(PREFERENCE_PERMS, PermissionStatus.NOT_REQUESTED.name)
-        set(value) = setString(PREFERENCE_PERMS, value)
+
     
     override val listeningWhitelist: DataStorePreference<List<String>>
         get() = object: DataStorePreference<List<String>> {
