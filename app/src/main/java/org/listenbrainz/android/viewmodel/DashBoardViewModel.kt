@@ -101,6 +101,12 @@ class DashBoardViewModel @Inject constructor(
             }
         }
     }
+
+    fun markOnboardingComplete(){
+        viewModelScope.launch(ioDispatcher) {
+            appPreferences.onboardingCompleted = true
+        }
+    }
     
     suspend fun isNotificationListenerServiceAllowed(): Boolean {
         return withContext(ioDispatcher) {

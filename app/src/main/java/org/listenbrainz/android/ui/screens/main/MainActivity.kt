@@ -1,84 +1,47 @@
 package org.listenbrainz.android.ui.screens.main
 
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.captionBar
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material.BackdropValue
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.rememberBackdropScaffoldState
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import okhttp3.Dispatcher
 import org.listenbrainz.android.application.App
-import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.PermissionStatus
-import org.listenbrainz.android.ui.components.DialogLB
-import org.listenbrainz.android.ui.navigation.AdaptiveNavigationBar
-import org.listenbrainz.android.ui.navigation.AppNavigation
-import org.listenbrainz.android.ui.navigation.TopBar
-import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
-import org.listenbrainz.android.ui.screens.search.BrainzPlayerSearchScreen
-import org.listenbrainz.android.ui.screens.search.UserSearchScreen
-import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.Utils.openAppSystemSettings
-import org.listenbrainz.android.util.Utils.toPx
-import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
-import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.navigation.NavigationItem
 import org.listenbrainz.android.ui.screens.onboarding.IntroductionScreens
 import org.listenbrainz.android.ui.screens.onboarding.OnboardingLoginScreen
+import org.listenbrainz.android.ui.screens.onboarding.PermissionEnum
 import org.listenbrainz.android.ui.screens.onboarding.PermissionScreen
 import org.listenbrainz.android.ui.screens.profile.LoginActivity
-import org.listenbrainz.android.ui.screens.profile.LoginScreen
-import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
+import kotlin.coroutines.coroutineContext
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -86,8 +49,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var _dashBoardViewModel: DashBoardViewModel
     private val dashBoardViewModel get() = _dashBoardViewModel
 
-    //Queue to manage navigation between onboarding screens and keep the implementation clean
-    private val onboardingNavigationQueue: MutableList<NavigationItem> = mutableListOf()
+    private val onboardingScreensQueue: MutableList<NavKey> =
+        mutableListOf()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,10 +65,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             ListenBrainzTheme {
-                // TODO: Since this view-model will remain throughout the lifecycle of the app,
-                //  we can have tasks which require such lifecycle access or longevity. We can get this view-model's
-                //  instance anywhere when we initialize it as a hilt view-model.
-
+                onboardingNavigationSetup(dashBoardViewModel)
                 DisposableEffect(Unit) {
                     dashBoardViewModel.connectToSpotify()
                     onDispose {
@@ -114,47 +74,124 @@ class MainActivity : ComponentActivity() {
                 }
 
                 val backStack =
-                    rememberNavBackStack<NavigationItem>(NavigationItem.OnboardingScreens.PermissionScreen)
-                NavDisplay(
-                    backStack = backStack,
-                    entryProvider = entryProvider {
-                        entry<NavigationItem.OnboardingScreens.IntroductionScreen>{
-                            IntroductionScreens {
-//                                backStack.add(NavigationItem.PermissionScreen)
-                            }
-                        }
-                        entry<NavigationItem.OnboardingScreens.LoginScreen> {
-                            LaunchedEffect(Unit) {
-                                if(dashBoardViewModel.appPreferences.isUserLoggedIn()){
-                                    backStack.remove(NavigationItem.LoginScreen)
-                                    backStack.add(NavigationItem.HomeScreen)
+                    rememberNavBackStack(
+                        if (onboardingScreensQueue.isNotEmpty()) {
+                            onboardingScreensQueue.removeAt(0)
+                        } else NavigationItem.HomeScreen
+                    )
+                    NavDisplay(
+                        backStack = backStack,
+                        onBack = {
+                                repeat(it) {
+                                    val screen = backStack.removeAt(backStack.lastIndex)
+                                    onboardingBackHandler(screen)
                                 }
-
-                              dashBoardViewModel.appPreferences.getLoginStatusFlow().collectLatest {
-                                  if(dashBoardViewModel.appPreferences.isUserLoggedIn()){
-                                      backStack.remove(NavigationItem.LoginScreen)
-                                      backStack.add(NavigationItem.PermissionScreen)
-                                  }
-                              }
+                        },
+                        entryProvider = entryProvider {
+                            entry<NavigationItem.OnboardingScreens.IntroductionScreen> {
+                                IntroductionScreens {
+                                        onNavigateInOnboarding(
+                                            backStack,
+                                            dashBoardViewModel
+                                        )
+                                    }
                             }
-                            OnboardingLoginScreen {
-                                startActivity(Intent(this@MainActivity, LoginActivity::class.java))
+                            entry<NavigationItem.OnboardingScreens.LoginScreen> {
+                                LaunchedEffect(Unit) {
+                                    dashBoardViewModel.appPreferences.getLoginStatusFlow()
+                                        .collectLatest {
+                                            if (dashBoardViewModel.appPreferences.isUserLoggedIn()) {
+                                                onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.LoginScreen)
+                                                backStack.remove(NavigationItem.OnboardingScreens.LoginScreen)
+                                            }
+                                        }
+                                }
+                                OnboardingLoginScreen {
+                                    startActivity(
+                                        Intent(
+                                            this@MainActivity,
+                                            LoginActivity::class.java
+                                        )
+                                    )
+                                }
+                            }
+                            entry<NavigationItem.OnboardingScreens.PermissionScreen> {
+                                PermissionScreen(onExit = {
+                                        onNavigateInOnboarding(
+                                            backStack,
+                                            dashBoardViewModel
+                                        )
+                                })
+                            }
+                            entry<NavigationItem.HomeScreen> {
+                                HomeScreen()
                             }
                         }
-                        entry<NavigationItem.OnboardingScreens.PermissionScreen> {
-                            PermissionScreen(onExit = {
+                    )
+                }
 
-                            })
-                        }
-                        entry<NavigationItem.HomeScreen>{
-                            HomeScreen()
-                        }
-                    }
+        }
+        }
+
+        //Handling all onboarding navigation logic
+        fun onboardingNavigationSetup(dashBoardViewModel: DashBoardViewModel) {
+            //Blocking the main thread to ensure that the onboarding screens are set up before the UI is displayed
+            runBlocking {
+            if (!dashBoardViewModel.appPreferences.onboardingCompleted) {
+                onboardingScreensQueue.addAll(
+                    listOf(
+                        NavigationItem.OnboardingScreens.IntroductionScreen,
+                        NavigationItem.OnboardingScreens.PermissionScreen,
+                        NavigationItem.OnboardingScreens.LoginScreen
+                    )
                 )
+            }
+            if (dashBoardViewModel.appPreferences.isUserLoggedIn()) {
+                onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.LoginScreen)
+            } else {
+                onboardingScreensQueue.add(NavigationItem.OnboardingScreens.LoginScreen)
+            }
 
+            if (dashBoardViewModel.permissionStatusFlow.first()
+                    .all { it.value == PermissionStatus.GRANTED }
+            ) {
+                onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.PermissionScreen)
             }
         }
+        }
+
+
+    fun onNavigateInOnboarding(
+        backStack: NavBackStack,
+        dashBoardViewModel: DashBoardViewModel
+    ) {
+        if (onboardingScreensQueue.isNotEmpty()) {
+            // Add the next onboarding screen to the back stack
+            backStack.add(onboardingScreensQueue.removeAt(0))
+        } else {
+            // If no more onboarding screens, onboarding is complete
+            dashBoardViewModel.appPreferences.onboardingCompleted = true
+            // Remove all onboarding screens from the back stack
+            backStack.forEach {
+                if (it is NavigationItem.OnboardingScreens) {
+                    backStack.remove(it)
+                }
+            }
+            if (backStack.isEmpty()) {
+                // If the back stack is empty, navigate to the home screen
+                backStack.add(NavigationItem.HomeScreen)
+            }
+            // If there are still items in the back stack, means onboarding screen was called from app
+            // No need to navigate to home screen
+        }
     }
+
+    fun onboardingBackHandler(key: NavKey){
+        if(!dashBoardViewModel.appPreferences.onboardingCompleted && key is NavigationItem.OnboardingScreens){
+            onboardingScreensQueue.add(0, key)
+        }
+    }
+
 
     override fun onResume() {
         super.onResume()
