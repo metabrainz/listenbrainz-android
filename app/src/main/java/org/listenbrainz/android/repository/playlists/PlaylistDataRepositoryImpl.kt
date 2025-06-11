@@ -13,14 +13,17 @@ import org.listenbrainz.android.model.playlist.PlaylistData
 import org.listenbrainz.android.model.playlist.PlaylistPayload
 import org.listenbrainz.android.model.playlist.PlaylistTrack
 import org.listenbrainz.android.model.recordingSearch.RecordingSearchPayload
+import org.listenbrainz.android.model.userPlaylist.UserPlaylistPayload
 import org.listenbrainz.android.service.MBService
 import org.listenbrainz.android.service.PlaylistService
+import org.listenbrainz.android.service.UserService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.parseResponse
 import retrofit2.awaitResponse
 
 class PlaylistDataRepositoryImpl @Inject constructor(
     private val playlistService: PlaylistService,
+    private val userService: UserService,
     private val mbService: MBService,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : PlaylistDataRepository {
@@ -151,4 +154,18 @@ class PlaylistDataRepositoryImpl @Inject constructor(
                 playlistService.deleteTracks(playlistMbid, deleteTracks)
             }
         }
+
+    override suspend fun getUserPlaylists(username: String?, offset: Int, count: Int): Resource<UserPlaylistPayload> {
+        return parseResponse {
+            if(username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
+            userService.getUserPlaylists(username, offset, count)
+        }
+    }
+
+    override suspend fun getUserCollabPlaylists(username: String?, offset: Int, count: Int): Resource<UserPlaylistPayload> {
+        return parseResponse {
+            if (username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
+            userService.getUserCollabPlaylists(username, offset, count)
+        }
+    }
 }

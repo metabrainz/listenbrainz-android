@@ -254,7 +254,7 @@ fun ListenCardSmallDefault(
     subtitleColor: Color = titleColor.copy(alpha = 0.7f),
     onDropdownError: suspend CoroutineScope.(error: ResponseError) -> Unit,
     onDropdownSuccess: suspend CoroutineScope.(message: String) -> Unit,
-
+    onRemoveFromPlaylist: (() -> Unit)? = null,
     goToArtistPage: (String) -> Unit,
     onClick: () -> Unit,
 ) {
@@ -279,6 +279,7 @@ fun ListenCardSmallDefault(
                     metadata = metadata,
                     onError = onDropdownError,
                     onSuccess = onDropdownSuccess,
+                    onRemoveFromPlaylist = onRemoveFromPlaylist,
                     onDropdownDismiss = { isDropdownExpanded = !isDropdownExpanded },
                 )
             },
