@@ -3,9 +3,12 @@ package org.listenbrainz.android.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,8 +22,14 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @Preview(showBackground = true)
 @Composable
-fun OnboardingBlobs(modifier: Modifier = Modifier){
+fun OnboardingBlobs(modifier: Modifier = Modifier, isRotated: Boolean = false){
     Row(modifier = modifier.fillMaxWidth()
+        .graphicsLayer{
+            if(isRotated) {
+                rotationY = 180f
+                rotationX = 180f
+            }
+        }
         .widthIn(max = 600.dp),
         horizontalArrangement = Arrangement.Center) {
         Image(painter = painterResource(R.drawable.onboard_blob_2), contentDescription = "Blob 1",
@@ -44,7 +53,10 @@ fun OnboardingBlobs(modifier: Modifier = Modifier){
 fun OnboardingBlobsPreview(){
     ListenBrainzTheme {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            OnboardingBlobs()
+            Column {
+                OnboardingBlobs()
+                OnboardingBlobs(isRotated = true)
+            }
         }
     }
 }

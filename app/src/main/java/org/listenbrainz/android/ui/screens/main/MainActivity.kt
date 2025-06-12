@@ -141,8 +141,8 @@ class MainActivity : ComponentActivity() {
                 onboardingScreensQueue.addAll(
                     listOf(
                         NavigationItem.OnboardingScreens.IntroductionScreen,
+                        NavigationItem.OnboardingScreens.LoginScreen,
                         NavigationItem.OnboardingScreens.PermissionScreen,
-                        NavigationItem.OnboardingScreens.LoginScreen
                     )
                 )
             }
