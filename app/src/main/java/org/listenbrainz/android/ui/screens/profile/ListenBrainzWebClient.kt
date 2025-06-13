@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.screens.profile
 
+import android.graphics.Bitmap
 import android.net.Uri
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -8,12 +9,24 @@ import org.listenbrainz.android.util.Resource
 
 class ListenBrainzWebClient(
     private val onLoad: (Resource<String>) -> Unit,
+    private val onPageLoadStateChange: (Boolean) -> Unit,
 ) : WebViewClient() {
 
     private var attemptedSettingsNavigation = false
 
+    override fun onPageStarted(
+        view: WebView?,
+        url: String?,
+        favicon: Bitmap?
+    ) {
+        super.onPageStarted(view, url, favicon)
+        onPageLoadStateChange(true)
+    }
+
+
     override fun onPageFinished(view: WebView?, url: String?) {
         super.onPageFinished(view, url)
+        onPageLoadStateChange(false)
         Logger.d("ListenBrainzWebClient", "onPageFinished URL: $url")
 
         if (url == null) {

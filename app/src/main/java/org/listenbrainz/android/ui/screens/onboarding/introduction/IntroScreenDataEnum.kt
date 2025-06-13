@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.onboarding
+package org.listenbrainz.android.ui.screens.onboarding.introduction
 
 import org.listenbrainz.android.R
 

@@ -1,18 +1,16 @@
 package org.listenbrainz.android.ui.screens.main
 
-import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -23,25 +21,20 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import okhttp3.Dispatcher
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.PermissionStatus
+import org.listenbrainz.android.ui.navigation.NavigationItem
+import org.listenbrainz.android.ui.screens.onboarding.auth.CreateAccountWebView
+import org.listenbrainz.android.ui.screens.onboarding.auth.ListenBrainzLogin
+import org.listenbrainz.android.ui.screens.onboarding.auth.OnboardingLoginScreen
+import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
+import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
-import org.listenbrainz.android.ui.navigation.NavigationItem
-import org.listenbrainz.android.ui.screens.onboarding.IntroductionScreens
-import org.listenbrainz.android.ui.screens.onboarding.OnboardingLoginScreen
-import org.listenbrainz.android.ui.screens.onboarding.PermissionEnum
-import org.listenbrainz.android.ui.screens.onboarding.PermissionScreen
-import org.listenbrainz.android.ui.screens.profile.LoginActivity
-import kotlin.coroutines.coroutineContext
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -79,70 +72,88 @@ class MainActivity : ComponentActivity() {
                             onboardingScreensQueue.removeAt(0)
                         } else NavigationItem.HomeScreen
                     )
-                    NavDisplay(
-                        backStack = backStack,
-                        onBack = {
-                                repeat(it) {
-                                    val screen = backStack.removeAt(backStack.lastIndex)
-                                    onboardingBackHandler(screen)
-                                }
-                        },
-                        entryProvider = entryProvider {
-                            entry<NavigationItem.OnboardingScreens.IntroductionScreen> {
-                                IntroductionScreens {
-                                        onNavigateInOnboarding(
-                                            backStack,
-                                            dashBoardViewModel
-                                        )
-                                    }
-                            }
-                            entry<NavigationItem.OnboardingScreens.LoginScreen> {
-                                LaunchedEffect(Unit) {
-                                    dashBoardViewModel.appPreferences.getLoginStatusFlow()
-                                        .collectLatest {
-                                            if (dashBoardViewModel.appPreferences.isUserLoggedIn()) {
-                                                onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.LoginScreen)
-                                                backStack.remove(NavigationItem.OnboardingScreens.LoginScreen)
-                                            }
-                                        }
-                                }
-                                OnboardingLoginScreen {
-                                    startActivity(
-                                        Intent(
-                                            this@MainActivity,
-                                            LoginActivity::class.java
-                                        )
-                                    )
-                                }
-                            }
-                            entry<NavigationItem.OnboardingScreens.PermissionScreen> {
-                                PermissionScreen(onExit = {
-                                        onNavigateInOnboarding(
-                                            backStack,
-                                            dashBoardViewModel
-                                        )
-                                })
-                            }
-                            entry<NavigationItem.HomeScreen> {
-                                HomeScreen()
+                NavDisplay(
+                    backStack = backStack,
+                    onBack = {
+                        repeat(it) {
+                            val screen = backStack.removeAt(backStack.lastIndex)
+                            onboardingBackHandler(screen)
+                        }
+                    },
+                    entryProvider = entryProvider {
+                        entry<NavigationItem.OnboardingScreens.IntroductionScreen> {
+                            IntroductionScreens {
+                                onNavigateInOnboarding(
+                                    backStack,
+                                    dashBoardViewModel
+                                )
                             }
                         }
-                    )
-                }
+                        entry<NavigationItem.OnboardingScreens.LoginScreen> {
+                            LaunchedEffect(Unit) {
+                                dashBoardViewModel.appPreferences.getLoginStatusFlow()
+                                    .collectLatest {
+                                        if (dashBoardViewModel.appPreferences.isUserLoggedIn()) {
+                                            onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.LoginScreen)
+                                            backStack.remove(NavigationItem.OnboardingScreens.LoginScreen)
+                                            onNavigateInOnboarding(backStack, dashBoardViewModel)
+                                        }
+                                    }
+                            }
+                            OnboardingLoginScreen(
+                                onLoginClick = {
+                                    backStack.add(NavigationItem.ListenBrainzLogin)
+                                },
+                                onCreateAccountClick = {
+                                    backStack.add(NavigationItem.MusicBranizCreateAccount)
+                                })
+                        }
+                        entry<NavigationItem.OnboardingScreens.PermissionScreen> {
+                            PermissionScreen(onExit = {
+                                onNavigateInOnboarding(
+                                    backStack,
+                                    dashBoardViewModel
+                                )
+                            })
+                        }
+                        entry<NavigationItem.HomeScreen> {
+                            HomeScreen()
+                        }
+                        entry<NavigationItem.ListenBrainzLogin> {
+                            Box(
+                                Modifier
+                                    .statusBarsPadding()
+                                    .navigationBarsPadding()
+                            ) {
+                                ListenBrainzLogin {
+                                    backStack.remove(NavigationItem.ListenBrainzLogin)
+                                }
+                            }
+                        }
+                        entry<NavigationItem.MusicBranizCreateAccount> {
+                            CreateAccountWebView {
+                                backStack.remove(NavigationItem.MusicBranizCreateAccount)
+                                Toast.makeText(this@MainActivity, "Account Created!! Please verify email id", Toast.LENGTH_SHORT).show()
+                                backStack.add(NavigationItem.ListenBrainzLogin)
+                            }
+                        }
+                    }
+                )
+            }
 
         }
-        }
+    }
 
-        //Handling all onboarding navigation logic
-        fun onboardingNavigationSetup(dashBoardViewModel: DashBoardViewModel) {
-            //Blocking the main thread to ensure that the onboarding screens are set up before the UI is displayed
-            runBlocking {
+    //Handling all onboarding navigation logic
+    fun onboardingNavigationSetup(dashBoardViewModel: DashBoardViewModel) {
+        //Blocking the main thread to ensure that the onboarding screens are set up before the UI is displayed
+        runBlocking {
             if (!dashBoardViewModel.appPreferences.onboardingCompleted) {
                 onboardingScreensQueue.addAll(
                     listOf(
                         NavigationItem.OnboardingScreens.IntroductionScreen,
-                        NavigationItem.OnboardingScreens.LoginScreen,
                         NavigationItem.OnboardingScreens.PermissionScreen,
+                        NavigationItem.OnboardingScreens.LoginScreen,
                     )
                 )
             }
@@ -158,7 +169,7 @@ class MainActivity : ComponentActivity() {
                 onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.PermissionScreen)
             }
         }
-        }
+    }
 
 
     fun onNavigateInOnboarding(
@@ -186,8 +197,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun onboardingBackHandler(key: NavKey){
-        if(!dashBoardViewModel.appPreferences.onboardingCompleted && key is NavigationItem.OnboardingScreens){
+    fun onboardingBackHandler(key: NavKey) {
+        if (!dashBoardViewModel.appPreferences.onboardingCompleted && key is NavigationItem.OnboardingScreens) {
             onboardingScreensQueue.add(0, key)
         }
     }

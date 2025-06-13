@@ -1,11 +1,10 @@
-package org.listenbrainz.android.ui.screens.onboarding
+package org.listenbrainz.android.ui.screens.onboarding.permissions
 
 import android.content.res.Configuration
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,8 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -32,18 +29,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.delay
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.components.OnboardingBlobs
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_orange
-import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.onboardingGradient
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
@@ -56,6 +52,21 @@ fun PermissionScreen(dashBoardViewModel: DashBoardViewModel = hiltViewModel(), o
     LaunchedEffect(permissions) {
         if (permissions.isEmpty() || permissions.all { it.value == PermissionStatus.GRANTED }) {
             onExit() // Exit if all permissions are granted
+        }
+    }
+
+    val multiplePermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { }
+
+    LaunchedEffect(Unit) {
+        //Intentional delay
+        delay(100)
+        activity?.let {
+            multiplePermissionLauncher.launch(
+                PermissionEnum.getListOfPermissionsToBeLaunchedTogether(
+                    it,
+                    permissionsRequestedOnce
+                )
+            )
         }
     }
 
@@ -100,7 +111,7 @@ private fun PermissionScreenBase(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 16.dp, horizontal = 24.dp)
+                .padding(horizontal = 24.dp)
                 .statusBarsPadding()
                 .navigationBarsPadding(),
         ) {

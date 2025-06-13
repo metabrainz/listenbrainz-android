@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.onboarding
+package org.listenbrainz.android.ui.screens.onboarding.introduction
 
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
@@ -31,9 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,12 +40,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.ui.components.DiagonalCutShape
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
-import org.listenbrainz.android.ui.screens.playlist.PlaylistButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_orange
 import org.listenbrainz.android.ui.theme.onboardingGradient
-import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.OnboardingBlobs
+import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroScreenDataEnum
 
 @Composable
 fun IntroductionScreens(onOnboardingComplete: () -> Unit) {
@@ -77,7 +74,7 @@ fun IntroductionScreens(onOnboardingComplete: () -> Unit) {
 @Composable
 private fun IntroductionScreenUI(screenNumber: Int, onClickNext: () -> Unit) {
     val haptic = LocalHapticFeedback.current
-    val data = IntroScreenDataEnum.getScreenData(screenNumber)
+    val data = IntroScreenDataEnum.Companion.getScreenData(screenNumber)
     val scrollState = rememberScrollState()
     Box(
         modifier = Modifier

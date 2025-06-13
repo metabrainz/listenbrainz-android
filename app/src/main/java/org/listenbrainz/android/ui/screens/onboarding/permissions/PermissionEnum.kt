@@ -1,5 +1,6 @@
-package org.listenbrainz.android.ui.screens.onboarding
+package org.listenbrainz.android.ui.screens.onboarding.permissions
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -28,7 +29,7 @@ enum class PermissionEnum(
     val maxSdk: Int? = null
 ) {
     SEND_NOTIFICATIONS(
-        permission = android.Manifest.permission.POST_NOTIFICATIONS,
+        permission = Manifest.permission.POST_NOTIFICATIONS,
         title = "Send Notifications",
         permanentlyDeclinedRationale = "Without notifications, we can't alert you about new features, errors, or background activity.",
         rationaleText = "Needed to send updates on activity, recommendations, and system alerts for a better user experience.",
@@ -37,7 +38,7 @@ enum class PermissionEnum(
     ),
 
     ACCESS_MUSIC_AUDIO(
-        permission = android.Manifest.permission.READ_MEDIA_AUDIO,
+        permission = Manifest.permission.READ_MEDIA_AUDIO,
         title = "Access Music & Audio Files",
         permanentlyDeclinedRationale = "Without access, BrainzPlayer can't play your local music stored on the device.",
         rationaleText = "Required to play, browse, and manage your local audio files in BrainzPlayer seamlessly.",
@@ -46,7 +47,7 @@ enum class PermissionEnum(
     ),
 
     READ_EXTERNAL_STORAGE(
-        permission = android.Manifest.permission.READ_EXTERNAL_STORAGE,
+        permission = Manifest.permission.READ_EXTERNAL_STORAGE,
         title = "Read External Storage",
         permanentlyDeclinedRationale = "This permission is needed to access and play your local music files.",
         rationaleText = "Lets BrainzPlayer read your stored music for browsing and playback within the app.",
@@ -74,7 +75,7 @@ enum class PermissionEnum(
     ),
 
     WRITE_EXTERNAL_STORAGE(
-        permission = android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        permission = Manifest.permission.WRITE_EXTERNAL_STORAGE,
         title = "Write External Storage",
         permanentlyDeclinedRationale = "Required to manage and access your saved music files.",
         rationaleText = "Needed to store, organize, and play music files from your device.",
@@ -156,6 +157,12 @@ enum class PermissionEnum(
         /// Function to get the list of required permissions based on the current Android version
         fun getRequiredPermissionsList(): List<PermissionEnum> = PermissionEnum.entries.filter {
             it.isPermissionApplicable()
+        }
+
+        fun getListOfPermissionsToBeLaunchedTogether(context: Activity, permissionsRequestedOnce: List<String>): Array<String>{
+            return getRequiredPermissionsList().filter { permission->
+                !permission.isGranted(context) && !permission.isPermissionPermanentlyDeclined(context, permissionsRequestedOnce)
+            }.map { it.permission }.toList().toTypedArray()
         }
     }
 }
