@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,6 +39,7 @@ import kotlinx.coroutines.delay
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.components.OnboardingBlobs
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
+import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_orange
 import org.listenbrainz.android.ui.theme.onboardingGradient
@@ -94,11 +96,13 @@ private fun PermissionScreenBase(
     onGrantPermissionClick: (PermissionEnum) -> Unit,
     onRejectPermissionClick: () -> Unit
 ) {
+    val density = LocalDensity.current
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(brush = onboardingGradient)
     ) {
+
         val permissionList = permissions.toList()
             .filter { it.second == PermissionStatus.NOT_REQUESTED || it.second == PermissionStatus.DENIED_TWICE }
         Column(modifier = Modifier.graphicsLayer{
@@ -116,6 +120,12 @@ private fun PermissionScreenBase(
                 .navigationBarsPadding(),
         ) {
             item {
+                OnboardingBackButton(
+                    modifier = Modifier.graphicsLayer{
+                        //Reverse the effect of padding on the back button
+                        translationX = with(density){-24.dp.toPx()}
+                    }
+                )
                 Spacer(Modifier.height(48.dp))
             }
             item {

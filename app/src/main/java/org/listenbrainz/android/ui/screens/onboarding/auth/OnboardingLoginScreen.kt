@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
@@ -27,6 +29,7 @@ import org.listenbrainz.android.ui.components.DiagonalCutShape
 import org.listenbrainz.android.ui.components.OnboardingBlobs
 import org.listenbrainz.android.ui.components.OnboardingGrayButton
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
+import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.onboardingGradient
 
@@ -49,18 +52,20 @@ private fun LoginScreenBase(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background)
+            .statusBarsPadding(),
         contentAlignment = Alignment.Center
     ) {
-        Text("Login")
-        Spacer(Modifier.height(16.dp))
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(0.6f)
                 .align(Alignment.BottomCenter)
-                .background(brush = onboardingGradient, shape = DiagonalCutShape(cutHeight = 240f)),
+                .background(brush = onboardingGradient, shape = DiagonalCutShape(cutHeight = 240f))
+                .navigationBarsPadding(),
         )
+        OnboardingBackButton(modifier = Modifier.align(Alignment.TopStart))
         OnboardingBlobs()
         Row(modifier = Modifier.align(Alignment.Center)) {
             Column(

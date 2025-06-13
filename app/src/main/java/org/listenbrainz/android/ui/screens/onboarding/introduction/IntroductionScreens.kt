@@ -2,6 +2,7 @@ package org.listenbrainz.android.ui.screens.onboarding.introduction
 
 import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,6 +23,10 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -83,6 +88,8 @@ private fun IntroductionScreenUI(screenNumber: Int, onClickNext: () -> Unit) {
             .statusBarsPadding()
         ,
     ) {
+        if(screenNumber != 1)
+        OnboardingBackButton()
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -183,6 +190,21 @@ private fun IndicatorComposable(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun OnboardingBackButton(modifier: Modifier = Modifier, onBackPress: (()-> Unit)? = null){
+    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+    IconButton(
+        modifier = modifier,
+        onClick = {
+            if(onBackPress != null) onBackPress()
+            else backDispatcher?.onBackPressed()
+        }
+    ) {
+        Icon(imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "Back button",
+            tint = lb_orange)
     }
 }
 

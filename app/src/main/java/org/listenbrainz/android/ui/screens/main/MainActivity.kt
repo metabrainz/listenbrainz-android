@@ -5,6 +5,12 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -137,7 +143,19 @@ class MainActivity : ComponentActivity() {
                                 backStack.add(NavigationItem.ListenBrainzLogin)
                             }
                         }
-                    }
+                    },
+                    transitionSpec = {
+                        slideInHorizontally(initialOffsetX = { it }) togetherWith
+                                slideOutHorizontally(targetOffsetX = { -it })
+                    },
+                    popTransitionSpec = {
+                        slideInHorizontally(initialOffsetX = { -it }) togetherWith
+                                slideOutHorizontally(targetOffsetX = { it })
+                    },
+                    predictivePopTransitionSpec = {
+                        slideInHorizontally(initialOffsetX = { -it }) togetherWith
+                                slideOutHorizontally(targetOffsetX = { it })
+                    },
                 )
             }
 
@@ -152,8 +170,8 @@ class MainActivity : ComponentActivity() {
                 onboardingScreensQueue.addAll(
                     listOf(
                         NavigationItem.OnboardingScreens.IntroductionScreen,
-                        NavigationItem.OnboardingScreens.PermissionScreen,
                         NavigationItem.OnboardingScreens.LoginScreen,
+                        NavigationItem.OnboardingScreens.PermissionScreen,
                     )
                 )
             }
