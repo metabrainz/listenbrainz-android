@@ -17,7 +17,6 @@ import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername
     preference as default value here.
 */
 class MockAppPreferences(
-    override var permissionsPreference: String? = PermissionStatus.NOT_REQUESTED.name,
     override var onboardingCompleted: Boolean = false,
     override var currentPlayable: Playable? = null,
     override val refreshToken: String? = "",
@@ -25,7 +24,7 @@ class MockAppPreferences(
     override var songsOnDevice: Boolean = true,
     override val version: String = "",
     override val isNotificationServiceAllowed: Boolean = true,
-    override var linkedServices: List<LinkedService> = listOf()
+    override var linkedServices: List<LinkedService> = listOf(),
 ) : AppPreferences {
     
     override val themePreference: DataStorePreference<UiMode> =
@@ -94,8 +93,16 @@ class MockAppPreferences(
                 TODO("Not yet implemented")
             }
         }
-    
-    
+
+    override val requestedPermissionsList: DataStorePreference<List<String>> =
+        object : DataStorePreference<List<String>> {
+            override fun getFlow(): Flow<List<String>> = flow {  }
+
+            override suspend fun set(value: List<String>) {
+                TODO("Not yet implemented")
+            }
+        }
+
     override suspend fun logoutUser(): Boolean {
         TODO("Not yet implemented")
     }
