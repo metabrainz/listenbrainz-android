@@ -14,6 +14,7 @@ import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -57,7 +58,7 @@ fun OnboardingYellowButton(modifier: Modifier = Modifier,
                            fontSize: Int = 18,
                            onClick: () -> Unit) {
     Button(onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.shadow(4.dp, ListenBrainzTheme.shapes.listenCardSmall),
         shape = ListenBrainzTheme.shapes.listenCardSmall,
         colors = ButtonDefaults.buttonColors().copy(
             containerColor = lb_yellow
@@ -72,7 +73,7 @@ fun OnboardingGrayButton(modifier: Modifier = Modifier,
                            fontSize: Int = 18,
                            onClick: () -> Unit) {
     Button(onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.shadow(4.dp, ListenBrainzTheme.shapes.listenCardSmall),
         shape = ListenBrainzTheme.shapes.listenCardSmall,
         colors = ButtonDefaults.buttonColors().copy(
             containerColor = Color(0xFFE0DCDC) // Gray color

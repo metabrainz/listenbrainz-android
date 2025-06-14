@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.screens.onboarding.introduction
 
 import android.content.res.Configuration
+import android.graphics.fonts.FontStyle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.Image
@@ -44,21 +45,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.ui.components.DiagonalCutShape
+import org.listenbrainz.android.ui.components.OnboardingBlobs
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_orange
 import org.listenbrainz.android.ui.theme.onboardingGradient
-import org.listenbrainz.android.ui.components.OnboardingBlobs
-import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroScreenDataEnum
 
 @Composable
 fun IntroductionScreens(onOnboardingComplete: () -> Unit) {
     val screenCount = IntroScreenDataEnum.entries.size
     var currentScreen by rememberSaveable { mutableIntStateOf(1) }
     BackHandler(
-        enabled = if(currentScreen == 1) false else true,
+        enabled = if (currentScreen == 1) false else true,
     ) {
-        if( currentScreen > 1) {
+        if (currentScreen > 1) {
             currentScreen--
         }
     }
@@ -85,11 +85,11 @@ private fun IntroductionScreenUI(screenNumber: Int, onClickNext: () -> Unit) {
         modifier = Modifier
             .fillMaxSize()
             .background(brush = onboardingGradient)
-            .statusBarsPadding()
-        ,
+            .statusBarsPadding(),
     ) {
-        if(screenNumber != 1)
-        OnboardingBackButton()
+        if (screenNumber != 1) {
+            OnboardingBackButton()
+        }
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -116,21 +116,21 @@ private fun IntroductionScreenUI(screenNumber: Int, onClickNext: () -> Unit) {
             IndicatorComposable(currentScreen = screenNumber - 1, size = 15)
 
 
-                OnboardingTitleAndSubtitle(
-                    title = data.title, subtitle = data.subtitle,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                OnboardingYellowButton(
-                    modifier = Modifier
-                        .height(48.dp)
-                        .fillMaxWidth()
-                        .widthIn(max = 600.dp),
-                    text = if (data.isLast) "Finish" else "Next",
-                    onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-                        onClickNext()
-                    }
-                )
+            OnboardingTitleAndSubtitle(
+                title = data.title, subtitle = data.subtitle,
+                modifier = Modifier.fillMaxWidth()
+            )
+            OnboardingYellowButton(
+                modifier = Modifier
+                    .height(48.dp)
+                    .fillMaxWidth()
+                    .widthIn(max = 600.dp),
+                text = if (data.isLast) "Finish" else "Next",
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                    onClickNext()
+                }
+            )
 
         }
 
@@ -162,7 +162,10 @@ fun OnboardingTitleAndSubtitle(
             fontSize = 22.sp, fontWeight = FontWeight.SemiBold
         )
         Spacer(Modifier.height(18.dp))
-        Text(subtitle, color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.6f))
+        Text(subtitle,
+            color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.6f),
+            modifier = Modifier.fillMaxWidth(0.9f),
+        )
     }
 }
 
@@ -194,17 +197,21 @@ private fun IndicatorComposable(
 }
 
 @Composable
-fun OnboardingBackButton(modifier: Modifier = Modifier, onBackPress: (()-> Unit)? = null){
+fun OnboardingBackButton(modifier: Modifier = Modifier, onBackPress: (() -> Unit)? = null) {
+    val haptic = LocalHapticFeedback.current
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     IconButton(
         modifier = modifier,
         onClick = {
-            if(onBackPress != null) onBackPress()
+            haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+            if (onBackPress != null) onBackPress()
             else backDispatcher?.onBackPressed()
         }
     ) {
-        Icon(imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "Back button",
-            tint = lb_orange)
+        Icon(
+            imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "Back button",
+            tint = lb_orange
+        )
     }
 }
 

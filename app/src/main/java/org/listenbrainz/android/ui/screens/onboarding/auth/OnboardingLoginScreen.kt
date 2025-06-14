@@ -21,10 +21,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.HapticFeedbackConstantsCompat
 import org.listenbrainz.android.ui.components.DiagonalCutShape
 import org.listenbrainz.android.ui.components.OnboardingBlobs
 import org.listenbrainz.android.ui.components.OnboardingGrayButton
@@ -49,6 +52,7 @@ private fun LoginScreenBase(
     onLoginClick: () -> Unit,
     onNewAccountClick: () -> Unit
 ) {
+    val haptic = LocalHapticFeedback.current
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -92,9 +96,13 @@ private fun LoginScreenBase(
                 Row {
                     OnboardingYellowButton(
                         text = "Create Account",
-                        onClick = onNewAccountClick)
+                        onClick = {
+                            onNewAccountClick()
+                            haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+                        })
                     Spacer(Modifier.width(8.dp))
                     OnboardingGrayButton(text = "Login", onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                         onLoginClick()
                     })
                 }

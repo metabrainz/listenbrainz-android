@@ -139,7 +139,8 @@ private fun PermissionScreenBase(
                 Text(
                     "ListenBrainz needs permissions for playback, history tracking, and submissions. We respect your privacy and don’t collect or share personal data.",
                     color = Color.White.copy(alpha = 0.7f),
-                    fontSize = 16.sp
+                    fontSize = 16.sp,
+                    modifier = Modifier.fillMaxWidth(0.9f)
                 )
                 Spacer(Modifier.height(32.dp))
             }
