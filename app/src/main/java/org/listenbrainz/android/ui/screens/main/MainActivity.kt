@@ -62,6 +62,7 @@ class MainActivity : ComponentActivity() {
 
         dashBoardViewModel.setUiMode()
         dashBoardViewModel.getPermissionStatus(this)
+        dashBoardViewModel.getListeningApps(this)
 
         setContent {
             ListenBrainzTheme {

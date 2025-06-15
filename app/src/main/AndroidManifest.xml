@@ -18,6 +18,12 @@
 
     <queries>
         <package android:name="com.google.android.apps.youtube.music" />
+        <intent>
+            <action android:name="android.media.session.MediaSessionService"/>
+        </intent>
+        <intent>
+            <action android:name="android.media.browse.MediaBrowserService"/>
+        </intent>
     </queries>
 
     <application
@@ -66,7 +72,7 @@
             android:exported="true"
             android:permission="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK">
             <intent-filter>
-                <action android:name="android.media.browse.MediaMrowserService" />
+                <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service> <!-- TODO: To receive events from wired devices -->
         <!--

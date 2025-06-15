@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.screens.onboarding.listeningApps
 
 import android.content.res.Configuration
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,22 +39,44 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import org.listenbrainz.android.ui.components.Switch
 import org.listenbrainz.android.ui.components.OnboardingBlobs
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
 import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.onboardingGradient
+import org.listenbrainz.android.viewmodel.DashBoardViewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.graphics.asImageBitmap
 
 @Composable
-fun ListeningAppSelectionScreen(onClickNext: () -> Unit){
-    ListeningAppScreenLayout {
+fun ListeningAppSelectionScreen(
+    dashBoardViewModel: DashBoardViewModel = hiltViewModel(),
+    onClickNext: () -> Unit){
+    val apps by dashBoardViewModel.listeningAppsFlow.collectAsState()
+    val isListening by dashBoardViewModel.appPreferences.isListeningAllowed.getFlow().collectAsState(initial = true)
+    val areNewPlayersEnabled by dashBoardViewModel.appPreferences.shouldListenNewPlayers.getFlow().collectAsState(initial = true)
+    ListeningAppScreenLayout(
+        apps = apps,
+        isListening = isListening,
+        areNewPlayersEnabled = areNewPlayersEnabled,
+        onCheckedChange = dashBoardViewModel::onAppCheckChange,
+        onListeningCheckChange = dashBoardViewModel::onListeningStatusChange,
+        onEnabledPlayersCheckChange = dashBoardViewModel::onNewPlayersEnabledStatusChange
+    ) {
         onClickNext()
     }
 }
 
 @Composable
 fun ListeningAppScreenLayout(
+    apps: List<AppInfo>,
+    isListening: Boolean,
+    areNewPlayersEnabled: Boolean,
+    onCheckedChange: (Boolean, AppInfo)->Unit,
+    onListeningCheckChange: (Boolean)->Unit,
+    onEnabledPlayersCheckChange: (Boolean)->Unit,
     onClickNext: () -> Unit,
 ){
     val haptic = LocalHapticFeedback.current
@@ -103,7 +127,14 @@ fun ListeningAppScreenLayout(
                 Spacer(Modifier.height(32.dp))
             }
             item {
-                EnableListenSubmissionWithPlaceholders()
+                EnableListenSubmission(
+                    apps = apps,
+                    isListening = isListening,
+                    areNewPlayersEnabled = areNewPlayersEnabled,
+                    onCheckedChange = onCheckedChange,
+                    onListeningCheckChange = onListeningCheckChange,
+                    onEnabledPlayersCheckChange = onEnabledPlayersCheckChange,
+                )
             }
             
             item{
@@ -127,10 +158,8 @@ fun ListeningAppScreenLayout(
 
 // Alternative version using placeholders if you don't have the actual icons yet
 @Composable
-fun AppCardWithPlaceholder(
-    appName: String,
-    backgroundColor: Color,
-    checked: Boolean,
+fun AppCard(
+    appInfo: AppInfo,
     onCheckedChange: (Boolean) -> Unit,
     enabled: Boolean = true,
     modifier: Modifier = Modifier
@@ -145,28 +174,14 @@ fun AppCardWithPlaceholder(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // App Icon Placeholder
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(
-                        color = backgroundColor,
-                        shape = RoundedCornerShape(8.dp)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = appName.first().toString(),
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp
-                )
-            }
+            Image(modifier = Modifier.size(40.dp),
+                bitmap = appInfo.icon.asImageBitmap(),
+                contentDescription = "App icon")
 
             Spacer(modifier = Modifier.width(16.dp))
 
             Text(
-                text = appName,
+                text = appInfo.appName,
                 style = MaterialTheme.typography.bodyLarge,
                 color = ListenBrainzTheme.colorScheme.text,
                 fontWeight = FontWeight.Medium
@@ -174,7 +189,7 @@ fun AppCardWithPlaceholder(
         }
 
         Switch(
-            checked = checked,
+            checked = appInfo.isWhitelisted,
             onCheckedChange = if (enabled) onCheckedChange else { {} }
         )
     }
@@ -182,19 +197,15 @@ fun AppCardWithPlaceholder(
 
 
 @Composable
-fun EnableListenSubmissionWithPlaceholders(
+fun EnableListenSubmission(
+    apps: List<AppInfo>,
+    isListening: Boolean,
+    areNewPlayersEnabled: Boolean,
+    onCheckedChange: (Boolean, AppInfo)->Unit,
+    onListeningCheckChange: (Boolean)->Unit,
+    onEnabledPlayersCheckChange: (Boolean)->Unit,
     modifier: Modifier = Modifier
 ) {
-    // State for the main toggle and individual app toggles
-    var listenSubmissionEnabled by remember { mutableStateOf(true) }
-    var youtubeEnabled by remember { mutableStateOf(false) }
-    var spotifyEnabled by remember { mutableStateOf(false) }
-    var youtubeMusicEnabled by remember { mutableStateOf(true) }
-    var amazonMusicEnabled by remember { mutableStateOf(true) }
-    var listenBrainzEnabled by remember { mutableStateOf(false) }
-    var audiomackEnabled by remember { mutableStateOf(true) }
-    var allowNewPlayersEnabled by remember { mutableStateOf(true) }
-
     Box(
         modifier = modifier
             .widthIn(max = 400.dp)
@@ -210,7 +221,6 @@ fun EnableListenSubmissionWithPlaceholders(
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp)
         ) {
-            // Header Section
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -224,14 +234,13 @@ fun EnableListenSubmissionWithPlaceholders(
                 )
 
                 Switch(
-                    checked = listenSubmissionEnabled,
-                    onCheckedChange = { listenSubmissionEnabled = it }
+                    checked = isListening,
+                    onCheckedChange = onListeningCheckChange
                 )
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Description Text
             Text(
                 text = "Choose the apps you want ListenBrainz to track. This helps automatically submit your listens while ensuring accurate listening history",
                 style = MaterialTheme.typography.bodyMedium,
@@ -240,69 +249,27 @@ fun EnableListenSubmissionWithPlaceholders(
             )
 
             Spacer(modifier = Modifier.height(24.dp))
+            apps.forEachIndexed {ind, app->
+                AppCard(
+                    appInfo = app,
+                    onCheckedChange = {
+                        onCheckedChange(it, app)
+                    },
+                    enabled = isListening
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                if(apps.lastIndex != ind) {
+                    HorizontalDivider(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.6f)
+                    )
+                }
+                Spacer(modifier = Modifier.height(6.dp))
 
-            // Apps List with placeholder colors
-            AppCardWithPlaceholder(
-                appName = "Youtube",
-                backgroundColor = Color(0xFFFF0000),
-                checked = youtubeEnabled,
-                onCheckedChange = { youtubeEnabled = it },
-                enabled = listenSubmissionEnabled
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            AppCardWithPlaceholder(
-                appName = "Spotify",
-                backgroundColor = Color(0xFF1DB954),
-                checked = spotifyEnabled,
-                onCheckedChange = { spotifyEnabled = it },
-                enabled = listenSubmissionEnabled
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            AppCardWithPlaceholder(
-                appName = "Youtube Music",
-                backgroundColor = Color(0xFFFF0000),
-                checked = youtubeMusicEnabled,
-                onCheckedChange = { youtubeMusicEnabled = it },
-                enabled = listenSubmissionEnabled
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            AppCardWithPlaceholder(
-                appName = "Amazon Music",
-                backgroundColor = Color(0xFF00A8E1),
-                checked = amazonMusicEnabled,
-                onCheckedChange = { amazonMusicEnabled = it },
-                enabled = listenSubmissionEnabled
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            AppCardWithPlaceholder(
-                appName = "ListenBrainz",
-                backgroundColor = Color(0xFF353070),
-                checked = listenBrainzEnabled,
-                onCheckedChange = { listenBrainzEnabled = it },
-                enabled = listenSubmissionEnabled
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            AppCardWithPlaceholder(
-                appName = "Audiomack",
-                backgroundColor = Color(0xFF000000),
-                checked = audiomackEnabled,
-                onCheckedChange = { audiomackEnabled = it },
-                enabled = listenSubmissionEnabled
-            )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Bottom Section
             Text(
                 text = "When a new music app is detected, automatically use it to submit listens.",
                 style = MaterialTheme.typography.bodyMedium,
@@ -325,8 +292,8 @@ fun EnableListenSubmissionWithPlaceholders(
                 )
 
                 Switch(
-                    checked = allowNewPlayersEnabled,
-                    onCheckedChange = { allowNewPlayersEnabled = it }
+                    checked = areNewPlayersEnabled,
+                    onCheckedChange = if(isListening) onEnabledPlayersCheckChange else {{}}
                 )
             }
         }
@@ -339,7 +306,13 @@ fun EnableListenSubmissionWithPlaceholders(
 fun ListeningAppLayoutPreview() {
     ListenBrainzTheme {
         ListeningAppScreenLayout(
-            onClickNext = {}
+            onClickNext = {},
+            apps = emptyList(),
+            isListening = true,
+            areNewPlayersEnabled = true,
+            onCheckedChange = {_,_->},
+            onListeningCheckChange = {},
+            onEnabledPlayersCheckChange = {}
         )
     }
 }
