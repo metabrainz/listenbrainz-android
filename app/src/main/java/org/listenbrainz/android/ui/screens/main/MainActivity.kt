@@ -38,6 +38,7 @@ import org.listenbrainz.android.ui.screens.onboarding.auth.CreateAccountWebView
 import org.listenbrainz.android.ui.screens.onboarding.auth.ListenBrainzLogin
 import org.listenbrainz.android.ui.screens.onboarding.auth.OnboardingLoginScreen
 import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
+import org.listenbrainz.android.ui.screens.onboarding.listeningApps.ListeningAppSelectionScreen
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
@@ -122,6 +123,13 @@ class MainActivity : ComponentActivity() {
                                 )
                             })
                         }
+                        entry<NavigationItem.OnboardingScreens.ListeningAppScreen> {
+                            ListeningAppSelectionScreen(
+                                onClickNext = {
+                                    onNavigateInOnboarding(backStack, dashBoardViewModel)
+                                }
+                            )
+                        }
                         entry<NavigationItem.HomeScreen> {
                             HomeScreen()
                         }
@@ -171,6 +179,7 @@ class MainActivity : ComponentActivity() {
                         NavigationItem.OnboardingScreens.IntroductionScreen,
                         NavigationItem.OnboardingScreens.LoginScreen,
                         NavigationItem.OnboardingScreens.PermissionScreen,
+                        NavigationItem.OnboardingScreens.ListeningAppScreen
                     )
                 )
             }

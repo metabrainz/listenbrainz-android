@@ -5,9 +5,12 @@ import androidx.compose.material.Switch
 import androidx.compose.material.SwitchDefaults
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 
 @Composable
-fun Switch(modifier: Modifier = Modifier, checked: Boolean, onCheckedChange: (Boolean) -> Unit)
+fun LBSwitch(modifier: Modifier = Modifier, checked: Boolean, onCheckedChange: (Boolean) -> Unit)
 {
     Switch(
         modifier = modifier,
@@ -21,5 +24,15 @@ fun Switch(modifier: Modifier = Modifier, checked: Boolean, onCheckedChange: (Bo
             checkedTrackAlpha = 1f,
             uncheckedTrackAlpha = 1f,
         ),
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewSwitch() {
+    val checkedState = remember { mutableStateOf(true) }
+    LBSwitch(
+        checked = checkedState.value,
+        onCheckedChange = { checkedState.value = it }
     )
 }

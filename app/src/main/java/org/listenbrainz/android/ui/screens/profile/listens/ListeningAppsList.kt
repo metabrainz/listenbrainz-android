@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import org.listenbrainz.android.R
-import org.listenbrainz.android.ui.components.Switch
+import org.listenbrainz.android.ui.components.LBSwitch
 import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.android.util.Constants.SPOTIFY_PACKAGE_NAME
 
@@ -127,7 +127,7 @@ fun ListeningAppsList(
                                     overflow = TextOverflow.Ellipsis
                                 )
                             }
-                            Switch(
+                            LBSwitch(
                                 modifier = Modifier
                                     .fillMaxWidth(0.15f)
                                     .align(Alignment.CenterEnd),
