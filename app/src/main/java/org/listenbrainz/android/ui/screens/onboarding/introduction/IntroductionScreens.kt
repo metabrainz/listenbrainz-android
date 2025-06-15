@@ -4,6 +4,10 @@ import android.content.res.Configuration
 import android.graphics.fonts.FontStyle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,6 +34,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -63,16 +68,31 @@ fun IntroductionScreens(onOnboardingComplete: () -> Unit) {
         }
     }
 
+    LaunchedEffect(currentScreen) {
+        if( currentScreen > screenCount) {
+            onOnboardingComplete()
+        }
+    }
+
     if (currentScreen <= screenCount) {
-        IntroductionScreenUI(currentScreen) {
-            if (currentScreen == screenCount) {
-                onOnboardingComplete()
-            } else {
-                currentScreen++
+        AnimatedContent(targetState = currentScreen,
+            transitionSpec = {
+                if(targetState > initialState) {
+                    slideInHorizontally(initialOffsetX = { it }) togetherWith
+                            slideOutHorizontally(targetOffsetX = { -it })
+                }else{
+                    slideInHorizontally(initialOffsetX = { -it }) togetherWith
+                            slideOutHorizontally(targetOffsetX = { it })
+                }
+            }) {
+            IntroductionScreenUI(it) {
+                if (it == screenCount) {
+                    onOnboardingComplete()
+                } else {
+                    currentScreen++
+                }
             }
         }
-    } else {
-        onOnboardingComplete()
     }
 }
 

@@ -140,7 +140,6 @@ class MainActivity : ComponentActivity() {
                             CreateAccountWebView {
                                 backStack.remove(NavigationItem.MusicBranizCreateAccount)
                                 Toast.makeText(this@MainActivity, "Account Created!! Please verify email id", Toast.LENGTH_SHORT).show()
-                                backStack.add(NavigationItem.ListenBrainzLogin)
                             }
                         }
                     },

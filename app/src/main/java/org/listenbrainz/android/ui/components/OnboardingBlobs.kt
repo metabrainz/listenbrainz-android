@@ -32,10 +32,7 @@ fun OnboardingBlobs(modifier: Modifier = Modifier, isRotated: Boolean = false){
         }
         .widthIn(max = 600.dp),
         horizontalArrangement = Arrangement.Center) {
-        Image(painter = painterResource(R.drawable.onboard_blob_2), contentDescription = "Blob 1",
-            modifier = Modifier.graphicsLayer{
-
-            })
+        Image(painter = painterResource(R.drawable.onboard_blob_2), contentDescription = "Blob 1",)
         Image(painter = painterResource(R.drawable.onboard_blob_1), contentDescription = "Blob 2",
             modifier = Modifier.graphicsLayer{
                 translationX = 180f

@@ -18,7 +18,6 @@ import org.listenbrainz.android.R
  * It contains the permission name, title, rationale text, and image resource for each permission.
  * Simply add a new enum constant for each permission you want to manage.
  */
-@SuppressLint("NewApi")
 enum class PermissionEnum(
     val permission: String,
     val title: String,
@@ -100,7 +99,8 @@ enum class PermissionEnum(
         if(!isPermissionApplicable()) return false
         return when(this){
             SEND_NOTIFICATIONS, ACCESS_MUSIC_AUDIO, READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE ->{
-                if(permissionsRequestedOnce.contains(permission))
+                if(permissionsRequestedOnce.contains(permission) && Build.VERSION_CODES.M <= Build.VERSION.SDK_INT)
+                    //If the permission was requested once, then we can check if it is permanently declined
                   !activity.shouldShowRequestPermissionRationale(permission) && ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED
                 else false
             }
@@ -121,6 +121,8 @@ enum class PermissionEnum(
                 Settings.Secure.getString(context.contentResolver, "enabled_notification_listeners")?.contains(context.packageName) == true
             }
             BATTERY_OPTIMIZATION->{
+                //This condition is already checked in the applicablePermission function, just adding here to remove lint warning
+                if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return true
                 val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
                 powerManager.isIgnoringBatteryOptimizations(context.packageName)
             }
