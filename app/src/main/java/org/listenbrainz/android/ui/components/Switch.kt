@@ -10,7 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 
 @Composable
-fun LBSwitch(modifier: Modifier = Modifier, checked: Boolean, onCheckedChange: (Boolean) -> Unit)
+fun Switch(modifier: Modifier = Modifier, checked: Boolean, onCheckedChange: (Boolean) -> Unit)
 {
     Switch(
         modifier = modifier,
@@ -31,7 +31,7 @@ fun LBSwitch(modifier: Modifier = Modifier, checked: Boolean, onCheckedChange: (
 @Composable
 fun PreviewSwitch() {
     val checkedState = remember { mutableStateOf(true) }
-    LBSwitch(
+    org.listenbrainz.android.ui.components.Switch(
         checked = checkedState.value,
         onCheckedChange = { checkedState.value = it }
     )

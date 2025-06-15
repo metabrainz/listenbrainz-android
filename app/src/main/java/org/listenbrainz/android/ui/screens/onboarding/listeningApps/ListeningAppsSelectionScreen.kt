@@ -18,10 +18,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,17 +33,15 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.listenbrainz.android.ui.components.LBSwitch
+import org.listenbrainz.android.ui.components.Switch
 import org.listenbrainz.android.ui.components.OnboardingBlobs
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
 import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.ui.theme.lb_orange
 import org.listenbrainz.android.ui.theme.onboardingGradient
 
 @Composable
@@ -177,7 +173,7 @@ fun AppCardWithPlaceholder(
             )
         }
 
-        LBSwitch(
+        Switch(
             checked = checked,
             onCheckedChange = if (enabled) onCheckedChange else { {} }
         )
@@ -227,7 +223,7 @@ fun EnableListenSubmissionWithPlaceholders(
                     fontWeight = FontWeight.Medium
                 )
 
-                LBSwitch(
+                Switch(
                     checked = listenSubmissionEnabled,
                     onCheckedChange = { listenSubmissionEnabled = it }
                 )
@@ -328,7 +324,7 @@ fun EnableListenSubmissionWithPlaceholders(
                     fontWeight = FontWeight.Medium
                 )
 
-                LBSwitch(
+                Switch(
                     checked = allowNewPlayersEnabled,
                     onCheckedChange = { allowNewPlayersEnabled = it }
                 )
