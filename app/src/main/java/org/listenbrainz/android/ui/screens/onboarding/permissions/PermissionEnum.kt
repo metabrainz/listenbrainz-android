@@ -149,8 +149,12 @@ enum class PermissionEnum(
                 activity.startActivity(intent)
             }
             BATTERY_OPTIMIZATION -> {
-                val intent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
-                activity.startActivity(intent)
+                val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                    data = "package:${activity.packageName}".toUri()
+                }
+                if (intent.resolveActivity(activity.packageManager) != null) {
+                    activity.startActivity(intent)
+                }
             }
         }
     }
