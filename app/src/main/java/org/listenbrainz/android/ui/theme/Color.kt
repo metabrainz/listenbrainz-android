@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.theme
 
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
 /**
@@ -23,6 +24,7 @@ val app_bg_secondary_dark = Color(0xFF1E1E1E)
 val on_app_bg_dark = Color(0xFF101010)
 val app_bg_secondary_light = Color(0xFFD9D9D9)
 val app_bg_light = Color(0xFF8FA3AD)
+
 //TODO: Change app_bg_light everywhere following approval from lead dev
 val new_app_bg_light = Color(0xFFF5F5F5)
 val app_bg_mid = Color(0xFF8D8D8D)
@@ -51,3 +53,11 @@ val yim23Grey = Color(0xFF4C4442)
 
 /* User Page Colors */
 val compatibilityMeterColor = Color(0xFFDB7544)
+
+val onboardingGradient = Brush.horizontalGradient(
+    listOf(
+        Color(0xFF353070),
+        Color(0xFF3D3956),
+        Color(0xFF46433A)
+    )
+)

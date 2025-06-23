@@ -161,6 +161,7 @@ class ListensViewModel @Inject constructor(
         }
     }
 
+
     /** Returns if token is valid.*/
     suspend fun validateAndSaveUserDetails(token: String): Resource<Unit> {
         val result = repository.validateToken(token)
