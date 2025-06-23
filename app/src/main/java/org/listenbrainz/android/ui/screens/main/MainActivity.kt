@@ -209,16 +209,13 @@ class MainActivity : ComponentActivity() {
         } else {
             // If no more onboarding screens, onboarding is complete
             dashBoardViewModel.appPreferences.onboardingCompleted = true
-            // Remove all onboarding screens from the back stack
-            backStack.forEach {
-                if (it is NavigationItem.OnboardingScreens) {
-                    backStack.remove(it)
-                }
-            }
-            if (backStack.isEmpty()) {
-                // If the back stack is empty, navigate to the home screen
+            if (backStack.all { it is NavigationItem.OnboardingScreens }) {
+                // If the back stack has only onboarding screens, add home screen to the back stack
                 backStack.add(NavigationItem.HomeScreen)
             }
+            // Remove all onboarding screens from the back stack
+            val onboardingItems = backStack.filterIsInstance<NavigationItem.OnboardingScreens>()
+            backStack.removeAll(onboardingItems)
             // If there are still items in the back stack, means onboarding screen was called from app
             // No need to navigate to home screen
         }
