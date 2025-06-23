@@ -3,6 +3,7 @@ package org.listenbrainz.android.viewmodel
 import android.app.Activity
 import android.app.Application
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.Canvas
 import android.graphics.Color
@@ -126,7 +127,11 @@ class DashBoardViewModel @Inject constructor(
                 val services =
                     pm.queryIntentServices(Intent(intentString), PackageManager.GET_META_DATA)
                 for (resolveInfo in services) {
-                    musicAppsPackageNames.add(resolveInfo.serviceInfo.packageName)
+                    val packageName = resolveInfo.serviceInfo.packageName
+                    val category = pm.getApplicationInfo(packageName, 0).category
+                    if(category == ApplicationInfo.CATEGORY_AUDIO || category == ApplicationInfo.CATEGORY_VIDEO){
+                        musicAppsPackageNames.add(packageName)
+                    }
                 }
             }
             musicAppsPackageNames.forEach { packageName ->

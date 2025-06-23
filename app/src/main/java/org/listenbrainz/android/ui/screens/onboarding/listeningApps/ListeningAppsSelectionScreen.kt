@@ -261,7 +261,7 @@ fun EnableListenSubmission(
                 if(apps.lastIndex != ind) {
                     HorizontalDivider(
                         modifier = Modifier.fillMaxWidth(),
-                        color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.6f)
+                        color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.4f)
                     )
                 }
                 Spacer(modifier = Modifier.height(6.dp))
