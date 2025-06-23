@@ -41,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -58,6 +59,7 @@ import org.listenbrainz.android.ui.screens.playlist.CreateEditPlaylistScreen
 import org.listenbrainz.android.ui.screens.profile.createdforyou.formatDateLegacy
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple_night
+import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Utils.shareLink
 import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
@@ -257,12 +259,9 @@ private fun UserPlaylistScreenBase(
                                                 index
                                             )
                                         if (playlist != null) {
-                                            var coverArt by remember(playlist) {
-                                                mutableStateOf<String?>(null)
-                                            }
-                                            LaunchedEffect(Unit) {
-                                                getPlaylistCoverArt(playlist) { coverArtUrl ->
-                                                    coverArt = coverArtUrl
+                                            val coverArt by produceState<String?>(initialValue = null, key1 = playlist){
+                                                getPlaylistCoverArt(playlist){
+                                                    value = it
                                                 }
                                             }
                                             PlaylistListViewCard(
@@ -298,12 +297,9 @@ private fun UserPlaylistScreenBase(
                                                 index
                                             )
                                         if (playlist != null) {
-                                            var coverArt by remember(playlist) {
-                                                mutableStateOf<String?>(null)
-                                            }
-                                            LaunchedEffect(Unit) {
-                                                getPlaylistCoverArt(playlist) { coverArtUrl ->
-                                                    coverArt = coverArtUrl
+                                            val coverArt by produceState<String?>(initialValue = null, key1 = playlist){
+                                                getPlaylistCoverArt(playlist){
+                                                    value = it
                                                 }
                                             }
                                             PlaylistGridViewCard(

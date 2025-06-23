@@ -129,6 +129,7 @@ class UserViewModel @Inject constructor(
                 userPlaylist.getPlaylistMBID()?.let {
                     val result = playlistDataRepository.getPlaylistCoverArt(it)
                     coverArtCache[userPlaylist] = result.data
+                    fetchCallback(result.data)
                 }
             }
         }
