@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.playlist.PlaylistData
@@ -55,6 +57,10 @@ class UserViewModel @Inject constructor(
 
     private var isLoggedInUser by mutableStateOf(false)
     private val currentUser: MutableStateFlow<String?> = MutableStateFlow(null)
+    //Semaphore to limit the number of concurrent cover art fetches
+    private val coverArtSemaphore = Semaphore(2)
+    //Caching the fetched cover arts
+    private val coverArtCache = mutableMapOf<UserPlaylist, String?>()
     private val userPlaylistPager: Flow<PagingData<UserPlaylist>> = Pager(
         PagingConfig(pageSize = PlaylistDataRepository.USER_PLAYLISTS_FETCH_COUNT,
             enablePlaceholders = true),
@@ -112,6 +118,21 @@ class UserViewModel @Inject constructor(
         ioDispatcher = ioDispatcher,
         playlistDataRepository = playlistDataRepository
     )
+
+    fun fetchCoverArt(userPlaylist: UserPlaylist, fetchCallback: (String?)-> Unit){
+        if(coverArtCache.containsKey(userPlaylist)){
+            fetchCallback(coverArtCache[userPlaylist])
+            return
+        }
+        viewModelScope.launch(ioDispatcher) {
+            coverArtSemaphore.withPermit {
+                userPlaylist.getPlaylistMBID()?.let {
+                    val result = playlistDataRepository.getPlaylistCoverArt(it)
+                    coverArtCache[userPlaylist] = result.data
+                }
+            }
+        }
+    }
 
     private suspend fun getSimilarArtists(username: String?): List<org.listenbrainz.android.model.user.Artist> {
         val currentUsername = appPreferences.username.get()

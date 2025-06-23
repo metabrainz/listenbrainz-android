@@ -622,7 +622,6 @@ class PlaylistDataViewModel @Inject constructor(
             onError = {
                 emitError(it)
             },
-            shouldFetchCoverArt = false,
             playlistRepository = repository,
             ioDispatcher = ioDispatcher
         )
@@ -638,7 +637,6 @@ class PlaylistDataViewModel @Inject constructor(
         CollabPlaylistPagingSource(
             username = username,
             onError = {emitError(it)},
-            shouldFetchCoverArt = false,
             playlistDataRepository = repository,
             ioDispatcher = ioDispatcher
         )
