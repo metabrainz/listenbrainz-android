@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withContext
 import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.playlist.PlaylistData
@@ -129,10 +130,12 @@ class UserViewModel @Inject constructor(
             return coverArtCache[userPlaylist]
         }
         return coverArtSemaphore.withPermit {
-            userPlaylist.getPlaylistMBID()?.let {
-                val result = playlistDataRepository.getPlaylistCoverArt(it)
-                coverArtCache[userPlaylist] = result.data
-                result.data
+            withContext(ioDispatcher) {
+                userPlaylist.getPlaylistMBID()?.let {
+                    val result = playlistDataRepository.getPlaylistCoverArt(it)
+                    coverArtCache[userPlaylist] = result.data
+                    result.data
+                }
             }
         }
     }
