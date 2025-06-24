@@ -116,9 +116,7 @@ fun UserPlaylistScreen(
         getUserPlaylist = { index ->
             userPlaylistsData[index]
         },
-        getPlaylistCoverArt = { userPlaylist, callback ->
-            userViewModel.fetchCoverArt(userPlaylist, callback)
-        },
+        getPlaylistCoverArt = userViewModel::fetchCoverArt,
         getCollabPlaylist = { index ->
             collabPlaylistsData[index]
         },
@@ -215,7 +213,7 @@ private fun UserPlaylistScreenBase(
     userPlaylistDataSize: Int,
     collabPlaylistDataSize: Int,
     isCurrentScreenCollab: Boolean,
-    getPlaylistCoverArt: (UserPlaylist, (String?) -> Unit) -> Unit,
+    getPlaylistCoverArt: suspend (UserPlaylist) -> String?,
     getUserPlaylist: (Int) -> UserPlaylist?,
     getCollabPlaylist: (Int) -> UserPlaylist?,
     currentPlaylistView: PlaylistView,
@@ -260,9 +258,7 @@ private fun UserPlaylistScreenBase(
                                             )
                                         if (playlist != null) {
                                             val coverArt by produceState<String?>(initialValue = null, key1 = playlist){
-                                                getPlaylistCoverArt(playlist){
-                                                    value = it
-                                                }
+                                                value = getPlaylistCoverArt(playlist)
                                             }
                                             PlaylistListViewCard(
                                                 modifier = Modifier,
@@ -298,9 +294,7 @@ private fun UserPlaylistScreenBase(
                                             )
                                         if (playlist != null) {
                                             val coverArt by produceState<String?>(initialValue = null, key1 = playlist){
-                                                getPlaylistCoverArt(playlist){
-                                                    value = it
-                                                }
+                                                value = getPlaylistCoverArt(playlist)
                                             }
                                             PlaylistGridViewCard(
                                                 modifier = Modifier,
@@ -459,7 +453,7 @@ fun UserPlaylistScreenPreview() {
             isCurrentScreenCollab = true,
             currentPlaylistView = PlaylistView.GRID,
             onPlaylistSectionClick = {},
-            getPlaylistCoverArt = {_,_->},
+            getPlaylistCoverArt = {null},
             onCollabSectionClick = {},
             onClickPlaylistViewChange = { },
             onClickPlaylist = { },

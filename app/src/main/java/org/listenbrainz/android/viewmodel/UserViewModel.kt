@@ -1,14 +1,14 @@
 package org.listenbrainz.android.viewmodel
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -41,7 +41,6 @@ import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistPagingS
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
 import org.listenbrainz.android.ui.screens.profile.stats.UserGlobal
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
-import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
 
@@ -57,13 +56,17 @@ class UserViewModel @Inject constructor(
 
     private var isLoggedInUser by mutableStateOf(false)
     private val currentUser: MutableStateFlow<String?> = MutableStateFlow(null)
+
     //Semaphore to limit the number of concurrent cover art fetches
     private val coverArtSemaphore = Semaphore(2)
+
     //Caching the fetched cover arts
     private val coverArtCache = mutableMapOf<UserPlaylist, String?>()
     private val userPlaylistPager: Flow<PagingData<UserPlaylist>> = Pager(
-        PagingConfig(pageSize = PlaylistDataRepository.USER_PLAYLISTS_FETCH_COUNT,
-            enablePlaceholders = true),
+        PagingConfig(
+            pageSize = PlaylistDataRepository.USER_PLAYLISTS_FETCH_COUNT,
+            enablePlaceholders = true
+        ),
         initialKey = null,
     ) {
         createNewUserPlaylistPagingSource()
@@ -72,8 +75,10 @@ class UserViewModel @Inject constructor(
         .cachedIn(viewModelScope)
 
     private val collabPlaylistPager: Flow<PagingData<UserPlaylist>> = Pager(
-        PagingConfig(pageSize = PlaylistDataRepository.COLLAB_PLAYLISTS_FETCH_COUNT,
-            enablePlaceholders = true),
+        PagingConfig(
+            pageSize = PlaylistDataRepository.COLLAB_PLAYLISTS_FETCH_COUNT,
+            enablePlaceholders = true
+        ),
         initialKey = null,
     ) {
         createNewCollabPlaylistPagingSource()
@@ -119,18 +124,15 @@ class UserViewModel @Inject constructor(
         playlistDataRepository = playlistDataRepository
     )
 
-    fun fetchCoverArt(userPlaylist: UserPlaylist, fetchCallback: (String?)-> Unit){
-        if(coverArtCache.containsKey(userPlaylist)){
-            fetchCallback(coverArtCache[userPlaylist])
-            return
+    suspend fun fetchCoverArt(userPlaylist: UserPlaylist): String? {
+        if (coverArtCache.containsKey(userPlaylist)) {
+            return coverArtCache[userPlaylist]
         }
-        viewModelScope.launch(ioDispatcher) {
-            coverArtSemaphore.withPermit {
-                userPlaylist.getPlaylistMBID()?.let {
-                    val result = playlistDataRepository.getPlaylistCoverArt(it)
-                    coverArtCache[userPlaylist] = result.data
-                    fetchCallback(result.data)
-                }
+        return coverArtSemaphore.withPermit {
+            userPlaylist.getPlaylistMBID()?.let {
+                val result = playlistDataRepository.getPlaylistCoverArt(it)
+                coverArtCache[userPlaylist] = result.data
+                result.data
             }
         }
     }
@@ -553,10 +555,10 @@ class UserViewModel @Inject constructor(
     fun deleltePlaylist(
         playlistMbid: String?,
         onCompletion: (String) -> Unit
-    ){
+    ) {
         viewModelScope.launch(ioDispatcher) {
             val result = playlistDataRepository.deletePlaylist(playlistMbid)
-            if(result.status == Resource.Status.SUCCESS){
+            if (result.status == Resource.Status.SUCCESS) {
                 onCompletion("Playlist deleted successfully")
             } else {
                 emitError(result.error)
