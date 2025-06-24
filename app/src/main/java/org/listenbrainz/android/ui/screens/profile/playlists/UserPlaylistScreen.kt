@@ -33,6 +33,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -57,6 +59,7 @@ import org.listenbrainz.android.ui.screens.playlist.CreateEditPlaylistScreen
 import org.listenbrainz.android.ui.screens.profile.createdforyou.formatDateLegacy
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple_night
+import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Utils.shareLink
 import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
@@ -113,6 +116,7 @@ fun UserPlaylistScreen(
         getUserPlaylist = { index ->
             userPlaylistsData[index]
         },
+        getPlaylistCoverArt = userViewModel::fetchCoverArt,
         getCollabPlaylist = { index ->
             collabPlaylistsData[index]
         },
@@ -209,6 +213,7 @@ private fun UserPlaylistScreenBase(
     userPlaylistDataSize: Int,
     collabPlaylistDataSize: Int,
     isCurrentScreenCollab: Boolean,
+    getPlaylistCoverArt: suspend (UserPlaylist) -> String?,
     getUserPlaylist: (Int) -> UserPlaylist?,
     getCollabPlaylist: (Int) -> UserPlaylist?,
     currentPlaylistView: PlaylistView,
@@ -252,6 +257,9 @@ private fun UserPlaylistScreenBase(
                                                 index
                                             )
                                         if (playlist != null) {
+                                            val coverArt by produceState<String?>(initialValue = null, key1 = playlist){
+                                                value = getPlaylistCoverArt(playlist)
+                                            }
                                             PlaylistListViewCard(
                                                 modifier = Modifier,
                                                 title = playlist.title ?: "",
@@ -261,7 +269,7 @@ private fun UserPlaylistScreenBase(
                                                     showTime = false
                                                 ),
                                                 onClickCard = { onClickPlaylist(playlist) },
-                                                coverArt = playlist.coverArt,
+                                                coverArt = coverArt,
                                                 onDropdownClick = {
                                                     onDropdownItemClick(it, playlist)
                                                 },
@@ -285,6 +293,9 @@ private fun UserPlaylistScreenBase(
                                                 index
                                             )
                                         if (playlist != null) {
+                                            val coverArt by produceState<String?>(initialValue = null, key1 = playlist){
+                                                value = getPlaylistCoverArt(playlist)
+                                            }
                                             PlaylistGridViewCard(
                                                 modifier = Modifier,
                                                 title = playlist.title ?: "",
@@ -294,7 +305,7 @@ private fun UserPlaylistScreenBase(
                                                     showTime = false
                                                 ),
                                                 onClickCard = { onClickPlaylist(playlist) },
-                                                coverArt = playlist.coverArt,
+                                                coverArt = coverArt,
                                                 onDropdownClick = {
                                                     onDropdownItemClick(it, playlist)
                                                 },
@@ -442,6 +453,7 @@ fun UserPlaylistScreenPreview() {
             isCurrentScreenCollab = true,
             currentPlaylistView = PlaylistView.GRID,
             onPlaylistSectionClick = {},
+            getPlaylistCoverArt = {null},
             onCollabSectionClick = {},
             onClickPlaylistViewChange = { },
             onClickPlaylist = { },

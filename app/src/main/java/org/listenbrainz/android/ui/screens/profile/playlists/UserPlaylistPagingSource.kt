@@ -3,24 +3,16 @@ package org.listenbrainz.android.ui.screens.profile.playlists
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.flow.lastOrNull
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
-import org.listenbrainz.android.repository.user.UserRepository
 import org.listenbrainz.android.util.Resource
 
 class UserPlaylistPagingSource(
     private val username: String?,
     private val onError: (error: ResponseError?) -> Unit,
     private val playlistRepository: PlaylistDataRepository,
-    private val shouldFetchCoverArt: Boolean = true,
     private val ioDispatcher: CoroutineDispatcher
 ) : PagingSource<Int, UserPlaylist>() {
     override fun getRefreshKey(state: PagingState<Int, UserPlaylist>): Int? {
@@ -52,16 +44,7 @@ class UserPlaylistPagingSource(
                 val data = (result.data?.playlists ?: emptyList()).map { it.playlist }
                 val nextKey = if (data.isEmpty()) null else params.key?.plus(params.loadSize)
                 LoadResult.Page(
-                    data = if (shouldFetchCoverArt) withContext(ioDispatcher) {
-                        data.map { playlist ->
-                            async {
-                                val coverArtResult = playlist.getPlaylistMBID()
-                                    ?.let { it1 -> playlistRepository.getPlaylistCoverArt(it1) }
-                                playlist.copy(coverArt = coverArtResult?.data)
-                            }
-                        }.awaitAll()
-                    }
-                    else data,
+                    data = data,
                     prevKey = null,
                     nextKey = nextKey
                 )
