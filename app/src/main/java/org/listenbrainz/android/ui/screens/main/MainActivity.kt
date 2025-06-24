@@ -204,7 +204,7 @@ class MainActivity : ComponentActivity() {
                 backStack.add(NavigationItem.HomeScreen)
             }
             // Remove all onboarding screens from the back stack
-         val onboardingItems = backStack.filterIsInstance<NavigationItem.OnboardingScreens>()
+            val onboardingItems = backStack.filterIsInstance<NavigationItem.OnboardingScreens>()
             backStack.removeAll(onboardingItems)
             // If there are still items in the back stack, means onboarding screen was called from app
             // No need to navigate to home screen
