@@ -60,7 +60,7 @@ fun OnboardingYellowButton(modifier: Modifier = Modifier,
     Button(onClick = onClick,
         modifier = modifier.shadow(4.dp, ListenBrainzTheme.shapes.listenCardSmall),
         shape = ListenBrainzTheme.shapes.listenCardSmall,
-        colors = ButtonDefaults.buttonColors().copy(
+        colors = ButtonDefaults.buttonColors(
             containerColor = lb_yellow
         )) {
         Text(text, color = ListenBrainzTheme.colorScheme.text, fontWeight = FontWeight.SemiBold, fontSize = fontSize.sp)
@@ -75,8 +75,8 @@ fun OnboardingGrayButton(modifier: Modifier = Modifier,
     Button(onClick = onClick,
         modifier = modifier.shadow(4.dp, ListenBrainzTheme.shapes.listenCardSmall),
         shape = ListenBrainzTheme.shapes.listenCardSmall,
-        colors = ButtonDefaults.buttonColors().copy(
-            containerColor = Color(0xFFE0DCDC) // Gray color
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFFE0DCDC)
         )) {
         Text(text, color = Color.Black, fontWeight = FontWeight.SemiBold, fontSize = fontSize.sp)
     }
