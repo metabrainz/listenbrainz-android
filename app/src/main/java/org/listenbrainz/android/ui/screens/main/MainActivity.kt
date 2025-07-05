@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.PermissionStatus
+import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.navigation.NavigationItem
 import org.listenbrainz.android.ui.screens.onboarding.auth.CreateAccountWebView
 import org.listenbrainz.android.ui.screens.onboarding.auth.ListenBrainzLogin
@@ -79,6 +80,7 @@ class MainActivity : ComponentActivity() {
                             onboardingScreensQueue.removeAt(0)
                         } else NavigationItem.HomeScreen
                     )
+                OnboardingScreenBackground(backStack)
                 NavDisplay(
                     backStack = backStack,
                     onBack = {
@@ -177,8 +179,8 @@ class MainActivity : ComponentActivity() {
             if (!dashBoardViewModel.appPreferences.onboardingCompleted) {
                 onboardingScreensQueue.addAll(
                     listOf(
-                        NavigationItem.OnboardingScreens.IntroductionScreen,
                         NavigationItem.OnboardingScreens.LoginConsentScreen,
+                        NavigationItem.OnboardingScreens.IntroductionScreen,
                         NavigationItem.OnboardingScreens.LoginScreen,
                         NavigationItem.OnboardingScreens.PermissionScreen,
                     )

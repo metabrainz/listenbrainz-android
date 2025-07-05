@@ -70,7 +70,7 @@ import org.listenbrainz.android.ui.theme.lb_orange
 import org.listenbrainz.android.ui.theme.lb_yellow
 import org.listenbrainz.android.ui.theme.onboardingGradient
 
-private fun createSlideTransition(
+fun createSlideTransition(
     enterAnimDurationMs: Int = 300,
     exitAnimDurationMs: Int = 300,
     fadeInDurationMs: Int = 300,
