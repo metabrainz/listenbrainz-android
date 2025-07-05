@@ -36,6 +36,7 @@ import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.navigation.NavigationItem
 import org.listenbrainz.android.ui.screens.onboarding.auth.CreateAccountWebView
 import org.listenbrainz.android.ui.screens.onboarding.auth.ListenBrainzLogin
+import org.listenbrainz.android.ui.screens.onboarding.auth.LoginConsentScreen
 import org.listenbrainz.android.ui.screens.onboarding.auth.OnboardingLoginScreen
 import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScreen
@@ -89,6 +90,14 @@ class MainActivity : ComponentActivity() {
                     entryProvider = entryProvider {
                         entry<NavigationItem.OnboardingScreens.IntroductionScreen> {
                             IntroductionScreens {
+                                onNavigateInOnboarding(
+                                    backStack,
+                                    dashBoardViewModel
+                                )
+                            }
+                        }
+                        entry<NavigationItem.OnboardingScreens.LoginConsentScreen>{
+                            LoginConsentScreen {
                                 onNavigateInOnboarding(
                                     backStack,
                                     dashBoardViewModel
@@ -169,6 +178,7 @@ class MainActivity : ComponentActivity() {
                 onboardingScreensQueue.addAll(
                     listOf(
                         NavigationItem.OnboardingScreens.IntroductionScreen,
+                        NavigationItem.OnboardingScreens.LoginConsentScreen,
                         NavigationItem.OnboardingScreens.LoginScreen,
                         NavigationItem.OnboardingScreens.PermissionScreen,
                     )

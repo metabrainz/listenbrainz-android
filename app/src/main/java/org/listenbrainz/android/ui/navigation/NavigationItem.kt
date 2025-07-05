@@ -13,6 +13,9 @@ sealed interface NavigationItem :NavKey{
         data object PermissionScreen : OnboardingScreens
 
         @Serializable
+        data object LoginConsentScreen : OnboardingScreens
+
+        @Serializable
         data object LoginScreen : OnboardingScreens
 
         @Serializable
