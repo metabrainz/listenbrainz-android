@@ -179,8 +179,8 @@ class MainActivity : ComponentActivity() {
             if (!dashBoardViewModel.appPreferences.onboardingCompleted) {
                 onboardingScreensQueue.addAll(
                     listOf(
-                        NavigationItem.OnboardingScreens.LoginConsentScreen,
                         NavigationItem.OnboardingScreens.IntroductionScreen,
+                        NavigationItem.OnboardingScreens.LoginConsentScreen,
                         NavigationItem.OnboardingScreens.LoginScreen,
                         NavigationItem.OnboardingScreens.PermissionScreen,
                     )
