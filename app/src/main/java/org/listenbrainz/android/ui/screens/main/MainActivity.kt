@@ -184,8 +184,10 @@ class MainActivity : ComponentActivity() {
                 )
             }
             if (dashBoardViewModel.appPreferences.isUserLoggedIn()) {
+                onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.LoginConsentScreen)
                 onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.LoginScreen)
-            } else {
+            }else if(!dashBoardViewModel.appPreferences.onboardingCompleted){
+                onboardingScreensQueue.add(NavigationItem.OnboardingScreens.LoginConsentScreen)
                 onboardingScreensQueue.add(NavigationItem.OnboardingScreens.LoginScreen)
             }
 
