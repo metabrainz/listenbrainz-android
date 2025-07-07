@@ -100,24 +100,14 @@ private fun PermissionScreenBase(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(brush = onboardingGradient)
     ) {
-
         val permissionList = permissions.toList()
             .filter { it.second == PermissionStatus.NOT_REQUESTED || it.second == PermissionStatus.DENIED_TWICE }
-        Column(modifier = Modifier.graphicsLayer{
-            translationY = 800f
-        }) {
-            OnboardingBlobs()
-            Spacer(Modifier.height(50.dp))
-            OnboardingBlobs(isRotated = true)
-        }
+
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 24.dp)
-                .statusBarsPadding()
-                .navigationBarsPadding(),
         ) {
             item {
                 OnboardingBackButton(

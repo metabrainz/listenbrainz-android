@@ -76,6 +76,7 @@ class MainActivity : ComponentActivity() {
 
                 val backStack =
                     rememberNavBackStack(
+//                        NavigationItem.OnboardingScreens.LoginScreen
                         if (onboardingScreensQueue.isNotEmpty()) {
                             onboardingScreensQueue.removeAt(0)
                         } else NavigationItem.HomeScreen
@@ -117,13 +118,9 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                             }
-                            OnboardingLoginScreen(
-                                onLoginClick = {
-                                    backStack.add(NavigationItem.ListenBrainzLogin)
-                                },
-                                onCreateAccountClick = {
-                                    backStack.add(NavigationItem.MusicBranizCreateAccount)
-                                })
+                            ListenBrainzLogin(onLoginFinished = {
+                                //Handled above in LaunchedEffect
+                            })
                         }
                         entry<NavigationItem.OnboardingScreens.PermissionScreen> {
                             PermissionScreen(onExit = {

@@ -13,11 +13,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,6 +34,7 @@ import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
@@ -98,24 +105,17 @@ private fun LoginCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             LoginHeader()
-
             Spacer(modifier = Modifier.height(32.dp))
-
             LoginForm(
                 username = username,
                 password = password,
                 onUsernameChange = onUsernameChange,
                 onPasswordChange = onPasswordChange
             )
-
             Spacer(modifier = Modifier.height(16.dp))
-
             ForgotCredentialsSection()
-
             Spacer(modifier = Modifier.height(24.dp))
-
             ErrorSection(error = error)
-
             LoginButton(
                 isLoading = isLoading,
                 onLoginClick = onLoginClick
@@ -124,32 +124,30 @@ private fun LoginCard(
     }
 }
 
+
 @Composable
 private fun LoginHeader() {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = painterResource(id = R.drawable.ic_metabrainz_logo_no_text),
+            painter = painterResource(id = R.drawable.musicbrainz_logo),
             contentDescription = "MusicBrainz Logo",
             modifier = Modifier.size(48.dp)
         )
-
         Spacer(modifier = Modifier.height(24.dp))
-
         Text(
             text = "Welcome Back!",
             style = MaterialTheme.typography.headlineMedium,
             color = ListenBrainzTheme.colorScheme.text,
             fontWeight = FontWeight.Bold
         )
-
         Spacer(modifier = Modifier.height(8.dp))
-
         Text(
             text = "Sign in to your MusicBrainz account",
             style = MaterialTheme.typography.bodyMedium,
-            color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f)
+            color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f),
+            fontWeight = FontWeight.Medium
         )
     }
 }
@@ -216,6 +214,8 @@ private fun PasswordField(
     password: String,
     onPasswordChange: (String) -> Unit
 ) {
+    var passwordVisibility by remember { mutableStateOf(false) }
+
     Column {
         Text(
             text = "Password",
@@ -236,13 +236,22 @@ private fun PasswordField(
             },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = ListenBrainzTheme.colorScheme.text,
                 unfocusedTextColor = ListenBrainzTheme.colorScheme.text,
                 focusedBorderColor = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.5f),
                 unfocusedBorderColor = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.3f)
-            )
+            ),
+            trailingIcon = {
+                IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
+                    Icon(
+                        painter = painterResource(id = if (passwordVisibility) R.drawable.ic_visibility_off else R.drawable.ic_visibility),
+                        contentDescription = if (passwordVisibility) "Hide password" else "Show password",
+                        tint = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.5f)
+                    )
+                }
+            }
         )
     }
 }
@@ -250,7 +259,7 @@ private fun PasswordField(
 @Composable
 private fun ForgotCredentialsSection() {
     val isLightTheme = !isSystemInDarkTheme()
-    val linkColor = if (!isLightTheme) lb_purple_night else lb_purple // lb_purple and lb_purple_night
+    val linkColor = if (!isLightTheme) lb_purple_night else lb_purple
 
     val annotatedText = buildAnnotatedString {
         append("Forgot your ")
@@ -276,7 +285,7 @@ private fun ForgotCredentialsSection() {
                     textDecoration = TextDecoration.Underline
                 )
             ))) {
-            append("username")
+            append("password")
         }
 
         append(" ?")

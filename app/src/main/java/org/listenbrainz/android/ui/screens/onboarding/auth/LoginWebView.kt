@@ -9,17 +9,20 @@ import android.webkit.CookieSyncManager
 import android.webkit.WebView
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,19 +36,31 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.ListenBrainzWebClient
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Log
-import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.LaunchedEffectMainThread
 import org.listenbrainz.android.util.Utils.LaunchedEffectUnit
+import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.viewmodel.ListensViewModel
-import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration.Companion.milliseconds
+
+// Sealed class to represent all possible login states
+sealed class LoginState {
+    object Idle : LoginState()
+    data class Loading(val message: String) : LoginState()
+    object SubmittingCredentials : LoginState()
+    object AuthenticatingWithServer : LoginState()
+    object VerifyingToken : LoginState()
+    data class Error(val message: String) : LoginState()
+    data class Success(val message: String) : LoginState()
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,149 +69,221 @@ fun ListenBrainzLogin(
     onLoginFinished: () -> Unit
 ) {
     val viewModel = hiltViewModel<ListensViewModel>()
-    var loadState by remember {
-        mutableStateOf<Resource<String>?>(null)
+    val scope = rememberCoroutineScope()
+
+    var loginState by remember { mutableStateOf<LoginState>(LoginState.Idle) }
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var isLoggingIn by remember { mutableStateOf(false) }
+    var loginTimeoutJob by remember { mutableStateOf<Job?>(null) }
+
+    // Login timeout functions
+    val startTimeout = {
+        loginTimeoutJob?.cancel()
+        loginTimeoutJob = scope.launch {
+            delay(15000) // 15 seconds timeout
+            if (loginState !is LoginState.Success && isLoggingIn) {
+                loginState = LoginState.Error("Login timed out. Please try again.")
+                isLoggingIn = false
+            }
+        }
     }
-    var isPageLoading by remember {
-        mutableStateOf<Boolean>(true)
+
+    val clearTimeout = {
+        loginTimeoutJob?.cancel()
+        loginTimeoutJob = null
+//        loginState = LoginState.Idle
     }
 
     Box(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        // FIXME: Security certificate warning in API 24 and below.
-        ListenBrainzClient(
-            onLoad =
-                {
-                    if (loadState?.isSuccess == true) {
-                        return@ListenBrainzClient
-                    }
-                    loadState = it
-                },
-            onPageLoadStateChange = {
-                if(isPageLoading != it)
-                    isPageLoading = it
-            }
-        )
+        // Only create ListenBrainzClient when user is actively logging in
+        if (isLoggingIn) {
+            ListenBrainzClient(
+                username = username,
+                password = password,
+                onLoad = { resource ->
+                    when {
+                        resource.isSuccess -> {
+                            // We got the token, now validate it
+                            loginState = LoginState.VerifyingToken
+                            clearTimeout()
+                            startTimeout()
+                            // Continue with token validation
+                            scope.launch {
+                                val validationResult = viewModel.validateAndSaveUserDetails(resource.data!!)
+                                loginState = if (validationResult.status == Resource.Status.SUCCESS) {
+                                    clearTimeout()
+                                    LoginState.Success("Login successful!")
+                                } else {
+                                    clearTimeout()
+                                    LoginState.Error(validationResult.error?.actualResponse ?: "Token validation failed")
+                                }
 
-        val scope = rememberCoroutineScope()
-        var isTokenValidRes by remember {
-            mutableStateOf<Resource<Unit>?>(null)
-        }
-
-        LaunchedEffectMainThread(loadState) {
-            val tokenFetchState = loadState ?: return@LaunchedEffectMainThread
-            if (tokenFetchState.isSuccess && isTokenValidRes == null) {
-                isTokenValidRes = Resource.loading()
-                scope.launch {
-                    isTokenValidRes = withContext(NonCancellable) {
-                        viewModel.validateAndSaveUserDetails(tokenFetchState.data!!)
-                    }
-                }
-            }
-        }
-
-        AnimatedContent(
-            modifier = Modifier
-                .fillMaxSize()
-                .align(Alignment.Center),
-            targetState = loadState,
-        ) { state ->
-            when (state?.status) {
-                Resource.Status.LOADING, Resource.Status.SUCCESS -> {
-                    BasicAlertDialog(
-                        onDismissRequest = {},
-                        content = {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(
-                                        ListenBrainzTheme.colorScheme.background,
-                                        MaterialTheme.shapes.large
-                                    )
-                                    .padding(24.dp), // From M3 source code
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                when (isTokenValidRes?.status) {
-                                    null -> {
-                                        LoadingAnimation()
-                                    }
-                                    Resource.Status.LOADING -> {
-                                        LoadingAnimation()
-                                        Text(
-                                            modifier = Modifier.padding(horizontal = 8.dp),
-                                            text = "Verifying token...",
-                                            color = ListenBrainzTheme.colorScheme.text,
-                                            fontSize = 22.sp,
-                                            fontWeight = FontWeight.Medium,
-                                            textAlign = TextAlign.Center
-                                        )
-                                    }
-                                    Resource.Status.SUCCESS -> {
-                                        LaunchedEffectUnit {
-                                            delay(1.5.seconds)
-                                            onLoginFinished()
-                                        }
-
-                                        Text(
-                                            modifier = Modifier.padding(horizontal = 8.dp),
-                                            text = "Login successful!",
-                                            color = ListenBrainzTheme.colorScheme.text,
-                                            fontSize = 22.sp,
-                                            fontWeight = FontWeight.Medium
-                                        )
-                                    }
-                                    Resource.Status.FAILED -> {
-                                        LaunchedEffectUnit {
-                                            Log.e("LoginActivity", "Token validation failed: ${isTokenValidRes?.error?.toString()}")
-                                            delay(2.seconds)
-                                            onLoginFinished()
-                                        }
-
-                                        Text(
-                                            modifier = Modifier.padding(horizontal = 8.dp),
-                                            text = "Login failed.\n\nReason: ${isTokenValidRes?.error?.toast ?: "Unknown error"}",
-                                            color = ListenBrainzTheme.colorScheme.text,
-                                            fontSize = 22.sp,
-                                            fontWeight = FontWeight.Medium,
-                                            textAlign = TextAlign.Center
-                                        )
-                                    }
+                                // After success or final failure, transition back to main flow
+                                if (loginState is LoginState.Success) {
+                                    delay(1500.milliseconds)
+                                    onLoginFinished()
+                                } else {
+                                    isLoggingIn = false
                                 }
                             }
                         }
-                    )
-                }
-                Resource.Status.FAILED -> {
-                    LaunchedEffectUnit {
-                        delay(1.5.seconds)
-                        onLoginFinished()
+                        resource.isFailed -> {
+                            loginState = LoginState.Error(resource.error?.actualResponse ?: "Login failed")
+                            isLoggingIn = false
+                            clearTimeout()
+                        }
+                        resource.isLoading -> {
+                            loginState = when {
+                                loginState == LoginState.SubmittingCredentials -> LoginState.AuthenticatingWithServer
+                                loginState !is LoginState.Loading -> LoginState.Loading("Connecting...")
+                                else -> loginState
+                            }
+                        }
                     }
+                },
+                onPageLoadStateChange = { isLoading, message ->
+                    if (isLoading && loginState !is LoginState.Error) {
+                        loginState = LoginState.Loading(message ?: "Loading...")
+                    }
+                }
+            )
+        }
 
-                    AlertDialog(
-                        containerColor = ListenBrainzTheme.colorScheme.background,
-                        onDismissRequest = {},
-                        confirmButton = {},
-                        text = {
+        // Main login UI
+        LoginScreenLayout(
+            username = username,
+            password = password,
+            onUsernameChange = { username = it },
+            onPasswordChange = { password = it },
+            error = if (loginState is LoginState.Error) (loginState as LoginState.Error).message else null,
+            isLoading = loginState is LoginState.Loading || loginState is LoginState.VerifyingToken ||
+                       loginState is LoginState.SubmittingCredentials || loginState is LoginState.AuthenticatingWithServer,
+            onLoginClick = {
+                // Validate form
+                if (username.isBlank() || password.isBlank()) {
+                    loginState = LoginState.Error("Username and password cannot be empty")
+                    return@LoginScreenLayout
+                }
+
+                // Start timeout for login process
+                startTimeout()
+
+                // Start the login process
+                loginState = LoginState.SubmittingCredentials
+                isLoggingIn = true
+            }
+        )
+
+        // Show dialog based on login state
+        if (loginState !is LoginState.Idle) {
+            val showDialog = loginState is LoginState.Loading ||
+                            loginState is LoginState.VerifyingToken ||
+                            loginState is LoginState.Error ||
+                            loginState is LoginState.Success ||
+                            loginState is LoginState.SubmittingCredentials ||
+                            loginState is LoginState.AuthenticatingWithServer
+
+            if (showDialog) {
+                AlertDialog(
+                    containerColor = ListenBrainzTheme.colorScheme.background,
+                    onDismissRequest = {
+                        // Only allow dismissing in error state
+                        if (loginState is LoginState.Error) {
+                            loginState = LoginState.Idle
+                            clearTimeout()
+                        }
+                    },
+                    title = {
+                        Text(
+                            text = when (loginState) {
+                                is LoginState.Error -> "Login Error"
+                                is LoginState.Success -> "Success"
+                                else -> "Signing In"
+                            },
+                            color = ListenBrainzTheme.colorScheme.text
+                        )
+                    },
+                    text = {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            when (loginState) {
+                                is LoginState.Loading,
+                                is LoginState.SubmittingCredentials,
+                                is LoginState.AuthenticatingWithServer,
+                                is LoginState.VerifyingToken -> {
+                                    LoadingAnimation()
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Text(
+                                        text = when (loginState) {
+                                            is LoginState.Loading -> (loginState as LoginState.Loading).message
+                                            is LoginState.SubmittingCredentials -> "Submitting credentials..."
+                                            is LoginState.AuthenticatingWithServer -> "Authenticating..."
+                                            is LoginState.VerifyingToken -> "Verifying token..."
+                                            else -> "Loading..."
+                                        },
+                                        color = ListenBrainzTheme.colorScheme.text,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                                is LoginState.Error -> {
+                                    Text(
+                                        text = (loginState as LoginState.Error).message,
+                                        color = ListenBrainzTheme.colorScheme.text,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                                is LoginState.Success -> {
+                                    Text(
+                                        text = (loginState as LoginState.Success).message,
+                                        color = ListenBrainzTheme.colorScheme.text,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                                else -> {}
+                            }
+                        }
+                    },
+                    confirmButton = {
+                        if (loginState is LoginState.Error) {
                             Text(
-                                modifier = Modifier.padding(horizontal = 8.dp),
-                                text = "Something went wrong, please try again later.",
+                                text = "Try Again",
                                 color = ListenBrainzTheme.colorScheme.text,
-                                fontSize = 22.sp,
-                                fontWeight = FontWeight.Medium,
-                                textAlign = TextAlign.Center
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .clickable {
+                                        loginState = LoginState.Idle
+                                        clearTimeout()
+                                    }
                             )
                         }
-                    )
-                }
-                else -> Unit
+                    },
+                    dismissButton = {
+                        if (loginState is LoginState.Error) {
+                            Text(
+                                text = "Cancel",
+                                color = ListenBrainzTheme.colorScheme.text,
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .clickable {
+                                        loginState = LoginState.Idle
+                                        clearTimeout()
+                                    }
+                            )
+                        }
+                    }
+                )
             }
         }
 
-        AnimatedContent(modifier = Modifier.fillMaxSize(), targetState = isPageLoading) {
-            if (it) {
-                LoadingDialog()
+        DisposableEffect(Unit) {
+            onDispose {
+                clearTimeout()
             }
         }
     }
@@ -205,13 +292,21 @@ fun ListenBrainzLogin(
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 private fun ListenBrainzClient(
+    username: String,
+    password: String,
     onLoad: (Resource<String>) -> Unit,
-    onPageLoadStateChange: (Boolean) -> Unit
+    onPageLoadStateChange: (Boolean, String?) -> Unit
 ) {
-    val url = "https://listenbrainz.org/login"
-    AndroidView(factory = {
-        WebView(it).apply {
+    val returnUrl = "https://listenbrainz.org/login"
+    val url = "https://musicbrainz.org/login?returnto=$returnUrl"
 
+    // Use AndroidView to embed a WebView
+    AndroidView(factory = { context ->
+        WebView(context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
             fun clearCookies() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
                     CookieManager.getInstance().removeAllCookies(null)
@@ -226,18 +321,25 @@ private fun ListenBrainzClient(
                     cookieSyncManager.sync()
                 }
             }
+            // Configure WebView
+            settings.apply {
+                javaScriptEnabled = true
+                setSupportMultipleWindows(false)
+                javaScriptCanOpenWindowsAutomatically = false
+            }
 
-            layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-            webViewClient = ListenBrainzWebClient(onLoad = onLoad, onPageLoadStateChange = onPageLoadStateChange)
+            // Clear cookies
             clearCookies()
-            settings.javaScriptEnabled = true
+
+            webViewClient = ListenBrainzWebClient(
+                onLoad = onLoad,
+                onPageLoadStateChange = onPageLoadStateChange,
+                username = username,
+                password = password
+            )
+
             setLayerType(View.LAYER_TYPE_HARDWARE, null)
             loadUrl(url)
         }
-    }, update = {
-        it.loadUrl(url)
     })
 }
