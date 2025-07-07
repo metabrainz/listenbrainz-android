@@ -36,6 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import org.listenbrainz.android.R
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.components.FloatingContentAwareLayout
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
@@ -202,6 +203,7 @@ private fun PermissionCard(
             Spacer(Modifier.height(16.dp))
             OnboardingYellowButton(
                 onClick = onClick,
+                icon = if(isPermanentlyDecline) R.drawable.ic_redirect else null,
                 modifier = Modifier.fillMaxWidth(0.9f),
                 text = if (isPermanentlyDecline) "Go to Settings" else "Grant Permission",
                 fontSize = 16
