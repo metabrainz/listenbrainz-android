@@ -110,6 +110,18 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         entry<NavigationItem.OnboardingScreens.LoginConsentScreen>{
+                            LaunchedEffect(Unit) {
+                                dashBoardViewModel.appPreferences.getLoginStatusFlow()
+                                    .collectLatest {
+                                        if (dashBoardViewModel.appPreferences.isUserLoggedIn()) {
+                                            onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.LoginScreen)
+                                            onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.LoginConsentScreen)
+                                            backStack.remove(NavigationItem.OnboardingScreens.LoginScreen)
+                                            backStack.remove(NavigationItem.OnboardingScreens.LoginConsentScreen)
+                                            onNavigateInOnboarding(backStack, dashBoardViewModel)
+                                        }
+                                    }
+                            }
                             LoginConsentScreen {
                                 onNavigateInOnboarding(
                                     backStack,
@@ -123,7 +135,9 @@ class MainActivity : ComponentActivity() {
                                     .collectLatest {
                                         if (dashBoardViewModel.appPreferences.isUserLoggedIn()) {
                                             onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.LoginScreen)
+                                            onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.LoginConsentScreen)
                                             backStack.remove(NavigationItem.OnboardingScreens.LoginScreen)
+                                            backStack.remove(NavigationItem.OnboardingScreens.LoginConsentScreen)
                                             onNavigateInOnboarding(backStack, dashBoardViewModel)
                                         }
                                     }

@@ -2,6 +2,7 @@ package org.listenbrainz.android.ui.screens.onboarding.auth
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.CookieManager
@@ -46,12 +47,14 @@ import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.ListenBrainzWebClient
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Utils.LaunchedEffectMainThread
 import org.listenbrainz.android.util.Utils.LaunchedEffectUnit
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.viewmodel.ListensViewModel
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+
+const val TAG = "ListenBrainzLogin"
 
 // Sealed class to represent all possible login states
 sealed class LoginState {
@@ -83,8 +86,16 @@ fun ListenBrainzLogin(
     val startTimeout = {
         loginTimeoutJob?.cancel()
         loginTimeoutJob = scope.launch {
-            delay(15000) // 15 seconds timeout
+            Log.d(TAG,"Starting login timer")
+            repeat(30) { // 30 seconds timeout
+                delay(1.seconds)
+                if (loginState is LoginState.Success || loginState is LoginState.Error) {
+                    return@launch // Exit if already logged in or error occurred
+                }
+                Log.d(TAG,"Login timer tick: ${it + 1} seconds")
+            }
             if (loginState !is LoginState.Success && isLoggingIn) {
+                Log.d(TAG,"Login timeout")
                 loginState = LoginState.Error("Login timed out. Please try again.")
                 isLoggingIn = false
             }
@@ -92,6 +103,7 @@ fun ListenBrainzLogin(
     }
 
     val clearTimeout = {
+        Log.d(TAG,"Login timer cleared")
         loginTimeoutJob?.cancel()
         loginTimeoutJob = null
 //        loginState = LoginState.Idle
