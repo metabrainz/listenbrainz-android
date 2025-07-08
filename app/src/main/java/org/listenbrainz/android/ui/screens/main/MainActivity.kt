@@ -11,13 +11,19 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation3.runtime.NavBackStack
@@ -33,6 +39,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.PermissionStatus
+import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.navigation.NavigationItem
 import org.listenbrainz.android.ui.screens.onboarding.auth.CreateAccountWebView
@@ -42,6 +49,7 @@ import org.listenbrainz.android.ui.screens.onboarding.auth.OnboardingLoginScreen
 import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.ui.theme.LocalUiMode
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
 @AndroidEntryPoint
@@ -66,6 +74,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             ListenBrainzTheme {
+
                 onboardingNavigationSetup(dashBoardViewModel)
                 DisposableEffect(Unit) {
                     dashBoardViewModel.connectToSpotify()
@@ -81,6 +90,7 @@ class MainActivity : ComponentActivity() {
                             onboardingScreensQueue.removeAt(0)
                         } else NavigationItem.HomeScreen
                     )
+                SetStatusAndNavigationBarTheme(backStack)
                 OnboardingScreenBackground(backStack)
                 NavDisplay(
                     backStack = backStack,
@@ -167,6 +177,29 @@ class MainActivity : ComponentActivity() {
             }
 
         }
+    }
+
+    @Composable
+    fun SetStatusAndNavigationBarTheme(backStack: NavBackStack){
+        val isDarkTheme = isSystemInDarkTheme()
+        val uiMode by dashBoardViewModel.appPreferences.themePreference.getFlow().collectAsState(initial = UiMode.FOLLOW_SYSTEM)
+
+            SideEffect {
+                val isStatusBarIconColorLight = if(backStack[backStack.lastIndex] is NavigationItem.OnboardingScreens) {
+                    true
+                } else {
+                    when(uiMode){
+                        UiMode.FOLLOW_SYSTEM-> isDarkTheme
+                        UiMode.DARK -> true
+                        UiMode.LIGHT -> false
+                    }
+                }
+                WindowCompat.getInsetsController(window, window.decorView).apply {
+                    isAppearanceLightStatusBars = !isStatusBarIconColorLight
+                    isAppearanceLightNavigationBars = !isStatusBarIconColorLight
+                }
+            }
+
     }
 
     //Handling all onboarding navigation logic
