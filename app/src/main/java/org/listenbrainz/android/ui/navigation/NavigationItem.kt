@@ -24,10 +24,4 @@ sealed interface NavigationItem :NavKey{
 
     @Serializable
     data object HomeScreen: NavigationItem
-
-    @Serializable
-    data object ListenBrainzLogin: NavigationItem
-
-    @Serializable
-    data object MusicBranizCreateAccount: NavigationItem
 }

@@ -42,10 +42,8 @@ import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.navigation.NavigationItem
-import org.listenbrainz.android.ui.screens.onboarding.auth.CreateAccountWebView
 import org.listenbrainz.android.ui.screens.onboarding.auth.ListenBrainzLogin
 import org.listenbrainz.android.ui.screens.onboarding.auth.LoginConsentScreen
-import org.listenbrainz.android.ui.screens.onboarding.auth.OnboardingLoginScreen
 import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -85,7 +83,6 @@ class MainActivity : ComponentActivity() {
 
                 val backStack =
                     rememberNavBackStack(
-//                        NavigationItem.OnboardingScreens.LoginScreen
                         if (onboardingScreensQueue.isNotEmpty()) {
                             onboardingScreensQueue.removeAt(0)
                         } else NavigationItem.HomeScreen
@@ -156,23 +153,6 @@ class MainActivity : ComponentActivity() {
                         }
                         entry<NavigationItem.HomeScreen> {
                             HomeScreen()
-                        }
-                        entry<NavigationItem.ListenBrainzLogin> {
-                            Box(
-                                Modifier
-                                    .statusBarsPadding()
-                                    .navigationBarsPadding()
-                            ) {
-                                ListenBrainzLogin {
-                                    backStack.remove(NavigationItem.ListenBrainzLogin)
-                                }
-                            }
-                        }
-                        entry<NavigationItem.MusicBranizCreateAccount> {
-                            CreateAccountWebView {
-                                backStack.remove(NavigationItem.MusicBranizCreateAccount)
-                                Toast.makeText(this@MainActivity, "Account Created!! Please verify email id", Toast.LENGTH_SHORT).show()
-                            }
                         }
                     },
                     transitionSpec = {
