@@ -1,13 +1,18 @@
 package org.listenbrainz.android.ui.screens.onboarding.introduction
 
 import android.content.res.Configuration
-import android.graphics.fonts.FontStyle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,13 +30,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,27 +50,46 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import org.listenbrainz.android.ui.components.DiagonalCutShape
 import org.listenbrainz.android.ui.components.OnboardingBlobs
-import org.listenbrainz.android.ui.components.OnboardingYellowButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_orange
+import org.listenbrainz.android.ui.theme.lb_yellow
 import org.listenbrainz.android.ui.theme.onboardingGradient
+
+fun createSlideTransition(
+    enterAnimDurationMs: Int = 300,
+    exitAnimDurationMs: Int = 300,
+    fadeInDurationMs: Int = 300,
+    fadeOutDurationMs: Int = 300
+): ContentTransform = ContentTransform(
+    targetContentEnter = slideInVertically(animationSpec = tween(enterAnimDurationMs)) { height -> height } +
+        fadeIn(animationSpec = tween(fadeInDurationMs)),
+    initialContentExit = slideOutVertically(animationSpec = tween(exitAnimDurationMs)) { height -> -height } +
+        fadeOut(animationSpec = tween(fadeOutDurationMs)),
+    sizeTransform = SizeTransform(clip = false)
+)
+
 
 @Composable
 fun IntroductionScreens(onOnboardingComplete: () -> Unit) {
     val screenCount = IntroScreenDataEnum.entries.size
     var currentScreen by rememberSaveable { mutableIntStateOf(1) }
     BackHandler(
-        enabled = if (currentScreen == 1) false else true,
+        enabled = currentScreen != 1,
     ) {
         if (currentScreen > 1) {
             currentScreen--
@@ -69,38 +97,46 @@ fun IntroductionScreens(onOnboardingComplete: () -> Unit) {
     }
 
     LaunchedEffect(currentScreen) {
-        if( currentScreen > screenCount) {
+        if (currentScreen > screenCount) {
             onOnboardingComplete()
         }
     }
 
     if (currentScreen <= screenCount) {
-        AnimatedContent(targetState = currentScreen,
-            transitionSpec = {
-                if(targetState > initialState) {
-                    slideInHorizontally(initialOffsetX = { it }) togetherWith
-                            slideOutHorizontally(targetOffsetX = { -it })
-                }else{
-                    slideInHorizontally(initialOffsetX = { -it }) togetherWith
-                            slideOutHorizontally(targetOffsetX = { it })
-                }
-            }) {
-            IntroductionScreenUI(it) {
-                if (it == screenCount) {
-                    onOnboardingComplete()
-                } else {
-                    currentScreen++
-                }
-            }
-        }
+        IntroductionScreenUI(currentScreen, onClickNext = {
+            if (currentScreen == screenCount) {
+                onOnboardingComplete()
+            } else {
+                currentScreen++
+            }},
+            onSlide = {
+                currentScreen = it
+            })
     }
 }
 
 @Composable
-private fun IntroductionScreenUI(screenNumber: Int, onClickNext: () -> Unit) {
+private fun IntroductionScreenUI(screenNumber: Int, onClickNext: () -> Unit, onSlide: (Int) -> Unit) {
     val haptic = LocalHapticFeedback.current
     val data = IntroScreenDataEnum.Companion.getScreenData(screenNumber)
+    val pagerState = rememberPagerState(initialPage = screenNumber - 1, pageCount = {
+        IntroScreenDataEnum.entries.size
+    })
     val scrollState = rememberScrollState()
+    LaunchedEffect(screenNumber) {
+        if( pagerState.currentPage != screenNumber - 1) {
+            delay(100)
+            pagerState.animateScrollToPage(screenNumber - 1,
+                animationSpec = spring(stiffness = Spring.StiffnessLow))
+        }
+    }
+    LaunchedEffect(pagerState.currentPage) {
+        if (pagerState.currentPage != screenNumber - 1) {
+            delay(100)
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            onSlide(pagerState.currentPage + 1)
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -138,9 +174,10 @@ private fun IntroductionScreenUI(screenNumber: Int, onClickNext: () -> Unit) {
 
             OnboardingTitleAndSubtitle(
                 title = data.title, subtitle = data.subtitle,
+                highlight = data.highlight,
                 modifier = Modifier.fillMaxWidth()
             )
-            OnboardingYellowButton(
+            AnimatedYellowButton(
                 modifier = Modifier
                     .height(48.dp)
                     .fillMaxWidth()
@@ -154,15 +191,26 @@ private fun IntroductionScreenUI(screenNumber: Int, onClickNext: () -> Unit) {
 
         }
 
-
-        Image(
-            painter = painterResource(data.res), contentDescription = null,
+        HorizontalPager(
+            state = pagerState,
             modifier = Modifier
                 .align(Alignment.Center)
-                .size(200.dp)
+                .fillMaxWidth()
                 .graphicsLayer {
                     translationY = -200f
-                })
+                }
+        ) {
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Image(
+                    modifier = Modifier
+                        .size(200.dp)
+                        .align(Alignment.Center),
+                    painter = painterResource(IntroScreenDataEnum.entries[it].res),
+                    contentDescription = null,
+                )
+            }
+
+        }
     }
 }
 
@@ -170,22 +218,56 @@ private fun IntroductionScreenUI(screenNumber: Int, onClickNext: () -> Unit) {
 @Composable
 fun OnboardingTitleAndSubtitle(
     title: String,
+    highlight: String?,
     subtitle: String,
     modifier: Modifier = Modifier
 ) {
+    val annotatedSubtitle = buildAnnotatedString {
+        append(subtitle)
+        highlight?.let {
+            withStyle(
+                style = SpanStyle(
+                    fontWeight = FontWeight.Bold,
+                    color = ListenBrainzTheme.colorScheme.text
+                )
+            ) {
+                append(it)
+            }
+        }
+    }
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            title, color = ListenBrainzTheme.colorScheme.listenText,
-            fontSize = 22.sp, fontWeight = FontWeight.SemiBold
-        )
+        AnimatedContent(
+            targetState = title,
+            transitionSpec = { createSlideTransition() },
+        ) { targetTitle ->
+            Text(
+                targetTitle,
+                color = ListenBrainzTheme.colorScheme.listenText,
+                fontSize = 22.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+
         Spacer(Modifier.height(18.dp))
-        Text(subtitle,
-            color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.6f),
-            modifier = Modifier.fillMaxWidth(0.9f),
-        )
+
+        AnimatedContent(
+            targetState = annotatedSubtitle,
+            transitionSpec = { createSlideTransition(
+                enterAnimDurationMs = 350,
+                exitAnimDurationMs = 300,
+                fadeInDurationMs = 350,
+                fadeOutDurationMs = 300
+            ) },
+        ) { targetSubtitle ->
+            Text(
+                targetSubtitle,
+                color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.6f),
+                modifier = Modifier.fillMaxWidth(0.9f),
+            )
+        }
     }
 }
 
@@ -229,9 +311,43 @@ fun OnboardingBackButton(modifier: Modifier = Modifier, onBackPress: (() -> Unit
         }
     ) {
         Icon(
-            imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "Back button",
-            tint = lb_orange
+            imageVector = Icons.Rounded.ArrowBackIosNew, contentDescription = "Back button",
+            tint = lb_yellow
         )
+    }
+}
+
+@Composable
+private fun AnimatedYellowButton(
+    text: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier.shadow(4.dp, ListenBrainzTheme.shapes.listenCardSmall),
+        shape = ListenBrainzTheme.shapes.listenCardSmall,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = lb_yellow
+        )
+    ) {
+        AnimatedContent(
+            targetState = text,
+            transitionSpec = { createSlideTransition(
+                enterAnimDurationMs = 250,
+                exitAnimDurationMs = 200,
+                fadeInDurationMs = 200,
+                fadeOutDurationMs = 200
+            ) },
+            label = "button-text-animation"
+        ) { targetText ->
+            Text(
+                targetText,
+                color = ListenBrainzTheme.colorScheme.text,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 18.sp
+            )
+        }
     }
 }
 
@@ -240,7 +356,7 @@ fun OnboardingBackButton(modifier: Modifier = Modifier, onBackPress: (() -> Unit
 @Composable
 fun IntroductionScreen2Preview() {
     ListenBrainzTheme {
-        IntroductionScreenUI(2) {}
+        IntroductionScreenUI(2, {}) {}
     }
 }
 
@@ -249,6 +365,15 @@ fun IntroductionScreen2Preview() {
 @Composable
 fun IntroductionScreen1Preview() {
     ListenBrainzTheme {
-        IntroductionScreenUI(1) {}
+        IntroductionScreenUI(1, {}) {}
+    }
+}
+
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun IntroductionScreen3Preview() {
+    ListenBrainzTheme {
+        IntroductionScreenUI(3, {}) {}
     }
 }

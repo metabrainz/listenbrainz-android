@@ -17,9 +17,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.SkipNext
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -27,22 +30,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.delay
+import org.listenbrainz.android.R
 import org.listenbrainz.android.model.PermissionStatus
-import org.listenbrainz.android.ui.components.OnboardingBlobs
+import org.listenbrainz.android.ui.components.FloatingContentAwareLayout
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
-import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_orange
-import org.listenbrainz.android.ui.theme.onboardingGradient
+import org.listenbrainz.android.ui.theme.lb_yellow
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
 @Composable
@@ -57,20 +57,6 @@ fun PermissionScreen(dashBoardViewModel: DashBoardViewModel = hiltViewModel(), o
         }
     }
 
-    val multiplePermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { }
-
-    LaunchedEffect(Unit) {
-        //Intentional delay
-        delay(100)
-        activity?.let {
-            multiplePermissionLauncher.launch(
-                PermissionEnum.getListOfPermissionsToBeLaunchedTogether(
-                    it,
-                    permissionsRequestedOnce
-                )
-            )
-        }
-    }
 
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { perm ->
@@ -96,78 +82,68 @@ private fun PermissionScreenBase(
     onGrantPermissionClick: (PermissionEnum) -> Unit,
     onRejectPermissionClick: () -> Unit
 ) {
-    val density = LocalDensity.current
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(brush = onboardingGradient)
-    ) {
-
-        val permissionList = permissions.toList()
-            .filter { it.second == PermissionStatus.NOT_REQUESTED || it.second == PermissionStatus.DENIED_TWICE }
-        Column(modifier = Modifier.graphicsLayer{
-            translationY = 800f
-        }) {
-            OnboardingBlobs()
-            Spacer(Modifier.height(50.dp))
-            OnboardingBlobs(isRotated = true)
+    FloatingContentAwareLayout(
+        modifier = Modifier.fillMaxSize(),
+        buttonAlignment = Alignment.BottomEnd,
+        floatingContent = {
+            ExtendedFloatingActionButton(
+                onClick = onRejectPermissionClick,
+                containerColor = lb_yellow,
+                contentColor = ListenBrainzTheme.colorScheme.text,
+                elevation = FloatingActionButtonDefaults.elevation(8.dp),
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(
+                    text = "Skip",
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
         }
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp)
-                .statusBarsPadding()
-                .navigationBarsPadding(),
+    ) { buttonSize ->
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
-            item {
-                OnboardingBackButton(
-                    modifier = Modifier.graphicsLayer{
-                        //Reverse the effect of padding on the back button
-                        translationX = with(density){-24.dp.toPx()}
-                    }
-                )
-                Spacer(Modifier.height(48.dp))
-            }
-            item {
-                Text(
-                    "${permissionList.size} permissions missing",
-                    color = Color.White,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    "ListenBrainz needs permissions for playback, history tracking, and submissions. We respect your privacy and don’t collect or share personal data.",
-                    color = Color.White.copy(alpha = 0.7f),
-                    fontSize = 16.sp,
-                    modifier = Modifier.fillMaxWidth(0.9f)
-                )
-                Spacer(Modifier.height(32.dp))
-            }
-            items(permissionList.size) { index ->
-                PermissionCard(
-                    permissionEnum = permissionList[index].first,
-                    isPermanentlyDecline = permissionList[index].second == PermissionStatus.DENIED_TWICE,
-                ) {
-                    onGrantPermissionClick(permissionList[index].first)
-                }
-                if(index < permissionList.size - 1) {
+            val permissionList = permissions.toList()
+                .filter { it.second == PermissionStatus.NOT_REQUESTED || it.second == PermissionStatus.DENIED_TWICE }
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp)
+                    .statusBarsPadding()
+                    .navigationBarsPadding()
+                    .padding(top = 60.dp)
+            ) {
+
+                item {
+                    Text(
+                        "${permissionList.size} permissions missing",
+                        color = Color.White,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        "ListenBrainz needs permissions for playback, history tracking, and submissions. We respect your privacy and don't collect or share personal data.",
+                        color = Color.White.copy(alpha = 0.7f),
+                        fontSize = 16.sp,
+                        modifier = Modifier.fillMaxWidth(0.9f)
+                    )
                     Spacer(Modifier.height(32.dp))
                 }
-            }
-            item {
-                Spacer(Modifier.height(8.dp))
-                TextButton(
-                    onClick = onRejectPermissionClick,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .fillMaxWidth()
-                ) {
-                    Text(
-                        "Continue without accepting permissions.",
-                        color = lb_orange,
-                        modifier = Modifier
-                    )
+                items(permissionList.size) { index ->
+                    PermissionCard(
+                        permissionEnum = permissionList[index].first,
+                        isPermanentlyDecline = permissionList[index].second == PermissionStatus.DENIED_TWICE,
+                    ) {
+                        onGrantPermissionClick(permissionList[index].first)
+                    }
+                    if(index < permissionList.size - 1) {
+                        Spacer(Modifier.height(32.dp))
+                    }
+                }
+                item{
+                    Spacer(Modifier.height(buttonSize.height + 16.dp)) // Add space for the floating button
                 }
             }
         }
@@ -227,6 +203,7 @@ private fun PermissionCard(
             Spacer(Modifier.height(16.dp))
             OnboardingYellowButton(
                 onClick = onClick,
+                icon = if(isPermanentlyDecline) R.drawable.ic_redirect else null,
                 modifier = Modifier.fillMaxWidth(0.9f),
                 text = if (isPermanentlyDecline) "Go to Settings" else "Grant Permission",
                 fontSize = 16

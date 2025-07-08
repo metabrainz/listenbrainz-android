@@ -11,13 +11,19 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation3.runtime.NavBackStack
@@ -33,14 +39,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.PermissionStatus
+import org.listenbrainz.android.model.UiMode
+import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.navigation.NavigationItem
-import org.listenbrainz.android.ui.screens.onboarding.auth.CreateAccountWebView
 import org.listenbrainz.android.ui.screens.onboarding.auth.ListenBrainzLogin
-import org.listenbrainz.android.ui.screens.onboarding.auth.OnboardingLoginScreen
+import org.listenbrainz.android.ui.screens.onboarding.auth.LoginConsentScreen
 import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.ListeningAppSelectionScreen
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.ui.theme.LocalUiMode
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
 @AndroidEntryPoint
@@ -66,6 +74,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             ListenBrainzTheme {
+
                 onboardingNavigationSetup(dashBoardViewModel)
                 DisposableEffect(Unit) {
                     dashBoardViewModel.connectToSpotify()
@@ -80,6 +89,8 @@ class MainActivity : ComponentActivity() {
                             onboardingScreensQueue.removeAt(0)
                         } else NavigationItem.HomeScreen
                     )
+                SetStatusAndNavigationBarTheme(backStack)
+                OnboardingScreenBackground(backStack)
                 NavDisplay(
                     backStack = backStack,
                     onBack = {
@@ -97,24 +108,42 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         }
+                        entry<NavigationItem.OnboardingScreens.LoginConsentScreen>{
+                            LaunchedEffect(Unit) {
+                                dashBoardViewModel.appPreferences.getLoginStatusFlow()
+                                    .collectLatest {
+                                        if (dashBoardViewModel.appPreferences.isUserLoggedIn()) {
+                                            onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.LoginScreen)
+                                            onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.LoginConsentScreen)
+                                            backStack.remove(NavigationItem.OnboardingScreens.LoginScreen)
+                                            backStack.remove(NavigationItem.OnboardingScreens.LoginConsentScreen)
+                                            onNavigateInOnboarding(backStack, dashBoardViewModel)
+                                        }
+                                    }
+                            }
+                            LoginConsentScreen {
+                                onNavigateInOnboarding(
+                                    backStack,
+                                    dashBoardViewModel
+                                )
+                            }
+                        }
                         entry<NavigationItem.OnboardingScreens.LoginScreen> {
                             LaunchedEffect(Unit) {
                                 dashBoardViewModel.appPreferences.getLoginStatusFlow()
                                     .collectLatest {
                                         if (dashBoardViewModel.appPreferences.isUserLoggedIn()) {
                                             onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.LoginScreen)
+                                            onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.LoginConsentScreen)
                                             backStack.remove(NavigationItem.OnboardingScreens.LoginScreen)
+                                            backStack.remove(NavigationItem.OnboardingScreens.LoginConsentScreen)
                                             onNavigateInOnboarding(backStack, dashBoardViewModel)
                                         }
                                     }
                             }
-                            OnboardingLoginScreen(
-                                onLoginClick = {
-                                    backStack.add(NavigationItem.ListenBrainzLogin)
-                                },
-                                onCreateAccountClick = {
-                                    backStack.add(NavigationItem.MusicBranizCreateAccount)
-                                })
+                            ListenBrainzLogin(onLoginFinished = {
+                                //Handled above in LaunchedEffect
+                            })
                         }
                         entry<NavigationItem.OnboardingScreens.PermissionScreen> {
                             PermissionScreen(onExit = {
@@ -133,23 +162,6 @@ class MainActivity : ComponentActivity() {
                         }
                         entry<NavigationItem.HomeScreen> {
                             HomeScreen()
-                        }
-                        entry<NavigationItem.ListenBrainzLogin> {
-                            Box(
-                                Modifier
-                                    .statusBarsPadding()
-                                    .navigationBarsPadding()
-                            ) {
-                                ListenBrainzLogin {
-                                    backStack.remove(NavigationItem.ListenBrainzLogin)
-                                }
-                            }
-                        }
-                        entry<NavigationItem.MusicBranizCreateAccount> {
-                            CreateAccountWebView {
-                                backStack.remove(NavigationItem.MusicBranizCreateAccount)
-                                Toast.makeText(this@MainActivity, "Account Created!! Please verify email id", Toast.LENGTH_SHORT).show()
-                            }
                         }
                     },
                     transitionSpec = {
@@ -170,6 +182,29 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @Composable
+    fun SetStatusAndNavigationBarTheme(backStack: NavBackStack){
+        val isDarkTheme = isSystemInDarkTheme()
+        val uiMode by dashBoardViewModel.appPreferences.themePreference.getFlow().collectAsState(initial = UiMode.FOLLOW_SYSTEM)
+
+            SideEffect {
+                val isStatusBarIconColorLight = if(backStack[backStack.lastIndex] is NavigationItem.OnboardingScreens) {
+                    true
+                } else {
+                    when(uiMode){
+                        UiMode.FOLLOW_SYSTEM-> isDarkTheme
+                        UiMode.DARK -> true
+                        UiMode.LIGHT -> false
+                    }
+                }
+                WindowCompat.getInsetsController(window, window.decorView).apply {
+                    isAppearanceLightStatusBars = !isStatusBarIconColorLight
+                    isAppearanceLightNavigationBars = !isStatusBarIconColorLight
+                }
+            }
+
+    }
+
     //Handling all onboarding navigation logic
     fun onboardingNavigationSetup(dashBoardViewModel: DashBoardViewModel) {
         //Blocking the main thread to ensure that the onboarding screens are set up before the UI is displayed
@@ -178,6 +213,7 @@ class MainActivity : ComponentActivity() {
                 onboardingScreensQueue.addAll(
                     listOf(
                         NavigationItem.OnboardingScreens.IntroductionScreen,
+                        NavigationItem.OnboardingScreens.LoginConsentScreen,
                         NavigationItem.OnboardingScreens.LoginScreen,
                         NavigationItem.OnboardingScreens.PermissionScreen,
                         NavigationItem.OnboardingScreens.ListeningAppScreen
@@ -185,8 +221,10 @@ class MainActivity : ComponentActivity() {
                 )
             }
             if (dashBoardViewModel.appPreferences.isUserLoggedIn()) {
+                onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.LoginConsentScreen)
                 onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.LoginScreen)
-            } else {
+            }else if(!dashBoardViewModel.appPreferences.onboardingCompleted){
+                onboardingScreensQueue.add(NavigationItem.OnboardingScreens.LoginConsentScreen)
                 onboardingScreensQueue.add(NavigationItem.OnboardingScreens.LoginScreen)
             }
 

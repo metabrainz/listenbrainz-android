@@ -162,7 +162,9 @@ enum class PermissionEnum(
     companion object{
         /// Function to get the list of required permissions based on the current Android version
         fun getRequiredPermissionsList(): List<PermissionEnum> = PermissionEnum.entries.filter {
-            it.isPermissionApplicable()
+            it.isPermissionApplicable() &&
+            it != READ_NOTIFICATIONS && // READ_NOTIFICATIONS is handled separately
+            it != BATTERY_OPTIMIZATION // BATTERY_OPTIMIZATION is handled separately
         }
 
         fun getListOfPermissionsToBeLaunchedTogether(context: Activity, permissionsRequestedOnce: List<String>): Array<String>{

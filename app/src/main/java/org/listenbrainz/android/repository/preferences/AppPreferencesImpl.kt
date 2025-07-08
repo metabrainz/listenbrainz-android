@@ -3,6 +3,7 @@ package org.listenbrainz.android.repository.preferences
 import android.content.Context
 import android.content.pm.PackageManager
 import android.provider.Settings
+import android.util.Log
 import androidx.datastore.core.DataMigration
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
@@ -54,6 +55,20 @@ import org.listenbrainz.android.util.TypeConverter
 class AppPreferencesImpl(private val context: Context): AppPreferences {
     companion object {
         private val gson = Gson()
+        private val permsMigration: DataMigration<Preferences> =
+            object: DataMigration<Preferences> {
+                override suspend fun cleanUp() = Unit
+                override suspend fun shouldMigrate(currentData: Preferences): Boolean {
+                    return currentData.contains(stringPreferencesKey(PREFERENCE_PERMS))
+                }
+
+                override suspend fun migrate(currentData: Preferences): Preferences {
+                    val mutablePreferences = currentData.toMutablePreferences()
+                    mutablePreferences.remove(stringPreferencesKey(PREFERENCE_PERMS))
+                    Log.i("AppPreferencesImpl", "Removed old permissions key: $PREFERENCE_PERMS")
+                    return mutablePreferences.toPreferences()
+                }
+            }
         private val blacklistMigration: DataMigration<Preferences> =
             object: DataMigration<Preferences> {
                 override suspend fun cleanUp() = Unit
@@ -96,7 +111,7 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
                         PREFERENCE_SYSTEM_THEME,
                         PREFERENCE_LISTENING_APPS
                     )
-                ), blacklistMigration)
+                ), blacklistMigration, permsMigration)
             }
         )
     

@@ -13,6 +13,9 @@ sealed interface NavigationItem :NavKey{
         data object PermissionScreen : OnboardingScreens
 
         @Serializable
+        data object LoginConsentScreen : OnboardingScreens
+
+        @Serializable
         data object LoginScreen : OnboardingScreens
 
         @Serializable
@@ -21,10 +24,4 @@ sealed interface NavigationItem :NavKey{
 
     @Serializable
     data object HomeScreen: NavigationItem
-
-    @Serializable
-    data object ListenBrainzLogin: NavigationItem
-
-    @Serializable
-    data object MusicBranizCreateAccount: NavigationItem
 }
