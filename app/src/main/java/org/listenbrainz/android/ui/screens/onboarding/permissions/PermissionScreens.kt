@@ -29,6 +29,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,14 +47,17 @@ import org.listenbrainz.android.ui.theme.lb_yellow
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
 @Composable
-fun PermissionScreen(dashBoardViewModel: DashBoardViewModel = hiltViewModel(), onExit: () -> Unit) {
+fun PermissionScreen(dashBoardViewModel: DashBoardViewModel = hiltViewModel(),
+                     onExitAfterGrantingAllPermissions: ()-> Unit,
+                     onExit: () -> Unit) {
     val activity = LocalActivity.current
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val permissionsRequestedOnce by dashBoardViewModel.permissionsRequestedAteastOnce.collectAsState()
+    val filteredPermissions = permissions.filter { it.key != PermissionEnum.BATTERY_OPTIMIZATION && it.key != PermissionEnum.READ_NOTIFICATIONS }
 
-    LaunchedEffect(permissions) {
-        if (permissions.isEmpty() || permissions.all { it.value == PermissionStatus.GRANTED }) {
-            onExit() // Exit if all permissions are granted
+    LaunchedEffect(filteredPermissions) {
+        if (filteredPermissions.isEmpty() || filteredPermissions.all { it.value == PermissionStatus.GRANTED }) {
+            onExitAfterGrantingAllPermissions() // Exit if all permissions are granted
         }
     }
 
@@ -62,7 +66,7 @@ fun PermissionScreen(dashBoardViewModel: DashBoardViewModel = hiltViewModel(), o
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { perm ->
         }
     PermissionScreenBase(
-        permissions,
+        filteredPermissions,
         onGrantPermissionClick = { permission ->
             if (activity != null) {
                 permission.requestPermission(activity, permissionsRequestedOnce, {
@@ -117,7 +121,7 @@ private fun PermissionScreenBase(
 
                 item {
                     Text(
-                        "${permissionList.size} permissions missing",
+                        "Required Permissions",
                         color = Color.White,
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold
@@ -152,13 +156,15 @@ private fun PermissionScreenBase(
 
 
 @Composable
-private fun PermissionCard(
+fun PermissionCard(
     permissionEnum: PermissionEnum,
     isPermanentlyDecline: Boolean,
+    modifier: Modifier = Modifier,
+    isDisabled: Boolean = false,
     onClick: () -> Unit
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .widthIn(max = 400.dp)
             .fillMaxWidth()
             .background(
@@ -166,6 +172,7 @@ private fun PermissionCard(
                 shape = ListenBrainzTheme.shapes.listenCardSmall
             )
             .padding(vertical = 20.dp)
+            .alpha(if(isDisabled)0.5f else 1f)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -197,7 +204,7 @@ private fun PermissionCard(
                         permissionEnum.permanentlyDeclinedRationale else permissionEnum.rationaleText,
                     fontWeight = FontWeight.Normal,
                     color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.8f),
-
+                    fontSize = 16.sp
                     )
             }
             Spacer(Modifier.height(16.dp))
@@ -205,6 +212,7 @@ private fun PermissionCard(
                 onClick = onClick,
                 icon = if(isPermanentlyDecline) R.drawable.ic_redirect else null,
                 modifier = Modifier.fillMaxWidth(0.9f),
+                isEnabled = !isDisabled,
                 text = if (isPermanentlyDecline) "Go to Settings" else "Grant Permission",
                 fontSize = 16
             )

@@ -131,12 +131,15 @@ fun OnboardingYellowButton(
     icon: Int? = null,
     fontSize: Int = 18,
     isEnabled: Boolean = true,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onClickWhileDisabled: ()-> Unit = {}
 ) {
     Button(
         onClick = {
             if (isEnabled) {
                 onClick()
+            }else{
+                onClickWhileDisabled()
             }
         },
         modifier = modifier

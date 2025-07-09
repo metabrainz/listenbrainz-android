@@ -30,7 +30,8 @@ fun OnboardingScreenBackground(backStack: NavBackStack){
         AnimatedContent(targetState = backStack.last() in listOf(
             NavigationItem.OnboardingScreens.LoginScreen,
             NavigationItem.OnboardingScreens.LoginConsentScreen,
-            NavigationItem.OnboardingScreens.PermissionScreen
+            NavigationItem.OnboardingScreens.PermissionScreen,
+            NavigationItem.OnboardingScreens.ListeningAppScreen
         ),
             transitionSpec = {createSlideTransition(
                 enterAnimDurationMs = 100

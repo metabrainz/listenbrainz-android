@@ -73,7 +73,7 @@ class DashBoardViewModel @Inject constructor(
 
     fun getPermissionStatus(activity: ComponentActivity) {
         viewModelScope.launch(ioDispatcher) {
-            val requiredPermissions = PermissionEnum.getRequiredPermissionsList()
+            val requiredPermissions = PermissionEnum.getAllRelevantPermissions()
             val permissionMap = mutableMapOf<PermissionEnum, PermissionStatus>()
             val permissionsReqeustedOnce = appPreferences.requestedPermissionsList.getFlow().first()
             requiredPermissions.forEach { permission ->
@@ -228,11 +228,6 @@ class DashBoardViewModel @Inject constructor(
         }
     }
 
-    fun onNewPlayersEnabledStatusChange(boolean: Boolean) {
-        viewModelScope.launch(ioDispatcher) {
-            appPreferences.shouldListenNewPlayers.set(boolean)
-        }
-    }
 
     fun markOnboardingComplete() {
         viewModelScope.launch(ioDispatcher) {

@@ -1,6 +1,11 @@
 package org.listenbrainz.android.ui.screens.onboarding.listeningApps
 
 import android.content.res.Configuration
+import android.widget.Toast
+import androidx.activity.compose.LocalActivity
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,82 +23,93 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import org.listenbrainz.android.ui.components.Switch
-import org.listenbrainz.android.ui.components.OnboardingBlobs
+import androidx.navigation3.runtime.rememberNavBackStack
+import org.listenbrainz.android.model.PermissionStatus
+import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
-import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
+import org.listenbrainz.android.ui.components.Switch
+import org.listenbrainz.android.ui.navigation.NavigationItem
+import org.listenbrainz.android.ui.screens.onboarding.introduction.createSlideTransition
+import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionCard
+import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.ui.theme.onboardingGradient
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.graphics.asImageBitmap
 
 @Composable
 fun ListeningAppSelectionScreen(
     dashBoardViewModel: DashBoardViewModel = hiltViewModel(),
-    onClickNext: () -> Unit){
+    onClickNext: () -> Unit
+) {
     val apps by dashBoardViewModel.listeningAppsFlow.collectAsState()
-    val isListening by dashBoardViewModel.appPreferences.isListeningAllowed.getFlow().collectAsState(initial = true)
-    val areNewPlayersEnabled by dashBoardViewModel.appPreferences.shouldListenNewPlayers.getFlow().collectAsState(initial = true)
+    val isListening by dashBoardViewModel.appPreferences.isListeningAllowed.getFlow()
+        .collectAsState(initial = true)
+    val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
+
+    val notificationPermission = permissions[PermissionEnum.READ_NOTIFICATIONS]
+    val batteryOptPermission = permissions[PermissionEnum.BATTERY_OPTIMIZATION]
+
+    val isInPermissionState = notificationPermission != PermissionStatus.GRANTED ||
+            batteryOptPermission != PermissionStatus.GRANTED
+
+    val activity = LocalActivity.current
+
     ListeningAppScreenLayout(
         apps = apps,
         isListening = isListening,
-        areNewPlayersEnabled = areNewPlayersEnabled,
         onCheckedChange = dashBoardViewModel::onAppCheckChange,
         onListeningCheckChange = dashBoardViewModel::onListeningStatusChange,
-        onEnabledPlayersCheckChange = dashBoardViewModel::onNewPlayersEnabledStatusChange
-    ) {
-        onClickNext()
-    }
+        isInPermissionState = isInPermissionState,
+        permissionStatus = permissions,
+        onGrantPermissionClick = { permission ->
+            if (activity != null) {
+                val permissionsRequestedOnce =
+                    dashBoardViewModel.permissionsRequestedAteastOnce.value
+                permission.requestPermission(activity, permissionsRequestedOnce) {
+                    dashBoardViewModel.markPermissionAsRequested(permission)
+                }
+            }
+        },
+        onClickNext = onClickNext
+    )
 }
 
 @Composable
 fun ListeningAppScreenLayout(
     apps: List<AppInfo>,
     isListening: Boolean,
-    areNewPlayersEnabled: Boolean,
-    onCheckedChange: (Boolean, AppInfo)->Unit,
-    onListeningCheckChange: (Boolean)->Unit,
-    onEnabledPlayersCheckChange: (Boolean)->Unit,
+    onCheckedChange: (Boolean, AppInfo) -> Unit,
+    onListeningCheckChange: (Boolean) -> Unit,
+    isInPermissionState: Boolean,
+    permissionStatus: Map<PermissionEnum, PermissionStatus>,
+    onGrantPermissionClick: (PermissionEnum) -> Unit,
     onClickNext: () -> Unit,
-){
+) {
     val haptic = LocalHapticFeedback.current
-    val density = LocalDensity.current
+    val context = LocalContext.current
+
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(brush = onboardingGradient)
     ) {
-
-       Column(modifier = Modifier.graphicsLayer{
-            translationY = 800f
-        }) {
-            OnboardingBlobs()
-            Spacer(Modifier.height(50.dp))
-            OnboardingBlobs(isRotated = true)
-        }
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -102,13 +118,7 @@ fun ListeningAppScreenLayout(
                 .navigationBarsPadding(),
         ) {
             item {
-                OnboardingBackButton(
-                    modifier = Modifier.graphicsLayer{
-                        //Reverse the effect of padding on the back button
-                        translationX = with(density){-24.dp.toPx()}
-                    }
-                )
-                Spacer(Modifier.height(48.dp))
+                Spacer(Modifier.height(80.dp))
             }
             item {
                 Text(
@@ -121,23 +131,55 @@ fun ListeningAppScreenLayout(
                 Text(
                     "Listen Submission tracks your music activity, helping you discover stats, trends, and personalized recommendations.",
                     color = Color.White.copy(alpha = 0.7f),
-                    fontSize = 16.sp,
+                    fontSize = 14.sp,
                     modifier = Modifier.fillMaxWidth(0.95f)
                 )
                 Spacer(Modifier.height(32.dp))
             }
+
             item {
                 EnableListenSubmission(
                     apps = apps,
                     isListening = isListening,
-                    areNewPlayersEnabled = areNewPlayersEnabled,
                     onCheckedChange = onCheckedChange,
                     onListeningCheckChange = onListeningCheckChange,
-                    onEnabledPlayersCheckChange = onEnabledPlayersCheckChange,
+                    isInPermissionState = isInPermissionState
                 )
             }
-            
-            item{
+
+            if (isInPermissionState) {
+                item {
+                    Spacer(Modifier.height(32.dp))
+
+                    if (permissionStatus[PermissionEnum.READ_NOTIFICATIONS] != PermissionStatus.GRANTED) {
+                        PermissionCard(
+                            permissionEnum = PermissionEnum.READ_NOTIFICATIONS,
+                            isPermanentlyDecline = true,
+                            onClick = {
+                                onGrantPermissionClick(PermissionEnum.READ_NOTIFICATIONS)
+                            },
+                            isDisabled = !isListening,
+                        )
+                    }
+                }
+
+                item {
+                    Spacer(Modifier.height(32.dp))
+
+                    if (permissionStatus[PermissionEnum.BATTERY_OPTIMIZATION] != PermissionStatus.GRANTED) {
+                        PermissionCard(
+                            permissionEnum = PermissionEnum.BATTERY_OPTIMIZATION,
+                            isPermanentlyDecline = false,
+                            onClick = {
+                                onGrantPermissionClick(PermissionEnum.BATTERY_OPTIMIZATION)
+                            },
+                            isDisabled = !isListening,
+                        )
+                    }
+                }
+            }
+
+            item {
                 Spacer(Modifier.height(36.dp))
                 OnboardingYellowButton(
                     modifier = Modifier
@@ -145,9 +187,18 @@ fun ListeningAppScreenLayout(
                         .fillMaxWidth()
                         .widthIn(max = 600.dp),
                     text = "Done",
+                    isEnabled = !(isInPermissionState && isListening),
                     onClick = {
                         haptic.performHapticFeedback(HapticFeedbackType.Confirm)
                         onClickNext()
+
+                    },
+                    onClickWhileDisabled = {
+                        Toast.makeText(
+                            context,
+                            "Please grant permissions or disable listen submission",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 )
                 Spacer(Modifier.height(36.dp))
@@ -156,7 +207,7 @@ fun ListeningAppScreenLayout(
     }
 }
 
-// Alternative version using placeholders if you don't have the actual icons yet
+
 @Composable
 fun AppCard(
     appInfo: AppInfo,
@@ -174,9 +225,11 @@ fun AppCard(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(modifier = Modifier.size(40.dp),
+            Image(
+                modifier = Modifier.size(40.dp),
                 bitmap = appInfo.icon.asImageBitmap(),
-                contentDescription = "App icon")
+                contentDescription = "App icon"
+            )
 
             Spacer(modifier = Modifier.width(16.dp))
 
@@ -190,7 +243,9 @@ fun AppCard(
 
         Switch(
             checked = appInfo.isWhitelisted,
-            onCheckedChange = if (enabled) onCheckedChange else { {} }
+            onCheckedChange = if (enabled) onCheckedChange else {
+                {}
+            }
         )
     }
 }
@@ -200,10 +255,9 @@ fun AppCard(
 fun EnableListenSubmission(
     apps: List<AppInfo>,
     isListening: Boolean,
-    areNewPlayersEnabled: Boolean,
-    onCheckedChange: (Boolean, AppInfo)->Unit,
-    onListeningCheckChange: (Boolean)->Unit,
-    onEnabledPlayersCheckChange: (Boolean)->Unit,
+    onCheckedChange: (Boolean, AppInfo) -> Unit,
+    onListeningCheckChange: (Boolean) -> Unit,
+    isInPermissionState: Boolean,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -220,6 +274,7 @@ fun EnableListenSubmission(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp)
+                .animateContentSize(animationSpec = tween(300))
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -230,7 +285,8 @@ fun EnableListenSubmission(
                     text = "Enable Listen Submission",
                     style = MaterialTheme.typography.titleMedium,
                     color = ListenBrainzTheme.colorScheme.text,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 20.sp
                 )
 
                 Switch(
@@ -241,60 +297,44 @@ fun EnableListenSubmission(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Text(
-                text = "Choose the apps you want ListenBrainz to track. This helps automatically submit your listens while ensuring accurate listening history",
-                style = MaterialTheme.typography.bodyMedium,
-                color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f),
-                lineHeight = 20.sp
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-            apps.forEachIndexed {ind, app->
-                AppCard(
-                    appInfo = app,
-                    onCheckedChange = {
-                        onCheckedChange(it, app)
-                    },
-                    enabled = isListening
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                if(apps.lastIndex != ind) {
-                    HorizontalDivider(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.4f)
-                    )
+            AnimatedContent(
+                targetState = isInPermissionState,
+                transitionSpec = {
+                    createSlideTransition()
                 }
-                Spacer(modifier = Modifier.height(6.dp))
-
+            ) { isPermissionRequired ->
+                Text(
+                    text = if (isPermissionRequired)
+                        "To enable Listen Submission, please grant the required permissions so we can track your music activity."
+                    else
+                        "Choose the apps you want ListenBrainz to track. This helps automatically submit your listens while ensuring accurate listening history",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f),
+                    lineHeight = 20.sp,
+                    fontSize = 16.sp
+                )
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                text = "When a new music app is detected, automatically use it to submit listens.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f),
-                lineHeight = 20.sp
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Allow new players",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = ListenBrainzTheme.colorScheme.text,
-                    fontWeight = FontWeight.Medium
-                )
-
-                Switch(
-                    checked = areNewPlayersEnabled,
-                    onCheckedChange = if(isListening) onEnabledPlayersCheckChange else {{}}
-                )
+            if (!isInPermissionState) {
+                apps.forEachIndexed { ind, app ->
+                    AppCard(
+                        appInfo = app,
+                        onCheckedChange = {
+                            onCheckedChange(it, app)
+                        },
+                        enabled = isListening
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    if (apps.lastIndex != ind) {
+                        HorizontalDivider(
+                            modifier = Modifier.fillMaxWidth(),
+                            color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.4f)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(6.dp))
+                }
             }
         }
     }
@@ -305,14 +345,16 @@ fun EnableListenSubmission(
 @Composable
 fun ListeningAppLayoutPreview() {
     ListenBrainzTheme {
+        OnboardingScreenBackground(backStack = rememberNavBackStack(NavigationItem.OnboardingScreens.ListeningAppScreen))
         ListeningAppScreenLayout(
             onClickNext = {},
             apps = emptyList(),
             isListening = true,
-            areNewPlayersEnabled = true,
-            onCheckedChange = {_,_->},
+            onCheckedChange = { _, _ -> },
             onListeningCheckChange = {},
-            onEnabledPlayersCheckChange = {}
+            isInPermissionState = true,
+            permissionStatus = emptyMap(),
+            onGrantPermissionClick = {}
         )
     }
 }

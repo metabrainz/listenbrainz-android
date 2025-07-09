@@ -1,27 +1,19 @@
 package org.listenbrainz.android.ui.screens.main
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.ContentTransform
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModelProvider
@@ -48,7 +40,6 @@ import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionS
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.ListeningAppSelectionScreen
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.ui.theme.LocalUiMode
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
 @AndroidEntryPoint
@@ -108,7 +99,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         }
-                        entry<NavigationItem.OnboardingScreens.LoginConsentScreen>{
+                        entry<NavigationItem.OnboardingScreens.LoginConsentScreen> {
                             LaunchedEffect(Unit) {
                                 dashBoardViewModel.appPreferences.getLoginStatusFlow()
                                     .collectLatest {
@@ -151,7 +142,15 @@ class MainActivity : ComponentActivity() {
                                     backStack,
                                     dashBoardViewModel
                                 )
-                            })
+                            },
+                                onExitAfterGrantingAllPermissions = {
+                                    onNavigateInOnboarding(
+                                        backStack,
+                                        dashBoardViewModel
+                                    )
+                                    backStack.remove(NavigationItem.OnboardingScreens.PermissionScreen)
+                                    onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.PermissionScreen)
+                                })
                         }
                         entry<NavigationItem.OnboardingScreens.ListeningAppScreen> {
                             ListeningAppSelectionScreen(
@@ -183,25 +182,27 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun SetStatusAndNavigationBarTheme(backStack: NavBackStack){
+    fun SetStatusAndNavigationBarTheme(backStack: NavBackStack) {
         val isDarkTheme = isSystemInDarkTheme()
-        val uiMode by dashBoardViewModel.appPreferences.themePreference.getFlow().collectAsState(initial = UiMode.FOLLOW_SYSTEM)
+        val uiMode by dashBoardViewModel.appPreferences.themePreference.getFlow()
+            .collectAsState(initial = UiMode.FOLLOW_SYSTEM)
 
-            SideEffect {
-                val isStatusBarIconColorLight = if(backStack[backStack.lastIndex] is NavigationItem.OnboardingScreens) {
+        SideEffect {
+            val isStatusBarIconColorLight =
+                if (backStack[backStack.lastIndex] is NavigationItem.OnboardingScreens) {
                     true
                 } else {
-                    when(uiMode){
-                        UiMode.FOLLOW_SYSTEM-> isDarkTheme
+                    when (uiMode) {
+                        UiMode.FOLLOW_SYSTEM -> isDarkTheme
                         UiMode.DARK -> true
                         UiMode.LIGHT -> false
                     }
                 }
-                WindowCompat.getInsetsController(window, window.decorView).apply {
-                    isAppearanceLightStatusBars = !isStatusBarIconColorLight
-                    isAppearanceLightNavigationBars = !isStatusBarIconColorLight
-                }
+            WindowCompat.getInsetsController(window, window.decorView).apply {
+                isAppearanceLightStatusBars = !isStatusBarIconColorLight
+                isAppearanceLightNavigationBars = !isStatusBarIconColorLight
             }
+        }
 
     }
 
@@ -223,7 +224,7 @@ class MainActivity : ComponentActivity() {
             if (dashBoardViewModel.appPreferences.isUserLoggedIn()) {
                 onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.LoginConsentScreen)
                 onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.LoginScreen)
-            }else if(!dashBoardViewModel.appPreferences.onboardingCompleted){
+            } else if (!dashBoardViewModel.appPreferences.onboardingCompleted) {
                 onboardingScreensQueue.add(NavigationItem.OnboardingScreens.LoginConsentScreen)
                 onboardingScreensQueue.add(NavigationItem.OnboardingScreens.LoginScreen)
             }
