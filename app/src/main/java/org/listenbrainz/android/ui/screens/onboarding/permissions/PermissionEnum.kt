@@ -83,7 +83,7 @@ enum class PermissionEnum(
     );
 
     //This function checks if the permission is applicable for the current Android version
-    private fun isPermissionApplicable(): Boolean{
+    fun isPermissionApplicable(): Boolean{
         return if(Build.VERSION.SDK_INT >= minSdk){
             maxSdk?.let {
                 Build.VERSION.SDK_INT <= it

@@ -191,6 +191,7 @@ fun HomeScreen(
                             }
                         },
                         snackbarState = snackbarState,
+                        dashBoardViewModel = dashBoardViewModel
                     )
                 }
 //            }
