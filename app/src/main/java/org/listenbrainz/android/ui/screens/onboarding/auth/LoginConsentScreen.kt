@@ -6,6 +6,8 @@ import android.text.Html
 import android.text.Spanned
 import android.text.style.URLSpan
 import android.util.Log
+import android.webkit.CookieManager
+import android.webkit.CookieSyncManager
 import android.webkit.WebView
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -70,10 +72,25 @@ fun LoginConsentScreen(onProceedToLoginScreen: () -> Unit) {
             .alpha(0.0f),
         factory = {
             WebView(it).apply {
+                fun clearCookies() {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                        CookieManager.getInstance().removeAllCookies(null)
+                        CookieManager.getInstance().flush()
+                    } else {
+                        val cookieSyncManager = CookieSyncManager.createInstance(context)
+                        cookieSyncManager.startSync()
+                        val cookieManager: CookieManager = CookieManager.getInstance()
+                        cookieManager.removeAllCookie()
+                        cookieManager.removeSessionCookie()
+                        cookieSyncManager.stopSync()
+                        cookieSyncManager.sync()
+                    }
+                }
                 webViewClient = ConsentWebViewClient({ text ->
                     data = text
                     isLoading = false
                 })
+                clearCookies()
                 loadUrl("https://listenbrainz.org/login")
                 settings.javaScriptEnabled = true
             }
