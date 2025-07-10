@@ -121,20 +121,28 @@ fun ListenBrainzLogin(
                 username = username,
                 password = password,
                 onLoad = { resource ->
+                    Log.d(TAG, "Load state: ${loginState}, data: ${resource.data}, error: ${resource.error}")
+                    //Not letting screen reload if loginState is Error
+                    if(loginState !is LoginState.Error){
                     when {
                         resource.isSuccess -> {
                             // We got the token, now validate it
                             loginState = LoginState.VerifyingToken
                             // Continue with token validation
                             scope.launch {
-                                val validationResult = viewModel.validateAndSaveUserDetails(resource.data!!)
-                                loginState = if (validationResult.status == Resource.Status.SUCCESS) {
-                                    clearTimeout()
-                                    LoginState.Success("Login successful!")
-                                } else {
-                                    clearTimeout()
-                                    LoginState.Error(validationResult.error?.actualResponse ?: "Token validation failed")
-                                }
+                                val validationResult =
+                                    viewModel.validateAndSaveUserDetails(resource.data!!)
+                                loginState =
+                                    if (validationResult.status == Resource.Status.SUCCESS) {
+                                        clearTimeout()
+                                        LoginState.Success("Login successful!")
+                                    } else {
+                                        clearTimeout()
+                                        LoginState.Error(
+                                            validationResult.error?.actualResponse
+                                                ?: "Token validation failed"
+                                        )
+                                    }
 
                                 // After success or final failure, transition back to main flow
                                 if (loginState is LoginState.Success) {
@@ -145,11 +153,14 @@ fun ListenBrainzLogin(
                                 }
                             }
                         }
+
                         resource.isFailed -> {
-                            loginState = LoginState.Error(resource.error?.actualResponse ?: "Login failed")
+                            loginState =
+                                LoginState.Error(resource.error?.actualResponse ?: "Login failed")
                             isLoggingIn = false
                             clearTimeout()
                         }
+
                         resource.isLoading -> {
                             loginState = when {
                                 loginState == LoginState.SubmittingCredentials -> LoginState.AuthenticatingWithServer
@@ -157,6 +168,7 @@ fun ListenBrainzLogin(
                                 else -> loginState
                             }
                         }
+                    }
                     }
                 },
                 onPageLoadStateChange = { isLoading, message ->

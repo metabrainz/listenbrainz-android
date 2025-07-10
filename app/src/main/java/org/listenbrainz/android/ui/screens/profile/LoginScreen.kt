@@ -2,6 +2,7 @@ package org.listenbrainz.android.ui.screens.profile
 
 import android.content.Intent
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -93,7 +94,9 @@ fun LoginScreen(
     }
 
     if (startLogin) {
-        ListenBrainzLogin {
+        ListenBrainzLogin(
+            modifier = Modifier.background(ListenBrainzTheme.colorScheme.background)
+        ) {
             scope.launch {
                 navigateToUserProfile()
                 startLogin = false

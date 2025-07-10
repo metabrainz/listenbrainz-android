@@ -137,9 +137,7 @@
     <string name="login_started">Login initiated</string>
 
     <string name="login">Login</string>
-    <string name="login_prompt">To Login, connect your ListenBrainz account with our app. You will
-    be prompted to login in ListenBrainz website. Follow the instructions and return to complete
-    authentication.</string>
+    <string name="login_prompt">To Login, connect your ListenBrainz account with our app. </string>
 
     <!--    Onboarding-->
     <string name="Onboarding_landing_page">Welcome to ListenBrainz!
