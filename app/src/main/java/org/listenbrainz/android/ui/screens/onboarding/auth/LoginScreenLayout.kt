@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -47,6 +50,9 @@ import org.listenbrainz.android.ui.navigation.NavigationItem
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.text.input.ImeAction
 
 @Composable
 fun LoginScreenLayout(
@@ -110,7 +116,8 @@ private fun LoginCard(
                 username = username,
                 password = password,
                 onUsernameChange = onUsernameChange,
-                onPasswordChange = onPasswordChange
+                onPasswordChange = onPasswordChange,
+                onLoginClick = onLoginClick
             )
             Spacer(modifier = Modifier.height(16.dp))
             ForgotCredentialsSection()
@@ -157,19 +164,25 @@ private fun LoginForm(
     username: String,
     password: String,
     onUsernameChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit
+    onPasswordChange: (String) -> Unit,
+    onLoginClick: () -> Unit
 ) {
+    val passwordFocusRequester = remember { FocusRequester() }
+
     Column {
         UsernameField(
             username = username,
-            onUsernameChange = onUsernameChange
+            onUsernameChange = onUsernameChange,
+            onNext = { passwordFocusRequester.requestFocus() }
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         PasswordField(
             password = password,
-            onPasswordChange = onPasswordChange
+            onPasswordChange = onPasswordChange,
+            focusRequester = passwordFocusRequester,
+            onDone = onLoginClick
         )
     }
 }
@@ -177,7 +190,8 @@ private fun LoginForm(
 @Composable
 private fun UsernameField(
     username: String,
-    onUsernameChange: (String) -> Unit
+    onUsernameChange: (String) -> Unit,
+    onNext: () -> Unit
 ) {
     Column {
         Text(
@@ -200,10 +214,21 @@ private fun UsernameField(
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
+                cursorColor = ListenBrainzTheme.colorScheme.text,
+                selectionColors = TextSelectionColors(
+                    handleColor = ListenBrainzTheme.colorScheme.text,
+                    backgroundColor = ListenBrainzTheme.colorScheme.text
+                ),
                 focusedTextColor = ListenBrainzTheme.colorScheme.text,
                 unfocusedTextColor = ListenBrainzTheme.colorScheme.text,
                 focusedBorderColor = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.5f),
                 unfocusedBorderColor = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.3f)
+            ),
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Next
+            ),
+            keyboardActions = KeyboardActions(
+                onNext = { onNext() }
             )
         )
     }
@@ -212,7 +237,9 @@ private fun UsernameField(
 @Composable
 private fun PasswordField(
     password: String,
-    onPasswordChange: (String) -> Unit
+    onPasswordChange: (String) -> Unit,
+    focusRequester: FocusRequester,
+    onDone: () -> Unit
 ) {
     var passwordVisibility by remember { mutableStateOf(false) }
 
@@ -234,10 +261,17 @@ private fun PasswordField(
                     color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.5f)
                 )
             },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
             singleLine = true,
             visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
             colors = OutlinedTextFieldDefaults.colors(
+                cursorColor = ListenBrainzTheme.colorScheme.text,
+                selectionColors = TextSelectionColors(
+                    handleColor = ListenBrainzTheme.colorScheme.text,
+                    backgroundColor = ListenBrainzTheme.colorScheme.text
+                ),
                 focusedTextColor = ListenBrainzTheme.colorScheme.text,
                 unfocusedTextColor = ListenBrainzTheme.colorScheme.text,
                 focusedBorderColor = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.5f),
@@ -251,7 +285,13 @@ private fun PasswordField(
                         tint = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.5f)
                     )
                 }
-            }
+            },
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = { onDone() }
+            )
         )
     }
 }

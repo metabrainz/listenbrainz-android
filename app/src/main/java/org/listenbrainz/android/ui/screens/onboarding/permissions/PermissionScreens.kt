@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -87,7 +88,11 @@ private fun PermissionScreenBase(
     onRejectPermissionClick: () -> Unit
 ) {
     FloatingContentAwareLayout(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 24.dp)
+            .statusBarsPadding()
+            .navigationBarsPadding(),
         buttonAlignment = Alignment.BottomEnd,
         floatingContent = {
             ExtendedFloatingActionButton(
@@ -113,9 +118,6 @@ private fun PermissionScreenBase(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 24.dp)
-                    .statusBarsPadding()
-                    .navigationBarsPadding()
                     .padding(top = 60.dp)
             ) {
 
@@ -128,7 +130,7 @@ private fun PermissionScreenBase(
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        "ListenBrainz needs permissions for playback, history tracking, and submissions. We respect your privacy and don't collect or share personal data.",
+                        stringResource(R.string.permission_screen_rationale),
                         color = Color.White.copy(alpha = 0.7f),
                         fontSize = 16.sp,
                         modifier = Modifier.fillMaxWidth(0.9f)
