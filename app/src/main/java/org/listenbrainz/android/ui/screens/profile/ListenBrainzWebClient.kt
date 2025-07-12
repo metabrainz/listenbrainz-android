@@ -61,9 +61,10 @@ class ListenBrainzWebClient(
         else "Error loading page"
         Logger.e(TAG, errorMsg)
 
-        onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
-            actualResponse = errorMsg
-        }))
+        //Not responding to these errors as they are not critical to the auth flow just logging them
+//        onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+//            actualResponse = errorMsg
+//        }))
     }
 
     override fun onPageFinished(view: WebView?, url: String?) {
@@ -136,7 +137,7 @@ class ListenBrainzWebClient(
             !hasTriedSettingsNavigation -> {
                 Logger.d(TAG, "Navigating to settings page")
                 hasTriedSettingsNavigation = true
-                view?.postDelayed({ view.loadUrl("https://listenbrainz.org/settings") }, 1000)
+                view?.postDelayed({ view.loadUrl("https://listenbrainz.org/settings") }, 2000)
             }
 
             // Step 3: Extract token from settings page
@@ -209,10 +210,10 @@ class ListenBrainzWebClient(
                 if (result != "\"Login submitted\"") {
                     Logger.e(TAG, "Error submitting login form: $result")
                     onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
-                        actualResponse = "Error submitting login form"
+                        actualResponse = result
                     }))
                 }
             }
-        }, 1000)
+        }, 2000)
     }
 }

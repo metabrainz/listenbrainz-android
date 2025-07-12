@@ -122,4 +122,5 @@
     <string name="labeladd">Ajouter un label</string>
     <string name="recordingadd">Ajouter un enregistrement</string>
     <string name="bp_loading_text">Chargement de votre bibliothèque musicale en cours</string>
+    <string name="permission_screen_rationale">ListenBrainz needs permissions for playback, history tracking, and submissions. We respect your privacy and don\'t collect or share personal data.</string>
 </resources>

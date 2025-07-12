@@ -17,4 +17,5 @@
     <string name="news_card">Новости ListenBrainz</string>
     <string name="dash_scan">Сканировать</string>
     <string name="dash_collections">Коллекции</string>
+    <string name="permission_screen_rationale">ListenBrainz needs permissions for playback, history tracking, and submissions. We respect your privacy and don\'t collect or share personal data.</string>
 </resources>
