@@ -67,6 +67,19 @@ fun LoginConsentScreen(onProceedToLoginScreen: () -> Unit) {
     var isLoading by remember {
         mutableStateOf(true)
     }
+    var errorMessage by remember {
+        mutableStateOf<String?>(null)
+    }
+    var webView by remember {
+        mutableStateOf<WebView?>(null)
+    }
+
+    fun loadConsentPage() {
+        isLoading = true
+        errorMessage = null
+        webView?.loadUrl("https://listenbrainz.org/login")
+    }
+
     AndroidView(
         modifier = Modifier.size(1.dp)
             .alpha(0.0f),
@@ -86,20 +99,31 @@ fun LoginConsentScreen(onProceedToLoginScreen: () -> Unit) {
                         cookieSyncManager.sync()
                     }
                 }
-                webViewClient = ConsentWebViewClient({ text ->
-                    data = text
-                    isLoading = false
-                })
+                webViewClient = ConsentWebViewClient(
+                    onLoadData = { text ->
+                        data = text
+                        isLoading = false
+                        errorMessage = null
+                    },
+                    onError = { error ->
+                        isLoading = false
+                        errorMessage = error
+                    }
+                )
                 clearCookies()
                 loadUrl("https://listenbrainz.org/login")
                 settings.javaScriptEnabled = true
+                webView = this
             }
         }
     )
+
     LoginConsentScreenLayout(
-        data ?: "",
-        isLoading,
-        onProceedToLoginScreen
+        html = data ?: "",
+        isLoading = isLoading,
+        errorMessage = errorMessage,
+        onClickNext = onProceedToLoginScreen,
+        onRetry = ::loadConsentPage
     )
 }
 
@@ -107,7 +131,9 @@ fun LoginConsentScreen(onProceedToLoginScreen: () -> Unit) {
 private fun LoginConsentScreenLayout(
     html: String,
     isLoading: Boolean,
-    onClickNext: () -> Unit
+    errorMessage: String?,
+    onClickNext: () -> Unit,
+    onRetry: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -199,15 +225,25 @@ private fun LoginConsentScreenLayout(
                                 )
                             }
                         }
+
+                        errorMessage?.let { error ->
+                            Text(
+                                text = error,
+                                color = Color.Red,
+                                fontSize = 14.sp,
+                                lineHeight = 20.sp,
+                                modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)
+                            )
+                        }
                     }
                 }
             }
         }
 
         OnboardingYellowButton(
-            text = "Sign In With MusicBrainz",
+            text = if (errorMessage != null) "Retry" else "Sign In With MusicBrainz",
             isEnabled = !isLoading,
-            onClick = onClickNext,
+            onClick = if (errorMessage != null) onRetry else onClickNext,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 32.dp)
@@ -276,7 +312,9 @@ fun LoginConsentScreenPreview() {
         LoginConsentScreenLayout(
             html = "\"To sign in, use your MusicBrainz account, and authorize ListenBrainz to access your profile data.\\n\\nImportant!\\n\\nBy signing into ListenBrainz, you grant the MetaBrainz Foundation permission to include your listening history in data dumps we make publicly available under the \\u003Ca href=\\\"https://creativecommons.org/publicdomain/zero/1.0/\\\">CC0 license\\u003C/a>. None of your private information from your user profile will be included in these data dumps.\\n\\nFurthermore, you grant the MetaBrainz Foundation permission to process your listening history and include it in new open source tools such as recommendation engines that the ListenBrainz project is building. For details on processing your listening history, please see our \\u003Ca href=\\\"https://metabrainz.org/gdpr\\\">GDPR compliance statement\\u003C/a>.\\n\\nIn order to combat spammers and to be able to contact our users in case something goes wrong with the listen submission process, we now require an email address when creating a ListenBrainz account.\\n\\nIf after creating an account you change your mind about processing your listening history, you will need to \\u003Ca href=\\\"/settings/delete/\\\" data-discover=\\\"true\\\">delete your ListenBrainz account\\u003C/a>.\"",
             isLoading = false,
-            onClickNext = {}
+            errorMessage = null,
+            onClickNext = {},
+            onRetry = {}
         )
     }
 }
