@@ -37,12 +37,14 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation3.runtime.rememberNavBackStack
+import org.listenbrainz.android.R
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
@@ -129,7 +131,7 @@ fun ListeningAppScreenLayout(
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "Listen Submission tracks your music activity, helping you discover stats, trends, and personalized recommendations.",
+                    stringResource(R.string.listening_screen_rationale),
                     color = Color.White.copy(alpha = 0.7f),
                     fontSize = 14.sp,
                     modifier = Modifier.fillMaxWidth(0.95f)
@@ -305,9 +307,9 @@ fun EnableListenSubmission(
             ) { isPermissionRequired ->
                 Text(
                     text = if (isPermissionRequired)
-                        "To enable Listen Submission, please grant the required permissions so we can track your music activity."
+                        stringResource(R.string.listen_submission_rationale)
                     else
-                        "Choose the apps you want ListenBrainz to track. This helps automatically submit your listens while ensuring accurate listening history",
+                        stringResource(R.string.listen_permission_rationale),
                     style = MaterialTheme.typography.bodyMedium,
                     color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f),
                     lineHeight = 20.sp,
