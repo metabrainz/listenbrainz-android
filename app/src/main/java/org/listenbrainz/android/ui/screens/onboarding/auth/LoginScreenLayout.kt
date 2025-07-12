@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -213,6 +214,11 @@ private fun UsernameField(
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
+                cursorColor = ListenBrainzTheme.colorScheme.text,
+                selectionColors = TextSelectionColors(
+                    handleColor = ListenBrainzTheme.colorScheme.text,
+                    backgroundColor = ListenBrainzTheme.colorScheme.text
+                ),
                 focusedTextColor = ListenBrainzTheme.colorScheme.text,
                 unfocusedTextColor = ListenBrainzTheme.colorScheme.text,
                 focusedBorderColor = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.5f),
@@ -261,6 +267,11 @@ private fun PasswordField(
             singleLine = true,
             visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
             colors = OutlinedTextFieldDefaults.colors(
+                cursorColor = ListenBrainzTheme.colorScheme.text,
+                selectionColors = TextSelectionColors(
+                    handleColor = ListenBrainzTheme.colorScheme.text,
+                    backgroundColor = ListenBrainzTheme.colorScheme.text
+                ),
                 focusedTextColor = ListenBrainzTheme.colorScheme.text,
                 unfocusedTextColor = ListenBrainzTheme.colorScheme.text,
                 focusedBorderColor = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.5f),
