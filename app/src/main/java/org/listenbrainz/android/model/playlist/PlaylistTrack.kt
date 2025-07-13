@@ -53,6 +53,34 @@ data class PlaylistTrack(
         return data
     }
 
+    companion object {
+        fun fromMetadata(metadata: Metadata): PlaylistTrack {
+            val trackMetadata = metadata.trackMetadata
+            val mbidMapping = trackMetadata?.mbidMapping
+
+            return PlaylistTrack(
+                album = trackMetadata?.releaseName,
+                creator = trackMetadata?.artistName,
+                duration = trackMetadata?.additionalInfo?.durationMs,
+                extension = TrackExtension(
+                    trackExtensionData = TrackExtensionData(
+                        additionalMetadata = AdditionalMetadataTrack(
+                            artists = mbidMapping?.artists?.map {
+                                PlaylistArtist(
+                                    artistCreditName = it.artistCreditName,
+                                    artistMbid = it.artistMbid,
+                                    joinPhrase = it.joinPhrase
+                                )
+                            } ?: emptyList()
+                        )
+                    )
+                ),
+                identifier = listOfNotNull(mbidMapping?.recordingMbid?.let { "https://musicbrainz.org/recording/$it" }),
+                title = trackMetadata?.trackName
+            )
+        }
+    }
+
     fun getRecordingMBID(): String?{
         val url = identifier.firstOrNull()
         val regex = """recording/([a-f0-9\-]+)""".toRegex()
