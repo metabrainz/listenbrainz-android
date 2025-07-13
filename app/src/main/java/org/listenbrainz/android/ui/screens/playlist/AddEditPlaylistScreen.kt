@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -37,11 +38,13 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -63,6 +66,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
+import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.feed.RetryButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -75,89 +79,101 @@ import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 @Composable
 fun CreateEditPlaylistScreen(
     viewModel: PlaylistDataViewModel = hiltViewModel(),
-    snackbarHostState: SnackbarHostState,
-    bottomSheetState: SheetState,
+    isVisible: Boolean,
     mbid: String?,
-    onNavigateUP: () -> Unit
+    onDismiss: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val dismissWithAnimation: () -> Unit = {
+        scope.launch {
+            sheetState.hide()
+            onDismiss()
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.getInitialDataInCreatePlaylistScreen(mbid)
     }
-    LaunchedEffect(uiState.error) {
-        scope.launch {
-            if (uiState.error != null) {
-                snackbarHostState.showSnackbar(uiState.error?.toast ?: "Some error occurred")
-                viewModel.clearErrorFlow()
-            }
-        }
-    }
 
     LaunchedEffect(uiState.createEditScreenUIState.isSearching) {
-        bottomSheetState.expand()
+        sheetState.expand()
     }
 
-    AnimatedContent(uiState.createEditScreenUIState.isLoading) { isLoading ->
-        if (!isLoading) {
-            if (uiState.createEditScreenUIState.playlistData != null || uiState.createEditScreenUIState.playlistMBID == null)
-                CreateEditPlaylistScreenBase(
-                    collaborators = uiState.createEditScreenUIState.collaboratorSelected,
-                    onCollaboratorAdded = {
-                        viewModel.editPlaylistScreenData(
-                            collaborators = uiState.createEditScreenUIState.collaboratorSelected + it
-                        )
-                    },
-                    onSave = {
-                        viewModel.saveNewOrEditedPlaylist {
-                            scope.launch {
-                                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-                                onNavigateUP()
+    if (isVisible)
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            ModalBottomSheet(
+                modifier = Modifier.statusBarsPadding(),
+                onDismissRequest = dismissWithAnimation,
+                sheetState = sheetState
+            ) {
+                AnimatedContent(uiState.createEditScreenUIState.isLoading) { isLoading ->
+                    if (!isLoading) {
+                        if (uiState.createEditScreenUIState.playlistData != null || uiState.createEditScreenUIState.playlistMBID == null)
+                            CreateEditPlaylistScreenBase(
+                                collaborators = uiState.createEditScreenUIState.collaboratorSelected,
+                                onCollaboratorAdded = {
+                                    viewModel.editPlaylistScreenData(
+                                        collaborators = uiState.createEditScreenUIState.collaboratorSelected + it
+                                    )
+                                },
+                                onSave = {
+                                    viewModel.saveNewOrEditedPlaylist {
+                                        scope.launch {
+                                            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                                        }
+                                        dismissWithAnimation()
+                                    }
+                                },
+                                uiState = uiState.createEditScreenUIState,
+                                onCollaboratorRemove = { user ->
+                                    viewModel.editPlaylistScreenData(
+                                        collaborators = uiState.createEditScreenUIState.collaboratorSelected.filter { it != user }
+                                    )
+                                },
+                                onNameChange = {
+                                    viewModel.editPlaylistScreenData(name = it)
+                                },
+                                onDescriptionChange = {
+                                    viewModel.editPlaylistScreenData(description = it)
+                                },
+                                onVisibilityChange = {
+                                    viewModel.editPlaylistScreenData(isPublic = it)
+                                },
+                                onCancel = {
+                                    dismissWithAnimation()
+                                },
+                                onUsernameQueryChange = {
+                                    viewModel.queryCollaborators(it)
+                                }
+                            )
+                        else {
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                RetryButton(
+                                    modifier = Modifier.align(Alignment.Center)
+                                ) {
+                                    viewModel.getInitialDataInCreatePlaylistScreen(mbid)
+                                }
                             }
                         }
-                    },
-                    uiState = uiState.createEditScreenUIState,
-                    onCollaboratorRemove = { user ->
-                        viewModel.editPlaylistScreenData(
-                            collaborators = uiState.createEditScreenUIState.collaboratorSelected.filter { it != user }
-                        )
-                    },
-                    onNameChange = {
-                        viewModel.editPlaylistScreenData(name = it)
-                    },
-                    onDescriptionChange = {
-                        viewModel.editPlaylistScreenData(description = it)
-                    },
-                    onVisibilityChange = {
-                        viewModel.editPlaylistScreenData(isPublic = it)
-                    },
-                    onCancel = {
-                        onNavigateUP()
-                    },
-                    onUsernameQueryChange = {
-                        viewModel.queryCollaborators(it)
-                    }
-                )
-            else {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    RetryButton(
-                        modifier = Modifier.align(Alignment.Center)
-                    ) {
-                        viewModel.getInitialDataInCreatePlaylistScreen(mbid)
+                    } else {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            LoadingAnimation()
+                        }
                     }
                 }
             }
-        } else {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                LoadingAnimation()
+            ErrorBar(uiState.error) {
+                viewModel.clearErrorFlow()
             }
         }
-    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -209,7 +225,7 @@ private fun CreateEditPlaylistScreenBase(
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Next
                 ),
-                keyboardActions  = KeyboardActions(
+                keyboardActions = KeyboardActions(
                     onNext = {
                         localFocusManager.moveFocus(FocusDirection.Down)
                     }
@@ -374,9 +390,9 @@ fun CollaboratorAssistChip(
         border = null,
         colors =
             AssistChipDefaults.assistChipColors().copy(
-            containerColor = lb_purple_night,
-            labelColor = Color.White
-        ),
+                containerColor = lb_purple_night,
+                labelColor = Color.White
+            ),
         label = { Text(userName) },
         trailingIcon = {
             Box(

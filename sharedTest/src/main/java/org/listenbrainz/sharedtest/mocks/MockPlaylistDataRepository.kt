@@ -7,11 +7,13 @@ import org.listenbrainz.android.model.playlist.MoveTrack
 import org.listenbrainz.android.model.playlist.PlaylistPayload
 import org.listenbrainz.android.model.playlist.PlaylistTrack
 import org.listenbrainz.android.model.recordingSearch.RecordingSearchPayload
+import org.listenbrainz.android.model.userPlaylist.UserPlaylistPayload
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.sharedtest.testdata.PlaylistDataRepositoryTestData.playlistDetailsTestData
 import org.listenbrainz.sharedtest.testdata.PlaylistDataRepositoryTestData.samplePlaylistAddCopyResponse
 import org.listenbrainz.sharedtest.testdata.PlaylistDataRepositoryTestData.samplePlaylistCoverArt
+import org.listenbrainz.sharedtest.testdata.UserRepositoryTestData.createdForYouPlaylistsTestData
 
 
 class MockPlaylistDataRepository : PlaylistDataRepository {
@@ -95,6 +97,22 @@ class MockPlaylistDataRepository : PlaylistDataRepository {
             Resource.Status.SUCCESS,
             EditPlaylistResponse("Ok")
         )
+    }
+
+    override suspend fun getUserPlaylists(
+        username: String?,
+        offset: Int,
+        count: Int
+    ): Resource<UserPlaylistPayload> {
+        return Resource(Resource.Status.SUCCESS, createdForYouPlaylistsTestData)
+    }
+
+    override suspend fun getUserCollabPlaylists(
+        username: String?,
+        offset: Int,
+        count: Int
+    ): Resource<UserPlaylistPayload> {
+        return Resource(Resource.Status.FAILED, createdForYouPlaylistsTestData)
     }
 
 }
