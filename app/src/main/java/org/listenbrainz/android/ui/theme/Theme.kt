@@ -298,7 +298,6 @@ fun onScreenUiModeIsDark() : Boolean {
 @Composable
 fun ListenBrainzTheme(
     systemTheme: Boolean = isSystemInDarkTheme(),
-    systemUiController: SystemUiController = rememberSystemUiController(),
     context: Context = LocalContext.current,
     appPreferences: AppPreferences = AppPreferencesImpl(context),
     // Dynamic color is available on Android 12+
@@ -338,19 +337,7 @@ fun ListenBrainzTheme(
             UiMode.FOLLOW_SYSTEM -> if (systemTheme) colorSchemeDark else colorSchemeLight
         }
     }
-    
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val isDark = when (uiMode){
-                UiMode.DARK -> false
-                UiMode.LIGHT -> true
-                UiMode.FOLLOW_SYSTEM -> !systemTheme
-            }
-            systemUiController.statusBarDarkContentEnabled = isDark
-            systemUiController.navigationBarDarkContentEnabled = isDark
-        }
-    }
+
 
     CompositionLocalProvider(
         LocalPaddings provides Paddings(),

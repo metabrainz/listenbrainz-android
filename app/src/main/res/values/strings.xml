@@ -137,9 +137,7 @@
     <string name="login_started">Login initiated</string>
 
     <string name="login">Login</string>
-    <string name="login_prompt">To Login, connect your ListenBrainz account with our app. You will
-    be prompted to login in ListenBrainz website. Follow the instructions and return to complete
-    authentication.</string>
+    <string name="login_prompt">To Login, connect your ListenBrainz account with our app. </string>
 
     <!--    Onboarding-->
     <string name="Onboarding_landing_page">Welcome to ListenBrainz!
@@ -268,5 +266,6 @@
     <string name="track_added_successfully">Track added successfully</string>
     <string name="playlist_duplicated_successfully">Playlist duplicated successfully!!</string>
     <string name="track_moved_successfully">Track moved successfully!!</string>
+    <string name="permission_screen_rationale">ListenBrainz needs permissions for playback, history tracking, and submissions. We respect your privacy and don\'t collect or share personal data.</string>
     <string name="track_removed_from_playlist_successfully">Track removed from playlist successfully!!</string>
 </resources>
