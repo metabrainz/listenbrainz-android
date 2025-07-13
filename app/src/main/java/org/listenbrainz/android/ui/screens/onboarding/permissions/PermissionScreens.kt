@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -43,7 +41,6 @@ import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.components.FloatingContentAwareLayout
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.ui.theme.lb_orange
 import org.listenbrainz.android.ui.theme.lb_yellow
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
@@ -91,8 +88,7 @@ private fun PermissionScreenBase(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 24.dp)
-            .statusBarsPadding()
-            .navigationBarsPadding(),
+            .statusBarsPadding(),
         buttonAlignment = Alignment.BottomEnd,
         floatingContent = {
             ExtendedFloatingActionButton(
@@ -100,7 +96,9 @@ private fun PermissionScreenBase(
                 containerColor = lb_yellow,
                 contentColor = ListenBrainzTheme.colorScheme.text,
                 elevation = FloatingActionButtonDefaults.elevation(8.dp),
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .navigationBarsPadding()
+                    .padding(16.dp)
             ) {
                 Text(
                     text = "Skip",

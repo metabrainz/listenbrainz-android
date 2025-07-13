@@ -58,11 +58,11 @@ const val TAG = "ListenBrainzLogin"
 
 // Sealed class to represent all possible login states
 sealed class LoginState {
-    object Idle : LoginState()
+    data object Idle : LoginState()
     data class Loading(val message: String) : LoginState()
-    object SubmittingCredentials : LoginState()
-    object AuthenticatingWithServer : LoginState()
-    object VerifyingToken : LoginState()
+    data object SubmittingCredentials : LoginState()
+    data object AuthenticatingWithServer : LoginState()
+    data object VerifyingToken : LoginState()
     data class Error(val message: String) : LoginState()
     data class Success(val message: String) : LoginState()
 }
@@ -116,59 +116,62 @@ fun ListenBrainzLogin(
         // Only create ListenBrainzClient when user is actively logging in
         if (isLoggingIn) {
             ListenBrainzClient(
-                modifier = Modifier.size(1.dp)
+                modifier = Modifier
+                    .size(1.dp)
                     .alpha(1f),
                 username = username,
                 password = password,
                 onLoad = { resource ->
                     Log.d(TAG, "Load state: ${loginState}, data: ${resource.data}, error: ${resource.error}")
                     //Not letting screen reload if loginState is Error
-                    if(loginState !is LoginState.Error){
-                    when {
-                        resource.isSuccess -> {
-                            // We got the token, now validate it
-                            loginState = LoginState.VerifyingToken
-                            // Continue with token validation
-                            scope.launch {
-                                val validationResult =
-                                    viewModel.validateAndSaveUserDetails(resource.data!!)
-                                loginState =
-                                    if (validationResult.status == Resource.Status.SUCCESS) {
-                                        clearTimeout()
-                                        LoginState.Success("Login successful!")
-                                    } else {
-                                        clearTimeout()
-                                        LoginState.Error(
-                                            validationResult.error?.actualResponse
-                                                ?: "Token validation failed"
-                                        )
-                                    }
+                    if (loginState !is LoginState.Error) {
+                        when {
+                            resource.isSuccess -> {
+                                // We got the token, now validate it
+                                loginState = LoginState.VerifyingToken
+                                // Continue with token validation
+                                scope.launch {
+                                    val validationResult =
+                                        viewModel.validateAndSaveUserDetails(resource.data!!)
+                                    loginState =
+                                        if (validationResult.status == Resource.Status.SUCCESS) {
+                                            clearTimeout()
+                                            LoginState.Success("Login successful!")
+                                        } else {
+                                            clearTimeout()
+                                            LoginState.Error(
+                                                validationResult.error?.actualResponse
+                                                    ?: "Token validation failed"
+                                            )
+                                        }
 
-                                // After success or final failure, transition back to main flow
-                                if (loginState is LoginState.Success) {
-                                    delay(1500.milliseconds)
-                                    onLoginFinished()
-                                } else {
-                                    isLoggingIn = false
+                                    // After success or final failure, transition back to main flow
+                                    if (loginState is LoginState.Success) {
+                                        delay(1500.milliseconds)
+                                        onLoginFinished()
+                                    } else {
+                                        isLoggingIn = false
+                                    }
+                                }
+                            }
+
+                            resource.isFailed -> {
+                                loginState =
+                                    LoginState.Error(
+                                        resource.error?.actualResponse ?: "Login failed"
+                                    )
+                                isLoggingIn = false
+                                clearTimeout()
+                            }
+
+                            resource.isLoading -> {
+                                loginState = when {
+                                    loginState == LoginState.SubmittingCredentials -> LoginState.AuthenticatingWithServer
+                                    loginState !is LoginState.Loading -> LoginState.Loading("Connecting...")
+                                    else -> loginState
                                 }
                             }
                         }
-
-                        resource.isFailed -> {
-                            loginState =
-                                LoginState.Error(resource.error?.actualResponse ?: "Login failed")
-                            isLoggingIn = false
-                            clearTimeout()
-                        }
-
-                        resource.isLoading -> {
-                            loginState = when {
-                                loginState == LoginState.SubmittingCredentials -> LoginState.AuthenticatingWithServer
-                                loginState !is LoginState.Loading -> LoginState.Loading("Connecting...")
-                                else -> loginState
-                            }
-                        }
-                    }
                     }
                 },
                 onPageLoadStateChange = { isLoading, message ->
