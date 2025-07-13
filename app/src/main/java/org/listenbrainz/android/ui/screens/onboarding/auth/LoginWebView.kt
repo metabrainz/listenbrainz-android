@@ -58,11 +58,11 @@ const val TAG = "ListenBrainzLogin"
 
 // Sealed class to represent all possible login states
 sealed class LoginState {
-    object Idle : LoginState()
+    data object Idle : LoginState()
     data class Loading(val message: String) : LoginState()
-    object SubmittingCredentials : LoginState()
-    object AuthenticatingWithServer : LoginState()
-    object VerifyingToken : LoginState()
+    data object SubmittingCredentials : LoginState()
+    data object AuthenticatingWithServer : LoginState()
+    data object VerifyingToken : LoginState()
     data class Error(val message: String) : LoginState()
     data class Success(val message: String) : LoginState()
 }
