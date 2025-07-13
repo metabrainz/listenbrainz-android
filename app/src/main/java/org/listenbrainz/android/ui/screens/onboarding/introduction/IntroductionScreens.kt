@@ -41,6 +41,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
+import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,6 +53,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -67,6 +70,7 @@ import org.listenbrainz.android.ui.components.DiagonalCutShape
 import org.listenbrainz.android.ui.components.OnboardingBlobs
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_orange
+import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_yellow
 import org.listenbrainz.android.ui.theme.onboardingGradient
 
@@ -144,7 +148,8 @@ private fun IntroductionScreenUI(screenNumber: Int, onClickNext: () -> Unit, onS
             .statusBarsPadding(),
     ) {
         if (screenNumber != 1) {
-            OnboardingBackButton()
+            OnboardingBackButton(modifier = Modifier
+                .padding(top = 8.dp, start = 8.dp))
         }
         Box(
             modifier = Modifier
@@ -308,11 +313,16 @@ fun OnboardingBackButton(modifier: Modifier = Modifier, onBackPress: (() -> Unit
             haptic.performHapticFeedback(HapticFeedbackType.Confirm)
             if (onBackPress != null) onBackPress()
             else backDispatcher?.onBackPressed()
-        }
+        },
+        colors = IconButtonDefaults.iconButtonColors(
+            //Suitable with the background
+            containerColor = Color.White
+        )
     ) {
         Icon(
+            modifier = Modifier.size(16.dp),
             imageVector = Icons.Rounded.ArrowBackIosNew, contentDescription = "Back button",
-            tint = lb_yellow
+            tint = lb_purple,
         )
     }
 }

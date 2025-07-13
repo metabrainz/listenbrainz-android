@@ -36,10 +36,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation3.runtime.rememberNavBackStack
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.components.FloatingContentAwareLayout
+import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
+import org.listenbrainz.android.ui.navigation.NavigationItem
+import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_yellow
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
@@ -86,9 +90,7 @@ private fun PermissionScreenBase(
 ) {
     FloatingContentAwareLayout(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp)
-            .statusBarsPadding(),
+            .fillMaxSize(),
         buttonAlignment = Alignment.BottomEnd,
         floatingContent = {
             ExtendedFloatingActionButton(
@@ -116,8 +118,13 @@ private fun PermissionScreenBase(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 60.dp)
+                    .padding(horizontal = 24.dp)
             ) {
+                item{
+                    Spacer(Modifier
+                        .statusBarsPadding()
+                        .height(100.dp))
+                }
 
                 item {
                     Text(
@@ -150,6 +157,9 @@ private fun PermissionScreenBase(
                     Spacer(Modifier.height(buttonSize.height + 16.dp)) // Add space for the floating button
                 }
             }
+            OnboardingBackButton(modifier = Modifier
+                .statusBarsPadding()
+                .padding(top = 8.dp, start = 8.dp))
         }
     }
 }
@@ -226,6 +236,7 @@ fun PermissionCard(
 @Composable
 private fun PermissionScreenPreview() {
     ListenBrainzTheme {
+        OnboardingScreenBackground(backStack = rememberNavBackStack(NavigationItem.OnboardingScreens.PermissionScreen))
         PermissionScreenBase(
             permissions = mapOf(
                 PermissionEnum.READ_NOTIFICATIONS to PermissionStatus.DENIED_TWICE,

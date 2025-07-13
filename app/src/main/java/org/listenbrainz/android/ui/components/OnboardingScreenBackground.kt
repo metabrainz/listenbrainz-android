@@ -50,9 +50,6 @@ fun OnboardingScreenBackground(backStack: NavBackStack){
                         Spacer(Modifier.height(50.dp))
                         OnboardingBlobs(isRotated = true)
                     }
-                    OnboardingBackButton(
-                        modifier = Modifier.align(Alignment.TopStart),
-                    )
                 }
             }
         }

@@ -55,6 +55,7 @@ import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
 import org.listenbrainz.android.ui.navigation.NavigationItem
+import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
@@ -135,119 +136,123 @@ private fun LoginConsentScreenLayout(
     onClickNext: () -> Unit,
     onRetry: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 60.dp)
-            .padding(horizontal = 24.dp)
-            .statusBarsPadding()
-            .navigationBarsPadding()
-            .verticalScroll(rememberScrollState())
-    ) {
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Text(
-            text = "Sign in",
-            color = Color.White,
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        AnimatedContent(html.isNotEmpty()) {
-            if(it) {
-                val paragraphs = parseHtmlToParagraphs(html)
-                Text(
-                    text = htmlToAnnotatedString(
-                        html = paragraphs[0],
-                        lb_purple_night
-                    ),
-                    color = Color.White.copy(alpha = 0.8f),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(bottom = 32.dp)
-                )
-            }else{
-                Spacer(modifier = Modifier.height(64.dp))
-            }
-        }
-
-        Card(
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 24.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = ListenBrainzTheme.colorScheme.background.copy(alpha = 0.75f)
-            ),
-            shape = ListenBrainzTheme.shapes.listenCardSmall
+                .fillMaxSize()
+                .padding(horizontal = 24.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            Column(
+            Spacer(modifier = Modifier
+                .statusBarsPadding()
+                .height(100.dp))
+
+            Text(
+                text = "Sign in",
+                color = Color.White,
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            AnimatedContent(html.isNotEmpty()) {
+                if (it) {
+                    val paragraphs = parseHtmlToParagraphs(html)
+                    Text(
+                        text = htmlToAnnotatedString(
+                            html = paragraphs[0],
+                            lb_purple_night
+                        ),
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(bottom = 32.dp)
+                    )
+                } else {
+                    Spacer(modifier = Modifier.height(64.dp))
+                }
+            }
+
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
+                    .padding(bottom = 24.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = ListenBrainzTheme.colorScheme.background.copy(alpha = 0.75f)
+                ),
+                shape = ListenBrainzTheme.shapes.listenCardSmall
             ) {
-                AnimatedVisibility(
-                    visible = isLoading,
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        contentAlignment = Alignment.Center
+                    AnimatedVisibility(
+                        visible = isLoading,
                     ) {
-                        LoadingAnimation()
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            LoadingAnimation()
+                        }
                     }
-                }
-                AnimatedVisibility(
-                    visible = !isLoading,
-                ) {
-                    Column {
-                        Text(
-                            text = "Important!",
-                            color = ListenBrainzTheme.colorScheme.text,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(bottom = 16.dp)
-                        )
+                    AnimatedVisibility(
+                        visible = !isLoading,
+                    ) {
+                        Column {
+                            Text(
+                                text = "Important!",
+                                color = ListenBrainzTheme.colorScheme.text,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(bottom = 16.dp)
+                            )
 
-                        if (html.isNotEmpty()) {
-                            val paragraphs = parseHtmlToParagraphs(html)
-                            paragraphs.drop(2).forEach { paragraph ->
+                            if (html.isNotEmpty()) {
+                                val paragraphs = parseHtmlToParagraphs(html)
+                                paragraphs.drop(2).forEach { paragraph ->
+                                    Text(
+                                        text = htmlToAnnotatedString(
+                                            html = paragraph,
+                                            linkColor = if (isSystemInDarkTheme()) lb_purple_night else lb_purple
+                                        ),
+                                        color = ListenBrainzTheme.colorScheme.text,
+                                        fontSize = 14.sp,
+                                        lineHeight = 20.sp,
+                                        modifier = Modifier.padding(bottom = 12.dp)
+                                    )
+                                }
+                            }
+
+                            errorMessage?.let { error ->
                                 Text(
-                                    text = htmlToAnnotatedString(
-                                        html = paragraph,
-                                        linkColor = if(isSystemInDarkTheme()) lb_purple_night else lb_purple
-                                    ),
-                                    color = ListenBrainzTheme.colorScheme.text,
+                                    text = error,
+                                    color = Color.Red,
                                     fontSize = 14.sp,
                                     lineHeight = 20.sp,
-                                    modifier = Modifier.padding(bottom = 12.dp)
+                                    modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)
                                 )
                             }
                         }
-
-                        errorMessage?.let { error ->
-                            Text(
-                                text = error,
-                                color = Color.Red,
-                                fontSize = 14.sp,
-                                lineHeight = 20.sp,
-                                modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)
-                            )
-                        }
                     }
                 }
             }
-        }
 
-        OnboardingYellowButton(
-            text = if (errorMessage != null) "Retry" else "Sign In With MusicBrainz",
-            isEnabled = !isLoading,
-            onClick = if (errorMessage != null) onRetry else onClickNext,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 32.dp)
-        )
+            OnboardingYellowButton(
+                text = if (errorMessage != null) "Retry" else "Sign In With MusicBrainz",
+                isEnabled = !isLoading,
+                onClick = if (errorMessage != null) onRetry else onClickNext,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 32.dp)
+            )
+        }
+        OnboardingBackButton(modifier = Modifier
+            .statusBarsPadding()
+            .padding(top = 8.dp, start = 8.dp))
     }
 }
 

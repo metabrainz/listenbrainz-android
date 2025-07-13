@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,9 +12,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.TextSelectionColors
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -53,6 +57,7 @@ import org.listenbrainz.android.ui.theme.lb_purple_night
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
+import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
 
 @Composable
 fun LoginScreenLayout(
@@ -65,14 +70,14 @@ fun LoginScreenLayout(
     onLoginClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
     ) {
         LoginCard(
+            modifier = Modifier
+                .align(Alignment.Center)
+                .padding(horizontal = 24.dp),
             username = username,
             password = password,
             error = error,
@@ -81,6 +86,9 @@ fun LoginScreenLayout(
             onPasswordChange = onPasswordChange,
             onLoginClick = onLoginClick,
         )
+        OnboardingBackButton(modifier = Modifier
+            .statusBarsPadding()
+            .padding(top = 8.dp, start = 8.dp))
     }
 }
 
@@ -98,7 +106,9 @@ private fun LoginCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp),
+            .padding(vertical = 16.dp)
+            .verticalScroll(rememberScrollState())
+        ,
         colors = CardDefaults.cardColors(
             containerColor = ListenBrainzTheme.colorScheme.background.copy(alpha = 0.75f)
         ),

@@ -50,6 +50,7 @@ import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
 import org.listenbrainz.android.ui.components.Switch
 import org.listenbrainz.android.ui.navigation.NavigationItem
+import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
 import org.listenbrainz.android.ui.screens.onboarding.introduction.createSlideTransition
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionCard
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
@@ -115,12 +116,12 @@ fun ListeningAppScreenLayout(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp)
-                .statusBarsPadding()
-                .navigationBarsPadding(),
+                .padding(horizontal = 24.dp),
         ) {
-            item {
-                Spacer(Modifier.height(80.dp))
+            // Spacer to account for the status bar height along with providing edge to edge display
+            item{
+                Spacer(Modifier.statusBarsPadding()
+                    .height(100.dp))
             }
             item {
                 Text(
@@ -206,6 +207,9 @@ fun ListeningAppScreenLayout(
                 Spacer(Modifier.height(36.dp))
             }
         }
+        OnboardingBackButton(modifier = Modifier
+            .statusBarsPadding()
+            .padding(start = 8.dp, top = 8.dp))
     }
 }
 
@@ -288,7 +292,8 @@ fun EnableListenSubmission(
                     style = MaterialTheme.typography.titleMedium,
                     color = ListenBrainzTheme.colorScheme.text,
                     fontWeight = FontWeight.Medium,
-                    fontSize = 20.sp
+                    fontSize = 20.sp,
+                    modifier = Modifier.weight(1f)
                 )
 
                 Switch(
