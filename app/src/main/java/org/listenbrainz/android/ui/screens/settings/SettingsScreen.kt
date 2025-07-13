@@ -124,7 +124,7 @@ fun SettingsScreen(
     }
     val submitListensCheckedState by appPreferences.isListeningAllowed
         .getFlow().collectAsState(initial = true)
-    val shouldListenNewPlayers by appPreferences.shouldListenNewPlayers.getFlow().collectAsState(initial = true)
+    val shouldListenNewPlayers by appPreferences.shouldListenNewPlayers.getFlow().collectAsState(initial = false)
 
     LifecycleResumeEffect(key1 = Unit) {
         scope.launch {
