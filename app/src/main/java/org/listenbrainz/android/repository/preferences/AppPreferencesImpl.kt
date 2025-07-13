@@ -238,7 +238,7 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
         get() = object : DataStorePreference<Boolean> {
             override fun getFlow(): Flow<Boolean> =
                 datastore.map { prefs ->
-                    prefs[SHOULD_LISTEN_NEW_PLAYERS] ?: true
+                    prefs[SHOULD_LISTEN_NEW_PLAYERS] ?: false
                 }
     
             override suspend fun set(value: Boolean) {
