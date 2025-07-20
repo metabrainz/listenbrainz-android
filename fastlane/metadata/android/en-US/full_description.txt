@@ -1,3 +1,7 @@
-ListenBrainz keeps track of the music you listen to and provides you with insights into your listening habits.
+<i>ListenBrainz</i> keeps track of the music you listen to and provides you with insights into your listening habits.
+
 Using our visualizations, you can use ListenBrainz to track your music listening habits and share your taste with others.
+
 Based on your listening history we recommend music you might like, new music you missed out on from your favorite artists, and what similar users have been listening to.
+
+When you use the ListenBrainz Android app, you need to create an account with ListenBrainz, and your listening history will be associated with this account. This data is not kept on the device but is transmitted to the ListenBrainz server. The data collected is used to improve the recommendations and is accessible to other users.

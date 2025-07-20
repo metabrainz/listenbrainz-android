@@ -1,3 +1,7 @@
-ListenBrainz erfasst die Musik, die du hörst, und bietet dir Einblicke in deine Hörgewohnheiten.
-Mit unseren Visualisierungen kannst du ListenBrainz nutzen, um deine Musikhörgewohnheiten zu verfolgen und deinen Geschmack mit anderen zu teilen.
-Basierend auf deinem Hörverhalten empfehlen wir dir Musik, die dir gefallen könnte, neue Musik, die du von deinen Lieblingskünstlern verpasst hast, und was ähnliche Nutzer gehört haben.
+<i>ListenBrainz</i> verfolgt die Musik, die du hörst, und gibt dir Einblicke in deine Hörgewohnheiten.
+
+Mithilfe unserer Visualisierungen kannst du ListenBrainz verwenden, um deine Musikhörgewohnheiten zu verfolgen und deinen Geschmack mit anderen zu teilen.
+
+Basierend auf deinem Hörverlauf empfehlen wir Musik, die dir gefallen könnte, neue Musik von deinen Lieblingskünstlern, die du verpasst hast, und was ähnliche Benutzer gehört haben.
+
+Wenn du die ListenBrainz Android-App verwendest, musst du ein Konto bei ListenBrainz erstellen, und dein Hörverlauf wird mit diesem Konto verknüpft. Diese Daten werden nicht auf dem Gerät gespeichert, sondern an den ListenBrainz-Server übertragen. Die gesammelten Daten werden zur Verbesserung der Empfehlungen verwendet und sind für andere Nutzer zugänglich.
