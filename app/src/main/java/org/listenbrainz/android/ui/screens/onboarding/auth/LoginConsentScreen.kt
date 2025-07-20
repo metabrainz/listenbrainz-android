@@ -270,7 +270,7 @@ private fun parseHtmlToParagraphs(html: String): List<String> {
     return paragraphs
 }
 
-fun htmlToAnnotatedString(html: String, linkColor: Color): AnnotatedString {
+private fun htmlToAnnotatedString(html: String, linkColor: Color): AnnotatedString {
     val unescapedHtml = html.removeSurrounding("\"")
         .replace("\\u003C", "<")
         .replace("\\u003E", ">")
