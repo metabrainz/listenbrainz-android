@@ -6,5 +6,6 @@ data class AppInfo(
     val appName: String,
     val packageName: String,
     val icon: Bitmap,
-    val isWhitelisted: Boolean
+    val isWhitelisted: Boolean,
+    val isListening: Boolean
 )

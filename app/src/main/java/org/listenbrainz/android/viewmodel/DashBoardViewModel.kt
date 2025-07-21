@@ -164,7 +164,8 @@ class DashBoardViewModel @Inject constructor(
                             appName = appLabel.toString(),
                             packageName = packageName,
                             icon = iconBitmap,
-                            isWhitelisted = packageName in whiteListedApps
+                            isWhitelisted = packageName in whiteListedApps,
+                            isListening = true
                         )
                     )
                 } catch (e: Exception) {
@@ -191,7 +192,7 @@ class DashBoardViewModel @Inject constructor(
                 updatedListeningApps.addAll(it)
             }
             musicAppsPackageNames.forEach { app->
-                if(updatedListeningApps.contains(app) != true ){
+                if(!updatedListeningApps.contains(app)){
                     updatedListeningApps.add(app)
                 }
             }
