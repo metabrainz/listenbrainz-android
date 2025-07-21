@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -48,7 +47,7 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
-import org.listenbrainz.android.ui.components.Switch
+import org.listenbrainz.android.ui.components.SwitchLB
 import org.listenbrainz.android.ui.navigation.NavigationItem
 import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
 import org.listenbrainz.android.ui.screens.onboarding.introduction.createSlideTransition
@@ -247,7 +246,7 @@ fun AppCard(
             )
         }
 
-        Switch(
+        SwitchLB(
             checked = appInfo.isWhitelisted,
             onCheckedChange = if (enabled) onCheckedChange else {
                 {}
@@ -296,7 +295,7 @@ fun EnableListenSubmission(
                     modifier = Modifier.weight(1f)
                 )
 
-                Switch(
+                SwitchLB(
                     checked = isListening,
                     onCheckedChange = onListeningCheckChange
                 )

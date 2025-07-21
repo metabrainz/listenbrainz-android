@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun Switch(modifier: Modifier = Modifier, checked: Boolean, onCheckedChange: (Boolean) -> Unit)
+fun SwitchLB(modifier: Modifier = Modifier, checked: Boolean, onCheckedChange: (Boolean) -> Unit)
 {
     Switch(
         modifier = modifier,
@@ -29,7 +29,7 @@ fun Switch(modifier: Modifier = Modifier, checked: Boolean, onCheckedChange: (Bo
 @Composable
 fun PreviewSwitch() {
     val checkedState = remember { mutableStateOf(true) }
-    org.listenbrainz.android.ui.components.Switch(
+    SwitchLB(
         checked = checkedState.value,
         onCheckedChange = { checkedState.value = it }
     )
