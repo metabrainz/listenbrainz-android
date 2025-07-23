@@ -6,7 +6,6 @@ import android.content.res.Configuration
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -38,7 +37,6 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -71,12 +69,21 @@ fun AllInstalledAppsBottomSheet(
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     val selectedAppsListState = rememberLazyListState()
+    val allAppsListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(selectedApps.size) {
         if (selectedApps.isNotEmpty()) {
             coroutineScope.launch {
                 selectedAppsListState.animateScrollToItem(selectedApps.size - 1)
+            }
+        }
+    }
+
+    LaunchedEffect(searchQuery) {
+        coroutineScope.launch {
+            if (appsList.isNotEmpty()) {
+                allAppsListState.animateScrollToItem(0)
             }
         }
     }
@@ -249,22 +256,23 @@ private fun SelectedAppsSection(
         )
 
         Spacer(modifier = Modifier.height(8.dp))
-
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(ListenBrainzTheme.shapes.listenCardSmall)
-                .background(color = Color.Gray.copy(0.25f))
-                .padding(horizontal = 12.dp, vertical = 4.dp),
-            state = listState,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(vertical = 8.dp)
-        ) {
-            items(selectedApps) { app ->
-                SelectedAppIcon(
-                    app = app,
-                    onRemove = { onRemoveApp(app) }
-                )
+        if (selectedApps.isNotEmpty()) {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(ListenBrainzTheme.shapes.listenCardSmall)
+                    .background(color = Color.Gray.copy(0.25f))
+                    .padding(horizontal = 12.dp, vertical = 4.dp),
+                state = listState,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(vertical = 8.dp)
+            ) {
+                items(selectedApps) { app ->
+                    SelectedAppIcon(
+                        app = app,
+                        onRemove = { onRemoveApp(app) }
+                    )
+                }
             }
         }
     }
@@ -352,19 +360,21 @@ private fun AppListItem(
     isLast: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val selectedColor = if(isSystemInDarkTheme()) lb_purple_night else lb_purple
+    val selectedColor = if (isSystemInDarkTheme()) lb_purple_night else lb_purple
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onToggle() }
-            .padding(vertical = 4.dp, horizontal = 8.dp),
+            .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         RadioButton(
             selected = isSelected,
             onClick = onToggle,
             colors = RadioButtonDefaults.colors(
-                selectedColor = if (isSelected) selectedColor else ListenBrainzTheme.colorScheme.text.copy(alpha = 0.6f),
+                selectedColor = if (isSelected) selectedColor else ListenBrainzTheme.colorScheme.text.copy(
+                    alpha = 0.6f
+                ),
                 unselectedColor = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.6f)
             )
         )
@@ -391,9 +401,11 @@ private fun AppListItem(
                 fontSize = 16.sp,
             )
             Spacer(Modifier.height(16.dp))
-            if(!isLast) {
-                HorizontalDivider(modifier = Modifier.fillMaxSize(),
-                    color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.2f))
+            if (!isLast) {
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxSize(),
+                    color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.2f)
+                )
             }
         }
     }
@@ -412,7 +424,7 @@ private fun BottomButtonsSection(
         TextButton(
             onClick = onCancel,
             colors = ButtonDefaults.textButtonColors(
-                contentColor = if(isSystemInDarkTheme()) lb_purple_night else lb_purple
+                contentColor = if (isSystemInDarkTheme()) lb_purple_night else lb_purple
             )
         ) {
             Text(
@@ -425,7 +437,7 @@ private fun BottomButtonsSection(
         TextButton(
             onClick = onDone,
             colors = ButtonDefaults.textButtonColors(
-                contentColor = if(isSystemInDarkTheme()) lb_purple_night else lb_purple
+                contentColor = if (isSystemInDarkTheme()) lb_purple_night else lb_purple
             )
         ) {
             Text(

@@ -89,7 +89,7 @@ fun ListeningAppSelectionScreen(
     val activity = LocalActivity.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var isBottomSheetVisible by remember {
-        mutableStateOf(true)
+        mutableStateOf(false)
     }
     val scope = rememberCoroutineScope()
 
