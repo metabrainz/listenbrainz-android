@@ -60,8 +60,8 @@ class MainActivity : ComponentActivity() {
         _dashBoardViewModel = ViewModelProvider(this)[DashBoardViewModel::class.java]
 
         dashBoardViewModel.setUiMode()
-        dashBoardViewModel.getPermissionStatus(this)
-        dashBoardViewModel.getListeningApps(this)
+        dashBoardViewModel.updatePermissionStatus(this)
+        dashBoardViewModel.updateListeningApps(this)
 
         setContent {
             ListenBrainzTheme {
@@ -269,7 +269,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        dashBoardViewModel.getPermissionStatus(this)
+        dashBoardViewModel.updatePermissionStatus(this)
         lifecycleScope.launch {
             App.startListenService(appPreferences = dashBoardViewModel.appPreferences)
         }

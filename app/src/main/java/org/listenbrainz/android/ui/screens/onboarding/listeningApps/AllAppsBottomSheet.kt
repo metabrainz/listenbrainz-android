@@ -8,11 +8,13 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -43,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
+import org.listenbrainz.android.ui.theme.lb_purple_night
 
 
 @Composable
@@ -206,16 +209,16 @@ private fun HeaderSection(
         } else {
             Text(
                 text = "All installed apps",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Medium,
-                color = ListenBrainzTheme.colorScheme.text
+                fontSize = 24.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = ListenBrainzTheme.colorScheme.listenText
             )
 
             IconButton(onClick = onSearchToggle) {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "Search",
-                    tint = ListenBrainzTheme.colorScheme.text
+                    tint = ListenBrainzTheme.colorScheme.listenText
                 )
             }
         }
@@ -248,11 +251,16 @@ private fun SelectedAppsSection(
         Spacer(modifier = Modifier.height(8.dp))
 
         LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(ListenBrainzTheme.shapes.listenCardSmall)
+                .background(color = Color.Gray.copy(0.25f))
+                .padding(horizontal = 12.dp, vertical = 4.dp),
             state = listState,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             contentPadding = PaddingValues(vertical = 8.dp)
         ) {
-            items(selectedApps, key = { it.packageName }) { app ->
+            items(selectedApps) { app ->
                 SelectedAppIcon(
                     app = app,
                     onRemove = { onRemoveApp(app) }
@@ -279,11 +287,7 @@ private fun SelectedAppIcon(
             modifier = Modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(8.dp))
-                .border(
-                    width = 2.dp,
-                    color = Color.Red,
-                    shape = RoundedCornerShape(8.dp)
-                )
+
         )
 
         Box(
@@ -321,14 +325,19 @@ private fun AllAppsSection(
         Spacer(modifier = Modifier.height(8.dp))
 
         LazyColumn(
+            modifier = Modifier
+                .clip(ListenBrainzTheme.shapes.listenCardSmall)
+                .background(color = Color.Gray.copy(0.25f))
+                .padding(horizontal = 12.dp),
             verticalArrangement = Arrangement.spacedBy(1.dp)
         ) {
-            items(apps, key = { it.packageName }) { app ->
+            itemsIndexed(apps) { ind, app ->
                 val isSelected = selectedApps.any { it.packageName == app.packageName }
                 AppListItem(
                     app = app,
                     isSelected = isSelected,
-                    onToggle = { onAppToggle(app, !isSelected) }
+                    onToggle = { onAppToggle(app, !isSelected) },
+                    isLast = ind == apps.lastIndex
                 )
             }
         }
@@ -340,21 +349,22 @@ private fun AppListItem(
     app: AppInfo,
     isSelected: Boolean,
     onToggle: () -> Unit,
+    isLast: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val selectedColor = if(isSystemInDarkTheme()) lb_purple_night else lb_purple
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onToggle() }
-            .background(if (isSelected) ListenBrainzTheme.colorScheme.text.copy(alpha = 0.05f) else Color.Transparent)
-            .padding(vertical = 12.dp, horizontal = 8.dp),
+            .padding(vertical = 4.dp, horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         RadioButton(
             selected = isSelected,
             onClick = onToggle,
             colors = RadioButtonDefaults.colors(
-                selectedColor = if (isSelected) lb_purple else ListenBrainzTheme.colorScheme.text.copy(alpha = 0.6f),
+                selectedColor = if (isSelected) selectedColor else ListenBrainzTheme.colorScheme.text.copy(alpha = 0.6f),
                 unselectedColor = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.6f)
             )
         )
@@ -371,12 +381,21 @@ private fun AppListItem(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        Text(
-            text = app.appName,
-            color = ListenBrainzTheme.colorScheme.text,
-            fontSize = 16.sp,
+        Column(
             modifier = Modifier.weight(1f)
-        )
+        ) {
+            Spacer(Modifier.height(16.dp))
+            Text(
+                text = app.appName,
+                color = ListenBrainzTheme.colorScheme.text,
+                fontSize = 16.sp,
+            )
+            Spacer(Modifier.height(16.dp))
+            if(!isLast) {
+                HorizontalDivider(modifier = Modifier.fillMaxSize(),
+                    color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.2f))
+            }
+        }
     }
 }
 
@@ -393,7 +412,7 @@ private fun BottomButtonsSection(
         TextButton(
             onClick = onCancel,
             colors = ButtonDefaults.textButtonColors(
-                contentColor = lb_purple
+                contentColor = if(isSystemInDarkTheme()) lb_purple_night else lb_purple
             )
         ) {
             Text(
@@ -406,7 +425,7 @@ private fun BottomButtonsSection(
         TextButton(
             onClick = onDone,
             colors = ButtonDefaults.textButtonColors(
-                contentColor = lb_purple
+                contentColor = if(isSystemInDarkTheme()) lb_purple_night else lb_purple
             )
         ) {
             Text(

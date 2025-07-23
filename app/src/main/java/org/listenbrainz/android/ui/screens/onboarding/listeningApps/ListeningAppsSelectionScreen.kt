@@ -8,6 +8,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,12 +23,20 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -36,6 +45,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,7 +53,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation3.runtime.rememberNavBackStack
+import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
@@ -56,12 +68,14 @@ import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListeningAppSelectionScreen(
     dashBoardViewModel: DashBoardViewModel = hiltViewModel(),
     onClickNext: () -> Unit
 ) {
-    val apps by dashBoardViewModel.listeningAppsFlow.collectAsState()
+    val listeningApps by dashBoardViewModel.listeningAppsFlow.collectAsState()
+    val allApps by dashBoardViewModel.allApps.collectAsState()
     val isListening by dashBoardViewModel.appPreferences.isListeningAllowed.getFlow()
         .collectAsState(initial = true)
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
@@ -73,9 +87,14 @@ fun ListeningAppSelectionScreen(
             batteryOptPermission != PermissionStatus.GRANTED
 
     val activity = LocalActivity.current
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var isBottomSheetVisible by remember {
+        mutableStateOf(true)
+    }
+    val scope = rememberCoroutineScope()
 
     ListeningAppScreenLayout(
-        apps = apps,
+        apps = listeningApps,
         isListening = isListening,
         onCheckedChange = dashBoardViewModel::onAppCheckChange,
         onListeningCheckChange = dashBoardViewModel::onListeningStatusChange,
@@ -90,8 +109,39 @@ fun ListeningAppSelectionScreen(
                 }
             }
         },
-        onClickNext = onClickNext
+        onClickNext = onClickNext,
+        onAddMoreAppsButtonClick = {
+            isBottomSheetVisible = true
+        }
     )
+    if (isBottomSheetVisible) {
+        ModalBottomSheet(
+            containerColor = ListenBrainzTheme.colorScheme.background,
+            onDismissRequest = {
+            isBottomSheetVisible = false
+        },
+            sheetState = sheetState) {
+            AllInstalledAppsBottomSheet(
+                appsList = allApps,
+                onCancel = {
+                    scope.launch {
+                        sheetState.hide()
+                        isBottomSheetVisible = false
+                    }
+                },
+                onDone = {
+                    scope.launch {
+                        sheetState.hide()
+                        isBottomSheetVisible = false
+                    }
+                },
+                onListeningAppsAdded = {
+                    dashBoardViewModel.addListeningApps(it)
+                }
+            )
+        }
+    }
+
 }
 
 @Composable
@@ -100,6 +150,7 @@ fun ListeningAppScreenLayout(
     isListening: Boolean,
     onCheckedChange: (Boolean, AppInfo) -> Unit,
     onListeningCheckChange: (Boolean) -> Unit,
+    onAddMoreAppsButtonClick: () -> Unit,
     isInPermissionState: Boolean,
     permissionStatus: Map<PermissionEnum, PermissionStatus>,
     onGrantPermissionClick: (PermissionEnum) -> Unit,
@@ -118,9 +169,12 @@ fun ListeningAppScreenLayout(
                 .padding(horizontal = 24.dp),
         ) {
             // Spacer to account for the status bar height along with providing edge to edge display
-            item{
-                Spacer(Modifier.statusBarsPadding()
-                    .height(100.dp))
+            item {
+                Spacer(
+                    Modifier
+                        .statusBarsPadding()
+                        .height(100.dp)
+                )
             }
             item {
                 Text(
@@ -145,7 +199,8 @@ fun ListeningAppScreenLayout(
                     isListening = isListening,
                     onCheckedChange = onCheckedChange,
                     onListeningCheckChange = onListeningCheckChange,
-                    isInPermissionState = isInPermissionState
+                    isInPermissionState = isInPermissionState,
+                    onAddMoreAppsButtonClick = onAddMoreAppsButtonClick
                 )
             }
 
@@ -206,9 +261,11 @@ fun ListeningAppScreenLayout(
                 Spacer(Modifier.height(36.dp))
             }
         }
-        OnboardingBackButton(modifier = Modifier
-            .statusBarsPadding()
-            .padding(start = 8.dp, top = 8.dp))
+        OnboardingBackButton(
+            modifier = Modifier
+                .statusBarsPadding()
+                .padding(start = 8.dp, top = 8.dp)
+        )
     }
 }
 
@@ -262,6 +319,7 @@ fun EnableListenSubmission(
     isListening: Boolean,
     onCheckedChange: (Boolean, AppInfo) -> Unit,
     onListeningCheckChange: (Boolean) -> Unit,
+    onAddMoreAppsButtonClick: ()->Unit,
     isInPermissionState: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -333,14 +391,31 @@ fun EnableListenSubmission(
                         enabled = isListening
                     )
                     Spacer(modifier = Modifier.height(6.dp))
-                    if (apps.lastIndex != ind) {
-                        HorizontalDivider(
-                            modifier = Modifier.fillMaxWidth(),
-                            color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.4f)
-                        )
-                    }
+                    HorizontalDivider(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.4f)
+                    )
                     Spacer(modifier = Modifier.height(6.dp))
                 }
+                Row(
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                        .clickable{
+                            onAddMoreAppsButtonClick()
+                        }
+                        .padding(top = 4.dp)
+                ){
+                    Icon(painter = painterResource(R.drawable.add_track_to_playlist),
+                        contentDescription = null,
+                        tint = ListenBrainzTheme.colorScheme.text)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Add more apps",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = ListenBrainzTheme.colorScheme.text,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                Spacer(modifier = Modifier.height(6.dp))
             }
         }
     }
@@ -360,7 +435,8 @@ fun ListeningAppLayoutPreview() {
             onListeningCheckChange = {},
             isInPermissionState = true,
             permissionStatus = emptyMap(),
-            onGrantPermissionClick = {}
+            onGrantPermissionClick = {},
+            onAddMoreAppsButtonClick = {}
         )
     }
 }

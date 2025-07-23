@@ -2,9 +2,6 @@ package org.listenbrainz.android.viewmodel
 
 import android.app.Activity
 import android.app.Application
-import android.content.Intent
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
@@ -32,6 +29,8 @@ import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.AppInfo
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
 import org.listenbrainz.android.util.Log
+import org.listenbrainz.android.util.Utils.getAllInstalledApps
+import org.listenbrainz.android.util.Utils.getListeningApps
 import javax.inject.Inject
 
 @HiltViewModel
@@ -50,6 +49,8 @@ class DashBoardViewModel @Inject constructor(
 
     private val _listeningAppsFlow = MutableStateFlow<List<AppInfo>>(emptyList())
     val listeningAppsFlow = _listeningAppsFlow.asStateFlow()
+    private val _allApps = MutableStateFlow<List<AppInfo>>(emptyList())
+    val allApps = _allApps.asStateFlow()
 
     // Sets Ui mode for XML layouts.
     fun setUiMode() {
@@ -71,7 +72,7 @@ class DashBoardViewModel @Inject constructor(
     }
 
 
-    fun getPermissionStatus(activity: ComponentActivity) {
+    fun updatePermissionStatus(activity: ComponentActivity) {
         viewModelScope.launch(ioDispatcher) {
             val requiredPermissions = PermissionEnum.getAllRelevantPermissions()
             val permissionMap = mutableMapOf<PermissionEnum, PermissionStatus>()
@@ -107,9 +108,23 @@ class DashBoardViewModel @Inject constructor(
         }
     }
 
-    fun getListeningApps(context: Activity) {
+    fun addListeningApps(apps: List<AppInfo>){
+        viewModelScope.launch {
+            val currentApps = _listeningAppsFlow.value.toMutableList()
+            apps.forEach { app ->
+                if (!currentApps.any { it.packageName == app.packageName }) {
+                    currentApps.add(app)
+                }
+            }
+            _listeningAppsFlow.emit(currentApps)
+            //Removing from all apps list
+            val updatedAllApps = _allApps.value.filter { it.packageName !in currentApps.map { app -> app.packageName } }
+            _allApps.emit(updatedAllApps)
+        }
+    }
+
+    fun updateListeningApps(context: Activity) {
         viewModelScope.launch(Dispatchers.IO) {
-            val pm = context.packageManager
             val musicAppsPackageNames = mutableSetOf<String>()
             val fetchedApps = mutableListOf<AppInfo>()
             //First add from the existing listening apps
@@ -118,59 +133,13 @@ class DashBoardViewModel @Inject constructor(
                 musicAppsPackageNames.addAll(list)
             }
             val whiteListedApps = appPreferences.listeningWhitelist.getFlow().first()
-            //Add by queries packages
-            val intents = listOf(
-                "android.media.browse.MediaBrowserService",
-                "android.media.session.MediaSessionService"
-            )
-            intents.forEach { intentString ->
-                val services =
-                    pm.queryIntentServices(Intent(intentString), PackageManager.GET_META_DATA)
-                for (resolveInfo in services) {
-                    val packageName = resolveInfo.serviceInfo.packageName
-                    val category = pm.getApplicationInfo(packageName, 0).category
-                    if(category == ApplicationInfo.CATEGORY_AUDIO || category == ApplicationInfo.CATEGORY_VIDEO){
-                        musicAppsPackageNames.add(packageName)
-                    }
-                }
+            context.getListeningApps().forEach {
+                musicAppsPackageNames.add(it.packageName)
             }
-            musicAppsPackageNames.forEach { packageName ->
-                try {
-                    val appInfo = pm.getApplicationInfo(packageName, 0)
-                    val appLabel = pm.getApplicationLabel(appInfo)
-
-                    val iconBitmap = try {
-                        val appDrawable = pm.getApplicationIcon(appInfo)
-                        when (appDrawable) {
-                            is BitmapDrawable -> appDrawable.bitmap
-                            else -> {
-                                val width = appDrawable.intrinsicWidth.takeIf { it > 0 } ?: 48
-                                val height = appDrawable.intrinsicHeight.takeIf { it > 0 } ?: 48
-                                val bitmap = createBitmap(width, height)
-                                val canvas = Canvas(bitmap)
-                                appDrawable.setBounds(0, 0, canvas.width, canvas.height)
-                                appDrawable.draw(canvas)
-                                bitmap
-                            }
-                        }
-                    } catch (e: Exception) {
-                        Log.w("Couldn't get icon for $packageName "+e.toString())
-                        createBitmap(48, 48).apply {
-                            eraseColor(Color.GRAY)
-                        }
-                    }
-                    fetchedApps.add(
-                        AppInfo(
-                            appName = appLabel.toString(),
-                            packageName = packageName,
-                            icon = iconBitmap,
-                            isWhitelisted = packageName in whiteListedApps,
-                            isListening = true
-                        )
-                    )
-                } catch (e: Exception) {
-                    Log.d("Couldn't get info for package $packageName")
-                }
+            getAppInfoFromPackageNames(context, musicAppsPackageNames.toList()).forEach {
+                fetchedApps.add(it.copy(
+                    isWhitelisted = it.packageName in whiteListedApps
+                ))
             }
 
             // Sort so that Spotify, YouTube Music, and YouTube are at the top if present
@@ -197,7 +166,62 @@ class DashBoardViewModel @Inject constructor(
                 }
             }
             appPreferences.listeningApps.set(updatedListeningApps)
+
+            //Adding all installed apps to the list
+            val allApps = getAppInfoFromPackageNames(context, context.getAllInstalledApps().map {
+                it.packageName
+            }, isListening = false)
+                .filter {
+                    it.packageName !in updatedListeningApps
+                }
+            _allApps.emit(allApps)
+            }
         }
+
+    private fun getAppInfoFromPackageNames(context: Activity,
+                                           packages: List<String>,
+                                           isListening: Boolean = true): List<AppInfo>{
+        val pm = context.packageManager
+        val fetchedApps = mutableListOf<AppInfo>()
+        packages.forEach { packageName ->
+            try {
+                val appInfo = pm.getApplicationInfo(packageName, 0)
+                val appLabel = pm.getApplicationLabel(appInfo)
+
+                val iconBitmap = try {
+                    val appDrawable = pm.getApplicationIcon(appInfo)
+                    when (appDrawable) {
+                        is BitmapDrawable -> appDrawable.bitmap
+                        else -> {
+                            val width = appDrawable.intrinsicWidth.takeIf { it > 0 } ?: 48
+                            val height = appDrawable.intrinsicHeight.takeIf { it > 0 } ?: 48
+                            val bitmap = createBitmap(width, height)
+                            val canvas = Canvas(bitmap)
+                            appDrawable.setBounds(0, 0, canvas.width, canvas.height)
+                            appDrawable.draw(canvas)
+                            bitmap
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.w("Couldn't get icon for $packageName "+e.toString())
+                    createBitmap(48, 48).apply {
+                        eraseColor(Color.GRAY)
+                    }
+                }
+                fetchedApps.add(
+                    AppInfo(
+                        appName = appLabel.toString(),
+                        packageName = packageName,
+                        icon = iconBitmap,
+                        isWhitelisted = false,
+                        isListening = isListening
+                    )
+                )
+            } catch (e: Exception) {
+                Log.d("Couldn't get info for package $packageName")
+            }
+        }
+        return fetchedApps
     }
 
     fun onAppCheckChange(isChecked: Boolean,appInfo: AppInfo){

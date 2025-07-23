@@ -7,10 +7,12 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Icon
 import android.media.MediaScannerConnection
@@ -46,6 +48,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationCompat
+import androidx.core.graphics.createBitmap
 import androidx.core.view.WindowCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -53,6 +56,7 @@ import okhttp3.*
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.ResponseError.Companion.getError
+import org.listenbrainz.android.ui.screens.onboarding.listeningApps.AppInfo
 import org.listenbrainz.android.util.Constants.Strings.CHANNEL_ID
 import retrofit2.Response
 import java.io.*
@@ -294,6 +298,48 @@ object Utils {
             action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
             data = Uri.fromParts("package", packageName, null)
         })
+    }
+
+    fun Context.getListeningApps(): List<ApplicationInfo>{
+        val intents = listOf(
+            "android.media.browse.MediaBrowserService",
+            "android.media.session.MediaSessionService"
+        )
+        val musicAppsPackages = mutableListOf<ApplicationInfo>()
+        intents.forEach { intentString->
+            val services = packageManager.queryIntentServices(Intent(intentString), PackageManager.GET_META_DATA)
+            for(resolveInfo in services){
+                val packageName = resolveInfo.serviceInfo.packageName
+                val appInfo = packageManager.getApplicationInfo(packageName, 0)
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                    val category = packageManager.getApplicationInfo(packageName, 0).category
+                    if(category == ApplicationInfo.CATEGORY_AUDIO || category == ApplicationInfo.CATEGORY_VIDEO){
+                        musicAppsPackages.add(appInfo)
+                    }
+                }else{
+                    //Don't apply the additional category filter for API version < 26
+                    musicAppsPackages.add(appInfo)
+                }
+            }
+        }
+        return musicAppsPackages
+    }
+
+    //Function to fetch installed apps
+    fun Context.getAllInstalledApps(): List<ApplicationInfo>{
+        val apps = mutableListOf<ApplicationInfo>()
+        val intent = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_LAUNCHER)
+        }
+        packageManager.queryIntentActivities(intent, 0).forEach { resolveInfo->
+            try {
+                val appInfo = packageManager.getApplicationInfo(resolveInfo.activityInfo.packageName, 0)
+                apps.add(appInfo)
+            }catch (e: Exception){
+                Log.e("Could not fetch ApplicationInfo for ${resolveInfo.activityInfo.packageName}")
+            }
+        }
+        return apps
     }
     
     
