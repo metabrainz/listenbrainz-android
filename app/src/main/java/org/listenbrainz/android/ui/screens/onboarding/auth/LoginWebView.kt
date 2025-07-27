@@ -236,28 +236,29 @@ fun ListenBrainzLogin(
                         )
                     },
                     text = {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            when (loginState) {
+                        when (loginState) {
                                 is LoginState.Loading,
                                 is LoginState.SubmittingCredentials,
                                 is LoginState.AuthenticatingWithServer,
                                 is LoginState.VerifyingToken -> {
-                                    LoadingAnimation()
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    Text(
-                                        text = when (loginState) {
-                                            is LoginState.Loading -> (loginState as LoginState.Loading).message
-                                            is LoginState.SubmittingCredentials -> "Submitting credentials..."
-                                            is LoginState.AuthenticatingWithServer -> "Authenticating..."
-                                            is LoginState.VerifyingToken -> "Verifying token..."
-                                            else -> "Loading..."
-                                        },
-                                        color = ListenBrainzTheme.colorScheme.text,
-                                        textAlign = TextAlign.Center
-                                    )
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        LoadingAnimation()
+                                        Spacer(modifier = Modifier.height(16.dp))
+                                        Text(
+                                            text = when (loginState) {
+                                                is LoginState.Loading -> (loginState as LoginState.Loading).message
+                                                is LoginState.SubmittingCredentials -> "Submitting credentials..."
+                                                is LoginState.AuthenticatingWithServer -> "Authenticating..."
+                                                is LoginState.VerifyingToken -> "Verifying token..."
+                                                else -> "Loading..."
+                                            },
+                                            color = ListenBrainzTheme.colorScheme.text,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
                                 }
                                 is LoginState.Error -> {
                                     Text(
@@ -275,7 +276,6 @@ fun ListenBrainzLogin(
                                 }
                                 else -> {}
                             }
-                        }
                     },
                     confirmButton = {
                         if (loginState is LoginState.Error) {

@@ -116,11 +116,13 @@ fun ListeningAppSelectionScreen(
     )
     if (isBottomSheetVisible) {
         ModalBottomSheet(
+            modifier = Modifier.statusBarsPadding(),
             containerColor = ListenBrainzTheme.colorScheme.background,
             onDismissRequest = {
-            isBottomSheetVisible = false
-        },
-            sheetState = sheetState) {
+                isBottomSheetVisible = false
+            },
+            sheetState = sheetState
+        ) {
             AllInstalledAppsBottomSheet(
                 appsList = allApps,
                 onCancel = {

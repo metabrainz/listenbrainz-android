@@ -70,21 +70,16 @@ fun AllInstalledAppsBottomSheet(
     val keyboardController = LocalSoftwareKeyboardController.current
     val selectedAppsListState = rememberLazyListState()
     val allAppsListState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(selectedApps.size) {
         if (selectedApps.isNotEmpty()) {
-            coroutineScope.launch {
-                selectedAppsListState.animateScrollToItem(selectedApps.size - 1)
-            }
+            selectedAppsListState.animateScrollToItem(selectedApps.size - 1)
         }
     }
 
     LaunchedEffect(searchQuery) {
-        coroutineScope.launch {
-            if (appsList.isNotEmpty()) {
-                allAppsListState.animateScrollToItem(0)
-            }
+        if (appsList.isNotEmpty()) {
+            allAppsListState.animateScrollToItem(0)
         }
     }
 
