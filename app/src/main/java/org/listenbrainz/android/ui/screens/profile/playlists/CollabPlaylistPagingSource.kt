@@ -19,7 +19,6 @@ class CollabPlaylistPagingSource(
     private val username: String?,
     private val onError: (error: ResponseError?) -> Unit,
     private val playlistDataRepository: PlaylistDataRepository,
-    private val shouldFetchCoverArt: Boolean = true,
     private val ioDispatcher: CoroutineDispatcher
 ) : PagingSource<Int, UserPlaylist>() {
     override fun getRefreshKey(state: PagingState<Int, UserPlaylist>): Int? {
@@ -51,15 +50,7 @@ class CollabPlaylistPagingSource(
                 val data = (result.data?.playlists ?: emptyList()).map { it.playlist }
                 val nextKey = if (data.isEmpty()) null else params.key?.plus(params.loadSize)
                 LoadResult.Page(
-                    data = if (shouldFetchCoverArt) withContext(ioDispatcher) {
-                        data.map { playlist ->
-                            async {
-                                val coverArtResult = playlist.getPlaylistMBID()
-                                    ?.let { it1 -> playlistDataRepository.getPlaylistCoverArt(it1) }
-                                playlist.copy(coverArt = coverArtResult?.data)
-                            }
-                        }.awaitAll()
-                    } else data,
+                    data = data,
                     prevKey = null,
                     nextKey = nextKey
                 )
