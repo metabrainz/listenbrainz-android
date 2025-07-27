@@ -54,6 +54,8 @@ import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import androidx.activity.viewModels
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.runtime.collectAsState
+import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -61,6 +63,7 @@ fun HomeScreen(
     dashBoardViewModel: DashBoardViewModel = hiltViewModel(),
     brainzPlayerViewModel: BrainzPlayerViewModel = hiltViewModel()
 ){
+    val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val navController = rememberNavController()
     val backdropScaffoldState =
         rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
@@ -139,7 +142,8 @@ fun HomeScreen(
                     username = username,
                     isLandscape = isLandScape,
                     currentlyPlayingSong = currentlyPlayingSong.toSong,
-                    songList = songList ?: emptyList()
+                    songList = songList ?: emptyList(),
+                    isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable()
                 )
         },
         snackbarHost = {
@@ -168,7 +172,8 @@ fun HomeScreen(
                     username = username,
                     isLandscape = true,
                     currentlyPlayingSong = currentlyPlayingSong.toSong,
-                    songList = songList ?: emptyList()
+                    songList = songList ?: emptyList(),
+                    isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable()
                 )
             }
 //            if (isGrantedPerms == PermissionStatus.GRANTED.name) {
@@ -191,6 +196,7 @@ fun HomeScreen(
                             }
                         },
                         snackbarState = snackbarState,
+                        dashBoardViewModel = dashBoardViewModel
                     )
                 }
 //            }

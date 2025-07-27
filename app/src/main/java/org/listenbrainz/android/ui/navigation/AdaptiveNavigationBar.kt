@@ -59,6 +59,7 @@ fun AdaptiveNavigationBar(
     scrollToTop: () -> Unit,
     username: String?,
     isLandscape: Boolean,
+    isAudioPermissionGranted: Boolean,
     currentlyPlayingSong: Song,
     songList: List<Song>,
 ) {
@@ -67,7 +68,7 @@ fun AdaptiveNavigationBar(
         AppNavigationItem.Explore,
         AppNavigationItem.BrainzPlayer,
         AppNavigationItem.Profile
-    )
+    ).filter { isAudioPermissionGranted ||  it != AppNavigationItem.BrainzPlayer  }
     val coroutineScope = rememberCoroutineScope()
 
     @Composable
@@ -234,6 +235,7 @@ fun AdaptiveNavigationBarPreview() {
         username = "pranavkonidena",
         isLandscape = true,
         currentlyPlayingSong = Song(),
+        isAudioPermissionGranted = true,
         songList = emptyList()
     )
 }

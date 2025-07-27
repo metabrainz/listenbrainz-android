@@ -27,6 +27,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -131,12 +132,15 @@ fun OnboardingYellowButton(
     icon: Int? = null,
     fontSize: Int = 18,
     isEnabled: Boolean = true,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onClickWhileDisabled: ()-> Unit = {}
 ) {
     Button(
         onClick = {
             if (isEnabled) {
                 onClick()
+            }else{
+                onClickWhileDisabled()
             }
         },
         modifier = modifier
@@ -146,13 +150,16 @@ fun OnboardingYellowButton(
                 spotColor = Color.Black.copy(alpha = 0.4f),
                 ambientColor = Color.Black.copy(alpha = 0.2f)
             )
-            .padding(2.dp),
+            .padding(2.dp)
+            .alpha(if (isEnabled) 1f else 0.6f)
+        ,
         shape = ListenBrainzTheme.shapes.listenCardSmall,
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isEnabled) lb_yellow else lb_yellow.copy(alpha = 0.6f),
             disabledContainerColor = lb_yellow.copy(alpha = 0.6f)
         ),
-        enabled = isEnabled
+        //Not using enabled = isEnabled here because it causes the button to be disabled, so onClick won't work
+//        enabled = isEnabled
     ) {
         Row(
             horizontalArrangement = Arrangement.Center,

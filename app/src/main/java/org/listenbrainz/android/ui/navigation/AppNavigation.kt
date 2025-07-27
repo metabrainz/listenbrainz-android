@@ -41,6 +41,7 @@ fun AppNavigation(
     navController: NavController = rememberNavController(),
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
+    dashBoardViewModel: DashBoardViewModel,
     snackbarState: SnackbarHostState,
 ) {
     fun NavOptionsBuilder.defaultNavOptions() {
@@ -133,7 +134,9 @@ fun AppNavigation(
         appComposable(
             route = AppNavigationItem.Settings.route
         ) {
-            SettingsScreen()
+            SettingsScreen(
+                dashBoardViewModel = dashBoardViewModel
+            )
         }
         appComposable(
             route = "${AppNavigationItem.Artist.route}/{mbid}",

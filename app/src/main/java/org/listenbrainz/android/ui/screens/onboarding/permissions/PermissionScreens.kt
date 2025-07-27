@@ -27,6 +27,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -35,23 +36,30 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation3.runtime.rememberNavBackStack
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.components.FloatingContentAwareLayout
+import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
+import org.listenbrainz.android.ui.navigation.NavigationItem
+import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_yellow
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
 @Composable
-fun PermissionScreen(dashBoardViewModel: DashBoardViewModel = hiltViewModel(), onExit: () -> Unit) {
+fun PermissionScreen(dashBoardViewModel: DashBoardViewModel = hiltViewModel(),
+                     onExitAfterGrantingAllPermissions: ()-> Unit,
+                     onExit: () -> Unit) {
     val activity = LocalActivity.current
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val permissionsRequestedOnce by dashBoardViewModel.permissionsRequestedAteastOnce.collectAsState()
+    val filteredPermissions = permissions.filter { it.key != PermissionEnum.BATTERY_OPTIMIZATION && it.key != PermissionEnum.READ_NOTIFICATIONS }
 
-    LaunchedEffect(permissions) {
-        if (permissions.isEmpty() || permissions.all { it.value == PermissionStatus.GRANTED }) {
-            onExit() // Exit if all permissions are granted
+    LaunchedEffect(filteredPermissions) {
+        if (filteredPermissions.isEmpty() || filteredPermissions.all { it.value == PermissionStatus.GRANTED }) {
+            onExitAfterGrantingAllPermissions() // Exit if all permissions are granted
         }
     }
 
@@ -60,7 +68,7 @@ fun PermissionScreen(dashBoardViewModel: DashBoardViewModel = hiltViewModel(), o
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { perm ->
         }
     PermissionScreenBase(
-        permissions,
+        filteredPermissions,
         onGrantPermissionClick = { permission ->
             if (activity != null) {
                 permission.requestPermission(activity, permissionsRequestedOnce, {
@@ -82,9 +90,7 @@ private fun PermissionScreenBase(
 ) {
     FloatingContentAwareLayout(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp)
-            .statusBarsPadding(),
+            .fillMaxSize(),
         buttonAlignment = Alignment.BottomEnd,
         floatingContent = {
             ExtendedFloatingActionButton(
@@ -112,12 +118,17 @@ private fun PermissionScreenBase(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 60.dp)
+                    .padding(horizontal = 24.dp)
             ) {
+                item{
+                    Spacer(Modifier
+                        .statusBarsPadding()
+                        .height(100.dp))
+                }
 
                 item {
                     Text(
-                        "${permissionList.size} permissions missing",
+                        "Required Permissions",
                         color = Color.White,
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold
@@ -146,19 +157,24 @@ private fun PermissionScreenBase(
                     Spacer(Modifier.height(buttonSize.height + 16.dp)) // Add space for the floating button
                 }
             }
+            OnboardingBackButton(modifier = Modifier
+                .statusBarsPadding()
+                .padding(top = 8.dp, start = 8.dp))
         }
     }
 }
 
 
 @Composable
-private fun PermissionCard(
+fun PermissionCard(
     permissionEnum: PermissionEnum,
     isPermanentlyDecline: Boolean,
+    modifier: Modifier = Modifier,
+    isDisabled: Boolean = false,
     onClick: () -> Unit
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .widthIn(max = 400.dp)
             .fillMaxWidth()
             .background(
@@ -166,6 +182,7 @@ private fun PermissionCard(
                 shape = ListenBrainzTheme.shapes.listenCardSmall
             )
             .padding(vertical = 20.dp)
+            .alpha(if(isDisabled)0.5f else 1f)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -197,7 +214,7 @@ private fun PermissionCard(
                         permissionEnum.permanentlyDeclinedRationale else permissionEnum.rationaleText,
                     fontWeight = FontWeight.Normal,
                     color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.8f),
-
+                    fontSize = 16.sp
                     )
             }
             Spacer(Modifier.height(16.dp))
@@ -205,6 +222,7 @@ private fun PermissionCard(
                 onClick = onClick,
                 icon = if(isPermanentlyDecline) R.drawable.ic_redirect else null,
                 modifier = Modifier.fillMaxWidth(0.9f),
+                isEnabled = !isDisabled,
                 text = if (isPermanentlyDecline) "Go to Settings" else "Grant Permission",
                 fontSize = 16
             )
@@ -218,6 +236,7 @@ private fun PermissionCard(
 @Composable
 private fun PermissionScreenPreview() {
     ListenBrainzTheme {
+        OnboardingScreenBackground(backStack = rememberNavBackStack(NavigationItem.OnboardingScreens.PermissionScreen))
         PermissionScreenBase(
             permissions = mapOf(
                 PermissionEnum.READ_NOTIFICATIONS to PermissionStatus.DENIED_TWICE,

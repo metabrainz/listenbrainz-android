@@ -43,7 +43,7 @@ interface AppPreferences {
     /** Default is true. */
     val isListeningAllowed: DataStorePreference<Boolean>
     
-    /** Default is true. */
+    /** Default is false. */
     val shouldListenNewPlayers: DataStorePreference<Boolean>
 
     val isNotificationServiceAllowed: Boolean

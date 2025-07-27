@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.screens.onboarding.permissions
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -84,7 +83,7 @@ enum class PermissionEnum(
     );
 
     //This function checks if the permission is applicable for the current Android version
-    private fun isPermissionApplicable(): Boolean{
+    fun isPermissionApplicable(): Boolean{
         return if(Build.VERSION.SDK_INT >= minSdk){
             maxSdk?.let {
                 Build.VERSION.SDK_INT <= it
@@ -161,14 +160,17 @@ enum class PermissionEnum(
 
     companion object{
         /// Function to get the list of required permissions based on the current Android version
-        fun getRequiredPermissionsList(): List<PermissionEnum> = PermissionEnum.entries.filter {
+        fun getAllRelevantPermissions(): List<PermissionEnum> = PermissionEnum.entries.filter {
+            it.isPermissionApplicable()
+        }
+        fun getPermissionsForPermissionScreen(): List<PermissionEnum> = PermissionEnum.entries.filter {
             it.isPermissionApplicable() &&
             it != READ_NOTIFICATIONS && // READ_NOTIFICATIONS is handled separately
             it != BATTERY_OPTIMIZATION // BATTERY_OPTIMIZATION is handled separately
         }
 
         fun getListOfPermissionsToBeLaunchedTogether(context: Activity, permissionsRequestedOnce: List<String>): Array<String>{
-            return getRequiredPermissionsList().filter { permission->
+            return getPermissionsForPermissionScreen().filter { permission->
                 !permission.isGranted(context) && !permission.isPermissionPermanentlyDeclined(context, permissionsRequestedOnce)
             }.map { it.permission }.toList().toTypedArray()
         }

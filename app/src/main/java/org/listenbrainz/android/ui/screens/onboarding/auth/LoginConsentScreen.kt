@@ -6,6 +6,8 @@ import android.text.Html
 import android.text.Spanned
 import android.text.style.URLSpan
 import android.util.Log
+import android.webkit.CookieManager
+import android.webkit.CookieSyncManager
 import android.webkit.WebView
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -53,6 +55,7 @@ import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
 import org.listenbrainz.android.ui.navigation.NavigationItem
+import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
@@ -65,24 +68,63 @@ fun LoginConsentScreen(onProceedToLoginScreen: () -> Unit) {
     var isLoading by remember {
         mutableStateOf(true)
     }
+    var errorMessage by remember {
+        mutableStateOf<String?>(null)
+    }
+    var webView by remember {
+        mutableStateOf<WebView?>(null)
+    }
+
+    fun loadConsentPage() {
+        isLoading = true
+        errorMessage = null
+        webView?.loadUrl("https://listenbrainz.org/login")
+    }
+
     AndroidView(
         modifier = Modifier.size(1.dp)
             .alpha(0.0f),
         factory = {
             WebView(it).apply {
-                webViewClient = ConsentWebViewClient({ text ->
-                    data = text
-                    isLoading = false
-                })
+                fun clearCookies() {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                        CookieManager.getInstance().removeAllCookies(null)
+                        CookieManager.getInstance().flush()
+                    } else {
+                        val cookieSyncManager = CookieSyncManager.createInstance(context)
+                        cookieSyncManager.startSync()
+                        val cookieManager: CookieManager = CookieManager.getInstance()
+                        cookieManager.removeAllCookie()
+                        cookieManager.removeSessionCookie()
+                        cookieSyncManager.stopSync()
+                        cookieSyncManager.sync()
+                    }
+                }
+                webViewClient = ConsentWebViewClient(
+                    onLoadData = { text ->
+                        data = text
+                        isLoading = false
+                        errorMessage = null
+                    },
+                    onError = { error ->
+                        isLoading = false
+                        errorMessage = error
+                    }
+                )
+                clearCookies()
                 loadUrl("https://listenbrainz.org/login")
                 settings.javaScriptEnabled = true
+                webView = this
             }
         }
     )
+
     LoginConsentScreenLayout(
-        data ?: "",
-        isLoading,
-        onProceedToLoginScreen
+        html = data ?: "",
+        isLoading = isLoading,
+        errorMessage = errorMessage,
+        onClickNext = onProceedToLoginScreen,
+        onRetry = ::loadConsentPage
     )
 }
 
@@ -90,111 +132,127 @@ fun LoginConsentScreen(onProceedToLoginScreen: () -> Unit) {
 private fun LoginConsentScreenLayout(
     html: String,
     isLoading: Boolean,
-    onClickNext: () -> Unit
+    errorMessage: String?,
+    onClickNext: () -> Unit,
+    onRetry: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 60.dp)
-            .padding(horizontal = 24.dp)
-            .statusBarsPadding()
-            .navigationBarsPadding()
-            .verticalScroll(rememberScrollState())
-    ) {
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Text(
-            text = "Sign in",
-            color = Color.White,
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        AnimatedContent(html.isNotEmpty()) {
-            if(it) {
-                val paragraphs = parseHtmlToParagraphs(html)
-                Text(
-                    text = htmlToAnnotatedString(
-                        html = paragraphs[0],
-                        lb_purple_night
-                    ),
-                    color = Color.White.copy(alpha = 0.8f),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(bottom = 32.dp)
-                )
-            }else{
-                Spacer(modifier = Modifier.height(64.dp))
-            }
-        }
-
-        Card(
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 24.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = ListenBrainzTheme.colorScheme.background.copy(alpha = 0.75f)
-            ),
-            shape = ListenBrainzTheme.shapes.listenCardSmall
+                .fillMaxSize()
+                .padding(horizontal = 24.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            Column(
+            Spacer(modifier = Modifier
+                .statusBarsPadding()
+                .height(100.dp))
+
+            Text(
+                text = "Sign in",
+                color = Color.White,
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            AnimatedContent(html.isNotEmpty()) {
+                if (it) {
+                    val paragraphs = parseHtmlToParagraphs(html)
+                    Text(
+                        text = htmlToAnnotatedString(
+                            html = paragraphs[0],
+                            lb_purple_night
+                        ),
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.padding(bottom = 32.dp)
+                    )
+                } else {
+                    Spacer(modifier = Modifier.height(64.dp))
+                }
+            }
+
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
+                    .padding(bottom = 24.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = ListenBrainzTheme.colorScheme.background.copy(alpha = 0.75f)
+                ),
+                shape = ListenBrainzTheme.shapes.listenCardSmall
             ) {
-                AnimatedVisibility(
-                    visible = isLoading,
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        contentAlignment = Alignment.Center
+                    AnimatedVisibility(
+                        visible = isLoading,
                     ) {
-                        LoadingAnimation()
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            LoadingAnimation()
+                        }
                     }
-                }
-                AnimatedVisibility(
-                    visible = !isLoading,
-                ) {
-                    Column {
-                        Text(
-                            text = "Important!",
-                            color = ListenBrainzTheme.colorScheme.text,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(bottom = 16.dp)
-                        )
+                    AnimatedVisibility(
+                        visible = !isLoading,
+                    ) {
+                        Column {
+                            Text(
+                                text = "Important!",
+                                color = ListenBrainzTheme.colorScheme.text,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(bottom = 16.dp)
+                            )
 
-                        if (html.isNotEmpty()) {
-                            val paragraphs = parseHtmlToParagraphs(html)
-                            paragraphs.drop(2).forEach { paragraph ->
+                            if (html.isNotEmpty()) {
+                                val paragraphs = parseHtmlToParagraphs(html)
+                                paragraphs.drop(2).forEach { paragraph ->
+                                    Text(
+                                        text = htmlToAnnotatedString(
+                                            html = paragraph,
+                                            linkColor = if (isSystemInDarkTheme()) lb_purple_night else lb_purple
+                                        ),
+                                        color = ListenBrainzTheme.colorScheme.text,
+                                        fontSize = 14.sp,
+                                        lineHeight = 20.sp,
+                                        modifier = Modifier.padding(bottom = 12.dp)
+                                    )
+                                }
+                            }
+
+                            errorMessage?.let { error ->
                                 Text(
-                                    text = htmlToAnnotatedString(
-                                        html = paragraph,
-                                        linkColor = if(isSystemInDarkTheme()) lb_purple_night else lb_purple
-                                    ),
-                                    color = ListenBrainzTheme.colorScheme.text,
+                                    text = error,
+                                    color = Color.Red,
                                     fontSize = 14.sp,
                                     lineHeight = 20.sp,
-                                    modifier = Modifier.padding(bottom = 12.dp)
+                                    modifier = Modifier.padding(top = 12.dp, bottom = 12.dp)
                                 )
                             }
                         }
                     }
                 }
             }
-        }
 
-        OnboardingYellowButton(
-            text = "Sign In With MusicBrainz",
-            isEnabled = !isLoading,
-            onClick = onClickNext,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 32.dp)
-        )
+            OnboardingYellowButton(
+                text = if (errorMessage != null) "Retry" else "Sign In With MusicBrainz",
+                isEnabled = !isLoading,
+                onClick = if (errorMessage != null) onRetry else onClickNext,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 32.dp)
+            )
+        }
+        OnboardingBackButton(modifier = Modifier
+            .statusBarsPadding()
+            .padding(top = 8.dp, start = 8.dp))
     }
 }
 
@@ -212,8 +270,7 @@ private fun parseHtmlToParagraphs(html: String): List<String> {
     return paragraphs
 }
 
-@Composable
-fun htmlToAnnotatedString(html: String, linkColor: Color): AnnotatedString {
+private fun htmlToAnnotatedString(html: String, linkColor: Color): AnnotatedString {
     val unescapedHtml = html.removeSurrounding("\"")
         .replace("\\u003C", "<")
         .replace("\\u003E", ">")
@@ -259,7 +316,9 @@ fun LoginConsentScreenPreview() {
         LoginConsentScreenLayout(
             html = "\"To sign in, use your MusicBrainz account, and authorize ListenBrainz to access your profile data.\\n\\nImportant!\\n\\nBy signing into ListenBrainz, you grant the MetaBrainz Foundation permission to include your listening history in data dumps we make publicly available under the \\u003Ca href=\\\"https://creativecommons.org/publicdomain/zero/1.0/\\\">CC0 license\\u003C/a>. None of your private information from your user profile will be included in these data dumps.\\n\\nFurthermore, you grant the MetaBrainz Foundation permission to process your listening history and include it in new open source tools such as recommendation engines that the ListenBrainz project is building. For details on processing your listening history, please see our \\u003Ca href=\\\"https://metabrainz.org/gdpr\\\">GDPR compliance statement\\u003C/a>.\\n\\nIn order to combat spammers and to be able to contact our users in case something goes wrong with the listen submission process, we now require an email address when creating a ListenBrainz account.\\n\\nIf after creating an account you change your mind about processing your listening history, you will need to \\u003Ca href=\\\"/settings/delete/\\\" data-discover=\\\"true\\\">delete your ListenBrainz account\\u003C/a>.\"",
             isLoading = false,
-            onClickNext = {}
+            errorMessage = null,
+            onClickNext = {},
+            onRetry = {}
         )
     }
 }
