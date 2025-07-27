@@ -9,16 +9,16 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
+
+
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
-
-    <queries>
-        <package android:name="com.google.android.apps.youtube.music" />
-    </queries>
 
     <application
         android:name=".application.App"
@@ -66,7 +66,7 @@
             android:exported="true"
             android:permission="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK">
             <intent-filter>
-                <action android:name="android.media.browse.MediaMrowserService" />
+                <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service> <!-- TODO: To receive events from wired devices -->
         <!--

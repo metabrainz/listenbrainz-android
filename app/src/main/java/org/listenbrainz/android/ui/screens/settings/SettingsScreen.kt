@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.provider.Settings
 import android.widget.Toast
+import androidx.activity.compose.LocalActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,6 +27,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,14 +60,18 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
 import org.listenbrainz.android.ui.screens.main.DonateActivity
+import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
 import org.listenbrainz.android.ui.screens.profile.LoginActivity
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningAppsList
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Constants
+import org.listenbrainz.android.util.Log
+import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
 import org.listenbrainz.android.viewmodel.SettingsViewModel
 
@@ -73,7 +79,10 @@ import org.listenbrainz.android.viewmodel.SettingsViewModel
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     listensViewModel: ListensViewModel = hiltViewModel(),
+    dashBoardViewModel: DashBoardViewModel
 ) {
+    val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
+    val isBatteryOptimizationPermissionGranted = permissions[PermissionEnum.BATTERY_OPTIMIZATION] == PermissionStatus.GRANTED
     val preferencesUiState by listensViewModel.preferencesUiState.collectAsState()
     SettingsScreen(
         appPreferences = viewModel.appPreferences,
@@ -87,7 +96,8 @@ fun SettingsScreen(
                 getPackageLabel = listensViewModel::getPackageLabel,
                 setWhitelist = listensViewModel::setWhitelist
             )
-        }
+        },
+        isBatteryOptimizationPermissionGranted = isBatteryOptimizationPermissionGranted
     )
 }
 
@@ -95,10 +105,12 @@ fun SettingsScreen(
 fun SettingsScreen(
     appPreferences: AppPreferences,
     callbacks: SettingsCallbacks,
-    preferencesUiState: PreferencesUiState
+    preferencesUiState: PreferencesUiState,
+    isBatteryOptimizationPermissionGranted: Boolean = true
 ) {
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
+    val activity = LocalActivity.current
     var showBlacklist by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
     val darkTheme = ListenBrainzTheme.uiModeIsDark
@@ -112,7 +124,7 @@ fun SettingsScreen(
     }
     val submitListensCheckedState by appPreferences.isListeningAllowed
         .getFlow().collectAsState(initial = true)
-    val shouldListenNewPlayers by appPreferences.shouldListenNewPlayers.getFlow().collectAsState(initial = true)
+    val shouldListenNewPlayers by appPreferences.shouldListenNewPlayers.getFlow().collectAsState(initial = false)
 
     LifecycleResumeEffect(key1 = Unit) {
         scope.launch {
@@ -209,6 +221,21 @@ fun SettingsScreen(
                 }
             }
             darkThemeCheckedState = it
+        }
+
+        if(!isBatteryOptimizationPermissionGranted && PermissionEnum.BATTERY_OPTIMIZATION.isPermissionApplicable()) {
+            HorizontalDivider()
+
+            SettingsTextOption(
+                modifier = Modifier.clickable(){
+                    if(activity!= null) {
+                        //Last two permissions are not required for Battery Optimization permission
+                        PermissionEnum.BATTERY_OPTIMIZATION.requestPermission(activity,emptyList()){}
+                    }
+                },
+                title = "Disable Battery Optimization",
+                subtitle = "Required to send listens",
+            )
         }
 
         HorizontalDivider()

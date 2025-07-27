@@ -8,17 +8,9 @@ import org.listenbrainz.android.util.LinkedService
 interface AppPreferences {
     
     val themePreference: DataStorePreference<UiMode>
-    
-    /**
-     *
-     * [PermissionStatus.NOT_REQUESTED] -> permission not requested even once.
-     *
-     * [PermissionStatus.GRANTED]-> permission granted.
-     *
-     * [PermissionStatus.DENIED_ONCE] -> permission is denied once, user can be asked for permission again.
-     *
-     * [PermissionStatus.DENIED_TWICE] -> permission is denied twice and cannot be asked again. User need to go to settings to enable the permission.*/
-    var permissionsPreference: String?
+
+    /** List of permissions requested by the app atleast once. */
+    val requestedPermissionsList: DataStorePreference<List<String>>
 
     /** Whitelist for ListenSubmissionService.*/
     val listeningWhitelist: DataStorePreference<List<String>>
@@ -51,7 +43,7 @@ interface AppPreferences {
     /** Default is true. */
     val isListeningAllowed: DataStorePreference<Boolean>
     
-    /** Default is true. */
+    /** Default is false. */
     val shouldListenNewPlayers: DataStorePreference<Boolean>
 
     val isNotificationServiceAllowed: Boolean

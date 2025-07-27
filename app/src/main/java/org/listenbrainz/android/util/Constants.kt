@@ -30,6 +30,7 @@ object Constants {
         const val PREFERENCE_PERMS = "perms_code"
         const val PREFERENCE_ALBUMS_ON_DEVICE = "PREFERENCE_ALBUMS_ON_DEVICE"
         const val PREFERENCE_SONGS_ON_DEVICE = "PREFERENCE_SONGS_ON_DEVICE"
+        const val PREFERENCE_REQUESTED_PERMISSIONS = "requested_permissions"
         const val LINKED_SERVICES = "LINKED_SERVICES"
         const val USERNAME = "username"
         const val CURRENT_PLAYABLE = "CURRENT_PLAYABLE"

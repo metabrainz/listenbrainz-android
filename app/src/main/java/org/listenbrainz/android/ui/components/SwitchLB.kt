@@ -10,13 +10,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun Switch(modifier: Modifier = Modifier, checked: Boolean, onCheckedChange: (Boolean) -> Unit)
+fun SwitchLB(modifier: Modifier = Modifier, checked: Boolean, onCheckedChange: (Boolean) -> Unit)
 {
     Switch(
         modifier = modifier,
         checked = checked,
         onCheckedChange = { onCheckedChange(it) },
-        colors  = SwitchDefaults.colors(
+        colors  = SwitchDefaults.colors().copy(
             checkedThumbColor = Color(0xFF918EB0),
             checkedTrackColor = Color(0xFF353070),
             uncheckedThumbColor = Color(0xFFD9D9D9),
@@ -29,7 +29,7 @@ fun Switch(modifier: Modifier = Modifier, checked: Boolean, onCheckedChange: (Bo
 @Composable
 fun PreviewSwitch() {
     val checkedState = remember { mutableStateOf(true) }
-    org.listenbrainz.android.ui.components.Switch(
+    SwitchLB(
         checked = checkedState.value,
         onCheckedChange = { checkedState.value = it }
     )

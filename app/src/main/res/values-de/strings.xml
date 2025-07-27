@@ -147,4 +147,5 @@
     <string name="brainzplayer_notification_channel_description">Steuerung für aktuell wiedergegebenes Lied</string>
     <string name="is_in_collection_feedback">Ist in der Benutzersammlung? %1$s</string>
     <string name="settings_listenbrainz_token">ListenBrainz Benutzer-Token</string>
+    <string name="permission_screen_rationale">ListenBrainz needs permissions for playback, history tracking, and submissions. We respect your privacy and don\'t collect or share personal data.</string>
 </resources>

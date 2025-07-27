@@ -3,6 +3,7 @@ package org.listenbrainz.android.repository.preferences
 import android.content.Context
 import android.content.pm.PackageManager
 import android.provider.Settings
+import android.util.Log
 import androidx.datastore.core.DataMigration
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.SharedPreferencesMigration
@@ -40,6 +41,7 @@ import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_BLAC
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_WHITELIST
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTEN_NEW_PLAYERS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_PERMS
+import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_REQUESTED_PERMISSIONS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SONGS_ON_DEVICE
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SUBMIT_LISTENS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SYSTEM_THEME
@@ -53,6 +55,20 @@ import org.listenbrainz.android.util.TypeConverter
 class AppPreferencesImpl(private val context: Context): AppPreferences {
     companion object {
         private val gson = Gson()
+        private val permsMigration: DataMigration<Preferences> =
+            object: DataMigration<Preferences> {
+                override suspend fun cleanUp() = Unit
+                override suspend fun shouldMigrate(currentData: Preferences): Boolean {
+                    return currentData.contains(stringPreferencesKey(PREFERENCE_PERMS))
+                }
+
+                override suspend fun migrate(currentData: Preferences): Preferences {
+                    val mutablePreferences = currentData.toMutablePreferences()
+                    mutablePreferences.remove(stringPreferencesKey(PREFERENCE_PERMS))
+                    Log.i("AppPreferencesImpl", "Removed old permissions key: $PREFERENCE_PERMS")
+                    return mutablePreferences.toPreferences()
+                }
+            }
         private val blacklistMigration: DataMigration<Preferences> =
             object: DataMigration<Preferences> {
                 override suspend fun cleanUp() = Unit
@@ -95,7 +111,7 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
                         PREFERENCE_SYSTEM_THEME,
                         PREFERENCE_LISTENING_APPS
                     )
-                ), blacklistMigration)
+                ), blacklistMigration, permsMigration)
             }
         )
     
@@ -108,6 +124,7 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
             val LISTENING_APPS = stringPreferencesKey(PREFERENCE_LISTENING_APPS)
             val IS_LISTENING_ALLOWED = booleanPreferencesKey(PREFERENCE_SUBMIT_LISTENS)
             val SHOULD_LISTEN_NEW_PLAYERS = booleanPreferencesKey(PREFERENCE_LISTEN_NEW_PLAYERS)
+            val PERMISSIONS_REQUESTED = stringPreferencesKey(PREFERENCE_REQUESTED_PERMISSIONS)
         }
         
         fun String?.asStringList(): List<String> {
@@ -146,7 +163,23 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
         get() = context.dataStore.data
     
     // Preferences Implementation
-    
+
+    override val requestedPermissionsList: DataStorePreference<List<String>>
+        get() = object : DataStorePreference<List<String>> {
+            override fun getFlow(): Flow<List<String>> {
+                return datastore.map { prefs->
+                    prefs[PreferenceKeys.PERMISSIONS_REQUESTED].asStringList()
+                }
+            }
+
+            override suspend fun set(value: List<String>) {
+                context.dataStore.edit { prefs ->
+                    prefs[PreferenceKeys.PERMISSIONS_REQUESTED] = gson.toJson(value)
+                }
+            }
+        }
+
+
     override val themePreference: DataStorePreference<UiMode>
         get() = object : DataStorePreference<UiMode> {
             override fun getFlow(): Flow<UiMode> =
@@ -156,10 +189,7 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
                 context.dataStore.edit { it[THEME] = value.name }
             }
         }
-    
-    override var permissionsPreference: String?
-        get() = preferences.getString(PREFERENCE_PERMS, PermissionStatus.NOT_REQUESTED.name)
-        set(value) = setString(PREFERENCE_PERMS, value)
+
     
     override val listeningWhitelist: DataStorePreference<List<String>>
         get() = object: DataStorePreference<List<String>> {
@@ -208,7 +238,7 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
         get() = object : DataStorePreference<Boolean> {
             override fun getFlow(): Flow<Boolean> =
                 datastore.map { prefs ->
-                    prefs[SHOULD_LISTEN_NEW_PLAYERS] ?: true
+                    prefs[SHOULD_LISTEN_NEW_PLAYERS] ?: false
                 }
     
             override suspend fun set(value: Boolean) {
