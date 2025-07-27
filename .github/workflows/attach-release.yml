@@ -51,8 +51,10 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle.properties') }}
           restore-keys: ${{ runner.os }}-gradle-
 
-      - name: Build APK
-        run: ./gradlew assembleRelease
+      - name: Build APK and AAB
+        run: |
+          ./gradlew assembleRelease
+          ./gradlew bundleRelease
 
       - name: Find release tag name
         id: find_release
@@ -64,9 +66,11 @@ jobs:
             const latestRelease = releases.data[0];
             return { tag_name: latestRelease.tag_name };
             
-      - name: Attach APK
+      - name: Attach APK and AAB
         uses: actions/upload-artifact@v4
         with:
-          name: ListenBrainz
-          path: app/build/outputs/apk/release/app-release.apk
+          name: ListenBrainz-Release-Files
+          path: |
+            app/build/outputs/apk/release/app-release.apk
+            app/build/outputs/bundle/release/app-release.aab
         if: github.ref == ('refs/tags/${{ steps.find_release.outputs.tag_name }}')
