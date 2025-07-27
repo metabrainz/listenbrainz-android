@@ -125,6 +125,9 @@ sentry {
     includeSourceContext.set(true)
     // TODO: Enable when server upload body max size is increased.
     autoUploadProguardMapping.set(false)
+    autoInstallation {
+        sentryVersion = "8.17.0"
+    }
 }
 
 dependencies {
