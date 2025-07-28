@@ -117,6 +117,7 @@ class DashBoardViewModel @Inject constructor(
                 }
             }
             _listeningAppsFlow.emit(currentApps)
+            appPreferences.listeningApps.set(currentApps.map { it.packageName })
             //Removing from all apps list
             val updatedAllApps = _allApps.value.filter { it.packageName !in currentApps.map { app -> app.packageName } }
             _allApps.emit(updatedAllApps)
