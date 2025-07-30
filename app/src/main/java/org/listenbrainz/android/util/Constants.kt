@@ -28,6 +28,7 @@ object Constants {
         const val PREFERENCE_LISTENING_APPS = "listening_apps"
         const val PREFERENCE_SYSTEM_THEME = "app_theme"
         const val PREFERENCE_PERMS = "perms_code"
+        const val PREFERENCE_LOGIN_CONSENT_SCREEN_CACHE = "login_consent_screen_cache"
         const val PREFERENCE_ALBUMS_ON_DEVICE = "PREFERENCE_ALBUMS_ON_DEVICE"
         const val PREFERENCE_SONGS_ON_DEVICE = "PREFERENCE_SONGS_ON_DEVICE"
         const val PREFERENCE_REQUESTED_PERMISSIONS = "requested_permissions"

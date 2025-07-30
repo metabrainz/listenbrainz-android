@@ -55,4 +55,7 @@ interface AppPreferences {
     
     /** Used to tell the user that they don't have any songs on their device. */
     var songsOnDevice: Boolean
+
+    /** Cache for Login Consent Screen Data */
+    val consentScreenDataCache: DataStorePreference<String>
 }
