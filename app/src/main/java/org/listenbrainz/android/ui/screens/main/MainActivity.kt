@@ -137,12 +137,13 @@ class MainActivity : ComponentActivity() {
                             })
                         }
                         entry<NavigationItem.OnboardingScreens.PermissionScreen> {
-                            PermissionScreen(onExit = {
-                                onNavigateInOnboarding(
-                                    backStack,
-                                    dashBoardViewModel
-                                )
-                            },
+                            PermissionScreen(
+                                onExit = {
+                                    onNavigateInOnboarding(
+                                        backStack,
+                                        dashBoardViewModel
+                                    )
+                                },
                                 onExitAfterGrantingAllPermissions = {
                                     onNavigateInOnboarding(
                                         backStack,
@@ -160,7 +161,20 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         entry<NavigationItem.HomeScreen> {
-                            HomeScreen()
+                            HomeScreen(
+                                onOnboardingRequest = {
+                                    dashBoardViewModel.appPreferences.onboardingCompleted = false
+                                    onboardingNavigationSetup(dashBoardViewModel)
+                                    backStack.add(
+                                        if (onboardingScreensQueue.isNotEmpty()) {
+                                            onboardingScreensQueue.removeAt(0)
+                                        } else NavigationItem.HomeScreen
+                                    )
+                                },
+                                onLoginRequest = {
+                                    backStack.add(NavigationItem.OnboardingScreens.LoginScreen)
+                                }
+                            )
                         }
                     },
                     transitionSpec = {

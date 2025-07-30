@@ -34,7 +34,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -63,7 +62,6 @@ import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
 import org.listenbrainz.android.ui.screens.main.DonateActivity
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
-import org.listenbrainz.android.ui.screens.profile.LoginActivity
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningAppsList
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Constants
@@ -75,6 +73,8 @@ import org.listenbrainz.android.viewmodel.SettingsViewModel
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     listensViewModel: ListensViewModel = hiltViewModel(),
+    onOnboardingRequest: () -> Unit,
+    onLoginRequest: () -> Unit,
     dashBoardViewModel: DashBoardViewModel
 ) {
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
@@ -86,12 +86,14 @@ fun SettingsScreen(
         preferencesUiState = preferencesUiState,
         callbacks = remember {
             SettingsCallbacks(
+                onLoginRequest = onLoginRequest,
                 logout = viewModel::logout,
                 getVersion = viewModel::version,
                 fetchLinkedServices = listensViewModel::fetchLinkedServices,
                 getPackageIcon = listensViewModel::getPackageIcon,
                 getPackageLabel = listensViewModel::getPackageLabel,
-                setWhitelist = listensViewModel::setWhitelist
+                setWhitelist = listensViewModel::setWhitelist,
+                onOnboardingRequest = onOnboardingRequest
             )
         },
         isBatteryOptimizationPermissionGranted = isBatteryOptimizationPermissionGranted
@@ -170,6 +172,16 @@ fun SettingsScreen(
             }
             darkThemeCheckedState = it
         }
+
+        HorizontalDivider()
+
+        SettingsTextOption(
+            modifier = Modifier.clickable{
+                callbacks.onOnboardingRequest()
+            },
+            title = "Restart onboarding",
+            subtitle = "Revisit the onboarding flow again."
+        )
 
         HorizontalDivider()
 
@@ -327,8 +339,7 @@ fun SettingsScreen(
         } else {
             SettingsTextOption(
                 modifier = Modifier.clickable {
-                    val intent = Intent(context, LoginActivity::class.java)
-                    context.startActivity(intent)
+                    callbacks.onLoginRequest()
                 },
                 title = "Login"
             )
@@ -489,7 +500,9 @@ fun SettingsScreenPreview() {
                 fetchLinkedServices = {},
                 getPackageIcon = { null },
                 getPackageLabel = { "" },
-                setWhitelist = {}
+                setWhitelist = {},
+                onLoginRequest = {},
+                onOnboardingRequest = {}
             )
         )
     }
