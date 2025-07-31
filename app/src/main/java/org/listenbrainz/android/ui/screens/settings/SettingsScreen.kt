@@ -148,6 +148,90 @@ fun SettingsScreen(
 
         verticalArrangement = Arrangement.spacedBy(ListenBrainzTheme.paddings.settings)
     ) {
+
+        HorizontalDivider()
+
+        SettingsHeader(title = "Listen Submission")
+
+        Column(verticalArrangement = Arrangement.spacedBy(ListenBrainzTheme.paddings.settings)) {
+            SettingsSwitchOption(
+                title = "Send listens",
+                subtitle = "Enable sending listens from this device to ListenBrainz",
+                enabled = isNotificationServiceAllowed,
+                isChecked = submitListensCheckedState && isNotificationServiceAllowed
+            ) { checked ->
+                scope.launch {
+                    if (isNotificationServiceAllowed) {
+                        // Set preference
+                        appPreferences.isListeningAllowed.set(checked)
+                    }
+                }
+            }
+
+            HorizontalDivider(modifier = indentedModifier)
+
+            SettingsSwitchOption(
+                title = "Notifications",
+                subtitle = "Required to send listens",
+                isChecked = isNotificationServiceAllowed
+            ) {
+                val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                context.startActivity(intent)
+            }
+
+
+            AnimatedVisibility(isNotificationServiceAllowed && submitListensCheckedState) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(ListenBrainzTheme.paddings.settings)
+                ) {
+                    HorizontalDivider(modifier = indentedModifier)
+
+                    // Blacklist
+                    SettingsTextOption(
+                        modifier = Modifier.clickable {
+                            if (isNotificationServiceAllowed) {
+                                showBlacklist = true
+                            }
+                        },
+                        title = "Listening Apps",
+                        subtitle = "Enable sending listens from individual apps on this device",
+                        enabled = isNotificationServiceAllowed
+                    )
+
+                    HorizontalDivider(modifier = indentedModifier)
+
+                    if(!isBatteryOptimizationPermissionGranted && PermissionEnum.BATTERY_OPTIMIZATION.isPermissionApplicable()) {
+                        SettingsTextOption(
+                            modifier = Modifier.clickable() {
+                                if (activity != null) {
+                                    //Last two permissions are not required for Battery Optimization permission
+                                    PermissionEnum.BATTERY_OPTIMIZATION.requestPermission(
+                                        activity,
+                                        emptyList()
+                                    ) {}
+                                }
+                            },
+                            title = "Disable Battery Optimization",
+                            subtitle = "Required to send listens",
+                        )
+
+                        HorizontalDivider(modifier = indentedModifier)
+                    }
+
+                    SettingsSwitchOption(
+                        title = "Enable new players",
+                        subtitle = "When a new music app is detected, automatically use it to submit listens",
+                        isChecked = shouldListenNewPlayers
+                    ) {
+                        scope.launch {
+                            appPreferences.shouldListenNewPlayers.set(it)
+                        }
+                    }
+                }
+            }
+
+        }
+
         HorizontalDivider()
 
         SettingsSwitchOption(
@@ -235,88 +319,6 @@ fun SettingsScreen(
             enabled = isNotificationServiceAllowed
         )
 
-        HorizontalDivider()
-
-        SettingsHeader(title = "Listen Submission")
-
-        Column(verticalArrangement = Arrangement.spacedBy(ListenBrainzTheme.paddings.settings)) {
-            SettingsSwitchOption(
-                title = "Send listens",
-                subtitle = "Enable sending listens from this device to ListenBrainz",
-                enabled = isNotificationServiceAllowed,
-                isChecked = submitListensCheckedState && isNotificationServiceAllowed
-            ) { checked ->
-                scope.launch {
-                    if (isNotificationServiceAllowed) {
-                        // Set preference
-                        appPreferences.isListeningAllowed.set(checked)
-                    }
-                }
-            }
-
-            HorizontalDivider(modifier = indentedModifier)
-
-            SettingsSwitchOption(
-                title = "Notifications",
-                subtitle = "Required to send listens",
-                isChecked = isNotificationServiceAllowed
-            ) {
-                val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-                context.startActivity(intent)
-            }
-
-
-            AnimatedVisibility(isNotificationServiceAllowed && submitListensCheckedState) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(ListenBrainzTheme.paddings.settings)
-                ) {
-                    HorizontalDivider(modifier = indentedModifier)
-
-                    // Blacklist
-                    SettingsTextOption(
-                        modifier = Modifier.clickable {
-                            if (isNotificationServiceAllowed) {
-                                showBlacklist = true
-                            }
-                        },
-                        title = "Listening Apps",
-                        subtitle = "Enable sending listens from individual apps on this device",
-                        enabled = isNotificationServiceAllowed
-                    )
-
-                    HorizontalDivider(modifier = indentedModifier)
-
-                    if(!isBatteryOptimizationPermissionGranted && PermissionEnum.BATTERY_OPTIMIZATION.isPermissionApplicable()) {
-                        SettingsTextOption(
-                            modifier = Modifier.clickable() {
-                                if (activity != null) {
-                                    //Last two permissions are not required for Battery Optimization permission
-                                    PermissionEnum.BATTERY_OPTIMIZATION.requestPermission(
-                                        activity,
-                                        emptyList()
-                                    ) {}
-                                }
-                            },
-                            title = "Disable Battery Optimization",
-                            subtitle = "Required to send listens",
-                        )
-
-                        HorizontalDivider(modifier = indentedModifier)
-                    }
-
-                    SettingsSwitchOption(
-                        title = "Enable new players",
-                        subtitle = "When a new music app is detected, automatically use it to submit listens",
-                        isChecked = shouldListenNewPlayers
-                    ) {
-                        scope.launch {
-                            appPreferences.shouldListenNewPlayers.set(it)
-                        }
-                    }
-                }
-            }
-
-        }
 
         HorizontalDivider()
 
