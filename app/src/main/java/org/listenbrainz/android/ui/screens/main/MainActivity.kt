@@ -34,6 +34,7 @@ import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.navigation.NavigationItem
+import org.listenbrainz.android.ui.screens.onboarding.auth.ConsentScreenDataInitializer
 import org.listenbrainz.android.ui.screens.onboarding.auth.ListenBrainzLogin
 import org.listenbrainz.android.ui.screens.onboarding.auth.LoginConsentScreen
 import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
@@ -82,6 +83,7 @@ class MainActivity : ComponentActivity() {
                     )
                 SetStatusAndNavigationBarTheme(backStack)
                 OnboardingScreenBackground(backStack)
+                ConsentScreenDataInitializer(dashBoardViewModel)
                 NavDisplay(
                     backStack = backStack,
                     onBack = {
@@ -112,7 +114,9 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                             }
-                            LoginConsentScreen {
+                            LoginConsentScreen(
+                                dashBoardViewModel
+                            ) {
                                 onNavigateInOnboarding(
                                     backStack,
                                     dashBoardViewModel
@@ -137,12 +141,13 @@ class MainActivity : ComponentActivity() {
                             })
                         }
                         entry<NavigationItem.OnboardingScreens.PermissionScreen> {
-                            PermissionScreen(onExit = {
-                                onNavigateInOnboarding(
-                                    backStack,
-                                    dashBoardViewModel
-                                )
-                            },
+                            PermissionScreen(
+                                onExit = {
+                                    onNavigateInOnboarding(
+                                        backStack,
+                                        dashBoardViewModel
+                                    )
+                                },
                                 onExitAfterGrantingAllPermissions = {
                                     onNavigateInOnboarding(
                                         backStack,
@@ -160,7 +165,20 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         entry<NavigationItem.HomeScreen> {
-                            HomeScreen()
+                            HomeScreen(
+                                onOnboardingRequest = {
+                                    dashBoardViewModel.appPreferences.onboardingCompleted = false
+                                    onboardingNavigationSetup(dashBoardViewModel)
+                                    backStack.add(
+                                        if (onboardingScreensQueue.isNotEmpty()) {
+                                            onboardingScreensQueue.removeAt(0)
+                                        } else NavigationItem.HomeScreen
+                                    )
+                                },
+                                onLoginRequest = {
+                                    backStack.add(NavigationItem.OnboardingScreens.LoginScreen)
+                                }
+                            )
                         }
                     },
                     transitionSpec = {

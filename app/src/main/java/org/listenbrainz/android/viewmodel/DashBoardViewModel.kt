@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.di.IoDispatcher
@@ -26,6 +27,7 @@ import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
+import org.listenbrainz.android.ui.screens.onboarding.auth.LoginConsentScreenUIState
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.AppInfo
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
 import org.listenbrainz.android.util.Log
@@ -51,6 +53,23 @@ class DashBoardViewModel @Inject constructor(
     val listeningAppsFlow = _listeningAppsFlow.asStateFlow()
     private val _allApps = MutableStateFlow<List<AppInfo>>(emptyList())
     val allApps = _allApps.asStateFlow()
+
+    private val _consentScreenUIState = MutableStateFlow(LoginConsentScreenUIState())
+    val consentScreenUIState = _consentScreenUIState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val cacheData = appPreferences.consentScreenDataCache.getFlow().first()
+            if(cacheData.isNotEmpty()){
+                _consentScreenUIState.update { uIState ->
+                    uIState.copy(
+                        data = cacheData,
+                        isLoading = false
+                    )
+                }
+            }
+        }
+    }
 
     // Sets Ui mode for XML layouts.
     fun setUiMode() {
@@ -108,7 +127,7 @@ class DashBoardViewModel @Inject constructor(
         }
     }
 
-    fun addListeningApps(apps: List<AppInfo>){
+    fun addListeningApps(apps: List<AppInfo>) {
         viewModelScope.launch {
             val currentApps = _listeningAppsFlow.value.toMutableList()
             apps.forEach { app ->
@@ -117,8 +136,10 @@ class DashBoardViewModel @Inject constructor(
                 }
             }
             _listeningAppsFlow.emit(currentApps)
+            appPreferences.listeningApps.set(currentApps.map { it.packageName })
             //Removing from all apps list
-            val updatedAllApps = _allApps.value.filter { it.packageName !in currentApps.map { app -> app.packageName } }
+            val updatedAllApps =
+                _allApps.value.filter { it.packageName !in currentApps.map { app -> app.packageName } }
             _allApps.emit(updatedAllApps)
         }
     }
@@ -137,9 +158,11 @@ class DashBoardViewModel @Inject constructor(
                 musicAppsPackageNames.add(it.packageName)
             }
             getAppInfoFromPackageNames(context, musicAppsPackageNames.toList()).forEach {
-                fetchedApps.add(it.copy(
-                    isWhitelisted = it.packageName in whiteListedApps
-                ))
+                fetchedApps.add(
+                    it.copy(
+                        isWhitelisted = it.packageName in whiteListedApps
+                    )
+                )
             }
 
             // Sort so that Spotify, YouTube Music, and YouTube are at the top if present
@@ -160,8 +183,8 @@ class DashBoardViewModel @Inject constructor(
             listeningApps?.let {
                 updatedListeningApps.addAll(it)
             }
-            musicAppsPackageNames.forEach { app->
-                if(!updatedListeningApps.contains(app)){
+            musicAppsPackageNames.forEach { app ->
+                if (!updatedListeningApps.contains(app)) {
                     updatedListeningApps.add(app)
                 }
             }
@@ -175,12 +198,14 @@ class DashBoardViewModel @Inject constructor(
                     it.packageName !in updatedListeningApps
                 }
             _allApps.emit(allApps)
-            }
         }
+    }
 
-    private fun getAppInfoFromPackageNames(context: Activity,
-                                           packages: List<String>,
-                                           isListening: Boolean = true): List<AppInfo>{
+    private fun getAppInfoFromPackageNames(
+        context: Activity,
+        packages: List<String>,
+        isListening: Boolean = true
+    ): List<AppInfo> {
         val pm = context.packageManager
         val fetchedApps = mutableListOf<AppInfo>()
         packages.forEach { packageName ->
@@ -203,7 +228,7 @@ class DashBoardViewModel @Inject constructor(
                         }
                     }
                 } catch (e: Exception) {
-                    Log.w("Couldn't get icon for $packageName "+e.toString())
+                    Log.w("Couldn't get icon for $packageName " + e.toString())
                     createBitmap(48, 48).apply {
                         eraseColor(Color.GRAY)
                     }
@@ -224,7 +249,7 @@ class DashBoardViewModel @Inject constructor(
         return fetchedApps
     }
 
-    fun onAppCheckChange(isChecked: Boolean,appInfo: AppInfo){
+    fun onAppCheckChange(isChecked: Boolean, appInfo: AppInfo) {
         viewModelScope.launch(ioDispatcher) {
             val whitelist = appPreferences.listeningWhitelist.getFlow().first().toMutableList()
             if (isChecked) {
@@ -247,17 +272,31 @@ class DashBoardViewModel @Inject constructor(
         }
     }
 
-    fun onListeningStatusChange(boolean: Boolean){
+    fun onListeningStatusChange(boolean: Boolean) {
         viewModelScope.launch(ioDispatcher) {
             appPreferences.isListeningAllowed.set(boolean)
         }
     }
 
-
-    fun markOnboardingComplete() {
-        viewModelScope.launch(ioDispatcher) {
-            appPreferences.onboardingCompleted = true
+    fun changeConsentScreenUIState(consentScreenUIState: LoginConsentScreenUIState) {
+        _consentScreenUIState.update {
+            consentScreenUIState
         }
+        if(consentScreenUIState.data?.isNotEmpty() == true) {
+            viewModelScope.launch(ioDispatcher) {
+                appPreferences.consentScreenDataCache.set(consentScreenUIState.data)
+            }
+        }
+    }
+
+    fun onLoadConsentScreen() {
+        _consentScreenUIState.update { it ->
+            it.copy(
+                isLoading = true,
+                errorMessage = null,
+            )
+        }
+        _consentScreenUIState.value.webView?.loadUrl("https://listenbrainz.org/login")
     }
 
     suspend fun isNotificationListenerServiceAllowed(): Boolean {
