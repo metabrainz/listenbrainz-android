@@ -52,6 +52,7 @@ fun TopBar(
                 "${AppNavigationItem.Profile.route}/{username}" -> AppNavigationItem.Profile.title
                 AppNavigationItem.Settings.route -> AppNavigationItem.Settings.title
                 AppNavigationItem.About.route -> AppNavigationItem.About.title
+                AppNavigationItem.HueSound.route -> AppNavigationItem.HueSound.title
                 "${AppNavigationItem.Artist.route}/{mbid}" -> AppNavigationItem.Artist.title
                 "${AppNavigationItem.Album.route}/{mbid}" -> AppNavigationItem.Album.title
                 "${AppNavigationItem.PlaylistScreen.route}/{mbid}" -> AppNavigationItem.PlaylistScreen.title
