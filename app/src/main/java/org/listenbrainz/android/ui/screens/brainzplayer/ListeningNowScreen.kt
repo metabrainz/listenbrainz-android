@@ -1,0 +1,397 @@
+package org.listenbrainz.android.ui.screens.brainzplayer
+
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.BackdropScaffoldState
+import androidx.compose.material.BackdropValue
+import androidx.compose.material.rememberBackdropScaffoldState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import org.listenbrainz.android.R
+import org.listenbrainz.android.model.AdditionalInfo
+import org.listenbrainz.android.model.Listen
+import org.listenbrainz.android.model.TrackMetadata
+import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.viewmodel.ListeningNowUIState
+import org.listenbrainz.android.viewmodel.ListeningNowViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ListeningNowScreen(
+    backdropScaffoldState: BackdropScaffoldState,
+    viewModel: ListeningNowViewModel = hiltViewModel()
+) {
+    val listeningNowUIState by viewModel.listeningNowUIState.collectAsStateWithLifecycle()
+    val scope = rememberCoroutineScope()
+    val onNavigateBack: ()-> Unit = {
+        scope.launch {
+            backdropScaffoldState.reveal()
+        }
+    }
+
+    if (backdropScaffoldState.isConcealed) {
+        BackHandler {
+            onNavigateBack()
+        }
+    }
+
+    ListeningNowLayout(
+        uiState = listeningNowUIState,
+        onNavigateBack = onNavigateBack,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ListeningNowLayout(
+    uiState: ListeningNowUIState,
+    onNavigateBack: () -> Unit,
+) {
+
+
+    val backgroundColors = uiState.palette?.gradientColors ?: listOf(
+        ListenBrainzTheme.colorScheme.background,
+        ListenBrainzTheme.colorScheme.background
+    )
+    //Dark colors because it is located in darker side of gradient
+    val titleColor = uiState.palette?.titleTextColorDark ?: ListenBrainzTheme.colorScheme.listenText
+    val artistColor = uiState.palette?.bodyTextColorDark ?: ListenBrainzTheme.colorScheme.text
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = backgroundColors,
+                    startY = 0f,
+                    endY = Float.POSITIVE_INFINITY
+                )
+            )
+            .clip(RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp))
+    ) {
+        if (uiState.song != null) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Text(
+                    text = "Listening Now",
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 16.sp,
+                    color = titleColor,
+                    modifier = Modifier.padding(16.dp)
+                )
+
+                Spacer(Modifier.height(16.dp))
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(uiState.imageURL)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "Album artwork",
+                    modifier = Modifier
+                        .size(280.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.Crop,
+                    placeholder = painterResource(id = R.drawable.ic_erroralbumart),
+                    error = painterResource(id = R.drawable.ic_erroralbumart)
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Text(
+                    text = uiState.song.trackMetadata.trackName,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = titleColor,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = uiState.song.trackMetadata.artistName,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = artistColor,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+
+                uiState.song.trackMetadata.releaseName?.let { albumName ->
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = albumName,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Light,
+                        color = artistColor.copy(alpha = 0.8f),
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
+            }
+        } else {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "No song currently playing",
+                        fontSize = 18.sp,
+                        color = Color.White.copy(alpha = 0.7f),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        }
+        Icon(
+            painter = painterResource(R.drawable.ic_arrow_down),
+            contentDescription = "Navigate Back",
+            tint = titleColor,
+            modifier = Modifier
+                .clickable {
+                    onNavigateBack()
+                }
+                .padding(
+                    start = 28.dp,
+                    top = 18.dp
+                )
+        )
+    }
+}
+
+
+@Composable
+fun ListeningNowCard(
+    uiState: ListeningNowUIState,
+    isLandscape: Boolean,
+    coroutineScope: CoroutineScope,
+    backdropScaffoldState: BackdropScaffoldState,
+    modifier: Modifier = Modifier
+) {
+
+
+    if (uiState.song != null) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .background(ListenBrainzTheme.colorScheme.background)
+                .clickable {
+                    coroutineScope.launch {
+                        backdropScaffoldState.conceal()
+                    }
+                }
+                .padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(uiState.imageURL)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = "Album artwork",
+                modifier = Modifier
+                    .padding(horizontal = 5.dp, vertical = 4.dp)
+                    .size(if (isLandscape) 30.dp else 45.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(id = R.drawable.ic_erroralbumart),
+                error = painterResource(id = R.drawable.ic_erroralbumart)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "Listening Now",
+                    fontSize = 12.sp,
+                    fontStyle = FontStyle.Italic,
+                    fontWeight = FontWeight.Medium,
+                    color = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                ListeningNowCardSongInfo(
+                    currentlyPlayingSong = uiState.song,
+                    titleColor = ListenBrainzTheme.colorScheme.text,
+                    artistColor = ListenBrainzTheme.colorScheme.text
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ListeningNowCardSongInfo(
+    currentlyPlayingSong: Listen,
+    titleColor: Color,
+    artistColor: Color
+) {
+    val artist = currentlyPlayingSong.trackMetadata.artistName
+    val title = currentlyPlayingSong.trackMetadata.trackName
+
+    Text(
+        text = when {
+            artist == "null" && title == "null" -> ""
+            artist == "null" -> title
+            title == "null" -> artist
+            else -> "$artist  -  $title"
+        },
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Bold,
+        textAlign = TextAlign.Start,
+        color = titleColor,
+        modifier = Modifier.basicMarquee(),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ListeningNowLayoutPreview() {
+    ListenBrainzTheme {
+        ListeningNowLayout(
+            uiState = ListeningNowUIState(
+                song = Listen(
+                    insertedAt = "1234567890",
+                    listenedAt = 1234567890,
+                    recordingMsid = "test-msid",
+                    trackMetadata = TrackMetadata(
+                        additionalInfo = AdditionalInfo(),
+                        artistName = "The Beatles",
+                        mbidMapping = null,
+                        releaseName = "Come Together - Remastered",
+                        trackName = "Come Together"
+                    ),
+                    userName = "testuser",
+                    coverArt = null
+                ),
+            ),
+            onNavigateBack = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ListeningNowCardPreview() {
+    ListenBrainzTheme {
+        val coroutineScope = rememberCoroutineScope()
+        ListeningNowCard(
+            uiState = ListeningNowUIState(
+                song = Listen(
+                    insertedAt = "1234567890",
+                    listenedAt = 1234567890,
+                    recordingMsid = "test-msid",
+                    trackMetadata = TrackMetadata(
+                        additionalInfo = AdditionalInfo(),
+                        artistName = "The Beatles",
+                        mbidMapping = null,
+                        releaseName = "Abbey Road - Remastered",
+                        trackName = "Come Together"
+                    ),
+                    userName = "testuser",
+                    coverArt = null
+                ),
+            ),
+            isLandscape = false,
+            coroutineScope = coroutineScope,
+            backdropScaffoldState = rememberBackdropScaffoldState(
+                BackdropValue.Revealed
+            ),
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ListeningNowCardLandscapePreview() {
+    ListenBrainzTheme {
+        val coroutineScope = rememberCoroutineScope()
+        ListeningNowCard(
+            uiState = ListeningNowUIState(
+                song = Listen(
+                    insertedAt = "1234567890",
+                    listenedAt = 1234567890,
+                    recordingMsid = "test-msid",
+                    trackMetadata = TrackMetadata(
+                        additionalInfo = AdditionalInfo(),
+                        artistName = "Pink Floyd",
+                        mbidMapping = null,
+                        releaseName = "The Dark Side of the Moon",
+                        trackName = "Money"
+                    ),
+                    userName = "testuser",
+                    coverArt = null
+                ),
+            ),
+            isLandscape = true,
+            coroutineScope = coroutineScope,
+            backdropScaffoldState = rememberBackdropScaffoldState(
+                BackdropValue.Revealed
+            ),
+        )
+    }
+}

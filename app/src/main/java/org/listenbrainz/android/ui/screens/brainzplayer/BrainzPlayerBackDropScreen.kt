@@ -55,11 +55,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -93,7 +91,6 @@ import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.model.feed.FeedListenArtist
-import org.listenbrainz.android.service.NOTHING_PLAYING
 import org.listenbrainz.android.ui.components.CustomSeekBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.PlayPauseIcon
@@ -102,9 +99,8 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.SongViewPager
-import org.listenbrainz.android.util.Utils.getNavigationBarHeight
-import org.listenbrainz.android.util.Utils.getStatusBarHeight
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
+import org.listenbrainz.android.viewmodel.ListeningNowViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import java.util.Locale
 import kotlin.math.absoluteValue
@@ -116,6 +112,7 @@ fun BrainzPlayerBackDropScreen(
     modifier: Modifier = Modifier,
     backdropScaffoldState: BackdropScaffoldState,
     brainzPlayerViewModel: BrainzPlayerViewModel = viewModel(),
+    listeningNowViewModel: ListeningNowViewModel = viewModel(),
     paddingValues: PaddingValues,
     isLandscape: Boolean = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE,
     backLayerContent: @Composable () -> Unit
@@ -130,6 +127,7 @@ fun BrainzPlayerBackDropScreen(
     val context = LocalContext.current
     val defaultBackgroundColor = ListenBrainzTheme.colorScheme.background
     val isDarkThemeEnabled = onScreenUiModeIsDark()
+    val listeningNowUIState by listeningNowViewModel.listeningNowUIState.collectAsState()
 
     val isNothingPlaying = remember(currentlyPlayingSong) {
         currentlyPlayingSong.title == "null"
@@ -137,10 +135,15 @@ fun BrainzPlayerBackDropScreen(
                 || brainzPlayerViewModel.appPreferences.currentPlayable?.songs.isNullOrEmpty()
     }
 
+    val isListeningNow = remember(listeningNowUIState) {
+        listeningNowUIState.song != null && listeningNowUIState.song?.trackMetadata?.trackName?.isNotEmpty() == true
+    }
+    val scope = rememberCoroutineScope()
+
     /** 56.dp is default bottom navigation height */
     val headerHeight by animateDpAsState(
         targetValue = if (isLandscape) 0.dp else
-            if (isNothingPlaying)
+            if (isNothingPlaying && !isListeningNow)
                 56.dp
             else
                 56.dp + ListenBrainzTheme.sizes.brainzPlayerPeekHeight
@@ -171,34 +174,62 @@ fun BrainzPlayerBackDropScreen(
                 maxDelta = max(delta, maxDelta)
             }
 
-            PlayerScreen(
-                currentlyPlayingSong = currentlyPlayingSong,
-                isShuffled = isShuffled,
-                repeatMode = repeatMode,
-                backdropScaffoldState = backdropScaffoldState,
-                backgroundBrush = Brush.verticalGradient(
-                    colors = listOf(
-                        brainzPlayerViewModel.playerBackGroundColor,
-                        defaultBackgroundColor
-                    )
-                ),
-                dynamicBackground = brainzPlayerViewModel.playerBackGroundColor
-            )
-            val songList = brainzPlayerViewModel.appPreferences.currentPlayable?.songs ?: listOf()
-
-            if (!isLandscape) {
-                SongViewPager(
-                    modifier = Modifier
-                        .height(ListenBrainzTheme.sizes.brainzPlayerPeekHeight)
-                        .graphicsLayer {
-                        alpha =
-                            (backdropScaffoldState.requireOffset() / (maxDelta - headerHeight.toPx()))
-                    },
-                    songList = songList,
-                    backdropScaffoldState = backdropScaffoldState,
+            if (!isListeningNow || !isNothingPlaying) {
+                PlayerScreen(
                     currentlyPlayingSong = currentlyPlayingSong,
-                    isLandscape = false
+                    isShuffled = isShuffled,
+                    repeatMode = repeatMode,
+                    backdropScaffoldState = backdropScaffoldState,
+                    backgroundBrush = Brush.verticalGradient(
+                        colors = listOf(
+                            brainzPlayerViewModel.playerBackGroundColor,
+                            defaultBackgroundColor
+                        )
+                    ),
+                    dynamicBackground = brainzPlayerViewModel.playerBackGroundColor
                 )
+                val songList =
+                    brainzPlayerViewModel.appPreferences.currentPlayable?.songs ?: listOf()
+
+                if (!isLandscape) {
+                    SongViewPager(
+                        modifier = Modifier
+                            .height(ListenBrainzTheme.sizes.brainzPlayerPeekHeight)
+                            .graphicsLayer {
+                                alpha =
+                                    (backdropScaffoldState.requireOffset() / (maxDelta - headerHeight.toPx()))
+                            },
+                        songList = songList,
+                        backdropScaffoldState = backdropScaffoldState,
+                        currentlyPlayingSong = currentlyPlayingSong,
+                        isLandscape = false
+                    )
+                }
+            } else {
+                LaunchedEffect(listeningNowUIState.song) {
+                    if (listeningNowUIState.isListeningNow) {
+                        listeningNowViewModel.updatePalette(context)
+                    }
+                }
+                ListeningNowScreen(
+                    viewModel = listeningNowViewModel,
+                    backdropScaffoldState = backdropScaffoldState
+                )
+                if (!isLandscape) {
+                    ListeningNowCard(
+                        uiState = listeningNowUIState,
+                        isLandscape = false,
+                        coroutineScope = scope,
+                        backdropScaffoldState = backdropScaffoldState,
+                        modifier = Modifier
+                            .height(ListenBrainzTheme.sizes.brainzPlayerPeekHeight)
+                            .graphicsLayer {
+                                alpha =
+                                    (backdropScaffoldState.requireOffset() / (maxDelta - headerHeight.toPx()))
+                            }
+                    )
+                }
+
             }
         })
 }
