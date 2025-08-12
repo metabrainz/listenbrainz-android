@@ -174,7 +174,13 @@ fun BrainzPlayerBackDropScreen(
                 maxDelta = max(delta, maxDelta)
             }
 
+            //To prevent screen showing null abruptly after listening now finishes
             if (!isListeningNow || !isNothingPlaying) {
+                LaunchedEffect(isListeningNow) {
+                    if (isNothingPlaying && backdropScaffoldState.isConcealed){
+                        backdropScaffoldState.reveal()
+                    }
+                }
                 PlayerScreen(
                     currentlyPlayingSong = currentlyPlayingSong,
                     isShuffled = isShuffled,
@@ -215,7 +221,7 @@ fun BrainzPlayerBackDropScreen(
                     viewModel = listeningNowViewModel,
                     backdropScaffoldState = backdropScaffoldState
                 )
-                if (!isLandscape) {
+                if (!isLandscape && backdropScaffoldState.isRevealed) {
                     ListeningNowCard(
                         uiState = listeningNowUIState,
                         isLandscape = false,

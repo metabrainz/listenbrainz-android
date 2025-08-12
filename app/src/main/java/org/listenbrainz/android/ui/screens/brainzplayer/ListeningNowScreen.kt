@@ -23,7 +23,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -64,7 +63,7 @@ fun ListeningNowScreen(
 ) {
     val listeningNowUIState by viewModel.listeningNowUIState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
-    val onNavigateBack: ()-> Unit = {
+    val onNavigateBack: () -> Unit = {
         scope.launch {
             backdropScaffoldState.reveal()
         }
@@ -88,8 +87,6 @@ fun ListeningNowLayout(
     uiState: ListeningNowUIState,
     onNavigateBack: () -> Unit,
 ) {
-
-
     val backgroundColors = uiState.palette?.gradientColors ?: listOf(
         ListenBrainzTheme.colorScheme.background,
         ListenBrainzTheme.colorScheme.background
@@ -101,7 +98,7 @@ fun ListeningNowLayout(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .statusBarsPadding()
+            .clip(RoundedCornerShape(32.dp, 32.dp, 0.dp, 0.dp))
             .background(
                 brush = Brush.verticalGradient(
                     colors = backgroundColors,
@@ -109,11 +106,11 @@ fun ListeningNowLayout(
                     endY = Float.POSITIVE_INFINITY
                 )
             )
-            .clip(RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp))
     ) {
         if (uiState.song != null) {
             Column(
                 modifier = Modifier
+                    .statusBarsPadding()
                     .fillMaxSize()
                     .padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -152,7 +149,9 @@ fun ListeningNowLayout(
                     textAlign = TextAlign.Center,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .basicMarquee()
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -165,7 +164,9 @@ fun ListeningNowLayout(
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .basicMarquee()
                 )
 
                 uiState.song.trackMetadata.releaseName?.let { albumName ->
@@ -178,7 +179,9 @@ fun ListeningNowLayout(
                         textAlign = TextAlign.Center,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .basicMarquee()
                     )
                 }
             }
@@ -207,6 +210,7 @@ fun ListeningNowLayout(
                 .clickable {
                     onNavigateBack()
                 }
+                .statusBarsPadding()
                 .padding(
                     start = 28.dp,
                     top = 18.dp
@@ -224,8 +228,6 @@ fun ListeningNowCard(
     backdropScaffoldState: BackdropScaffoldState,
     modifier: Modifier = Modifier
 ) {
-
-
     if (uiState.song != null) {
         Row(
             modifier = modifier

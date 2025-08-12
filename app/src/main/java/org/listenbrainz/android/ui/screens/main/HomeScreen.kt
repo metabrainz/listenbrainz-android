@@ -123,6 +123,13 @@ fun HomeScreen(
             )
         }
     }
+
+    val isNothingPlaying = remember(currentlyPlayingSong) {
+        currentlyPlayingSong.toSong.title == "null"
+                && currentlyPlayingSong.toSong.artist == "null"
+                || brainzPlayerViewModel.appPreferences.currentPlayable?.songs.isNullOrEmpty()
+    }
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -130,7 +137,7 @@ fun HomeScreen(
             .background(desiredBackgroundColor),
         topBar = {
             AnimatedVisibility(
-                visible = !listeningNowUIState.isListeningNow || !backdropScaffoldState.isConcealed,
+                visible = !listeningNowUIState.isListeningNow || backdropScaffoldState.isRevealed || !isNothingPlaying,
                 enter = slideInVertically(
                     initialOffsetY = { -it },
                     animationSpec = tween(durationMillis = 300, easing = EaseInOut)
@@ -162,10 +169,10 @@ fun HomeScreen(
                     isLandscape = false,
                     currentlyPlayingSong = currentlyPlayingSong.toSong,
                     backgroundColor = listeningNowUIState.palette?.gradientColors?.getOrNull(0)?.takeIf {
-                        backdropScaffoldState.isConcealed
+                        backdropScaffoldState.isConcealed && isNothingPlaying
                     } ?: ListenBrainzTheme.colorScheme.nav,
                     contentColor = listeningNowUIState.palette?.titleTextColorDark?.takeIf {
-                        backdropScaffoldState.isConcealed
+                        backdropScaffoldState.isConcealed && isNothingPlaying
                     },
                     songList = songList ?: emptyList(),
                     isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable(),
