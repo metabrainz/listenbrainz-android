@@ -168,7 +168,7 @@ fun HomeScreen(
                     username = username,
                     isLandscape = false,
                     currentlyPlayingSong = currentlyPlayingSong.toSong,
-                    backgroundColor = listeningNowUIState.palette?.gradientColors?.getOrNull(0)?.takeIf {
+                    backgroundColor = listeningNowUIState.palette?.darkBackgroundColor?.takeIf {
                         backdropScaffoldState.isConcealed && isNothingPlaying
                     } ?: ListenBrainzTheme.colorScheme.nav,
                     contentColor = listeningNowUIState.palette?.titleTextColorDark?.takeIf {

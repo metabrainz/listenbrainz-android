@@ -60,7 +60,7 @@ class ListeningNowViewModel @Inject constructor(
                             song = listen
                         )
                     }
-                    delay(60 * 5000L)
+                    delay(6 * 60 * 1000L)
                     _listeningNowUIState.update {
                         ListeningNowUIState()
                     }

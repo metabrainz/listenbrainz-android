@@ -92,8 +92,8 @@ fun ListeningNowLayout(
         ListenBrainzTheme.colorScheme.background
     )
     //Dark colors because it is located in darker side of gradient
-    val titleColor = uiState.palette?.titleTextColorDark ?: ListenBrainzTheme.colorScheme.listenText
-    val artistColor = uiState.palette?.bodyTextColorDark ?: ListenBrainzTheme.colorScheme.text
+    val titleColor = uiState.palette?.titleColorLight ?: ListenBrainzTheme.colorScheme.listenText
+    val artistColor = uiState.palette?.bodyTextColorLight ?: ListenBrainzTheme.colorScheme.text
 
     Box(
         modifier = Modifier
