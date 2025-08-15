@@ -40,6 +40,7 @@ import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_APPS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_BLACKLIST
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_WHITELIST
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTEN_NEW_PLAYERS
+import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LOGIN_CONSENT_SCREEN_CACHE
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_PERMS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_REQUESTED_PERMISSIONS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_SONGS_ON_DEVICE
@@ -125,6 +126,7 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
             val IS_LISTENING_ALLOWED = booleanPreferencesKey(PREFERENCE_SUBMIT_LISTENS)
             val SHOULD_LISTEN_NEW_PLAYERS = booleanPreferencesKey(PREFERENCE_LISTEN_NEW_PLAYERS)
             val PERMISSIONS_REQUESTED = stringPreferencesKey(PREFERENCE_REQUESTED_PERMISSIONS)
+            val CONSENT_SCREEN_CACHE = stringPreferencesKey(PREFERENCE_LOGIN_CONSENT_SCREEN_CACHE)
         }
         
         fun String?.asStringList(): List<String> {
@@ -344,6 +346,21 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
                 }
             }
     
+        }
+
+    override val consentScreenDataCache: DataStorePreference<String>
+        get() = object : DataStorePreference<String> {
+            override fun getFlow(): Flow<String> {
+                return datastore.map { prefs ->
+                    prefs[PreferenceKeys.CONSENT_SCREEN_CACHE]?:""
+                }
+            }
+
+            override suspend fun set(value: String) {
+                context.dataStore.edit { prefs ->
+                    prefs[PreferenceKeys.CONSENT_SCREEN_CACHE] = value
+                }
+            }
         }
     
     override var linkedServices: List<LinkedService>

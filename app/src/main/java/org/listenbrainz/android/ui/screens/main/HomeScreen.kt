@@ -67,7 +67,9 @@ import org.listenbrainz.android.viewmodel.ListeningNowViewModel
 fun HomeScreen(
     dashBoardViewModel: DashBoardViewModel = hiltViewModel(),
     brainzPlayerViewModel: BrainzPlayerViewModel = hiltViewModel(),
-    listeningNowViewModel: ListeningNowViewModel = hiltViewModel()
+    listeningNowViewModel: ListeningNowViewModel = hiltViewModel(),
+    onOnboardingRequest: () -> Unit,
+    onLoginRequest: () -> Unit
 ){
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val navController = rememberNavController()
@@ -231,7 +233,9 @@ fun HomeScreen(
                             }
                         },
                         snackbarState = snackbarState,
-                        dashBoardViewModel = dashBoardViewModel
+                        dashBoardViewModel = dashBoardViewModel,
+                        onOnboardingRequest = onOnboardingRequest,
+                        onLoginRequest = onLoginRequest
                     )
                 }
 //            }
