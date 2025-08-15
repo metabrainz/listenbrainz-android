@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.screens.main
 
 import android.content.res.Configuration
-import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -52,7 +51,6 @@ import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.Utils.toPx
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
-import androidx.activity.viewModels
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.collectAsState
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
@@ -61,7 +59,9 @@ import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
 @Composable
 fun HomeScreen(
     dashBoardViewModel: DashBoardViewModel = hiltViewModel(),
-    brainzPlayerViewModel: BrainzPlayerViewModel = hiltViewModel()
+    brainzPlayerViewModel: BrainzPlayerViewModel = hiltViewModel(),
+    onOnboardingRequest: ()->Unit,
+    onLoginRequest: ()->Unit
 ){
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val navController = rememberNavController()
@@ -196,7 +196,9 @@ fun HomeScreen(
                             }
                         },
                         snackbarState = snackbarState,
-                        dashBoardViewModel = dashBoardViewModel
+                        dashBoardViewModel = dashBoardViewModel,
+                        onOnboardingRequest = onOnboardingRequest,
+                        onLoginRequest = onLoginRequest
                     )
                 }
 //            }

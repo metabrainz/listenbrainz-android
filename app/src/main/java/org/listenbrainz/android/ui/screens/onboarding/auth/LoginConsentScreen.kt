@@ -33,6 +33,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,72 +60,85 @@ import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBac
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
+import org.listenbrainz.android.viewmodel.DashBoardViewModel
+
+data class LoginConsentScreenUIState(
+    val data: String? = null,
+    val isLoading: Boolean = true,
+    val errorMessage: String? = null,
+    val webView: WebView? = null,
+)
 
 @Composable
-fun LoginConsentScreen(onProceedToLoginScreen: () -> Unit) {
-    var data by remember {
-        mutableStateOf<String?>(null)
-    }
-    var isLoading by remember {
-        mutableStateOf(true)
-    }
-    var errorMessage by remember {
-        mutableStateOf<String?>(null)
-    }
-    var webView by remember {
-        mutableStateOf<WebView?>(null)
-    }
+fun ConsentScreenDataInitializer(dashBoardViewModel: DashBoardViewModel){
+    val uiState by dashBoardViewModel.consentScreenUIState.collectAsState()
 
-    fun loadConsentPage() {
-        isLoading = true
-        errorMessage = null
-        webView?.loadUrl("https://listenbrainz.org/login")
-    }
-
-    AndroidView(
-        modifier = Modifier.size(1.dp)
-            .alpha(0.0f),
-        factory = {
-            WebView(it).apply {
-                fun clearCookies() {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                        CookieManager.getInstance().removeAllCookies(null)
-                        CookieManager.getInstance().flush()
-                    } else {
-                        val cookieSyncManager = CookieSyncManager.createInstance(context)
-                        cookieSyncManager.startSync()
-                        val cookieManager: CookieManager = CookieManager.getInstance()
-                        cookieManager.removeAllCookie()
-                        cookieManager.removeSessionCookie()
-                        cookieSyncManager.stopSync()
-                        cookieSyncManager.sync()
+    if(uiState.data == null) {
+        //Setting up consent screen content
+        AndroidView(
+            modifier = Modifier.size(1.dp)
+                .alpha(0.0f),
+            factory = {
+                WebView(it).apply {
+                    fun clearCookies() {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                            CookieManager.getInstance().removeAllCookies(null)
+                            CookieManager.getInstance().flush()
+                        } else {
+                            val cookieSyncManager = CookieSyncManager.createInstance(context)
+                            cookieSyncManager.startSync()
+                            val cookieManager: CookieManager = CookieManager.getInstance()
+                            cookieManager.removeAllCookie()
+                            cookieManager.removeSessionCookie()
+                            cookieSyncManager.stopSync()
+                            cookieSyncManager.sync()
+                        }
                     }
+                    webViewClient = ConsentWebViewClient(
+                        onLoadData = { text ->
+                            dashBoardViewModel.changeConsentScreenUIState(
+                                uiState.copy(
+                                    data = text,
+                                    isLoading = false,
+                                    errorMessage = null
+                                )
+                            )
+                        },
+                        onError = { error ->
+                            dashBoardViewModel.changeConsentScreenUIState(
+                                uiState.copy(
+                                    isLoading = false,
+                                    errorMessage = error
+                                )
+                            )
+                        }
+                    )
+                    clearCookies()
+                    loadUrl("https://listenbrainz.org/login")
+                    settings.javaScriptEnabled = true
+                    dashBoardViewModel.changeConsentScreenUIState(
+                        uiState.copy(
+                            webView = this
+                        )
+                    )
                 }
-                webViewClient = ConsentWebViewClient(
-                    onLoadData = { text ->
-                        data = text
-                        isLoading = false
-                        errorMessage = null
-                    },
-                    onError = { error ->
-                        isLoading = false
-                        errorMessage = error
-                    }
-                )
-                clearCookies()
-                loadUrl("https://listenbrainz.org/login")
-                settings.javaScriptEnabled = true
-                webView = this
             }
-        }
-    )
+        )
+    }
+}
 
+@Composable
+fun LoginConsentScreen(dashBoardViewModel: DashBoardViewModel,
+                       onProceedToLoginScreen: () -> Unit) {
+    val uiState by dashBoardViewModel.consentScreenUIState.collectAsState()
     LoginConsentScreenLayout(
-        html = data ?: "",
-        isLoading = isLoading,
-        errorMessage = errorMessage,
+        html = uiState.data ?: "",
+        isLoading = uiState.isLoading,
+        errorMessage = uiState.errorMessage,
         onClickNext = onProceedToLoginScreen,
-        onRetry = ::loadConsentPage
+        onRetry = {
+            dashBoardViewModel.onLoadConsentScreen()
+        }
     )
 }
 

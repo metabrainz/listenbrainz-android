@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -43,6 +41,8 @@ fun AppNavigation(
     onScrollToTop: (suspend () -> Unit) -> Unit,
     dashBoardViewModel: DashBoardViewModel,
     snackbarState: SnackbarHostState,
+    onOnboardingRequest: ()->Unit,
+    onLoginRequest: ()->Unit
 ) {
     fun NavOptionsBuilder.defaultNavOptions() {
         // Avoid building large backstack
@@ -135,7 +135,9 @@ fun AppNavigation(
             route = AppNavigationItem.Settings.route
         ) {
             SettingsScreen(
-                dashBoardViewModel = dashBoardViewModel
+                dashBoardViewModel = dashBoardViewModel,
+                onOnboardingRequest = onOnboardingRequest,
+                onLoginRequest = onLoginRequest
             )
         }
         appComposable(
