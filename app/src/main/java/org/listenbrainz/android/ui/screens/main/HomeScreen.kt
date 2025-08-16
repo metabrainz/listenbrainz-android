@@ -1,6 +1,11 @@
 package org.listenbrainz.android.ui.screens.main
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -53,15 +58,19 @@ import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.collectAsState
+import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
+import org.listenbrainz.android.viewmodel.ListeningNowViewModel
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreen(
     dashBoardViewModel: DashBoardViewModel = hiltViewModel(),
     brainzPlayerViewModel: BrainzPlayerViewModel = hiltViewModel(),
-    onOnboardingRequest: ()->Unit,
-    onLoginRequest: ()->Unit
+    listeningNowViewModel: ListeningNowViewModel = hiltViewModel(),
+    onOnboardingRequest: () -> Unit,
+    onLoginRequest: () -> Unit
 ){
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val navController = rememberNavController()
@@ -90,6 +99,7 @@ fun HomeScreen(
             currentOffset != null
         }
     }
+    val listeningNowUIState by listeningNowViewModel.listeningNowUIState.collectAsStateWithLifecycle()
 
     var maxOffset by remember {
         mutableFloatStateOf(0f)
@@ -116,23 +126,18 @@ fun HomeScreen(
             )
         }
     }
+
+    val isNothingPlaying = remember(currentlyPlayingSong) {
+        currentlyPlayingSong.toSong.title == "null"
+                && currentlyPlayingSong.toSong.artist == "null"
+                || brainzPlayerViewModel.appPreferences.currentPlayable?.songs.isNullOrEmpty()
+    }
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
             .background(ListenBrainzTheme.colorScheme.background)
             .background(desiredBackgroundColor),
-        topBar = {
-            TopBar(
-                modifier = Modifier
-                    .statusBarsPadding()
-                    .padding(start = if (isLandScape) dimensionResource(R.dimen.navigation_rail_width) else 0.dp),
-                navController = navController,
-                searchBarState = when (currentDestination?.route) {
-                    AppNavigationItem.BrainzPlayer.route -> brainzplayerSearchBarState
-                    else -> searchBarState
-                },
-            )
-        },
         bottomBar = {
             if (!isLandScape)
                 AdaptiveNavigationBar(
@@ -140,10 +145,17 @@ fun HomeScreen(
                     backdropScaffoldState = backdropScaffoldState,
                     scrollToTop = { scrollToTopState = true },
                     username = username,
-                    isLandscape = isLandScape,
+                    isLandscape = false,
                     currentlyPlayingSong = currentlyPlayingSong.toSong,
+                    backgroundColor = listeningNowUIState.palette?.darkBackgroundColor?.takeIf {
+                        backdropScaffoldState.isConcealed && isNothingPlaying
+                    } ?: ListenBrainzTheme.colorScheme.nav,
+                    contentColor = listeningNowUIState.palette?.titleTextColorDark?.takeIf {
+                        backdropScaffoldState.isConcealed && isNothingPlaying
+                    },
                     songList = songList ?: emptyList(),
-                    isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable()
+                    isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable(),
+                    listeningNowUIState = listeningNowUIState
                 )
         },
         snackbarHost = {
@@ -173,6 +185,7 @@ fun HomeScreen(
                     isLandscape = true,
                     currentlyPlayingSong = currentlyPlayingSong.toSong,
                     songList = songList ?: emptyList(),
+                    listeningNowUIState = listeningNowUIState,
                     isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable()
                 )
             }
@@ -183,6 +196,7 @@ fun HomeScreen(
                     paddingValues = it,
                     brainzPlayerViewModel = brainzPlayerViewModel,
                     isLandscape = isLandScape,
+                    listeningNowViewModel = listeningNowViewModel
                 ) {
                     AppNavigation(
                         navController = navController,
@@ -198,7 +212,24 @@ fun HomeScreen(
                         snackbarState = snackbarState,
                         dashBoardViewModel = dashBoardViewModel,
                         onOnboardingRequest = onOnboardingRequest,
-                        onLoginRequest = onLoginRequest
+                        onLoginRequest = onLoginRequest,
+                        topAppBarActions = TopBarActions(
+                            popBackStackInSettingsScreen = {
+                                navController.popBackStack()
+                            },
+                            navigateToSettingsScreen = {
+                                navController.navigate(AppNavigationItem.Settings.route){
+                                    popUpTo(AppNavigationItem.Feed.route){
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            activateSearch = {
+                                searchBarState.activate()
+                            }
+                        )
                     )
                 }
 //            }

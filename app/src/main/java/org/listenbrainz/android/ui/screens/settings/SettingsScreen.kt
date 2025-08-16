@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
@@ -56,10 +57,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.BuildConfig
+import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
+import org.listenbrainz.android.ui.navigation.TopBar
+import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.main.DonateActivity
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningAppsList
@@ -75,7 +79,8 @@ fun SettingsScreen(
     listensViewModel: ListensViewModel = hiltViewModel(),
     onOnboardingRequest: () -> Unit,
     onLoginRequest: () -> Unit,
-    dashBoardViewModel: DashBoardViewModel
+    dashBoardViewModel: DashBoardViewModel,
+    topBarActions: TopBarActions
 ) {
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val isBatteryOptimizationPermissionGranted =
@@ -96,7 +101,8 @@ fun SettingsScreen(
                 onOnboardingRequest = onOnboardingRequest
             )
         },
-        isBatteryOptimizationPermissionGranted = isBatteryOptimizationPermissionGranted
+        isBatteryOptimizationPermissionGranted = isBatteryOptimizationPermissionGranted,
+        topBarActions = topBarActions
     )
 }
 
@@ -105,7 +111,8 @@ fun SettingsScreen(
     appPreferences: AppPreferences,
     callbacks: SettingsCallbacks,
     preferencesUiState: PreferencesUiState,
-    isBatteryOptimizationPermissionGranted: Boolean = true
+    isBatteryOptimizationPermissionGranted: Boolean = true,
+    topBarActions: TopBarActions
 ) {
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
@@ -139,355 +146,366 @@ fun SettingsScreen(
 
     val isLoggedOut by appPreferences.getLoginStatusFlow()
         .map { it == Constants.Strings.STATUS_LOGGED_OUT }.collectAsState(initial = false)
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(ListenBrainzTheme.colorScheme.background)
-            .padding(horizontal = 8.dp)
-            .verticalScroll(rememberScrollState()),
 
-        verticalArrangement = Arrangement.spacedBy(ListenBrainzTheme.paddings.settings)
-    ) {
+    Column() {
+        TopBar(
+            modifier = Modifier.statusBarsPadding(),
+            topBarActions = topBarActions,
+            title = AppNavigationItem.Settings.title
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(ListenBrainzTheme.colorScheme.background)
+                .padding(horizontal = 8.dp)
+                .verticalScroll(rememberScrollState()),
 
-        HorizontalDivider()
+            verticalArrangement = Arrangement.spacedBy(ListenBrainzTheme.paddings.settings)
+        ) {
 
-        SettingsHeader(title = "Listen Submission")
+            HorizontalDivider()
 
-        Column(verticalArrangement = Arrangement.spacedBy(ListenBrainzTheme.paddings.settings)) {
-            SettingsSwitchOption(
-                title = "Send listens",
-                subtitle = "Enable sending listens from this device to ListenBrainz",
-                enabled = isNotificationServiceAllowed,
-                isChecked = submitListensCheckedState && isNotificationServiceAllowed
-            ) { checked ->
-                scope.launch {
-                    if (isNotificationServiceAllowed) {
-                        // Set preference
-                        appPreferences.isListeningAllowed.set(checked)
+            SettingsHeader(title = "Listen Submission")
+
+            Column(verticalArrangement = Arrangement.spacedBy(ListenBrainzTheme.paddings.settings)) {
+                SettingsSwitchOption(
+                    title = "Send listens",
+                    subtitle = "Enable sending listens from this device to ListenBrainz",
+                    enabled = isNotificationServiceAllowed,
+                    isChecked = submitListensCheckedState && isNotificationServiceAllowed
+                ) { checked ->
+                    scope.launch {
+                        if (isNotificationServiceAllowed) {
+                            // Set preference
+                            appPreferences.isListeningAllowed.set(checked)
+                        }
                     }
                 }
-            }
 
-            HorizontalDivider(modifier = indentedModifier)
+                HorizontalDivider(modifier = indentedModifier)
 
-            SettingsSwitchOption(
-                title = "Notifications",
-                subtitle = "Required to send listens",
-                isChecked = isNotificationServiceAllowed
-            ) {
-                val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-                context.startActivity(intent)
-            }
-
-
-            AnimatedVisibility(isNotificationServiceAllowed && submitListensCheckedState) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(ListenBrainzTheme.paddings.settings)
+                SettingsSwitchOption(
+                    title = "Notifications",
+                    subtitle = "Required to send listens",
+                    isChecked = isNotificationServiceAllowed
                 ) {
-                    HorizontalDivider(modifier = indentedModifier)
+                    val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                    context.startActivity(intent)
+                }
 
-                    // Blacklist
-                    SettingsTextOption(
-                        modifier = Modifier.clickable {
-                            if (isNotificationServiceAllowed) {
-                                showBlacklist = true
-                            }
-                        },
-                        title = "Listening Apps",
-                        subtitle = "Enable sending listens from individual apps on this device",
-                        enabled = isNotificationServiceAllowed
-                    )
 
-                    HorizontalDivider(modifier = indentedModifier)
+                AnimatedVisibility(isNotificationServiceAllowed && submitListensCheckedState) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(ListenBrainzTheme.paddings.settings)
+                    ) {
+                        HorizontalDivider(modifier = indentedModifier)
 
-                    if(!isBatteryOptimizationPermissionGranted && PermissionEnum.BATTERY_OPTIMIZATION.isPermissionApplicable()) {
+                        // Blacklist
                         SettingsTextOption(
-                            modifier = Modifier.clickable() {
-                                if (activity != null) {
-                                    //Last two permissions are not required for Battery Optimization permission
-                                    PermissionEnum.BATTERY_OPTIMIZATION.requestPermission(
-                                        activity,
-                                        emptyList()
-                                    ) {}
+                            modifier = Modifier.clickable {
+                                if (isNotificationServiceAllowed) {
+                                    showBlacklist = true
                                 }
                             },
-                            title = "Disable Battery Optimization",
-                            subtitle = "Required to send listens",
+                            title = "Listening Apps",
+                            subtitle = "Enable sending listens from individual apps on this device",
+                            enabled = isNotificationServiceAllowed
                         )
 
                         HorizontalDivider(modifier = indentedModifier)
-                    }
 
-                    SettingsSwitchOption(
-                        title = "Enable new players",
-                        subtitle = "When a new music app is detected, automatically use it to submit listens",
-                        isChecked = shouldListenNewPlayers
-                    ) {
-                        scope.launch {
-                            appPreferences.shouldListenNewPlayers.set(it)
+                        if (!isBatteryOptimizationPermissionGranted && PermissionEnum.BATTERY_OPTIMIZATION.isPermissionApplicable()) {
+                            SettingsTextOption(
+                                modifier = Modifier.clickable() {
+                                    if (activity != null) {
+                                        //Last two permissions are not required for Battery Optimization permission
+                                        PermissionEnum.BATTERY_OPTIMIZATION.requestPermission(
+                                            activity,
+                                            emptyList()
+                                        ) {}
+                                    }
+                                },
+                                title = "Disable Battery Optimization",
+                                subtitle = "Required to send listens",
+                            )
+
+                            HorizontalDivider(modifier = indentedModifier)
+                        }
+
+                        SettingsSwitchOption(
+                            title = "Enable new players",
+                            subtitle = "When a new music app is detected, automatically use it to submit listens",
+                            isChecked = shouldListenNewPlayers
+                        ) {
+                            scope.launch {
+                                appPreferences.shouldListenNewPlayers.set(it)
+                            }
                         }
                     }
                 }
+
             }
 
-        }
+            HorizontalDivider()
 
-        HorizontalDivider()
+            SettingsSwitchOption(
+                title = "Dark theme",
+                subtitle = "Enable the dark theme on this device",
+                isChecked = darkThemeCheckedState
+            ) {
+                when (darkTheme) {
+                    false -> {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                        scope.launch {
+                            appPreferences.themePreference.set(UiMode.DARK)
+                        }
+                    }
 
-        SettingsSwitchOption(
-            title = "Dark theme",
-            subtitle = "Enable the dark theme on this device",
-            isChecked = darkThemeCheckedState
-        ) {
-            when (darkTheme) {
-                false -> {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                    scope.launch {
-                        appPreferences.themePreference.set(UiMode.DARK)
+                    true -> {
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                        scope.launch {
+                            appPreferences.themePreference.set(UiMode.LIGHT)
+                        }
                     }
                 }
-
-                true -> {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-                    scope.launch {
-                        appPreferences.themePreference.set(UiMode.LIGHT)
-                    }
-                }
+                darkThemeCheckedState = it
             }
-            darkThemeCheckedState = it
-        }
 
-        HorizontalDivider()
+            HorizontalDivider()
 
-        SettingsTextOption(
-            modifier = Modifier.clickable{
-                callbacks.onOnboardingRequest()
-            },
-            title = "Restart onboarding",
-            subtitle = "Revisit the onboarding flow again."
-        )
+            SettingsTextOption(
+                modifier = Modifier.clickable {
+                    callbacks.onOnboardingRequest()
+                },
+                title = "Restart onboarding",
+                subtitle = "Revisit the onboarding flow again."
+            )
 
-        HorizontalDivider()
+            HorizontalDivider()
 
-        SettingsTextOption(
-            modifier = Modifier.clickable {
-                Logger.apply {
-                    compressLogsInZipFile { zipFile ->
-                        zipFile?.let {
-                            FileIntent
-                                .fromFile(
-                                    context,
-                                    it,
-                                    BuildConfig.APPLICATION_ID
-                                )
-                                ?.let { intent ->
-                                    intent.putExtra(Intent.EXTRA_SUBJECT, "Log Files")
-                                    intent.putExtra(
-                                        Intent.EXTRA_EMAIL,
-                                        arrayOf("mobile@metabrainz.org")
+            SettingsTextOption(
+                modifier = Modifier.clickable {
+                    Logger.apply {
+                        compressLogsInZipFile { zipFile ->
+                            zipFile?.let {
+                                FileIntent
+                                    .fromFile(
+                                        context,
+                                        it,
+                                        BuildConfig.APPLICATION_ID
                                     )
-                                    intent.putExtra(
-                                        Intent.EXTRA_TEXT,
-                                        "Please find the attached log files."
-                                    )
-                                    intent.putExtra(
-                                        Intent.EXTRA_STREAM,
-                                        FileProvider.getUriForFile(
-                                            context,
-                                            "${BuildConfig.APPLICATION_ID}.provider",
-                                            zipFile
+                                    ?.let { intent ->
+                                        intent.putExtra(Intent.EXTRA_SUBJECT, "Log Files")
+                                        intent.putExtra(
+                                            Intent.EXTRA_EMAIL,
+                                            arrayOf("mobile@metabrainz.org")
                                         )
-                                    )
-                                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                    try {
-                                        context.startActivity(
-                                            Intent.createChooser(
-                                                intent,
-                                                "Email logs..."
+                                        intent.putExtra(
+                                            Intent.EXTRA_TEXT,
+                                            "Please find the attached log files."
+                                        )
+                                        intent.putExtra(
+                                            Intent.EXTRA_STREAM,
+                                            FileProvider.getUriForFile(
+                                                context,
+                                                "${BuildConfig.APPLICATION_ID}.provider",
+                                                zipFile
                                             )
                                         )
-                                    } catch (e: java.lang.Exception) {
-                                        e(throwable = e)
+                                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                                        try {
+                                            context.startActivity(
+                                                Intent.createChooser(
+                                                    intent,
+                                                    "Email logs..."
+                                                )
+                                            )
+                                        } catch (e: java.lang.Exception) {
+                                            e(throwable = e)
+                                        }
                                     }
-                                }
+                            }
                         }
                     }
-                }
-            },
-            title = "Report an issue",
-            subtitle = "Submit app logs for further investigation",
-            enabled = isNotificationServiceAllowed
-        )
+                },
+                title = "Report an issue",
+                subtitle = "Submit app logs for further investigation",
+                enabled = isNotificationServiceAllowed
+            )
 
 
-        HorizontalDivider()
+            HorizontalDivider()
 
-        SettingsHeader(title = "Account settings")
+            SettingsHeader(title = "Account settings")
 
-        if (!isLoggedOut) {
-            SettingsTextOption(
-                modifier = Modifier.clickable { showLogoutDialog = true },
-                title = "Logout"
+            if (!isLoggedOut) {
+                SettingsTextOption(
+                    modifier = Modifier.clickable { showLogoutDialog = true },
+                    title = "Logout"
+                )
+
+                SettingsHyperlink(
+                    modifier = Modifier.clickable {
+                        uriHandler.openUri("https://musicbrainz.org/account/delete")
+                    },
+                    title = "Delete account",
+                    textColor = Color.Red,
+                    iconColor = Color.Red
+                )
+            } else {
+                SettingsTextOption(
+                    modifier = Modifier.clickable {
+                        callbacks.onLoginRequest()
+                    },
+                    title = "Login"
+                )
+            }
+
+            HorizontalDivider()
+
+            SettingsHeader(title = "About")
+
+            SettingsHyperlink(
+                modifier = Modifier.clickable {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    intent.data = Constants.ABOUT_URL.toUri()
+                    context.startActivity(intent)
+                },
+                title = "About ListenBrainz"
             )
 
             SettingsHyperlink(
                 modifier = Modifier.clickable {
-                    uriHandler.openUri("https://musicbrainz.org/account/delete")
+                    context.startActivity(Intent(context, DonateActivity::class.java))
                 },
-                title = "Delete account",
-                textColor = Color.Red,
-                iconColor = Color.Red
+                title = "Support MetaBrainz"
             )
-        } else {
-            SettingsTextOption(
-                modifier = Modifier.clickable {
-                    callbacks.onLoginRequest()
-                },
-                title = "Login"
-            )
-        }
 
-        HorizontalDivider()
-
-        SettingsHeader(title = "About")
-
-        SettingsHyperlink(
-            modifier = Modifier.clickable {
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.data = Constants.ABOUT_URL.toUri()
-                context.startActivity(intent)
-            },
-            title = "About ListenBrainz"
-        )
-
-        SettingsHyperlink(
-            modifier = Modifier.clickable {
-                context.startActivity(Intent(context, DonateActivity::class.java))
-            },
-            title = "Support MetaBrainz"
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = ListenBrainzTheme.paddings.settings),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "v. ${callbacks.getVersion()}",
-                color = Color(0xFF949494)
-            )
-        }
-
-        HorizontalDivider()
-
-        SettingsHeader(title = "Attributions")
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = ListenBrainzTheme.paddings.settings),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            val annotatedStringAttributions: AnnotatedString = buildAnnotatedString {
-                val originalString =
-                    "Animations by Korhan Ulusoy, Jake Cowan, KidA Studio, puput Santoso , Charts by Patrick Michalik and Paul Roux on LottieFiles from lottiefiles.com\n\n" +
-                            "The complete resources with links can be found at\n" +
-                            "https://github.com/metabrainz/listenbrainz-android/blob/main/asset_attributions.md"
-                val startIndexGithub = originalString.indexOf("https://github.com")
-                val endIndexGithub = startIndexGithub + 82
-                append(originalString)
-                addStyle(
-                    style = SpanStyle(
-                        textDecoration = TextDecoration.Underline
-                    ), start = startIndexGithub, end = endIndexGithub
-                )
-                addStringAnnotation(
-                    tag = "URL",
-                    annotation = "https://github.com/metabrainz/listenbrainz-android/blob/main/asset_attributions.md",
-                    start = startIndexGithub,
-                    end = endIndexGithub
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = ListenBrainzTheme.paddings.settings),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "v. ${callbacks.getVersion()}",
+                    color = Color(0xFF949494)
                 )
             }
 
-            ClickableText(
-                text = annotatedStringAttributions,
-                style = TextStyle(
-                    color = Color(0xFF949494),
-                    fontSize = 12.sp
-                ),
-                onClick = { offset ->
-                    annotatedStringAttributions
-                        .getStringAnnotations("URL", offset, offset)
-                        .firstOrNull()?.let { stringAnnotation ->
-                            uriHandler.openUri(stringAnnotation.item)
-                        }
+            HorizontalDivider()
+
+            SettingsHeader(title = "Attributions")
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = ListenBrainzTheme.paddings.settings),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val annotatedStringAttributions: AnnotatedString = buildAnnotatedString {
+                    val originalString =
+                        "Animations by Korhan Ulusoy, Jake Cowan, KidA Studio, puput Santoso , Charts by Patrick Michalik and Paul Roux on LottieFiles from lottiefiles.com\n\n" +
+                                "The complete resources with links can be found at\n" +
+                                "https://github.com/metabrainz/listenbrainz-android/blob/main/asset_attributions.md"
+                    val startIndexGithub = originalString.indexOf("https://github.com")
+                    val endIndexGithub = startIndexGithub + 82
+                    append(originalString)
+                    addStyle(
+                        style = SpanStyle(
+                            textDecoration = TextDecoration.Underline
+                        ), start = startIndexGithub, end = endIndexGithub
+                    )
+                    addStringAnnotation(
+                        tag = "URL",
+                        annotation = "https://github.com/metabrainz/listenbrainz-android/blob/main/asset_attributions.md",
+                        start = startIndexGithub,
+                        end = endIndexGithub
+                    )
                 }
-            )
-        }
 
-        Spacer(modifier = Modifier.height(ListenBrainzTheme.paddings.settings))
+                ClickableText(
+                    text = annotatedStringAttributions,
+                    style = TextStyle(
+                        color = Color(0xFF949494),
+                        fontSize = 12.sp
+                    ),
+                    onClick = { offset ->
+                        annotatedStringAttributions
+                            .getStringAnnotations("URL", offset, offset)
+                            .firstOrNull()?.let { stringAnnotation ->
+                                uriHandler.openUri(stringAnnotation.item)
+                            }
+                    }
+                )
+            }
 
-        // BlackList Dialog
-        if (showBlacklist) {
-            ListeningAppsList(
-                preferencesUiState = preferencesUiState,
-                fetchLinkedServices = callbacks.fetchLinkedServices,
-                getPackageIcon = callbacks.getPackageIcon,
-                getPackageLabel = callbacks.getPackageLabel,
-                setWhitelist = callbacks.setWhitelist,
-            ) { showBlacklist = false }
-        }
+            Spacer(modifier = Modifier.height(ListenBrainzTheme.paddings.settings))
 
-        if (showLogoutDialog) {
-            AlertDialog(
-                title = {
-                    Text(
-                        text = "Logout?",
-                        color = ListenBrainzTheme.colorScheme.text
-                    )
-                },
-                text = {
-                    Text(
-                        text = "Are you sure you want to logout?",
-                        color = ListenBrainzTheme.colorScheme.text
-                    )
-                },
-                onDismissRequest = { showLogoutDialog = false },
-                confirmButton = {
-                    Button(
-                        onClick = { showLogoutDialog = false },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
-                    ) {
+            // BlackList Dialog
+            if (showBlacklist) {
+                ListeningAppsList(
+                    preferencesUiState = preferencesUiState,
+                    fetchLinkedServices = callbacks.fetchLinkedServices,
+                    getPackageIcon = callbacks.getPackageIcon,
+                    getPackageLabel = callbacks.getPackageLabel,
+                    setWhitelist = callbacks.setWhitelist,
+                ) { showBlacklist = false }
+            }
+
+            if (showLogoutDialog) {
+                AlertDialog(
+                    title = {
                         Text(
-                            text = "Cancel",
+                            text = "Logout?",
                             color = ListenBrainzTheme.colorScheme.text
                         )
-                    }
-                },
-                dismissButton = {
-                    Button(
-                        onClick = {
-                            callbacks.logout()
-                            showLogoutDialog = false
-                            Toast.makeText(context, "Logged out successfully!", Toast.LENGTH_SHORT)
-                                .show()
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
-                    ) {
+                    },
+                    text = {
                         Text(
-                            text = "Confirm",
-                            color = Color.White
+                            text = "Are you sure you want to logout?",
+                            color = ListenBrainzTheme.colorScheme.text
                         )
+                    },
+                    onDismissRequest = { showLogoutDialog = false },
+                    confirmButton = {
+                        Button(
+                            onClick = { showLogoutDialog = false },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+                        ) {
+                            Text(
+                                text = "Cancel",
+                                color = ListenBrainzTheme.colorScheme.text
+                            )
+                        }
+                    },
+                    dismissButton = {
+                        Button(
+                            onClick = {
+                                callbacks.logout()
+                                showLogoutDialog = false
+                                Toast.makeText(
+                                    context,
+                                    "Logged out successfully!",
+                                    Toast.LENGTH_SHORT
+                                )
+                                    .show()
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Red)
+                        ) {
+                            Text(
+                                text = "Confirm",
+                                color = Color.White
+                            )
+                        }
                     }
-                }
-            )
+                )
+            }
         }
     }
 }
-
 @Preview
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
@@ -505,7 +523,8 @@ fun SettingsScreenPreview() {
                 setWhitelist = {},
                 onLoginRequest = {},
                 onOnboardingRequest = {}
-            )
+            ),
+            topBarActions = TopBarActions()
         )
     }
 }
