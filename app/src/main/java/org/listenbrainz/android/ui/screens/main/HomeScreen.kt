@@ -58,6 +58,7 @@ import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.collectAsState
+import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
 import org.listenbrainz.android.viewmodel.ListeningNowViewModel
 
@@ -137,30 +138,6 @@ fun HomeScreen(
             .fillMaxSize()
             .background(ListenBrainzTheme.colorScheme.background)
             .background(desiredBackgroundColor),
-        topBar = {
-            AnimatedVisibility(
-                visible = !listeningNowUIState.isListeningNow || backdropScaffoldState.isRevealed || !isNothingPlaying,
-                enter = slideInVertically(
-                    initialOffsetY = { -it },
-                    animationSpec = tween(durationMillis = 300, easing = EaseInOut)
-                ),
-                exit = slideOutVertically(
-                    targetOffsetY = { -it },
-                    animationSpec = tween(durationMillis = 100, easing = EaseInOut)
-                )
-            ) {
-                TopBar(
-                    modifier = Modifier
-                        .statusBarsPadding()
-                        .padding(start = if (isLandScape) dimensionResource(R.dimen.navigation_rail_width) else 0.dp),
-                    navController = navController,
-                    searchBarState = when (currentDestination?.route) {
-                        AppNavigationItem.BrainzPlayer.route -> brainzplayerSearchBarState
-                        else -> searchBarState
-                    },
-                )
-            }
-        },
         bottomBar = {
             if (!isLandScape)
                 AdaptiveNavigationBar(
@@ -235,7 +212,24 @@ fun HomeScreen(
                         snackbarState = snackbarState,
                         dashBoardViewModel = dashBoardViewModel,
                         onOnboardingRequest = onOnboardingRequest,
-                        onLoginRequest = onLoginRequest
+                        onLoginRequest = onLoginRequest,
+                        topAppBarActions = TopBarActions(
+                            popBackStackInSettingsScreen = {
+                                navController.popBackStack()
+                            },
+                            navigateToSettingsScreen = {
+                                navController.navigate(AppNavigationItem.Settings.route){
+                                    popUpTo(AppNavigationItem.Feed.route){
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            activateSearch = {
+                                searchBarState.activate()
+                            }
+                        )
                     )
                 }
 //            }

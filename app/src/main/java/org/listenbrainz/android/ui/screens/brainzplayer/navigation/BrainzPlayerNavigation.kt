@@ -14,6 +14,7 @@ import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.Artist
 import org.listenbrainz.android.model.Playlist
 import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.brainzplayer.AlbumScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.ArtistScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerHomeScreen
@@ -38,7 +39,8 @@ fun Navigation(
     recentlyPlayedSongs : List<Song>,
     songs: List<Song>,
     albumSongsMap: MutableMap<Album,List<Song>>,
-    navHostController: NavHostController = rememberNavController()
+    topBarActions: TopBarActions,
+    navHostController: NavHostController = rememberNavController(),
 ) {
     NavHost(navController = navHostController, startDestination = BrainzPlayerNavigationItem.Home.route) {
         
@@ -53,6 +55,7 @@ fun Navigation(
                 songsPlayedThisWeek = songsPlayedThisWeek,
                 recentlyPlayedSongs = recentlyPlayedSongs,
                 albumSongsMap = albumSongsMap,
+                topBarActions = topBarActions
             )
         }
         composable(route = BrainzPlayerNavigationItem.Songs.route) {
