@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -68,6 +69,7 @@ import coil.request.ImageRequest
 import com.gowtham.ratingbar.RatingBar
 import com.gowtham.ratingbar.RatingBarStyle
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.MbidMapping
 import org.listenbrainz.android.model.Metadata
@@ -87,6 +89,8 @@ import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.components.SuccessBar
 import org.listenbrainz.android.ui.components.dialogs.Dialog
 import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
+import org.listenbrainz.android.ui.navigation.TopBar
+import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.feed.FeedUiState
 import org.listenbrainz.android.ui.screens.profile.listens.Dialogs
 import org.listenbrainz.android.ui.screens.profile.listens.ListenDialogBundleKeys
@@ -117,7 +121,8 @@ fun ArtistScreen(
     goToArtistPage: (String) -> Unit,
     goToUserPage: (String) -> Unit,
     goToAlbumPage: (String) -> Unit,
-    snackBarState: SnackbarHostState
+    snackBarState: SnackbarHostState,
+    topBarActions: TopBarActions
 ) {
     LaunchedEffect(Unit) {
         viewModel.fetchArtistData(artistMbid)
@@ -131,7 +136,8 @@ fun ArtistScreen(
         socialViewModel = socialViewModel,
         feedViewModel = feedViewModel,
         snackBarState = snackBarState,
-        goToAlbumPage = goToAlbumPage
+        goToAlbumPage = goToAlbumPage,
+        topBarActions = topBarActions
     )
 }
 
@@ -139,6 +145,7 @@ fun ArtistScreen(
 private fun ArtistScreen(
     artistMbid: String,
     uiState: ArtistUIState,
+    topBarActions: TopBarActions,
     goToArtistPage: (String) -> Unit,
     goToUserPage: (String) -> Unit,
     socialViewModel: SocialViewModel,
@@ -146,66 +153,74 @@ private fun ArtistScreen(
     snackBarState: SnackbarHostState,
     goToAlbumPage: (String) -> Unit,
 ) {
-    AnimatedContent(
-        modifier = Modifier.fillMaxSize(),
-        targetState = uiState.isLoading,
-        contentAlignment = Alignment.Center
-    ) { isLoading ->
-        if (isLoading) {
-            LoadingAnimation()
-        } else {
-            LazyColumn {
-                item {
-                    BioCard(
-                        header = uiState.name,
-                        coverArt = uiState.coverArt,
-                        displayRadioButton = true,
-                        beginYear = uiState.beginYear,
-                        area = uiState.area,
-                        totalPlays = uiState.totalPlays,
-                        totalListeners = uiState.totalListeners,
-                        wikiExtract = uiState.wikiExtract,
-                        artistTags = uiState.tags,
-                        artistMbid = uiState.artistMbid
-                    )
-                }
-                item {
-                    Links(uiState.linksMap)
-                }
-                item {
-                    PopularTracks(uiState = uiState, goToArtistPage = goToArtistPage)
-                }
-                item {
-                    AlbumsCard(
-                        header = "Albums",
-                        albumsList = uiState.albums,
-                        goToAlbumPage = goToAlbumPage
-                    )
-                }
-                item {
-                    AlbumsCard(
-                        header = "Appears On",
-                        albumsList = uiState.appearsOn,
-                        goToAlbumPage = goToAlbumPage
-                    )
-                }
-                item {
-                    SimilarArtists(uiState = uiState, goToArtistPage = goToArtistPage)
-                }
-                item {
-                    TopListenersCard(uiState = uiState, goToUserPage = goToUserPage)
-                }
-                item {
-                    if (uiState.name != null) {
-                        ReviewsCard(reviewOfEntity = uiState.reviews,
-                            goToUserPage = goToUserPage,
-                            socialViewModel = socialViewModel,
-                            feedViewModel = feedViewModel,
-                            artistMbid = artistMbid,
-                            artistName = uiState.name,
-                            snackBarState = snackBarState,
-                            onMessageShown = { socialViewModel.clearMsgFlow() },
-                            onErrorShown = { socialViewModel.clearErrorFlow() })
+    Column() {
+        TopBar(
+            modifier = Modifier.statusBarsPadding(),
+            topBarActions = topBarActions,
+            title = AppNavigationItem.Artist.title
+        )
+        AnimatedContent(
+            modifier = Modifier.fillMaxSize(),
+            targetState = uiState.isLoading,
+            contentAlignment = Alignment.Center
+        ) { isLoading ->
+            if (isLoading) {
+                LoadingAnimation()
+            } else {
+                LazyColumn {
+                    item {
+                        BioCard(
+                            header = uiState.name,
+                            coverArt = uiState.coverArt,
+                            displayRadioButton = true,
+                            beginYear = uiState.beginYear,
+                            area = uiState.area,
+                            totalPlays = uiState.totalPlays,
+                            totalListeners = uiState.totalListeners,
+                            wikiExtract = uiState.wikiExtract,
+                            artistTags = uiState.tags,
+                            artistMbid = uiState.artistMbid
+                        )
+                    }
+                    item {
+                        Links(uiState.linksMap)
+                    }
+                    item {
+                        PopularTracks(uiState = uiState, goToArtistPage = goToArtistPage)
+                    }
+                    item {
+                        AlbumsCard(
+                            header = "Albums",
+                            albumsList = uiState.albums,
+                            goToAlbumPage = goToAlbumPage
+                        )
+                    }
+                    item {
+                        AlbumsCard(
+                            header = "Appears On",
+                            albumsList = uiState.appearsOn,
+                            goToAlbumPage = goToAlbumPage
+                        )
+                    }
+                    item {
+                        SimilarArtists(uiState = uiState, goToArtistPage = goToArtistPage)
+                    }
+                    item {
+                        TopListenersCard(uiState = uiState, goToUserPage = goToUserPage)
+                    }
+                    item {
+                        if (uiState.name != null) {
+                            ReviewsCard(
+                                reviewOfEntity = uiState.reviews,
+                                goToUserPage = goToUserPage,
+                                socialViewModel = socialViewModel,
+                                feedViewModel = feedViewModel,
+                                artistMbid = artistMbid,
+                                artistName = uiState.name,
+                                snackBarState = snackBarState,
+                                onMessageShown = { socialViewModel.clearMsgFlow() },
+                                onErrorShown = { socialViewModel.clearErrorFlow() })
+                        }
                     }
                 }
             }
