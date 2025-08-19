@@ -126,10 +126,7 @@ fun ListeningNowLayout(
 
                 Spacer(Modifier.height(16.dp))
                 AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(uiState.imageURL)
-                        .crossfade(true)
-                        .build(),
+                    model = uiState.imageURL,
                     contentDescription = "Album artwork",
                     modifier = Modifier
                         .size(280.dp)
@@ -242,10 +239,7 @@ fun ListeningNowCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(uiState.imageURL)
-                    .crossfade(true)
-                    .build(),
+                model = uiState.imageURL,
                 contentDescription = "Album artwork",
                 modifier = Modifier
                     .padding(horizontal = 5.dp, vertical = 4.dp)
