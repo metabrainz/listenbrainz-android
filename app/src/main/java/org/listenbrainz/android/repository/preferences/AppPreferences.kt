@@ -1,6 +1,7 @@
 package org.listenbrainz.android.repository.preferences
 
 import kotlinx.coroutines.flow.Flow
+import org.listenbrainz.android.model.InstallSource
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.util.LinkedService
@@ -58,4 +59,6 @@ interface AppPreferences {
 
     /** Cache for Login Consent Screen Data */
     val consentScreenDataCache: DataStorePreference<String>
+
+    val installSource: DataStorePreference<InstallSource>
 }

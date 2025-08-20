@@ -41,6 +41,7 @@ import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionS
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.ListeningAppSelectionScreen
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
 @AndroidEntryPoint
@@ -48,6 +49,9 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var _dashBoardViewModel: DashBoardViewModel
     private val dashBoardViewModel get() = _dashBoardViewModel
+
+    private lateinit var _appUpdatesViewModel: AppUpdatesViewModel
+    private val appUpdatesViewModel get() = _appUpdatesViewModel
 
     private val onboardingScreensQueue: MutableList<NavKey> =
         mutableListOf()
@@ -59,6 +63,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         _dashBoardViewModel = ViewModelProvider(this)[DashBoardViewModel::class.java]
+        _appUpdatesViewModel = ViewModelProvider(this)[AppUpdatesViewModel::class.java]
 
         dashBoardViewModel.setUiMode()
         dashBoardViewModel.updatePermissionStatus(this)

@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.model.PermissionStatus
+import org.listenbrainz.android.model.InstallSource
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.model.UiMode.Companion.asUiMode
@@ -36,6 +36,7 @@ import org.listenbrainz.android.util.Constants.Strings.CURRENT_PLAYABLE
 import org.listenbrainz.android.util.Constants.Strings.LB_ACCESS_TOKEN
 import org.listenbrainz.android.util.Constants.Strings.LINKED_SERVICES
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_ALBUMS_ON_DEVICE
+import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_INSTALL_SOURCE
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_APPS
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_BLACKLIST
 import org.listenbrainz.android.util.Constants.Strings.PREFERENCE_LISTENING_WHITELIST
@@ -127,6 +128,7 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
             val SHOULD_LISTEN_NEW_PLAYERS = booleanPreferencesKey(PREFERENCE_LISTEN_NEW_PLAYERS)
             val PERMISSIONS_REQUESTED = stringPreferencesKey(PREFERENCE_REQUESTED_PERMISSIONS)
             val CONSENT_SCREEN_CACHE = stringPreferencesKey(PREFERENCE_LOGIN_CONSENT_SCREEN_CACHE)
+            val INSTALL_SOURCE = stringPreferencesKey(PREFERENCE_INSTALL_SOURCE)
         }
         
         fun String?.asStringList(): List<String> {
@@ -386,4 +388,27 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
     override var songsOnDevice: Boolean
         get() = preferences.getBoolean(PREFERENCE_SONGS_ON_DEVICE, true)
         set(value) = setBoolean(PREFERENCE_SONGS_ON_DEVICE, value)
+
+    override val installSource: DataStorePreference<InstallSource>
+        get() = object : DataStorePreference<InstallSource> {
+            override fun getFlow(): Flow<InstallSource> =
+                datastore.map { prefs ->
+                    val sourceString = prefs[PreferenceKeys.INSTALL_SOURCE]?.toString() ?: ""
+                    try {
+                        if (sourceString.isNotEmpty()) {
+                            InstallSource.valueOf(sourceString)
+                        } else {
+                            InstallSource.NOT_CHECKED
+                        }
+                    } catch (e: Exception) {
+                        InstallSource.NOT_CHECKED
+                    }
+                }
+
+            override suspend fun set(value: InstallSource) {
+                context.dataStore.edit { prefs ->
+                    prefs[PreferenceKeys.INSTALL_SOURCE] = value.name
+                }
+            }
+        }
 }
