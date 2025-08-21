@@ -129,6 +129,9 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
             val PERMISSIONS_REQUESTED = stringPreferencesKey(PREFERENCE_REQUESTED_PERMISSIONS)
             val CONSENT_SCREEN_CACHE = stringPreferencesKey(PREFERENCE_LOGIN_CONSENT_SCREEN_CACHE)
             val INSTALL_SOURCE = stringPreferencesKey(PREFERENCE_INSTALL_SOURCE)
+            val APP_LAUNCH_COUNT = stringPreferencesKey(Constants.Strings.PREFERENCE_APP_LAUNCH_COUNT)
+            val LAST_VERSION_CHECK_LAUNCH_COUNT = stringPreferencesKey(Constants.Strings.PREFERENCE_LAST_VERSION_CHECK_LAUNCH_COUNT)
+            val LAST_UPDATE_PROMPT_LAUNCH_COUNT = stringPreferencesKey(Constants.Strings.PREFERENCE_LAST_UPDATE_PROMPT_LAUNCH_COUNT)
         }
         
         fun String?.asStringList(): List<String> {
@@ -408,6 +411,74 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
             override suspend fun set(value: InstallSource) {
                 context.dataStore.edit { prefs ->
                     prefs[PreferenceKeys.INSTALL_SOURCE] = value.name
+                }
+            }
+        }
+
+    override val appLaunchCount: DataStorePreference<Int>
+        get() = object : DataStorePreference<Int> {
+            override fun getFlow(): Flow<Int> =
+                datastore.map { prefs ->
+                    try {
+                        prefs[PreferenceKeys.APP_LAUNCH_COUNT]?.toInt() ?: 0
+                    } catch (e: Exception) {
+                        0
+                    }
+                }
+
+            override suspend fun set(value: Int) {
+                context.dataStore.edit { prefs ->
+                    prefs[PreferenceKeys.APP_LAUNCH_COUNT] = value.toString()
+                }
+            }
+
+            override suspend fun getAndUpdate(update: (Int) -> Int) {
+                context.dataStore.updateData {
+                    val currentValue = try {
+                        it[PreferenceKeys.APP_LAUNCH_COUNT]?.toInt() ?: 0
+                    } catch (e: Exception) {
+                        0
+                    }
+                    val updatedValue = update(currentValue)
+                    val mutablePrefs = it.toMutablePreferences()
+                    mutablePrefs[PreferenceKeys.APP_LAUNCH_COUNT] = updatedValue.toString()
+                    return@updateData mutablePrefs
+                }
+            }
+        }
+
+    override val lastVersionCheckLaunchCount: DataStorePreference<Int>
+        get() = object : DataStorePreference<Int> {
+            override fun getFlow(): Flow<Int> =
+                datastore.map { prefs ->
+                    try {
+                        prefs[PreferenceKeys.LAST_VERSION_CHECK_LAUNCH_COUNT]?.toInt() ?: 0
+                    } catch (e: Exception) {
+                        0
+                    }
+                }
+
+            override suspend fun set(value: Int) {
+                context.dataStore.edit { prefs ->
+                    prefs[PreferenceKeys.LAST_VERSION_CHECK_LAUNCH_COUNT] = value.toString()
+                }
+            }
+        }
+
+    override val lastUpdatePromptLaunchCount: DataStorePreference<Int>
+        get() = object : DataStorePreference<Int> {
+            override fun getFlow(): Flow<Int> =
+                datastore.map { prefs ->
+                    try {
+                        prefs[PreferenceKeys.LAST_UPDATE_PROMPT_LAUNCH_COUNT]?.toInt() ?: 0
+                    } catch (e: Exception) {
+                        0
+                    }
+                }
+
+            override suspend fun set(value: Int) {
+                context.dataStore.edit { prefs ->
+                    prefs[PreferenceKeys.LAST_UPDATE_PROMPT_LAUNCH_COUNT] = value.toString()
                 }
             }
         }
