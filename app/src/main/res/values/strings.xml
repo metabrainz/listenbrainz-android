@@ -271,4 +271,6 @@
     <string name="listen_submission_rationale">To enable Listen Submission, please grant the required permissions so we can track your music activity.</string>
     <string name="listen_permission_rationale">Choose the apps you want ListenBrainz to track. This helps automatically submit your listens while ensuring accurate listening history</string>
     <string name="track_removed_from_playlist_successfully">Track removed from playlist successfully!!</string>
+    <string name="github_app_update">The update will be downloaded in the background. We\'ll notify once the update is downloaded.</string>
+    <string name="app_update_disclaimer">Youtube Music playback is not supported on non-playstore builds.</string>
 </resources>

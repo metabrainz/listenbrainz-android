@@ -154,6 +154,18 @@ class AppUpdatesViewModel @Inject constructor(
         }
     }
 
+    fun dismissUpdateDialog() {
+        _uiState.update {
+            it.copy(
+                isUpdateAvailable = false,
+                latestStableRelease = null,
+                latestRelease = null,
+                error = null,
+                isLoading = false
+            )
+        }
+    }
+
     // Helper extension function for Boolean?
     private fun Boolean?.isTrue(): Boolean = this == true
 }
