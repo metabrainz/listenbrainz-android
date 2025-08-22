@@ -130,6 +130,7 @@ class AppUpdatesViewModel @Inject constructor(
 
         val currentVersion = appPreferences.version
         val isUpdateAvailable = isNewerVersion(currentVersion, latestStableRelease?.tagName)
+                || isNewerVersion(currentVersion, latestRelease?.tagName)
 
         Log.d("AppUpdatesViewModel", "Current version: $currentVersion")
         Log.d("AppUpdatesViewModel", "Update available: $isUpdateAvailable")
