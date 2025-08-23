@@ -35,6 +35,7 @@ import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.navigation.NavigationItem
 import org.listenbrainz.android.ui.screens.appupdates.AppUpdateDialog
+import org.listenbrainz.android.ui.screens.appupdates.InstallPermissionRationaleDialog
 import org.listenbrainz.android.ui.screens.onboarding.auth.ConsentScreenDataInitializer
 import org.listenbrainz.android.ui.screens.onboarding.auth.ListenBrainzLogin
 import org.listenbrainz.android.ui.screens.onboarding.auth.LoginConsentScreen
@@ -202,6 +203,7 @@ class MainActivity : ComponentActivity() {
                 )
 
                 AppUpdateDialog(viewModel = appUpdatesViewModel)
+                InstallPermissionRationaleDialog(viewModel = appUpdatesViewModel)
             }
 
         }
@@ -296,6 +298,7 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         dashBoardViewModel.updatePermissionStatus(this)
+        appUpdatesViewModel.refreshInstallPermissionStatus()
         lifecycleScope.launch {
             App.startListenService(appPreferences = dashBoardViewModel.appPreferences)
         }

@@ -42,6 +42,7 @@ object Constants {
         const val PREFERENCE_APP_LAUNCH_COUNT = "app_launch_count"
         const val PREFERENCE_LAST_VERSION_CHECK_LAUNCH_COUNT = "last_version_check_launch_count"
         const val PREFERENCE_LAST_UPDATE_PROMPT_LAUNCH_COUNT = "last_update_prompt_launch_count"
+        const val PREFERENCE_DOWNLOAD_ID = "download_id"
         const val LINKED_SERVICES = "LINKED_SERVICES"
         const val USERNAME = "username"
         const val CURRENT_PLAYABLE = "CURRENT_PLAYABLE"

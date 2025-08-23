@@ -7,5 +7,8 @@ data class AppUpdatesUiState(
     val latestRelease: GithubUpdatesListItem? = null,
     val isUpdateAvailable: Boolean = false,
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val isInstallPermissionGranted: Boolean = false,
+    val isInstallPermissionRationaleVisible: Boolean = false,
+    val isWaitingForPermissionToUpdateApp: Boolean = false
 )

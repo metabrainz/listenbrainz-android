@@ -2,6 +2,7 @@ package org.listenbrainz.android.viewmodel
 
 import android.app.Application
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -33,6 +34,7 @@ class AppUpdatesViewModel @Inject constructor(
     init {
         checkInstallSource()
         checkForUpdates()
+        checkInstallPermission()
     }
 
     private suspend fun incrementLaunchCount() {
@@ -178,6 +180,44 @@ class AppUpdatesViewModel @Inject constructor(
         }
     }
 
-    // Helper extension function for Boolean?
+    private fun checkInstallPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val packageManager = getApplication<Application>().packageManager
+            val hasInstallPermission = packageManager.canRequestPackageInstalls()
+            _uiState.update {
+                it.copy(isInstallPermissionGranted = hasInstallPermission)
+            }
+        } else {
+            // For older versions, permission is granted by default
+            _uiState.update {
+                it.copy(isInstallPermissionGranted = true)
+            }
+        }
+    }
+
+    fun showInstallPermissionRationale() {
+        _uiState.update {
+            it.copy(isInstallPermissionRationaleVisible = true)
+        }
+    }
+
+    fun hideInstallPermissionRationale() {
+        _uiState.update {
+            it.copy(isInstallPermissionRationaleVisible = false)
+        }
+    }
+
+    fun onInstallPermissionGranted() {
+        _uiState.update {
+            it.copy(
+                isInstallPermissionGranted = true,
+                isInstallPermissionRationaleVisible = false
+            )
+        }
+    }
+
+    fun refreshInstallPermissionStatus() {
+        checkInstallPermission()
+    }
     private fun Boolean?.isTrue(): Boolean = this == true
 }

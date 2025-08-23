@@ -70,4 +70,6 @@ interface AppPreferences {
     
     /** Launch count when user was last prompted to update. */
     val lastUpdatePromptLaunchCount: DataStorePreference<Int>
+
+    val downloadId: DataStorePreference<Long>
 }
