@@ -18,7 +18,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
@@ -57,23 +56,26 @@ fun AppUpdateDialog(
     val onDismiss = { viewModel.dismissUpdateDialog() }
 
     if (uiState.isUpdateAvailable &&
-        (uiState.latestStableRelease != null || uiState.latestRelease != null)) {
+        (uiState.latestStableRelease != null || uiState.latestRelease != null)
+    ) {
 
         LaunchedEffect(Unit) {
             viewModel.userPromptedForUpdate()
         }
 
-        Dialog (onDismissRequest = onDismiss,
+        Dialog(
+            onDismissRequest = onDismiss,
             properties = DialogProperties(
                 usePlatformDefaultWidth = false
-            )) {
+            )
+        ) {
             AppUpdateDialogLayout(
                 latestStableRelease = uiState.latestStableRelease,
                 latestRelease = uiState.latestRelease,
                 onMaybeLater = onDismiss,
                 onDownloadUpdate = {
                     onDismiss()
-                    // TODO: Implement download update functionality
+                    viewModel.downloadGithubUpdate(it, {}, {})
                 }
             )
         }
@@ -85,7 +87,7 @@ fun AppUpdateDialogLayout(
     latestStableRelease: GithubUpdatesListItem?,
     latestRelease: GithubUpdatesListItem?,
     onMaybeLater: () -> Unit,
-    onDownloadUpdate: () -> Unit
+    onDownloadUpdate: (GithubUpdatesListItem) -> Unit
 ) {
     val isDarkTheme = onScreenUiModeIsDark()
     var selectedVersion by remember {
@@ -157,7 +159,7 @@ fun AppUpdateDialogLayout(
                     )
                 }
 
-                if( latestStableRelease != null && latestRelease != null && latestStableRelease.tagName != latestRelease.tagName) {
+                if (latestStableRelease != null && latestRelease != null && latestStableRelease.tagName != latestRelease.tagName) {
                     HorizontalDivider()
                     Text(
                         text = "A preview version of the app is also available to download.",
@@ -198,7 +200,15 @@ fun AppUpdateDialogLayout(
                 Spacer(modifier = Modifier.width(12.dp))
 
                 TextButton(
-                    onClick = onDownloadUpdate,
+                    onClick = {
+                        val version = if (selectedVersion == "stable") latestStableRelease
+                        else latestRelease
+                        if (version != null) {
+                            onDownloadUpdate(
+                                version
+                            )
+                        }
+                    },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(

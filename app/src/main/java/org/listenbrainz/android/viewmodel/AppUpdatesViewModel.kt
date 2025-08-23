@@ -1,6 +1,7 @@
 package org.listenbrainz.android.viewmodel
 
 import android.app.Application
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.InstallSource
 import org.listenbrainz.android.model.githubupdates.GithubUpdatesList
+import org.listenbrainz.android.model.githubupdates.GithubUpdatesListItem
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.Constants
@@ -153,6 +155,15 @@ class AppUpdatesViewModel @Inject constructor(
                 "User prompted for update at launch count: $currentLaunchCount"
             )
         }
+    }
+
+    fun downloadGithubUpdate(release: GithubUpdatesListItem,
+                             onCompletedDownload: (Uri?) -> Unit,
+                             onDownloadError: (String) -> Unit){
+        val id = appUpdatesRepository.downloadGithubUpdate(
+            release,
+            onCompletedDownload,
+            onDownloadError)
     }
 
     fun dismissUpdateDialog() {

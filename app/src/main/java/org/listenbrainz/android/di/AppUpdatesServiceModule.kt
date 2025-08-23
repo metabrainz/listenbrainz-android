@@ -1,5 +1,6 @@
 package org.listenbrainz.android.di
 
+import android.app.Application
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import dagger.Module
 import dagger.Provides
@@ -11,6 +12,7 @@ import org.listenbrainz.android.application.App
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepositoryImpl
 import org.listenbrainz.android.service.GithubAppUpdatesService
+import org.listenbrainz.android.service.GithubUpdatesDownloadService
 import org.listenbrainz.android.util.Constants.GITHUB_API_BASE_URL
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -44,6 +46,12 @@ abstract class AppUpdatesServiceModule {
         @Singleton
         fun providesAppUpdatesService(): GithubAppUpdatesService {
             return createRetrofit().create(GithubAppUpdatesService::class.java)
+        }
+
+        @Provides
+        @Singleton
+        fun providesGithubAppUpdateDownloadService(context: Application): GithubUpdatesDownloadService{
+            return GithubUpdatesDownloadService(context)
         }
     }
 }
