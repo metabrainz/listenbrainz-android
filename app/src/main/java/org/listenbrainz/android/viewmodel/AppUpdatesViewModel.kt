@@ -162,10 +162,19 @@ class AppUpdatesViewModel @Inject constructor(
     fun downloadGithubUpdate(release: GithubUpdatesListItem,
                              onCompletedDownload: (Uri?) -> Unit,
                              onDownloadError: (String) -> Unit){
-        val id = appUpdatesRepository.downloadGithubUpdate(
+        appUpdatesRepository.downloadGithubUpdate(
             release,
-            onCompletedDownload,
-            onDownloadError)
+            onCompletedDownload = { uri ->
+                _uiState.update {
+                    it.copy(
+                        downloadedApkUri = uri,
+                        isInstallAppDialogVisible = true
+                    )
+                }
+                onCompletedDownload(uri)
+            },
+            onDownloadError = onDownloadError
+        )
     }
 
     fun dismissUpdateDialog() {
@@ -208,16 +217,72 @@ class AppUpdatesViewModel @Inject constructor(
     }
 
     fun onInstallPermissionGranted() {
-        _uiState.update {
-            it.copy(
+        _uiState.update { currentState ->
+            val newState = currentState.copy(
                 isInstallPermissionGranted = true,
                 isInstallPermissionRationaleVisible = false
             )
+
+            // If user was waiting for permission to install app, install it now
+            if (currentState.isWaitingForPermissionToUpdateApp && currentState.downloadedApkUri != null) {
+                installApk(currentState.downloadedApkUri)
+                newState.copy(isWaitingForPermissionToUpdateApp = false)
+            } else {
+                newState
+            }
         }
     }
 
     fun refreshInstallPermissionStatus() {
         checkInstallPermission()
     }
+
+    fun showInstallAppDialog() {
+        _uiState.update {
+            it.copy(isInstallAppDialogVisible = true)
+        }
+    }
+
+    fun hideInstallAppDialog() {
+        _uiState.update {
+            it.copy(
+                isInstallAppDialogVisible = false,
+                downloadedApkUri = null
+            )
+        }
+    }
+
+    fun installDownloadedApp() {
+        val currentState = _uiState.value
+        if (currentState.downloadedApkUri != null) {
+            if (currentState.isInstallPermissionGranted) {
+                installApk(currentState.downloadedApkUri)
+            } else {
+                _uiState.update {
+                    it.copy(
+                        isWaitingForPermissionToUpdateApp = true,
+                        isInstallPermissionRationaleVisible = true
+                    )
+                }
+            }
+        }
+    }
+
+    private fun installApk(uri: Uri) {
+        try {
+            val context = getApplication<Application>()
+            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, "application/vnd.android.package-archive")
+                addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            context.startActivity(intent)
+            hideInstallAppDialog()
+            Log.d("AppUpdatesViewModel", "APK installation started")
+        } catch (e: Exception) {
+            Log.e("AppUpdatesViewModel", "Error starting APK installation", e)
+        }
+    }
+
     private fun Boolean?.isTrue(): Boolean = this == true
 }

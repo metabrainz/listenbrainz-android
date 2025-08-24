@@ -35,6 +35,7 @@ import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.navigation.NavigationItem
 import org.listenbrainz.android.ui.screens.appupdates.AppUpdateDialog
+import org.listenbrainz.android.ui.screens.appupdates.InstallAppDialog
 import org.listenbrainz.android.ui.screens.appupdates.InstallPermissionRationaleDialog
 import org.listenbrainz.android.ui.screens.onboarding.auth.ConsentScreenDataInitializer
 import org.listenbrainz.android.ui.screens.onboarding.auth.ListenBrainzLogin
@@ -204,6 +205,7 @@ class MainActivity : ComponentActivity() {
 
                 AppUpdateDialog(viewModel = appUpdatesViewModel)
                 InstallPermissionRationaleDialog(viewModel = appUpdatesViewModel)
+                InstallAppDialog(viewModel = appUpdatesViewModel)
             }
 
         }
@@ -299,6 +301,13 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         dashBoardViewModel.updatePermissionStatus(this)
         appUpdatesViewModel.refreshInstallPermissionStatus()
+
+        // Handle permission granted flow - if permission was granted, update state
+        val uiState = appUpdatesViewModel.uiState.value
+        if (uiState.isInstallPermissionGranted && uiState.isWaitingForPermissionToUpdateApp) {
+            appUpdatesViewModel.onInstallPermissionGranted()
+        }
+
         lifecycleScope.launch {
             App.startListenService(appPreferences = dashBoardViewModel.appPreferences)
         }

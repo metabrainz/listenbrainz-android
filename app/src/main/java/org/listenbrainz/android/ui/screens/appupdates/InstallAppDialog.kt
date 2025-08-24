@@ -1,16 +1,14 @@
 package org.listenbrainz.android.ui.screens.appupdates
 
-import android.content.Intent
-import android.net.Uri
-import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.GetApp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -22,7 +20,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,31 +34,24 @@ import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 
 @Composable
-fun InstallPermissionRationaleDialog(
+fun InstallAppDialog(
     viewModel: AppUpdatesViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
 
-    if (uiState.isInstallPermissionRationaleVisible) {
+    if (uiState.isInstallAppDialogVisible && uiState.downloadedApkUri != null) {
         Dialog(
-            onDismissRequest = { viewModel.hideInstallPermissionRationale() },
+            onDismissRequest = { viewModel.hideInstallAppDialog() },
             properties = DialogProperties(
                 usePlatformDefaultWidth = false
             )
         ) {
-            InstallPermissionRationaleDialogLayout(
-                isWaitingForAppInstall = uiState.isWaitingForPermissionToUpdateApp,
-                onGrantPermission = {
-                    viewModel.hideInstallPermissionRationale()
-                    // Open install permission settings
-                    val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-                        data = Uri.parse("package:${context.packageName}")
-                    }
-                    context.startActivity(intent)
+            InstallAppDialogLayout(
+                onInstallNow = {
+                    viewModel.installDownloadedApp()
                 },
-                onDismiss = {
-                    viewModel.hideInstallPermissionRationale()
+                onInstallLater = {
+                    viewModel.hideInstallAppDialog()
                 }
             )
         }
@@ -69,10 +59,9 @@ fun InstallPermissionRationaleDialog(
 }
 
 @Composable
-fun InstallPermissionRationaleDialogLayout(
-    onGrantPermission: () -> Unit,
-    onDismiss: () -> Unit,
-    isWaitingForAppInstall: Boolean = false
+fun InstallAppDialogLayout(
+    onInstallNow: () -> Unit,
+    onInstallLater: () -> Unit
 ) {
     val isDarkTheme = onScreenUiModeIsDark()
 
@@ -94,14 +83,14 @@ fun InstallPermissionRationaleDialogLayout(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Icon(
-                imageVector = Icons.Default.Security,
+                imageVector = Icons.Default.GetApp,
                 contentDescription = null,
                 tint = if (isDarkTheme) lb_purple_night else lb_purple,
                 modifier = Modifier.size(48.dp)
             )
 
             Text(
-                text = if (isWaitingForAppInstall) "Permission Required to Install Update" else "Install Permission Required",
+                text = "Update Downloaded",
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp
@@ -111,11 +100,7 @@ fun InstallPermissionRationaleDialogLayout(
             )
 
             Text(
-                text = if (isWaitingForAppInstall) {
-                    "Your update is ready to install. We need permission to install apps from unknown sources to proceed with the installation."
-                } else {
-                    "To install app updates from outside the Play Store, we need permission to install unknown apps."
-                },
+                text = "The update has been downloaded successfully. Do you want to install it now?",
                 style = MaterialTheme.typography.bodyMedium,
                 color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.8f),
                 textAlign = TextAlign.Center
@@ -130,51 +115,51 @@ fun InstallPermissionRationaleDialogLayout(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "How to grant permission:",
+                        text = "What happens next:",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                         color = ListenBrainzTheme.colorScheme.text
                     )
                     Text(
-                        text = "1. Tap 'Grant Permission' below",
+                        text = "• The Android system installer will open",
                         style = MaterialTheme.typography.bodySmall,
                         color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.8f)
                     )
                     Text(
-                        text = "2. Toggle 'Allow from this source' ON",
+                        text = "• You'll be prompted to confirm the installation",
                         style = MaterialTheme.typography.bodySmall,
                         color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.8f)
                     )
                     Text(
-                        text = if (isWaitingForAppInstall) "3. Return to install your update" else "3. Return to the app",
+                        text = "• The app will be updated to the latest version",
                         style = MaterialTheme.typography.bodySmall,
                         color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.8f)
                     )
                 }
             }
 
-            Column(
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 TextButton(
-                    onClick = onGrantPermission,
-                    modifier = Modifier.fillMaxWidth()
+                    onClick = onInstallLater,
+                    modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "Grant Permission",
-                        fontWeight = FontWeight.Medium,
-                        color = if (isDarkTheme) lb_purple_night else lb_purple
+                        text = "Install Later",
+                        color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f)
                     )
                 }
 
                 TextButton(
-                    onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth()
+                    onClick = onInstallNow,
+                    modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = if (isWaitingForAppInstall) "Install Later" else "Cancel",
-                        color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f)
+                        text = "Install Now",
+                        fontWeight = FontWeight.Medium,
+                        color = if (isDarkTheme) lb_purple_night else lb_purple
                     )
                 }
             }
@@ -184,11 +169,11 @@ fun InstallPermissionRationaleDialogLayout(
 
 @Preview(showBackground = true)
 @Composable
-fun InstallPermissionRationaleDialogPreview() {
+fun InstallAppDialogPreview() {
     ListenBrainzTheme {
-        InstallPermissionRationaleDialogLayout(
-            onGrantPermission = {},
-            onDismiss = {}
+        InstallAppDialogLayout(
+            onInstallNow = {},
+            onInstallLater = {}
         )
     }
 }

@@ -1,5 +1,6 @@
 package org.listenbrainz.android.viewmodel
 
+import android.net.Uri
 import org.listenbrainz.android.model.githubupdates.GithubUpdatesListItem
 
 data class AppUpdatesUiState(
@@ -10,5 +11,7 @@ data class AppUpdatesUiState(
     val error: String? = null,
     val isInstallPermissionGranted: Boolean = false,
     val isInstallPermissionRationaleVisible: Boolean = false,
-    val isWaitingForPermissionToUpdateApp: Boolean = false
+    val isWaitingForPermissionToUpdateApp: Boolean = false,
+    val downloadedApkUri: Uri? = null,
+    val isInstallAppDialogVisible: Boolean = false
 )

@@ -4,10 +4,12 @@ import android.app.DownloadManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.util.Log
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import java.io.File
@@ -74,58 +76,106 @@ class GithubUpdatesDownloadService(
         onDownloadError: (String) -> Unit
     ) {
         try {
+            // Clean up any existing receiver first
+            cleanUp()
+
             downloadBroadcastReceiver = object : BroadcastReceiver() {
-                override fun onReceive(content: Context?, intent: Intent?) {
-                    val downloadIdExtra = intent?.getLongExtra(DownloadManager.COLUMN_STATUS, -1)
-                    if (downloadIdExtra == downloadId) {
-                        val query = DownloadManager.Query().setFilterById(downloadId)
-                        val cursor = downloadManager.query(query)
-                        if (cursor.moveToFirst()) {
-                            val statusColumnIndx =
-                                cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
-                            val status = cursor.getInt(statusColumnIndx)
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    Log.d(TAG, "Broadcast received: ${intent?.action}")
+                    Log.d(TAG, "Intent extras: ${intent?.extras}")
 
-                            when (status) {
-                                DownloadManager.STATUS_SUCCESSFUL -> {
-                                    val uriColumnIndex =
-                                        cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
-                                    val localUri = cursor.getString(uriColumnIndex)
-                                    Log.d(TAG, "Download completed: $localUri")
+                    val receivedDownloadId = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+                    Log.d(TAG, "Expected download ID: $downloadId, Received: $receivedDownloadId")
 
-                                    val fileUri = getFileUri(localUri)
-                                    onCompletedDownload(fileUri)
-                                    cleanUp()
-                                }
-
-                                DownloadManager.STATUS_FAILED -> {
-                                    val reasonIndex =
-                                        cursor.getColumnIndex(DownloadManager.COLUMN_REASON)
-                                    val reason = cursor.getInt(reasonIndex)
-                                    val errorMessage = getDownloadErrorMessage(reason)
-                                    Log.e(TAG, "Download failed: $errorMessage")
-                                    onDownloadError(errorMessage)
-                                    cleanUp()
-                                }
-                            }
-                        }
-                        cursor.close()
+                    if (receivedDownloadId == downloadId) {
+                        queryDownloadStatus(downloadId, onCompletedDownload, onDownloadError)
                     }
                 }
             }
+
+            val intentFilter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+
+            // Use application context and correct receiver flag
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                ContextCompat.registerReceiver(
+                    context.applicationContext,
+                    downloadBroadcastReceiver,
+                    intentFilter,
+                    ContextCompat.RECEIVER_EXPORTED
+                )
+            } else {
+                context.applicationContext.registerReceiver(downloadBroadcastReceiver, intentFilter)
+            }
+
+            Log.d(TAG, "Broadcast receiver registered for download ID: $downloadId")
+
         } catch (e: Exception) {
             Log.e(TAG, "Error registering receiver", e)
-            onDownloadError("Error registering receiver ${e.message}")
+            onDownloadError("Error registering receiver: ${e.message}")
+        }
+    }
+
+    private fun queryDownloadStatus(
+        downloadId: Long,
+        onCompletedDownload: (Uri?) -> Unit,
+        onDownloadError: (String) -> Unit
+    ) {
+        val query = DownloadManager.Query().setFilterById(downloadId)
+        val cursor = downloadManager.query(query)
+
+        try {
+            if (cursor.moveToFirst()) {
+                val statusColumnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
+                val status = cursor.getInt(statusColumnIndex)
+
+                Log.d(TAG, "Download status: $status")
+
+                when (status) {
+                    DownloadManager.STATUS_SUCCESSFUL -> {
+                        val uriColumnIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
+                        val localUri = cursor.getString(uriColumnIndex)
+                        Log.d(TAG, "Download completed: $localUri")
+
+                        val fileUri = getFileUri(localUri)
+                        onCompletedDownload(fileUri)
+                        cleanUp()
+                    }
+
+                    DownloadManager.STATUS_FAILED -> {
+                        val reasonIndex = cursor.getColumnIndex(DownloadManager.COLUMN_REASON)
+                        val reason = cursor.getInt(reasonIndex)
+                        val errorMessage = getDownloadErrorMessage(reason)
+                        Log.e(TAG, "Download failed: $errorMessage")
+                        onDownloadError(errorMessage)
+                        cleanUp()
+                    }
+
+                    else -> {
+                        Log.d(TAG, "Download still in progress, status: $status")
+                    }
+                }
+            } else {
+                Log.w(TAG, "No data found for download ID: $downloadId")
+            }
+        } finally {
+            cursor.close()
         }
     }
 
     fun getFileUri(localUri: String?): Uri? {
         return localUri?.let {
-            val file = File(localUri.toUri().path ?: return null)
+            val filePath = if (it.startsWith("file://")) {
+                it.substring(7)
+            } else {
+                it
+            }
+
+            val file = File(filePath)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 FileProvider.getUriForFile(
                     context,
-                    "${context.packageName}.fileprovider",
+                    "${context.packageName}.provider",
                     file
                 )
             } else {

@@ -74,7 +74,7 @@ class AppUpdatesRepositoryImpl @Inject constructor(
             return null
         }
         return downloadService.downloadUpdate(
-            fileName = "AppUpdate${release.tagName?:""}",
+            fileName = "ListenBrainz_${release.tagName?:""}_${System.currentTimeMillis()}",
             downloadUrl = downloadUrl,
             onCompletedDownload = onCompletedDownload,
             onDownloadError = onDownloadError
