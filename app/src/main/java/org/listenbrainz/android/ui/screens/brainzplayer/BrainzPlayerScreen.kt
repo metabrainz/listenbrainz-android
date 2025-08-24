@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ElevatedSuggestionChip
@@ -32,9 +33,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.listenbrainz.android.application.App.Companion.context
 import org.listenbrainz.android.model.Album
+import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.Artist
 import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.ui.navigation.TopBar
+import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.brainzplayer.navigation.Navigation
 import org.listenbrainz.android.ui.screens.brainzplayer.overview.AlbumsOverViewScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.overview.ArtistsOverviewScreen
@@ -51,7 +55,9 @@ import org.listenbrainz.android.viewmodel.SongViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BrainzPlayerScreen() {
+fun BrainzPlayerScreen(
+    topBarActions : TopBarActions
+) {
     // View models
     val BPAlbumViewModel = hiltViewModel<BPAlbumViewModel>()
     val songsViewModel = hiltViewModel<SongViewModel>()
@@ -97,7 +103,8 @@ fun BrainzPlayerScreen() {
             songsPlayedThisWeek,
             topRecents,
             songs,
-            albumSongsMap
+            albumSongsMap,
+            topBarActions
         )
     }
 }
@@ -105,6 +112,7 @@ fun BrainzPlayerScreen() {
 
 @Composable
 fun BrainzPlayerHomeScreen(
+    topBarActions: TopBarActions,
     songs: List<Song>,
     albums: List<Album>,
     previewAlbums: List<Album>,
@@ -119,6 +127,11 @@ fun BrainzPlayerHomeScreen(
     val currentTab = rememberSaveable { mutableIntStateOf(0) }
 
     Column {
+        TopBar(
+            modifier = Modifier.statusBarsPadding(),
+            topBarActions = topBarActions,
+            title = AppNavigationItem.BrainzPlayer.title
+        )
         Row(
             modifier = Modifier
                 .fillMaxWidth()

@@ -31,6 +31,7 @@ import org.listenbrainz.android.ui.screens.feed.FeedScreen
 import org.listenbrainz.android.ui.screens.playlist.PlaylistDetailScreen
 import org.listenbrainz.android.ui.screens.profile.LoginScreen
 import org.listenbrainz.android.ui.screens.profile.ProfileScreen
+import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScreen
 import org.listenbrainz.android.ui.screens.settings.SettingsScreen
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
@@ -41,8 +42,8 @@ fun AppNavigation(
     onScrollToTop: (suspend () -> Unit) -> Unit,
     dashBoardViewModel: DashBoardViewModel,
     snackbarState: SnackbarHostState,
-    onOnboardingRequest: ()->Unit,
-    onLoginRequest: ()->Unit
+    settingsCallbacks: SettingsCallbacksToHomeScreen,
+    topAppBarActions: TopBarActions
 ) {
     fun NavOptionsBuilder.defaultNavOptions() {
         // Avoid building large backstack
@@ -91,14 +92,19 @@ fun AppNavigation(
                 scrollToTopState = scrollRequestState,
                 onScrollToTop = onScrollToTop,
                 goToUserPage = ::goToUserProfile,
-                goToArtistPage = ::goToArtistPage
+                goToArtistPage = ::goToArtistPage,
+                topAppBarActions = topAppBarActions
             )
         }
         appComposable(route = AppNavigationItem.BrainzPlayer.route) {
-            BrainzPlayerScreen()
+            BrainzPlayerScreen(
+                topAppBarActions
+            )
         }
         appComposable(route = AppNavigationItem.Explore.route) {
-            ExploreScreen()
+            ExploreScreen(
+                topAppBarActions
+            )
         }
         appComposable(
             route = AppNavigationItem.Profile.route
@@ -128,7 +134,8 @@ fun AppNavigation(
                 snackbarState = snackbarState,
                 goToUserProfile = ::goToUserProfile,
                 goToArtistPage = ::goToArtistPage,
-                goToPlaylist = ::goToPlaylist
+                goToPlaylist = ::goToPlaylist,
+                topBarActions = topAppBarActions
             )
         }
         appComposable(
@@ -136,8 +143,7 @@ fun AppNavigation(
         ) {
             SettingsScreen(
                 dashBoardViewModel = dashBoardViewModel,
-                onOnboardingRequest = onOnboardingRequest,
-                onLoginRequest = onLoginRequest
+                callbacks = settingsCallbacks
             )
         }
         appComposable(
@@ -159,7 +165,8 @@ fun AppNavigation(
                     goToArtistPage = ::goToArtistPage,
                     snackBarState = snackbarState,
                     goToUserPage = ::goToUserProfile,
-                    goToAlbumPage = ::goToAlbumPage
+                    goToAlbumPage = ::goToAlbumPage,
+                    topBarActions = topAppBarActions
                 )
             }
         }
@@ -177,7 +184,11 @@ fun AppNavigation(
                     snackbarState.showSnackbar("The album page can't be loaded")
                 }
             } else {
-                AlbumScreen(albumMbid = albumMbid, snackBarState = snackbarState)
+                AlbumScreen(
+                    albumMbid = albumMbid,
+                    snackBarState = snackbarState,
+                    topBarActions = topAppBarActions
+                )
             }
         }
         appComposable(
@@ -187,19 +198,20 @@ fun AppNavigation(
                     type = NavType.StringType
                 }
             )
-        ){ backStackTrace ->
+        ) { backStackTrace ->
             val playlistMbid = backStackTrace.arguments?.getString("mbid")
-            if (playlistMbid == null){
-                LaunchedEffect(Unit){
+            if (playlistMbid == null) {
+                LaunchedEffect(Unit) {
                     snackbarState.showSnackbar("The playlist page can't be loaded")
                 }
             } else {
-                 PlaylistDetailScreen(
+                PlaylistDetailScreen(
                     playlistMBID = playlistMbid,
                     snackbarState = snackbarState,
                     goToArtistPage = ::goToArtistPage,
-                     goToUserPage = ::goToUserProfile
-                 )
+                    goToUserPage = ::goToUserProfile,
+                    topBarActions = topAppBarActions
+                )
             }
         }
     }

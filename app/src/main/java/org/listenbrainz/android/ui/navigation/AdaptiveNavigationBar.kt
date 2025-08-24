@@ -47,20 +47,24 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.ui.screens.brainzplayer.ListeningNowCard
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.SongViewPager
+import org.listenbrainz.android.viewmodel.ListeningNowUIState
 
 @Composable
 fun AdaptiveNavigationBar(
     modifier: Modifier = Modifier,
     navController: NavController = rememberNavController(),
     backgroundColor: Color = ListenBrainzTheme.colorScheme.nav,
+    contentColor: Color? = null,
     backdropScaffoldState: BackdropScaffoldState = rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed),
     scrollToTop: () -> Unit,
     username: String?,
     isLandscape: Boolean,
     isAudioPermissionGranted: Boolean,
     currentlyPlayingSong: Song,
+    listeningNowUIState: ListeningNowUIState,
     songList: List<Song>,
 ) {
     val items = listOf(
@@ -88,14 +92,14 @@ fun AdaptiveNavigationBar(
                     .size(24.dp)
                     .padding(vertical = 4.dp),
                 contentDescription = item.title,
-                tint = MaterialTheme.colorScheme.onSurface
+                tint = contentColor ?: MaterialTheme.colorScheme.onSurface
             )
         }
 
         val navLabel = @Composable {
             Text(
                 text = item.title,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = contentColor?: MaterialTheme.colorScheme.onSurface,
             )
         }
 
@@ -124,8 +128,8 @@ fun AdaptiveNavigationBar(
                 it.BottomNavigationItem(
                     icon = { navIcon() },
                     label = { navLabel() },
-                    selectedContentColor = MaterialTheme.colorScheme.onSurface,
-                    unselectedContentColor = colorResource(id = R.color.gray),
+                    selectedContentColor = contentColor?: MaterialTheme.colorScheme.onSurface,
+                    unselectedContentColor = contentColor ?: colorResource(id = R.color.gray),
                     alwaysShowLabel = true,
                     selected = selected,
                     onClick = onItemClick,
@@ -206,7 +210,7 @@ fun AdaptiveNavigationBar(
             Spacer(modifier = Modifier.height(12.dp))
             CommonNavigationLogic()
             Spacer(modifier = Modifier.weight(1f))
-            if (currentlyPlayingSong.mediaID != 0L)
+            if (currentlyPlayingSong.mediaID != 0L) {
                 SongViewPager(
                     modifier = modifier,
                     songList = songList,
@@ -214,6 +218,14 @@ fun AdaptiveNavigationBar(
                     currentlyPlayingSong = currentlyPlayingSong,
                     isLandscape = true
                 )
+            }else if(listeningNowUIState.isListeningNow){
+                ListeningNowCard(
+                    uiState = listeningNowUIState,
+                    backdropScaffoldState = backdropScaffoldState,
+                    isLandscape = true,
+                    coroutineScope = coroutineScope,
+                )
+            }
         }
     } else {
         BottomNavigation(
@@ -236,6 +248,7 @@ fun AdaptiveNavigationBarPreview() {
         isLandscape = true,
         currentlyPlayingSong = Song(),
         isAudioPermissionGranted = true,
-        songList = emptyList()
+        songList = emptyList(),
+        listeningNowUIState = ListeningNowUIState()
     )
 }
