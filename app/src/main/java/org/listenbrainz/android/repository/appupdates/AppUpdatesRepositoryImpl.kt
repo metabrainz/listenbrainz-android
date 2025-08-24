@@ -74,10 +74,36 @@ class AppUpdatesRepositoryImpl @Inject constructor(
             return null
         }
         return downloadService.downloadUpdate(
-            fileName = "ListenBrainz_${release.tagName?:""}_${System.currentTimeMillis()}",
+            fileName = release.tagName?:"Unknown",
             downloadUrl = downloadUrl,
             onCompletedDownload = onCompletedDownload,
             onDownloadError = onDownloadError
             )
+    }
+
+    override fun queryDownloadStatus(
+        downloadId: Long,
+        onCompletedDownload: (Uri?) -> Unit,
+        onDownloadError: (String) -> Unit,
+        onDownloadRunning: () -> Unit
+    ) {
+        downloadService.queryDownloadStatus(
+            downloadId = downloadId,
+            onCompletedDownload = onCompletedDownload,
+            onDownloadError = onDownloadError,
+            onDownloadRunning = onDownloadRunning
+        )
+    }
+
+    override fun registerDownloadBroadcastReceiver(
+        downloadId: Long,
+        onCompletedDownload: (Uri?) -> Unit,
+        onDownloadError: (String) -> Unit
+    ) {
+        downloadService.registerDownloadBroadcastReceiver(
+            downloadId = downloadId,
+            onCompletedDownload = onCompletedDownload,
+            onDownloadError = onDownloadError
+        )
     }
 }

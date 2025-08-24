@@ -18,4 +18,17 @@ interface AppUpdatesRepository {
         onCompletedDownload: (Uri?) -> Unit,
         onDownloadError: (String) -> Unit
     ): Long?
+
+    fun queryDownloadStatus(
+        downloadId: Long,
+        onCompletedDownload: (Uri?) -> Unit,
+        onDownloadError: (String) -> Unit,
+        onDownloadRunning: () -> Unit = {}
+    )
+
+    fun registerDownloadBroadcastReceiver(
+        downloadId: Long,
+        onCompletedDownload: (Uri?) -> Unit,
+        onDownloadError: (String) -> Unit
+    )
 }

@@ -19,6 +19,7 @@ import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Utils.isNewerVersion
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,13 +34,13 @@ class AppUpdatesViewModel @Inject constructor(
 
     init {
         checkInstallSource()
-        checkForUpdates()
+        checkForUpdatesDuringLaunch()
         checkInstallPermission()
     }
 
     private suspend fun incrementLaunchCount() {
-            appPreferences.appLaunchCount.getAndUpdate { it + 1 }
-            Log.d("AppUpdatesViewModel", "App launch count incremented")
+        appPreferences.appLaunchCount.getAndUpdate { it + 1 }
+        Log.d("AppUpdatesViewModel", "App launch count incremented")
 
     }
 
@@ -60,13 +61,12 @@ class AppUpdatesViewModel @Inject constructor(
         }
     }
 
-    private fun checkForUpdates() {
+    private fun checkForUpdatesDuringLaunch() {
         viewModelScope.launch {
             incrementLaunchCount()
-            val currentLaunchCount = appPreferences.appLaunchCount.get()
             val lastVersionCheckLaunchCount = appPreferences.lastVersionCheckLaunchCount.get()
             val lastPromptLaunchCount = appPreferences.lastUpdatePromptLaunchCount.get()
-            val installSource = appPreferences.installSource.get()
+            val currentLaunchCount = appPreferences.appLaunchCount.get()
 
             Log.d("AppUpdatesViewModel", "Current launch count: $currentLaunchCount")
             Log.d(
@@ -77,8 +77,8 @@ class AppUpdatesViewModel @Inject constructor(
 
             // Check if we should check for updates
             val shouldCheckForUpdates =
-                    (currentLaunchCount - lastVersionCheckLaunchCount >= Constants.VERSION_CHECK_DURATION ||
-                            lastVersionCheckLaunchCount == 0)
+                (currentLaunchCount - lastVersionCheckLaunchCount >= Constants.VERSION_CHECK_DURATION ||
+                        lastVersionCheckLaunchCount == 0)
 
             // Check if we should prompt the user (only if they've previously declined)
             val shouldPromptAgain =
@@ -86,11 +86,7 @@ class AppUpdatesViewModel @Inject constructor(
                         lastPromptLaunchCount == 0
 
             if (shouldCheckForUpdates && shouldPromptAgain) {
-                if (installSource != InstallSource.PLAY_STORE) {
-                    Log.d("AppUpdatesViewModel", "Checking for updates from github...")
-                    fetchAppReleases()
-                    appPreferences.lastVersionCheckLaunchCount.set(currentLaunchCount)
-                }
+                checkForUpdates()
             } else {
                 Log.d(
                     "AppUpdatesViewModel",
@@ -100,21 +96,109 @@ class AppUpdatesViewModel @Inject constructor(
         }
     }
 
-    private fun fetchAppReleases() {
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            val result = appUpdatesRepository.getAppReleasesFromGithub()
-            if(result.isSuccess){
-                processReleases(result.data)
-            }
-            else{
-                Log.e("AppUpdatesViewModel", "Error fetching releases: ${result.error?.toast}")
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        error = result.error?.toast ?: "Unknown error occurred"
-                    )
+    fun checkForUpdates() {
+        viewModelScope.launch() {
+            val installSource = appPreferences.installSource.get()
+            val currentLaunchCount = appPreferences.appLaunchCount.get()
+            val currentVersion = appPreferences.version
+            if (installSource != InstallSource.PLAY_STORE) {
+                Log.d("AppUpdatesViewModel", "Checking for updates from github...")
+                val downloadId = appPreferences.downloadId.get()
+                fetchAppReleases()
+                if (downloadId != 0L) {
+                    Log.d("AppUpdatesViewModel", "Resuming existing download with ID: $downloadId")
+                    appUpdatesRepository.queryDownloadStatus(
+                        downloadId = downloadId,
+                        onCompletedDownload = { uri ->
+                            Log.d("AppUpdatesViewModel", "Download was completed with URI: $uri")
+                            //Two situations are possible here:
+                            // 1. App update was installed successfully, do the cleanup if not done already
+                            if (uri != null && (getFileNameFromUri(uri) == uiState.value.latestRelease?.tagName ||
+                                        getFileNameFromUri(uri) == uiState.value.latestStableRelease?.tagName)
+                                && !isNewerVersion(currentVersion, getFileNameFromUri(uri))
+                            ) {
+                                cleanUpAPKAfterInstall(uri)
+                            }
+                            //2. Download completed but user didn't install the update, but will have to check if the downloaded apk is still the latest one
+                            else if (uri != null && (getFileNameFromUri(uri) == uiState.value.latestRelease?.tagName ||
+                                        getFileNameFromUri(uri) == uiState.value.latestStableRelease?.tagName)
+                            ){
+                                // Check if the downloaded APK matches the latest release
+                                val latestRelease = uiState.value.latestRelease
+                                val latestStableRelease = uiState.value.latestStableRelease
+                                val downloadedFileName = getFileNameFromUri(uri)
+                                if (downloadedFileName == latestRelease?.tagName || downloadedFileName == latestStableRelease?.tagName) {
+                                    // The downloaded APK is still the latest one, show the install dialog
+                                    _uiState.update {
+                                        it.copy(
+                                            downloadedApkUri = uri,
+                                            isInstallAppDialogVisible = true
+                                        )
+                                    }
+                                }else{
+                                    cleanUpAPKAfterInstall(uri)
+                                }
+                            }
+                            else {
+                                Log.d("AppUpdatesViewModel", "Download completed but URI is null")
+                                viewModelScope.launch {
+                                    appPreferences.downloadId.set(0L)
+                                }
+                            }
+                        },
+                        onDownloadError = { error ->
+                            Log.e("AppUpdatesViewModel", "Error in download query: $error")
+                            viewModelScope.launch {
+                                appPreferences.downloadId.set(0L)
+                            }
+                        },
+                        onDownloadRunning = {
+                            Log.d("AppUpdatesViewModel", "Download is still running...")
+                            appUpdatesRepository.registerDownloadBroadcastReceiver(
+                                downloadId = downloadId,
+                                onCompletedDownload = {uri->
+                                    _uiState.update {
+                                        it.copy(
+                                            downloadedApkUri = uri,
+                                            isInstallAppDialogVisible = true
+                                        )
+                                    }
+                                },
+                                onDownloadError = {
+                                    Log.e("AppUpdatesViewModel", "Error in download broadcast receiver: $it")
+                                }
+                            )
+                        })
+                }else{
+                    val latestStableRelease = _uiState.value.latestStableRelease
+                    val latestRelease = _uiState.value.latestRelease
+                    val isUpdateAvailable = isNewerVersion(currentVersion, latestStableRelease?.tagName)
+                            || isNewerVersion(currentVersion, latestRelease?.tagName)
+
+                    Log.d("AppUpdatesViewModel", "Current version: $currentVersion")
+                    Log.d("AppUpdatesViewModel", "Update available: $isUpdateAvailable")
+
+                    _uiState.update {
+                        it.copy(isUpdateAvailable = isUpdateAvailable)
+                    }
                 }
+                appPreferences.lastVersionCheckLaunchCount.set(currentLaunchCount)
+            }
+        }
+    }
+
+    private suspend fun fetchAppReleases() {
+        _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+        val result = appUpdatesRepository.getAppReleasesFromGithub()
+        if (result.isSuccess) {
+            processReleases(result.data)
+        } else {
+            Log.e("AppUpdatesViewModel", "Error fetching releases: ${result.error?.toast}")
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    error = result.error?.toast ?: "Unknown error occurred"
+                )
             }
         }
     }
@@ -136,13 +220,10 @@ class AppUpdatesViewModel @Inject constructor(
         val isUpdateAvailable = isNewerVersion(currentVersion, latestStableRelease?.tagName)
                 || isNewerVersion(currentVersion, latestRelease?.tagName)
 
-        Log.d("AppUpdatesViewModel", "Current version: $currentVersion")
-        Log.d("AppUpdatesViewModel", "Update available: $isUpdateAvailable")
-
         _uiState.value = _uiState.value.copy(
             latestStableRelease = latestStableRelease,
             latestRelease = latestRelease,
-            isUpdateAvailable = isUpdateAvailable,
+//            isUpdateAvailable = isUpdateAvailable,
             isLoading = false
         )
     }
@@ -159,10 +240,12 @@ class AppUpdatesViewModel @Inject constructor(
         }
     }
 
-    fun downloadGithubUpdate(release: GithubUpdatesListItem,
-                             onCompletedDownload: (Uri?) -> Unit,
-                             onDownloadError: (String) -> Unit){
-        appUpdatesRepository.downloadGithubUpdate(
+    fun downloadGithubUpdate(
+        release: GithubUpdatesListItem,
+        onCompletedDownload: (Uri?) -> Unit,
+        onDownloadError: (String) -> Unit
+    ) {
+        val id = appUpdatesRepository.downloadGithubUpdate(
             release,
             onCompletedDownload = { uri ->
                 _uiState.update {
@@ -175,6 +258,12 @@ class AppUpdatesViewModel @Inject constructor(
             },
             onDownloadError = onDownloadError
         )
+        //Saving the download id to preferences
+        if (id != null) {
+            viewModelScope.launch {
+                appPreferences.downloadId.set(id)
+            }
+        }
     }
 
     fun dismissUpdateDialog() {
@@ -281,6 +370,81 @@ class AppUpdatesViewModel @Inject constructor(
             Log.d("AppUpdatesViewModel", "APK installation started")
         } catch (e: Exception) {
             Log.e("AppUpdatesViewModel", "Error starting APK installation", e)
+        }
+    }
+
+    private fun getFileNameFromUri(uri: Uri): String? {
+        return try {
+            when (uri.scheme) {
+                "file" -> {
+                    File(uri.path ?: "").name
+                }
+
+                "content" -> {
+                    val path = uri.path
+                    if (path != null) {
+                        val segments = path.split("/")
+                        segments.lastOrNull()
+                    } else {
+                        null
+                    }
+                }
+
+                else -> {
+                    uri.lastPathSegment
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("AppUpdatesViewModel", "Error extracting file name from URI: $uri", e)
+            null
+        }
+    }
+
+
+    private fun cleanUpAPKAfterInstall(uri: Uri) {
+        viewModelScope.launch {
+            try {
+                val file = getFileFromUri(uri)
+                if (file?.exists() == true) {
+                    val deleted = file.delete()
+                    Log.d("AppUpdatesViewModel", "Deleted APK file after installation: $deleted")
+                } else {
+                    Log.w("AppUpdatesViewModel", "APK file not found for cleanup")
+                }
+            } catch (e: Exception) {
+                Log.e("AppUpdatesViewModel", "Error deleting APK file after installation", e)
+            } finally {
+                appPreferences.downloadId.set(0L)
+            }
+        }
+    }
+
+    private fun getFileFromUri(uri: Uri): File? {
+        return try {
+            when (uri.scheme) {
+                "file" -> {
+                    File(uri.path ?: return null)
+                }
+                "content" -> {
+                    // For FileProvider URIs, reconstruct the actual file path
+                    val context = getApplication<Application>()
+                    val authority = "${context.packageName}.provider"
+                    if (uri.authority == authority) {
+                        val relativePath = uri.path?.removePrefix("/downloads/")
+                        if (relativePath != null) {
+                            File(context.getExternalFilesDir("Download"), relativePath)
+                        } else {
+                            null
+                        }
+                    } else {
+                        null
+                    }
+                }
+                else -> null
+            }
+        } catch (e: Exception) {
+            Log.e("AppUpdatesViewModel", "Error getting file from URI", e)
+            null
         }
     }
 

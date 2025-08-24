@@ -1,5 +1,6 @@
 package org.listenbrainz.android.service
 
+import android.annotation.SuppressLint
 import android.app.DownloadManager
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -70,6 +71,7 @@ class GithubUpdatesDownloadService(
         }
     }
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     fun registerDownloadBroadcastReceiver(
         downloadId: Long,
         onCompletedDownload: (Uri?) -> Unit,
@@ -115,10 +117,11 @@ class GithubUpdatesDownloadService(
         }
     }
 
-    private fun queryDownloadStatus(
+    fun queryDownloadStatus(
         downloadId: Long,
         onCompletedDownload: (Uri?) -> Unit,
-        onDownloadError: (String) -> Unit
+        onDownloadError: (String) -> Unit,
+        onDownloadRunning: ()-> Unit = {}
     ) {
         val query = DownloadManager.Query().setFilterById(downloadId)
         val cursor = downloadManager.query(query)
@@ -152,6 +155,7 @@ class GithubUpdatesDownloadService(
 
                     else -> {
                         Log.d(TAG, "Download still in progress, status: $status")
+                        onDownloadRunning()
                     }
                 }
             } else {
