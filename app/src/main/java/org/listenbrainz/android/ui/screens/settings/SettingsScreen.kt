@@ -77,10 +77,8 @@ import org.listenbrainz.android.viewmodel.SettingsViewModel
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     listensViewModel: ListensViewModel = hiltViewModel(),
-    onOnboardingRequest: () -> Unit,
-    onLoginRequest: () -> Unit,
     dashBoardViewModel: DashBoardViewModel,
-    topBarActions: TopBarActions
+    callbacks: SettingsCallbacksToHomeScreen
 ) {
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val isBatteryOptimizationPermissionGranted =
@@ -91,18 +89,19 @@ fun SettingsScreen(
         preferencesUiState = preferencesUiState,
         callbacks = remember {
             SettingsCallbacks(
-                onLoginRequest = onLoginRequest,
+                onLoginRequest = callbacks.onLoginRequest,
                 logout = viewModel::logout,
                 getVersion = viewModel::version,
                 fetchLinkedServices = listensViewModel::fetchLinkedServices,
                 getPackageIcon = listensViewModel::getPackageIcon,
                 getPackageLabel = listensViewModel::getPackageLabel,
                 setWhitelist = listensViewModel::setWhitelist,
-                onOnboardingRequest = onOnboardingRequest
+                onOnboardingRequest = callbacks.onOnboardingRequest,
+                checkForUpdates = callbacks.checkForUpdates
             )
         },
         isBatteryOptimizationPermissionGranted = isBatteryOptimizationPermissionGranted,
-        topBarActions = topBarActions
+        topBarActions = callbacks.topBarActions
     )
 }
 
@@ -279,6 +278,16 @@ fun SettingsScreen(
                 },
                 title = "Restart onboarding",
                 subtitle = "Revisit the onboarding flow again."
+            )
+
+            HorizontalDivider()
+
+            SettingsTextOption(
+                modifier = Modifier.clickable {
+                    callbacks.checkForUpdates()
+                },
+                title = "Check for updates.",
+                subtitle = "Check if a new version of the app is available."
             )
 
             HorizontalDivider()
@@ -522,7 +531,8 @@ fun SettingsScreenPreview() {
                 getPackageLabel = { "" },
                 setWhitelist = {},
                 onLoginRequest = {},
-                onOnboardingRequest = {}
+                onOnboardingRequest = {},
+                checkForUpdates = {}
             ),
             topBarActions = TopBarActions()
         )

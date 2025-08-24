@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.screens.main
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -34,6 +35,7 @@ import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.navigation.NavigationItem
+import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.appupdates.AppUpdateDialog
 import org.listenbrainz.android.ui.screens.appupdates.InstallAppDialog
 import org.listenbrainz.android.ui.screens.appupdates.InstallPermissionRationaleDialog
@@ -43,6 +45,7 @@ import org.listenbrainz.android.ui.screens.onboarding.auth.LoginConsentScreen
 import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.ListeningAppSelectionScreen
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScreen
+import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
@@ -174,18 +177,28 @@ class MainActivity : ComponentActivity() {
                         }
                         entry<NavigationItem.HomeScreen> {
                             HomeScreen(
-                                onOnboardingRequest = {
-                                    dashBoardViewModel.appPreferences.onboardingCompleted = false
-                                    onboardingNavigationSetup(dashBoardViewModel)
-                                    backStack.add(
-                                        if (onboardingScreensQueue.isNotEmpty()) {
-                                            onboardingScreensQueue.removeAt(0)
-                                        } else NavigationItem.HomeScreen
-                                    )
-                                },
-                                onLoginRequest = {
-                                    backStack.add(NavigationItem.OnboardingScreens.LoginScreen)
-                                }
+                                settingsCallbacks = SettingsCallbacksToHomeScreen(
+                                    onLoginRequest = {
+                                        backStack.add(NavigationItem.OnboardingScreens.LoginScreen)
+                                    },
+                                    onOnboardingRequest = {
+                                        dashBoardViewModel.appPreferences.onboardingCompleted = false
+                                        onboardingNavigationSetup(dashBoardViewModel)
+                                        backStack.add(
+                                            if (onboardingScreensQueue.isNotEmpty()) {
+                                                onboardingScreensQueue.removeAt(0)
+                                            } else NavigationItem.HomeScreen
+                                        )
+                                    },
+                                    checkForUpdates = {
+                                        appUpdatesViewModel.checkForUpdates(
+                                            onUpdateNotAvailable = {
+                                                Toast.makeText(this@MainActivity, "No updates available", Toast.LENGTH_SHORT).show()
+                                            }
+                                        )
+                                    },
+                                    topBarActions = TopBarActions()
+                                )
                             )
                         }
                     },

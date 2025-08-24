@@ -1,9 +1,11 @@
 package org.listenbrainz.android.viewmodel
 
 import android.app.Application
+import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -96,7 +98,7 @@ class AppUpdatesViewModel @Inject constructor(
         }
     }
 
-    fun checkForUpdates() {
+    fun checkForUpdates(onUpdateNotAvailable: ()-> Unit = {}) {
         viewModelScope.launch() {
             val installSource = appPreferences.installSource.get()
             val currentLaunchCount = appPreferences.appLaunchCount.get()
@@ -122,7 +124,7 @@ class AppUpdatesViewModel @Inject constructor(
                             //2. Download completed but user didn't install the update, but will have to check if the downloaded apk is still the latest one
                             else if (uri != null && (getFileNameFromUri(uri) == uiState.value.latestRelease?.tagName ||
                                         getFileNameFromUri(uri) == uiState.value.latestStableRelease?.tagName)
-                            ){
+                            ) {
                                 // Check if the downloaded APK matches the latest release
                                 val latestRelease = uiState.value.latestRelease
                                 val latestStableRelease = uiState.value.latestStableRelease
@@ -135,11 +137,10 @@ class AppUpdatesViewModel @Inject constructor(
                                             isInstallAppDialogVisible = true
                                         )
                                     }
-                                }else{
+                                } else {
                                     cleanUpAPKAfterInstall(uri)
                                 }
-                            }
-                            else {
+                            } else {
                                 Log.d("AppUpdatesViewModel", "Download completed but URI is null")
                                 viewModelScope.launch {
                                     appPreferences.downloadId.set(0L)
@@ -156,7 +157,7 @@ class AppUpdatesViewModel @Inject constructor(
                             Log.d("AppUpdatesViewModel", "Download is still running...")
                             appUpdatesRepository.registerDownloadBroadcastReceiver(
                                 downloadId = downloadId,
-                                onCompletedDownload = {uri->
+                                onCompletedDownload = { uri ->
                                     _uiState.update {
                                         it.copy(
                                             downloadedApkUri = uri,
@@ -165,21 +166,28 @@ class AppUpdatesViewModel @Inject constructor(
                                     }
                                 },
                                 onDownloadError = {
-                                    Log.e("AppUpdatesViewModel", "Error in download broadcast receiver: $it")
+                                    Log.e(
+                                        "AppUpdatesViewModel",
+                                        "Error in download broadcast receiver: $it"
+                                    )
                                 }
                             )
                         })
-                }else{
+                } else {
                     val latestStableRelease = _uiState.value.latestStableRelease
                     val latestRelease = _uiState.value.latestRelease
-                    val isUpdateAvailable = isNewerVersion(currentVersion, latestStableRelease?.tagName)
-                            || isNewerVersion(currentVersion, latestRelease?.tagName)
+                    val isUpdateAvailable =
+                        isNewerVersion(currentVersion, latestStableRelease?.tagName)
+                                || isNewerVersion(currentVersion, latestRelease?.tagName)
 
                     Log.d("AppUpdatesViewModel", "Current version: $currentVersion")
                     Log.d("AppUpdatesViewModel", "Update available: $isUpdateAvailable")
 
                     _uiState.update {
                         it.copy(isUpdateAvailable = isUpdateAvailable)
+                    }
+                    if (!isUpdateAvailable) {
+                        onUpdateNotAvailable()
                     }
                 }
                 appPreferences.lastVersionCheckLaunchCount.set(currentLaunchCount)
@@ -425,6 +433,7 @@ class AppUpdatesViewModel @Inject constructor(
                 "file" -> {
                     File(uri.path ?: return null)
                 }
+
                 "content" -> {
                     // For FileProvider URIs, reconstruct the actual file path
                     val context = getApplication<Application>()
@@ -440,6 +449,7 @@ class AppUpdatesViewModel @Inject constructor(
                         null
                     }
                 }
+
                 else -> null
             }
         } catch (e: Exception) {

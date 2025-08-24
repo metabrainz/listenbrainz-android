@@ -50,6 +50,7 @@ import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
 import org.listenbrainz.android.ui.screens.search.BrainzPlayerSearchScreen
 import org.listenbrainz.android.ui.screens.search.UserSearchScreen
 import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
+import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.Utils.toPx
@@ -64,8 +65,7 @@ fun HomeScreen(
     dashBoardViewModel: DashBoardViewModel = hiltViewModel(),
     brainzPlayerViewModel: BrainzPlayerViewModel = hiltViewModel(),
     listeningNowViewModel: ListeningNowViewModel = hiltViewModel(),
-    onOnboardingRequest: () -> Unit,
-    onLoginRequest: () -> Unit
+    settingsCallbacks: SettingsCallbacksToHomeScreen
 ) {
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val navController = rememberNavController()
@@ -129,6 +129,24 @@ fun HomeScreen(
     }
 
     val isListeningNowOpenedInConcealedState = !backdropScaffoldState.isRevealed && isNothingPlaying && listeningNowUIState.isListeningNow
+
+    val topBarActions = TopBarActions(
+        popBackStackInSettingsScreen = {
+            navController.popBackStack()
+        },
+        navigateToSettingsScreen = {
+            navController.navigate(AppNavigationItem.Settings.route) {
+                popUpTo(AppNavigationItem.Feed.route) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
+        },
+        activateSearch = {
+            searchBarState.activate()
+        }
+    )
 
     Scaffold(
         modifier = Modifier
@@ -218,24 +236,9 @@ fun HomeScreen(
                     },
                     snackbarState = snackbarState,
                     dashBoardViewModel = dashBoardViewModel,
-                    onOnboardingRequest = onOnboardingRequest,
-                    onLoginRequest = onLoginRequest,
-                    topAppBarActions = TopBarActions(
-                        popBackStackInSettingsScreen = {
-                            navController.popBackStack()
-                        },
-                        navigateToSettingsScreen = {
-                            navController.navigate(AppNavigationItem.Settings.route) {
-                                popUpTo(AppNavigationItem.Feed.route) {
-                                    saveState = true
-                                }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        activateSearch = {
-                            searchBarState.activate()
-                        }
+                    topAppBarActions = topBarActions,
+                    settingsCallbacks = settingsCallbacks.copy(
+                        topBarActions = topBarActions
                     )
                 )
             }
