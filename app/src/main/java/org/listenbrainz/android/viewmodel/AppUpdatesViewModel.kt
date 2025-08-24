@@ -31,6 +31,10 @@ class AppUpdatesViewModel @Inject constructor(
     application: Application
 ) : AndroidViewModel(application) {
 
+    companion object {
+        private const val TAG = "AppUpdatesViewModel"
+    }
+
     private val _uiState = MutableStateFlow(AppUpdatesUiState())
     val uiState: StateFlow<AppUpdatesUiState> = _uiState.asStateFlow()
 
@@ -42,7 +46,7 @@ class AppUpdatesViewModel @Inject constructor(
 
     private suspend fun incrementLaunchCount() {
         appPreferences.appLaunchCount.getAndUpdate { it + 1 }
-        Log.d("AppUpdatesViewModel", "App launch count incremented")
+        Log.d(TAG, "App launch count incremented")
 
     }
 
@@ -52,11 +56,11 @@ class AppUpdatesViewModel @Inject constructor(
 
             if (currentInstallSource == InstallSource.NOT_CHECKED) {
                 val detectedSource = appUpdatesRepository.detectInstallSource(getApplication())
-                Log.d("AppUpdatesViewModel", "Detected install source: $detectedSource")
+                Log.d(TAG, "Detected install source: $detectedSource")
                 appPreferences.installSource.set(detectedSource)
             } else {
                 Log.d(
-                    "AppUpdatesViewModel",
+                    TAG,
                     "Install source already checked: $currentInstallSource"
                 )
             }
@@ -70,12 +74,12 @@ class AppUpdatesViewModel @Inject constructor(
             val lastPromptLaunchCount = appPreferences.lastUpdatePromptLaunchCount.get()
             val currentLaunchCount = appPreferences.appLaunchCount.get()
 
-            Log.d("AppUpdatesViewModel", "Current launch count: $currentLaunchCount")
+            Log.d(TAG, "Current launch count: $currentLaunchCount")
             Log.d(
-                "AppUpdatesViewModel",
+                TAG,
                 "Last version check launch count: $lastVersionCheckLaunchCount"
             )
-            Log.d("AppUpdatesViewModel", "Last update prompt launch count: $lastPromptLaunchCount")
+            Log.d(TAG, "Last update prompt launch count: $lastPromptLaunchCount")
 
             // Check if we should check for updates
             val shouldCheckForUpdates =
@@ -91,7 +95,7 @@ class AppUpdatesViewModel @Inject constructor(
                 checkForUpdates()
             } else {
                 Log.d(
-                    "AppUpdatesViewModel",
+                    TAG,
                     "Skipping update check"
                 )
             }
@@ -104,15 +108,15 @@ class AppUpdatesViewModel @Inject constructor(
             val currentLaunchCount = appPreferences.appLaunchCount.get()
             val currentVersion = appPreferences.version
             if (installSource != InstallSource.PLAY_STORE) {
-                Log.d("AppUpdatesViewModel", "Checking for updates from github...")
+                Log.d(TAG, "Checking for updates from github...")
                 val downloadId = appPreferences.downloadId.get()
                 fetchAppReleases()
                 if (downloadId != 0L) {
-                    Log.d("AppUpdatesViewModel", "Resuming existing download with ID: $downloadId")
+                    Log.d(TAG, "Resuming existing download with ID: $downloadId")
                     appUpdatesRepository.queryDownloadStatus(
                         downloadId = downloadId,
                         onCompletedDownload = { uri ->
-                            Log.d("AppUpdatesViewModel", "Download was completed with URI: $uri")
+                            Log.d(TAG, "Download was completed with URI: $uri")
                             //Two situations are possible here:
                             // 1. App update was installed successfully, do the cleanup if not done already
                             if (uri != null && (getFileNameFromUri(uri) == uiState.value.latestRelease?.tagName ||
@@ -141,20 +145,20 @@ class AppUpdatesViewModel @Inject constructor(
                                     cleanUpAPKAfterInstall(uri)
                                 }
                             } else {
-                                Log.d("AppUpdatesViewModel", "Download completed but URI is null")
+                                Log.d(TAG, "Download completed but URI is null")
                                 viewModelScope.launch {
                                     appPreferences.downloadId.set(0L)
                                 }
                             }
                         },
                         onDownloadError = { error ->
-                            Log.e("AppUpdatesViewModel", "Error in download query: $error")
+                            Log.e(TAG, "Error in download query: $error")
                             viewModelScope.launch {
                                 appPreferences.downloadId.set(0L)
                             }
                         },
                         onDownloadRunning = {
-                            Log.d("AppUpdatesViewModel", "Download is still running...")
+                            Log.d(TAG, "Download is still running...")
                             appUpdatesRepository.registerDownloadBroadcastReceiver(
                                 downloadId = downloadId,
                                 onCompletedDownload = { uri ->
@@ -167,7 +171,7 @@ class AppUpdatesViewModel @Inject constructor(
                                 },
                                 onDownloadError = {
                                     Log.e(
-                                        "AppUpdatesViewModel",
+                                        TAG,
                                         "Error in download broadcast receiver: $it"
                                     )
                                 }
@@ -180,8 +184,8 @@ class AppUpdatesViewModel @Inject constructor(
                         isNewerVersion(currentVersion, latestStableRelease?.tagName)
                                 || isNewerVersion(currentVersion, latestRelease?.tagName)
 
-                    Log.d("AppUpdatesViewModel", "Current version: $currentVersion")
-                    Log.d("AppUpdatesViewModel", "Update available: $isUpdateAvailable")
+                    Log.d(TAG, "Current version: $currentVersion")
+                    Log.d(TAG, "Update available: $isUpdateAvailable")
 
                     _uiState.update {
                         it.copy(isUpdateAvailable = isUpdateAvailable)
@@ -201,7 +205,7 @@ class AppUpdatesViewModel @Inject constructor(
         if (result.isSuccess) {
             processReleases(result.data)
         } else {
-            Log.e("AppUpdatesViewModel", "Error fetching releases: ${result.error?.toast}")
+            Log.e(TAG, "Error fetching releases: ${result.error?.toast}")
             _uiState.update {
                 it.copy(
                     isLoading = false,
@@ -213,7 +217,7 @@ class AppUpdatesViewModel @Inject constructor(
 
     private fun processReleases(releases: GithubUpdatesList?) {
         if (releases.isNullOrEmpty()) {
-            Log.d("AppUpdatesViewModel", "No releases found")
+            Log.d(TAG, "No releases found")
             _uiState.value = _uiState.value.copy(isLoading = false)
             return
         }
@@ -221,17 +225,9 @@ class AppUpdatesViewModel @Inject constructor(
         val latestStableRelease = releases.firstOrNull { !it.prerelease.isTrue() }
         val latestRelease = releases.firstOrNull()
 
-        Log.d("AppUpdatesViewModel", "Latest stable release: ${latestStableRelease?.tagName}")
-        Log.d("AppUpdatesViewModel", "Latest release: ${latestRelease?.tagName}")
-
-        val currentVersion = appPreferences.version
-        val isUpdateAvailable = isNewerVersion(currentVersion, latestStableRelease?.tagName)
-                || isNewerVersion(currentVersion, latestRelease?.tagName)
-
         _uiState.value = _uiState.value.copy(
             latestStableRelease = latestStableRelease,
             latestRelease = latestRelease,
-//            isUpdateAvailable = isUpdateAvailable,
             isLoading = false
         )
     }
@@ -242,7 +238,7 @@ class AppUpdatesViewModel @Inject constructor(
             val currentLaunchCount = appPreferences.appLaunchCount.get()
             appPreferences.lastUpdatePromptLaunchCount.set(currentLaunchCount)
             Log.d(
-                "AppUpdatesViewModel",
+                TAG,
                 "User prompted for update at launch count: $currentLaunchCount"
             )
         }
@@ -375,9 +371,9 @@ class AppUpdatesViewModel @Inject constructor(
             }
             context.startActivity(intent)
             hideInstallAppDialog()
-            Log.d("AppUpdatesViewModel", "APK installation started")
+            Log.d(TAG, "APK installation started")
         } catch (e: Exception) {
-            Log.e("AppUpdatesViewModel", "Error starting APK installation", e)
+            Log.e(TAG, "Error starting APK installation", e)
         }
     }
 
@@ -403,7 +399,7 @@ class AppUpdatesViewModel @Inject constructor(
                 }
             }
         } catch (e: Exception) {
-            Log.e("AppUpdatesViewModel", "Error extracting file name from URI: $uri", e)
+            Log.e(TAG, "Error extracting file name from URI: $uri", e)
             null
         }
     }
@@ -415,12 +411,12 @@ class AppUpdatesViewModel @Inject constructor(
                 val file = getFileFromUri(uri)
                 if (file?.exists() == true) {
                     val deleted = file.delete()
-                    Log.d("AppUpdatesViewModel", "Deleted APK file after installation: $deleted")
+                    Log.d(TAG, "Deleted APK file after installation: $deleted")
                 } else {
-                    Log.w("AppUpdatesViewModel", "APK file not found for cleanup")
+                    Log.w(TAG, "APK file not found for cleanup")
                 }
             } catch (e: Exception) {
-                Log.e("AppUpdatesViewModel", "Error deleting APK file after installation", e)
+                Log.e(TAG, "Error deleting APK file after installation", e)
             } finally {
                 appPreferences.downloadId.set(0L)
             }
@@ -453,7 +449,7 @@ class AppUpdatesViewModel @Inject constructor(
                 else -> null
             }
         } catch (e: Exception) {
-            Log.e("AppUpdatesViewModel", "Error getting file from URI", e)
+            Log.e(TAG, "Error getting file from URI", e)
             null
         }
     }
