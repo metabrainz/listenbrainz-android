@@ -4,6 +4,7 @@ import android.net.Uri
 import org.listenbrainz.android.model.githubupdates.GithubUpdatesListItem
 
 data class AppUpdatesUiState(
+    //Github release fields
     val latestStableRelease: GithubUpdatesListItem? = null,
     val latestRelease: GithubUpdatesListItem? = null,
     val isUpdateAvailable: Boolean = false,
@@ -13,5 +14,12 @@ data class AppUpdatesUiState(
     val isInstallPermissionRationaleVisible: Boolean = false,
     val isWaitingForPermissionToUpdateApp: Boolean = false,
     val downloadedApkUri: Uri? = null,
-    val isInstallAppDialogVisible: Boolean = false
+    val isInstallAppDialogVisible: Boolean = false,
+    // Play Store update fields
+    val isPlayStoreUpdateAvailable: Boolean = false,
+    val isPlayStoreUpdateDownloading: Boolean = false,
+    val playStoreUpdateDownloadProgress: Int = 0,
+    val isPlayStoreUpdateReadyToInstall: Boolean = false,
+    val playStoreUpdateError: String? = null,
+    val isPlayStoreFlexibleUpdateVisible: Boolean = false
 )

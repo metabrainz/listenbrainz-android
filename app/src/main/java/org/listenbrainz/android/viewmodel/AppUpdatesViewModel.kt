@@ -1,11 +1,10 @@
 package org.listenbrainz.android.viewmodel
 
 import android.app.Application
-import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -107,7 +106,15 @@ class AppUpdatesViewModel @Inject constructor(
             val installSource = appPreferences.installSource.get()
             val currentLaunchCount = appPreferences.appLaunchCount.get()
             val currentVersion = appPreferences.version
-            if (installSource != InstallSource.PLAY_STORE) {
+
+            if (installSource == InstallSource.PLAY_STORE) {
+                Log.d(TAG, "Checking for updates from Play Store...")
+                // For Play Store, we need an activity context, so we'll mark that an update check is needed
+                // The UI should call checkPlayStoreUpdate with the activity
+                _uiState.update {
+                    it.copy(isLoading = true, error = null)
+                }
+            } else {
                 Log.d(TAG, "Checking for updates from github...")
                 val downloadId = appPreferences.downloadId.get()
                 fetchAppReleases()
@@ -194,8 +201,8 @@ class AppUpdatesViewModel @Inject constructor(
                         onUpdateNotAvailable()
                     }
                 }
-                appPreferences.lastVersionCheckLaunchCount.set(currentLaunchCount)
             }
+            appPreferences.lastVersionCheckLaunchCount.set(currentLaunchCount)
         }
     }
 
@@ -455,4 +462,113 @@ class AppUpdatesViewModel @Inject constructor(
     }
 
     private fun Boolean?.isTrue(): Boolean = this == true
+
+    // Play Store update methods
+    fun checkPlayStoreUpdate(activity: ComponentActivity) {
+        viewModelScope.launch {
+            val installSource = appPreferences.installSource.get()
+            if (installSource != InstallSource.PLAY_STORE) {
+                Log.d(TAG, "App not installed from Play Store, skipping Play Store update check")
+                _uiState.update {
+                    it.copy(isLoading = false)
+                }
+                return@launch
+            }
+            val isUpdateAvailable = appUpdatesRepository.checkPlayStoreUpdate(activity)
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    isPlayStoreUpdateAvailable = isUpdateAvailable,
+                    isPlayStoreFlexibleUpdateVisible = isUpdateAvailable
+                )
+            }
+            Log.d(TAG, "Play Store update available: $isUpdateAvailable")
+        }
+    }
+
+    fun startPlayStoreFlexibleUpdate(activity: ComponentActivity) {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isPlayStoreUpdateDownloading = true,
+                    playStoreUpdateDownloadProgress = 0,
+                    playStoreUpdateError = null
+                )
+            }
+
+            val success = appUpdatesRepository.startPlayStoreFlexibleUpdate(
+                activity = activity,
+                onUpdateProgress = { progress ->
+                    _uiState.update {
+                        it.copy(playStoreUpdateDownloadProgress = progress)
+                    }
+                },
+                onUpdateDownloaded = {
+                    _uiState.update {
+                        it.copy(
+                            isPlayStoreUpdateDownloading = false,
+                            isPlayStoreUpdateReadyToInstall = true
+                        )
+                    }
+                    Log.d(TAG, "Play Store update download completed")
+                },
+                onUpdateError = { error ->
+                    _uiState.update {
+                        it.copy(
+                            isPlayStoreUpdateDownloading = false,
+                            playStoreUpdateError = error
+                        )
+                    }
+                    Log.e(TAG, "Play Store update error: $error")
+                }
+            )
+
+            if (!success) {
+                _uiState.update {
+                    it.copy(
+                        isPlayStoreUpdateDownloading = false,
+                        playStoreUpdateError = "Failed to start update"
+                    )
+                }
+            }
+        }
+    }
+
+    fun completePlayStoreFlexibleUpdate(activity: ComponentActivity) {
+        viewModelScope.launch {
+            val success = appUpdatesRepository.completePlayStoreFlexibleUpdate(activity)
+            if (success) {
+                Log.d(TAG, "Play Store update installation started")
+                _uiState.update {
+                    it.copy(
+                        isPlayStoreUpdateReadyToInstall = false,
+                        isPlayStoreFlexibleUpdateVisible = false
+                    )
+                }
+            } else {
+                _uiState.update {
+                    it.copy(playStoreUpdateError = "Failed to install update")
+                }
+            }
+        }
+    }
+
+    fun dismissPlayStoreUpdateDialog() {
+        _uiState.update {
+            it.copy(
+                isPlayStoreFlexibleUpdateVisible = false,
+                isPlayStoreUpdateAvailable = false,
+                isPlayStoreUpdateDownloading = false,
+                isPlayStoreUpdateReadyToInstall = false,
+                playStoreUpdateError = null,
+                playStoreUpdateDownloadProgress = 0
+            )
+        }
+    }
+
+    fun dismissPlayStoreUpdateError() {
+        _uiState.update {
+            it.copy(playStoreUpdateError = null)
+        }
+    }
 }

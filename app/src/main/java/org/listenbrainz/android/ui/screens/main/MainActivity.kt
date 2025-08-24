@@ -219,6 +219,17 @@ class MainActivity : ComponentActivity() {
                 AppUpdateDialog(viewModel = appUpdatesViewModel)
                 InstallPermissionRationaleDialog(viewModel = appUpdatesViewModel)
                 InstallAppDialog(viewModel = appUpdatesViewModel)
+
+                LaunchedEffect(Unit) {
+                    appUpdatesViewModel.uiState.collectLatest { uiState ->
+                        if (uiState.isLoading && !uiState.isPlayStoreUpdateAvailable &&
+                            !uiState.isUpdateAvailable && uiState.error == null) {
+                            // This indicates that checkForUpdates was called for Play Store but
+                            // we need activity context to actually check
+                            appUpdatesViewModel.checkPlayStoreUpdate(this@MainActivity)
+                        }
+                    }
+                }
             }
 
         }

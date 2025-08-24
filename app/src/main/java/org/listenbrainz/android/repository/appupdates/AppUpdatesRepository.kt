@@ -2,6 +2,7 @@ package org.listenbrainz.android.repository.appupdates
 
 import android.content.Context
 import android.net.Uri
+import androidx.activity.ComponentActivity
 import org.listenbrainz.android.model.InstallSource
 import org.listenbrainz.android.model.githubupdates.GithubUpdatesList
 import org.listenbrainz.android.model.githubupdates.GithubUpdatesListItem
@@ -31,4 +32,15 @@ interface AppUpdatesRepository {
         onCompletedDownload: (Uri?) -> Unit,
         onDownloadError: (String) -> Unit
     )
+
+    suspend fun checkPlayStoreUpdate(activity: ComponentActivity): Boolean
+
+    suspend fun startPlayStoreFlexibleUpdate(
+        activity: ComponentActivity,
+        onUpdateProgress: (Int) -> Unit,
+        onUpdateDownloaded: () -> Unit,
+        onUpdateError: (String) -> Unit
+    ): Boolean
+
+    suspend fun completePlayStoreFlexibleUpdate(activity: ComponentActivity): Boolean
 }
