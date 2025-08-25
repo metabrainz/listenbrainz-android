@@ -160,6 +160,8 @@ class GithubUpdatesDownloadService(
                 }
             } else {
                 Log.w(TAG, "No data found for download ID: $downloadId")
+                onDownloadError("No data found for download ID: $downloadId")
+                cleanUp()
             }
         } finally {
             cursor.close()

@@ -74,6 +74,7 @@ class MainActivity : ComponentActivity() {
         dashBoardViewModel.setUiMode()
         dashBoardViewModel.updatePermissionStatus(this)
         dashBoardViewModel.updateListeningApps(this)
+        appUpdatesViewModel.checkForUpdatesDuringLaunch(this)
 
         setContent {
             ListenBrainzTheme {
@@ -192,6 +193,7 @@ class MainActivity : ComponentActivity() {
                                     },
                                     checkForUpdates = {
                                         appUpdatesViewModel.checkForUpdates(
+                                            activity = this@MainActivity,
                                             onUpdateNotAvailable = {
                                                 Toast.makeText(this@MainActivity, "No updates available", Toast.LENGTH_SHORT).show()
                                             }
@@ -219,17 +221,6 @@ class MainActivity : ComponentActivity() {
                 AppUpdateDialog(viewModel = appUpdatesViewModel)
                 InstallPermissionRationaleDialog(viewModel = appUpdatesViewModel)
                 InstallAppDialog(viewModel = appUpdatesViewModel)
-
-                LaunchedEffect(Unit) {
-                    appUpdatesViewModel.uiState.collectLatest { uiState ->
-                        if (uiState.isLoading && !uiState.isPlayStoreUpdateAvailable &&
-                            !uiState.isUpdateAvailable && uiState.error == null) {
-                            // This indicates that checkForUpdates was called for Play Store but
-                            // we need activity context to actually check
-                            appUpdatesViewModel.checkPlayStoreUpdate(this@MainActivity)
-                        }
-                    }
-                }
             }
 
         }

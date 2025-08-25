@@ -22,7 +22,7 @@ object Constants {
     const val GITHUB_API_BASE_URL = " https://api.github.com/repos/metabrainz/listenbrainz-android/"
 
     // App update constants
-    const val VERSION_CHECK_DURATION = 3
+    const val VERSION_CHECK_DURATION = 1
     const val RE_PROMPT_USER_AFTER_DENIAL = 10
 
     object Strings {

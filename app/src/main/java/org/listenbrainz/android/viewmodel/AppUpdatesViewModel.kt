@@ -39,7 +39,6 @@ class AppUpdatesViewModel @Inject constructor(
 
     init {
         checkInstallSource()
-        checkForUpdatesDuringLaunch()
         checkInstallPermission()
     }
 
@@ -66,7 +65,7 @@ class AppUpdatesViewModel @Inject constructor(
         }
     }
 
-    private fun checkForUpdatesDuringLaunch() {
+    fun checkForUpdatesDuringLaunch(activity: ComponentActivity) {
         viewModelScope.launch {
             incrementLaunchCount()
             val lastVersionCheckLaunchCount = appPreferences.lastVersionCheckLaunchCount.get()
@@ -91,7 +90,8 @@ class AppUpdatesViewModel @Inject constructor(
                         lastPromptLaunchCount == 0
 
             if (shouldCheckForUpdates && shouldPromptAgain) {
-                checkForUpdates()
+                checkForGithubUpdates()
+                checkPlayStoreUpdate(activity)
             } else {
                 Log.d(
                     TAG,
@@ -101,7 +101,7 @@ class AppUpdatesViewModel @Inject constructor(
         }
     }
 
-    fun checkForUpdates(onUpdateNotAvailable: ()-> Unit = {}) {
+    fun checkForGithubUpdates(onUpdateNotAvailable: ()-> Unit = {}) {
         viewModelScope.launch() {
             val installSource = appPreferences.installSource.get()
             val currentLaunchCount = appPreferences.appLaunchCount.get()
@@ -569,6 +569,17 @@ class AppUpdatesViewModel @Inject constructor(
     fun dismissPlayStoreUpdateError() {
         _uiState.update {
             it.copy(playStoreUpdateError = null)
+        }
+    }
+
+    fun checkForUpdates(activity: ComponentActivity, onUpdateNotAvailable: () -> Unit){
+        viewModelScope.launch {
+            val installSource = appPreferences.installSource.get()
+            if(installSource == InstallSource.PLAY_STORE){
+                checkPlayStoreUpdate(activity)
+            }else{
+                checkForGithubUpdates(onUpdateNotAvailable)
+            }
         }
     }
 }
