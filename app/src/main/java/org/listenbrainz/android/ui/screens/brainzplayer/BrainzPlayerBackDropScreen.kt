@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -177,7 +178,7 @@ fun BrainzPlayerBackDropScreen(
             //To prevent screen showing null abruptly after listening now finishes
             if (!isListeningNow || !isNothingPlaying) {
                 LaunchedEffect(isListeningNow) {
-                    if (isNothingPlaying && backdropScaffoldState.isConcealed){
+                    if (isNothingPlaying && backdropScaffoldState.isConcealed) {
                         backdropScaffoldState.reveal()
                     }
                 }
@@ -283,7 +284,25 @@ fun PlayerScreen(
             }
         }
     }
-    LazyColumn(modifier = Modifier.background(brush = backgroundBrush)) {
+    LazyColumn(
+        modifier = Modifier
+            .background(brush = backgroundBrush)
+            .statusBarsPadding()
+    ) {
+        item {
+            Box(modifier = Modifier.fillMaxWidth()) {
+                androidx.compose.material3.Text(
+                    text = "BrainzPlayer",
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 16.sp,
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.Center),
+                    color = ListenBrainzTheme.colorScheme.text
+                )
+            }
+
+        }
         item {
             songList?.let {
                 AlbumArtViewPager(currentlyPlayingSong, pagerState, dynamicBackground)
