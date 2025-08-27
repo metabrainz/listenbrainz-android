@@ -289,19 +289,8 @@ fun PlayerScreen(
             .background(brush = backgroundBrush)
             .statusBarsPadding()
     ) {
-        item {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                androidx.compose.material3.Text(
-                    text = "BrainzPlayer",
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 16.sp,
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .align(Alignment.Center),
-                    color = ListenBrainzTheme.colorScheme.text
-                )
-            }
-
+        item{
+            Spacer(Modifier.height(60.dp))
         }
         item {
             songList?.let {
