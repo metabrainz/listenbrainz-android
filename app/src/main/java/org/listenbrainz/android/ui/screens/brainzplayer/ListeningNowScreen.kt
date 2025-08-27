@@ -78,12 +78,14 @@ fun ListeningNowScreen(
     ListeningNowLayout(
         uiState = listeningNowUIState,
         onNavigateBack = onNavigateBack,
+        isFullScreen = backdropScaffoldState.currentValue == backdropScaffoldState.targetValue
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListeningNowLayout(
+    isFullScreen: Boolean = false,
     uiState: ListeningNowUIState,
     onNavigateBack: () -> Unit,
 ) {
@@ -91,6 +93,7 @@ fun ListeningNowLayout(
         ListenBrainzTheme.colorScheme.background,
         ListenBrainzTheme.colorScheme.background
     )
+    val cornerSize = if(isFullScreen) 0.dp else 32.dp
     //Dark colors because it is located in darker side of gradient
     val titleColor = uiState.palette?.titleColorLight ?: ListenBrainzTheme.colorScheme.listenText
     val artistColor = uiState.palette?.bodyTextColorLight ?: ListenBrainzTheme.colorScheme.text
@@ -98,7 +101,7 @@ fun ListeningNowLayout(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .clip(RoundedCornerShape(32.dp, 32.dp, 0.dp, 0.dp))
+            .clip(RoundedCornerShape(cornerSize, cornerSize, 0.dp, 0.dp))
             .background(
                 brush = Brush.verticalGradient(
                     colors = backgroundColors,
