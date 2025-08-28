@@ -92,7 +92,8 @@ class ListeningNowViewModel @Inject constructor(
                 song = listen
             )
         }
-        delay(6 * 60 * 1000L)
+        Log.d(TAG, "duration: ${listen.trackMetadata.additionalInfo?.durationMs}")
+        delay(listen.trackMetadata.additionalInfo?.durationMs?.toLong() ?: (6 * 60 * 1000L))
         _listeningNowUIState.update {
             ListeningNowUIState()
         }
