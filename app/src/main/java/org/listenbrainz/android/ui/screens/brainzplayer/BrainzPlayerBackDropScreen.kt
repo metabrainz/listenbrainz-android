@@ -220,7 +220,37 @@ fun BrainzPlayerBackDropScreen(
                 }
                 ListeningNowScreen(
                     viewModel = listeningNowViewModel,
-                    backdropScaffoldState = backdropScaffoldState
+                    backdropScaffoldState = backdropScaffoldState,
+                    gradientBox = {
+                        val backgroundColor =
+                            listeningNowUIState.palette?.lightBacgroundColor
+                                ?: ListenBrainzTheme.colorScheme.background
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .graphicsLayer() {
+                                    val value =
+                                        (backdropScaffoldState.requireOffset() / (maxDelta - headerHeight.toPx()))
+                                    alpha =
+                                        if (value < 0.8f)
+                                            (1f - value) * 0.25f else 0f
+                                }
+                                .background(
+                                    Brush.verticalGradient(
+                                        listOf(
+                                            backgroundColor,
+                                            Color(
+                                                lerp(
+                                                    backgroundColor.value.toLong(),
+                                                    ListenBrainzTheme.colorScheme.background.value.toLong(),
+                                                    0.5f
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                        )
+                    }
                 )
                 if (!isLandscape && backdropScaffoldState.isRevealed) {
                     ListeningNowCard(
@@ -289,7 +319,7 @@ fun PlayerScreen(
             .background(brush = backgroundBrush)
             .statusBarsPadding()
     ) {
-        item{
+        item {
             Spacer(Modifier.height(60.dp))
         }
         item {

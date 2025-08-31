@@ -62,7 +62,8 @@ import org.listenbrainz.android.viewmodel.ListeningNowViewModel
 @Composable
 fun ListeningNowScreen(
     backdropScaffoldState: BackdropScaffoldState,
-    viewModel: ListeningNowViewModel = hiltViewModel()
+    viewModel: ListeningNowViewModel = hiltViewModel(),
+    gradientBox: @Composable () -> Unit
 ) {
     val listeningNowUIState by viewModel.listeningNowUIState.collectAsState()
     val scope = rememberCoroutineScope()
@@ -81,7 +82,8 @@ fun ListeningNowScreen(
     ListeningNowLayout(
         uiState = listeningNowUIState,
         onNavigateBack = onNavigateBack,
-        isFullScreen = backdropScaffoldState.currentValue == backdropScaffoldState.targetValue
+        isFullScreen = backdropScaffoldState.currentValue == backdropScaffoldState.targetValue,
+        gradientBox = gradientBox
     )
 }
 
@@ -91,37 +93,18 @@ fun ListeningNowLayout(
     isFullScreen: Boolean = false,
     uiState: ListeningNowUIState,
     onNavigateBack: () -> Unit,
+    gradientBox: @Composable () -> Unit
 ) {
-    val backgroundColors = uiState.palette?.gradientColors ?: listOf(
-        ListenBrainzTheme.colorScheme.background,
-        ListenBrainzTheme.colorScheme.background
-    )
-//    val backgroundColors = listOf(
-//        uiState.palette?.lightBacgroundColor?: ListenBrainzTheme.colorScheme.background,
-//        ListenBrainzTheme.colorScheme.background
-//    )
     val cornerSize = if(isFullScreen) 0.dp else 32.dp
-    //Dark colors because it is located in darker side of gradient
-    val titleColor = uiState.palette?.titleColorLight ?: ListenBrainzTheme.colorScheme.listenText
-    val artistColor = uiState.palette?.bodyTextColorLight ?: ListenBrainzTheme.colorScheme.text
+    val titleColor =  ListenBrainzTheme.colorScheme.listenText
+    val artistColor = ListenBrainzTheme.colorScheme.text
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .clip(RoundedCornerShape(cornerSize, cornerSize, 0.dp, 0.dp))
     ) {
-        Box(Modifier
-            .fillMaxSize()
-            .alpha(0.5f)
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = backgroundColors,
-                    startY = 0f,
-                    endY = Float.POSITIVE_INFINITY
-                )
-            )
-
-        )
+        gradientBox()
         if (uiState.song != null) {
             Column(
                 modifier = Modifier
@@ -349,7 +332,8 @@ fun ListeningNowLayoutPreview() {
                     coverArt = null
                 ),
             ),
-            onNavigateBack = {}
+            onNavigateBack = {},
+            gradientBox = {}
         )
     }
 }
