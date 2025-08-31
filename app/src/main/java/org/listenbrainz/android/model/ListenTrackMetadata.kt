@@ -17,6 +17,13 @@ class ListenTrackMetadata(
     @Embedded
     var additionalInfo: AdditionalInfo = AdditionalInfo()
 ) {
+
+    fun isValid(): Boolean {
+        return artist != null
+                && track != null
+                && release != null
+                && additionalInfo.durationMs != null
+    }
     
     override fun toString(): String {
         return "ListenTrackMetadata{" +

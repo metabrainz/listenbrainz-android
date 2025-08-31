@@ -58,6 +58,11 @@ class ListenSubmissionWorker @AssistedInject constructor(
                 submissionClientVersion = BuildConfig.VERSION_NAME
             )
         )
+
+        if (!metadata.isValid()) {
+            Log.d("Track metadata is not valid: $metadata")
+            return Result.failure()
+        }
         
         // Our listen to submit
         val listen = ListenSubmitBody.Payload(
