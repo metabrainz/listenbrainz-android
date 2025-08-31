@@ -67,7 +67,7 @@ class ListenSubmissionService : NotificationListenerService() {
         }
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) = Service.START_STICKY
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) = START_STICKY
 
     private fun initialize() {
         Log.d("Initializing Listener Service")

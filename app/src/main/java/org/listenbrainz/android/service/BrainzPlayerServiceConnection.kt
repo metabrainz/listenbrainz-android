@@ -3,6 +3,7 @@ package org.listenbrainz.android.service
 import android.content.ComponentName
 import android.content.Context
 import android.media.MediaMetadata
+import android.os.Handler
 import android.os.Looper
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
@@ -11,7 +12,6 @@ import android.support.v4.media.session.PlaybackStateCompat
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
-import androidx.core.os.HandlerCompat
 import androidx.work.WorkManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -101,7 +101,7 @@ class BrainzPlayerServiceConnection(
     }
     private inner class MediaControllerCallback(context: Context) : MediaControllerCompat.Callback() {
         val listenSubmissionState: ListenSubmissionState by lazy {
-            ListenSubmissionState(workManager = workManager, context = context)
+            ListenSubmissionState(handler = Handler(Looper.getMainLooper()), workManager = workManager, context = context)
         }
     
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
@@ -157,8 +157,10 @@ class BrainzPlayerServiceConnection(
         
             val metadata = metadataCompat?.mediaMetadata as MediaMetadata
             
-            listenSubmissionState.onControllerCallback(metadata.toPlayingTrack(BuildConfig.APPLICATION_ID))
-        
+            listenSubmissionState.onNewTrackDiscovered(
+                newTrack = metadata.toPlayingTrack(BuildConfig.APPLICATION_ID),
+                isMediaPlaying = playbackState.value.isPlaying
+            )
         }
     
         override fun onSessionDestroyed() {

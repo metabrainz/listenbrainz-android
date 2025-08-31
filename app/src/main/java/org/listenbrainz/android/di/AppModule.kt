@@ -28,10 +28,9 @@ object AppModule {
     fun providesListenServiceManager(
         workManager: WorkManager,
         appPreferences: AppPreferences,
-        @DefaultDispatcher defaultDispatcher: CoroutineDispatcher,
         @ApplicationContext context: Context
     ): ListenServiceManager =
-        ListenServiceManagerImpl(workManager, appPreferences, defaultDispatcher, context)
+        ListenServiceManagerImpl(workManager, appPreferences,  context)
     
     @Provides
     fun providesWorkManager(@ApplicationContext context: Context): WorkManager =
