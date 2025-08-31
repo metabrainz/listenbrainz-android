@@ -42,7 +42,7 @@ open class ListenSubmissionState {
             }
             
             override fun onTimerPaused(remainingMillis: Long) {
-                Log.d("${remainingMillis / 1000} seconds left to submit listen.")
+                Log.d("${remainingMillis / 1000} seconds left to submit ${playingTrack.debugId}")
             }
         })
     }
@@ -65,20 +65,34 @@ open class ListenSubmissionState {
         submitPlayingNow()
     }
 
-    fun onNewTrackDiscovered(
+    fun onNewMetadata(
         newTrack: PlayingTrack,
         isMediaPlaying: Boolean
     ) {
         if (playingTrack.isOutdated(newTrack)) {
             beforeMetadataSet()
-            playingTrack = newTrack
+            if (playingTrack.isSimilarTo(newTrack) && newTrack.isDurationAbsent()) {
+                playingTrack = newTrack.apply {
+                    duration = playingTrack.duration
+                }
+            } else {
+                playingTrack = newTrack
+            }
             afterMetadataSet()
-        } else if (playingTrack.isDurationAbsent() && newTrack.isDurationPresent()) {
-            // Update if duration is absent
+        } else if (playingTrack.isSimilarTo(newTrack)
+            && playingTrack.isDurationAbsent()
+            && newTrack.isDurationPresent()
+        ) {
+            // Update duration as it was absent before
             playingTrack.duration = newTrack.duration
             timer.extendDuration { secondsPassed ->
-                playingTrack.duration / 2 - secondsPassed
+                newTrack.duration / 2 - secondsPassed
             }
+
+            // Force submit a playing now because have updated metadata now.
+            Log.d("Force submitting playing now for ${playingTrack.debugId}")
+            playingTrack.playingNowSubmitted = false
+            submitPlayingNow()
         }
 
         alertPlaybackStateChanged(isMediaPlaying)
@@ -94,10 +108,10 @@ open class ListenSubmissionState {
 
         if (isMediaPlaying) {
             timer.startOrResume()
-            Log.d("Play")
+            Log.d("Play ${playingTrack.debugId}")
         } else {
             timer.pause()
-            Log.d("Pause")
+            Log.d("Pause ${playingTrack.debugId}")
         }
     }
     
@@ -114,7 +128,7 @@ open class ListenSubmissionState {
                 roundDuration(duration = DEFAULT_DURATION)
             )
         }
-        Log.d("Timer Set")
+        Log.d("Timer Set ${playingTrack.debugId}")
     }
     
     // Utility functions

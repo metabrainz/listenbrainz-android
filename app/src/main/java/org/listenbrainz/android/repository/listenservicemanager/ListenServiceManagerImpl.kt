@@ -2,7 +2,6 @@ package org.listenbrainz.android.repository.listenservicemanager
 
 import android.app.Notification
 import android.content.Context
-import android.media.AudioManager
 import android.media.MediaMetadata
 import android.media.session.MediaController
 import android.media.session.MediaSession
@@ -11,7 +10,6 @@ import android.os.Handler
 import android.os.Looper
 import android.service.notification.StatusBarNotification
 import android.text.SpannableString
-import androidx.core.content.ContextCompat
 import androidx.work.WorkManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.MainScope
@@ -102,7 +100,7 @@ class ListenServiceManagerImpl @Inject constructor(
                 val newTrack =
                     metadata.toPlayingTrack(packageName).apply { timestamp = newTimestamp }
 
-                onNewTrackDiscovered(
+                onNewMetadata(
                     newTrack = newTrack,
                     isMediaPlaying = isMediaPlaying
                 )
@@ -166,7 +164,7 @@ class ListenServiceManagerImpl @Inject constructor(
                 lastNotificationPostTs = newTrack.timestamp
 
                 // Alert submission state
-                onNewTrackDiscovered(
+                onNewMetadata(
                     newTrack = newTrack,
                     isMediaPlaying = controller.playbackState?.isPlaying == true || mediaPlaying
                 )

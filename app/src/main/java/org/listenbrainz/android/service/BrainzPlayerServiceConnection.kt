@@ -157,7 +157,7 @@ class BrainzPlayerServiceConnection(
         
             val metadata = metadataCompat?.mediaMetadata as MediaMetadata
             
-            listenSubmissionState.onNewTrackDiscovered(
+            listenSubmissionState.onNewMetadata(
                 newTrack = metadata.toPlayingTrack(BuildConfig.APPLICATION_ID),
                 isMediaPlaying = playbackState.value.isPlaying
             )
