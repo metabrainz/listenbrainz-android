@@ -42,16 +42,17 @@ class ListenSubmissionWorker @AssistedInject constructor(
             return Result.failure()
         }
         val duration = inputData.getInt(MediaMetadata.METADATA_KEY_DURATION, 0)
-        if(duration in 1..30_000) {
-            Log.d("Track is too short to submit")
+        if (duration < 30_000) {
+            Log.d("Track is too short to submit, duration: $duration")
             return Result.failure()
         }
+
         val metadata = ListenTrackMetadata(
             artist = inputData.getString(MediaMetadata.METADATA_KEY_ARTIST),
             track = inputData.getString(MediaMetadata.METADATA_KEY_TITLE),
             release = inputData.getString(MediaMetadata.METADATA_KEY_ALBUM),
             additionalInfo = AdditionalInfo(
-                durationMs = if (duration == 0) null else duration,
+                durationMs = duration,
                 mediaPlayer = inputData.getString(MediaMetadata.METADATA_KEY_WRITER)
                     ?.let { repository.getPackageLabel(it) },
                 submissionClient = "ListenBrainz Android",
