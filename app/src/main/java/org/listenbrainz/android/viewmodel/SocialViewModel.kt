@@ -67,7 +67,6 @@ class SocialViewModel @Inject constructor(
                             it.startsWith(query, ignoreCase = true) || it.contains(query, ignoreCase = true)
                         } ?: emptyList()
                     )
-                    println(searchFollowerResult.value)
                 } else {
                     emitError(error = result.error)
                 }
