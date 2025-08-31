@@ -39,16 +39,14 @@ class ListenSessionListener(
                 .distinctUntilChanged()
                 .collectLatest { whitelist ->
                     // Unregistering callback is reactive.
-                    launch {
-                        for (entry in activeSessions) {
-                            if (entry.key.packageName !in whitelist) {
-                                // Unregister listen callback
-                                entry.key.unregisterCallback(entry.value!!)
+                    for (entry in activeSessions) {
+                        if (entry.key.packageName !in whitelist) {
+                            // Unregister listen callback
+                            entry.key.unregisterCallback(entry.value!!)
 
-                                // remove the active session.
-                                activeSessions.remove(entry.key)
-                                Log.d("### UNREGISTERED MediaController Callback for ${entry.key.packageName}.")
-                            }
+                            // remove the active session.
+                            activeSessions.remove(entry.key)
+                            Log.d("### UNREGISTERED MediaController Callback for ${entry.key.packageName}.")
                         }
                     }
 
@@ -132,7 +130,11 @@ class ListenSessionListener(
 
         @Synchronized
         override fun onMetadataChanged(metadata: MediaMetadata?) {
-            listenServiceManager.onMetadataChanged(metadata, player)
+            listenServiceManager.onMetadataChanged(
+                metadata = metadata,
+                packageName = player,
+                isMediaPlaying = isMediaPlaying
+            )
         }
 
         @Synchronized
@@ -143,6 +145,14 @@ class ListenSessionListener(
 
     companion object {
         inline val PlaybackState.isPlaying: Boolean
-            get() = state == PlaybackState.STATE_PLAYING || state == PlaybackState.STATE_BUFFERING
+            get() = state in listOf(
+                PlaybackState.STATE_PLAYING,
+                PlaybackState.STATE_BUFFERING,
+                PlaybackState.STATE_FAST_FORWARDING,
+                PlaybackState.STATE_REWINDING,
+                PlaybackState.STATE_SKIPPING_TO_NEXT,
+                PlaybackState.STATE_SKIPPING_TO_PREVIOUS,
+                PlaybackState.STATE_SKIPPING_TO_QUEUE_ITEM
+            )
     }
 }

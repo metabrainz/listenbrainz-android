@@ -271,4 +271,7 @@
     <string name="listen_submission_rationale">To enable Listen Submission, please grant the required permissions so we can track your music activity.</string>
     <string name="listen_permission_rationale">Choose the apps you want ListenBrainz to track. This helps automatically submit your listens while ensuring accurate listening history</string>
     <string name="track_removed_from_playlist_successfully">Track removed from playlist successfully!!</string>
+    <string name="explanation_special_use" translatable="false">ListenBrainz Android needs to remain active in foreground at all times to immediately sync music activity to ListenBrainz.
+        Whenever a user starts listening to a song, the song is instantly synced with ListenBrainz in the form of Playing now and when some duration of the song elapses without interruption, it is marked as
+        a confirmed listen. Stats are calculated in real time using this data which makes real time behavior of the app important.</string>
 </resources>

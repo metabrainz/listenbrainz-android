@@ -42,22 +42,28 @@ class ListenSubmissionWorker @AssistedInject constructor(
             return Result.failure()
         }
         val duration = inputData.getInt(MediaMetadata.METADATA_KEY_DURATION, 0)
-        if(duration in 1..30_000) {
-            Log.d("Track is too short to submit")
+        if (duration < 30_000) {
+            Log.d("Track is too short to submit, duration: $duration")
             return Result.failure()
         }
+
         val metadata = ListenTrackMetadata(
             artist = inputData.getString(MediaMetadata.METADATA_KEY_ARTIST),
             track = inputData.getString(MediaMetadata.METADATA_KEY_TITLE),
             release = inputData.getString(MediaMetadata.METADATA_KEY_ALBUM),
             additionalInfo = AdditionalInfo(
-                durationMs = if (duration == 0) null else duration,
+                durationMs = duration,
                 mediaPlayer = inputData.getString(MediaMetadata.METADATA_KEY_WRITER)
                     ?.let { repository.getPackageLabel(it) },
                 submissionClient = "ListenBrainz Android",
                 submissionClientVersion = BuildConfig.VERSION_NAME
             )
         )
+
+        if (!metadata.isValid()) {
+            Log.d("Track metadata is not valid: $metadata")
+            return Result.failure()
+        }
         
         // Our listen to submit
         val listen = ListenSubmitBody.Payload(
@@ -73,7 +79,7 @@ class ListenSubmissionWorker @AssistedInject constructor(
         body.listenType = inputData.getString("TYPE")
         
         // TODO: Inject dispatcher here and below as well.
-        val response = withContext(Dispatchers.IO){
+        val response = withContext(Dispatchers.IO) {
             repository.submitListen(token, body)
         }
         
@@ -118,7 +124,7 @@ class ListenSubmissionWorker @AssistedInject constructor(
             }
             else -> {
                 // In case of failure, we add this listen to pending list.
-                if (inputData.getString("TYPE") == "single"){
+                if (inputData.getString("TYPE") == "single") {
                     // We don't want to submit playing nows later.
                     if (response.error?.ordinal == ResponseError.BAD_REQUEST.ordinal) {
                         Log.e(
@@ -129,6 +135,9 @@ class ListenSubmissionWorker @AssistedInject constructor(
                         Log.e("Submission failed, listen saved.")
                         pendingListensDao.addListen(listen)
                     }
+                } else {
+                    // Playing now was not submitted.
+                    Log.e("Could not submit playing now. Reason: " + (response.error?.toast ?: "Unknown"))
                 }
 
                 Result.failure()
@@ -142,7 +151,6 @@ class ListenSubmissionWorker @AssistedInject constructor(
          * @param listenType Type of listen to submit.
          */
         fun buildWorkRequest(playingTrack: PlayingTrack, listenType: ListenType): OneTimeWorkRequest {
-        
             val data = Data.Builder()
                 .putString(MediaMetadata.METADATA_KEY_ARTIST, playingTrack.artist)
                 .putString(MediaMetadata.METADATA_KEY_TITLE, playingTrack.title)
@@ -153,17 +161,9 @@ class ListenSubmissionWorker @AssistedInject constructor(
                 .putLong(Constants.Strings.TIMESTAMP, playingTrack.timestampSeconds)
                 .build()
         
-            /** We are not going to set network constraints as we want to minimize API calls
-             * by bulk submitting listens.*/
-            /*val constraints = Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()*/
-        
             return OneTimeWorkRequestBuilder<ListenSubmissionWorker>()
                 .setInputData(data)
-                //.setConstraints(constraints)
                 .build()
-        
         }
     }
 }

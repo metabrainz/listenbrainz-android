@@ -294,8 +294,6 @@ fun PlayerScreen(
             if (it.mediaID == currentlyPlayingSong.mediaID)
                 listenLiked = true
         }
-    } else {
-        println("Playlist is empty")
     }
     //For handling song change by list or buttons
     LaunchedEffect(brainzPlayerViewModel.appPreferences.currentPlayable?.currentSongIndex) {

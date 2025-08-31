@@ -39,13 +39,6 @@ object Constants {
         const val REFRESH_TOKEN = "refresh_token"
         const val STATUS_LOGGED_IN = 1
         const val STATUS_LOGGED_OUT = 0
-
-        const val CHANNEL_NOTI_SCROBBLING = "noti_scrobbling"
-        const val CHANNEL_NOTI_SCR_ERR = "noti_scrobble_errors"
-        const val CHANNEL_NOTI_NEW_APP = "noti_new_app"
-        const val CHANNEL_NOTI_PENDING = "noti_pending_scrobbles"
-        const val CHANNEL_ID = "listen_scrobble_channel"
-
         const val CHANNEL_PIXEL_NP =
             "com.google.intelligence.sense.ambientmusic.MusicNotificationChannel"
         const val PACKAGE_PIXEL_NP = "com.google.intelligence.sense"
