@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.media.session.MediaSessionManager
@@ -133,10 +134,40 @@ class ListenSubmissionService : NotificationListenerService() {
     }
 
     companion object {
-        private const val NOTIFICATION_ID = 420
+        const val NOTIFICATION_ID = 420
         private const val CHANNEL_ID = "listen_channel"
         private const val CHANNEL_NAME = "Listening"
-        private const val CHANNEL_DESCRIPTION = "Shows notifications when a song is played"
+        private const val CHANNEL_DESCRIPTION = "Determines if the app is listening to notifications."
+
+        val Context.serviceNotification: Notification get() {
+            val context = this
+
+            val clickPendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                Intent(context, MainActivity::class.java),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+
+            val notification = NotificationCompat
+                .Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_listenbrainz_logo_no_text)
+                .setContentTitle("Listening...")
+
+                //.setColorized(true)
+                //.setColor(lb_purple.toArgb())
+                .setContentIntent(clickPendingIntent)
+
+                .setSound(null)
+                .setOngoing(true)
+                .setAutoCancel(false)
+                .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+                .setPriority(NotificationCompat.PRIORITY_MIN)
+                .setVisibility(NotificationCompat.VISIBILITY_SECRET)
+                .build()
+
+            return notification
+        }
     }
 
     private fun createNotificationChannel() {
@@ -157,7 +188,7 @@ class ListenSubmissionService : NotificationListenerService() {
 
     var isStarted = false
     fun startForeground() {
-        val notification = obtainNotification()
+        val notification = serviceNotification
         if (!isStarted) {
             ServiceCompat.startForeground(
                 this,
@@ -173,35 +204,5 @@ class ListenSubmissionService : NotificationListenerService() {
             NotificationManagerCompat.from(this)
                 .notify(NOTIFICATION_ID, notification)
         }
-    }
-
-    fun obtainNotification(): Notification {
-        val context = this
-
-        val clickPendingIntent = PendingIntent.getActivity(
-            context,
-            0,
-            Intent(context, MainActivity::class.java),
-            PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val notification = NotificationCompat
-            .Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_listenbrainz_logo_no_text)
-            .setContentTitle("Listening...")
-
-            //.setColorized(true)
-            //.setColor(lb_purple.toArgb())
-            .setContentIntent(clickPendingIntent)
-
-            .setSound(null)
-            .setOngoing(true)
-            .setAutoCancel(false)
-            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .setPriority(NotificationCompat.PRIORITY_MIN)
-            .setVisibility(NotificationCompat.VISIBILITY_SECRET)
-            .build()
-
-        return notification
     }
 }

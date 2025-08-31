@@ -1,5 +1,6 @@
 package org.listenbrainz.android.util
 
+import android.Manifest
 import android.app.ActivityManager
 import android.app.NotificationManager
 import android.content.ActivityNotFoundException
@@ -46,7 +47,9 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -574,5 +577,20 @@ object Utils {
             if(mbid[i] !in '0'..'9' && mbid[i] !in 'a'..'f' && mbid[i] !in 'A'..'F') return false
         }
         return true
+    }
+
+    fun ComponentActivity.askNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                1
+            )
+        }
     }
 }

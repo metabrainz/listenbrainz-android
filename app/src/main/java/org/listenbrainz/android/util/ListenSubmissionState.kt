@@ -1,14 +1,21 @@
 package org.listenbrainz.android.util
 
+import android.Manifest
+import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.media.MediaMetadata
 import android.os.Handler
 import android.service.notification.StatusBarNotification
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.work.WorkManager
 import kotlinx.coroutines.Dispatchers
 import org.listenbrainz.android.model.ListenType
 import org.listenbrainz.android.model.OnTimerListener
 import org.listenbrainz.android.model.PlayingTrack
+import org.listenbrainz.android.service.ListenSubmissionService.Companion.NOTIFICATION_ID
+import org.listenbrainz.android.service.ListenSubmissionService.Companion.serviceNotification
 import org.listenbrainz.android.service.ListenSubmissionWorker.Companion.buildWorkRequest
 
 open class ListenSubmissionState {
@@ -17,6 +24,9 @@ open class ListenSubmissionState {
     private val timer: Timer
     private val workManager: WorkManager
     private val context: Context
+    private val notificationManager: NotificationManagerCompat by lazy {
+        NotificationManagerCompat.from(context)
+    }
 
     constructor(jobQueue: JobQueue = JobQueue(Dispatchers.Default), workManager: WorkManager, context: Context) {
         this.timer = TimerJQ(jobQueue)
@@ -63,6 +73,17 @@ open class ListenSubmissionState {
     
         initTimer()
         submitPlayingNow()
+
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationManager.notify(
+                NOTIFICATION_ID,
+                context.serviceNotification
+            )
+        }
     }
 
     fun onNewMetadata(
