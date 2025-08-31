@@ -51,4 +51,7 @@ class MockListensRepository : ListensRepository {
         TODO("Not yet implemented")
     }
 
+    override suspend fun getNowPlaying(username: String?): Resource<Listens> {
+        TODO("Not yet implemented")
+    }
 }

@@ -103,6 +103,17 @@ class MockAppPreferences(
             }
         }
 
+    override val consentScreenDataCache: DataStorePreference<String> =
+        object : DataStorePreference<String> {
+            override fun getFlow(): Flow<String> = flow {
+                emit("")
+            }
+
+            override suspend fun set(value: String) {
+                TODO("Not yet implemented")
+            }
+        }
+
     override suspend fun logoutUser(): Boolean {
         TODO("Not yet implemented")
     }
