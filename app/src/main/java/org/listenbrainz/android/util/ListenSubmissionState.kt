@@ -42,7 +42,7 @@ open class ListenSubmissionState {
             }
             
             override fun onTimerPaused(remainingMillis: Long) {
-                Log.d("${remainingMillis / 1000} seconds left to submit ${playingTrack.debugId}")
+                Log.d("${remainingMillis / 1000} seconds left to submit: ${playingTrack.debugId}")
             }
         })
     }
@@ -90,7 +90,7 @@ open class ListenSubmissionState {
             }
 
             // Force submit a playing now because have updated metadata now.
-            Log.d("Force submitting playing now for ${playingTrack.debugId}")
+            Log.d("Force submitting playing now: ${playingTrack.debugId}")
             playingTrack.playingNowSubmitted = false
             submitPlayingNow()
         }
@@ -108,10 +108,10 @@ open class ListenSubmissionState {
 
         if (isMediaPlaying) {
             timer.startOrResume()
-            Log.d("Play ${playingTrack.debugId}")
+            Log.d("Play: ${playingTrack.debugId}")
         } else {
             timer.pause()
-            Log.d("Pause ${playingTrack.debugId}")
+            Log.d("Pause: ${playingTrack.debugId}")
         }
     }
     
@@ -128,7 +128,7 @@ open class ListenSubmissionState {
                 roundDuration(duration = DEFAULT_DURATION)
             )
         }
-        Log.d("Timer Set ${playingTrack.debugId}")
+        Log.d("Timer Set: ${playingTrack.debugId}")
     }
     
     // Utility functions
