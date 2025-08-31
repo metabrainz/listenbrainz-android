@@ -134,7 +134,7 @@ class ListenServiceManagerImpl @Inject constructor(
                 timestamp = sbn.timestamp
                 title = title ?: sbn.title ?: return@post
                 artist = artist ?: sbn.subtitle ?: return@post
-                releaseName = releaseName ?: sbn.title
+                releaseName = releaseName.takeIf { !it.isNullOrBlank() }
                 if (isDurationAbsent()) {
                     duration = sbn.notification.extras
                         .getInt(

@@ -79,7 +79,7 @@ class ListenSubmissionWorker @AssistedInject constructor(
         body.listenType = inputData.getString("TYPE")
         
         // TODO: Inject dispatcher here and below as well.
-        val response = withContext(Dispatchers.IO){
+        val response = withContext(Dispatchers.IO) {
             repository.submitListen(token, body)
         }
         
