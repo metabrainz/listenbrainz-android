@@ -128,7 +128,7 @@ fun HomeScreen(
                 || brainzPlayerViewModel.appPreferences.currentPlayable?.songs.isNullOrEmpty()
     }
 
-    val isListeningNowOpenedInConcealedState = !backdropScaffoldState.isRevealed && isNothingPlaying && listeningNowUIState.isListeningNow
+    val isListeningNowOpenedInConcealedState = backdropScaffoldState.targetValue != BackdropValue.Revealed && isNothingPlaying && listeningNowUIState.isListeningNow
 
     val topBarActions = TopBarActions(
         popBackStackInSettingsScreen = {
@@ -156,9 +156,12 @@ fun HomeScreen(
         bottomBar = {
             AnimatedVisibility(
                 visible = !isListeningNowOpenedInConcealedState,
-                enter = EnterTransition.None,
+                enter = slideInVertically(
+                    animationSpec = tween(durationMillis = 400, easing = EaseInOut),
+                    initialOffsetY = { it }
+                ),
                 exit = slideOutVertically(
-                    animationSpec = tween(durationMillis = 300, easing = EaseInOut),
+                    animationSpec = tween(durationMillis = 400, easing = EaseInOut),
                     targetOffsetY = { it }
                 )
             ) {
@@ -170,12 +173,6 @@ fun HomeScreen(
                         username = username,
                         isLandscape = false,
                         currentlyPlayingSong = currentlyPlayingSong.toSong,
-                        backgroundColor = listeningNowUIState.palette?.darkBackgroundColor?.takeIf {
-                            backdropScaffoldState.isConcealed && isNothingPlaying
-                        } ?: ListenBrainzTheme.colorScheme.nav,
-                        contentColor = listeningNowUIState.palette?.titleTextColorDark?.takeIf {
-                            backdropScaffoldState.isConcealed && isNothingPlaying
-                        },
                         songList = songList ?: emptyList(),
                         isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable(),
                         listeningNowUIState = listeningNowUIState

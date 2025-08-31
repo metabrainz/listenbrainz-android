@@ -232,7 +232,7 @@ class MainActivity : ComponentActivity() {
         val uiMode by dashBoardViewModel.appPreferences.themePreference.getFlow()
             .collectAsState(initial = UiMode.FOLLOW_SYSTEM)
 
-        SideEffect {
+        LaunchedEffect(backStack.lastIndex) {
             val isStatusBarIconColorLight =
                 if (backStack[backStack.lastIndex] is NavigationItem.OnboardingScreens) {
                     true

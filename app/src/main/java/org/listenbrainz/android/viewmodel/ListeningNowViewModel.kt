@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.Listen
+import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.socket.SocketRepository
 import org.listenbrainz.android.util.ImagePalette
@@ -30,7 +31,7 @@ data class ListeningNowUIState(
     val song: Listen? = null,
     val palette: ImagePalette? = null,
     val imageURL: String? = null
-){
+) {
     val isListeningNow: Boolean
         get() = song != null
 }
@@ -39,6 +40,7 @@ data class ListeningNowUIState(
 class ListeningNowViewModel @Inject constructor(
     private val socketRepository: SocketRepository,
     private val appPreferences: AppPreferences,
+    private val listensRepository: ListensRepository,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val TAG = "ListeningNowViewModel"
@@ -48,28 +50,58 @@ class ListeningNowViewModel @Inject constructor(
     init {
         viewModelScope.launch(ioDispatcher) {
             appPreferences.username.getFlow().collectLatest { username ->
+                fetchListenFromAPI(username)
                 Log.d("Socket listning", "Listening for $username")
                 socketRepository.listen(username).collectLatest { listen ->
-                    _listeningNowUIState.update {
-                        ListeningNowUIState(
-                            imageURL = getCoverArtUrl(
-                                caaReleaseMbid = listen.trackMetadata.mbidMapping?.releaseMbid,
-                                caaId = listen.trackMetadata.mbidMapping?.caaId,
-                                size = 500
-                            ),
-                            song = listen
-                        )
-                    }
-                    delay(6 * 60 * 1000L)
-                    _listeningNowUIState.update {
-                        ListeningNowUIState()
-                    }
+                    updateUIState(listen)
                 }
             }
         }
     }
 
-    fun updatePalette(context: Context){
+    private suspend fun fetchListenFromAPI(username: String) {
+        val result = listensRepository.getNowPlaying(username)
+        if (result.isSuccess) {
+            val listen = result.data?.payload?.listens?.firstOrNull()
+            if (listen == null) {
+                _listeningNowUIState.update {
+                    ListeningNowUIState()
+                }
+                Log.d(TAG, "fetchListenFromAPI: No listen found")
+                return
+            }
+            Log.d(TAG, "fetchListenFromAPI: $listen")
+            //Updating UI in a coroutine to avoid blocking the thread where socket connection is going to be established
+            viewModelScope.launch(ioDispatcher) {
+                updateUIState(listen)
+            }
+            return
+        } else if (result.isFailed) {
+            Log.d(TAG, "fetchListenFromAPI: ${result.error?.toast}")
+        }
+    }
+
+    private suspend fun updateUIState(listen: Listen) {
+        _listeningNowUIState.update {
+            ListeningNowUIState(
+                imageURL = getCoverArtUrl(
+                    caaReleaseMbid = listen.trackMetadata.mbidMapping?.caaReleaseMbid,
+                    caaId = listen.trackMetadata.mbidMapping?.caaId,
+                    size = 500
+                ),
+                song = listen
+            )
+        }
+        Log.d(TAG, "duration: ${listen.trackMetadata.additionalInfo?.durationMs}")
+        delay(listen.trackMetadata.additionalInfo?.durationMs?.toLong() ?: (6 * 60 * 1000L))
+        if(_listeningNowUIState.value.song == listen) {
+            _listeningNowUIState.update {
+                ListeningNowUIState()
+            }
+        }
+    }
+
+    fun updatePalette(context: Context) {
         val url = listeningNowUIState.value.imageURL ?: return
         viewModelScope.launch {
             try {

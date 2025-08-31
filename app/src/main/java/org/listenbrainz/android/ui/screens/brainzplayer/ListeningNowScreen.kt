@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.screens.brainzplayer
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,10 +24,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -59,9 +62,10 @@ import org.listenbrainz.android.viewmodel.ListeningNowViewModel
 @Composable
 fun ListeningNowScreen(
     backdropScaffoldState: BackdropScaffoldState,
-    viewModel: ListeningNowViewModel = hiltViewModel()
+    viewModel: ListeningNowViewModel = hiltViewModel(),
+    gradientBox: @Composable () -> Unit
 ) {
-    val listeningNowUIState by viewModel.listeningNowUIState.collectAsStateWithLifecycle()
+    val listeningNowUIState by viewModel.listeningNowUIState.collectAsState()
     val scope = rememberCoroutineScope()
     val onNavigateBack: () -> Unit = {
         scope.launch {
@@ -78,35 +82,29 @@ fun ListeningNowScreen(
     ListeningNowLayout(
         uiState = listeningNowUIState,
         onNavigateBack = onNavigateBack,
+        isFullScreen = backdropScaffoldState.currentValue == backdropScaffoldState.targetValue,
+        gradientBox = gradientBox
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListeningNowLayout(
+    isFullScreen: Boolean = false,
     uiState: ListeningNowUIState,
     onNavigateBack: () -> Unit,
+    gradientBox: @Composable () -> Unit
 ) {
-    val backgroundColors = uiState.palette?.gradientColors ?: listOf(
-        ListenBrainzTheme.colorScheme.background,
-        ListenBrainzTheme.colorScheme.background
-    )
-    //Dark colors because it is located in darker side of gradient
-    val titleColor = uiState.palette?.titleColorLight ?: ListenBrainzTheme.colorScheme.listenText
-    val artistColor = uiState.palette?.bodyTextColorLight ?: ListenBrainzTheme.colorScheme.text
+    val cornerSize = if(isFullScreen) 0.dp else 32.dp
+    val titleColor =  ListenBrainzTheme.colorScheme.listenText
+    val artistColor = ListenBrainzTheme.colorScheme.text
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .clip(RoundedCornerShape(32.dp, 32.dp, 0.dp, 0.dp))
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = backgroundColors,
-                    startY = 0f,
-                    endY = Float.POSITIVE_INFINITY
-                )
-            )
+            .clip(RoundedCornerShape(cornerSize, cornerSize, 0.dp, 0.dp))
     ) {
+        gradientBox()
         if (uiState.song != null) {
             Column(
                 modifier = Modifier
@@ -133,7 +131,16 @@ fun ListeningNowLayout(
                         .clip(RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Crop,
                     placeholder = painterResource(id = R.drawable.ic_erroralbumart),
-                    error = painterResource(id = R.drawable.ic_erroralbumart)
+                    error = painterResource(id = R.drawable.ic_erroralbumart),
+                    onLoading = {
+                        Log.d("ListeningNowScreen", "Loading image...")
+                    },
+                    onError = {
+                        Log.d("ListeningNowScreen", "Error loading image" )
+                    },
+                    onSuccess = {
+                        Log.d("ListeningNowScreen", "Image loaded successfully" )
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -325,7 +332,8 @@ fun ListeningNowLayoutPreview() {
                     coverArt = null
                 ),
             ),
-            onNavigateBack = {}
+            onNavigateBack = {},
+            gradientBox = {}
         )
     }
 }

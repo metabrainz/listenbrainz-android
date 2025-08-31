@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -177,7 +178,7 @@ fun BrainzPlayerBackDropScreen(
             //To prevent screen showing null abruptly after listening now finishes
             if (!isListeningNow || !isNothingPlaying) {
                 LaunchedEffect(isListeningNow) {
-                    if (isNothingPlaying && backdropScaffoldState.isConcealed){
+                    if (isNothingPlaying && backdropScaffoldState.isConcealed) {
                         backdropScaffoldState.reveal()
                     }
                 }
@@ -219,7 +220,37 @@ fun BrainzPlayerBackDropScreen(
                 }
                 ListeningNowScreen(
                     viewModel = listeningNowViewModel,
-                    backdropScaffoldState = backdropScaffoldState
+                    backdropScaffoldState = backdropScaffoldState,
+                    gradientBox = {
+                        val backgroundColor =
+                            listeningNowUIState.palette?.lightBacgroundColor
+                                ?: ListenBrainzTheme.colorScheme.background
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .graphicsLayer() {
+                                    val value =
+                                        (backdropScaffoldState.requireOffset() / (maxDelta - headerHeight.toPx()))
+                                    alpha =
+                                        if (value < 0.8f)
+                                            (1f - value) * 0.25f else 0f
+                                }
+                                .background(
+                                    Brush.verticalGradient(
+                                        listOf(
+                                            backgroundColor,
+                                            Color(
+                                                lerp(
+                                                    backgroundColor.value.toLong(),
+                                                    ListenBrainzTheme.colorScheme.background.value.toLong(),
+                                                    0.5f
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                        )
+                    }
                 )
                 if (!isLandscape && backdropScaffoldState.isRevealed) {
                     ListeningNowCard(
@@ -283,7 +314,14 @@ fun PlayerScreen(
             }
         }
     }
-    LazyColumn(modifier = Modifier.background(brush = backgroundBrush)) {
+    LazyColumn(
+        modifier = Modifier
+            .background(brush = backgroundBrush)
+            .statusBarsPadding()
+    ) {
+        item {
+            Spacer(Modifier.height(60.dp))
+        }
         item {
             songList?.let {
                 AlbumArtViewPager(currentlyPlayingSong, pagerState, dynamicBackground)
