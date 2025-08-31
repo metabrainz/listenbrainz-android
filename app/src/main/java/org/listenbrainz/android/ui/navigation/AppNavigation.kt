@@ -31,6 +31,7 @@ import org.listenbrainz.android.ui.screens.feed.FeedScreen
 import org.listenbrainz.android.ui.screens.playlist.PlaylistDetailScreen
 import org.listenbrainz.android.ui.screens.profile.LoginScreen
 import org.listenbrainz.android.ui.screens.profile.ProfileScreen
+import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScreen
 import org.listenbrainz.android.ui.screens.settings.SettingsScreen
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
@@ -41,8 +42,7 @@ fun AppNavigation(
     onScrollToTop: (suspend () -> Unit) -> Unit,
     dashBoardViewModel: DashBoardViewModel,
     snackbarState: SnackbarHostState,
-    onOnboardingRequest: ()->Unit,
-    onLoginRequest: ()->Unit,
+    settingsCallbacks: SettingsCallbacksToHomeScreen,
     topAppBarActions: TopBarActions
 ) {
     fun NavOptionsBuilder.defaultNavOptions() {
@@ -143,9 +143,7 @@ fun AppNavigation(
         ) {
             SettingsScreen(
                 dashBoardViewModel = dashBoardViewModel,
-                onOnboardingRequest = onOnboardingRequest,
-                onLoginRequest = onLoginRequest,
-                topBarActions = topAppBarActions
+                callbacks = settingsCallbacks
             )
         }
         appComposable(

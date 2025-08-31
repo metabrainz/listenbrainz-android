@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.screens.main
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -34,13 +35,19 @@ import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.navigation.NavigationItem
+import org.listenbrainz.android.ui.navigation.TopBarActions
+import org.listenbrainz.android.ui.screens.appupdates.AppUpdateDialog
+import org.listenbrainz.android.ui.screens.appupdates.InstallAppDialog
+import org.listenbrainz.android.ui.screens.appupdates.InstallPermissionRationaleDialog
 import org.listenbrainz.android.ui.screens.onboarding.auth.ConsentScreenDataInitializer
 import org.listenbrainz.android.ui.screens.onboarding.auth.ListenBrainzLogin
 import org.listenbrainz.android.ui.screens.onboarding.auth.LoginConsentScreen
 import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.ListeningAppSelectionScreen
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScreen
+import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
 @AndroidEntryPoint
@@ -48,6 +55,9 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var _dashBoardViewModel: DashBoardViewModel
     private val dashBoardViewModel get() = _dashBoardViewModel
+
+    private lateinit var _appUpdatesViewModel: AppUpdatesViewModel
+    private val appUpdatesViewModel get() = _appUpdatesViewModel
 
     private val onboardingScreensQueue: MutableList<NavKey> =
         mutableListOf()
@@ -59,10 +69,12 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         _dashBoardViewModel = ViewModelProvider(this)[DashBoardViewModel::class.java]
+        _appUpdatesViewModel = ViewModelProvider(this)[AppUpdatesViewModel::class.java]
 
         dashBoardViewModel.setUiMode()
         dashBoardViewModel.updatePermissionStatus(this)
         dashBoardViewModel.updateListeningApps(this)
+        appUpdatesViewModel.checkForUpdatesDuringLaunch(this)
 
         setContent {
             ListenBrainzTheme {
@@ -166,18 +178,29 @@ class MainActivity : ComponentActivity() {
                         }
                         entry<NavigationItem.HomeScreen> {
                             HomeScreen(
-                                onOnboardingRequest = {
-                                    dashBoardViewModel.appPreferences.onboardingCompleted = false
-                                    onboardingNavigationSetup(dashBoardViewModel)
-                                    backStack.add(
-                                        if (onboardingScreensQueue.isNotEmpty()) {
-                                            onboardingScreensQueue.removeAt(0)
-                                        } else NavigationItem.HomeScreen
-                                    )
-                                },
-                                onLoginRequest = {
-                                    backStack.add(NavigationItem.OnboardingScreens.LoginScreen)
-                                }
+                                settingsCallbacks = SettingsCallbacksToHomeScreen(
+                                    onLoginRequest = {
+                                        backStack.add(NavigationItem.OnboardingScreens.LoginScreen)
+                                    },
+                                    onOnboardingRequest = {
+                                        dashBoardViewModel.appPreferences.onboardingCompleted = false
+                                        onboardingNavigationSetup(dashBoardViewModel)
+                                        backStack.add(
+                                            if (onboardingScreensQueue.isNotEmpty()) {
+                                                onboardingScreensQueue.removeAt(0)
+                                            } else NavigationItem.HomeScreen
+                                        )
+                                    },
+                                    checkForUpdates = {
+                                        appUpdatesViewModel.checkForUpdates(
+                                            activity = this@MainActivity,
+                                            onUpdateNotAvailable = {
+                                                Toast.makeText(this@MainActivity, "No updates available", Toast.LENGTH_SHORT).show()
+                                            }
+                                        )
+                                    },
+                                    topBarActions = TopBarActions()
+                                )
                             )
                         }
                     },
@@ -194,6 +217,10 @@ class MainActivity : ComponentActivity() {
                                 slideOutHorizontally(targetOffsetX = { it })
                     },
                 )
+
+                AppUpdateDialog(viewModel = appUpdatesViewModel)
+                InstallPermissionRationaleDialog(viewModel = appUpdatesViewModel)
+                InstallAppDialog(viewModel = appUpdatesViewModel)
             }
 
         }
@@ -288,6 +315,14 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         dashBoardViewModel.updatePermissionStatus(this)
+        appUpdatesViewModel.refreshInstallPermissionStatus()
+
+        // Handle permission granted flow - if permission was granted, update state
+        val uiState = appUpdatesViewModel.uiState.value
+        if (uiState.isInstallPermissionGranted && uiState.isWaitingForPermissionToUpdateApp) {
+            appUpdatesViewModel.onInstallPermissionGranted()
+        }
+
         lifecycleScope.launch {
             App.startListenService(appPreferences = dashBoardViewModel.appPreferences)
         }
