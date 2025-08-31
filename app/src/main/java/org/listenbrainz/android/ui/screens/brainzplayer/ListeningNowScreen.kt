@@ -1,5 +1,6 @@
 package org.listenbrainz.android.ui.screens.brainzplayer
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,10 +24,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -61,7 +64,7 @@ fun ListeningNowScreen(
     backdropScaffoldState: BackdropScaffoldState,
     viewModel: ListeningNowViewModel = hiltViewModel()
 ) {
-    val listeningNowUIState by viewModel.listeningNowUIState.collectAsStateWithLifecycle()
+    val listeningNowUIState by viewModel.listeningNowUIState.collectAsState()
     val scope = rememberCoroutineScope()
     val onNavigateBack: () -> Unit = {
         scope.launch {
@@ -93,6 +96,10 @@ fun ListeningNowLayout(
         ListenBrainzTheme.colorScheme.background,
         ListenBrainzTheme.colorScheme.background
     )
+//    val backgroundColors = listOf(
+//        uiState.palette?.lightBacgroundColor?: ListenBrainzTheme.colorScheme.background,
+//        ListenBrainzTheme.colorScheme.background
+//    )
     val cornerSize = if(isFullScreen) 0.dp else 32.dp
     //Dark colors because it is located in darker side of gradient
     val titleColor = uiState.palette?.titleColorLight ?: ListenBrainzTheme.colorScheme.listenText
@@ -102,6 +109,10 @@ fun ListeningNowLayout(
         modifier = Modifier
             .fillMaxSize()
             .clip(RoundedCornerShape(cornerSize, cornerSize, 0.dp, 0.dp))
+    ) {
+        Box(Modifier
+            .fillMaxSize()
+            .alpha(0.5f)
             .background(
                 brush = Brush.verticalGradient(
                     colors = backgroundColors,
@@ -109,7 +120,8 @@ fun ListeningNowLayout(
                     endY = Float.POSITIVE_INFINITY
                 )
             )
-    ) {
+
+        )
         if (uiState.song != null) {
             Column(
                 modifier = Modifier
@@ -136,7 +148,16 @@ fun ListeningNowLayout(
                         .clip(RoundedCornerShape(12.dp)),
                     contentScale = ContentScale.Crop,
                     placeholder = painterResource(id = R.drawable.ic_erroralbumart),
-                    error = painterResource(id = R.drawable.ic_erroralbumart)
+                    error = painterResource(id = R.drawable.ic_erroralbumart),
+                    onLoading = {
+                        Log.d("ListeningNowScreen", "Loading image...")
+                    },
+                    onError = {
+                        Log.d("ListeningNowScreen", "Error loading image" )
+                    },
+                    onSuccess = {
+                        Log.d("ListeningNowScreen", "Image loaded successfully" )
+                    }
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))

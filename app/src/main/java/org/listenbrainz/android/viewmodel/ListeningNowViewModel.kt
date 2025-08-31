@@ -85,7 +85,7 @@ class ListeningNowViewModel @Inject constructor(
         _listeningNowUIState.update {
             ListeningNowUIState(
                 imageURL = getCoverArtUrl(
-                    caaReleaseMbid = listen.trackMetadata.mbidMapping?.releaseMbid,
+                    caaReleaseMbid = listen.trackMetadata.mbidMapping?.caaReleaseMbid,
                     caaId = listen.trackMetadata.mbidMapping?.caaId,
                     size = 500
                 ),
@@ -94,8 +94,10 @@ class ListeningNowViewModel @Inject constructor(
         }
         Log.d(TAG, "duration: ${listen.trackMetadata.additionalInfo?.durationMs}")
         delay(listen.trackMetadata.additionalInfo?.durationMs?.toLong() ?: (6 * 60 * 1000L))
-        _listeningNowUIState.update {
-            ListeningNowUIState()
+        if(_listeningNowUIState.value.song == listen) {
+            _listeningNowUIState.update {
+                ListeningNowUIState()
+            }
         }
     }
 
