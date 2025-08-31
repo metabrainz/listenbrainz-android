@@ -185,7 +185,6 @@ class ListenServiceManagerImpl @Inject constructor(
     }
 
     override fun close() {
-        //handler.cancel()
         scope.cancel()
     }
 
