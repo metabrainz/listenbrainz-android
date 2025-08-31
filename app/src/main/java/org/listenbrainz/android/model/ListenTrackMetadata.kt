@@ -21,7 +21,6 @@ class ListenTrackMetadata(
     fun isValid(): Boolean {
         return artist != null
                 && track != null
-                && release != null
                 && additionalInfo.durationMs != null
     }
     
@@ -30,6 +29,7 @@ class ListenTrackMetadata(
                 "artist='" + artist + '\'' +
                 ", track='" + track + '\'' +
                 ", release='" + release + '\'' +
+                ", durationMs=" + additionalInfo.durationMs +
                 '}'
     }
 }
