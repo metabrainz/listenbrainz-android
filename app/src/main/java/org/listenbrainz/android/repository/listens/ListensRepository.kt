@@ -25,4 +25,6 @@ interface ListensRepository {
     suspend fun submitListen(token: String, body: ListenSubmitBody): Resource<PostResponse>
     
     suspend fun getLinkedServices(token: String?, username: String?) : Resource<ListenBrainzExternalServices>
+
+    suspend fun getNowPlaying(username: String?) : Resource<Listens>
 }

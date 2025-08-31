@@ -38,5 +38,10 @@ interface ListensService {
     suspend fun getServicesLinkedToAccount(
         @Path("user_name") username: String,
     ): Response<ListenBrainzExternalServices>
+
+    @GET("user/{user_name}/playing-now")
+    suspend fun getNowPlaying(
+        @Path("user_name") username: String
+    ): Response<Listens>
     
 }

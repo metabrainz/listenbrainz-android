@@ -73,5 +73,11 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
         
         service.getServicesLinkedToAccount(username = username)
     }
-    
+
+    override suspend fun getNowPlaying(username: String?): Resource<Listens> = parseResponse {
+        if (username.isNullOrEmpty())
+            return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
+
+        service.getNowPlaying(username = username)
+    }
 }
