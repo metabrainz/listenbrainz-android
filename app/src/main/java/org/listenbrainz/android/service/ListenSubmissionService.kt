@@ -161,7 +161,7 @@ class ListenSubmissionService : NotificationListenerService() {
                 .setSound(null)
                 .setOngoing(true)
                 .setAutoCancel(false)
-                .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+                .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_DEFAULT)
                 .setPriority(NotificationCompat.PRIORITY_MIN)
                 .setVisibility(NotificationCompat.VISIBILITY_SECRET)
                 .build()
