@@ -135,7 +135,7 @@ class ListenSubmissionService : NotificationListenerService() {
 
     companion object {
         const val NOTIFICATION_ID = 420
-        private const val CHANNEL_ID = "listen_channel"
+        const val CHANNEL_ID = "listen_channel"
         private const val CHANNEL_NAME = "Listening"
         private const val CHANNEL_DESCRIPTION = "Determines if the app is listening to notifications."
 
@@ -195,7 +195,7 @@ class ListenSubmissionService : NotificationListenerService() {
                 NOTIFICATION_ID,
                 notification,
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU)
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
                 else
                     0
             )

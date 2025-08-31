@@ -1,22 +1,29 @@
 package org.listenbrainz.android.util
 
 import android.Manifest
+import android.app.Notification
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaMetadata
 import android.os.Handler
 import android.service.notification.StatusBarNotification
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.WorkManager
 import kotlinx.coroutines.Dispatchers
+import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ListenType
 import org.listenbrainz.android.model.OnTimerListener
 import org.listenbrainz.android.model.PlayingTrack
+import org.listenbrainz.android.service.ListenSubmissionService.Companion.CHANNEL_ID
 import org.listenbrainz.android.service.ListenSubmissionService.Companion.NOTIFICATION_ID
 import org.listenbrainz.android.service.ListenSubmissionService.Companion.serviceNotification
 import org.listenbrainz.android.service.ListenSubmissionWorker.Companion.buildWorkRequest
+import org.listenbrainz.android.ui.screens.main.MainActivity
 
 open class ListenSubmissionState {
     var playingTrack: PlayingTrack = PlayingTrack()
@@ -81,7 +88,7 @@ open class ListenSubmissionState {
         ) {
             notificationManager.notify(
                 NOTIFICATION_ID,
-                context.serviceNotification
+                context.getListeningNotification(playingTrack)
             )
         }
     }
@@ -226,5 +233,33 @@ open class ListenSubmissionState {
             getString(MediaMetadata.METADATA_KEY_ALBUM)
                 .takeIf { !it.isNullOrEmpty() }
                 ?: getString(MediaMetadata.METADATA_KEY_COMPILATION)
+
+        fun Context.getListeningNotification(playingTrack: PlayingTrack): Notification {
+            val context = this
+
+            val clickPendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                Intent(context, MainActivity::class.java),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+
+            val notification = NotificationCompat
+                .Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_listenbrainz_logo_no_text)
+                .setContentTitle("Listening...")
+                .setContentText(playingTrack.title + " by " + playingTrack.artist)
+
+                //.setColorized(true)
+                //.setColor(lb_purple.toArgb())
+                .setContentIntent(clickPendingIntent)
+
+                .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setVisibility(NotificationCompat.VISIBILITY_SECRET)
+                .build()
+
+            return notification
+        }
     }
 }
