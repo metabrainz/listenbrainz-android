@@ -87,7 +87,7 @@ fun ListenBrainzLogin(
         loginTimeoutJob?.cancel()
         loginTimeoutJob = scope.launch {
             Log.d(TAG,"Starting login timer")
-            repeat(30) { // 30 seconds timeout
+            repeat(60) { // 60 seconds timeout
                 delay(1.seconds)
                 if (loginState is LoginState.Success || loginState is LoginState.Error) {
                     return@launch // Exit if already logged in or error occurred
