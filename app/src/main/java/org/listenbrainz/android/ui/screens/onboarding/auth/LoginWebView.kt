@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -140,7 +141,9 @@ fun ListenBrainzLogin(
                                         } else {
                                             clearTimeout()
                                             LoginState.Error(
-                                                validationResult.error?.actualResponse
+                                                validationResult.error?.actualResponse?.takeIf{
+                                                    it != "null"
+                                                }
                                                     ?: "Token validation failed"
                                             )
                                         }
@@ -158,7 +161,9 @@ fun ListenBrainzLogin(
                             resource.isFailed -> {
                                 loginState =
                                     LoginState.Error(
-                                        resource.error?.actualResponse ?: "Login failed"
+                                        resource.error?.actualResponse?.takeIf{
+                                            it != "null"
+                                        } ?: "Login failed"
                                     )
                                 isLoggingIn = false
                                 clearTimeout()
@@ -292,7 +297,6 @@ fun ListenBrainzLogin(
                         }
                     },
                     dismissButton = {
-                        if (loginState is LoginState.Error) {
                             Text(
                                 text = "Cancel",
                                 color = ListenBrainzTheme.colorScheme.text,
@@ -301,10 +305,15 @@ fun ListenBrainzLogin(
                                     .clickable {
                                         loginState = LoginState.Idle
                                         clearTimeout()
+                                        isLoggingIn = false
                                     }
                             )
-                        }
-                    }
+                    },
+                    properties = DialogProperties(
+                        dismissOnBackPress = true,
+                        dismissOnClickOutside = true,
+                        usePlatformDefaultWidth = true
+                    )
                 )
             }
         }
