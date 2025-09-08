@@ -44,6 +44,7 @@ import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
 import org.listenbrainz.android.ui.navigation.NavigationItem
 import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
+import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingSupportButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_yellow
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
@@ -160,6 +161,11 @@ private fun PermissionScreenBase(
             OnboardingBackButton(modifier = Modifier
                 .statusBarsPadding()
                 .padding(top = 8.dp, start = 8.dp))
+            OnboardingSupportButton(modifier = Modifier
+                .statusBarsPadding()
+                .align(Alignment.TopEnd)
+                .padding(top = 8.dp , end = 8.dp)
+            )
         }
     }
 }
