@@ -154,10 +154,6 @@ private fun IntroductionScreenUI(screenNumber: Int, onClickNext: () -> Unit, onS
             OnboardingBackButton(modifier = Modifier
                 .padding(top = 8.dp, start = 8.dp))
         }
-        OnboardingSupportButton(modifier = Modifier
-            .align(Alignment.TopEnd)
-            .padding(top = 8.dp , end = 8.dp)
-        )
         Box(
             modifier = Modifier
                 .fillMaxWidth()
