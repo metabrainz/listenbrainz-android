@@ -221,6 +221,8 @@ class MainActivity : ComponentActivity() {
                 AppUpdateDialog(viewModel = appUpdatesViewModel)
                 InstallPermissionRationaleDialog(viewModel = appUpdatesViewModel)
                 InstallAppDialog(viewModel = appUpdatesViewModel)
+                PlayStoreUpdateReadyDialog(appUpdatesViewModel)
+                PlayStoreUpdateAvailableDialog(appUpdatesViewModel)
             }
 
         }
