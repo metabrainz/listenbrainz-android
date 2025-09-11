@@ -39,6 +39,8 @@ import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.appupdates.AppUpdateDialog
 import org.listenbrainz.android.ui.screens.appupdates.InstallAppDialog
 import org.listenbrainz.android.ui.screens.appupdates.InstallPermissionRationaleDialog
+import org.listenbrainz.android.ui.screens.appupdates.PlayStoreUpdateAvailableDialog
+import org.listenbrainz.android.ui.screens.appupdates.PlayStoreUpdateReadyDialog
 import org.listenbrainz.android.ui.screens.onboarding.auth.ConsentScreenDataInitializer
 import org.listenbrainz.android.ui.screens.onboarding.auth.ListenBrainzLogin
 import org.listenbrainz.android.ui.screens.onboarding.auth.LoginConsentScreen
