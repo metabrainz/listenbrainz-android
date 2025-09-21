@@ -64,12 +64,6 @@ open class ListenSubmissionState {
         })
     }
     
-    private fun beforeMetadataSet() {
-        // Before Metadata set
-        timer.stop()
-        playingTrack.reset()
-    }
-    
     private fun afterMetadataSet() {
         // After metadata set
         if (isMetadataFaulty()) {
@@ -98,7 +92,8 @@ open class ListenSubmissionState {
         isMediaPlaying: Boolean
     ) {
         if (playingTrack.isOutdated(newTrack)) {
-            beforeMetadataSet()
+            timer.stop()
+            
             if (playingTrack.isSimilarTo(newTrack) && newTrack.isDurationAbsent()) {
                 playingTrack = newTrack.apply {
                     duration = playingTrack.duration
@@ -106,6 +101,7 @@ open class ListenSubmissionState {
             } else {
                 playingTrack = newTrack
             }
+            
             afterMetadataSet()
         } else if (playingTrack.isSimilarTo(newTrack)
             && playingTrack.isDurationAbsent()
