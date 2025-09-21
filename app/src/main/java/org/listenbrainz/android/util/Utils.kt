@@ -50,10 +50,16 @@ import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.WindowCompat
+import com.limurse.logger.Logger
+import com.limurse.logger.Logger.compressLogsInZipFile
+import com.limurse.logger.Logger.e
+import com.limurse.logger.util.FileIntent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import okhttp3.*
+import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.ResponseError.Companion.getError
@@ -633,6 +639,51 @@ object Utils {
         } catch (e: Exception) {
             android.util.Log.e("AppUpdatesViewModel", "Error comparing versions", e)
             return false
+        }
+    }
+
+    fun submitLogs(context: Context) {
+        Logger.apply {
+            compressLogsInZipFile { zipFile ->
+                zipFile?.let {
+                    FileIntent
+                        .fromFile(
+                            context,
+                            it,
+                            BuildConfig.APPLICATION_ID
+                        )
+                        ?.let { intent ->
+                            intent.putExtra(Intent.EXTRA_SUBJECT, "Log Files")
+                            intent.putExtra(
+                                Intent.EXTRA_EMAIL,
+                                arrayOf("mobile@metabrainz.org")
+                            )
+                            intent.putExtra(
+                                Intent.EXTRA_TEXT,
+                                "Please find the attached log files."
+                            )
+                            intent.putExtra(
+                                Intent.EXTRA_STREAM,
+                                FileProvider.getUriForFile(
+                                    context,
+                                    "${BuildConfig.APPLICATION_ID}.provider",
+                                    zipFile
+                                )
+                            )
+                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            try {
+                                context.startActivity(
+                                    Intent.createChooser(
+                                        intent,
+                                        "Email logs..."
+                                    )
+                                )
+                            } catch (e: java.lang.Exception) {
+                                e(throwable = e)
+                            }
+                        }
+                }
+            }
         }
     }
 }

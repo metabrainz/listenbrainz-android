@@ -64,6 +64,7 @@ import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
+import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingSupportButton
 
 @Composable
 fun LoginScreenLayout(
@@ -94,7 +95,14 @@ fun LoginScreenLayout(
         )
         OnboardingBackButton(modifier = Modifier
             .statusBarsPadding()
-            .padding(top = 8.dp, start = 8.dp))
+            .padding(top = 8.dp, start = 8.dp
+            ))
+        OnboardingSupportButton(modifier = Modifier
+            .statusBarsPadding()
+            .align(Alignment.TopEnd)
+            .padding(top = 8.dp , end = 8.dp)
+        )
+
     }
 }
 

@@ -69,6 +69,7 @@ import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningAppsList
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Constants
+import org.listenbrainz.android.util.Utils.submitLogs
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
 import org.listenbrainz.android.viewmodel.SettingsViewModel
@@ -294,48 +295,7 @@ fun SettingsScreen(
 
             SettingsTextOption(
                 modifier = Modifier.clickable {
-                    Logger.apply {
-                        compressLogsInZipFile { zipFile ->
-                            zipFile?.let {
-                                FileIntent
-                                    .fromFile(
-                                        context,
-                                        it,
-                                        BuildConfig.APPLICATION_ID
-                                    )
-                                    ?.let { intent ->
-                                        intent.putExtra(Intent.EXTRA_SUBJECT, "Log Files")
-                                        intent.putExtra(
-                                            Intent.EXTRA_EMAIL,
-                                            arrayOf("mobile@metabrainz.org")
-                                        )
-                                        intent.putExtra(
-                                            Intent.EXTRA_TEXT,
-                                            "Please find the attached log files."
-                                        )
-                                        intent.putExtra(
-                                            Intent.EXTRA_STREAM,
-                                            FileProvider.getUriForFile(
-                                                context,
-                                                "${BuildConfig.APPLICATION_ID}.provider",
-                                                zipFile
-                                            )
-                                        )
-                                        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                                        try {
-                                            context.startActivity(
-                                                Intent.createChooser(
-                                                    intent,
-                                                    "Email logs..."
-                                                )
-                                            )
-                                        } catch (e: java.lang.Exception) {
-                                            e(throwable = e)
-                                        }
-                                    }
-                            }
-                        }
-                    }
+                    submitLogs(context)
                 },
                 title = "Report an issue",
                 subtitle = "Submit app logs for further investigation",
