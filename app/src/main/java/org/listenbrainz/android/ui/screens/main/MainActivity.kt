@@ -236,7 +236,7 @@ class MainActivity : ComponentActivity() {
         val uiMode by dashBoardViewModel.appPreferences.themePreference.getFlow()
             .collectAsState(initial = UiMode.FOLLOW_SYSTEM)
 
-        LaunchedEffect(backStack.lastIndex) {
+        LaunchedEffect(backStack.lastIndex, uiMode) {
             val isStatusBarIconColorLight =
                 if (backStack[backStack.lastIndex] is NavigationItem.OnboardingScreens) {
                     true
@@ -252,7 +252,6 @@ class MainActivity : ComponentActivity() {
                 isAppearanceLightNavigationBars = !isStatusBarIconColorLight
             }
         }
-
     }
 
     //Handling all onboarding navigation logic
