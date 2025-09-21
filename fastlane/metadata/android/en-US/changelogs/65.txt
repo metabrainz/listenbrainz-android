@@ -1,0 +1,5 @@
+New:
+Updates to app will now be notified to the user.
+
+Fixes:
+Listen submission fixes for skipping listens.
