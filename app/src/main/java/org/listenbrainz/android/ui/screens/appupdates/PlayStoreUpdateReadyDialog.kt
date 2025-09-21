@@ -168,11 +168,9 @@ fun PlayStoreUpdateReadyDialogLayout(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
                 // Action buttons
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     TextButton(
