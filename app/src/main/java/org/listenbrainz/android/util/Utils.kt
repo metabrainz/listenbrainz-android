@@ -600,7 +600,49 @@ object Utils {
         }
     }
 
-    fun submitLogs(context: Context){
+    /**
+     * Compares the current app version with the latest version from GitHub.
+     * @param currentVersion The current app version (e.g., "2.8.3")
+     * @param latestVersion The latest version from GitHub (e.g., "2.8.4-beta")
+     * @return true if the latest version is newer than the current version
+     */
+    fun isNewerVersion(currentVersion: String, latestVersion: String?): Boolean {
+        if (latestVersion.isNullOrBlank()) return false
+
+        // Clean version strings (remove 'v' prefix if present)
+        val cleanCurrentVersion = currentVersion.removePrefix("v")
+        val cleanLatestVersion = latestVersion.removePrefix("v")
+
+        try {
+            // Split versions by dots to get major, minor, patch
+            val currentParts = cleanCurrentVersion.split("-")[0].split(".")
+            val latestParts = cleanLatestVersion.split("-")[0].split(".")
+
+            // Compare major version
+            val currentMajor = currentParts.getOrNull(0)?.toIntOrNull() ?: 0
+            val latestMajor = latestParts.getOrNull(0)?.toIntOrNull() ?: 0
+            if (latestMajor > currentMajor) return true
+            if (latestMajor < currentMajor) return false
+
+            // Compare minor version
+            val currentMinor = currentParts.getOrNull(1)?.toIntOrNull() ?: 0
+            val latestMinor = latestParts.getOrNull(1)?.toIntOrNull() ?: 0
+            if (latestMinor > currentMinor) return true
+            if (latestMinor < currentMinor) return false
+
+            // Compare patch version
+            val currentPatch = currentParts.getOrNull(2)?.toIntOrNull() ?: 0
+            val latestPatch = latestParts.getOrNull(2)?.toIntOrNull() ?: 0
+            return latestPatch > currentPatch
+
+            // Versions are the same up to the patch level
+        } catch (e: Exception) {
+            android.util.Log.e("AppUpdatesViewModel", "Error comparing versions", e)
+            return false
+        }
+    }
+
+    fun submitLogs(context: Context) {
         Logger.apply {
             compressLogsInZipFile { zipFile ->
                 zipFile?.let {

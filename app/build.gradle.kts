@@ -209,6 +209,10 @@ dependencies {
     implementation(libs.google.exoplayer.ui)
     implementation(libs.google.exoplayer.mediasession)
 
+    // Google Play Core for in-app updates
+    implementation(libs.app.update)
+    implementation(libs.app.update.ktx)
+
     // Spotify SDK
     api(project(":spotify-app-remote"))
 

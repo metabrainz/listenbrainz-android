@@ -1,6 +1,7 @@
 package org.listenbrainz.android.repository.preferences
 
 import kotlinx.coroutines.flow.Flow
+import org.listenbrainz.android.model.InstallSource
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.util.LinkedService
@@ -58,4 +59,17 @@ interface AppPreferences {
 
     /** Cache for Login Consent Screen Data */
     val consentScreenDataCache: DataStorePreference<String>
+
+    val installSource: DataStorePreference<InstallSource>
+    
+    /** Current app launch count. Incremented on each app launch. */
+    val appLaunchCount: DataStorePreference<Int>
+    
+    /** Launch count when version was last checked. */
+    val lastVersionCheckLaunchCount: DataStorePreference<Int>
+    
+    /** Launch count when user was last prompted to update. */
+    val lastUpdatePromptLaunchCount: DataStorePreference<Int>
+
+    val downloadId: DataStorePreference<Long>
 }

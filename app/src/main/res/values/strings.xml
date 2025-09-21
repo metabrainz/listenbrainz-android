@@ -274,4 +274,6 @@
     <string name="explanation_special_use" translatable="false">ListenBrainz Android needs to remain active in foreground at all times to immediately sync music activity to ListenBrainz.
         Whenever a user starts listening to a song, the song is instantly synced with ListenBrainz in the form of Playing now and when some duration of the song elapses without interruption, it is marked as
         a confirmed listen. Stats are calculated in real time using this data which makes real time behavior of the app important.</string>
+    <string name="github_app_update">The update will be downloaded in the background. We\'ll notify once the update is downloaded.</string>
+    <string name="app_update_disclaimer">Youtube Music playback is not supported on non-playstore builds.</string>
 </resources>

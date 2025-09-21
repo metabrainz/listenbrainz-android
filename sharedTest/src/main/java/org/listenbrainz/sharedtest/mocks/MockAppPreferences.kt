@@ -2,6 +2,7 @@ package org.listenbrainz.sharedtest.mocks
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import org.listenbrainz.android.model.InstallSource
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode
@@ -113,6 +114,21 @@ class MockAppPreferences(
                 TODO("Not yet implemented")
             }
         }
+
+    override val installSource: DataStorePreference<InstallSource>
+        get() = TODO("Not yet implemented")
+
+    override val appLaunchCount: DataStorePreference<Int>
+        get() = TODO("Not yet implemented")
+
+    override val lastVersionCheckLaunchCount: DataStorePreference<Int>
+        get() = TODO("Not yet implemented")
+
+    override val lastUpdatePromptLaunchCount: DataStorePreference<Int>
+        get() = TODO("Not yet implemented")
+
+    override val downloadId: DataStorePreference<Long>
+        get() = TODO("Not yet implemented")
 
     override suspend fun logoutUser(): Boolean {
         TODO("Not yet implemented")

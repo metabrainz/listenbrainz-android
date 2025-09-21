@@ -19,6 +19,12 @@ object Constants {
     const val MB_BASE_URL = "https://musicbrainz.org/"
     const val CB_BASE_URL = "https://critiquebrainz.org/"
 
+    const val GITHUB_API_BASE_URL = " https://api.github.com/repos/metabrainz/listenbrainz-android/"
+
+    // App update constants
+    const val VERSION_CHECK_DURATION = 1
+    const val RE_PROMPT_USER_AFTER_DENIAL = 10
+
     object Strings {
         const val TIMESTAMP = "timestamp"
         const val PREFERENCE_LISTENING_BLACKLIST = "listening_blacklist"
@@ -32,6 +38,11 @@ object Constants {
         const val PREFERENCE_ALBUMS_ON_DEVICE = "PREFERENCE_ALBUMS_ON_DEVICE"
         const val PREFERENCE_SONGS_ON_DEVICE = "PREFERENCE_SONGS_ON_DEVICE"
         const val PREFERENCE_REQUESTED_PERMISSIONS = "requested_permissions"
+        const val PREFERENCE_INSTALL_SOURCE = "install_source"
+        const val PREFERENCE_APP_LAUNCH_COUNT = "app_launch_count"
+        const val PREFERENCE_LAST_VERSION_CHECK_LAUNCH_COUNT = "last_version_check_launch_count"
+        const val PREFERENCE_LAST_UPDATE_PROMPT_LAUNCH_COUNT = "last_update_prompt_launch_count"
+        const val PREFERENCE_DOWNLOAD_ID = "download_id"
         const val LINKED_SERVICES = "LINKED_SERVICES"
         const val USERNAME = "username"
         const val CURRENT_PLAYABLE = "CURRENT_PLAYABLE"
