@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -35,6 +36,7 @@ import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
+import androidx.core.net.toUri
 
 @Composable
 fun InstallPermissionRationaleDialog(
@@ -51,12 +53,13 @@ fun InstallPermissionRationaleDialog(
             )
         ) {
             InstallPermissionRationaleDialogLayout(
+                modifier = Modifier.padding(16.dp),
                 isWaitingForAppInstall = uiState.isWaitingForPermissionToUpdateApp,
                 onGrantPermission = {
                     viewModel.hideInstallPermissionRationale()
                     // Open install permission settings
                     val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-                        data = Uri.parse("package:${context.packageName}")
+                        data = "package:${context.packageName}".toUri()
                     }
                     context.startActivity(intent)
                 },
@@ -70,6 +73,7 @@ fun InstallPermissionRationaleDialog(
 
 @Composable
 fun InstallPermissionRationaleDialogLayout(
+    modifier: Modifier = Modifier,
     onGrantPermission: () -> Unit,
     onDismiss: () -> Unit,
     isWaitingForAppInstall: Boolean = false
@@ -77,9 +81,7 @@ fun InstallPermissionRationaleDialogLayout(
     val isDarkTheme = onScreenUiModeIsDark()
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = ListenBrainzTheme.colorScheme.background
@@ -182,11 +184,12 @@ fun InstallPermissionRationaleDialogLayout(
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLightDark
 @Composable
 fun InstallPermissionRationaleDialogPreview() {
     ListenBrainzTheme {
         InstallPermissionRationaleDialogLayout(
+            modifier = Modifier.padding(16.dp),
             onGrantPermission = {},
             onDismiss = {}
         )
