@@ -1,5 +1,6 @@
 package org.listenbrainz.android.service
 
+import android.R.attr.duration
 import android.content.Context
 import android.media.MediaMetadata
 import androidx.hilt.work.HiltWorker
@@ -41,10 +42,15 @@ class ListenSubmissionWorker @AssistedInject constructor(
             Log.d("ListenBrainz User token has not been set!")
             return Result.failure()
         }
-        val duration = inputData.getInt(MediaMetadata.METADATA_KEY_DURATION, 0)
-        if (duration < 30_000) {
-            Log.d("Track is too short to submit, duration: $duration")
-            return Result.failure()
+        val duration = inputData.getLong(MediaMetadata.METADATA_KEY_DURATION, 0).run {
+            when (this) {
+                0L -> null
+                in 1..30_000 -> {
+                    Log.d("Track is too short to submit, duration: $duration")
+                    return Result.failure()
+                }
+                else -> this
+            }
         }
 
         val metadata = ListenTrackMetadata(
@@ -52,7 +58,7 @@ class ListenSubmissionWorker @AssistedInject constructor(
             track = inputData.getString(MediaMetadata.METADATA_KEY_TITLE),
             release = inputData.getString(MediaMetadata.METADATA_KEY_ALBUM),
             additionalInfo = AdditionalInfo(
-                durationMs = duration,
+                durationMs = duration?.toInt(),
                 mediaPlayer = inputData.getString(MediaMetadata.METADATA_KEY_WRITER)
                     ?.let { repository.getPackageLabel(it) },
                 submissionClient = "ListenBrainz Android",
@@ -68,7 +74,7 @@ class ListenSubmissionWorker @AssistedInject constructor(
         // Our listen to submit
         val listen = ListenSubmitBody.Payload(
             timestamp = when (ListenType.SINGLE.code) {
-                inputData.getString("TYPE") -> inputData.getLong(Constants.Strings.TIMESTAMP, 0)
+                inputData.getString(LISTEN_TYPE) -> inputData.getLong(Constants.Strings.TIMESTAMP, 0)
                 else -> null
             },
             metadata = metadata
@@ -76,7 +82,7 @@ class ListenSubmissionWorker @AssistedInject constructor(
     
         val body = ListenSubmitBody().addListens(listen)
         
-        body.listenType = inputData.getString("TYPE")
+        body.listenType = inputData.getString(LISTEN_TYPE)
         
         // TODO: Inject dispatcher here and below as well.
         val response = withContext(Dispatchers.IO) {
@@ -146,6 +152,8 @@ class ListenSubmissionWorker @AssistedInject constructor(
     }
     
     companion object {
+        const val LISTEN_TYPE = "TYPE"
+
     
         /** Build a one time work request to submit a listen.
          * @param listenType Type of listen to submit.
@@ -154,10 +162,10 @@ class ListenSubmissionWorker @AssistedInject constructor(
             val data = Data.Builder()
                 .putString(MediaMetadata.METADATA_KEY_ARTIST, playingTrack.artist)
                 .putString(MediaMetadata.METADATA_KEY_TITLE, playingTrack.title)
-                .putInt(MediaMetadata.METADATA_KEY_DURATION, playingTrack.duration.toInt())
+                .putLong(MediaMetadata.METADATA_KEY_DURATION, playingTrack.duration)
                 .putString(MediaMetadata.METADATA_KEY_WRITER, playingTrack.pkgName)
                 .putString(MediaMetadata.METADATA_KEY_ALBUM, playingTrack.releaseName)
-                .putString("TYPE", listenType.code)
+                .putString(LISTEN_TYPE, listenType.code)
                 .putLong(Constants.Strings.TIMESTAMP, playingTrack.timestampSeconds)
                 .build()
         
