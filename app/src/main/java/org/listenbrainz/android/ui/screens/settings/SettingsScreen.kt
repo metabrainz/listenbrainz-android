@@ -146,7 +146,7 @@ fun SettingsScreen(
     val isLoggedOut by appPreferences.getLoginStatusFlow()
         .map { it == Constants.Strings.STATUS_LOGGED_OUT }.collectAsState(initial = false)
 
-    Column() {
+    Column {
         TopBar(
             modifier = Modifier.statusBarsPadding(),
             topBarActions = topBarActions,
@@ -277,7 +277,7 @@ fun SettingsScreen(
                     callbacks.onOnboardingRequest()
                 },
                 title = "Restart onboarding",
-                subtitle = "Revisit the onboarding flow again."
+                subtitle = "Revisit the onboarding flow again"
             )
 
             HorizontalDivider()
@@ -286,8 +286,8 @@ fun SettingsScreen(
                 modifier = Modifier.clickable {
                     callbacks.checkForUpdates()
                 },
-                title = "Check for updates.",
-                subtitle = "Check if a new version of the app is available."
+                title = "Check for updates",
+                subtitle = "Check if a new version of the app is available"
             )
 
             HorizontalDivider()
