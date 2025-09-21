@@ -35,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -70,6 +71,7 @@ fun AppUpdateDialog(
             )
         ) {
             AppUpdateDialogLayout(
+                modifier = Modifier.padding(16.dp),
                 latestStableRelease = uiState.latestStableRelease,
                 latestRelease = uiState.latestRelease,
                 onMaybeLater = onDismiss,
@@ -84,6 +86,7 @@ fun AppUpdateDialog(
 
 @Composable
 fun AppUpdateDialogLayout(
+    modifier: Modifier = Modifier,
     latestStableRelease: GithubUpdatesListItem?,
     latestRelease: GithubUpdatesListItem?,
     onMaybeLater: () -> Unit,
@@ -95,9 +98,7 @@ fun AppUpdateDialogLayout(
     }
 
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = ListenBrainzTheme.colorScheme.background
@@ -277,22 +278,9 @@ private fun UpdateOptionItem(
     }
 }
 
-@Preview(showBackground = true)
+@PreviewLightDark
 @Composable
 fun AppUpdateDialogPreviewLight() {
-    ListenBrainzTheme {
-        AppUpdateDialogLayout(
-            latestStableRelease = GithubUpdatesListItem(tagName = "v2.9.0"),
-            latestRelease = GithubUpdatesListItem(tagName = "v2.9.1-beta"),
-            onMaybeLater = {},
-            onDownloadUpdate = {}
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AppUpdateDialogPreviewDark() {
     ListenBrainzTheme {
         AppUpdateDialogLayout(
             latestStableRelease = GithubUpdatesListItem(tagName = "v2.9.0"),
