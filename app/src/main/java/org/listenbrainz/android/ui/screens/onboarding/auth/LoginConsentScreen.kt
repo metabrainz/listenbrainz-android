@@ -57,6 +57,7 @@ import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
 import org.listenbrainz.android.ui.navigation.NavigationItem
 import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
+import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingSupportButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
@@ -267,6 +268,12 @@ private fun LoginConsentScreenLayout(
         OnboardingBackButton(modifier = Modifier
             .statusBarsPadding()
             .padding(top = 8.dp, start = 8.dp))
+
+        OnboardingSupportButton(modifier = Modifier
+            .statusBarsPadding()
+            .align(Alignment.TopEnd)
+            .padding(top = 8.dp , end = 8.dp)
+        )
     }
 }
 

@@ -56,6 +56,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -66,6 +67,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.DiagonalCutShape
 import org.listenbrainz.android.ui.components.OnboardingBlobs
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -73,6 +75,7 @@ import org.listenbrainz.android.ui.theme.lb_orange
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_yellow
 import org.listenbrainz.android.ui.theme.onboardingGradient
+import org.listenbrainz.android.util.Utils.submitLogs
 
 fun createSlideTransition(
     enterAnimDurationMs: Int = 300,
@@ -323,6 +326,29 @@ fun OnboardingBackButton(modifier: Modifier = Modifier, onBackPress: (() -> Unit
             modifier = Modifier.size(16.dp),
             imageVector = Icons.Rounded.ArrowBackIosNew, contentDescription = "Back button",
             tint = lb_purple,
+        )
+    }
+}
+
+@Composable
+fun OnboardingSupportButton(modifier: Modifier){
+    val haptic = LocalHapticFeedback.current
+    val context = LocalContext.current
+    IconButton(
+        modifier = modifier,
+        onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.Confirm)
+            submitLogs(context)
+        },
+        colors = IconButtonDefaults.iconButtonColors(
+            containerColor = Color.White
+        )
+    ) {
+        Icon(
+            modifier = Modifier.size(28.dp),
+            painter = painterResource(R.drawable.ic_support),
+            contentDescription = "Report an issue",
+            tint = lb_purple
         )
     }
 }
