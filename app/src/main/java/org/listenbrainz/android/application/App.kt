@@ -58,8 +58,6 @@ class App : Application(), Configuration.Provider {
         GlobalScope.launch {
             startListenService(appPreferences)
         }
-
-        createChannels()
     }
 
     private fun collectStartupData(): Map<String, String> = mapOf(
@@ -72,46 +70,6 @@ class App : Application(), Configuration.Provider {
         "Device SDK" to Build.VERSION.SDK_INT.toString(),
         "Device Manufacturer" to Build.MANUFACTURER
     )
-
-    private fun createChannels() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O)
-            return
-
-        val nm = ContextCompat.getSystemService(this, NotificationManager::class.java)!!
-
-        val channels = nm.notificationChannels
-
-        // delete old channels, if they exist
-        if (channels?.any { it.id == "foreground" } == true) {
-            channels.forEach { nm.deleteNotificationChannel(it.id) }
-        }
-
-        nm.createNotificationChannel(
-            NotificationChannel(
-                Constants.Strings.CHANNEL_NOTI_SCROBBLING,
-                getString(R.string.state_scrobbling), NotificationManager.IMPORTANCE_LOW
-            )
-        )
-        nm.createNotificationChannel(
-            NotificationChannel(
-                Constants.Strings.CHANNEL_NOTI_SCR_ERR,
-                getString(R.string.channel_err), NotificationManager.IMPORTANCE_MIN
-            )
-        )
-        nm.createNotificationChannel(
-            NotificationChannel(
-                Constants.Strings.CHANNEL_NOTI_NEW_APP,
-                getString(R.string.new_player, getString(R.string.new_app)),
-                NotificationManager.IMPORTANCE_LOW
-            )
-        )
-        nm.createNotificationChannel(
-            NotificationChannel(
-                Constants.Strings.CHANNEL_NOTI_PENDING,
-                getString(R.string.pending_scrobbles), NotificationManager.IMPORTANCE_MIN
-            )
-        )
-    }
 
     private fun enableStrictMode() {
         StrictMode.setThreadPolicy(

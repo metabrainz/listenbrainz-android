@@ -80,7 +80,7 @@ object SongsData {
                 val albumID = cursor.getLong(albumId)
                 val songName = cursor.getString(name)
                 val artistName = cursor.getString(artist)
-                val albumName = cursor.getString(album) ?: ""
+                val albumName = cursor.getString(album)
                 val albumArt = "content://media/external/audio/albumart/$albumID"
                 val year = cursor.getInt(yearInt)
                 val duration = cursor.getLong(durationLong)
@@ -94,10 +94,10 @@ object SongsData {
                 ).toString()
                 songs += Song(
                     mediaID = songId,
-                    title = songName,
-                    artist = artistName,
+                    title = songName.orEmpty(),
+                    artist = artistName.orEmpty(),
                     albumID = albumID,
-                    album = albumName,
+                    album = albumName.orEmpty(),
                     uri = contentUri,
                     albumArt = albumArt,
                     year = year,

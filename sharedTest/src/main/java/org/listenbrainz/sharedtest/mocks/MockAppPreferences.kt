@@ -104,8 +104,16 @@ class MockAppPreferences(
             }
         }
 
-    override val consentScreenDataCache: DataStorePreference<String>
-        get() = TODO("Not yet implemented")
+    override val consentScreenDataCache: DataStorePreference<String> =
+        object : DataStorePreference<String> {
+            override fun getFlow(): Flow<String> = flow {
+                emit("")
+            }
+
+            override suspend fun set(value: String) {
+                TODO("Not yet implemented")
+            }
+        }
 
     override val installSource: DataStorePreference<InstallSource>
         get() = TODO("Not yet implemented")
@@ -118,6 +126,7 @@ class MockAppPreferences(
 
     override val lastUpdatePromptLaunchCount: DataStorePreference<Int>
         get() = TODO("Not yet implemented")
+
     override val downloadId: DataStorePreference<Long>
         get() = TODO("Not yet implemented")
 

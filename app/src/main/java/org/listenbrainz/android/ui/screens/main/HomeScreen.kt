@@ -105,7 +105,6 @@ fun HomeScreen(
         if (isBackdropInitialised) {
             maxOffset =
                 maxOf(maxOffset, backdropScaffoldState.requireOffset() - playerHeight)
-            println(maxOffset)
         }
     }
 

@@ -1,22 +1,39 @@
 package org.listenbrainz.android.util
 
+import android.Manifest
+import android.app.Notification
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.media.MediaMetadata
 import android.os.Handler
 import android.service.notification.StatusBarNotification
+import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.work.WorkManager
 import kotlinx.coroutines.Dispatchers
+import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ListenType
 import org.listenbrainz.android.model.OnTimerListener
 import org.listenbrainz.android.model.PlayingTrack
+import org.listenbrainz.android.service.ListenSubmissionService.Companion.CHANNEL_ID
+import org.listenbrainz.android.service.ListenSubmissionService.Companion.NOTIFICATION_ID
+import org.listenbrainz.android.service.ListenSubmissionService.Companion.serviceNotification
 import org.listenbrainz.android.service.ListenSubmissionWorker.Companion.buildWorkRequest
+import org.listenbrainz.android.ui.screens.main.MainActivity
 
-class ListenSubmissionState {
+open class ListenSubmissionState {
     var playingTrack: PlayingTrack = PlayingTrack()
         private set
-    val timer: Timer
+    private val timer: Timer
     private val workManager: WorkManager
     private val context: Context
+    private val notificationManager: NotificationManagerCompat by lazy {
+        NotificationManagerCompat.from(context)
+    }
 
     constructor(jobQueue: JobQueue = JobQueue(Dispatchers.Default), workManager: WorkManager, context: Context) {
         this.timer = TimerJQ(jobQueue)
@@ -33,62 +50,18 @@ class ListenSubmissionState {
 
         init()
     }
-
-    constructor(workManager: WorkManager, context: Context) {
-        this.workManager = workManager
-        this.context = context
-        this.timer = TimerWorkManager(workManager)
-
-        init()
-    }
     
     fun init() {
         // Setting listener
         timer.setOnTimerListener(listener = object : OnTimerListener {
             override fun onTimerEnded() {
-                submitListen(ListenType.SINGLE)
-                playingTrack.submitted = true
+                submitListen()
             }
             
             override fun onTimerPaused(remainingMillis: Long) {
-                Log.d("${remainingMillis / 1000} seconds left to submit listen.")
-            }
-            
-            override fun onTimerStarted() {
-                if (!playingTrack.playingNowSubmitted) {
-                    submitListen(ListenType.PLAYING_NOW)
-                    playingTrack.playingNowSubmitted = true
-                }
+                Log.d("${remainingMillis / 1000} seconds left to submit: ${playingTrack.debugId}")
             }
         })
-    }
-    
-    /** Update current [playingTrack] with [this] given some conditions.
-     * @param newTrack
-     * @param onTrackIsOutdated lambda to run when the current track is outdated.
-     * @param onTrackIsSimilarCallbackTrack lambda to run when the new track is similar to current
-     * playing track AND current playing track's metadata has been derived from **Listen Callback**.
-     * @param onTrackIsSimilarNotificationTrack lambda to run when the new track is similar to current
-     * playing track AND current playing track's metadata has been derived from **onNotificationPosted**.*/
-    private fun PlayingTrack.updatePlayingTrack(
-        onTrackIsOutdated: (newTrack: PlayingTrack) -> Unit,
-        onTrackIsSimilarNotificationTrack: (newTrack: PlayingTrack) -> Unit,
-        onTrackIsSimilarCallbackTrack: (newTrack: PlayingTrack) -> Unit,
-    ) {
-        if (playingTrack.isOutdated(this)) {
-            
-            onTrackIsOutdated(this)
-            
-        } else if (playingTrack.isNotificationTrack()) {
-            // This means only onPostedNotification's metadata has arrived and callback is late.
-            // Timer is already started but we need to update its duration.
-            
-            onTrackIsSimilarNotificationTrack(this)
-        } else if (playingTrack.isCallbackTrack()) {
-            // Track is callback track.
-            
-            onTrackIsSimilarCallbackTrack(this)
-        }
     }
     
     private fun beforeMetadataSet() {
@@ -106,76 +79,51 @@ class ListenSubmissionState {
         }
     
         initTimer()
+        submitPlayingNow()
+
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationManager.notify(
+                NOTIFICATION_ID,
+                context.getListeningNotification(playingTrack)
+            )
+        }
     }
-    
-    /** Initialize listen metadata and timer.
-     * @param metadata Metadata to set the state's data.
-     * @param pkg Package of music player the song is being played from.
-     */
-    fun onControllerCallback(
-        newTrack: PlayingTrack
-    ){
-        newTrack.updatePlayingTrack(
-            onTrackIsOutdated = { track ->
-                // Updating currentTrack
-                beforeMetadataSet()
-                playingTrack = track
-                afterMetadataSet()
-                Log.d("onControllerCallback: Updated current track")
-            },
-            onTrackIsSimilarCallbackTrack = { track ->
-                // Usually this won't happen because metadata isn't being changed.
-                beforeMetadataSet()
-                playingTrack = track
-                afterMetadataSet()
-                Log.d("onControllerCallback: track is similar.")
-            },
-            onTrackIsSimilarNotificationTrack = { track ->
-                // Update but retain timestamp and playingNowSubmitted.
-                // We usually do not expect this callback to arrive later for submitted to change.
-                playingTrack = track.apply {
-                    timestamp = playingTrack.timestamp
-                    playingNowSubmitted = playingTrack.playingNowSubmitted
-                }    // Current track will always have more metadata here
-                
-                // Update timer because now we have duration.
-                timer.extendDuration { secondsPassed ->
-                    track.duration / 2 - secondsPassed
+
+    fun onNewMetadata(
+        newTrack: PlayingTrack,
+        isMediaPlaying: Boolean
+    ) {
+        if (playingTrack.isOutdated(newTrack)) {
+            beforeMetadataSet()
+            if (playingTrack.isSimilarTo(newTrack) && newTrack.isDurationAbsent()) {
+                playingTrack = newTrack.apply {
+                    duration = playingTrack.duration
                 }
-                Log.d("onControllerCallback: track is similar, updated metadata.")
+            } else {
+                playingTrack = newTrack
             }
-        )
-        // No need to toggle timer here since we can rely on onNotificationPosted to do that.
-    }
-    
-    fun alertMediaNotificationUpdate(newTrack: PlayingTrack, isMediaPlaying: Boolean) {
-        newTrack.updatePlayingTrack(
-            onTrackIsOutdated = { track ->
-                beforeMetadataSet()
-                
-                playingTrack = if (playingTrack.isSimilarTo(track)) {
-                    // Old track has useful metadata like duration, so smartly retrieve.
-                    track.apply { duration = playingTrack.duration }
-                } else {
-                    track
-                }
-                
-                afterMetadataSet()
-                alertPlaybackStateChanged(isMediaPlaying)
-                Log.d("notificationPosted: Updated current track")
-            },
-            onTrackIsSimilarCallbackTrack = { track ->
-                // We definitely know that whenever the notification bar changes a bit, we will get a state
-                // update which means we have a valid reason to query if music is playing or not.
-                alertPlaybackStateChanged(isMediaPlaying)
-                Log.d("notificationPosted: metadata is already updated, playback state changed.")
-            },
-            onTrackIsSimilarNotificationTrack = { track ->
-                // Same as above.
-                alertPlaybackStateChanged(isMediaPlaying)
-                Log.d("notificationPosted: track is similar, metadata is about the same, playback state changed.")
+            afterMetadataSet()
+        } else if (playingTrack.isSimilarTo(newTrack)
+            && playingTrack.isDurationAbsent()
+            && newTrack.isDurationPresent()
+        ) {
+            // Update duration as it was absent before
+            playingTrack.duration = newTrack.duration
+            timer.extendDuration { secondsPassed ->
+                newTrack.duration / 2 - secondsPassed
             }
-        )
+
+            // Force submit a playing now because have updated metadata now.
+            Log.d("Force submitting playing now: ${playingTrack.debugId}")
+            playingTrack.playingNowSubmitted = false
+            submitPlayingNow()
+        }
+
+        alertPlaybackStateChanged(isMediaPlaying)
     }
     
     fun alertMediaPlayerRemoved(notification: StatusBarNotification) {
@@ -188,10 +136,10 @@ class ListenSubmissionState {
 
         if (isMediaPlaying) {
             timer.startOrResume()
-            Log.d("Play")
+            Log.d("Play: ${playingTrack.debugId}")
         } else {
             timer.pause()
-            Log.d("Pause")
+            Log.d("Pause: ${playingTrack.debugId}")
         }
     }
     
@@ -208,17 +156,28 @@ class ListenSubmissionState {
                 roundDuration(duration = DEFAULT_DURATION)
             )
         }
-        Log.d("Timer Set")
+        Log.d("Timer Set: ${playingTrack.debugId}")
     }
     
     // Utility functions
     
     private fun roundDuration(duration: Long): Long =
         (duration / 1000) * 1000
-    
-    private fun submitListen(listenType: ListenType) =
-        workManager.enqueue(buildWorkRequest(playingTrack, listenType))
-    
+
+    private fun submitPlayingNow() {
+        if (!playingTrack.playingNowSubmitted) {
+            workManager.enqueue(buildWorkRequest(playingTrack, ListenType.PLAYING_NOW))
+            playingTrack.playingNowSubmitted = true
+        }
+    }
+
+    private fun submitListen() {
+        if (!playingTrack.submitted) {
+            workManager.enqueue(buildWorkRequest(playingTrack, ListenType.SINGLE))
+            playingTrack.submitted = true
+        }
+    }
+
     private fun isMetadataFaulty(): Boolean = playingTrack.artist.isNullOrEmpty() || playingTrack.title.isNullOrEmpty()
     
     /** Discard current listen.*/
@@ -270,6 +229,37 @@ class ListenSubmissionState {
         
         fun MediaMetadata.extractDuration(): Long = getLong(MediaMetadata.METADATA_KEY_DURATION)
     
-        fun MediaMetadata.extractReleaseName(): String? = getString(MediaMetadata.METADATA_KEY_ALBUM)
+        fun MediaMetadata.extractReleaseName(): String? =
+            getString(MediaMetadata.METADATA_KEY_ALBUM)
+                .takeIf { !it.isNullOrEmpty() }
+                ?: getString(MediaMetadata.METADATA_KEY_COMPILATION)
+
+        fun Context.getListeningNotification(playingTrack: PlayingTrack): Notification {
+            val context = this
+
+            val clickPendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                Intent(context, MainActivity::class.java),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+
+            val notification = NotificationCompat
+                .Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_listenbrainz_logo_no_text)
+                .setContentTitle("Listening...")
+                .setContentText(playingTrack.title + " by " + playingTrack.artist)
+
+                //.setColorized(true)
+                //.setColor(lb_purple.toArgb())
+                .setContentIntent(clickPendingIntent)
+
+                .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setVisibility(NotificationCompat.VISIBILITY_SECRET)
+                .build()
+
+            return notification
+        }
     }
 }

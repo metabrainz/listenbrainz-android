@@ -1,21 +1,30 @@
 package org.listenbrainz.android.service
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.Service
+import android.app.PendingIntent
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.media.session.MediaSessionManager
 import android.os.Build
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import androidx.compose.ui.graphics.toArgb
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
+import org.listenbrainz.android.R
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
 import org.listenbrainz.android.repository.preferences.AppPreferences
-import org.listenbrainz.android.util.Constants.Strings.CHANNEL_ID
+import org.listenbrainz.android.ui.screens.main.MainActivity
+import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.util.ListenSessionListener
 import org.listenbrainz.android.util.Log
 import javax.inject.Inject
@@ -51,6 +60,12 @@ class ListenSubmissionService : NotificationListenerService() {
         manager
     }
 
+    override fun onCreate() {
+        super.onCreate()
+        createNotificationChannel()
+        startForeground()
+    }
+
     override fun onListenerConnected() {
         // Called more times than onListenerDisconnected for some reason.
         if (!isConnected) {
@@ -67,7 +82,7 @@ class ListenSubmissionService : NotificationListenerService() {
         }
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) = Service.START_STICKY
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) = START_STICKY
 
     private fun initialize() {
         Log.d("Initializing Listener Service")
@@ -95,6 +110,11 @@ class ListenSubmissionService : NotificationListenerService() {
         scope.cancel()
         Log.d("onDestroy: Listen Service stopped.")
         super.onDestroy()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(STOP_FOREGROUND_REMOVE)
+        } else {
+            stopForeground(true)
+        }
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
@@ -114,8 +134,40 @@ class ListenSubmissionService : NotificationListenerService() {
     }
 
     companion object {
-        private const val CHANNEL_NAME = "Scrobbling"
-        private const val CHANNEL_DESCRIPTION = "Shows notifications when a song is played"
+        const val NOTIFICATION_ID = 420
+        const val CHANNEL_ID = "listen_channel"
+        private const val CHANNEL_NAME = "Listening"
+        private const val CHANNEL_DESCRIPTION = "Determines if the app is listening to notifications."
+
+        val Context.serviceNotification: Notification get() {
+            val context = this
+
+            val clickPendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                Intent(context, MainActivity::class.java),
+                PendingIntent.FLAG_IMMUTABLE
+            )
+
+            val notification = NotificationCompat
+                .Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_listenbrainz_logo_no_text)
+                .setContentTitle("Listening...")
+
+                //.setColorized(true)
+                //.setColor(lb_purple.toArgb())
+                .setContentIntent(clickPendingIntent)
+
+                .setSound(null)
+                .setOngoing(true)
+                .setAutoCancel(false)
+                .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_DEFAULT)
+                .setPriority(NotificationCompat.PRIORITY_MIN)
+                .setVisibility(NotificationCompat.VISIBILITY_SECRET)
+                .build()
+
+            return notification
+        }
     }
 
     private fun createNotificationChannel() {
@@ -131,6 +183,26 @@ class ListenSubmissionService : NotificationListenerService() {
     private fun deleteNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             nm?.deleteNotificationChannel(CHANNEL_ID)
+        }
+    }
+
+    var isStarted = false
+    fun startForeground() {
+        val notification = serviceNotification
+        if (!isStarted) {
+            ServiceCompat.startForeground(
+                this,
+                NOTIFICATION_ID,
+                notification,
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.TIRAMISU)
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+                else
+                    0
+            )
+            isStarted = true
+        } else {
+            NotificationManagerCompat.from(this)
+                .notify(NOTIFICATION_ID, notification)
         }
     }
 }

@@ -113,9 +113,11 @@ private fun UserList(
                     
                     FollowButton(
                         modifier = Modifier.align(Alignment.CenterEnd),
-                        isFollowedState = uiState.result.isFollowedList[index]
+                        isFollowedState = uiState.result.isFollowedList.getOrNull(index) == true
                     ) {
-                        onFollowClick(uiState.result.userList[index], index)
+                        uiState.result.userList.getOrNull(index)?.let {
+                            onFollowClick(it, index)
+                        }
                     }
                 }
             }

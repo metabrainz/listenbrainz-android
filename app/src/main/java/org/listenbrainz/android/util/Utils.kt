@@ -1,5 +1,6 @@
 package org.listenbrainz.android.util
 
+import android.Manifest
 import android.app.ActivityManager
 import android.app.NotificationManager
 import android.content.ActivityNotFoundException
@@ -12,7 +13,6 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Icon
 import android.media.MediaScannerConnection
@@ -47,8 +47,9 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
-import androidx.core.graphics.createBitmap
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -56,8 +57,6 @@ import okhttp3.*
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.ResponseError.Companion.getError
-import org.listenbrainz.android.ui.screens.onboarding.listeningApps.AppInfo
-import org.listenbrainz.android.util.Constants.Strings.CHANNEL_ID
 import retrofit2.Response
 import java.io.*
 import java.security.MessageDigest
@@ -341,26 +340,7 @@ object Utils {
         }
         return apps
     }
-    
-    
-    fun notifyListen(songTitle: String, artistName: String, albumArt: Bitmap?, nm: NotificationManager, context: Context) {
-        val notificationBuilder = NotificationCompat.Builder(context,
-            CHANNEL_ID
-        )
-        .setContentTitle(songTitle)
-        .setContentText(artistName)
-        .setSmallIcon(R.drawable.ic_listenbrainz_logo_no_text)
-        .setLargeIcon(albumArt) // Set the album art here
-        .setPriority(NotificationCompat.PRIORITY_LOW)
-        .setAutoCancel(false)
-        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 
-        try {
-            nm.notify(0, notificationBuilder.build())
-        } catch (e: RuntimeException) {
-            Log.e(message = "Error showing notification")
-        }
-    }
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun Icon.toBitmap(context: Context): Bitmap? {
@@ -597,6 +577,21 @@ object Utils {
             if(mbid[i] !in '0'..'9' && mbid[i] !in 'a'..'f' && mbid[i] !in 'A'..'F') return false
         }
         return true
+    }
+
+    fun ComponentActivity.askNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                1
+            )
+        }
     }
 
     /**

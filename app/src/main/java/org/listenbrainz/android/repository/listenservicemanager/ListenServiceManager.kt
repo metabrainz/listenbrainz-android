@@ -11,7 +11,7 @@ interface ListenServiceManager {
 
     val listenSubmissionState: ListenSubmissionState
     
-    fun onMetadataChanged(metadata: MediaMetadata?, player: String)
+    fun onMetadataChanged(metadata: MediaMetadata?, packageName: String, isMediaPlaying: Boolean)
     
     fun onPlaybackStateChanged(state: PlaybackState?)
     
