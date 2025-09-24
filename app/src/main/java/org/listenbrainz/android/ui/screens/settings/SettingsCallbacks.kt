@@ -22,5 +22,6 @@ data class SettingsCallbacksToHomeScreen(
     val checkForUpdates: () -> Unit,
     val topBarActions: TopBarActions,
     val onLoginRequest: () -> Unit,
-    val onOnboardingRequest: () -> Unit
+    val onOnboardingRequest: () -> Unit,
+    val navigateToCreateAccount : () -> Unit
 )

@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.onboarding.auth
+package org.listenbrainz.android.ui.screens.onboarding.auth.createaccount
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
@@ -23,13 +23,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalAutofillManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,66 +42,75 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
 import org.listenbrainz.android.ui.navigation.NavigationItem
+import org.listenbrainz.android.ui.screens.onboarding.auth.AuthEmailField
+import org.listenbrainz.android.ui.screens.onboarding.auth.AuthPasswordField
+import org.listenbrainz.android.ui.screens.onboarding.auth.AuthUsernameField
+import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
+import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingSupportButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.platform.LocalAutofillManager
-import androidx.compose.ui.text.style.TextAlign
-import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
-import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingSupportButton
 
 @Composable
-fun LoginScreenLayout(
+fun CreateAccountScreenLayout(
     username: String,
     password: String,
+    confirmPassword: String,
+    email: String,
     error: String?,
     isLoading: Boolean,
     onUsernameChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
-    onLoginClick: () -> Unit,
+    onConfirmPasswordChange: (String) -> Unit,
+    onEmailChange: (String) -> Unit,
     onCreateAccountClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
-        LoginCard(
+        CreateAccountCard(
             modifier = Modifier
                 .align(Alignment.Center)
                 .padding(horizontal = 24.dp),
             username = username,
             password = password,
+            confirmPassword = confirmPassword,
+            email = email,
             error = error,
             isLoading = isLoading,
             onUsernameChange = onUsernameChange,
             onPasswordChange = onPasswordChange,
-            onLoginClick = onLoginClick,
-            onCreateAccountClick = onCreateAccountClick
+            onConfirmPasswordChange = onConfirmPasswordChange,
+            onEmailChange = onEmailChange,
+            onCreateAccountClick = onCreateAccountClick,
         )
-        OnboardingBackButton(modifier = Modifier
-            .statusBarsPadding()
-            .padding(top = 8.dp, start = 8.dp
-            ))
-        OnboardingSupportButton(modifier = Modifier
-            .statusBarsPadding()
-            .align(Alignment.TopEnd)
-            .padding(top = 8.dp , end = 8.dp)
+        OnboardingBackButton(
+            modifier = Modifier
+                .statusBarsPadding()
+                .padding(top = 8.dp, start = 8.dp)
         )
-
+        OnboardingSupportButton(
+            modifier = Modifier
+                .statusBarsPadding()
+                .align(Alignment.TopEnd)
+                .padding(top = 8.dp, end = 8.dp)
+        )
     }
 }
 
 @Composable
-private fun LoginCard(
+private fun CreateAccountCard(
     username: String,
     password: String,
+    confirmPassword: String,
+    email: String,
     error: String?,
     isLoading: Boolean,
     onUsernameChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
-    onLoginClick: () -> Unit,
+    onConfirmPasswordChange: (String) -> Unit,
+    onEmailChange: (String) -> Unit,
     onCreateAccountClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -120,35 +132,36 @@ private fun LoginCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val autoFillManager = LocalAutofillManager.current
-            LoginHeader()
+            CreateAccountHeader()
             Spacer(modifier = Modifier.height(32.dp))
-            LoginForm(
+            CreateAccountForm(
                 username = username,
                 password = password,
+                confirmPassword = confirmPassword,
+                email = email,
                 onUsernameChange = onUsernameChange,
                 onPasswordChange = onPasswordChange,
-                onLoginClick = onLoginClick
+                onConfirmPasswordChange = onConfirmPasswordChange,
+                onEmailChange = onEmailChange,
+                onCreateAccountClick = onCreateAccountClick
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            ForgotCredentialsSection()
+            Spacer(modifier = Modifier.height(24.dp))
+            CodeOfConductSection()
             Spacer(modifier = Modifier.height(24.dp))
             ErrorSection(error = error)
-            LoginButton(
+            CreateAccountButton(
                 isLoading = isLoading,
-                onLoginClick = {
+                onCreateAccountClick = {
                     autoFillManager?.commit()
-                    onLoginClick()
+                    onCreateAccountClick()
                 }
             )
-            Spacer(modifier = Modifier.height(16.dp))
-            CreateAccountSection(onCreateAccountClick)
         }
     }
 }
 
-
 @Composable
-private fun LoginHeader() {
+private fun CreateAccountHeader() {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -159,14 +172,14 @@ private fun LoginHeader() {
         )
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = "Welcome Back!",
+            text = "Welcome!",
             style = MaterialTheme.typography.headlineMedium,
             color = ListenBrainzTheme.colorScheme.text,
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Sign in to your MusicBrainz account",
+            text = "Create an account with MusicBrainz",
             style = MaterialTheme.typography.bodyMedium,
             color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f),
             fontWeight = FontWeight.Medium
@@ -175,19 +188,35 @@ private fun LoginHeader() {
 }
 
 @Composable
-private fun LoginForm(
+private fun CreateAccountForm(
     username: String,
     password: String,
+    confirmPassword: String,
+    email: String,
     onUsernameChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
-    onLoginClick: () -> Unit
+    onConfirmPasswordChange: (String) -> Unit,
+    onEmailChange: (String) -> Unit,
+    onCreateAccountClick: () -> Unit
 ) {
+    val emailFocusRequester = remember { FocusRequester() }
     val passwordFocusRequester = remember { FocusRequester() }
+    val confirmPasswordFocusRequester = remember { FocusRequester() }
 
     Column {
         AuthUsernameField(
             username = username,
             onUsernameChange = onUsernameChange,
+            onNext = { emailFocusRequester.requestFocus() },
+            showPublicVisibilityNote = true
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        AuthEmailField(
+            email = email,
+            onEmailChange = onEmailChange,
+            focusRequester = emailFocusRequester,
             onNext = { passwordFocusRequester.requestFocus() }
         )
 
@@ -197,53 +226,56 @@ private fun LoginForm(
             password = password,
             onPasswordChange = onPasswordChange,
             focusRequester = passwordFocusRequester,
-            onDone = onLoginClick
+            onNext = { confirmPasswordFocusRequester.requestFocus() }
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        AuthPasswordField(
+            password = confirmPassword,
+            onPasswordChange = onConfirmPasswordChange,
+            focusRequester = confirmPasswordFocusRequester,
+            onDone = onCreateAccountClick,
+            label = "Confirm Password",
+            placeholder = "Confirm your password"
         )
     }
 }
 
-
 @Composable
-private fun ForgotCredentialsSection() {
+private fun CodeOfConductSection() {
     val isLightTheme = !isSystemInDarkTheme()
     val linkColor = if (!isLightTheme) lb_purple_night else lb_purple
 
-    val annotatedText = buildAnnotatedString {
-        append("Forgot your ")
-
-        withLink(link = LinkAnnotation.Url(
-            "https://musicbrainz.org/lost-username",
-            TextLinkStyles(
-                style = SpanStyle(
-                    color = linkColor,
-                    textDecoration = TextDecoration.Underline
-                )
-        ))) {
-                append("username")
-        }
-
-        append(" or ")
-
-        withLink(link = LinkAnnotation.Url(
-            "https://musicbrainz.org/lost-password",
-            TextLinkStyles(
-                style = SpanStyle(
-                    color = linkColor,
-                    textDecoration = TextDecoration.Underline
-                )
-            ))) {
-            append("password")
-        }
-
-        append(" ?")
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f)
+            ),
+            text = buildAnnotatedString {
+                append("Please review the ")
+                withLink(
+                    link = LinkAnnotation.Url(
+                        styles = TextLinkStyles(
+                            style = SpanStyle(
+                                color = linkColor,
+                                textDecoration = TextDecoration.Underline,
+                                fontWeight = FontWeight.Bold
+                            )
+                        ),
+                        url = "https://musicbrainz.org/doc/Code_of_Conduct"
+                    )
+                ) {
+                    append("MusicBrainz Code of Conduct")
+                }
+                append(" before creating an account")
+            },
+        )
     }
-
-    Text(
-        text = annotatedText,
-        style = MaterialTheme.typography.bodyMedium.copy(
-            color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f)
-        ),
-    )
 }
 
 @Composable
@@ -259,70 +291,36 @@ private fun ErrorSection(error: String?) {
 }
 
 @Composable
-private fun LoginButton(
+private fun CreateAccountButton(
     isLoading: Boolean,
-    onLoginClick: () -> Unit
+    onCreateAccountClick: () -> Unit
 ) {
     OnboardingYellowButton(
         modifier = Modifier.fillMaxWidth(),
-        text = "Log in",
+        text = "Create Account",
         isEnabled = !isLoading,
-        onClick = onLoginClick
+        onClick = onCreateAccountClick
     )
-}
-
-@Composable
-private fun CreateAccountSection(onCreateAccountClick: () -> Unit) {
-    val isLightTheme = !isSystemInDarkTheme()
-    val linkColor = if (!isLightTheme) lb_purple_night else lb_purple
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f)
-            ),
-            text = buildAnnotatedString {
-                append("New to ListenBrainz? ")
-                withLink(
-                    link = LinkAnnotation.Clickable(
-                        tag = "CREATE_ACCOUNT",
-                        styles = TextLinkStyles(
-                            style = SpanStyle(
-                                color = linkColor,
-                                fontWeight = FontWeight.Bold
-                            )
-                        ),
-                        linkInteractionListener = {
-                            onCreateAccountClick()
-                        }
-                        )
-                ){
-                    append("Create an account")
-                }
-
-            },
-        )
-    }
 }
 
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-private fun LoginScreenLayoutPreview() {
+private fun CreateAccountScreenLayoutPreview() {
     ListenBrainzTheme {
         OnboardingScreenBackground(backStack = rememberNavBackStack(NavigationItem.OnboardingScreens.LoginConsentScreen))
-        LoginScreenLayout(
+        CreateAccountScreenLayout(
             username = "",
             password = "",
+            confirmPassword = "",
+            email = "",
             error = null,
             isLoading = false,
             onUsernameChange = {},
             onPasswordChange = {},
-            onLoginClick = {},
-            onCreateAccountClick = {}, // Add dummy lambda for preview
+            onConfirmPasswordChange = {},
+            onEmailChange = {},
+            onCreateAccountClick = {},
         )
     }
 }

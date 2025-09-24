@@ -68,7 +68,8 @@ class LoginActivity : ComponentActivity() {
                     modifier = Modifier
                         .background(ListenBrainzTheme.colorScheme.background)
                         .safeDrawingPadding(),
-                    onLoginFinished = ::finish
+                    onLoginFinished = ::finish,
+                    onCreateAccountClicked = {}
                 )
             }
         }

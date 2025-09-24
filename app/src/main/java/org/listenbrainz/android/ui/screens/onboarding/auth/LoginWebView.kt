@@ -72,6 +72,7 @@ sealed class LoginState {
 @Composable
 fun ListenBrainzLogin(
     modifier: Modifier = Modifier,
+    onCreateAccountClicked: () -> Unit,
     onLoginFinished: () -> Unit
 ) {
     val viewModel = hiltViewModel<ListensViewModel>()
@@ -196,6 +197,7 @@ fun ListenBrainzLogin(
             error = if (loginState is LoginState.Error) (loginState as LoginState.Error).message else null,
             isLoading = loginState is LoginState.Loading || loginState is LoginState.VerifyingToken ||
                        loginState is LoginState.SubmittingCredentials || loginState is LoginState.AuthenticatingWithServer,
+            onCreateAccountClick = onCreateAccountClicked,
             onLoginClick = {
                 // Validate form
                 if (username.isBlank() || password.isBlank()) {

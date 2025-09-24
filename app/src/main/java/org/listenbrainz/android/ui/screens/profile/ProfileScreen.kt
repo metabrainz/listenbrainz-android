@@ -29,7 +29,8 @@ fun ProfileScreen(
     snackbarState: SnackbarHostState,
     goToUserProfile: (String) -> Unit,
     goToArtistPage: (String) -> Unit,
-    goToPlaylist: (String) -> Unit
+    goToPlaylist: (String) -> Unit,
+    navigateToCreateAccount: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
     val uiState = viewModel.uiState.collectAsState()
@@ -64,9 +65,12 @@ fun ProfileScreen(
                 )
             }
 
-            else -> LoginScreen {
+            else -> LoginScreen(
+                navigateToCreateAccount = navigateToCreateAccount,
+                navigateToUserProfile =
+             {
                 goToUserProfile(viewModel.appPreferences.username.get())
-            }
+            })
         }
     }
 }
