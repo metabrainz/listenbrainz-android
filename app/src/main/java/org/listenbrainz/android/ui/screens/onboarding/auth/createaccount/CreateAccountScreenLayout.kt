@@ -114,48 +114,52 @@ private fun CreateAccountCard(
     onCreateAccountClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
+    Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 16.dp)
             .verticalScroll(rememberScrollState())
-            .imePadding(),
-        colors = CardDefaults.cardColors(
-            containerColor = ListenBrainzTheme.colorScheme.background.copy(alpha = 0.75f)
-        ),
-        shape = ListenBrainzTheme.shapes.listenCardSmall
+            .imePadding()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Spacer(modifier = Modifier.height(80.dp))
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = ListenBrainzTheme.colorScheme.background.copy(alpha = 0.75f)
+            ),
+            shape = ListenBrainzTheme.shapes.listenCardSmall
         ) {
-            val autoFillManager = LocalAutofillManager.current
-            CreateAccountHeader()
-            Spacer(modifier = Modifier.height(32.dp))
-            CreateAccountForm(
-                username = username,
-                password = password,
-                confirmPassword = confirmPassword,
-                email = email,
-                onUsernameChange = onUsernameChange,
-                onPasswordChange = onPasswordChange,
-                onConfirmPasswordChange = onConfirmPasswordChange,
-                onEmailChange = onEmailChange,
-                onCreateAccountClick = onCreateAccountClick
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            CodeOfConductSection()
-            Spacer(modifier = Modifier.height(24.dp))
-            ErrorSection(error = error)
-            CreateAccountButton(
-                isLoading = isLoading,
-                onCreateAccountClick = {
-                    autoFillManager?.commit()
-                    onCreateAccountClick()
-                }
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                val autoFillManager = LocalAutofillManager.current
+                CreateAccountHeader()
+                Spacer(modifier = Modifier.height(32.dp))
+                CreateAccountForm(
+                    username = username,
+                    password = password,
+                    confirmPassword = confirmPassword,
+                    email = email,
+                    onUsernameChange = onUsernameChange,
+                    onPasswordChange = onPasswordChange,
+                    onConfirmPasswordChange = onConfirmPasswordChange,
+                    onEmailChange = onEmailChange,
+                    onCreateAccountClick = onCreateAccountClick
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                CodeOfConductSection()
+                Spacer(modifier = Modifier.height(24.dp))
+                ErrorSection(error = error)
+                CreateAccountButton(
+                    isLoading = isLoading,
+                    onCreateAccountClick = {
+                        autoFillManager?.commit()
+                        onCreateAccountClick()
+                    }
+                )
+            }
         }
     }
 }
