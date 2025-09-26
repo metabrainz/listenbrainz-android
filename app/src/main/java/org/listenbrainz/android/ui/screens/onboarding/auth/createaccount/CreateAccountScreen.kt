@@ -24,7 +24,7 @@ fun ListenBrainzCreateAccountScreen() {
             uiState = uiState.copy(username = it)
         },
         onCreateAccountClick = {
-            //TODO
+            uiState = uiState.copy(isVerificationScreenVisible = true)
         },
         onPasswordChange = {
             uiState = uiState.copy(password = it)
@@ -34,6 +34,13 @@ fun ListenBrainzCreateAccountScreen() {
         },
         onEmailChange = {
             uiState = uiState.copy(email = it)
+        },
+        onVerificationCompleteClick = {
+
+        },
+        showEmailVerification = uiState.isVerificationScreenVisible,
+        onPressBackInVerificationState = {
+            uiState = uiState.copy(isVerificationScreenVisible = false)
         },
         modifier = Modifier,
     )

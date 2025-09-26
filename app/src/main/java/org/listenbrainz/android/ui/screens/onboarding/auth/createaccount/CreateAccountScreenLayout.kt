@@ -1,6 +1,9 @@
 package org.listenbrainz.android.ui.screens.onboarding.auth.createaccount
 
+import android.content.Intent
 import android.content.res.Configuration
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -19,6 +22,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -26,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalAutofillManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -59,32 +64,52 @@ fun CreateAccountScreenLayout(
     email: String,
     error: String?,
     isLoading: Boolean,
+    showEmailVerification: Boolean = false,
     onUsernameChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onConfirmPasswordChange: (String) -> Unit,
     onEmailChange: (String) -> Unit,
     onCreateAccountClick: () -> Unit,
+    onVerificationCompleteClick: () -> Unit = {},
+    onPressBackInVerificationState: ()-> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    if(showEmailVerification){
+        BackHandler {
+            onPressBackInVerificationState()
+        }
+    }
     Box(
         modifier = modifier.fillMaxSize()
     ) {
-        CreateAccountCard(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(horizontal = 24.dp),
-            username = username,
-            password = password,
-            confirmPassword = confirmPassword,
-            email = email,
-            error = error,
-            isLoading = isLoading,
-            onUsernameChange = onUsernameChange,
-            onPasswordChange = onPasswordChange,
-            onConfirmPasswordChange = onConfirmPasswordChange,
-            onEmailChange = onEmailChange,
-            onCreateAccountClick = onCreateAccountClick,
-        )
+        AnimatedContent(targetState = showEmailVerification) {
+            if (it) {
+                EmailVerificationCard(
+                    email = email,
+                    onVerificationCompleteClick = onVerificationCompleteClick,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(horizontal = 24.dp)
+                )
+            } else {
+                CreateAccountCard(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(horizontal = 24.dp),
+                    username = username,
+                    password = password,
+                    confirmPassword = confirmPassword,
+                    email = email,
+                    error = error,
+                    isLoading = isLoading,
+                    onUsernameChange = onUsernameChange,
+                    onPasswordChange = onPasswordChange,
+                    onConfirmPasswordChange = onConfirmPasswordChange,
+                    onEmailChange = onEmailChange,
+                    onCreateAccountClick = onCreateAccountClick,
+                )
+            }
+        }
         OnboardingBackButton(
             modifier = Modifier
                 .statusBarsPadding()
@@ -120,7 +145,7 @@ private fun CreateAccountCard(
             .verticalScroll(rememberScrollState())
             .imePadding()
     ) {
-        Spacer(modifier = Modifier.height(80.dp))
+        Spacer(modifier = Modifier.height(100.dp))
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -161,6 +186,7 @@ private fun CreateAccountCard(
                 )
             }
         }
+        Spacer(modifier = Modifier.height(60.dp))
     }
 }
 
@@ -307,6 +333,118 @@ private fun CreateAccountButton(
     )
 }
 
+@Composable
+private fun EmailVerificationCard(
+    email: String,
+    onVerificationCompleteClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .imePadding()
+    ) {
+        Spacer(modifier = Modifier.height(100.dp))
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = ListenBrainzTheme.colorScheme.background.copy(alpha = 0.75f)
+            ),
+            shape = ListenBrainzTheme.shapes.listenCardSmall
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.musicbrainz_logo),
+                    contentDescription = "MusicBrainz Logo",
+                    modifier = Modifier.size(48.dp)
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = "Email Verification Required",
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = ListenBrainzTheme.colorScheme.text,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Email must be verified to create a ListenBrainz account with a MusicBrainz",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f),
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "We've sent a verification link to:",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f),
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = email,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = ListenBrainzTheme.colorScheme.text,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // Open Inbox button
+                TextButton(
+                    onClick = {
+                        val intent = Intent.createChooser(
+                            Intent(Intent.ACTION_MAIN)
+                                .addCategory(Intent.CATEGORY_APP_EMAIL)
+                                .apply { 
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                },
+                            "Open email app"
+                        )
+                        try {
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            val gmailIntent = Intent(Intent.ACTION_MAIN).apply {
+                                addCategory(Intent.CATEGORY_LAUNCHER)
+                                setPackage("com.google.android.gm")
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            }
+                            try {
+                                context.startActivity(gmailIntent)
+                            } catch (e: Exception) {
+                            }
+                        }
+                    }
+                ) {
+                    Text(
+                        text = "Open Inbox",
+                        fontWeight = FontWeight.Bold,
+                        color = if(isSystemInDarkTheme()) lb_purple_night else lb_purple,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Verification Complete button
+                OnboardingYellowButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "Verification Complete",
+                    onClick = onVerificationCompleteClick
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(60.dp))
+    }
+}
+
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
@@ -325,6 +463,30 @@ private fun CreateAccountScreenLayoutPreview() {
             onConfirmPasswordChange = {},
             onEmailChange = {},
             onCreateAccountClick = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun EmailVerificationScreenLayoutPreview() {
+    ListenBrainzTheme {
+        OnboardingScreenBackground(backStack = rememberNavBackStack(NavigationItem.OnboardingScreens.LoginConsentScreen))
+        CreateAccountScreenLayout(
+            username = "",
+            password = "",
+            confirmPassword = "",
+            email = "user@example.com",
+            error = null,
+            isLoading = false,
+            showEmailVerification = true,
+            onUsernameChange = {},
+            onPasswordChange = {},
+            onConfirmPasswordChange = {},
+            onEmailChange = {},
+            onCreateAccountClick = {},
+            onVerificationCompleteClick = {},
         )
     }
 }

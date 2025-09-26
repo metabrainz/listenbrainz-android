@@ -6,5 +6,5 @@ data class CreateAccountUIState(
     val password: String = "",
     val confirmPassword: String = "",
     val errorMessage: String? = null,
-
+    val isVerificationScreenVisible: Boolean = false
 )
