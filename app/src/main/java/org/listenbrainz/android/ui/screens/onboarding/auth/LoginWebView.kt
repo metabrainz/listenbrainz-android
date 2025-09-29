@@ -120,7 +120,7 @@ fun ListenBrainzLogin(
             ListenBrainzClient(
                 modifier = Modifier
                     .size(1.dp)
-                    .alpha(1f),
+                    .alpha(0f),
                 username = username,
                 password = password,
                 onLoad = { resource ->
@@ -239,7 +239,9 @@ fun ListenBrainzLogin(
                                 is LoginState.Success -> "Success"
                                 else -> "Signing In"
                             },
-                            color = ListenBrainzTheme.colorScheme.text
+                            color = ListenBrainzTheme.colorScheme.text,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
                         )
                     },
                     text = {

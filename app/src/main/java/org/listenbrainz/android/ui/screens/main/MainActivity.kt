@@ -213,7 +213,9 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         entry<NavigationItem.CreateAccountScreen> {
-                            ListenBrainzCreateAccountScreen()
+                            ListenBrainzCreateAccountScreen(){
+                                backStack.remove(NavigationItem.CreateAccountScreen)
+                            }
                         }
                     },
                     transitionSpec = {
@@ -248,7 +250,7 @@ class MainActivity : ComponentActivity() {
 
         LaunchedEffect(backStack.lastIndex, uiMode) {
             val isStatusBarIconColorLight =
-                if (backStack[backStack.lastIndex] is NavigationItem.OnboardingScreens) {
+                if (backStack[backStack.lastIndex] is NavigationItem.OnboardingScreens || backStack[backStack.lastIndex] == NavigationItem.CreateAccountScreen) {
                     true
                 } else {
                     when (uiMode) {
