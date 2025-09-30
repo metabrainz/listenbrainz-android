@@ -156,7 +156,7 @@ class ListenBrainzWebClient(
                 Logger.d(TAG, "Accepting data protection terms")
                 view?.postDelayed({
                     acceptGdprAndSubmit(view)
-                }, 2000)
+                }, 2500)
 
             }
 
