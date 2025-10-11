@@ -352,18 +352,8 @@ private fun ListenBrainzClient(
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
             fun clearCookies() {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                    CookieManager.getInstance().removeAllCookies(null)
-                    CookieManager.getInstance().flush()
-                } else {
-                    val cookieSyncManager = CookieSyncManager.createInstance(context)
-                    cookieSyncManager.startSync()
-                    val cookieManager: CookieManager = CookieManager.getInstance()
-                    cookieManager.removeAllCookie()
-                    cookieManager.removeSessionCookie()
-                    cookieSyncManager.stopSync()
-                    cookieSyncManager.sync()
-                }
+                CookieManager.getInstance().removeAllCookies(null)
+                CookieManager.getInstance().flush()
             }
             // Configure WebView
             settings.apply {

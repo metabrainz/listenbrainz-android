@@ -10,6 +10,8 @@ import android.webkit.WebViewClient
 import com.limurse.logger.Logger
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.util.Resource
+import androidx.core.net.toUri
+import androidx.core.view.postDelayed
 
 private const val TAG = "ListenBrainzWebClient"
 
@@ -26,7 +28,6 @@ class ListenBrainzWebClient(
     private var hasTriedSettingsNavigation = false
     private var isLoginFailed = false
     private var currentPage: String? = null
-    private var hasTriedAcceptingGdpr = false
     private var hasTriedOAuthAuthentication = false
 
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
@@ -34,7 +35,7 @@ class ListenBrainzWebClient(
 
         // Update UI with current page info
         url?.let {
-            val uri = Uri.parse(it)
+            val uri = it.toUri()
             currentPage = when {
                 uri.host == "musicbrainz.org" && uri.path == "/login" ->
                     "Connecting to MusicBrainz..."
@@ -84,7 +85,7 @@ class ListenBrainzWebClient(
             return
         }
 
-        val uri = Uri.parse(url)
+        val uri = url.toUri()
         Logger.d(TAG, "Page loaded: ${uri.host}${uri.path}")
 
         when {
@@ -149,15 +150,14 @@ class ListenBrainzWebClient(
                 view?.loadUrl("https://listenbrainz.org/login/musicbrainz")
             }
 
-
-            //Edge case 2: Data protection terms not accepted
-            uri.path?.contains("agree-to-terms") == true && !hasTriedAcceptingGdpr-> {
-                hasTriedAcceptingGdpr = true
-                Logger.d(TAG, "Accepting data protection terms")
-                view?.postDelayed({
-                    acceptGdprAndSubmit(view)
-                }, 2500)
-
+            // Edge case 2: Data protection terms not accepted. This is not a blocker for login, so we
+            // can skip this step.
+            uri.path?.contains("agree-to-terms") == true -> {
+                view?.postDelayed(2000) {
+                    checkForEmailVerificationError(view) {
+                        view.loadUrl("https://listenbrainz.org/settings")
+                    }
+                }
             }
 
             // Step 2: Navigate to settings to get token with edge case 2
@@ -314,51 +314,4 @@ class ListenBrainzWebClient(
             }
         }
     }
-
-    private fun acceptGdprAndSubmit(view: WebView?) {
-        val gdprScript = """
-(function () {
-  try {
-    var attempts = 0;
-
-    function tryAction() {
-      var agreeRadio = document.querySelector('#gdpr-agree');
-      var submitButton = document.querySelector('button.btn.btn-primary.btn-lg.w-100');
-
-      if (agreeRadio && submitButton) {
-        agreeRadio.checked = true;
-        agreeRadio.dispatchEvent(new Event('change', { bubbles: true }));
-
-        setTimeout(function () {
-          submitButton.click();
-        }, 100);
-
-        return "GDPR agree selected and submit button clicked";
-      }
-
-      if (attempts < 20) { // retry up to 2s
-        attempts++;
-        setTimeout(tryAction, 100);
-      }
-    }
-
-    tryAction();
-    return "Waiting for GDPR radio and submit button...";
-  } catch (e) {
-    return "Error: " + e.message;
-  }
-})();
-
-
-    """.trimIndent()
-
-        view?.evaluateJavascript(gdprScript) { result ->
-            Logger.d(TAG, "GDPR script result: $result")
-            if(result.contains("selected and submit button")) {
-                hasTriedAcceptingGdpr = true
-            }
-        }
-    }
-
-
 }
