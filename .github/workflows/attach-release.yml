@@ -71,6 +71,6 @@ jobs:
         with:
           name: ListenBrainz-Release-Files
           path: |
-            app/build/outputs/apk/release/app-release.apk
-            app/build/outputs/bundle/release/app-release.aab
+            app/build/outputs/apk/github/release/app-github-release.apk
+            app/build/outputs/bundle/playstore/release/app-playstore-release.aab
         if: github.ref == ('refs/tags/${{ steps.find_release.outputs.tag_name }}')
