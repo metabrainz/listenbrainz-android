@@ -17,6 +17,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
@@ -31,9 +32,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -47,6 +50,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
+import org.listenbrainz.android.util.Utils.toDp
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 
 @Composable
@@ -145,6 +149,24 @@ fun AppUpdateDialogLayout(
                     style = MaterialTheme.typography.bodySmall,
                     color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f),
                     modifier = Modifier.weight(1f)
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "Info",
+                    tint = ListenBrainzTheme.colorScheme.golden,
+                    modifier = Modifier.padding(top = 3.sp.toDp()).size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.app_update_risk_disclaimer_short),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = ListenBrainzTheme.colorScheme.golden,
+                    modifier = Modifier.weight(1f),
                 )
             }
 
