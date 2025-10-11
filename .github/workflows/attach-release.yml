@@ -53,8 +53,8 @@ jobs:
 
       - name: Build APK and AAB
         run: |
-          ./gradlew assembleRelease
-          ./gradlew bundleRelease
+          ./gradlew assembleGithubRelease
+          ./gradlew bundlePlaystoreRelease
 
       - name: Find release tag name
         id: find_release
