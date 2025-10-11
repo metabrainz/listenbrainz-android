@@ -3,7 +3,6 @@ package org.listenbrainz.android.ui.screens.onboarding.auth
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,27 +14,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.autofill.AutofillManager
-import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.LinkAnnotation
@@ -43,8 +30,6 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,11 +43,8 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalAutofillManager
-import androidx.compose.ui.semantics.contentType
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
 import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingSupportButton
 
@@ -75,6 +57,7 @@ fun LoginScreenLayout(
     onUsernameChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onLoginClick: () -> Unit,
+    onCreateAccountClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -92,6 +75,7 @@ fun LoginScreenLayout(
             onUsernameChange = onUsernameChange,
             onPasswordChange = onPasswordChange,
             onLoginClick = onLoginClick,
+            onCreateAccountClick = onCreateAccountClick
         )
         OnboardingBackButton(modifier = Modifier
             .statusBarsPadding()
@@ -115,6 +99,7 @@ private fun LoginCard(
     onUsernameChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onLoginClick: () -> Unit,
+    onCreateAccountClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -150,10 +135,13 @@ private fun LoginCard(
             ErrorSection(error = error)
             LoginButton(
                 isLoading = isLoading,
-            ) {
-                autoFillManager?.commit()
-                onLoginClick()
-            }
+                onLoginClick = {
+                    autoFillManager?.commit()
+                    onLoginClick()
+                }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            CreateAccountSection(onCreateAccountClick)
         }
     }
 }
@@ -197,7 +185,7 @@ private fun LoginForm(
     val passwordFocusRequester = remember { FocusRequester() }
 
     Column {
-        UsernameField(
+        AuthUsernameField(
             username = username,
             onUsernameChange = onUsernameChange,
             onNext = { passwordFocusRequester.requestFocus() }
@@ -205,7 +193,7 @@ private fun LoginForm(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        PasswordField(
+        AuthPasswordField(
             password = password,
             onPasswordChange = onPasswordChange,
             focusRequester = passwordFocusRequester,
@@ -214,117 +202,6 @@ private fun LoginForm(
     }
 }
 
-@Composable
-private fun UsernameField(
-    username: String,
-    onUsernameChange: (String) -> Unit,
-    onNext: () -> Unit
-) {
-    Column {
-        Text(
-            text = "Username",
-            style = MaterialTheme.typography.bodyMedium,
-            color = ListenBrainzTheme.colorScheme.text,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        OutlinedTextField(
-            value = username,
-            onValueChange = onUsernameChange,
-            placeholder = {
-                Text(
-                    text = "Enter your username",
-                    color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.5f)
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .semantics { contentType = ContentType.Username },
-            singleLine = true,
-            colors = OutlinedTextFieldDefaults.colors(
-                cursorColor = ListenBrainzTheme.colorScheme.text,
-                selectionColors = TextSelectionColors(
-                    handleColor = ListenBrainzTheme.colorScheme.text,
-                    backgroundColor = ListenBrainzTheme.colorScheme.text
-                ),
-                focusedTextColor = ListenBrainzTheme.colorScheme.text,
-                unfocusedTextColor = ListenBrainzTheme.colorScheme.text,
-                focusedBorderColor = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.5f),
-                unfocusedBorderColor = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.3f)
-            ),
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(
-                onNext = { onNext() }
-            )
-        )
-    }
-}
-
-@Composable
-private fun PasswordField(
-    password: String,
-    onPasswordChange: (String) -> Unit,
-    focusRequester: FocusRequester,
-    onDone: () -> Unit
-) {
-    var passwordVisibility by remember { mutableStateOf(false) }
-
-    Column {
-        Text(
-            text = "Password",
-            style = MaterialTheme.typography.bodyMedium,
-            color = ListenBrainzTheme.colorScheme.text,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = onPasswordChange,
-            placeholder = {
-                Text(
-                    text = "Enter your password",
-                    color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.5f)
-                )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .focusRequester(focusRequester)
-                .semantics { contentType = ContentType.Password },
-            singleLine = true,
-            visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
-            colors = OutlinedTextFieldDefaults.colors(
-                cursorColor = ListenBrainzTheme.colorScheme.text,
-                selectionColors = TextSelectionColors(
-                    handleColor = ListenBrainzTheme.colorScheme.text,
-                    backgroundColor = ListenBrainzTheme.colorScheme.text
-                ),
-                focusedTextColor = ListenBrainzTheme.colorScheme.text,
-                unfocusedTextColor = ListenBrainzTheme.colorScheme.text,
-                focusedBorderColor = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.5f),
-                unfocusedBorderColor = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.3f)
-            ),
-            trailingIcon = {
-                IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
-                    Icon(
-                        painter = painterResource(id = if (passwordVisibility) R.drawable.ic_visibility_off else R.drawable.ic_visibility),
-                        contentDescription = if (passwordVisibility) "Hide password" else "Show password",
-                        tint = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.5f)
-                    )
-                }
-            },
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = { onDone() }
-            )
-        )
-    }
-}
 
 @Composable
 private fun ForgotCredentialsSection() {
@@ -394,6 +271,43 @@ private fun LoginButton(
     )
 }
 
+@Composable
+private fun CreateAccountSection(onCreateAccountClick: () -> Unit) {
+    val isLightTheme = !isSystemInDarkTheme()
+    val linkColor = if (!isLightTheme) lb_purple_night else lb_purple
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f)
+            ),
+            text = buildAnnotatedString {
+                append("New to ListenBrainz? ")
+                withLink(
+                    link = LinkAnnotation.Clickable(
+                        tag = "CREATE_ACCOUNT",
+                        styles = TextLinkStyles(
+                            style = SpanStyle(
+                                color = linkColor,
+                                fontWeight = FontWeight.Bold
+                            )
+                        ),
+                        linkInteractionListener = {
+                            onCreateAccountClick()
+                        }
+                        )
+                ){
+                    append("Create an account")
+                }
+
+            },
+        )
+    }
+}
+
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
@@ -408,6 +322,7 @@ private fun LoginScreenLayoutPreview() {
             onUsernameChange = {},
             onPasswordChange = {},
             onLoginClick = {},
+            onCreateAccountClick = {}, // Add dummy lambda for preview
         )
     }
 }

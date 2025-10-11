@@ -44,6 +44,7 @@ import org.listenbrainz.android.ui.screens.appupdates.PlayStoreUpdateReadyDialog
 import org.listenbrainz.android.ui.screens.onboarding.auth.ConsentScreenDataInitializer
 import org.listenbrainz.android.ui.screens.onboarding.auth.ListenBrainzLogin
 import org.listenbrainz.android.ui.screens.onboarding.auth.LoginConsentScreen
+import org.listenbrainz.android.ui.screens.onboarding.auth.createaccount.ListenBrainzCreateAccountScreen
 import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.ListeningAppSelectionScreen
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScreen
@@ -152,7 +153,10 @@ class MainActivity : ComponentActivity() {
                             }
                             ListenBrainzLogin(onLoginFinished = {
                                 //Handled above in LaunchedEffect
-                            })
+                            },
+                                onCreateAccountClicked = {
+                                    backStack.add(NavigationItem.CreateAccountScreen)
+                                })
                         }
                         entry<NavigationItem.OnboardingScreens.PermissionScreen> {
                             PermissionScreen(
@@ -201,9 +205,17 @@ class MainActivity : ComponentActivity() {
                                             }
                                         )
                                     },
-                                    topBarActions = TopBarActions()
+                                    topBarActions = TopBarActions(),
+                                    navigateToCreateAccount = {
+                                        backStack.add(NavigationItem.CreateAccountScreen)
+                                    }
                                 )
                             )
+                        }
+                        entry<NavigationItem.CreateAccountScreen> {
+                            ListenBrainzCreateAccountScreen(){
+                                backStack.remove(NavigationItem.CreateAccountScreen)
+                            }
                         }
                     },
                     transitionSpec = {
@@ -238,7 +250,7 @@ class MainActivity : ComponentActivity() {
 
         LaunchedEffect(backStack.lastIndex, uiMode) {
             val isStatusBarIconColorLight =
-                if (backStack[backStack.lastIndex] is NavigationItem.OnboardingScreens) {
+                if (backStack[backStack.lastIndex] is NavigationItem.OnboardingScreens || backStack[backStack.lastIndex] == NavigationItem.CreateAccountScreen) {
                     true
                 } else {
                     when (uiMode) {

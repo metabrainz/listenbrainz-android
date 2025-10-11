@@ -45,6 +45,7 @@ import org.listenbrainz.android.viewmodel.ListensViewModel
 @Composable
 fun LoginScreen(
     navigateToUserProfile: suspend () -> Unit,
+    navigateToCreateAccount: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     var startLogin by remember { mutableStateOf(false) }
@@ -95,7 +96,8 @@ fun LoginScreen(
 
     if (startLogin) {
         ListenBrainzLogin(
-            modifier = Modifier.background(ListenBrainzTheme.colorScheme.background)
+            modifier = Modifier.background(ListenBrainzTheme.colorScheme.background),
+            onCreateAccountClicked = navigateToCreateAccount
         ) {
             scope.launch {
                 navigateToUserProfile()
@@ -109,6 +111,9 @@ fun LoginScreen(
 @Composable
 private fun Preview() {
     ListenBrainzTheme {
-        LoginScreen {}
+        LoginScreen(
+            navigateToUserProfile = {},
+            navigateToCreateAccount = {}
+        )
     }
 }

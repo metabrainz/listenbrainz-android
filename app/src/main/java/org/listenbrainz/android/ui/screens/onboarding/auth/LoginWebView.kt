@@ -72,6 +72,7 @@ sealed class LoginState {
 @Composable
 fun ListenBrainzLogin(
     modifier: Modifier = Modifier,
+    onCreateAccountClicked: () -> Unit,
     onLoginFinished: () -> Unit
 ) {
     val viewModel = hiltViewModel<ListensViewModel>()
@@ -119,7 +120,7 @@ fun ListenBrainzLogin(
             ListenBrainzClient(
                 modifier = Modifier
                     .size(1.dp)
-                    .alpha(1f),
+                    .alpha(0f),
                 username = username,
                 password = password,
                 onLoad = { resource ->
@@ -196,6 +197,7 @@ fun ListenBrainzLogin(
             error = if (loginState is LoginState.Error) (loginState as LoginState.Error).message else null,
             isLoading = loginState is LoginState.Loading || loginState is LoginState.VerifyingToken ||
                        loginState is LoginState.SubmittingCredentials || loginState is LoginState.AuthenticatingWithServer,
+            onCreateAccountClick = onCreateAccountClicked,
             onLoginClick = {
                 // Validate form
                 if (username.isBlank() || password.isBlank()) {
@@ -237,7 +239,9 @@ fun ListenBrainzLogin(
                                 is LoginState.Success -> "Success"
                                 else -> "Signing In"
                             },
-                            color = ListenBrainzTheme.colorScheme.text
+                            color = ListenBrainzTheme.colorScheme.text,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
                         )
                     },
                     text = {
@@ -347,20 +351,7 @@ private fun ListenBrainzClient(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
-            fun clearCookies() {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                    CookieManager.getInstance().removeAllCookies(null)
-                    CookieManager.getInstance().flush()
-                } else {
-                    val cookieSyncManager = CookieSyncManager.createInstance(context)
-                    cookieSyncManager.startSync()
-                    val cookieManager: CookieManager = CookieManager.getInstance()
-                    cookieManager.removeAllCookie()
-                    cookieManager.removeSessionCookie()
-                    cookieSyncManager.stopSync()
-                    cookieSyncManager.sync()
-                }
-            }
+
             // Configure WebView
             settings.apply {
                 javaScriptEnabled = true
@@ -369,7 +360,8 @@ private fun ListenBrainzClient(
             }
 
             // Clear cookies
-            clearCookies()
+            CookieManager.getInstance().removeAllCookies(null)
+            CookieManager.getInstance().flush()
 
             webViewClient = ListenBrainzWebClient(
                 onLoad = onLoad,

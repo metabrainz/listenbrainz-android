@@ -110,12 +110,17 @@ fun AppNavigation(
             route = AppNavigationItem.Profile.route
         ) {
             val viewModel = hiltViewModel<DashBoardViewModel>()
-            LoginScreen {
-                val username = viewModel.usernameFlow.first()
-                if (username.isNotBlank()) {
-                    goToUserProfile(username)
-                }
-            }
+            LoginScreen(
+                navigateToCreateAccount = {
+                    settingsCallbacks.navigateToCreateAccount()
+                },
+                navigateToUserProfile =
+                    {
+                        val username = viewModel.usernameFlow.first()
+                        if (username.isNotBlank()) {
+                            goToUserProfile(username)
+                        }
+                    })
         }
         appComposable(
             route = "${AppNavigationItem.Profile.route}/{username}",
@@ -135,7 +140,10 @@ fun AppNavigation(
                 goToUserProfile = ::goToUserProfile,
                 goToArtistPage = ::goToArtistPage,
                 goToPlaylist = ::goToPlaylist,
-                topBarActions = topAppBarActions
+                topBarActions = topAppBarActions,
+                navigateToCreateAccount = {
+                    settingsCallbacks.navigateToCreateAccount()
+                }
             )
         }
         appComposable(

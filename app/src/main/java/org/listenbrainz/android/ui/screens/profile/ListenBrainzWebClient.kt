@@ -10,6 +10,8 @@ import android.webkit.WebViewClient
 import com.limurse.logger.Logger
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.util.Resource
+import androidx.core.net.toUri
+import androidx.core.view.postDelayed
 
 private const val TAG = "ListenBrainzWebClient"
 
@@ -26,22 +28,27 @@ class ListenBrainzWebClient(
     private var hasTriedSettingsNavigation = false
     private var isLoginFailed = false
     private var currentPage: String? = null
+    private var hasTriedOAuthAuthentication = false
 
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
 
         // Update UI with current page info
         url?.let {
-            val uri = Uri.parse(it)
+            val uri = it.toUri()
             currentPage = when {
                 uri.host == "musicbrainz.org" && uri.path == "/login" ->
                     "Connecting to MusicBrainz..."
+
                 uri.host == "listenbrainz.org" && uri.path == "/login" ->
                     "Connecting to ListenBrainz..."
+
                 uri.host == "listenbrainz.org" && uri.path == "/login/musicbrainz" ->
                     "Authenticating with ListenBrainz..."
+
                 uri.host == "listenbrainz.org" && uri.path?.contains("/settings") == true ->
                     "Retrieving authentication token..."
+
                 else -> "Loading page..."
             }
             onPageLoadStateChange(true, currentPage)
@@ -56,7 +63,7 @@ class ListenBrainzWebClient(
     ) {
         super.onReceivedError(view, request, error)
 
-        val errorMsg = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        val errorMsg = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             "Error loading page: ${error?.description}"
         else "Error loading page"
         Logger.e(TAG, errorMsg)
@@ -78,7 +85,7 @@ class ListenBrainzWebClient(
             return
         }
 
-        val uri = Uri.parse(url)
+        val uri = url.toUri()
         Logger.d(TAG, "Page loaded: ${uri.host}${uri.path}")
 
         when {
@@ -92,7 +99,7 @@ class ListenBrainzWebClient(
                 hasTriedFormSubmission = true
                 Logger.d(TAG, "Submitting login form")
                 onLoad(Resource.loading())
-                if(view != null) {
+                if (view != null) {
                     submitLoginForm(view)
                 } else {
                     onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
@@ -100,6 +107,16 @@ class ListenBrainzWebClient(
                     }))
                 }
             }
+
+            //Edge case 1: User's account is not linked with ListenBrainz
+            uri.path?.contains("new-oauth2/authorize") == true && !hasTriedOAuthAuthentication && !hasTriedSettingsNavigation -> {
+                Logger.e(TAG, "Account not linked with ListenBrainz, running script to accept")
+                hasTriedOAuthAuthentication = true
+                view?.postDelayed({
+                    allowAccess(view)
+                }, 2000)
+            }
+
 
             // Handle ListenBrainz navigation flow
             uri.host == "listenbrainz.org" -> {
@@ -133,11 +150,27 @@ class ListenBrainzWebClient(
                 view?.loadUrl("https://listenbrainz.org/login/musicbrainz")
             }
 
-            // Step 2: Navigate to settings to get token
+            // Edge case 2: Data protection terms not accepted. This is not a blocker for login, so we
+            // can skip this step.
+            uri.path?.contains("agree-to-terms") == true -> {
+                view?.postDelayed(2000) {
+                    checkForEmailVerificationError(view) {
+                        view.loadUrl("https://listenbrainz.org/settings")
+                    }
+                }
+            }
+
+            // Step 2: Navigate to settings to get token with edge case 2
             !hasTriedSettingsNavigation -> {
-                Logger.d(TAG, "Navigating to settings page")
-                hasTriedSettingsNavigation = true
-                view?.postDelayed({ view.loadUrl("https://listenbrainz.org/settings") }, 2000)
+                view?.postDelayed({
+                    checkForEmailVerificationError(view) {
+                        if(!hasTriedSettingsNavigation) {
+                            Logger.d(TAG, "Navigating to settings page")
+                            hasTriedSettingsNavigation = true
+                            view.loadUrl("https://listenbrainz.org/settings")
+                        }
+                    }
+                }, 2000)
             }
 
             // Step 3: Extract token from settings page
@@ -215,5 +248,70 @@ class ListenBrainzWebClient(
                 }
             }
         }, 2000)
+    }
+
+    private fun allowAccess(view: WebView?) {
+        val allowAccessScript = """
+        (function () {
+  try {
+    var attempts = 0;
+
+    function tryClick() {
+      var formContainer = document.getElementById('react-container');
+      if (!formContainer) return "Error: Form container not found";
+
+      var button = formContainer.querySelector('button.btn.btn-primary');
+      if (button) {
+        button.click();
+        return "Allow access clicked";
+      }
+
+      if (attempts < 20) { // wait up to ~2 seconds
+        attempts++;
+        setTimeout(tryClick, 100);
+      }
+    }
+
+    tryClick();
+    return "Waiting for Allow access button...";
+  } catch (e) {
+    return "Error: " + e.message;
+  }
+})();
+
+    """.trimIndent()
+
+        view?.evaluateJavascript(allowAccessScript) { result ->
+            Logger.d(TAG, "Allow access result: $result")
+            //Changing variable as this redirects to login page again
+            hasTriedRedirectToLoginEndpoint = false
+        }
+    }
+
+    private fun checkForEmailVerificationError(view: WebView?, noErrorLambda: () -> Unit) {
+        val errorScript = """
+        (function () {
+          try {
+            var errorElement = document.querySelector('.alert.alert-danger');
+            return errorElement ? errorElement.textContent.trim() : null;
+          } catch (e) {
+            return "Error: " + e.message;
+          }
+        })();
+    """.trimIndent()
+
+        view?.evaluateJavascript(errorScript) { result ->
+            if (result != "null" && result != null) {
+                var errorMsg = result.removePrefix("\"").removeSuffix("\"")
+                if (errorMsg.contains("verify the email before proceeding"))
+                    errorMsg = "Email is not verified or already in use. Please check your inbox."
+                Logger.e(TAG, "Error in logging in $errorMsg")
+                onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                    actualResponse = errorMsg
+                }))
+            } else {
+                noErrorLambda()
+            }
+        }
     }
 }

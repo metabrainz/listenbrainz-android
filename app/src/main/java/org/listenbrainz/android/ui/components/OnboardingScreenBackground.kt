@@ -31,7 +31,8 @@ fun OnboardingScreenBackground(backStack: NavBackStack){
             NavigationItem.OnboardingScreens.LoginScreen,
             NavigationItem.OnboardingScreens.LoginConsentScreen,
             NavigationItem.OnboardingScreens.PermissionScreen,
-            NavigationItem.OnboardingScreens.ListeningAppScreen
+            NavigationItem.OnboardingScreens.ListeningAppScreen,
+            NavigationItem.CreateAccountScreen
         ),
             transitionSpec = {createSlideTransition(
                 enterAnimDurationMs = 100
