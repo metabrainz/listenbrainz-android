@@ -87,6 +87,17 @@ android {
         }
     }
 
+    flavorDimensions += "version"
+    productFlavors {
+        create("playstore") {
+            dimension = "version"
+        }
+
+        create("github") {
+            dimension = "version"
+        }
+    }
+
     buildFeatures {
         compose = true
         viewBinding = true

@@ -4,6 +4,7 @@ import android.app.Application
 import android.net.Uri
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,6 +21,7 @@ import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Utils.isNewerVersion
+import org.listenbrainz.android.R
 import java.io.File
 import javax.inject.Inject
 
@@ -369,8 +371,8 @@ class AppUpdatesViewModel @Inject constructor(
     }
 
     private fun installApk(uri: Uri) {
+        val context = getApplication<Application>()
         try {
-            val context = getApplication<Application>()
             val intent = android.content.Intent(android.content.Intent.ACTION_VIEW).apply {
                 setDataAndType(uri, "application/vnd.android.package-archive")
                 addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -381,6 +383,7 @@ class AppUpdatesViewModel @Inject constructor(
             Log.d(TAG, "APK installation started")
         } catch (e: Exception) {
             Log.e(TAG, "Error starting APK installation", e)
+            Toast.makeText(context, context.getString(R.string.error_apk_install), Toast.LENGTH_SHORT).show()
         }
     }
 

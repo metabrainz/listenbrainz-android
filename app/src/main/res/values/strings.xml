@@ -285,4 +285,5 @@ If you prefer to maintain the security verification provided by your app store, 
 If you installed the app from a trusted app store, updating from GitHub will skip the store’s usual security checks.
 For added safety, you can continue updating through your preferred app store instead.
     </string>
+    <string name="error_apk_install">Error starting APK installation</string>
 </resources>
