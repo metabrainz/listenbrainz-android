@@ -351,10 +351,7 @@ private fun ListenBrainzClient(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
-            fun clearCookies() {
-                CookieManager.getInstance().removeAllCookies(null)
-                CookieManager.getInstance().flush()
-            }
+
             // Configure WebView
             settings.apply {
                 javaScriptEnabled = true
@@ -363,7 +360,8 @@ private fun ListenBrainzClient(
             }
 
             // Clear cookies
-            clearCookies()
+            CookieManager.getInstance().removeAllCookies(null)
+            CookieManager.getInstance().flush()
 
             webViewClient = ListenBrainzWebClient(
                 onLoad = onLoad,

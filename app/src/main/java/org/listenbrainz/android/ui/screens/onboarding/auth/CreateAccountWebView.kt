@@ -41,23 +41,12 @@ fun CreateAccountWebViewClient(
 
                 settings.apply {
                     javaScriptEnabled = true
-                    domStorageEnabled = true
-                    databaseEnabled = true
-                    setSupportZoom(false)
-                    allowContentAccess = true
-                    allowFileAccess = true
                     setSupportMultipleWindows(false)
                     javaScriptCanOpenWindowsAutomatically = false
                 }
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    CookieManager.getInstance().removeAllCookies(null)
-                } else {
-                    val cookieSyncManager = CookieSyncManager.createInstance(context)
-                    cookieSyncManager.startSync()
-                    CookieManager.getInstance().removeAllCookie()
-                    cookieSyncManager.stopSync()
-                }
+                CookieManager.getInstance().removeAllCookies(null)
+                CookieManager.getInstance().flush()
 
                 clearCache(true)
                 clearHistory()

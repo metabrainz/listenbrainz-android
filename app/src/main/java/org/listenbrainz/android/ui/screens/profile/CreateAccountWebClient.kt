@@ -10,6 +10,7 @@ import android.webkit.WebViewClient
 import com.limurse.logger.Logger
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.util.Resource
+import androidx.core.net.toUri
 
 private const val TAG = "CreateAccountWebClient"
 
@@ -31,7 +32,7 @@ class CreateAccountWebClient(
         super.onPageStarted(view, url, favicon)
 
         url?.let {
-            val uri = Uri.parse(it)
+            val uri = it.toUri()
             currentPage = when {
                 uri.host == "musicbrainz.org" && uri.path == "/register" ->
                     "Connecting to MusicBrainz registration..."
@@ -71,7 +72,7 @@ class CreateAccountWebClient(
             return
         }
 
-        val uri = Uri.parse(url)
+        val uri = url.toUri()
         Logger.d(TAG, "Page loaded: ${uri.host}${uri.path}")
 
         when {
