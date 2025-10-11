@@ -38,9 +38,10 @@ fun AuthUsernameField(
     username: String,
     onUsernameChange: (String) -> Unit,
     onNext: () -> Unit,
+    modifier: Modifier = Modifier,
+    contentType: ContentType = ContentType.Username,
     showPublicVisibilityNote: Boolean = false,
     focusRequester: FocusRequester? = null,
-    modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier) {
         Text(
@@ -63,7 +64,7 @@ fun AuthUsernameField(
             modifier = Modifier
                 .fillMaxWidth()
                 .let { if (focusRequester != null) it.focusRequester(focusRequester) else it }
-                .semantics { contentType = ContentType.Username },
+                .semantics { this.contentType = contentType },
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
                 cursorColor = ListenBrainzTheme.colorScheme.text,
@@ -103,7 +104,8 @@ fun AuthEmailField(
     onEmailChange: (String) -> Unit,
     focusRequester: FocusRequester,
     onNext: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    contentType: ContentType = ContentType.EmailAddress,
 ) {
     Column(modifier = modifier) {
         Text(
@@ -126,7 +128,7 @@ fun AuthEmailField(
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester)
-                .semantics { contentType = ContentType.EmailAddress },
+                .semantics { this.contentType = contentType },
             singleLine = true,
             colors = OutlinedTextFieldDefaults.colors(
                 cursorColor = ListenBrainzTheme.colorScheme.text,
@@ -154,11 +156,12 @@ fun AuthPasswordField(
     password: String,
     onPasswordChange: (String) -> Unit,
     focusRequester: FocusRequester,
+    modifier: Modifier = Modifier,
     onNext: (() -> Unit)? = null,
+    contentType: ContentType = ContentType.Password,
     onDone: (() -> Unit)? = null,
     label: String = "Password",
     placeholder: String = "Enter your password",
-    modifier: Modifier = Modifier
 ) {
     var passwordVisibility by remember { mutableStateOf(false) }
 
@@ -183,7 +186,7 @@ fun AuthPasswordField(
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester)
-                .semantics { contentType = ContentType.Password },
+                .semantics { this.contentType = contentType },
             singleLine = true,
             visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
             colors = OutlinedTextFieldDefaults.colors(

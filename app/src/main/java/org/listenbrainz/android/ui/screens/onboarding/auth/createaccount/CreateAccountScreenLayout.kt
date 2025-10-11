@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalAutofillManager
@@ -240,6 +241,7 @@ private fun CreateAccountForm(
         AuthUsernameField(
             username = username,
             onUsernameChange = onUsernameChange,
+            contentType = ContentType.NewUsername,
             onNext = { emailFocusRequester.requestFocus() },
             showPublicVisibilityNote = true
         )
@@ -268,6 +270,7 @@ private fun CreateAccountForm(
             password = confirmPassword,
             onPasswordChange = onConfirmPasswordChange,
             focusRequester = confirmPasswordFocusRequester,
+            contentType = ContentType.NewPassword,
             onDone = onCreateAccountClick,
             label = "Confirm Password",
             placeholder = "Confirm your password",
