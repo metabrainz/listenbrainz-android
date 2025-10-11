@@ -55,7 +55,7 @@ data class ColorScheme(
     val text: Color,
     val listenText: Color,
     /** Used for stars.*/
-    val golden: Color = Color(0xFFF9A825),
+    val golden: Color,
     val hint: Color,
     /** Used for BP **/
     val gradientBrush: Brush,
@@ -129,6 +129,7 @@ private val colorSchemeDark = ColorScheme(
             Color.Transparent
         )
     ),
+    golden = Color(0xFFF9A825),
     followerChipSelected = lb_purple_night,
     followerChipUnselected = app_bg_dark,
     followerCardColor = app_bg_secondary_dark,
@@ -171,6 +172,7 @@ private val colorSchemeLight = ColorScheme(
             Color.Transparent
         )
     ),
+    golden = Color(0xFFD39214),
     followerChipSelected = lb_purple,
     followerChipUnselected = Color.White,
     followerCardColor = Color.White,

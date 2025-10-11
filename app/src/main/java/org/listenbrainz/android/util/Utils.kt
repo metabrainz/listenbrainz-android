@@ -44,8 +44,10 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -250,6 +252,13 @@ object Utils {
     fun Dp.toPx(density: Int) = this.value * density
 
     @Composable
+    fun TextUnit.toDp() = with(LocalDensity.current) { this@toDp.toDp() }
+    fun TextUnit.toDp(context: Context) {
+        val density = Density(context)
+        return with(density) { this@toDp.toDp() }
+    }
+
+    @Composable
     fun SetSystemBarsForegroundAppearance(lightAppearance: Boolean) {
         val view = LocalView.current
 
@@ -313,12 +322,12 @@ object Utils {
         val musicAppsPackages = mutableListOf<ApplicationInfo>()
         intents.forEach { intentString->
             val services = packageManager.queryIntentServices(Intent(intentString), PackageManager.GET_META_DATA)
-            for(resolveInfo in services){
+            for (resolveInfo in services){
                 val packageName = resolveInfo.serviceInfo.packageName
                 val appInfo = packageManager.getApplicationInfo(packageName, 0)
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
                     val category = packageManager.getApplicationInfo(packageName, 0).category
-                    if(category == ApplicationInfo.CATEGORY_AUDIO || category == ApplicationInfo.CATEGORY_VIDEO){
+                    if (category == ApplicationInfo.CATEGORY_AUDIO || category == ApplicationInfo.CATEGORY_VIDEO){
                         musicAppsPackages.add(appInfo)
                     }
                 }else{

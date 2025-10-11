@@ -191,9 +191,13 @@ class DashBoardViewModel @Inject constructor(
             appPreferences.listeningApps.set(updatedListeningApps)
 
             //Adding all installed apps to the list
-            val allApps = getAppInfoFromPackageNames(context, context.getAllInstalledApps().map {
-                it.packageName
-            }, isListening = false)
+            val allApps = getAppInfoFromPackageNames(
+                context = context,
+                packages = context
+                    .getAllInstalledApps()
+                    .map { it.packageName },
+                isListening = false
+            )
                 .filter {
                     it.packageName !in updatedListeningApps
                 }

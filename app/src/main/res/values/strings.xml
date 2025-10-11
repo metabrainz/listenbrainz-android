@@ -276,4 +276,13 @@
         a confirmed listen. Stats are calculated in real time using this data which makes real time behavior of the app important.</string>
     <string name="github_app_update">The update will be downloaded in the background. We\'ll notify once the update is downloaded.</string>
     <string name="app_update_disclaimer">Youtube Music playback is not supported on non-playstore builds.</string>
+    <string name="app_update_risk_disclaimer">
+        Updates for the app are downloaded directly from ListenBrainz Android\'s GitHub repository. This means that if you’ve installed the app from a trusted app store, the usual security checks performed by that store will be bypassed when updating through GitHub.
+If you prefer to maintain the security verification provided by your app store, you can continue updating the app through that store instead.
+    </string>
+    <string name="app_update_risk_disclaimer_short">
+        App updates come directly from our official ListenBrainz Android GitHub repository.
+If you installed the app from a trusted app store, updating from GitHub will skip the store’s usual security checks.
+For added safety, you can continue updating through your preferred app store instead.
+    </string>
 </resources>
