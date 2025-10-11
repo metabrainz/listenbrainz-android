@@ -313,12 +313,12 @@ object Utils {
         val musicAppsPackages = mutableListOf<ApplicationInfo>()
         intents.forEach { intentString->
             val services = packageManager.queryIntentServices(Intent(intentString), PackageManager.GET_META_DATA)
-            for(resolveInfo in services){
+            for (resolveInfo in services){
                 val packageName = resolveInfo.serviceInfo.packageName
                 val appInfo = packageManager.getApplicationInfo(packageName, 0)
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
                     val category = packageManager.getApplicationInfo(packageName, 0).category
-                    if(category == ApplicationInfo.CATEGORY_AUDIO || category == ApplicationInfo.CATEGORY_VIDEO){
+                    if (category == ApplicationInfo.CATEGORY_AUDIO || category == ApplicationInfo.CATEGORY_VIDEO){
                         musicAppsPackages.add(appInfo)
                     }
                 }else{
