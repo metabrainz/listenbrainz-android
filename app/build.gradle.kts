@@ -15,6 +15,20 @@ val keystorePropertiesFile = rootProject.file("keystore.properties")
 val localPropertiesFile = rootProject.file("local.properties")
 
 android {
+    val major = "major"
+    val minor = "minor"
+    val patch = "patch"
+    val build = "build"
+
+    val versionMap = mapOf(
+        major to 2,
+        minor to 9,
+        patch to 6,
+        build to 0
+    )
+    fun versionCode() = versionMap[major]!! * 10000 + versionMap[minor]!! * 100 + versionMap[patch]!! * 10 + versionMap[build]!! * 1
+    fun versionName() = "${versionMap[major]}.${versionMap[minor]}.${versionMap[patch]}.${versionMap[build]}"
+
     namespace = "org.listenbrainz.android"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
@@ -22,8 +36,8 @@ android {
         applicationId = "org.listenbrainz.android"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 67
-        versionName = "2.9.5"
+        versionCode = versionCode()
+        versionName = versionName()
         multiDexEnabled = true
         testInstrumentationRunner = "org.listenbrainz.android.di.CustomTestRunner"
         vectorDrawables {
