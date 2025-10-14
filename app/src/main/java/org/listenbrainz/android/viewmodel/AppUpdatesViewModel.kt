@@ -1,12 +1,15 @@
 package org.listenbrainz.android.viewmodel
 
+import android.Manifest
 import android.app.Application
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,18 +55,10 @@ class AppUpdatesViewModel @Inject constructor(
 
     private fun checkInstallSource() {
         viewModelScope.launch {
-            val currentInstallSource = appPreferences.installSource.get()
-
-            if (currentInstallSource == InstallSource.NOT_CHECKED) {
-                val detectedSource = appUpdatesRepository.detectInstallSource(getApplication())
-                Log.d(TAG, "Detected install source: $detectedSource")
-                appPreferences.installSource.set(detectedSource)
-            } else {
-                Log.d(
-                    TAG,
-                    "Install source already checked: $currentInstallSource"
-                )
-            }
+            // Always check for install source.
+            val detectedSource = appUpdatesRepository.detectInstallSource(getApplication())
+            Log.d(TAG, "Detected install source: $detectedSource")
+            appPreferences.installSource.set(detectedSource)
         }
     }
 
@@ -104,7 +99,7 @@ class AppUpdatesViewModel @Inject constructor(
     }
 
     fun checkForGithubUpdates(onUpdateNotAvailable: ()-> Unit = {}) {
-        viewModelScope.launch() {
+        viewModelScope.launch {
             val installSource = appPreferences.installSource.get()
             val currentLaunchCount = appPreferences.appLaunchCount.get()
             val currentVersion = appPreferences.version
@@ -293,10 +288,24 @@ class AppUpdatesViewModel @Inject constructor(
 
     private fun checkInstallPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val packageManager = getApplication<Application>().packageManager
-            val hasInstallPermission = packageManager.canRequestPackageInstalls()
-            _uiState.update {
-                it.copy(isInstallPermissionGranted = hasInstallPermission)
+            val pm = application.packageManager
+            try {
+                val permissions = pm.getPackageInfo(application.packageName, PackageManager.GET_PERMISSIONS)
+                val hasRequestInstallPackagePerm =  Manifest.permission.REQUEST_INSTALL_PACKAGES in permissions.requestedPermissions.orEmpty()
+
+                val hasInstallPermission = if (hasRequestInstallPackagePerm) {
+                     pm.canRequestPackageInstalls()
+                } else {
+                    false
+                }
+                _uiState.update {
+                    it.copy(isInstallPermissionGranted = hasInstallPermission)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, e.message, e)
+                _uiState.update {
+                    it.copy(isInstallPermissionGranted = false)
+                }
             }
         } else {
             // For older versions, permission is granted by default
