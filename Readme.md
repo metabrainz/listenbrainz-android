@@ -47,6 +47,10 @@ When you use the ListenBrainz Android app, you need to create an account with Li
 ## Downloading
 
 * [Google Play Store](https://play.google.com/store/apps/details?id=org.listenbrainz.android)
+
+## Certificate fingerprints:
+- SHA1: `6D:0E:F9:04:F0:DC:B8:3B:3B:D9:00:25:AA:25:A2:85:1E:0E:04:48`
+- SHA256: `51:B0:14:11:17:BF:7F:8C:C8:94:6C:89:E6:16:9E:23:A5:FB:2A:74:05:A3:39:0A:E5:57:61:19:60:8B:4E:24`
 	    
 ## Contributing
 	  
