@@ -10,9 +10,7 @@ import android.os.PowerManager
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import kotlinx.coroutines.flow.first
 import org.listenbrainz.android.R
-import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
 
 /**
  * Enum class to manage permissions in the app.
@@ -74,15 +72,6 @@ enum class PermissionEnum(
         minSdk = 23
     ),
 
-    CRASH_REPORTING(
-        permission = "CRASH_REPORTING",
-        title = "Send crash reports",
-        permanentlyDeclinedRationale = "You can still use the app without sending crash data.",
-        rationaleText = "Help improve ListenBrainz by automatically sending anonymous crash data.",
-        image = R.drawable.ic_crash,
-        minSdk = 0
-    ),
-
     WRITE_EXTERNAL_STORAGE(
         permission = Manifest.permission.WRITE_EXTERNAL_STORAGE,
         title = "Write External Storage",
@@ -114,7 +103,7 @@ enum class PermissionEnum(
                   !activity.shouldShowRequestPermissionRationale(permission) && ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED
                 else false
             }
-            READ_NOTIFICATIONS, BATTERY_OPTIMIZATION, CRASH_REPORTING->false
+            READ_NOTIFICATIONS, BATTERY_OPTIMIZATION->false
         }
     }
 
@@ -136,18 +125,6 @@ enum class PermissionEnum(
                 val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
                 powerManager.isIgnoringBatteryOptimizations(context.packageName)
             }
-            CRASH_REPORTING -> {
-                // Blocking read from DataStorePreference<Boolean> for onboarding checks
-                val pref = AppPreferencesImpl(context).isCrashReportingEnabled
-                var result = true
-                runCatching {
-                    kotlinx.coroutines.runBlocking {
-                        result = pref.getFlow().first()
-                    }
-                }
-                result
-            }
-
         }
     }
 
@@ -177,8 +154,6 @@ enum class PermissionEnum(
                 if (intent.resolveActivity(activity.packageManager) != null) {
                     activity.startActivity(intent)
                 }
-            }
-            CRASH_REPORTING -> {
             }
         }
     }
