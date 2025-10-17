@@ -47,8 +47,6 @@ interface AppPreferences {
     /** Default is false. */
     val shouldListenNewPlayers: DataStorePreference<Boolean>
 
-    val isCrashReportingEnabled: DataStorePreference<Boolean>
-
     val isNotificationServiceAllowed: Boolean
     
     /* BrainzPlayer Preferences */

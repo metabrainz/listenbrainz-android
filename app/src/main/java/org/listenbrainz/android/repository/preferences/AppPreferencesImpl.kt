@@ -139,7 +139,6 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
             val LAST_UPDATE_PROMPT_LAUNCH_COUNT =
                 stringPreferencesKey(Constants.Strings.PREFERENCE_LAST_UPDATE_PROMPT_LAUNCH_COUNT)
             val GITHUB_DOWNLOAD_ID = longPreferencesKey(Constants.Strings.PREFERENCE_DOWNLOAD_ID)
-            val IS_CRASH_REPORTING_ENABLED = booleanPreferencesKey(Constants.Strings.CRASH_REPORT_ENABLED)
         }
 
         fun String?.asStringList(): List<String> {
@@ -263,19 +262,6 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
             override suspend fun set(value: Boolean) {
                 context.dataStore.edit { prefs ->
                     prefs[SHOULD_LISTEN_NEW_PLAYERS] = value
-                }
-            }
-        }
-
-    override val isCrashReportingEnabled: DataStorePreference<Boolean>
-        get() = object : DataStorePreference<Boolean> {
-            override fun getFlow(): Flow<Boolean> =
-                datastore.map { prefs ->
-                    prefs[PreferenceKeys.IS_CRASH_REPORTING_ENABLED] ?: true
-                }
-            override suspend fun set(value: Boolean) {
-                context.dataStore.edit { prefs ->
-                    prefs[PreferenceKeys.IS_CRASH_REPORTING_ENABLED] = value
                 }
             }
         }

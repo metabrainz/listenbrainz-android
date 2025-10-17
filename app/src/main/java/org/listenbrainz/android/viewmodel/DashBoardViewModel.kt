@@ -11,7 +11,6 @@ import androidx.core.graphics.createBitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.sentry.Sentry
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -68,22 +67,6 @@ class DashBoardViewModel @Inject constructor(
                         isLoading = false
                     )
                 }
-            }
-        }
-    }
-
-    object CrashReporter {
-        var isEnabled: Boolean = true
-
-        fun logException(throwable: Throwable) {
-            if (isEnabled) {
-                Sentry.captureException(throwable)
-            }
-        }
-
-        fun logMessage(message: String) {
-            if (isEnabled) {
-                Sentry.captureMessage(message)
             }
         }
     }
@@ -339,29 +322,4 @@ class DashBoardViewModel @Inject constructor(
     fun disconnectSpotify() {
         viewModelScope.launch { remotePlaybackHandler.disconnectSpotify() }
     }
-
-    init {
-        observeCrashReportingPreference()
-    }
-
-    private fun observeCrashReportingPreference() {
-        viewModelScope.launch {
-            appPreferences.isCrashReportingEnabled.getFlow().collect { enabled ->
-                setCrashReportingEnabled(enabled)
-            }
-        }
-    }
-
-    private fun setCrashReportingEnabled(enabled: Boolean) {
-        CrashReporter.isEnabled = enabled
-        Log.d("Crash reporting ${if (enabled) "enabled" else "disabled"}")
-    }
-
-    fun toggleCrashReporting(enabled: Boolean) {
-        viewModelScope.launch(ioDispatcher) {
-            appPreferences.isCrashReportingEnabled.set(enabled)
-            // observer automatically updates CrashReporter.isEnabled
-        }
-    }
-
 }
