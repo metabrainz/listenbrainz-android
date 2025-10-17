@@ -10,7 +10,9 @@ import android.os.PowerManager
 import android.provider.Settings
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import kotlinx.coroutines.flow.first
 import org.listenbrainz.android.R
+import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
 
 /**
  * Enum class to manage permissions in the app.
@@ -72,6 +74,15 @@ enum class PermissionEnum(
         minSdk = 23
     ),
 
+    CRASH_REPORTING(
+        permission = "CRASH_REPORTING",
+        title = "Send crash reports",
+        permanentlyDeclinedRationale = "You can still use the app without sending crash data.",
+        rationaleText = "Help improve ListenBrainz by automatically sending anonymous crash data.",
+        image = R.drawable.ic_crash,
+        minSdk = 0
+    ),
+
     WRITE_EXTERNAL_STORAGE(
         permission = Manifest.permission.WRITE_EXTERNAL_STORAGE,
         title = "Write External Storage",
@@ -99,11 +110,11 @@ enum class PermissionEnum(
         return when(this){
             SEND_NOTIFICATIONS, ACCESS_MUSIC_AUDIO, READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE ->{
                 if(permissionsRequestedOnce.contains(permission) && Build.VERSION_CODES.M <= Build.VERSION.SDK_INT)
-                    //If the permission was requested once, then we can check if it is permanently declined
-                  !activity.shouldShowRequestPermissionRationale(permission) && ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED
+                //If the permission was requested once, then we can check if it is permanently declined
+                    !activity.shouldShowRequestPermissionRationale(permission) && ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED
                 else false
             }
-            READ_NOTIFICATIONS, BATTERY_OPTIMIZATION->false
+            READ_NOTIFICATIONS, BATTERY_OPTIMIZATION, CRASH_REPORTING->false
         }
     }
 
@@ -125,6 +136,18 @@ enum class PermissionEnum(
                 val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
                 powerManager.isIgnoringBatteryOptimizations(context.packageName)
             }
+            CRASH_REPORTING -> {
+                // Blocking read from DataStorePreference<Boolean> for onboarding checks
+                val pref = AppPreferencesImpl(context).isCrashReportingEnabled
+                var result = true
+                runCatching {
+                    kotlinx.coroutines.runBlocking {
+                        result = pref.getFlow().first()
+                    }
+                }
+                result
+            }
+
         }
     }
 
@@ -155,6 +178,8 @@ enum class PermissionEnum(
                     activity.startActivity(intent)
                 }
             }
+            CRASH_REPORTING -> {
+            }
         }
     }
 
@@ -165,8 +190,8 @@ enum class PermissionEnum(
         }
         fun getPermissionsForPermissionScreen(): List<PermissionEnum> = PermissionEnum.entries.filter {
             it.isPermissionApplicable() &&
-            it != READ_NOTIFICATIONS && // READ_NOTIFICATIONS is handled separately
-            it != BATTERY_OPTIMIZATION // BATTERY_OPTIMIZATION is handled separately
+                    it != READ_NOTIFICATIONS && // READ_NOTIFICATIONS is handled separately
+                    it != BATTERY_OPTIMIZATION // BATTERY_OPTIMIZATION is handled separately
         }
 
         fun getListOfPermissionsToBeLaunchedTogether(context: Activity, permissionsRequestedOnce: List<String>): Array<String>{

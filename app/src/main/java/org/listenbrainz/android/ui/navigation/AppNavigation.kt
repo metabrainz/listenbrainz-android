@@ -9,6 +9,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
@@ -23,6 +24,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import kotlinx.coroutines.flow.first
 import org.listenbrainz.android.model.AppNavigationItem
+import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
 import org.listenbrainz.android.ui.screens.album.AlbumScreen
 import org.listenbrainz.android.ui.screens.artist.ArtistScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen
@@ -31,6 +33,8 @@ import org.listenbrainz.android.ui.screens.feed.FeedScreen
 import org.listenbrainz.android.ui.screens.playlist.PlaylistDetailScreen
 import org.listenbrainz.android.ui.screens.profile.LoginScreen
 import org.listenbrainz.android.ui.screens.profile.ProfileScreen
+import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
+import org.listenbrainz.android.ui.screens.settings.SettingsCallbacks
 import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScreen
 import org.listenbrainz.android.ui.screens.settings.SettingsScreen
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
@@ -146,14 +150,27 @@ fun AppNavigation(
                 }
             )
         }
-        appComposable(
-            route = AppNavigationItem.Settings.route
-        ) {
+        appComposable(route = AppNavigationItem.Settings.route) {
             SettingsScreen(
-                dashBoardViewModel = dashBoardViewModel,
-                callbacks = settingsCallbacks
+                appPreferences = AppPreferencesImpl(LocalContext.current),
+                callbacks = SettingsCallbacks(
+                    logout = {},
+                    getVersion = { "1.0.0" },
+                    fetchLinkedServices = {},
+                    getPackageIcon = { null },
+                    getPackageLabel = { "" },
+                    setWhitelist = {},
+                    onLoginRequest = {},
+                    onOnboardingRequest = {},
+                    checkForUpdates = {}
+                ),
+                preferencesUiState = PreferencesUiState(),
+                isBatteryOptimizationPermissionGranted = false,
+                topBarActions = topAppBarActions,
+                dashBoardViewModel = dashBoardViewModel
             )
         }
+
         appComposable(
             route = "${AppNavigationItem.Artist.route}/{mbid}",
             arguments = listOf(

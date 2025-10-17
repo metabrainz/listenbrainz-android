@@ -319,8 +319,6 @@ fun SettingsScreen(
                     dashBoardViewModel.toggleCrashReporting(checked)
                 }
             }
-            HorizontalDivider()
-
 
             HorizontalDivider()
 
