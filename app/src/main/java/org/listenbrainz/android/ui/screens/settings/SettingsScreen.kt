@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.screens.settings
 
 import android.content.Intent
-import android.content.res.Configuration
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.LocalActivity
@@ -43,20 +42,15 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import com.limurse.logger.Logger
-import com.limurse.logger.util.FileIntent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.UiMode
@@ -78,9 +72,11 @@ import org.listenbrainz.android.viewmodel.SettingsViewModel
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     listensViewModel: ListensViewModel = hiltViewModel(),
-    dashBoardViewModel: DashBoardViewModel,
+//    dashBoardViewModel: DashBoardViewModel = hiltViewModel(),
     callbacks: SettingsCallbacksToHomeScreen
 ) {
+    val dashBoardViewModel: DashBoardViewModel = hiltViewModel()
+
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val isBatteryOptimizationPermissionGranted =
         permissions[PermissionEnum.BATTERY_OPTIMIZATION] == PermissionStatus.GRANTED
@@ -102,7 +98,9 @@ fun SettingsScreen(
             )
         },
         isBatteryOptimizationPermissionGranted = isBatteryOptimizationPermissionGranted,
-        topBarActions = callbacks.topBarActions
+        topBarActions = callbacks.topBarActions,
+        dashBoardViewModel = dashBoardViewModel
+
     )
 }
 
@@ -112,7 +110,8 @@ fun SettingsScreen(
     callbacks: SettingsCallbacks,
     preferencesUiState: PreferencesUiState,
     isBatteryOptimizationPermissionGranted: Boolean = true,
-    topBarActions: TopBarActions
+    topBarActions: TopBarActions,
+    dashBoardViewModel: DashBoardViewModel
 ) {
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
@@ -134,6 +133,10 @@ fun SettingsScreen(
     val shouldListenNewPlayers by appPreferences.shouldListenNewPlayers.getFlow()
         .collectAsState(initial = false)
     val indentedModifier = Modifier.padding(start = 16.dp)
+
+    val preferences = AppPreferencesImpl(LocalContext.current)
+    val sentryOptIn by preferences.isCrashReportingEnabled.getFlow().collectAsState(initial = true)
+    val coroutineScope = rememberCoroutineScope()
 
     LifecycleResumeEffect(key1 = Unit) {
         scope.launch {
@@ -192,7 +195,6 @@ fun SettingsScreen(
                     val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
                     context.startActivity(intent)
                 }
-
 
                 AnimatedVisibility(isNotificationServiceAllowed && submitListensCheckedState) {
                     Column(
@@ -301,6 +303,23 @@ fun SettingsScreen(
                 subtitle = "Submit app logs for further investigation",
                 enabled = isNotificationServiceAllowed
             )
+            HorizontalDivider()
+
+            val crashReportingEnabled by appPreferences.isCrashReportingEnabled
+                .getFlow()
+                .collectAsState(initial = false)
+
+            SettingsSwitchOption(
+                title = "Send crash reports",
+                subtitle = "Help improve ListenBrainz by automatically sending anonymous crash data",
+                isChecked = crashReportingEnabled
+            ) { checked ->
+                scope.launch {
+                    appPreferences.isCrashReportingEnabled.set(checked)
+                    dashBoardViewModel.toggleCrashReporting(checked)
+                }
+            }
+            HorizontalDivider()
 
 
             HorizontalDivider()
@@ -475,26 +494,29 @@ fun SettingsScreen(
         }
     }
 }
-@Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun SettingsScreenPreview() {
-    ListenBrainzTheme {
-        SettingsScreen(
-            appPreferences = AppPreferencesImpl(LocalContext.current),
-            preferencesUiState = PreferencesUiState(),
-            callbacks = SettingsCallbacks(
-                logout = {},
-                getVersion = { "1.0.0" },
-                fetchLinkedServices = {},
-                getPackageIcon = { null },
-                getPackageLabel = { "" },
-                setWhitelist = {},
-                onLoginRequest = {},
-                onOnboardingRequest = {},
-                checkForUpdates = {}
-            ),
-            topBarActions = TopBarActions()
-        )
-    }
-}
+
+//@Preview
+//@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+//@Composable
+//fun SettingsScreenPreview() {
+//    ListenBrainzTheme {
+//        SettingsScreen(
+//            appPreferences = AppPreferencesImpl(LocalContext.current),
+//            preferencesUiState = PreferencesUiState(),
+//            callbacks = SettingsCallbacks(
+//                logout = {},
+//                getVersion = { "1.0.0" },
+//                fetchLinkedServices = {},
+//                getPackageIcon = { null },
+//                getPackageLabel = { "" },
+//                setWhitelist = {},
+//                onLoginRequest = {},
+//                onOnboardingRequest = {},
+//                checkForUpdates = {}
+//            ),
+//            topBarActions = TopBarActions(),
+//            isBatteryOptimizationPermissionGranted = true,
+//            dashBoardViewModel = TODO()
+//        )
+//    }
+//}
