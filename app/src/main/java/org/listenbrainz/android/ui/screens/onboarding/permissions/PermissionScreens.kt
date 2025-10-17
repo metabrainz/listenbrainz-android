@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation3.runtime.rememberNavBackStack
+import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.components.FloatingContentAwareLayout
@@ -56,7 +58,8 @@ fun PermissionScreen(dashBoardViewModel: DashBoardViewModel = hiltViewModel(),
     val activity = LocalActivity.current
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val permissionsRequestedOnce by dashBoardViewModel.permissionsRequestedAteastOnce.collectAsState()
-    val filteredPermissions = permissions.filter { it.key != PermissionEnum.BATTERY_OPTIMIZATION && it.key != PermissionEnum.READ_NOTIFICATIONS }
+    val filteredPermissions = permissions.filter { it.key != PermissionEnum.BATTERY_OPTIMIZATION && it.key != PermissionEnum.READ_NOTIFICATIONS &&
+            it.key != PermissionEnum.CRASH_REPORTING  }
 
     LaunchedEffect(filteredPermissions) {
         if (filteredPermissions.isEmpty() || filteredPermissions.all { it.value == PermissionStatus.GRANTED }) {
@@ -154,6 +157,25 @@ private fun PermissionScreenBase(
                         Spacer(Modifier.height(32.dp))
                     }
                 }
+
+                item {
+                    Spacer(Modifier.height(32.dp))
+                    Text(
+                        text = "Crash Reporting",
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = "Help us improve ListenBrainz by sharing crash reports (powered by Sentry). You can change this later in Settings.",
+                        color = Color.White.copy(alpha = 0.7f),
+                        fontSize = 16.sp
+                    )
+                    Spacer(Modifier.height(16.dp))
+                    CrashReportingToggle()
+                }
+
                 item{
                     Spacer(Modifier.height(buttonSize.height + 16.dp)) // Add space for the floating button
                 }
@@ -236,6 +258,37 @@ fun PermissionCard(
     }
 }
 
+@Composable
+fun CrashReportingToggle(viewModel: DashBoardViewModel = hiltViewModel()) {
+    val isEnabled by viewModel.appPreferences.isCrashReportingEnabled.getFlow()
+        .collectAsState(initial = true)
+    val coroutineScope = rememberCoroutineScope()
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                ListenBrainzTheme.colorScheme.background.copy(alpha = 0.75f),
+                shape = ListenBrainzTheme.shapes.listenCardSmall
+            )
+            .padding(20.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = if (isEnabled) "Crash Reporting Enabled" else "Enable Crash Reporting",
+            color = ListenBrainzTheme.colorScheme.text,
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            modifier = Modifier.weight(1f)
+        )
+        androidx.compose.material3.Switch(
+            checked = isEnabled,
+            onCheckedChange = {
+                viewModel.toggleCrashReporting(it)
+            }
+        )
+    }
+}
 
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
