@@ -289,7 +289,7 @@ open class ListenSubmissionState {
                 .setAutoCancel(false)
                 .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setVisibility(NotificationCompat.VISIBILITY_SECRET)
                 .setColorized(true)
                 .setColor(ContextCompat.getColor(context, R.color.lb_purple))
 
