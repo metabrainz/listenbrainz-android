@@ -230,7 +230,7 @@ fun BrainzPlayerBackDropScreen(
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .graphicsLayer() {
+                                .graphicsLayer {
                                     val value =
                                         (backdropScaffoldState.requireOffset() / (maxDelta - headerHeight.toPx()))
                                     alpha =
@@ -314,7 +314,7 @@ fun PlayerScreen(
             }
         }
     }
-    
+
     val checkedSongs = rememberSaveable(
         saver = listSaver(
             save = { it.toList() },
