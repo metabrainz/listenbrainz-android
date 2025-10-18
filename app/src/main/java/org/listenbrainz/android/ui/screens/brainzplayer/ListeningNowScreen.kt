@@ -236,7 +236,7 @@ fun ListeningNowCard(
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .background(ListenBrainzTheme.colorScheme.background)
+                .background(ListenBrainzTheme.colorScheme.level2)
                 .clickable {
                     coroutineScope.launch {
                         backdropScaffoldState.conceal()

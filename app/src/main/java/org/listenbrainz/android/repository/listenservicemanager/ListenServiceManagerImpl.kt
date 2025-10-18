@@ -12,6 +12,8 @@ import android.service.notification.StatusBarNotification
 import android.text.SpannableString
 import androidx.work.WorkManager
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,24 +30,19 @@ import org.listenbrainz.android.util.Log
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** The sole responsibility of this layer is to maintain mutual exclusion between [onMetadataChanged] and
+/**
+ * The sole responsibility of this layer is to maintain mutual exclusion between [onMetadataChanged] and
  * [onNotificationPosted], filter out repetitive submissions and handle changes in settings which concern
  * listening.
- *
- * FUTURE: Call notification popups here as well.*/
+ */
 @Singleton
 class ListenServiceManagerImpl @Inject constructor(
     workManager: WorkManager,
-    private val appPreferences: AppPreferences,
+    appPreferences: AppPreferences,
     @ApplicationContext private val context: Context
 ) : ListenServiceManager {
-
     private val handler: Handler = Handler(Looper.getMainLooper())
     override val listenSubmissionState = ListenSubmissionState(handler, workManager, context)
-
-    //private val jobQueue: JobQueue by lazy { JobQueue(defaultDispatcher) }
-    //private val listenSubmissionState = ListenSubmissionState(jobQueue, workManager, context)
-    private val scope = MainScope()
 
     /** Used to avoid repetitive submissions.*/
     private var lastCallbackTs = System.currentTimeMillis()
@@ -63,7 +60,7 @@ class ListenServiceManagerImpl @Inject constructor(
             }
         }
         .stateIn(
-            scope,
+            GlobalScope,
             SharingStarted.Eagerly,
             emptyList()
         )
@@ -77,7 +74,7 @@ class ListenServiceManagerImpl @Inject constructor(
             }
         }
         .stateIn(
-            scope,
+            GlobalScope,
             SharingStarted.Eagerly,
             false,
         )
@@ -109,8 +106,10 @@ class ListenServiceManagerImpl @Inject constructor(
     }
 
     override fun onPlaybackStateChanged(state: PlaybackState?) {
-        state?.isPlaying?.let {
-            listenSubmissionState.alertPlaybackStateChanged(it)
+        handler.post {
+            state?.isPlaying?.let {
+                listenSubmissionState.alertPlaybackStateChanged(it)
+            }
         }
     }
 
@@ -119,9 +118,7 @@ class ListenServiceManagerImpl @Inject constructor(
             if (!isListeningAllowed.value) return@post
 
             val mediaSessionToken = sbn
-                ?.notification
-                ?.extras
-                ?.getParcelable<MediaSession.Token>(Notification.EXTRA_MEDIA_SESSION)
+                ?.mediaSessionToken
                 ?: return@post
 
             val controller = MediaController(context, mediaSessionToken)
@@ -173,19 +170,15 @@ class ListenServiceManagerImpl @Inject constructor(
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
-        scope.launch {
-            if (!isListeningAllowed.value) return@launch
+        handler.post {
+            if (!isListeningAllowed.value) return@post
 
-            if (sbn?.notification?.category == Notification.CATEGORY_TRANSPORT
-                && sbn.packageName in appPreferences.listeningWhitelist.get()
+            if (sbn?.isMediaPlayerNotification == true
+                && sbn.packageName in whitelist.value
             ) {
-                listenSubmissionState.alertMediaPlayerRemoved(sbn)
+                listenSubmissionState.alertMediaPlayerRemoved(sbn.packageName)
             }
         }
-    }
-
-    override fun close() {
-        scope.cancel()
     }
 
     companion object {
@@ -216,5 +209,13 @@ class ListenServiceManagerImpl @Inject constructor(
             get() = notification.`when`.let {
                 if (it == 0L) System.currentTimeMillis() else it
             }
+
+        val StatusBarNotification.mediaSessionToken
+            get() = notification
+                ?.extras
+                ?.getParcelable<MediaSession.Token>(Notification.EXTRA_MEDIA_SESSION)
+
+        val StatusBarNotification.isMediaPlayerNotification
+            get() = notification?.extras?.getString(Notification.EXTRA_TEMPLATE) == "android.app.Notification\$MediaStyle"
     }
 }

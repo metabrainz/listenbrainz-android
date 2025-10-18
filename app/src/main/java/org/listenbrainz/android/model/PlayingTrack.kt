@@ -7,7 +7,7 @@ import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractDura
 import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractReleaseName
 import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractTitle
 
-/** Track metadata class for Listen Scrobble service.*/
+/** Track metadata class for Listen service.*/
 data class PlayingTrack(
     var artist: String? = null,
     var title: String? = null,
@@ -28,22 +28,10 @@ data class PlayingTrack(
     fun isNothing(): Boolean = artist == null && title == null
     
     fun isSubmitted(): Boolean = submitted
-    
-    /** Determines if this track is a notification scrobbled track or not.*/
+
     fun isDurationAbsent(): Boolean = duration <= 0L
     
     fun isDurationPresent(): Boolean = !isDurationAbsent()
-
-    fun reset() {
-        artist = null
-        title = null
-        releaseName = null
-        timestamp = 0
-        duration = 0
-        pkgName = null
-        playingNowSubmitted = false
-        submitted = false
-    }
     
     /** Similar means that the basic metadata matches. A song if replayed will be similar.*/
     fun isSimilarTo(other: Any): Boolean {
@@ -90,6 +78,8 @@ data class PlayingTrack(
     }
     
     companion object {
+        val Nothing get() = PlayingTrack()
+
         fun MediaMetadata.toPlayingTrack(pkgName: String): PlayingTrack {
             return PlayingTrack(
                 timestamp = System.currentTimeMillis(),
