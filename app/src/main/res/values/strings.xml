@@ -258,6 +258,7 @@ If you installed the app from a trusted app store, updating from GitHub will ski
 For added safety, you can continue updating through your preferred app store instead.
     </string>
     <string name="error_apk_install">Error starting APK installation</string>
+    <string name="notification_listening_title">♫ Listening now</string>
 
     <!-- Listen Submission Notification Idle States -->
     <string-array name="notification_idle_messages">

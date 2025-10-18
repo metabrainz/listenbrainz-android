@@ -298,11 +298,11 @@ open class ListenSubmissionState {
                 val artistText = playingTrack.artist ?: "Unknown Artist"
 
                 builder
-                    .setContentTitle("♫ Listening now")
+                    .setContentTitle(getString(R.string.notification_listening_title))
                     .setContentText("$titleText • $artistText")
 
                 val bigTextStyle = NotificationCompat.BigTextStyle()
-                    .setBigContentTitle("♫ Listening now")
+                    .setBigContentTitle(getString(R.string.notification_listening_title))
                     .bigText(buildString {
                         append(titleText)
                         append("\n")
