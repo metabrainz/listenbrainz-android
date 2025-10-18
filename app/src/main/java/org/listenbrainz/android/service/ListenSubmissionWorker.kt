@@ -101,15 +101,13 @@ class ListenSubmissionWorker @AssistedInject constructor(
                 val pendingListens = pendingListensDao.getPendingListens()
 
                 if (pendingListens.isNotEmpty()) {
-
-                    val submission = withContext(Dispatchers.IO){
+                    val submission = withContext(Dispatchers.IO) {
                         repository.submitListen(
                             token,
                             ListenSubmitBody().apply {
                                 listenType = "import"
                                 addListens(listensList = pendingListens)
                             }
-
                         )
                     }
 

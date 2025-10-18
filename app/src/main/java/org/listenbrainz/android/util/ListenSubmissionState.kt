@@ -222,7 +222,7 @@ open class ListenSubmissionState {
     fun discardCurrentListen() {
         submissionTimer.stop()
         trackCompletionTimer.stop()
-        playingTrack = PlayingTrack()
+        playingTrack = PlayingTrack.Nothing
     }
     
     companion object {

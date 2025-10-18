@@ -87,8 +87,7 @@ data class PlayingTrack(
                 title = extractTitle(),
                 duration = extractDuration(),
                 releaseName = extractReleaseName(),
-                pkgName = pkgName,
-                playingNowSubmitted = false
+                pkgName = pkgName
             )
         }
     }
