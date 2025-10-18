@@ -95,7 +95,7 @@ open class ListenSubmissionState {
         // After metadata set
         if (isMetadataFaulty()) {
             Log.w("Metadata is faulty, listen cancelled: $playingTrack")
-            playingTrack.reset()
+            playingTrack = PlayingTrack.Nothing
             return
         }
 
