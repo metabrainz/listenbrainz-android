@@ -7,7 +7,7 @@ import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractDura
 import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractReleaseName
 import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractTitle
 
-/** Track metadata class for Listen Scrobble service.*/
+/** Track metadata class for Listen service.*/
 data class PlayingTrack(
     var artist: String? = null,
     var title: String? = null,
@@ -28,8 +28,7 @@ data class PlayingTrack(
     fun isNothing(): Boolean = artist == null && title == null
     
     fun isSubmitted(): Boolean = submitted
-    
-    /** Determines if this track is a notification scrobbled track or not.*/
+
     fun isDurationAbsent(): Boolean = duration <= 0L
     
     fun isDurationPresent(): Boolean = !isDurationAbsent()
