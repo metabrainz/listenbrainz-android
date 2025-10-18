@@ -138,7 +138,7 @@
     <string name="login_failed_access_token">Abrufen des Zugriffs-Token fehlgeschlagen.</string>
     <string name="lookup_label">Nachschlagen mit</string>
     <string name="settings_tagger_directory">Dateiverzeichnis</string>
-    <string name="no_scrobbles">Hier gibt\'s noch keine Songs…</string>
+    <string name="no_listens">Hier gibt\'s noch keine Songs…</string>
     <string name="n_more" formatted="true" comment="n more( pending scrobbles)">%1$d mehr</string>
     <string name="play_playlist_button_label">Wiedergabeliste abspielen</string>
     <string name="tap_to_edit">(Zum Bearbeiten tippen)</string>
