@@ -47,7 +47,6 @@ class ConsentWebViewClient(
                     
                 """.trimIndent()
                     ) { value ->
-                        Logger.d("Consent screen data", "Consent Screen Data: $value")
                         if(value != null && value != "null"){
                             onLoadData(value)
                         } else {
