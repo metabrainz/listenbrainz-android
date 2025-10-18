@@ -323,7 +323,6 @@ open class ListenSubmissionState {
                 val randomMessage = idleMessages.random()
 
                 builder
-                    .setContentTitle("ListenBrainz")
                     .setContentText(randomMessage)
             }
 
