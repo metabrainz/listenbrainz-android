@@ -1,7 +1,9 @@
 package org.listenbrainz.android.model
 
+import kotlinx.serialization.Serializable
 import org.listenbrainz.android.model.feed.FeedListenArtist
 
+@Serializable
 data class Song (
     val mediaID : Long=0L,
     val title : String="",

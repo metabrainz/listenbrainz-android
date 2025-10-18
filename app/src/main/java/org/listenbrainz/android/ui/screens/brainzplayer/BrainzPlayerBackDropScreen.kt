@@ -61,8 +61,10 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -312,6 +314,16 @@ fun PlayerScreen(
             }
         }
     }
+    
+    val checkedSongs = rememberSaveable(
+        saver = listSaver(
+            save = { it.toList() },
+            restore = { it.toMutableStateList() }
+        )
+    ) {
+        mutableStateListOf<Song>()
+    }
+
     LazyColumn(
         modifier = Modifier
             .background(brush = backgroundBrush)
@@ -538,7 +550,7 @@ fun PlayerScreen(
                 )
             }
         }
-        val checkedSongs = mutableStateListOf<Song>()
+
         item {
             Row(
                 modifier = Modifier
