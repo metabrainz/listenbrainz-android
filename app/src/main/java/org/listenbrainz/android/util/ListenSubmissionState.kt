@@ -290,8 +290,8 @@ open class ListenSubmissionState {
                 .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setVisibility(NotificationCompat.VISIBILITY_SECRET)
-                .setColorized(true)
-                .setColor(ContextCompat.getColor(context, R.color.lb_purple))
+                //.setColorized(true)
+                //.setColor(ContextCompat.getColor(context, R.color.lb_purple))
 
             if (playingTrack != null && !playingTrack.isNothing()) {
                 val titleText = playingTrack.title ?: "Unknown Track"
