@@ -17,6 +17,7 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ListenType
 import org.listenbrainz.android.model.OnTimerListener
 import org.listenbrainz.android.model.PlayingTrack
+import org.listenbrainz.android.model.TimerState
 import org.listenbrainz.android.service.ListenSubmissionService.Companion.CHANNEL_ID
 import org.listenbrainz.android.service.ListenSubmissionService.Companion.NOTIFICATION_ID
 import org.listenbrainz.android.service.ListenSubmissionWorker.Companion.buildWorkRequest
@@ -152,18 +153,25 @@ open class ListenSubmissionState {
             )
         }
     }
-    
+
     /** Toggle timer based on state. */
     fun alertPlaybackStateChanged(isMediaPlaying: Boolean) {
         if (playingTrack.isSubmitted()) return
 
         if (isMediaPlaying) {
             submissionTimer.startOrResume()
+
+            if (trackCompletionTimer.state == TimerState.ENDED) {
+                trackCompletionTimer.setDuration(
+                    // submission timer's initial duration will always be half of trackCompletionTimer
+                    // So, the following calculation gives us the time when the song will end if played continuously.
+                    submissionTimer.initialDuration + submissionTimer.durationLeft
+                )
+            }
             trackCompletionTimer.startOrResume()
             Log.d("Play: ${playingTrack.id}")
         } else {
             submissionTimer.pause()
-            trackCompletionTimer.pause()
             Log.d("Pause: ${playingTrack.id}")
         }
     }
@@ -183,7 +191,7 @@ open class ListenSubmissionState {
                 roundDuration(duration = DEFAULT_DURATION)
             )
             trackCompletionTimer.setDuration(
-                roundDuration(duration = DEFAULT_DURATION)
+                roundDuration(duration = DEFAULT_DURATION * 2)
             )
         }
         Log.d("Timer Set: ${playingTrack.id}")

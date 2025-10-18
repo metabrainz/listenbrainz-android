@@ -2,12 +2,16 @@ package org.listenbrainz.android.util
 
 import android.os.Handler
 import android.os.SystemClock
-import android.util.Log
 import org.listenbrainz.android.model.OnTimerListener
 import org.listenbrainz.android.model.TimerState
-import kotlin.random.Random
 
 interface Timer {
+    val state: TimerState
+
+    val durationLeft: Long
+
+    val initialDuration: Long
+
     fun startOrResume(delay: Long = 0L)
 
     fun setDuration(duration: Long)
@@ -25,16 +29,19 @@ interface Timer {
 
 /** **NOT** thread safe.*/
 abstract class TimerBase: Timer {
-    private var mState: TimerState = TimerState.ENDED
+    final override var state: TimerState = TimerState.ENDED
+        private set
+    final override var durationLeft: Long = 0L
+        private set
+    final override var initialDuration = 0L
+        private set
+
     private var mListener: OnTimerListener? = null
-    
-    private var mInitialDuration = 0L
     private var mResumeTs: Long = 0
-    private var mDurationLeft: Long = 0L
     
     override fun setDuration(duration: Long) {
-        mInitialDuration = duration
-        mDurationLeft = duration
+        initialDuration = duration
+        durationLeft = duration
     }
     
     override fun setOnTimerListener(listener: OnTimerListener) {
@@ -45,49 +52,49 @@ abstract class TimerBase: Timer {
         delay: Long = 0L,
         postDelayed: (durationLeft: Long, block: () -> Unit) -> Unit
     ) {
-        when (mState) {
+        when (state) {
             TimerState.RUNNING -> return
             TimerState.PAUSED -> {
                 mResumeTs = SystemClock.uptimeMillis()
 
                 postDelayed(
-                    mDurationLeft,
+                    durationLeft,
                     ::end
                 )
                 
                 mListener?.onTimerResumed()
-                mState = TimerState.RUNNING
+                state = TimerState.RUNNING
             }
             TimerState.ENDED -> {
                 mResumeTs = SystemClock.uptimeMillis()
-                mDurationLeft += delay
+                durationLeft += delay
                 
                 postDelayed(
-                    mDurationLeft,
+                    durationLeft,
                     ::end
                 )
     
                 mListener?.onTimerStarted()
-                mState = TimerState.RUNNING
+                state = TimerState.RUNNING
             }
         }
     }
     
     override fun end() {
-        if (mState == TimerState.ENDED) {
+        if (state == TimerState.ENDED) {
             return
         }
-        mState = TimerState.ENDED
+        state = TimerState.ENDED
         mListener?.onTimerEnded()
         reset()
     }
     
     /** Discard current listen post and stop timer.*/
     protected fun stop(removePosts: () -> Unit) {
-        if (mState == TimerState.ENDED) {
+        if (state == TimerState.ENDED) {
             return
         }
-        mState = TimerState.ENDED
+        state = TimerState.ENDED
         removePosts()
         reset()
     }
@@ -98,26 +105,26 @@ abstract class TimerBase: Timer {
         postDelayed: (duration: Long, block: () -> Unit) -> Unit,
     ) {
         pause(removePosts)
-        mDurationLeft = extensionSeconds(/*passedSeconds =*/mInitialDuration - mDurationLeft)
+        durationLeft = extensionSeconds(/*passedSeconds =*/initialDuration - durationLeft)
         startOrResume(postDelayed = postDelayed)
     }
     
     protected fun pause(removePosts: () -> Unit) {
-        if (mState == TimerState.PAUSED || mState == TimerState.ENDED) {
+        if (state == TimerState.PAUSED || state == TimerState.ENDED) {
             return
         }
-        mState = TimerState.PAUSED
+        state = TimerState.PAUSED
         removePosts()
         
-        val durationLeft = mDurationLeft - (SystemClock.uptimeMillis() - mResumeTs)
+        val durationLeft = durationLeft - (SystemClock.uptimeMillis() - mResumeTs)
         mListener?.onTimerPaused(durationLeft)
-        mDurationLeft = durationLeft
+        this@TimerBase.durationLeft = durationLeft
     }
     
     private fun reset() {
         mResumeTs = 0L
-        mDurationLeft = 0L
-        mInitialDuration = 0L
+        durationLeft = 0L
+        initialDuration = 0L
     }
 }
 
