@@ -312,6 +312,7 @@ open class ListenSubmissionState {
                 val bigTextStyle = NotificationCompat.BigTextStyle()
                     .setBigContentTitle(getString(R.string.notification_listening_title))
                     .bigText(buildString {
+                        append("\uD83C\uDF99\uFE0F ")
                         append(titleText)
                         append("\n")
                         append("\uD83D\uDC64 ")
