@@ -53,7 +53,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.content.PermissionChecker
 import androidx.core.view.WindowCompat
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.limurse.logger.Logger
 import com.limurse.logger.Logger.compressLogsInZipFile
 import com.limurse.logger.Logger.e
@@ -695,4 +697,10 @@ object Utils {
             }
         }
     }
+
+    val Context.canShowNotifications get() =
+        ActivityCompat.checkSelfPermission(
+        this,
+        Manifest.permission.POST_NOTIFICATIONS
+    ) == PackageManager.PERMISSION_GRANTED
 }

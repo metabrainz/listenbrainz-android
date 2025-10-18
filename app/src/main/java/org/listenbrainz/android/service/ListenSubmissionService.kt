@@ -26,6 +26,7 @@ import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.ui.screens.main.MainActivity
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.util.ListenSessionListener
+import org.listenbrainz.android.util.ListenSubmissionState.Companion.getListeningNotification
 import org.listenbrainz.android.util.Log
 import javax.inject.Inject
 
@@ -106,7 +107,6 @@ class ListenSubmissionService : NotificationListenerService() {
     }
 
     override fun onDestroy() {
-        serviceManager.close()
         scope.cancel()
         Log.d("onDestroy: Listen Service stopped.")
         super.onDestroy()
@@ -127,7 +127,7 @@ class ListenSubmissionService : NotificationListenerService() {
         reason: Int
     ) {
         if (reason == REASON_APP_CANCEL || reason == REASON_APP_CANCEL_ALL ||
-            reason == REASON_TIMEOUT || reason == REASON_ERROR
+            reason == REASON_CANCEL || reason == REASON_TIMEOUT || reason == REASON_ERROR
         ) {
             serviceManager.onNotificationRemoved(sbn)
         }
@@ -138,36 +138,6 @@ class ListenSubmissionService : NotificationListenerService() {
         const val CHANNEL_ID = "listen_channel"
         private const val CHANNEL_NAME = "Listening"
         private const val CHANNEL_DESCRIPTION = "Determines if the app is listening to notifications."
-
-        val Context.serviceNotification: Notification get() {
-            val context = this
-
-            val clickPendingIntent = PendingIntent.getActivity(
-                context,
-                0,
-                Intent(context, MainActivity::class.java),
-                PendingIntent.FLAG_IMMUTABLE
-            )
-
-            val notification = NotificationCompat
-                .Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_listenbrainz_logo_no_text)
-                .setContentTitle("Listening...")
-
-                //.setColorized(true)
-                //.setColor(lb_purple.toArgb())
-                .setContentIntent(clickPendingIntent)
-
-                .setSound(null)
-                .setOngoing(true)
-                .setAutoCancel(false)
-                .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_DEFAULT)
-                .setPriority(NotificationCompat.PRIORITY_MIN)
-                .setVisibility(NotificationCompat.VISIBILITY_SECRET)
-                .build()
-
-            return notification
-        }
     }
 
     private fun createNotificationChannel() {
@@ -188,7 +158,7 @@ class ListenSubmissionService : NotificationListenerService() {
 
     var isStarted = false
     fun startForeground() {
-        val notification = serviceNotification
+        val notification = getListeningNotification(null)
         if (!isStarted) {
             ServiceCompat.startForeground(
                 this,

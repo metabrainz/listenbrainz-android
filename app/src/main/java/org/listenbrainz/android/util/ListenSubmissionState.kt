@@ -1,16 +1,13 @@
 package org.listenbrainz.android.util
 
-import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Notification
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.media.MediaMetadata
 import android.os.Handler
 import android.service.notification.StatusBarNotification
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.WorkManager
@@ -21,14 +18,15 @@ import org.listenbrainz.android.model.OnTimerListener
 import org.listenbrainz.android.model.PlayingTrack
 import org.listenbrainz.android.service.ListenSubmissionService.Companion.CHANNEL_ID
 import org.listenbrainz.android.service.ListenSubmissionService.Companion.NOTIFICATION_ID
-import org.listenbrainz.android.service.ListenSubmissionService.Companion.serviceNotification
 import org.listenbrainz.android.service.ListenSubmissionWorker.Companion.buildWorkRequest
 import org.listenbrainz.android.ui.screens.main.MainActivity
+import org.listenbrainz.android.util.Utils.canShowNotifications
 
 open class ListenSubmissionState {
     var playingTrack: PlayingTrack = PlayingTrack()
         private set
-    private val timer: Timer
+    private val submissionTimer: Timer
+    private val trackCompletionTimer: Timer
     private val workManager: WorkManager
     private val context: Context
     private val notificationManager: NotificationManagerCompat by lazy {
@@ -36,7 +34,8 @@ open class ListenSubmissionState {
     }
 
     constructor(jobQueue: JobQueue = JobQueue(Dispatchers.Default), workManager: WorkManager, context: Context) {
-        this.timer = TimerJQ(jobQueue)
+        this.submissionTimer = TimerJQ(jobQueue, SUBMISSION_TIMER_TOKEN)
+        this.trackCompletionTimer = TimerJQ(jobQueue, TRACK_COMPLETION_TIMER_TOKEN)
         this.workManager = workManager
         this.context = context
 
@@ -44,7 +43,8 @@ open class ListenSubmissionState {
     }
 
     constructor(handler: Handler, workManager: WorkManager, context: Context) {
-        this.timer = TimerHandler(handler)
+        this.submissionTimer = TimerHandler(handler, SUBMISSION_TIMER_TOKEN)
+        this.trackCompletionTimer = TimerHandler(handler, TRACK_COMPLETION_TIMER_TOKEN)
         this.workManager = workManager
         this.context = context
 
@@ -53,7 +53,7 @@ open class ListenSubmissionState {
     
     fun init() {
         // Setting listener
-        timer.setOnTimerListener(listener = object : OnTimerListener {
+        submissionTimer.setOnTimerListener(listener = object : OnTimerListener {
             override fun onTimerEnded() {
                 submitListen()
             }
@@ -62,8 +62,34 @@ open class ListenSubmissionState {
                 Log.d("${remainingMillis / 1000} seconds left to submit: ${playingTrack.id}")
             }
         })
+
+        @SuppressLint("MissingPermission")
+        trackCompletionTimer.setOnTimerListener(listener = object : OnTimerListener {
+            override fun onTimerStarted() {
+                if (context.canShowNotifications) {
+                    notificationManager.notify(
+                        NOTIFICATION_ID,
+                        context.getListeningNotification(playingTrack)
+                    )
+                }
+            }
+
+            override fun onTimerResumed() = onTimerStarted()
+
+            override fun onTimerEnded() {
+                // Make notification null
+                Log.d("Track completion timer ended: ${playingTrack.id}")
+                if (context.canShowNotifications) {
+                    notificationManager.notify(
+                        NOTIFICATION_ID,
+                        context.getListeningNotification(null)
+                    )
+                }
+            }
+        })
     }
-    
+
+    @SuppressLint("MissingPermission")
     private fun afterMetadataSet() {
         // After metadata set
         if (isMetadataFaulty()) {
@@ -71,20 +97,9 @@ open class ListenSubmissionState {
             playingTrack.reset()
             return
         }
-    
+
         initTimer()
         submitPlayingNow()
-
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            notificationManager.notify(
-                NOTIFICATION_ID,
-                context.getListeningNotification(playingTrack)
-            )
-        }
     }
 
     fun onNewMetadata(
@@ -92,7 +107,8 @@ open class ListenSubmissionState {
         isMediaPlaying: Boolean
     ) {
         if (playingTrack.isOutdated(newTrack)) {
-            timer.stop()
+            submissionTimer.stop()
+            trackCompletionTimer.stop()
             
             if (playingTrack.isSimilarTo(newTrack) && newTrack.isDurationAbsent()) {
                 playingTrack = newTrack.apply {
@@ -109,8 +125,11 @@ open class ListenSubmissionState {
         ) {
             // Update duration as it was absent before
             playingTrack.duration = newTrack.duration
-            timer.extendDuration { secondsPassed ->
+            submissionTimer.extendDuration { secondsPassed ->
                 newTrack.duration / 2 - secondsPassed
+            }
+            trackCompletionTimer.extendDuration { secondsPassed ->
+                newTrack.duration - secondsPassed
             }
 
             // Force submit a playing now because have updated metadata now.
@@ -122,8 +141,15 @@ open class ListenSubmissionState {
         alertPlaybackStateChanged(isMediaPlaying)
     }
     
-    fun alertMediaPlayerRemoved(notification: StatusBarNotification) {
-        Log.d("Removed " + notification.notification.extras)
+    @SuppressLint("MissingPermission")
+    fun alertMediaPlayerRemoved(packageName: String) {
+        if (context.canShowNotifications && packageName == playingTrack.pkgName) {
+            Log.d("Media player for $packageName removed, cleaning up notification.")
+            notificationManager.notify(
+                NOTIFICATION_ID,
+                context.getListeningNotification(null)
+            )
+        }
     }
     
     /** Toggle timer based on state. */
@@ -131,24 +157,31 @@ open class ListenSubmissionState {
         if (playingTrack.isSubmitted()) return
 
         if (isMediaPlaying) {
-            timer.startOrResume()
+            submissionTimer.startOrResume()
+            trackCompletionTimer.startOrResume()
             Log.d("Play: ${playingTrack.id}")
         } else {
-            timer.pause()
+            submissionTimer.pause()
+            trackCompletionTimer.pause()
             Log.d("Pause: ${playingTrack.id}")
         }
     }
     
     /** Run [artist] and [title] value-check before invoking this function.*/
     private fun initTimer() {
-        // d(duration.toString())
         if (playingTrack.duration != 0L) {
-            timer.setDuration(
-                roundDuration(duration = playingTrack.duration / 2L)     // Since maximum time required to validate a listen as submittable listen is 4 minutes.
-                    .coerceAtMost(240_000L)
+            submissionTimer.setDuration(
+                roundDuration(duration = playingTrack.duration / 2L)
+                    .coerceAtMost(MAX_SUBMISSION_DURATION)
+            )
+            trackCompletionTimer.setDuration(
+                roundDuration(duration = playingTrack.duration)
             )
         } else {
-            timer.setDuration(
+            submissionTimer.setDuration(
+                roundDuration(duration = DEFAULT_DURATION)
+            )
+            trackCompletionTimer.setDuration(
                 roundDuration(duration = DEFAULT_DURATION)
             )
         }
@@ -178,12 +211,18 @@ open class ListenSubmissionState {
     
     /** Discard current listen.*/
     fun discardCurrentListen() {
-        timer.stop()
+        submissionTimer.stop()
+        trackCompletionTimer.stop()
         playingTrack = PlayingTrack()
     }
     
     companion object {
         const val DEFAULT_DURATION: Long = 60_000L
+
+        /** Max time required to validate a listen as submittable listen is 4 minutes. */
+        const val MAX_SUBMISSION_DURATION: Long = 240_000L
+        const val SUBMISSION_TIMER_TOKEN = 69
+        const val TRACK_COMPLETION_TIMER_TOKEN = 420
         
         fun MediaMetadata.extractTitle(): String? = when {
             !getString(MediaMetadata.METADATA_KEY_TITLE)
@@ -230,7 +269,7 @@ open class ListenSubmissionState {
                 .takeIf { !it.isNullOrEmpty() }
                 ?: getString(MediaMetadata.METADATA_KEY_COMPILATION)
 
-        fun Context.getListeningNotification(playingTrack: PlayingTrack): Notification {
+        fun Context.getListeningNotification(playingTrack: PlayingTrack?): Notification {
             val context = this
 
             val clickPendingIntent = PendingIntent.getActivity(
@@ -244,12 +283,21 @@ open class ListenSubmissionState {
                 .Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_listenbrainz_logo_no_text)
                 .setContentTitle("Listening...")
-                .setContentText(playingTrack.title + " by " + playingTrack.artist)
+                .let {
+                    if (playingTrack != null && !playingTrack.isNothing()) {
+                        it.setContentText(playingTrack.title + " by " + playingTrack.artist)
+                    } else {
+                        it
+                    }
+                }
 
                 //.setColorized(true)
                 //.setColor(lb_purple.toArgb())
                 .setContentIntent(clickPendingIntent)
 
+                .setSound(null)
+                .setOngoing(true)
+                .setAutoCancel(false)
                 .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setVisibility(NotificationCompat.VISIBILITY_SECRET)
