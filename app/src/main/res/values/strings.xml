@@ -258,4 +258,22 @@ If you installed the app from a trusted app store, updating from GitHub will ski
 For added safety, you can continue updating through your preferred app store instead.
     </string>
     <string name="error_apk_install">Error starting APK installation</string>
+
+    <!-- Listen Submission Notification Idle States -->
+    <string-array name="notification_idle_messages">
+        <item>Waiting for the beat to drop...</item>
+        <item>Press play and let\'s listen some tunes</item>
+        <item>No music detected... yet!</item>
+        <item>Standing by for your next jam</item>
+        <item>Ears open, waiting for music</item>
+        <item>Vibing in silence... for now</item>
+        <item>Nothing playing? That\'s unusual</item>
+        <item>Let\'s hear what you\'re into today</item>
+        <item>Silence... *crickets chirping*</item>
+        <item>What are we listening to today?</item>
+        <item>Ready when you are</item>
+        <item>Patiently waiting for some tunes...</item>
+        <item>Hit me with your best track</item>
+        <item>So silent...</item>
+    </string-array>
 </resources>

@@ -10,6 +10,7 @@ import android.os.Handler
 import android.service.notification.StatusBarNotification
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.work.WorkManager
 import kotlinx.coroutines.Dispatchers
 import org.listenbrainz.android.R
@@ -279,31 +280,54 @@ open class ListenSubmissionState {
                 PendingIntent.FLAG_IMMUTABLE
             )
 
-            val notification = NotificationCompat
+            val builder = NotificationCompat
                 .Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_listenbrainz_logo_no_text)
-                .setContentTitle("Listening...")
-                .let {
-                    if (playingTrack != null && !playingTrack.isNothing()) {
-                        it.setContentText(playingTrack.title + " by " + playingTrack.artist)
-                    } else {
-                        it
-                    }
-                }
-
-                //.setColorized(true)
-                //.setColor(lb_purple.toArgb())
                 .setContentIntent(clickPendingIntent)
-
                 .setSound(null)
                 .setOngoing(true)
                 .setAutoCancel(false)
                 .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setVisibility(NotificationCompat.VISIBILITY_SECRET)
-                .build()
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setColorized(true)
+                .setColor(ContextCompat.getColor(context, R.color.lb_purple))
 
-            return notification
+            if (playingTrack != null && !playingTrack.isNothing()) {
+                val titleText = playingTrack.title ?: "Unknown Track"
+                val artistText = playingTrack.artist ?: "Unknown Artist"
+
+                builder
+                    .setContentTitle("♫ Listening now")
+                    .setContentText("$titleText • $artistText")
+
+                val bigTextStyle = NotificationCompat.BigTextStyle()
+                    .setBigContentTitle("♫ Listening now")
+                    .bigText(buildString {
+                        append(titleText)
+                        append("\n")
+                        append("\uD83D\uDC64 ")
+                        append(artistText)
+                        if (!playingTrack.releaseName.isNullOrEmpty()) {
+                            append("\n")
+                            append("\uD83D\uDCC0 ")
+                            append(playingTrack.releaseName)
+                        }
+                    })
+
+                builder.setStyle(bigTextStyle)
+            } else {
+                // No track playing - show idle state
+                val idleMessages =
+                    context.resources.getStringArray(R.array.notification_idle_messages)
+                val randomMessage = idleMessages.random()
+
+                builder
+                    .setContentTitle("ListenBrainz")
+                    .setContentText(randomMessage)
+            }
+
+            return builder.build()
         }
     }
 }
