@@ -22,10 +22,7 @@ data class PlayingTrack(
         get() = timestamp / 1000
 
     val id: String
-        get() = "$title::$artist::$pkgName"
-
-    val debugId: String
-        get() = "$title"
+        get() = "$title - $artist - $pkgName"
     
     /** This means there's no track playing.*/
     fun isNothing(): Boolean = artist == null && title == null
