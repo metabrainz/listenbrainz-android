@@ -25,14 +25,19 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.DisposableEffectResult
@@ -210,22 +215,22 @@ object Utils {
 
     @Composable
     fun getStatusBarHeight() =
-        androidx.compose.foundation.layout.WindowInsets.statusBars.asPaddingValues()
+        WindowInsets.statusBars.asPaddingValues()
             .calculateTopPadding()
 
     @Composable
     fun getDisplayCutoutHeight() =
         if (LocalConfiguration.current.orientation == ORIENTATION_PORTRAIT) {
-            androidx.compose.foundation.layout.WindowInsets.displayCutout.asPaddingValues()
+            WindowInsets.displayCutout.asPaddingValues()
                 .calculateTopPadding()
         } else {
-            androidx.compose.foundation.layout.WindowInsets.displayCutout.asPaddingValues()
+            WindowInsets.displayCutout.asPaddingValues()
                 .calculateStartPadding(LocalLayoutDirection.current)
         }
 
     @Composable
     fun getNavigationBarHeight() =
-        androidx.compose.foundation.layout.WindowInsets.navigationBars.asPaddingValues()
+        WindowInsets.navigationBars.asPaddingValues()
             .calculateBottomPadding()
 
     @Composable
@@ -233,6 +238,12 @@ object Utils {
 
     @Composable
     fun VerticalSpacer(height: Dp) = Spacer(Modifier.height(height))
+
+    @Composable
+    fun ColumnScope.Spacer(height: Dp) = Spacer(modifier = Modifier.height(height))
+
+    @Composable
+    fun RowScope.Spacer(height: Dp) = Spacer(modifier = Modifier.width(height))
 
     @Composable
     fun Int.toDp() = with(LocalDensity.current) { this@toDp.toDp() }
