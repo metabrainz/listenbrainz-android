@@ -326,7 +326,9 @@ fun ListensScreen(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     LoadMoreButton(
-                        modifier = Modifier.padding(ListenBrainzTheme.paddings.horizontal),
+                        modifier = Modifier
+                            .padding(horizontal = ListenBrainzTheme.paddings.horizontal)
+                            .padding(top = 16.dp),
                         state = listensCollaped,
                         onClick = {
                             listensCollaped = !listensCollaped
@@ -399,7 +401,9 @@ fun ListensScreen(
                                 horizontalArrangement = Arrangement.Center
                             ) {
                                 LoadMoreButton(
-                                    modifier = Modifier.padding(ListenBrainzTheme.paddings.horizontal),
+                                    modifier = Modifier
+                                        .padding(horizontal = ListenBrainzTheme.paddings.horizontal)
+                                        .padding(top = 16.dp),
                                     state = followersMenuCollapsibleState.value,
                                     onClick = {
                                         followersMenuCollapsibleState.value =
@@ -448,7 +452,9 @@ fun ListensScreen(
                                     horizontalArrangement = Arrangement.Center
                                 ) {
                                     LoadMoreButton(
-                                        modifier = Modifier.padding(ListenBrainzTheme.paddings.horizontal),
+                                        modifier = Modifier
+                                            .padding(horizontal = ListenBrainzTheme.paddings.horizontal)
+                                            .padding(top = 16.dp),
                                         state = similarUsersCollapsibleState.value,
                                         onClick = {
                                             similarUsersCollapsibleState.value =
