@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -47,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
@@ -55,6 +58,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -68,6 +72,7 @@ import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.model.user.Artist
+import org.listenbrainz.android.ui.components.ButtonLB
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.FollowButton
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
@@ -219,10 +224,13 @@ fun ListensScreen(
                     Row(
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
-                            .padding(end = 20.dp, bottom = 4.dp)
+                            .padding(
+                                horizontal = ListenBrainzTheme.paddings.horizontal
+                            ),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         if (uiState.isSelf) {
-                            AddListensButton()
+                            AddListensButton(modifier = Modifier)
                         } else {
                             FollowButton(
                                 modifier = Modifier,
@@ -262,19 +270,42 @@ fun ListensScreen(
                     }
                 }
             }
+
             item {
-                SongsListened(
-                    username = username,
-                    listenCount = uiState.listensTabUiState.listenCount,
-                    isSelf = uiState.isSelf
-                )
+                Column(
+                    modifier = Modifier
+                        .padding(
+                            vertical = 16.dp,
+                            horizontal = ListenBrainzTheme.paddings.horizontal
+                        )
+                        .shadow(4.dp, shape = ListenBrainzTheme.shapes.listenCardSmall)
+                        .background(
+                            color = ListenBrainzTheme.colorScheme.level1,
+                            shape = ListenBrainzTheme.shapes.listenCardSmall
+                        )
+                        .padding(
+                            horizontal = ListenBrainzTheme.paddings.insideCard,
+                            vertical = ListenBrainzTheme.paddings.insideCard * 2
+                        )
+                ) {
+                    SongsListened(
+                        username = username,
+                        listenCount = uiState.listensTabUiState.listenCount,
+                        isSelf = uiState.isSelf
+                    )
+
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        color = ListenBrainzTheme.colorScheme.hint.copy(0.4f)
+                    )
+
+                    FollowersInformation(
+                        followersCount = uiState.listensTabUiState.followersCount,
+                        followingCount = uiState.listensTabUiState.followingCount
+                    )
+                }
             }
-            item {
-                FollowersInformation(
-                    followersCount = uiState.listensTabUiState.followersCount,
-                    followingCount = uiState.listensTabUiState.followingCount
-                )
-            }
+
             item {
                 VerticalSpacer(30.dp)
 
@@ -664,82 +695,80 @@ fun LoadMoreButton(
 
 
 @Composable
-private fun SongsListened(username: String?, listenCount: Int?, isSelf: Boolean) {
+private fun SongsListened(
+    username: String?,
+    listenCount: Int?,
+    isSelf: Boolean,
+    modifier: Modifier = Modifier,
+) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
-            .background(ListenBrainzTheme.colorScheme.songsListenedToBG)
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(30.dp)
         Text(
             when (isSelf) {
                 true -> "You have listened to"
                 false -> "$username has listened to"
             },
             color = ListenBrainzTheme.colorScheme.text,
-            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp)
+            fontSize = 18.sp
         )
-        Spacer(15.dp)
-        HorizontalDivider(
-            color = ListenBrainzTheme.colorScheme.dividerColor,
-            modifier = Modifier.padding(start = 60.dp, end = 60.dp)
-        )
-        Spacer(15.dp)
+
+        Spacer(2.dp)
+
         Text(
             listenCount.toString(),
             color = ListenBrainzTheme.colorScheme.text,
-            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),
+            style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.Medium,
             textAlign = TextAlign.Center
         )
+
         Text(
             "songs so far",
-            color = app_bg_mid,
+            color = ListenBrainzTheme.colorScheme.hint,
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center
         )
-        Spacer(30.dp)
     }
-
 }
 
 @Composable
-private fun FollowersInformation(followersCount: Int?, followingCount: Int?) {
-    Column(
-        modifier = Modifier
-            .background(ListenBrainzTheme.colorScheme.userPageGradient)
+private fun FollowersInformation(
+    followersCount: Int?,
+    followingCount: Int?,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
-        Row(
-            horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 30.dp, bottom = 30.dp)
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    (followersCount ?: 0).toString(),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = ListenBrainzTheme.colorScheme.text
-                )
-                Spacer(10.dp)
-                Text(
-                    "Followers",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = ListenBrainzTheme.colorScheme.text
-                )
-            }
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    (followingCount ?: 0).toString(),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = ListenBrainzTheme.colorScheme.text
-                )
-                Spacer(10.dp)
-                Text(
-                    "Following",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = ListenBrainzTheme.colorScheme.text
-                )
-            }
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                (followersCount ?: 0).toString(),
+                style = MaterialTheme.typography.headlineLarge,
+                color = ListenBrainzTheme.colorScheme.text,
+                fontWeight = FontWeight.Medium,
+            )
+            Text(
+                "Followers",
+                style = MaterialTheme.typography.bodyLarge,
+                color = ListenBrainzTheme.colorScheme.text,
+            )
         }
-        Spacer(10.dp)
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                (followingCount ?: 0).toString(),
+                style = MaterialTheme.typography.headlineLarge,
+                color = ListenBrainzTheme.colorScheme.text,
+                fontWeight = FontWeight.Medium,
+            )
+            Text(
+                "Following",
+                style = MaterialTheme.typography.bodyLarge,
+                color = ListenBrainzTheme.colorScheme.text,
+            )
+        }
     }
 }
 
@@ -942,30 +971,22 @@ private fun FollowCard(
 }
 
 @Composable
-private fun AddListensButton() {
-    IconButton(
-        onClick = { /*TODO*/ }, modifier = Modifier
-            .clip(RoundedCornerShape(4.dp))
-            .background(Color(0xFF353070))
-            .width(110.dp)
-            .height(30.dp)
+private fun AddListensButton(modifier: Modifier = Modifier) {
+    ButtonLB(
+        modifier = modifier,
+        onClick = { /*TODO*/ }
     ) {
-        Row(modifier = Modifier.padding(all = 4.dp)) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "",
-                tint = new_app_bg_light,
-                modifier = Modifier
-                    .width(10.dp)
-                    .height(20.dp)
-            )
-            Spacer(modifier = Modifier.width(5.dp))
-            Text(
-                "Add Listens",
-                color = new_app_bg_light,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
+        Icon(
+            imageVector = Icons.Default.Add,
+            contentDescription = null,
+            tint = new_app_bg_light,
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(5.dp)
+        Text(
+            text = "Add Listens",
+            color = new_app_bg_light,
+        )
     }
 }
 
