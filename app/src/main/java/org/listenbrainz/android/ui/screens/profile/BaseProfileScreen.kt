@@ -154,7 +154,7 @@ fun BaseProfileScreen(
                         }
                     }
 
-                    repeat(ProfileScreenTab.entries.size + 1) { position ->
+                    repeat(ProfileScreenTab.entries.size) { position ->
                         val bringIntoViewRequester = remember { BringIntoViewRequester() }
 
                         LaunchedEffect(pagerState.currentPage) {
