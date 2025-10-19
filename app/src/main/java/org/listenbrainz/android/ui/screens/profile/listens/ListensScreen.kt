@@ -220,52 +220,52 @@ fun ListensScreen(
             modifier = Modifier.testTag("listensScreenScrollableContainer")
         ) {
             item {
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    Row(
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(
-                                horizontal = ListenBrainzTheme.paddings.horizontal
-                            ),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        if (uiState.isSelf) {
-                            AddListensButton(modifier = Modifier)
-                        } else {
-                            FollowButton(
-                                modifier = Modifier,
-                                isFollowedState = uiState.listensTabUiState.isFollowing,
-                                onClick = {
-                                    if (!uiState.listensTabUiState.isFollowing) {
-                                        onFollowButtonClick(username ?: "", false)
-                                    } else {
-                                        onFollowButtonClick(username ?: "", true)
-                                    }
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = ListenBrainzTheme.paddings.horizontal),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    if (uiState.isSelf) {
+                        AddListensButton(modifier = Modifier)
+                    } else {
+                        FollowButton(
+                            modifier = Modifier,
+                            isFollowedState = uiState.listensTabUiState.isFollowing,
+                            onClick = {
+                                if (!uiState.listensTabUiState.isFollowing) {
+                                    onFollowButtonClick(username ?: "", false)
+                                } else {
+                                    onFollowButtonClick(username ?: "", true)
                                 }
+                            }
+                        )
+                    }
+
+                    Spacer(8.dp)
+
+                    val uriHandler = LocalUriHandler.current
+                    var mbOpeningErrorState by remember {
+                        mutableStateOf<String?>(null)
+                    }
+
+                    LaunchedEffect(mbOpeningErrorState) {
+                        if (mbOpeningErrorState != null) {
+                            snackbarState.showSnackbar(
+                                "Some Error Occurred",
+                                duration = SnackbarDuration.Short
                             )
                         }
+                    }
 
-                        Spacer(8.dp)
-
-                        val uriHandler = LocalUriHandler.current
-                        var mbOpeningErrorState by remember {
-                            mutableStateOf<String?>(null)
-                        }
-
-                        LaunchedEffect(mbOpeningErrorState) {
-                            if (mbOpeningErrorState != null) {
-                                snackbarState.showSnackbar("Some Error Occurred", duration = SnackbarDuration.Short)
-                            }
-                        }
-
-                        MusicBrainzButton {
-                            try {
-                                uriHandler.openUri(Constants.MB_BASE_URL + "user/${username}")
-                            } catch (e: RuntimeException) {
-                                mbOpeningErrorState = e.message
-                            } catch (e: Exception) {
-                                mbOpeningErrorState = e.message
-                            }
+                    MusicBrainzButton {
+                        try {
+                            uriHandler.openUri(Constants.MB_BASE_URL + "user/${username}")
+                        } catch (e: RuntimeException) {
+                            mbOpeningErrorState = e.message
+                        } catch (e: Exception) {
+                            mbOpeningErrorState = e.message
                         }
                     }
                 }
