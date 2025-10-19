@@ -245,7 +245,7 @@ fun ListensScreen(
                             )
                         }
 
-                        Spacer(10.dp)
+                        Spacer(8.dp)
 
                         val uriHandler = LocalUriHandler.current
                         var mbOpeningErrorState by remember {
