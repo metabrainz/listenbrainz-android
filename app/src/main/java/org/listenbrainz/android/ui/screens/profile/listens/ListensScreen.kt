@@ -10,9 +10,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,7 +42,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -104,7 +100,6 @@ import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils.Spacer
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.util.consumeHorizontalDrag
-import org.listenbrainz.android.util.optionalSharedBounds
 import org.listenbrainz.android.util.optionalSharedElement
 import org.listenbrainz.android.viewmodel.ListensViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
@@ -132,15 +127,6 @@ fun ListensScreen(
         username = username,
         uiState = uiState,
         preferencesUiState = preferencesUiState,
-        updateNotificationServicePermissionStatus = {
-            viewModel.updateNotificationServicePermissionStatus()
-        },
-        validateUserToken = { token ->
-            viewModel.validateUserToken(token)
-        },
-        setToken = {
-            viewModel.setAccessToken(it)
-        },
         playListen = {
             socialViewModel.playListen(it)
         },
@@ -189,9 +175,6 @@ fun ListensScreen(
     username: String?,
     uiState: ProfileUiState,
     preferencesUiState: PreferencesUiState,
-    updateNotificationServicePermissionStatus: () -> Unit,
-    validateUserToken: suspend (String) -> Boolean,
-    setToken: (String) -> Unit,
     playListen: (TrackMetadata) -> Unit,
     snackbarState: SnackbarHostState,
     socialUiState: SocialUiState,
@@ -215,7 +198,6 @@ fun ListensScreen(
         mutableStateOf(true)
     }
 
-    // State to control bottom sheet visibility
     var showAllListens by rememberSaveable {
         mutableStateOf(false)
     }
@@ -1083,11 +1065,8 @@ fun ListensScreenPreview() {
         ListensScreen(
             onScrollToTop = {},
             scrollRequestState = false,
-            updateNotificationServicePermissionStatus = {},
             uiState = ListensScreenMockData.mockProfileUiStateOther,
             preferencesUiState = ListensScreenMockData.mockPreferencesUiState,
-            validateUserToken = { true },
-            setToken = {},
             playListen = {},
             socialUiState = ListensScreenMockData.mockSocialUiState,
             onErrorShown = {},
@@ -1108,11 +1087,8 @@ fun ListensScreenSelfPreview() {
         ListensScreen(
             onScrollToTop = {},
             scrollRequestState = false,
-            updateNotificationServicePermissionStatus = {},
             uiState = ListensScreenMockData.mockProfileUiStateSelf,
             preferencesUiState = ListensScreenMockData.mockPreferencesUiState,
-            validateUserToken = { true },
-            setToken = {},
             playListen = {},
             socialUiState = ListensScreenMockData.mockSocialUiState,
             onErrorShown = {},
@@ -1133,11 +1109,8 @@ fun ListensScreenFollowingPreview() {
         ListensScreen(
             onScrollToTop = {},
             scrollRequestState = false,
-            updateNotificationServicePermissionStatus = {},
             uiState = ListensScreenMockData.mockProfileUiStateFollowing,
             preferencesUiState = ListensScreenMockData.mockPreferencesUiState,
-            validateUserToken = { true },
-            setToken = {},
             playListen = {},
             socialUiState = ListensScreenMockData.mockSocialUiState,
             onErrorShown = {},
@@ -1158,11 +1131,8 @@ fun ListensScreenMinimalPreview() {
         ListensScreen(
             onScrollToTop = {},
             scrollRequestState = false,
-            updateNotificationServicePermissionStatus = {},
             uiState = ListensScreenMockData.mockProfileUiStateMinimal,
             preferencesUiState = ListensScreenMockData.mockPreferencesUiState,
-            validateUserToken = { true },
-            setToken = {},
             playListen = {},
             socialUiState = ListensScreenMockData.mockSocialUiState,
             onErrorShown = {},
@@ -1183,11 +1153,8 @@ fun ListensScreenNoDataPreview() {
         ListensScreen(
             onScrollToTop = {},
             scrollRequestState = false,
-            updateNotificationServicePermissionStatus = {},
             uiState = ListensScreenMockData.mockProfileUiStateNoData,
             preferencesUiState = ListensScreenMockData.mockPreferencesUiState,
-            validateUserToken = { true },
-            setToken = {},
             playListen = {},
             socialUiState = ListensScreenMockData.mockSocialUiState,
             onErrorShown = {},
