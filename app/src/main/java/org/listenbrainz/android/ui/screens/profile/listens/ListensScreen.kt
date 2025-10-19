@@ -275,7 +275,11 @@ fun ListensScreen(
                     showAllListens = false
                 }
 
-                Column(modifier = Modifier.consumeHorizontalDrag()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .consumeHorizontalDrag()
+                ) {
                     RecentListensText(
                         modifier = Modifier.padding(
                             top = 16.dp,
