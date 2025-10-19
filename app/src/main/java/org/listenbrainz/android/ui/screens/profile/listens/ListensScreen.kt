@@ -51,6 +51,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -85,6 +86,7 @@ import org.listenbrainz.android.ui.theme.compatibilityMeterColor
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.ui.theme.new_app_bg_light
 import org.listenbrainz.android.util.Constants
+import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.ListensViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
@@ -181,7 +183,7 @@ fun ListensScreen(
     goToUserProfile: (String) -> Unit,
 ) {
     val listState = rememberLazyListState()
-    var recentListensCollapsibleState by remember {
+    var listensCollaped by remember {
         mutableStateOf(true)
     }
 
@@ -282,8 +284,9 @@ fun ListensScreen(
 
                 Spacer(modifier = Modifier.height(10.dp))
             }
+
             items(
-                items = if (recentListensCollapsibleState) {
+                items = if (listensCollaped) {
                     uiState.listensTabUiState.recentListens?.take(5)
                 } else {
                     uiState.listensTabUiState.recentListens?.take(10)
@@ -321,9 +324,9 @@ fun ListensScreen(
                 ) {
                     LoadMoreButton(
                         modifier = Modifier.padding(16.dp),
-                        state = recentListensCollapsibleState,
+                        state = listensCollaped,
                         onClick = {
-                            recentListensCollapsibleState = !recentListensCollapsibleState
+                            listensCollaped = !listensCollaped
                         }
                     )
                 }
@@ -348,7 +351,7 @@ fun ListensScreen(
                             Spacer(modifier = Modifier.height(10.dp))
                             CompatibilityCard(
                                 compatibility = uiState.listensTabUiState.compatibility ?: 0f,
-                                uiState.listensTabUiState.similarArtists,
+                                similarArtists = uiState.listensTabUiState.similarArtists,
                                 goToArtistPage = goToArtistPage
                             )
                         }
@@ -420,6 +423,14 @@ fun ListensScreen(
                             )
                     ) {
                         Column {
+                            Spacer(modifier = Modifier.height(30.dp))
+                            Text(
+                                "Similar Users",
+                                color = ListenBrainzTheme.colorScheme.text,
+                                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),
+                                modifier = Modifier.padding(start = 16.dp)
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
                             SimilarUsersCard(
                                 similarUsers = when (similarUsersCollapsibleState.value) {
                                     true -> uiState.listensTabUiState.similarUsers.take(5)
@@ -430,7 +441,6 @@ fun ListensScreen(
                                     }
                                 }
                             )
-
                             if ((uiState.listensTabUiState.similarUsers.size) > 5) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -638,8 +648,8 @@ fun LoadMoreButton(
     ) {
         Text(
             when (state) {
-                true -> "Load More"
-                false -> "Load Less"
+                true -> stringResource(R.string.load_more)
+                false -> stringResource(R.string.load_less)
             }, color = app_bg_mid, style = MaterialTheme.typography.bodyMedium
         )
     }
@@ -960,22 +970,124 @@ private fun AddListensButton() {
 @Preview
 @Composable
 fun ListensScreenPreview() {
-    ListensScreen(
-        onScrollToTop = {},
-        scrollRequestState = false,
-        updateNotificationServicePermissionStatus = {},
-        uiState = ProfileUiState(),
-        preferencesUiState = PreferencesUiState(),
-        validateUserToken = { true },
-        setToken = {},
-        playListen = {},
-        socialUiState = SocialUiState(),
-        onErrorShown = {},
-        onMessageShown = {},
-        snackbarState = remember { SnackbarHostState() },
-        username = "pranavkonidena",
-        onFollowButtonClick = { _, _ -> },
-        goToArtistPage = {},
-        goToUserProfile = {}
-    )
+    PreviewSurface {
+        ListensScreen(
+            onScrollToTop = {},
+            scrollRequestState = false,
+            updateNotificationServicePermissionStatus = {},
+            uiState = ListensScreenMockData.mockProfileUiStateOther,
+            preferencesUiState = ListensScreenMockData.mockPreferencesUiState,
+            validateUserToken = { true },
+            setToken = {},
+            playListen = {},
+            socialUiState = ListensScreenMockData.mockSocialUiState,
+            onErrorShown = {},
+            onMessageShown = {},
+            snackbarState = remember { SnackbarHostState() },
+            username = "musiclover123",
+            onFollowButtonClick = { _, _ -> },
+            goToArtistPage = {},
+            goToUserProfile = {}
+        )
+    }
+}
+
+@Preview(name = "Self Profile")
+@Composable
+fun ListensScreenSelfPreview() {
+    PreviewSurface {
+        ListensScreen(
+            onScrollToTop = {},
+            scrollRequestState = false,
+            updateNotificationServicePermissionStatus = {},
+            uiState = ListensScreenMockData.mockProfileUiStateSelf,
+            preferencesUiState = ListensScreenMockData.mockPreferencesUiState,
+            validateUserToken = { true },
+            setToken = {},
+            playListen = {},
+            socialUiState = ListensScreenMockData.mockSocialUiState,
+            onErrorShown = {},
+            onMessageShown = {},
+            snackbarState = remember { SnackbarHostState() },
+            username = "pranavkonidena",
+            onFollowButtonClick = { _, _ -> },
+            goToArtistPage = {},
+            goToUserProfile = {}
+        )
+    }
+}
+
+@Preview(name = "Following User")
+@Composable
+fun ListensScreenFollowingPreview() {
+     PreviewSurface {
+        ListensScreen(
+            onScrollToTop = {},
+            scrollRequestState = false,
+            updateNotificationServicePermissionStatus = {},
+            uiState = ListensScreenMockData.mockProfileUiStateFollowing,
+            preferencesUiState = ListensScreenMockData.mockPreferencesUiState,
+            validateUserToken = { true },
+            setToken = {},
+            playListen = {},
+            socialUiState = ListensScreenMockData.mockSocialUiState,
+            onErrorShown = {},
+            onMessageShown = {},
+            snackbarState = remember { SnackbarHostState() },
+            username = "rockenthusiast",
+            onFollowButtonClick = { _, _ -> },
+            goToArtistPage = {},
+            goToUserProfile = {}
+        )
+    }
+}
+
+@Preview(name = "Minimal Data")
+@Composable
+fun ListensScreenMinimalPreview() {
+    PreviewSurface {
+        ListensScreen(
+            onScrollToTop = {},
+            scrollRequestState = false,
+            updateNotificationServicePermissionStatus = {},
+            uiState = ListensScreenMockData.mockProfileUiStateMinimal,
+            preferencesUiState = ListensScreenMockData.mockPreferencesUiState,
+            validateUserToken = { true },
+            setToken = {},
+            playListen = {},
+            socialUiState = ListensScreenMockData.mockSocialUiState,
+            onErrorShown = {},
+            onMessageShown = {},
+            snackbarState = remember { SnackbarHostState() },
+            username = "newuser",
+            onFollowButtonClick = { _, _ -> },
+            goToArtistPage = {},
+            goToUserProfile = {}
+        )
+    }
+}
+
+@Preview(name = "No Data")
+@Composable
+fun ListensScreenNoDataPreview() {
+    PreviewSurface {
+        ListensScreen(
+            onScrollToTop = {},
+            scrollRequestState = false,
+            updateNotificationServicePermissionStatus = {},
+            uiState = ListensScreenMockData.mockProfileUiStateNoData,
+            preferencesUiState = ListensScreenMockData.mockPreferencesUiState,
+            validateUserToken = { true },
+            setToken = {},
+            playListen = {},
+            socialUiState = ListensScreenMockData.mockSocialUiState,
+            onErrorShown = {},
+            onMessageShown = {},
+            snackbarState = remember { SnackbarHostState() },
+            username = "emptyuser",
+            onFollowButtonClick = { _, _ -> },
+            goToArtistPage = {},
+            goToUserProfile = {}
+        )
+    }
 }

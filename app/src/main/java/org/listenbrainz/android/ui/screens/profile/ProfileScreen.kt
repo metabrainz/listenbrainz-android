@@ -20,7 +20,6 @@ import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
 fun ProfileScreen(
-    context: Context = LocalContext.current,
     viewModel: UserViewModel = hiltViewModel(),
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
@@ -43,7 +42,7 @@ fun ProfileScreen(
 
     val loginStatus by viewModel.loginStatusFlow.collectAsState()
 
-    Column() {
+    Column {
         TopBar(
             modifier = Modifier.statusBarsPadding(),
             topBarActions = topBarActions,
