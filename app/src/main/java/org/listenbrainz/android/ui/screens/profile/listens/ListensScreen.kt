@@ -2,6 +2,9 @@ package org.listenbrainz.android.ui.screens.profile.listens
 
 import android.os.Bundle
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,7 +13,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
@@ -31,7 +34,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
@@ -73,6 +75,7 @@ import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.model.user.Artist
 import org.listenbrainz.android.ui.components.ButtonLB
+import org.listenbrainz.android.ui.components.DialogLB
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.FollowButton
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
@@ -84,6 +87,8 @@ import org.listenbrainz.android.ui.components.dialogs.PersonalRecommendationDial
 import org.listenbrainz.android.ui.components.dialogs.PinDialog
 import org.listenbrainz.android.ui.components.dialogs.ReviewDialog
 import org.listenbrainz.android.ui.screens.feed.FeedUiState
+import org.listenbrainz.android.ui.screens.feed.SocialDropdown
+import org.listenbrainz.android.ui.screens.feed.SocialDropdownDefault
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -94,8 +99,8 @@ import org.listenbrainz.android.ui.theme.new_app_bg_light
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils.Spacer
-import org.listenbrainz.android.util.Utils.VerticalSpacer
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
+import org.listenbrainz.android.util.optionalSharedElement
 import org.listenbrainz.android.viewmodel.ListensViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
@@ -171,6 +176,7 @@ enum class ListenDialogBundleKeys {
 }
 
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun ListensScreen(
     scrollRequestState: Boolean,
@@ -191,7 +197,7 @@ fun ListensScreen(
     goToUserProfile: (String) -> Unit,
 ) {
     val listState = rememberLazyListState()
-    var listensCollaped by remember {
+    var showAllListens by remember {
         mutableStateOf(true)
     }
 
@@ -307,29 +313,33 @@ fun ListensScreen(
             }
 
             item {
-                VerticalSpacer(30.dp)
-
                 Text(
                     text = "Recent Listens",
                     color = ListenBrainzTheme.colorScheme.text,
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),
-                    modifier = Modifier.padding(start = ListenBrainzTheme.paddings.horizontal)
+                    modifier = Modifier
+                        .padding(top = 30.dp, bottom = 10.dp)
+                        .clickable(interactionSource = null, indication = null) {
+                            showAllListens = !showAllListens
+                        }
+                        .padding(start = ListenBrainzTheme.paddings.horizontal)
                 )
-
-                VerticalSpacer(10.dp)
             }
 
-            items(
-                items = if (listensCollaped) {
-                    uiState.listensTabUiState.recentListens?.take(5)
-                } else {
-                    uiState.listensTabUiState.recentListens?.take(10)
-                } ?: listOf()
-            ) { listen ->
+            itemsIndexed(
+                items = uiState
+                    .listensTabUiState
+                    .recentListens
+                    ?.take(5)
+                    .orEmpty()
+            ) { index, listen ->
                 val metadata = listen.toMetadata()
 
                 ListenCardSmallDefault(
                     modifier = Modifier
+                        .clickable(interactionSource = null, indication = null) {
+                            showAllListens = !showAllListens
+                        }
                         .padding(
                             horizontal = ListenBrainzTheme.paddings.horizontal,
                             vertical = ListenBrainzTheme.paddings.lazyListAdjacent
@@ -360,9 +370,9 @@ fun ListensScreen(
                         modifier = Modifier
                             .padding(horizontal = ListenBrainzTheme.paddings.horizontal)
                             .padding(top = 16.dp),
-                        state = listensCollaped,
+                        state = showAllListens,
                         onClick = {
-                            listensCollaped = !listensCollaped
+                            showAllListens = !showAllListens
                         }
                     )
                 }

@@ -92,6 +92,7 @@ import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.feed.FeedUiState
+import org.listenbrainz.android.ui.screens.feed.SocialDropdownDefault
 import org.listenbrainz.android.ui.screens.profile.listens.Dialogs
 import org.listenbrainz.android.ui.screens.profile.listens.ListenDialogBundleKeys
 import org.listenbrainz.android.ui.screens.profile.listens.LoadMoreButton
@@ -945,13 +946,13 @@ fun ReviewsCard(
     val listensList = when (artistName != null && artistMbid != null) {
         true -> listOf(
             Listen(
-                insertedAt = "",
+                insertedAt = 0,
                 recordingMsid = "",
                 userName = "",
                 trackMetadata = TrackMetadata(
                     additionalInfo = null,
                     mbidMapping = MbidMapping(artistMbids = listOf(artistMbid), recordingName = ""),
-                    artistName = artistName ?: "",
+                    artistName = artistName,
                     trackName = "",
                     releaseName = null
                 )
@@ -960,7 +961,7 @@ fun ReviewsCard(
 
         false -> listOf(
             Listen(
-                insertedAt = "",
+                insertedAt = 0,
                 recordingMsid = "",
                 userName = "",
                 trackMetadata = TrackMetadata(

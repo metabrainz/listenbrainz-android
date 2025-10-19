@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -29,6 +31,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -99,87 +103,99 @@ fun BaseProfileScreen(
                 ) {
                     Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.chipsHorizontal / 2))
 
-                    repeat(ProfileScreenTab.entries.size + 1) { position ->
-                        when (position) {
-                            0 -> Box(
-                                modifier = Modifier
-                                    .padding(ListenBrainzTheme.paddings.chipsHorizontal)
-                                    .clip(shape = RoundedCornerShape(4.dp))
-                                    .background(
-                                        when (uiState.isSelf) {
-                                            true -> lb_purple
-                                            false -> lb_orange
-                                        }
-                                    )
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(
-                                        end = 8.dp, top = when (uiState.isSelf) {
-                                            true -> 4.dp
-                                            false -> 0.dp
-                                        }, bottom = when (uiState.isSelf) {
-                                            true -> 4.dp
-                                            false -> 0.dp
-                                        }
-                                    ), verticalAlignment = Alignment.CenterVertically
+                    val nameChipBringIntoViewRequester = remember { BringIntoViewRequester() }
+
+                    Box(
+                        modifier = Modifier
+                            .bringIntoViewRequester(nameChipBringIntoViewRequester)
+                            .padding(ListenBrainzTheme.paddings.chipsHorizontal)
+                            .clip(shape = RoundedCornerShape(4.dp))
+                            .background(
+                                when (uiState.isSelf) {
+                                    true -> lb_purple
+                                    false -> lb_orange
+                                }
+                            )
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(
+                                end = 8.dp, top = when (uiState.isSelf) {
+                                    true -> 4.dp
+                                    false -> 0.dp
+                                }, bottom = when (uiState.isSelf) {
+                                    true -> 4.dp
+                                    false -> 0.dp
+                                }
+                            ), verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (!uiState.isSelf) {
+                                Box(
+                                    modifier = Modifier
+                                        .background(lb_purple)
+                                        .padding(4.dp)
                                 ) {
-                                    if (!uiState.isSelf) {
-                                        Box(
-                                            modifier = Modifier
-                                                .background(lb_purple)
-                                                .padding(4.dp)
-                                        ) {
-                                            Icon(
-                                                Icons.Default.Home,
-                                                contentDescription = "",
-                                                tint = new_app_bg_light,
-                                                modifier = Modifier.clickable {
-                                                    if (username != null) {
-                                                        goToUserProfile(username)
-                                                    }
-                                                })
-                                        }
-                                    }
-                                    Text(
-                                        username ?: "", color = when (uiState.isSelf) {
-                                            true -> Color.White
-                                            false -> Color.Black
-                                        }, modifier = Modifier.padding(start = 8.dp)
-                                    )
+                                    Icon(
+                                        Icons.Default.Home,
+                                        contentDescription = "",
+                                        tint = new_app_bg_light,
+                                        modifier = Modifier.clickable {
+                                            if (username != null) {
+                                                goToUserProfile(username)
+                                            }
+                                        })
                                 }
                             }
+                            Text(
+                                username ?: "", color = when (uiState.isSelf) {
+                                    true -> Color.White
+                                    false -> Color.Black
+                                }, modifier = Modifier.padding(start = 8.dp)
+                            )
+                        }
+                    }
 
-                            else -> {
-                                val adjustedPosition = position - 1
-                                ElevatedSuggestionChip(
-                                    modifier = Modifier.padding(ListenBrainzTheme.paddings.chipsHorizontal),
-                                    colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
-                                        if (adjustedPosition == pagerState.currentPage) {
-                                            ListenBrainzTheme.colorScheme.chipSelected
-                                        } else {
-                                            ListenBrainzTheme.colorScheme.chipUnselected
-                                        }
-                                    ),
-                                    shape = ListenBrainzTheme.shapes.chips,
-                                    elevation = SuggestionChipDefaults.elevatedSuggestionChipElevation(
-                                        elevation = 4.dp
-                                    ),
-                                    label = {
-                                        Text(
-                                            text = ProfileScreenTab.entries.firstOrNull { it.index == adjustedPosition }?.value
-                                                ?: "",
-                                            style = ListenBrainzTheme.textStyles.chips,
-                                            color = ListenBrainzTheme.colorScheme.text
-                                        )
-                                    },
-                                    onClick = {
-                                        scope.launch {
-                                            pagerState.animateScrollToPage(adjustedPosition)
-                                        }
-                                    }
-                                )
+                    repeat(ProfileScreenTab.entries.size + 1) { position ->
+                        val bringIntoViewRequester = remember { BringIntoViewRequester() }
+
+                        LaunchedEffect(pagerState.currentPage) {
+                            if (position == pagerState.currentPage) {
+                                if (position == 0) {
+                                    nameChipBringIntoViewRequester.bringIntoView()
+                                } else {
+                                    bringIntoViewRequester.bringIntoView()
+                                }
                             }
                         }
+
+                        ElevatedSuggestionChip(
+                            modifier = Modifier
+                                .bringIntoViewRequester(bringIntoViewRequester)
+                                .padding(ListenBrainzTheme.paddings.chipsHorizontal),
+                            colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
+                                if (position == pagerState.currentPage) {
+                                    ListenBrainzTheme.colorScheme.chipSelected
+                                } else {
+                                    ListenBrainzTheme.colorScheme.chipUnselected
+                                }
+                            ),
+                            shape = ListenBrainzTheme.shapes.chips,
+                            elevation = SuggestionChipDefaults.elevatedSuggestionChipElevation(
+                                elevation = 4.dp
+                            ),
+                            label = {
+                                Text(
+                                    text = ProfileScreenTab.entries.firstOrNull { it.index == position }?.value
+                                        ?: "",
+                                    style = ListenBrainzTheme.textStyles.chips,
+                                    color = ListenBrainzTheme.colorScheme.text
+                                )
+                            },
+                            onClick = {
+                                scope.launch {
+                                    pagerState.animateScrollToPage(position)
+                                }
+                            }
+                        )
                     }
                 }
 

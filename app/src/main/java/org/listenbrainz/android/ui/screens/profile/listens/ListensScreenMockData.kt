@@ -124,7 +124,7 @@ object ListensScreenMockData {
     // Mock Listens
     val mockListens get() = listOf(
         Listen(
-            insertedAt = "1704067200",
+            insertedAt = 1704067200,
             listenedAt = 1704067200,
             recordingMsid = "d8b663dc-374e-4436-9448-da92dedef3ce",
             userName = "pranavkonidena",
@@ -146,7 +146,7 @@ object ListensScreenMockData {
             )
         ),
         Listen(
-            insertedAt = "1704063600",
+            insertedAt = 1704063600,
             listenedAt = 1704063600,
             recordingMsid = "a1a1a1a1-a1a1-a1a1-a1a1-a1a1a1a1a1a1",
             userName = "pranavkonidena",
@@ -168,7 +168,7 @@ object ListensScreenMockData {
             )
         ),
         Listen(
-            insertedAt = "1704060000",
+            insertedAt = 1704060000,
             listenedAt = 1704060000,
             recordingMsid = "e3e3e3e3-e3e3-e3e3-e3e3-e3e3e3e3e3e3",
             userName = "pranavkonidena",
@@ -190,7 +190,7 @@ object ListensScreenMockData {
             )
         ),
         Listen(
-            insertedAt = "1704056400",
+            insertedAt = 1704056400,
             listenedAt = 1704056400,
             recordingMsid = "g5g5g5g5-g5g5-g5g5-g5g5-g5g5g5g5g5g5",
             userName = "pranavkonidena",
@@ -212,7 +212,7 @@ object ListensScreenMockData {
             )
         ),
         Listen(
-            insertedAt = "1704052800",
+            insertedAt = 1704052800,
             listenedAt = 1704052800,
             recordingMsid = "i7i7i7i7-i7i7-i7i7-i7i7-i7i7i7i7i7i7",
             userName = "pranavkonidena",
@@ -234,7 +234,7 @@ object ListensScreenMockData {
             )
         ),
         Listen(
-            insertedAt = "1704049200",
+            insertedAt = 1704049200,
             listenedAt = 1704049200,
             recordingMsid = "k9k9k9k9-k9k9-k9k9-k9k9-k9k9k9k9k9k9",
             userName = "pranavkonidena",
@@ -256,7 +256,7 @@ object ListensScreenMockData {
             )
         ),
         Listen(
-            insertedAt = "1704045600",
+            insertedAt = 1704045600,
             listenedAt = 1704045600,
             recordingMsid = "m1m1m1m1-m1m1-m1m1-m1m1-m1m1m1m1m1m1",
             userName = "pranavkonidena",
@@ -278,7 +278,7 @@ object ListensScreenMockData {
             )
         ),
         Listen(
-            insertedAt = "1704042000",
+            insertedAt = 1704042000,
             listenedAt = 1704042000,
             recordingMsid = "o3o3o3o3-o3o3-o3o3-o3o3-o3o3o3o3o3o3",
             userName = "pranavkonidena",
@@ -300,7 +300,7 @@ object ListensScreenMockData {
             )
         ),
         Listen(
-            insertedAt = "1704038400",
+            insertedAt = 1704038400,
             listenedAt = 1704038400,
             recordingMsid = "q5q5q5q5-q5q5-q5q5-q5q5-q5q5q5q5q5q5",
             userName = "pranavkonidena",
@@ -322,7 +322,7 @@ object ListensScreenMockData {
             )
         ),
         Listen(
-            insertedAt = "1704034800",
+            insertedAt = 1704034800,
             listenedAt = 1704034800,
             recordingMsid = "s7s7s7s7-s7s7-s7s7-s7s7-s7s7s7s7s7s7",
             userName = "pranavkonidena",

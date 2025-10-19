@@ -11,8 +11,8 @@ data class Metadata(
     @SerializedName("entity_id"        ) val entityId: String? = null,
     @SerializedName("entity_name"      ) val entityName: String? = null,
     @SerializedName("entity_type"      ) val entityType: String? = null,
-    @SerializedName("inserted_at"      ) val insertedAt: Int? = null,
-    @SerializedName("listened_at"      ) val listenedAt: Int? = null,
+    @SerializedName("inserted_at"      ) val insertedAt: Long? = null,
+    @SerializedName("listened_at"      ) val listenedAt: Long? = null,
     @SerializedName("listened_at_iso"  ) val listenedAtIso: Any? = null,
     @SerializedName("message"          ) val message: String? = null,
     @SerializedName("playing_now"      ) val playingNow: Any? = null,
@@ -29,4 +29,10 @@ data class Metadata(
     @SerializedName("user_name_0"      ) val user0: String? = null,
     /** Used for follow following taglines. This is the one who was followed. */
     @SerializedName("user_name_1"      ) val user1: String? = null
-)
+) {
+    val sharedTransitionId
+        get() = trackMetadata?.sharedTransitionId +
+                entityId.orEmpty() +
+                entityName.orEmpty() +
+                username.orEmpty() + (listenedAt ?: insertedAt ?: "")
+}

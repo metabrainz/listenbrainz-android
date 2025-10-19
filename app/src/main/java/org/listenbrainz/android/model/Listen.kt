@@ -3,8 +3,8 @@ package org.listenbrainz.android.model
 import com.google.gson.annotations.SerializedName
 
 data class Listen(
-    @SerializedName("inserted_at") val insertedAt: String,
-    @SerializedName("listened_at") val listenedAt: Int? = null,
+    @SerializedName("inserted_at") val insertedAt: Long,
+    @SerializedName("listened_at") val listenedAt: Long? = null,
     @SerializedName("recording_msid") val recordingMsid: String,
     @SerializedName("track_metadata") val trackMetadata: TrackMetadata,
     @SerializedName("user_name") val userName: String,
@@ -13,9 +13,12 @@ data class Listen(
     fun toMetadata(): Metadata {
         return Metadata(
             listenedAt = listenedAt,
-            insertedAt = insertedAt.toIntOrNull(),
+            insertedAt = insertedAt,
             username = userName,
             trackMetadata = trackMetadata
         )
     }
+
+    val sharedTransitionId
+        get() = trackMetadata.sharedTransitionId + (listenedAt ?: insertedAt).toString()
 }
