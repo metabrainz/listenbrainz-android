@@ -63,7 +63,6 @@ import org.listenbrainz.android.viewmodel.SocialViewModel
 fun AlbumScreen(
     albumMbid: String,
     viewModel: AlbumViewModel = hiltViewModel(),
-    feedViewModel: FeedViewModel = hiltViewModel(),
     socialViewModel: SocialViewModel = hiltViewModel(),
     snackBarState: SnackbarHostState,
     topBarActions: TopBarActions
@@ -74,7 +73,6 @@ fun AlbumScreen(
     val uiState by viewModel.uiState.collectAsState()
     AlbumScreen(
         uiState = uiState,
-        feedViewModel = feedViewModel,
         socialViewModel = socialViewModel,
         snackBarState = snackBarState,
         albumMbid = albumMbid,
@@ -85,7 +83,6 @@ fun AlbumScreen(
 @Composable
 private fun AlbumScreen(
     uiState: AlbumUiState,
-    feedViewModel: FeedViewModel,
     socialViewModel: SocialViewModel,
     snackBarState: SnackbarHostState,
     albumMbid: String,
@@ -149,7 +146,6 @@ private fun AlbumScreen(
                         if (uiState.name != null) {
                             ReviewsCard(
                                 reviewOfEntity = uiState.reviews,
-                                feedViewModel = feedViewModel,
                                 socialViewModel = socialViewModel,
                                 snackBarState = snackBarState,
                                 goToUserPage = {},

@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName
 @Immutable
 data class Metadata(
     @SerializedName("blurb_content"    ) val blurbContent: String? = null,
-    @SerializedName("created"          ) val created: Int? = null,
+    @SerializedName("created"          ) val created: Long? = null,
     @SerializedName("entity_id"        ) val entityId: String? = null,
     @SerializedName("entity_name"      ) val entityName: String? = null,
     @SerializedName("entity_type"      ) val entityType: String? = null,

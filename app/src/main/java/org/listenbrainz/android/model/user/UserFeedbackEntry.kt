@@ -5,7 +5,7 @@ import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.TrackMetadata
 
 data class UserFeedbackEntry(
-    @SerializedName("created") val created: Int? = 0,
+    @SerializedName("created") val created: Long? = 0,
     @SerializedName("recording_mbid") val recordingMBID: String? = null,
     @SerializedName("recording_msid") val recordingMSID: String? = null,
     @SerializedName("score") val score: Int? = null,

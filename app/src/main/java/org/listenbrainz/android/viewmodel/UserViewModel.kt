@@ -10,11 +10,14 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -36,6 +39,7 @@ import org.listenbrainz.android.ui.screens.profile.PlaylistTabUIState
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.screens.profile.StatsTabUIState
 import org.listenbrainz.android.ui.screens.profile.TasteTabUIState
+import org.listenbrainz.android.ui.screens.profile.listens.UserListensPagingSource
 import org.listenbrainz.android.ui.screens.profile.playlists.CollabPlaylistPagingSource
 import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistPagingSource
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
@@ -64,6 +68,27 @@ class UserViewModel @Inject constructor(
 
     //Caching the fetched cover arts
     private val coverArtCache = mutableMapOf<UserPlaylist, String?>()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val recentListensPager: Flow<PagingData<Listen>> = currentUser
+        .flatMapLatest { username ->
+            if (username != null) {
+                Pager(
+                    PagingConfig(
+                        pageSize = 30,
+                        enablePlaceholders = true
+                    ),
+                    initialKey = null,
+                ) {
+                    createNewUserListensPagingSource()
+                }
+                    .flow
+                    .cachedIn(viewModelScope)
+            } else {
+                emptyFlow()
+            }
+        }
+
     private val userPlaylistPager: Flow<PagingData<UserPlaylist>> = Pager(
         PagingConfig(
             pageSize = PlaylistDataRepository.USER_PLAYLISTS_FETCH_COUNT,
@@ -97,7 +122,7 @@ class UserViewModel @Inject constructor(
                 STATUS_LOGGED_OUT
             )
     private val listenStateFlow: MutableStateFlow<ListensTabUiState> =
-        MutableStateFlow(ListensTabUiState())
+        MutableStateFlow(ListensTabUiState(recentListens = recentListensPager))
     private val statsStateFlow: MutableStateFlow<StatsTabUIState> =
         MutableStateFlow(StatsTabUIState())
     private val tasteStateFlow: MutableStateFlow<TasteTabUIState> =
@@ -111,6 +136,14 @@ class UserViewModel @Inject constructor(
             collabPlaylists = collabPlaylistPager
         )
     )
+
+    private fun createNewUserListensPagingSource() =
+        UserListensPagingSource(
+            username = currentUser.value,
+            onError = { error -> emitError(error) },
+            ioDispatcher = ioDispatcher,
+            listensRepository = listensRepository,
+        )
 
     private fun createNewUserPlaylistPagingSource() = UserPlaylistPagingSource(
         username = currentUser.value,
@@ -204,8 +237,6 @@ class UserViewModel @Inject constructor(
 
         val username = inputUsername ?: appPreferences.username.get()
         val listenCount = userRepository.fetchUserListenCount(username).data?.payload?.count
-        val listens: List<Listen>? =
-            listensRepository.fetchUserListens(username).data?.payload?.listens
         val followers = socialRepository.getFollowers(username).data?.followers
         val currentUserFollowing =
             socialRepository.getFollowing(appPreferences.username.get()).data?.following
@@ -242,7 +273,7 @@ class UserViewModel @Inject constructor(
             followers = followersState,
             followingCount = followingCount,
             following = followingState,
-            recentListens = listens,
+            recentListens = recentListensPager,
             compatibility = compatibility,
             similarUsers = similarUsers,
             pinnedSong = currentPins,

@@ -20,17 +20,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.MbidMapping
 import org.listenbrainz.android.model.Metadata
@@ -38,23 +35,16 @@ import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.feed.FeedListenArtist
-import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.UserFeedback
 import org.listenbrainz.android.model.user.UserFeedbackEntry
 import org.listenbrainz.android.ui.components.ChipItem
 import org.listenbrainz.android.ui.components.ErrorBar
-import org.listenbrainz.android.ui.components.ListenCardSmall
+import org.listenbrainz.android.ui.components.ListenCardSmallDefault
 import org.listenbrainz.android.ui.components.SelectionChipBar
 import org.listenbrainz.android.ui.components.SuccessBar
-import org.listenbrainz.android.ui.components.dialogs.Dialog
-import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
-import org.listenbrainz.android.ui.screens.feed.FeedUiState
-import org.listenbrainz.android.ui.screens.feed.SocialDropdown
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.screens.profile.TasteTabUIState
-import org.listenbrainz.android.ui.screens.profile.listens.Dialogs
-import org.listenbrainz.android.ui.screens.profile.listens.ListenDialogBundleKeys
 import org.listenbrainz.android.ui.screens.profile.listens.LoadMoreButton
 import org.listenbrainz.android.ui.screens.profile.listens.headerTextVerticalPadding
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -74,40 +64,13 @@ fun TasteScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val socialUiState by socialViewModel.uiState.collectAsState()
-    val feedUiState by feedViewModel.uiState.collectAsState()
-
-    val dropdownItemIndex: MutableState<Int?> = rememberSaveable {
-        mutableStateOf(null)
-    }
 
     TasteScreen(
         uiState = uiState,
         socialUiState = socialUiState,
-        feedUiState = feedUiState,
         snackbarState = snackbarState,
-        dropdownItemIndex = dropdownItemIndex,
         playListen = {
             socialViewModel.playListen(it)
-        },
-        onPin = { metadata, blurbContent ->
-            socialViewModel.pin(metadata, blurbContent)
-            dropdownItemIndex.value = null
-        },
-        onRecommend = { metadata ->
-            socialViewModel.recommend(metadata)
-            dropdownItemIndex.value = null
-        },
-        searchUsers = { query ->
-            feedViewModel.searchUser(query)
-        },
-        isCritiqueBrainzLinked = {
-            feedViewModel.isCritiqueBrainzLinked()
-        },
-        onReview = { type, blurbContent, rating, locale, metadata ->
-            socialViewModel.review(metadata, type, blurbContent, rating, locale)
-        },
-        onPersonallyRecommend = { metadata, users, blurbContent ->
-            socialViewModel.personallyRecommend(metadata, users, blurbContent)
         },
         onErrorShown = {
             socialViewModel.clearErrorFlow()
@@ -123,17 +86,9 @@ fun TasteScreen(
 fun TasteScreen(
     uiState: ProfileUiState,
     socialUiState: SocialUiState,
-    feedUiState: FeedUiState,
     snackbarState: SnackbarHostState,
     uriHandler: UriHandler = LocalUriHandler.current,
-    dropdownItemIndex: MutableState<Int?>,
     playListen: (TrackMetadata) -> Unit,
-    onPin: (metadata: Metadata, blurbContent: String) -> Unit,
-    onRecommend: (metadata: Metadata) -> Unit,
-    searchUsers: (String) -> Unit,
-    isCritiqueBrainzLinked: suspend () -> Boolean?,
-    onReview: (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String, metadata: Metadata) -> Unit,
-    onPersonallyRecommend: (metadata: Metadata, users: List<String>, blurbContent: String) -> Unit,
     onErrorShown: () -> Unit,
     onMessageShown: () -> Unit,
     goToArtistPage: (String) -> Unit,
@@ -147,12 +102,6 @@ fun TasteScreen(
     val pinsCollapsibleState: MutableState<Boolean> = remember {
         mutableStateOf(true)
     }
-
-    val dialogsState = rememberDialogsState()
-
-    val scope = rememberCoroutineScope()
-
-    val context = LocalContext.current
 
     LazyColumn {
         item {
@@ -198,64 +147,22 @@ fun TasteScreen(
             }
         ) { index, feedback ->
             val metadata = feedback.toMetadata()
-            ListenCardSmall(
+            ListenCardSmallDefault(
                 modifier = Modifier
                     .padding(
                         horizontal = ListenBrainzTheme.paddings.horizontal,
                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
-                trackName = feedback.trackMetadata?.trackName ?: "",
-                artists = feedback.trackMetadata?.mbidMapping?.artists ?: listOf(
-                    FeedListenArtist(feedback.trackMetadata?.artistName ?: "", null, "")
-                ),
+                metadata = metadata,
                 coverArtUrl = getCoverArtUrl(
                     caaReleaseMbid = feedback.trackMetadata?.mbidMapping?.caaReleaseMbid,
                     caaId = feedback.trackMetadata?.mbidMapping?.caaId
                 ),
-                onDropdownIconClick = {
-                    dropdownItemIndex.value = index
+                onDropdownError = { error ->
+                    snackbarState.showSnackbar(error.toast)
                 },
-                dropDown = {
-                    SocialDropdown(
-                        isExpanded = dropdownItemIndex.value == index,
-                        onDismiss = {
-                            dropdownItemIndex.value = null
-                        },
-                        metadata = metadata,
-                        onRecommend = { onRecommend(metadata) },
-                        onPersonallyRecommend = {
-                            dialogsState.activateDialog(
-                                Dialog.PERSONAL_RECOMMENDATION,
-                                ListenDialogBundleKeys.listenDialogBundle(0, index)
-                            )
-                            dropdownItemIndex.value = null
-                        },
-                        onReview = {
-                            dialogsState.activateDialog(
-                                Dialog.REVIEW,
-                                ListenDialogBundleKeys.listenDialogBundle(0, index)
-                            )
-                            dropdownItemIndex.value = null
-                        },
-                        onPin = {
-                            dialogsState.activateDialog(
-                                Dialog.PIN,
-                                ListenDialogBundleKeys.listenDialogBundle(0, index)
-                            )
-                            dropdownItemIndex.value = null
-                        },
-                        onOpenInMusicBrainz = {
-                            try {
-                                uriHandler.openUri("https://musicbrainz.org/recording/${metadata.trackMetadata?.mbidMapping?.recordingMbid}")
-                            } catch (e: Error) {
-                                scope.launch {
-                                    snackbarState.showSnackbar(context.getString(R.string.err_generic_toast))
-                                }
-                            }
-                            dropdownItemIndex.value = null
-                        }
-
-                    )
+                onDropdownSuccess = { message ->
+                    snackbarState.showSnackbar(message)
                 },
                 goToArtistPage = goToArtistPage
             ) {
@@ -300,8 +207,8 @@ fun TasteScreen(
                 )
 
                 pinnedRecordings.mapIndexed { index, recording: PinnedRecording ->
-                    val metadata = Metadata(trackMetadata = recording.trackMetadata)
-                    ListenCardSmall(
+                    val metadata = recording.toMetadata()
+                    ListenCardSmallDefault(
                         blurbContent = if (!recording.blurbContent.isNullOrBlank()) {
                             { modifier ->
                                 Text(
@@ -314,62 +221,16 @@ fun TasteScreen(
                             .padding(
                                 vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                             ),
-                        trackName = recording.trackMetadata?.trackName ?: "",
-                        artists = recording.trackMetadata?.mbidMapping?.artists ?: listOf(
-                            FeedListenArtist(
-                                recording.trackMetadata?.artistName ?: "",
-                                null,
-                                ""
-                            )
-                        ),
+                        metadata = metadata,
                         coverArtUrl = getCoverArtUrl(
                             caaReleaseMbid = recording.trackMetadata?.mbidMapping?.caaReleaseMbid,
                             caaId = recording.trackMetadata?.mbidMapping?.caaId
                         ),
-                        onDropdownIconClick = {
-                            dropdownItemIndex.value = index
+                        onDropdownError = { error ->
+                            snackbarState.showSnackbar(error.toast)
                         },
-                        dropDown = {
-                            SocialDropdown(
-                                isExpanded = dropdownItemIndex.value == index,
-                                onDismiss = {
-                                    dropdownItemIndex.value = null
-                                },
-                                metadata = metadata,
-                                onRecommend = { onRecommend(metadata) },
-                                onPersonallyRecommend = {
-                                    dialogsState.activateDialog(
-                                        Dialog.PERSONAL_RECOMMENDATION,
-                                        ListenDialogBundleKeys.listenDialogBundle(0, index)
-                                    )
-                                    dropdownItemIndex.value = null
-                                },
-                                onReview = {
-                                    dialogsState.activateDialog(
-                                        Dialog.REVIEW,
-                                        ListenDialogBundleKeys.listenDialogBundle(0, index)
-                                    )
-                                    dropdownItemIndex.value = null
-                                },
-                                onPin = {
-                                    dialogsState.activateDialog(
-                                        Dialog.PIN,
-                                        ListenDialogBundleKeys.listenDialogBundle(0, index)
-                                    )
-                                    dropdownItemIndex.value = null
-                                },
-                                onOpenInMusicBrainz = {
-                                    try {
-                                        uriHandler.openUri("https://musicbrainz.org/recording/${metadata.trackMetadata?.mbidMapping?.recordingMbid}")
-                                    } catch (e: Error) {
-                                        scope.launch {
-                                            snackbarState.showSnackbar(context.getString(R.string.err_generic_toast))
-                                        }
-                                    }
-                                    dropdownItemIndex.value = null
-                                }
-
-                            )
+                        onDropdownSuccess = { message ->
+                            snackbarState.showSnackbar(message)
                         },
                         goToArtistPage = goToArtistPage
                     ) {
@@ -405,37 +266,6 @@ fun TasteScreen(
         resId = socialUiState.successMsgId,
         onMessageShown = onMessageShown,
         snackbarState = snackbarState
-    )
-
-    Dialogs(
-        deactivateDialog = {
-            dialogsState.deactivateDialog()
-        },
-        currentDialog = dialogsState.currentDialog,
-        currentIndex = dialogsState.metadata?.getInt(ListenDialogBundleKeys.EVENT_INDEX.name),
-        listens = uiState.listensTabUiState.recentListens ?: listOf(),
-        onPin = { metadata, blurbContent -> onPin(metadata, blurbContent) },
-        searchUsers = { query -> searchUsers(query) },
-        feedUiState = feedUiState,
-        isCritiqueBrainzLinked = isCritiqueBrainzLinked,
-        onReview = { type, blurbContent, rating, locale, metadata ->
-            onReview(
-                type,
-                blurbContent,
-                rating,
-                locale,
-                metadata
-            )
-        },
-        onPersonallyRecommend = { metadata, users, blurbContent ->
-            onPersonallyRecommend(
-                metadata,
-                users,
-                blurbContent
-            )
-        },
-        snackbarState = snackbarState,
-        socialUiState = socialUiState
     )
 }
 
@@ -610,22 +440,13 @@ private fun TasteScreenPreview() {
     )
 
     val mockSocialUiState = SocialUiState()
-    val mockFeedUiState = FeedUiState()
 
     PreviewSurface {
         TasteScreen(
             uiState = mockProfileUiState,
             socialUiState = mockSocialUiState,
-            feedUiState = mockFeedUiState,
             snackbarState = remember { SnackbarHostState() },
-            dropdownItemIndex = remember { mutableStateOf(null) },
             playListen = {},
-            onPin = { _, _ -> },
-            onRecommend = {},
-            searchUsers = {},
-            isCritiqueBrainzLinked = { null },
-            onReview = { _, _, _, _, _ -> },
-            onPersonallyRecommend = { _, _, _ -> },
             onErrorShown = {},
             onMessageShown = {},
             goToArtistPage = {}

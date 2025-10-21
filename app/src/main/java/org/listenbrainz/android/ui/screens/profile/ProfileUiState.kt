@@ -39,7 +39,7 @@ data class ListensTabUiState(
     val listeningNow: ListeningNowUiState? = null,
     val pinnedSong: PinnedRecording? = null,
     val compatibility: Float? = null,
-    val recentListens: List<Listen>? = emptyList(),
+    val recentListens: Flow<PagingData<Listen>> = emptyFlow(),
     val followers: List<Pair<String, Boolean>>? = emptyList(),
     val following: List<Pair<String, Boolean>>? = emptyList(),
     val similarUsers: List<SimilarUser>? = emptyList(),

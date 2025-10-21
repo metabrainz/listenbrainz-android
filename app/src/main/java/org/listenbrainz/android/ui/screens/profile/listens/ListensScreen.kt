@@ -35,6 +35,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -47,6 +48,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -71,6 +73,9 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.Metadata
@@ -98,6 +103,7 @@ import org.listenbrainz.android.ui.theme.compatibilityMeterColor
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.PreviewSurface
+import org.listenbrainz.android.util.Utils.LaunchedEffectUnit
 import org.listenbrainz.android.util.Utils.Spacer
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.util.consumeHorizontalDrag
@@ -202,6 +208,11 @@ fun ListensScreen(
     var showAllListens by rememberSaveable {
         mutableStateOf(false)
     }
+
+    val listensPagingItems = uiState
+        .listensTabUiState
+        .recentListens
+        .collectAsLazyPagingItems()
 
     // Scroll to the top when shouldScrollToTop becomes true
     LaunchedEffect(scrollRequestState) {
@@ -313,15 +324,27 @@ fun ListensScreen(
                     }
 
                     LazyColumn(
-                        contentPadding = PaddingValues(bottom = 16.dp)
+                        contentPadding = PaddingValues(bottom = 16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         items(
-                            items = uiState
-                                .listensTabUiState
-                                .recentListens
-                                .orEmpty()
-                        ) { listen ->
-                            ListenCardItem(listen = listen)
+                            count = listensPagingItems.itemCount,
+                        ) { index ->
+                            val listen = listensPagingItems[index]
+                            if (listen != null) {
+                                ListenCardItem(listen = listen)
+                            }
+                        }
+
+                        item {
+                            if (listensPagingItems.loadState.append == LoadState.Loading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier
+                                        .padding(top = 16.dp)
+                                        .size(24.dp),
+                                    color = ListenBrainzTheme.colorScheme.lbSignature
+                                )
+                            }
                         }
                     }
                 }
@@ -442,13 +465,11 @@ fun ListensScreen(
                     }
 
                     items(
-                        items = uiState
-                            .listensTabUiState
-                            .recentListens
-                            ?.take(5)
-                            .orEmpty()
-                    ) { listen ->
-                        ListenCardItem(listen)
+                        count = listensPagingItems.itemCount.coerceAtMost(5)
+                    ) { index ->
+                        listensPagingItems[index]?.let {
+                            ListenCardItem(it)
+                        }
                     }
 
                     item {
@@ -696,79 +717,6 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
                             onArtistClick(annotation.item)
                         }
                 }
-            )
-        }
-    }
-}
-
-
-@Composable
-fun Dialogs(
-    deactivateDialog: () -> Unit,
-    currentDialog: Dialog,
-    feedUiState: FeedUiState,
-    currentIndex: Int?,
-    listens: List<Listen>,
-    onPin: (metadata: Metadata, blurbContent: String) -> Unit,
-    searchUsers: (String) -> Unit,
-    isCritiqueBrainzLinked: suspend () -> Boolean?,
-    onReview: (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String, metadata: Metadata) -> Unit,
-    onPersonallyRecommend: (metadata: Metadata, users: List<String>, blurbContent: String) -> Unit,
-    snackbarState: SnackbarHostState,
-    socialUiState: SocialUiState,
-    reviewEntityType: ReviewEntityType = ReviewEntityType.RECORDING
-) {
-    val context = LocalContext.current
-    when (currentDialog) {
-        Dialog.NONE -> Unit
-        Dialog.PIN -> {
-            PinDialog(
-                trackName = listens[currentIndex!!].trackMetadata.trackName,
-                artistName = listens[currentIndex].trackMetadata.artistName,
-                onDismiss = deactivateDialog,
-                onSubmit = { blurbContent ->
-                    onPin(listens[currentIndex].toMetadata(), blurbContent)
-                })
-            LaunchedEffect(socialUiState.error) {
-                if (socialUiState.error == null) {
-                    snackbarState.showSnackbar(context.getString(R.string.pin_greeting))
-                }
-            }
-        }
-
-        Dialog.PERSONAL_RECOMMENDATION -> {
-            PersonalRecommendationDialog(
-                trackName = listens[currentIndex!!].trackMetadata.trackName,
-                onDismiss = deactivateDialog,
-                searchResult = feedUiState.searchResult,
-                searchUsers = searchUsers,
-                onSubmit = { users, blurbContent ->
-                    onPersonallyRecommend(
-                        listens[currentIndex].toMetadata(),
-                        users,
-                        blurbContent
-                    )
-                }
-            )
-        }
-
-        Dialog.REVIEW -> {
-            ReviewDialog(
-                trackName = listens[currentIndex!!].trackMetadata.trackName,
-                artistName = listens[currentIndex].trackMetadata.artistName,
-                releaseName = listens[currentIndex].trackMetadata.releaseName,
-                onDismiss = deactivateDialog,
-                isCritiqueBrainzLinked = isCritiqueBrainzLinked,
-                onSubmit = { type, blurbContent, rating, locale ->
-                    onReview(
-                        type,
-                        blurbContent,
-                        rating,
-                        locale,
-                        listens[currentIndex].toMetadata()
-                    )
-                },
-                reviewEntityType = reviewEntityType
             )
         }
     }

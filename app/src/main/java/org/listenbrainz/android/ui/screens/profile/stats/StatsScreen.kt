@@ -14,11 +14,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedSuggestionChip
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SuggestionChipDefaults
@@ -39,13 +37,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -79,13 +75,10 @@ import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
 import org.listenbrainz.android.ui.components.SelectionChipBar
 import org.listenbrainz.android.ui.components.SuccessBar
-import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
 import org.listenbrainz.android.ui.screens.artist.formatNumber
 import org.listenbrainz.android.ui.screens.feed.FeedUiState
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.screens.profile.StatsTabUIState
-import org.listenbrainz.android.ui.screens.profile.listens.Dialogs
-import org.listenbrainz.android.ui.screens.profile.listens.ListenDialogBundleKeys
 import org.listenbrainz.android.ui.screens.profile.listens.LoadMoreButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.app_bg_secondary_dark
@@ -216,8 +209,6 @@ fun StatsScreen(
     var songsCollapseState by remember {
         mutableStateOf(true)
     }
-
-    val dialogsState = rememberDialogsState()
 
     LaunchedEffectUnit {
         snapshotFlow { currentTabSelection }.collectLatest {
@@ -628,37 +619,6 @@ fun StatsScreen(
         resId = socialUiState.successMsgId,
         onMessageShown = onMessageShown,
         snackbarState = snackbarState
-    )
-
-    Dialogs(
-        deactivateDialog = {
-            dialogsState.deactivateDialog()
-        },
-        currentDialog = dialogsState.currentDialog,
-        currentIndex = dialogsState.metadata?.getInt(ListenDialogBundleKeys.EVENT_INDEX.name),
-        listens = uiState.listensTabUiState.recentListens ?: listOf(),
-        onPin = { metadata, blurbContent -> onPin(metadata, blurbContent) },
-        searchUsers = { query -> searchUsers(query) },
-        feedUiState = feedUiState,
-        isCritiqueBrainzLinked = isCritiqueBrainzLinked,
-        onReview = { type, blurbContent, rating, locale, metadata ->
-            onReview(
-                type,
-                blurbContent,
-                rating,
-                locale,
-                metadata
-            )
-        },
-        onPersonallyRecommend = { metadata, users, blurbContent ->
-            onPersonallyRecommend(
-                metadata,
-                users,
-                blurbContent
-            )
-        },
-        snackbarState = snackbarState,
-        socialUiState = socialUiState
     )
 }
 

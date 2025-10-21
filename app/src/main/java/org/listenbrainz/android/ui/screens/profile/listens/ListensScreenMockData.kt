@@ -1,6 +1,9 @@
 package org.listenbrainz.android.ui.screens.profile.listens
 
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.paging.PagingData
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
 import org.jetbrains.annotations.TestOnly
 import org.listenbrainz.android.model.AdditionalInfo
 import org.listenbrainz.android.model.Listen
@@ -353,7 +356,7 @@ object ListensScreenMockData {
             listenCount = 8932,
             followersCount = 18,
             followingCount = 32,
-            recentListens = mockListens,
+            recentListens = flow { emit(PagingData.from(mockListens)) },
             followers = mockFollowers,
             following = mockFollowing,
             similarUsers = mockSimilarUsers,
@@ -389,7 +392,7 @@ object ListensScreenMockData {
             listenCount = 0,
             followersCount = 0,
             followingCount = 0,
-            recentListens = emptyList(),
+            recentListens = emptyFlow(),
             followers = emptyList(),
             following = emptyList(),
             similarUsers = emptyList(),
@@ -406,7 +409,7 @@ object ListensScreenMockData {
             listenCount = 42,
             followersCount = 0,
             followingCount = 1,
-            recentListens = mockListens.take(3),
+            recentListens = flow { emit(PagingData.from(mockListens.take(3))) },
             followers = emptyList(),
             following = listOf(Pair("music_admin", true)),
             similarUsers = emptyList(),
