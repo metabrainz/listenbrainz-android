@@ -194,8 +194,8 @@ class UserViewModel @Inject constructor(
         )
     }
 
-    suspend fun updateUser(username: String) {
-        currentUser.emit(username)
+    fun updateUser(username: String) {
+        currentUser.value = username
     }
 
     suspend fun getUserListensData(inputUsername: String? = currentUser.value) {
