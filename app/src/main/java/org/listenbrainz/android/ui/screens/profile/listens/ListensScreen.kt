@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -62,6 +63,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -265,7 +267,8 @@ fun ListensScreen(
                     modifier = modifier
                         .padding(start = ListenBrainzTheme.paddings.horizontal)
                         .sharedElement(
-                            sharedContentState = this@SharedTransitionScope.rememberSharedContentState("recent listens"),
+                            sharedContentState = this@SharedTransitionScope
+                                .rememberSharedContentState("recent listens"),
                             animatedVisibilityScope = this,
                         )
                 )
@@ -327,7 +330,7 @@ fun ListensScreen(
                     item {
                         Row(
                             modifier = Modifier
-                                .padding(top = 16.dp)
+                                .padding(top = 8.dp)
                                 .padding(horizontal = ListenBrainzTheme.paddings.horizontal),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -381,7 +384,7 @@ fun ListensScreen(
                         Column(
                             modifier = Modifier
                                 .padding(
-                                    vertical = 16.dp,
+                                    vertical = ListenBrainzTheme.paddings.sectionSeparation,
                                     horizontal = ListenBrainzTheme.paddings.horizontal
                                 )
                                 .shadow(4.dp, shape = ListenBrainzTheme.shapes.listenCardSmall)
@@ -401,7 +404,7 @@ fun ListensScreen(
                             )
 
                             HorizontalDivider(
-                                modifier = Modifier.padding(vertical = 8.dp),
+                                modifier = Modifier.padding(vertical = ListenBrainzTheme.paddings.sectionSeparation),
                                 color = ListenBrainzTheme.colorScheme.hint.copy(0.4f)
                             )
 
@@ -434,24 +437,21 @@ fun ListensScreen(
                     }
 
                     item {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            LoadMoreButton(
-                                modifier = Modifier
-                                    .padding(horizontal = ListenBrainzTheme.paddings.horizontal)
-                                    .padding(top = 16.dp)
-                                    .sharedBounds(
-                                        sharedContentState = rememberSharedContentState("listens back"),
-                                        animatedVisibilityScope = this@AnimatedContent,
-                                    ),
-                                state = true,
-                                onClick = {
-                                    showAllListens = true
-                                }
-                            )
-                        }
+                        LoadMoreButton(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentSize()
+                                .padding(horizontal = ListenBrainzTheme.paddings.horizontal)
+                                .padding(top = 16.dp)
+                                .sharedBounds(
+                                    sharedContentState = rememberSharedContentState("listens back"),
+                                    animatedVisibilityScope = this@AnimatedContent,
+                                ),
+                            state = true,
+                            onClick = {
+                                showAllListens = true
+                            }
+                        )
                     }
 
                     if (!uiState.isSelf) {
@@ -836,7 +836,7 @@ private fun FollowersInformation(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 (followersCount ?: 0).toString(),
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.headlineMedium,
                 color = ListenBrainzTheme.colorScheme.text,
                 fontWeight = FontWeight.Medium,
             )
@@ -849,7 +849,7 @@ private fun FollowersInformation(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 (followingCount ?: 0).toString(),
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.headlineMedium,
                 color = ListenBrainzTheme.colorScheme.text,
                 fontWeight = FontWeight.Medium,
             )

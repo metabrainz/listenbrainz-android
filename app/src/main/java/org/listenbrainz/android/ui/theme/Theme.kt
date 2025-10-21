@@ -224,6 +224,7 @@ data class Paddings(
     val lazyListAdjacent: Dp = 6.dp,
     val coverArtAndTextGap: Dp = 8.dp,
     val insideCard: Dp = 8.dp,
+    val sectionSeparation: Dp = 16.dp,
     /** Padding for text inside custom made buttons.*/
     val insideButton: Dp = 8.dp,
     val adjacentDialogButtons: Dp = 8.dp,
