@@ -73,6 +73,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.Metadata
@@ -218,7 +219,9 @@ fun ListensScreen(
 
     SharedTransitionScope { sharedTransitionModifier ->
         AnimatedContent(
-            modifier = Modifier.then(sharedTransitionModifier),
+            modifier = Modifier
+                .zIndex(69f)
+                .then(sharedTransitionModifier),
             targetState = showAllListens
         ) { allListensVisible ->
 
@@ -304,7 +307,10 @@ fun ListensScreen(
                                 showAllListens = false
                             }
                         ) {
-                            Text(text = "Back")
+                            Text(
+                                text = "Back",
+                                fontSize = 14.sp,
+                            )
                         }
                     }
 
@@ -443,6 +449,7 @@ fun ListensScreen(
                                 .wrapContentSize()
                                 .padding(horizontal = ListenBrainzTheme.paddings.horizontal)
                                 .padding(top = 16.dp)
+                                .zIndex(1f)
                                 .sharedBounds(
                                     sharedContentState = rememberSharedContentState("listens back"),
                                     animatedVisibilityScope = this@AnimatedContent,

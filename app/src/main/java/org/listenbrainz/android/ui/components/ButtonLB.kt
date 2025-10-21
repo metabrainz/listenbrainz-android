@@ -7,11 +7,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.ProvideLBButtonStyle
 import org.listenbrainz.android.util.ProvideOnLBSignatureColors
 
 @Composable
@@ -28,7 +30,7 @@ fun ButtonLB(
             .padding(horizontal = 10.dp, vertical = 2.dp),
         contentAlignment = Alignment.Center,
     ) {
-        ProvideOnLBSignatureColors {
+        ProvideLBButtonStyle {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 content = content

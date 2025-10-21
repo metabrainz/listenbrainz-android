@@ -16,6 +16,8 @@ import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.paging.PagingData
 import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
@@ -113,4 +115,21 @@ fun ProvideOnLBSignatureColors(content: @Composable () -> Unit) {
         androidx.compose.material.LocalTextStyle provides androidx.compose.material.LocalTextStyle.current.merge(color = ListenBrainzTheme.colorScheme.onLbSignature),
         content = content,
     )
+}
+
+@Composable
+fun ProvideLBButtonStyle(content: @Composable () -> Unit) {
+    ProvideOnLBSignatureColors {
+        CompositionLocalProvider(
+            LocalTextStyle provides LocalTextStyle.current.merge(
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp,
+            ),
+            androidx.compose.material.LocalTextStyle provides androidx.compose.material.LocalTextStyle.current.merge(
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp,
+            ),
+            content = content
+        )
+    }
 }
