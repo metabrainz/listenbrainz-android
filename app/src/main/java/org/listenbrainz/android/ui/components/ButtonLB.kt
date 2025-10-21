@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.ui.theme.lb_purple
+import org.listenbrainz.android.util.ProvideOnLBSignatureColors
 
 @Composable
 fun ButtonLB(
@@ -23,14 +23,16 @@ fun ButtonLB(
     Box(
         modifier = modifier
             .clip(ListenBrainzTheme.shapes.lbButton)
-            .background(lb_purple)
+            .background(ListenBrainzTheme.colorScheme.lbSignature)
             .clickable(onClick = onClick)
             .padding(horizontal = 10.dp, vertical = 2.dp),
         contentAlignment = Alignment.Center,
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            content = content
-        )
+        ProvideOnLBSignatureColors {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                content = content
+            )
+        }
     }
 }

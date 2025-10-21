@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
@@ -45,6 +46,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,6 +68,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
@@ -94,7 +97,6 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.app_bg_mid
 import org.listenbrainz.android.ui.theme.compatibilityMeterColor
 import org.listenbrainz.android.ui.theme.lb_purple_night
-import org.listenbrainz.android.ui.theme.new_app_bg_light
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils.Spacer
@@ -259,8 +261,7 @@ fun ListensScreen(
             fun RecentListensText(modifier: Modifier = Modifier) {
                 Text(
                     text = "Recent Listens",
-                    color = ListenBrainzTheme.colorScheme.text,
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),
+                    fontSize = 22.sp,
                     modifier = modifier
                         .padding(start = ListenBrainzTheme.paddings.horizontal)
                         .sharedElement(
@@ -280,12 +281,29 @@ fun ListensScreen(
                         .fillMaxSize()
                         .consumeHorizontalDrag()
                 ) {
-                    RecentListensText(
+                    Row(
                         modifier = Modifier.padding(
                             top = 16.dp,
                             bottom = 10.dp
-                        )
-                    )
+                        ),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RecentListensText(modifier = Modifier.weight(1f))
+
+                        ButtonLB(
+                            modifier = Modifier
+                                .padding(end = ListenBrainzTheme.paddings.horizontal)
+                                .sharedBounds(
+                                    sharedContentState = rememberSharedContentState("listens back"),
+                                    animatedVisibilityScope = this@AnimatedContent,
+                                ),
+                            onClick = {
+                                showAllListens = false
+                            }
+                        ) {
+                            Text(text = "Back")
+                        }
+                    }
 
                     LazyColumn(
                         contentPadding = PaddingValues(bottom = 16.dp)
@@ -423,7 +441,11 @@ fun ListensScreen(
                             LoadMoreButton(
                                 modifier = Modifier
                                     .padding(horizontal = ListenBrainzTheme.paddings.horizontal)
-                                    .padding(top = 16.dp),
+                                    .padding(top = 16.dp)
+                                    .sharedBounds(
+                                        sharedContentState = rememberSharedContentState("listens back"),
+                                        animatedVisibilityScope = this@AnimatedContent,
+                                    ),
                                 state = true,
                                 onClick = {
                                     showAllListens = true
@@ -443,8 +465,7 @@ fun ListensScreen(
                                 Spacer(30.dp)
                                 Text(
                                     "Your Compatibility",
-                                    color = ListenBrainzTheme.colorScheme.text,
-                                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),
+                                    fontSize = 22.sp,
                                     modifier = Modifier.padding(start = ListenBrainzTheme.paddings.horizontal)
                                 )
                                 Spacer(10.dp)
@@ -531,8 +552,7 @@ fun ListensScreen(
                                     Spacer(30.dp)
                                     Text(
                                         "Similar Users",
-                                        color = ListenBrainzTheme.colorScheme.text,
-                                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),
+                                        fontSize = 22.sp,
                                         modifier = Modifier.padding(start = ListenBrainzTheme.paddings.horizontal)
                                     )
                                     Spacer(10.dp)
@@ -627,9 +647,8 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
         similarArtists.isEmpty() -> {
             Text(
                 "You have no common artists",
-                color = ListenBrainzTheme.colorScheme.text,
+                fontSize = 14.sp,
                 modifier = Modifier.padding(start = ListenBrainzTheme.paddings.horizontal, bottom = 8.dp),
-                style = MaterialTheme.typography.bodyMedium
             )
         }
 
@@ -1050,19 +1069,15 @@ private fun AddListensButton(modifier: Modifier = Modifier) {
         Icon(
             imageVector = Icons.Default.Add,
             contentDescription = null,
-            tint = new_app_bg_light,
             modifier = Modifier.size(20.dp)
         )
         Spacer(5.dp)
-        Text(
-            text = "Add Listens",
-            color = new_app_bg_light,
-        )
+        Text(text = "Add Listens")
     }
 }
 
 
-@Preview
+@PreviewLightDark
 @Composable
 fun ListensScreenPreview() {
     PreviewSurface {

@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -31,23 +32,19 @@ fun MusicBrainzButton(onClick: () -> Unit) {
 
         Spacer(5.dp)
 
-        Text(
-            text = stringResource(R.string.musicbrainz),
-            color = new_app_bg_light,
-        )
+        Text(text = stringResource(R.string.musicbrainz))
 
         Spacer(5.dp)
 
         Icon(
             imageVector = Icons.AutoMirrored.Filled.OpenInNew,
             contentDescription = "",
-            tint = new_app_bg_light,
-            modifier = Modifier.width(20.dp)
+            modifier = Modifier.width(16.dp)
         )
     }
 }
 
-@Preview
+@PreviewLightDark
 @Composable
 private fun MBButtonPreview() {
     ListenBrainzTheme {

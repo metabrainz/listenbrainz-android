@@ -6,14 +6,20 @@ import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.text.TextStyle
 import androidx.paging.PagingData
 import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
+import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 fun Modifier.optionalSharedElement(
@@ -96,5 +102,15 @@ fun Modifier.consumeVerticalDrag(enabled: Boolean = true) = composed {
         state = rememberDraggableState {},
         orientation = Orientation.Vertical,
         enabled = enabled
+    )
+}
+
+@Composable
+fun ProvideOnLBSignatureColors(content: @Composable () -> Unit) {
+    CompositionLocalProvider(
+        LocalContentColor provides ListenBrainzTheme.colorScheme.onLbSignature,
+        LocalTextStyle provides LocalTextStyle.current.merge(color = ListenBrainzTheme.colorScheme.onLbSignature),
+        androidx.compose.material.LocalTextStyle provides androidx.compose.material.LocalTextStyle.current.merge(color = ListenBrainzTheme.colorScheme.onLbSignature),
+        content = content,
     )
 }
