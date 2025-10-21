@@ -10,8 +10,6 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -105,6 +103,7 @@ class UserViewModel @Inject constructor(
         MutableStateFlow(CreatedForTabUIState())
     private val playlistFlow: MutableStateFlow<PlaylistTabUIState> = MutableStateFlow(
         PlaylistTabUIState(
+            isLoading = false,
             userPlaylists = userPlaylistPager,
             collabPlaylists = collabPlaylistPager
         )
@@ -477,7 +476,7 @@ class UserViewModel @Inject constructor(
     }
 
     suspend fun getUserTasteData(inputUsername: String? = currentUser.value) {
-        if (!statsStateFlow.value.isLoading)
+        if (!tasteStateFlow.value.isLoading)
             return
 
         val lovedSongs = userRepository.getUserFeedback(inputUsername, 1).data
@@ -554,7 +553,7 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    fun deleltePlaylist(
+    fun deletePlaylist(
         playlistMbid: String?,
         onCompletion: (String) -> Unit
     ) {
