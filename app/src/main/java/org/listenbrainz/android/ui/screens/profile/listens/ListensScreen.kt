@@ -233,6 +233,7 @@ fun ListensScreen(
 
                 ListenCardSmallDefault(
                     modifier = modifier
+                        .zIndex(0f)
                         .padding(
                             horizontal = ListenBrainzTheme.paddings.horizontal,
                             vertical = ListenBrainzTheme.paddings.lazyListAdjacent
