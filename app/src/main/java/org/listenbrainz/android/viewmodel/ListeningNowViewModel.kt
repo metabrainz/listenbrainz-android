@@ -43,7 +43,10 @@ class ListeningNowViewModel @Inject constructor(
     private val listensRepository: ListensRepository,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
-    private val TAG = "ListeningNowViewModel"
+
+    companion object {
+        private const val TAG = "ListeningNowViewModel"
+    }
     private val _listeningNowUIState = MutableStateFlow(ListeningNowUIState())
     val listeningNowUIState = _listeningNowUIState.asStateFlow()
 
