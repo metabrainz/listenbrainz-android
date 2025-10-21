@@ -13,6 +13,7 @@ import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
 import org.listenbrainz.android.ui.screens.feed.SocialDropdown
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 
 @Composable
@@ -71,30 +72,28 @@ fun ListenLikeFeedLayout(
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun ListenLikeFeedLayoutPreview() {
-    ListenBrainzTheme {
-        Surface(color = ListenBrainzTheme.colorScheme.background) {
-            ListenLikeFeedLayout(
-                event = FeedEvent(
-                    id = 0,
-                    created = 0,
-                    type = "like",
-                    hidden = false, metadata = Metadata(),
-                    username = "Jasjeet"
-                ),
-                onDeleteOrHide = {},
-                onDropdownClick = {},
-                parentUser = "Jasjeet",
-                onClick = {},
-                dropdownState = null,
-                index = 0,
-                onOpenInMusicBrainz = {},
-                onPin = {},
-                onRecommend = {},
-                onPersonallyRecommend = {},
-                onReview = {},
-                goToUserPage = {},
-                goToArtistPage = {}
-            )
-        }
+    PreviewSurface {
+        ListenLikeFeedLayout(
+            event = FeedEvent(
+                id = 0,
+                created = 0,
+                type = "like",
+                hidden = false, metadata = Metadata(),
+                username = "Jasjeet"
+            ),
+            onDeleteOrHide = {},
+            onDropdownClick = {},
+            parentUser = "Jasjeet",
+            onClick = {},
+            dropdownState = null,
+            index = 0,
+            onOpenInMusicBrainz = {},
+            onPin = {},
+            onRecommend = {},
+            onPersonallyRecommend = {},
+            onReview = {},
+            goToUserPage = {},
+            goToArtistPage = {}
+        )
     }
 }

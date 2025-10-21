@@ -50,6 +50,7 @@ import org.listenbrainz.android.model.feed.FeedEventType
 import org.listenbrainz.android.model.feed.FeedEventType.Companion.getTimeStringForFeed
 import org.listenbrainz.android.model.feed.FeedEventType.Companion.isActionDelete
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.PreviewSurface
 
 @Composable
 fun BaseFeedLayout(
@@ -287,36 +288,35 @@ private fun HorizontalLine(
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun BaseFeedLayoutPreview() {
-    ListenBrainzTheme {
-        Surface(color = ListenBrainzTheme.colorScheme.background) {
-            val event = FeedEventType.RECORDING_PIN
-            BaseFeedLayout(
-                eventType = event,
-                parentUser = "Jasjeet",
-                event = FeedEvent(
-                    id = 0,
-                    created = System.currentTimeMillis().toInt(),
-                    type = "like",
-                    hidden = false, metadata = Metadata(user1 = "JasjeetTest"),
-                    username = "Jasjeet"
-                ),
-                goToUserPage = {},
-                onDeleteOrHide = {},
-            ) {
-                Card(modifier = Modifier
+    PreviewSurface {
+        val event = FeedEventType.RECORDING_PIN
+        BaseFeedLayout(
+            eventType = event,
+            parentUser = "Jasjeet",
+            event = FeedEvent(
+                id = 0,
+                created = System.currentTimeMillis().toInt(),
+                type = "like",
+                hidden = false, metadata = Metadata(user1 = "JasjeetTest"),
+                username = "Jasjeet"
+            ),
+            goToUserPage = {},
+            onDeleteOrHide = {},
+        ) {
+            Card(
+                modifier = Modifier
                     .fillMaxWidth()
                     .height(60.dp),
-                    colors = CardDefaults.cardColors(containerColor = ListenBrainzTheme.colorScheme.level1),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .padding(20.dp),
-                        text = "Content",
-                        color = ListenBrainzTheme.colorScheme.text
-                    )
-                }
+                colors = CardDefaults.cardColors(containerColor = ListenBrainzTheme.colorScheme.level1),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+            ) {
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(20.dp),
+                    text = "Content",
+                    color = ListenBrainzTheme.colorScheme.text
+                )
             }
         }
     }

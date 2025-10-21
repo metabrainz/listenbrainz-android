@@ -78,6 +78,7 @@ import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
@@ -840,13 +841,12 @@ private enum class FeedDialogBundleKeys {
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun FeedScreenPreview() {
-    ListenBrainzTheme {
-        Surface(color = ListenBrainzTheme.colorScheme.background) {
-            FeedScreen(
-                uiState = FeedUiState(
-                    FeedUiEventData(eventList = flow {
-                        emit(
-                            PagingData.from(
+    PreviewSurface {
+        FeedScreen(
+            uiState = FeedUiState(
+                FeedUiEventData(eventList = flow {
+                    emit(
+                        PagingData.from(
                             List(30) {
                                 FeedUiEventItem(
                                     eventType = FeedEventType.LISTEN,
@@ -861,25 +861,25 @@ private fun FeedScreenPreview() {
                                 )
                             }
                         ))
-                    })
-                ),
-                scrollToTopState = false,
-                callbacks = FeedCallbacks(
-                    onScrollToTop = {},
-                    onDeleteOrHide = { _, _, _ -> },
-                    onErrorShown = {},
-                    onRecommend = {},
-                    onPersonallyRecommend = { _, _, _ -> },
-                    onReview = { _, _, _, _, _ -> },
-                    onPin = { _, _ -> },
-                    searchFollower = {},
-                    isCritiqueBrainzLinked = { true },
-                    onPlay = {},
-                    goToUserPage = {},
-                    goToArtistPage = {}
-                ),
-                topBarActions = TopBarActions()
-            )
-        }
+                })
+            ),
+            scrollToTopState = false,
+            callbacks = FeedCallbacks(
+                onScrollToTop = {},
+                onDeleteOrHide = { _, _, _ -> },
+                onErrorShown = {},
+                onRecommend = {},
+                onPersonallyRecommend = { _, _, _ -> },
+                onReview = { _, _, _, _, _ -> },
+                onPin = { _, _ -> },
+                searchFollower = {},
+                isCritiqueBrainzLinked = { true },
+                onPlay = {},
+                goToUserPage = {},
+                goToArtistPage = {}
+            ),
+            topBarActions = TopBarActions()
+        )
     }
+
 }
