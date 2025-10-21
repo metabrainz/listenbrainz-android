@@ -40,7 +40,7 @@ import org.listenbrainz.android.ui.screens.profile.TasteTabUIState
 import org.listenbrainz.android.ui.screens.profile.playlists.CollabPlaylistPagingSource
 import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistPagingSource
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
-import org.listenbrainz.android.ui.screens.profile.stats.UserGlobal
+import org.listenbrainz.android.ui.screens.profile.stats.DataScope
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
@@ -316,21 +316,21 @@ class UserViewModel @Inject constructor(
                 ?: listOf()
 
         val userListeningActivityMap = mapOf(
-            Pair(UserGlobal.USER, StatsRange.THIS_WEEK) to userThisWeekListeningActivity,
-            Pair(UserGlobal.USER, StatsRange.THIS_MONTH) to userThisMonthListeningActivity,
-            Pair(UserGlobal.USER, StatsRange.THIS_YEAR) to userThisYearListeningActivity,
-            Pair(UserGlobal.USER, StatsRange.LAST_WEEK) to userLastWeekListeningActivity,
-            Pair(UserGlobal.USER, StatsRange.LAST_MONTH) to userLastMonthListeningActivity,
-            Pair(UserGlobal.USER, StatsRange.LAST_YEAR) to userLastYearListeningActivity,
-            Pair(UserGlobal.USER, StatsRange.ALL_TIME) to userAllTimeListeningActivity,
+            Pair(DataScope.USER, StatsRange.THIS_WEEK) to userThisWeekListeningActivity,
+            Pair(DataScope.USER, StatsRange.THIS_MONTH) to userThisMonthListeningActivity,
+            Pair(DataScope.USER, StatsRange.THIS_YEAR) to userThisYearListeningActivity,
+            Pair(DataScope.USER, StatsRange.LAST_WEEK) to userLastWeekListeningActivity,
+            Pair(DataScope.USER, StatsRange.LAST_MONTH) to userLastMonthListeningActivity,
+            Pair(DataScope.USER, StatsRange.LAST_YEAR) to userLastYearListeningActivity,
+            Pair(DataScope.USER, StatsRange.ALL_TIME) to userAllTimeListeningActivity,
 
-            Pair(UserGlobal.GLOBAL, StatsRange.THIS_WEEK) to globalThisWeekListeningActivity,
-            Pair(UserGlobal.GLOBAL, StatsRange.THIS_MONTH) to globalThisMonthListeningActivity,
-            Pair(UserGlobal.GLOBAL, StatsRange.THIS_YEAR) to globalThisYearListeningActivity,
-            Pair(UserGlobal.GLOBAL, StatsRange.LAST_WEEK) to globalLastWeekListeningActivity,
-            Pair(UserGlobal.GLOBAL, StatsRange.LAST_MONTH) to globalLastMonthListeningActivity,
-            Pair(UserGlobal.GLOBAL, StatsRange.LAST_YEAR) to globalLastYearListeningActivity,
-            Pair(UserGlobal.GLOBAL, StatsRange.ALL_TIME) to globalAllTimeListeningActivity,
+            Pair(DataScope.GLOBAL, StatsRange.THIS_WEEK) to globalThisWeekListeningActivity,
+            Pair(DataScope.GLOBAL, StatsRange.THIS_MONTH) to globalThisMonthListeningActivity,
+            Pair(DataScope.GLOBAL, StatsRange.THIS_YEAR) to globalThisYearListeningActivity,
+            Pair(DataScope.GLOBAL, StatsRange.LAST_WEEK) to globalLastWeekListeningActivity,
+            Pair(DataScope.GLOBAL, StatsRange.LAST_MONTH) to globalLastMonthListeningActivity,
+            Pair(DataScope.GLOBAL, StatsRange.LAST_YEAR) to globalLastYearListeningActivity,
+            Pair(DataScope.GLOBAL, StatsRange.ALL_TIME) to globalAllTimeListeningActivity,
         )
 
         val statsTabState = StatsTabUIState(

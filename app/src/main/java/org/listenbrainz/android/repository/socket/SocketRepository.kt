@@ -5,6 +5,6 @@ import org.listenbrainz.android.model.Listen
 
 interface SocketRepository {
 
-    fun listen(username: String): Flow<Listen>
+    fun listen(usernameProvider: suspend () -> String): Flow<Listen>
 
 }

@@ -10,8 +10,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.getAndUpdate
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -42,7 +45,7 @@ class ListensViewModel @Inject constructor(
     private val remotePlaybackHandler: RemotePlaybackHandler,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : BaseViewModel<ListensUiState>() {
-    
+
     private val isSpotifyLinked = MutableStateFlow(appPreferences.linkedServices.contains(LinkedService.SPOTIFY))
     private val isNotificationServiceAllowed = MutableStateFlow(appPreferences.isNotificationServiceAllowed)
     private val isLoading = MutableStateFlow(true)
@@ -50,32 +53,33 @@ class ListensViewModel @Inject constructor(
     private val songDuration = MutableStateFlow(0L)
     private val songCurrentPosition = MutableStateFlow(0L)
     private val progress = MutableStateFlow(0F)
+    val preferencesUiState: StateFlow<PreferencesUiState> = createPreferencesUiStateFlow()
+    val username = preferencesUiState.map { it.username }
     private val listensFlow = MutableStateFlow(listOf<Listen>())
     private val listeningNowBitmap = MutableStateFlow(ListenBitmap())
-    private val listeningNowFlow: MutableStateFlow<Listen?> = MutableStateFlow(null)
-    
+    private val listeningNowFlow = socketRepository
+        .listen { username.first { it.isNotEmpty() } }
+        .onEach { listen ->
+            if (listen.listenedAt != null) {
+                listensFlow.getAndUpdate {
+                    listOf(listen) + it
+                }
+            }
+        }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            null
+        )
+
     override val uiState: StateFlow<ListensUiState> = createUiStateFlow()
-    val preferencesUiState: StateFlow<PreferencesUiState> = createPreferencesUiStateFlow()
-    
+
     init {
         viewModelScope.launch {
             val username = withContext(ioDispatcher) { appPreferences.username.get() }
             if (username.isEmpty()) return@launch
             
-            launch { fetchUserListens(username = username) }
-            
-            withContext(ioDispatcher) {
-                socketRepository
-                    .listen(username)
-                    .collect { listen ->
-                        if (listen.listenedAt == null)
-                            listeningNowFlow.emit(listen)
-                        else
-                            listensFlow.getAndUpdate {
-                                listOf(listen) + it
-                            }
-                    }
-            }
+            fetchUserListens(username = username)
         }
     }
     

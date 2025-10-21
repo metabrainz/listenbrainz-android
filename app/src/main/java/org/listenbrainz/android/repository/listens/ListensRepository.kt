@@ -11,7 +11,7 @@ import org.listenbrainz.android.util.Resource
 
 interface ListensRepository {
     
-    suspend fun fetchUserListens(username: String?): Resource<Listens>
+    suspend fun fetchUserListens(username: String?, count: Int = 100): Resource<Listens>
     
     suspend fun fetchCoverArt(mbid: String): Resource<CoverArt>
 

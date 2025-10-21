@@ -105,8 +105,8 @@ fun StatsScreen(
     val statsRangeState: MutableState<StatsRange> = remember {
         mutableStateOf(StatsRange.THIS_WEEK)
     }
-    val userGlobalState: MutableState<UserGlobal> = remember {
-        mutableStateOf(UserGlobal.USER)
+    val dataScopeState: MutableState<DataScope> = remember {
+        mutableStateOf(DataScope.USER)
     }
 
     StatsScreen(
@@ -116,9 +116,9 @@ fun StatsScreen(
         setStatsRange = {
             range -> statsRangeState.value = range
         },
-        userGlobalState = userGlobalState.value,
+        dataScopeState = dataScopeState.value,
         setUserGlobal = {
-            selection -> userGlobalState.value = selection
+            selection -> dataScopeState.value = selection
         },
         fetchTopArtists = {
             viewModel.getUserTopArtists(it)
@@ -173,8 +173,8 @@ fun StatsScreen(
     uriHandler: UriHandler = LocalUriHandler.current,
     statsRangeState: StatsRange,
     setStatsRange: (StatsRange) -> Unit,
-    userGlobalState: UserGlobal,
-    setUserGlobal: (UserGlobal) -> Unit,
+    dataScopeState: DataScope,
+    setUserGlobal: (DataScope) -> Unit,
     fetchTopArtists: suspend (String?) -> Unit,
     fetchTopAlbums: suspend (String?) -> Unit,
     fetchTopSongs: suspend (String?) -> Unit,
@@ -262,7 +262,7 @@ fun StatsScreen(
         }
         item {
             UserGlobalBar(
-                userGlobalState = userGlobalState,
+                dataScopeState = dataScopeState,
                 onUserGlobalChange = setUserGlobal,
                 username = username
             )
@@ -280,7 +280,7 @@ fun StatsScreen(
 
                     Spacer(modifier = Modifier.height(15.dp))
 
-                    val data = uiState.statsTabUIState.userListeningActivity[Pair(userGlobalState, statsRangeState)] ?: listOf()
+                    val data = uiState.statsTabUIState.userListeningActivity[Pair(dataScopeState, statsRangeState)] ?: listOf()
                     if (data.isNotEmpty()) {
                         val modelProducer = remember {
                             CartesianChartModelProducer()
@@ -703,17 +703,17 @@ private fun RangeBar(
 
 @Composable
 private fun UserGlobalBar(
-    userGlobalState: UserGlobal,
-    onUserGlobalChange: (UserGlobal) -> Unit,
+    dataScopeState: DataScope,
+    onUserGlobalChange: (DataScope) -> Unit,
     username: String?
 ){
     LazyRow {
             item {
-                val reqdState = userGlobalState == UserGlobal.USER
+                val reqdState = dataScopeState == DataScope.USER
                 Spacer(modifier = Modifier.width(10.dp))
                 ElevatedSuggestionChip(
                     onClick = {
-                        onUserGlobalChange(UserGlobal.USER)
+                        onUserGlobalChange(DataScope.USER)
                     },
                     label = {
                         Text((username ?: "").toString(), color = when(reqdState){
@@ -737,10 +737,10 @@ private fun UserGlobalBar(
                 Spacer(modifier = Modifier.width(10.dp))
             }
             item {
-                val reqdState = userGlobalState == UserGlobal.GLOBAL
+                val reqdState = dataScopeState == DataScope.GLOBAL
                 ElevatedSuggestionChip(
                     onClick = {
-                        onUserGlobalChange(UserGlobal.GLOBAL)
+                        onUserGlobalChange(DataScope.GLOBAL)
                     },
                     label = {
                         Row (verticalAlignment = Alignment.CenterVertically) {

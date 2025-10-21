@@ -11,7 +11,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
-import org.listenbrainz.android.ui.screens.profile.stats.UserGlobal
+import org.listenbrainz.android.ui.screens.profile.stats.DataScope
 import org.listenbrainz.android.viewmodel.UserViewModel
 import org.listenbrainz.sharedtest.mocks.MockAppPreferences
 import org.listenbrainz.sharedtest.mocks.MockListensRepository
@@ -63,6 +63,6 @@ class UserViewModelTest {
         assertEquals("6b08f3d4-0d56-406c-b628-d0afe2ad5d44", viewModel.uiState.value.tasteTabUIState.lovedSongs?.feedback?.get(0)?.recordingMBID)
 
         // Ensure that the user listening activity data for all time is loaded with the correct size
-        assertEquals(23, viewModel.uiState.value.statsTabUIState.userListeningActivity.get(Pair(UserGlobal.USER, StatsRange.ALL_TIME))?.size)
+        assertEquals(23, viewModel.uiState.value.statsTabUIState.userListeningActivity.get(Pair(DataScope.USER, StatsRange.ALL_TIME))?.size)
     }
 }

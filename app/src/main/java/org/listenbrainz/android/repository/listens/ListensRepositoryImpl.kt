@@ -19,11 +19,11 @@ import javax.inject.Singleton
 @Singleton
 class ListensRepositoryImpl @Inject constructor(val service: ListensService) : ListensRepository {
     
-    override suspend fun fetchUserListens(username: String?): Resource<Listens> = parseResponse {
+    override suspend fun fetchUserListens(username: String?, count: Int): Resource<Listens> = parseResponse {
         if (username.isNullOrEmpty())
             return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
         
-        service.getUserListens(username = username, count = 100)
+        service.getUserListens(username = username, count = count)
     }
 
     override suspend fun fetchCoverArt(mbid: String): Resource<CoverArt> = parseResponse {
