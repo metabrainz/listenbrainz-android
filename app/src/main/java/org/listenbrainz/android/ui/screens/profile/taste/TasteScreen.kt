@@ -1,39 +1,27 @@
 package org.listenbrainz.android.ui.screens.profile.taste
 
-import LovedHated
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.HeartBroken
-import androidx.compose.material3.ElevatedSuggestionChip
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -54,8 +42,10 @@ import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.user.UserFeedback
 import org.listenbrainz.android.model.user.UserFeedbackEntry
+import org.listenbrainz.android.ui.components.ChipItem
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
+import org.listenbrainz.android.ui.components.SelectionChipBar
 import org.listenbrainz.android.ui.components.SuccessBar
 import org.listenbrainz.android.ui.components.dialogs.Dialog
 import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
@@ -148,7 +138,7 @@ fun TasteScreen(
     onMessageShown: () -> Unit,
     goToArtistPage: (String) -> Unit,
 ) {
-    val lovedHatedState: MutableState<LovedHated> = remember { mutableStateOf(LovedHated.loved) }
+    val lovedHatedState: MutableState<LovedHated> = remember { mutableStateOf(LovedHated.Loved) }
 
     val lovedHatedCollapsibleState: MutableState<Boolean> = remember {
         mutableStateOf(true)
@@ -166,24 +156,42 @@ fun TasteScreen(
 
     LazyColumn {
         item {
-            LovedHatedBar(
-                lovedHatedState = lovedHatedState.value,
-                onLovedClick = {
-                    lovedHatedState.value = LovedHated.loved
+            val lovedHatedChips = listOf(
+                ChipItem(
+                    id = LovedHated.Loved.name,
+                    label = LovedHated.Loved.name,
+                    icon = painterResource(id = R.drawable.heart)
+                ),
+                ChipItem(
+                    id = LovedHated.Hated.name,
+                    label = LovedHated.Hated.name,
+                    icon = rememberVectorPainter(Icons.Default.HeartBroken)
+                )
+            )
+            
+            SelectionChipBar(
+                items = lovedHatedChips,
+                selectedItemId = when (lovedHatedState.value) {
+                    LovedHated.Loved -> LovedHated.Loved.name
+                    LovedHated.Hated -> LovedHated.Hated.name
                 },
-                onHatedClick = {
-                    lovedHatedState.value = LovedHated.hated
+                onItemSelected = { data ->
+                    lovedHatedState.value = when (data.id) {
+                        LovedHated.Loved.name -> LovedHated.Loved
+                        LovedHated.Hated.name -> LovedHated.Hated
+                        else -> LovedHated.Loved
+                    }
                 }
             )
         }
         itemsIndexed(
             items = when (lovedHatedState.value) {
-                LovedHated.loved -> when (lovedHatedCollapsibleState.value) {
+                LovedHated.Loved -> when (lovedHatedCollapsibleState.value) {
                     true -> uiState.tasteTabUIState.lovedSongs?.feedback?.take(5) ?: listOf()
                     false -> uiState.tasteTabUIState.lovedSongs?.feedback ?: listOf()
                 }
 
-                LovedHated.hated -> when (lovedHatedCollapsibleState.value) {
+                LovedHated.Hated -> when (lovedHatedCollapsibleState.value) {
                     true -> uiState.tasteTabUIState.hatedSongs?.feedback?.take(5) ?: listOf()
                     false -> uiState.tasteTabUIState.hatedSongs?.feedback ?: listOf()
                 }
@@ -429,92 +437,6 @@ fun TasteScreen(
         snackbarState = snackbarState,
         socialUiState = socialUiState
     )
-}
-
-@Composable
-private fun LovedHatedBar(
-    lovedHatedState: LovedHated,
-    onLovedClick: () -> Unit,
-    onHatedClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .horizontalScroll(rememberScrollState())
-            .padding(start = ListenBrainzTheme.paddings.horizontal),
-        horizontalArrangement = Arrangement.spacedBy(ListenBrainzTheme.paddings.horizontal)
-    ) {
-        ElevatedSuggestionChip(
-            onClick = onLovedClick,
-            label = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        "Loved", color = when (lovedHatedState == LovedHated.loved) {
-                            true -> ListenBrainzTheme.colorScheme.followerChipUnselected
-                            false -> ListenBrainzTheme.colorScheme.followerChipSelected
-                        }
-                    )
-                    Spacer(modifier = Modifier.width(5.dp))
-                    Icon(
-                        painter = painterResource(id = R.drawable.heart),
-                        contentDescription = "",
-                        modifier = Modifier.height(15.dp),
-                        tint = when (lovedHatedState == LovedHated.loved) {
-                            true -> ListenBrainzTheme.colorScheme.followerChipUnselected
-                            false -> ListenBrainzTheme.colorScheme.followerChipSelected
-                        }
-                    )
-                }
-            },
-            shape = ListenBrainzTheme.shapes.signatureChips,
-            border = when (lovedHatedState == LovedHated.loved) {
-                true -> null
-                false -> BorderStroke(1.dp, ListenBrainzTheme.colorScheme.lbSignature)
-            },
-            colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
-                if (lovedHatedState == LovedHated.loved) {
-                    ListenBrainzTheme.colorScheme.followerChipSelected
-                } else {
-                    ListenBrainzTheme.colorScheme.followerChipUnselected
-                }
-            ),
-        )
-
-        ElevatedSuggestionChip(
-            onClick = onHatedClick,
-            label = {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        "Hated", color = when (lovedHatedState == LovedHated.hated) {
-                            true -> ListenBrainzTheme.colorScheme.followerChipUnselected
-                            false -> ListenBrainzTheme.colorScheme.followerChipSelected
-                        }
-                    )
-                    Spacer(modifier = Modifier.width(5.dp))
-                    Icon(
-                        Icons.Default.HeartBroken,
-                        contentDescription = "",
-                        modifier = Modifier.height(15.dp),
-                        tint = when (lovedHatedState == LovedHated.hated) {
-                            true -> ListenBrainzTheme.colorScheme.followerChipUnselected
-                            false -> ListenBrainzTheme.colorScheme.followerChipSelected
-                        }
-                    )
-                }
-            },
-            shape = ListenBrainzTheme.shapes.signatureChips,
-            border = when (lovedHatedState == LovedHated.hated) {
-                true -> null
-                false -> BorderStroke(1.dp, ListenBrainzTheme.colorScheme.lbSignature)
-            },
-            colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
-                if (lovedHatedState == LovedHated.hated) {
-                    ListenBrainzTheme.colorScheme.followerChipSelected
-                } else {
-                    ListenBrainzTheme.colorScheme.followerChipUnselected
-                }
-            ),
-        )
-    }
 }
 
 @PreviewLightDark

@@ -46,6 +46,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
@@ -73,8 +74,10 @@ import org.listenbrainz.android.model.user.Artist
 import org.listenbrainz.android.model.user.ListeningActivity
 import org.listenbrainz.android.model.user.TopArtists
 import org.listenbrainz.android.model.user.TopArtistsPayload
+import org.listenbrainz.android.ui.components.ChipItem
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
+import org.listenbrainz.android.ui.components.SelectionChipBar
 import org.listenbrainz.android.ui.components.SuccessBar
 import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
 import org.listenbrainz.android.ui.screens.artist.formatNumber
@@ -87,6 +90,7 @@ import org.listenbrainz.android.ui.screens.profile.listens.LoadMoreButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.app_bg_secondary_dark
 import org.listenbrainz.android.ui.theme.lb_purple_night
+import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils.LaunchedEffectUnit
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.FeedViewModel
@@ -199,6 +203,7 @@ fun StatsScreen(
     onPersonallyRecommend: (metadata: Metadata, users: List<String>, blurbContent: String) -> Unit,
     goToArtistPage: (String) -> Unit,
 ) {
+    val coroutineScope = rememberCoroutineScope()
     var currentTabSelection by remember {
         mutableStateOf(CategoryState.ARTISTS)
     }
@@ -264,18 +269,38 @@ fun StatsScreen(
 
     LazyColumn(modifier = Modifier.testTag("statsScreenScrollableContainer")) {
         item {
-            RangeBar(
-                statsRangeState = statsRangeState,
-                onClick = { range ->
-                    setStatsRange(range)
+            val chipItems = listOf(
+                ChipItem(id = "THIS_WEEK", label = StatsRange.THIS_WEEK.rangeString),
+                ChipItem(id = "THIS_MONTH", label = StatsRange.THIS_MONTH.rangeString),
+                ChipItem(id = "THIS_YEAR", label = StatsRange.THIS_YEAR.rangeString),
+                ChipItem(id = "LAST_WEEK", label = StatsRange.LAST_WEEK.rangeString),
+                ChipItem(id = "LAST_MONTH", label = StatsRange.LAST_MONTH.rangeString),
+                ChipItem(id = "LAST_YEAR", label = StatsRange.LAST_YEAR.rangeString),
+                ChipItem(id = "ALL_TIME", label = StatsRange.ALL_TIME.rangeString)
+            )
+            SelectionChipBar(
+                items = chipItems,
+                selectedItemId = statsRangeState.name,
+                onItemSelected = { data ->
+                    setStatsRange(StatsRange.valueOf(data.id))
                 }
             )
         }
         item {
-            UserGlobalBar(
-                dataScopeState = dataScopeState,
-                onUserGlobalChange = setUserGlobal,
-                username = username
+            val userGlobalChips = listOf(
+                ChipItem(id = "USER", label = username.orEmpty()),
+                ChipItem(
+                    id = "GLOBAL",
+                    label = "Global",
+                    icon = painterResource(id = R.drawable.globe)
+                )
+            )
+            SelectionChipBar(
+                items = userGlobalChips,
+                selectedItemId = dataScopeState.name,
+                onItemSelected = { data ->
+                    setUserGlobal(DataScope.valueOf(data.id))
+                }
             )
         }
         item {
@@ -401,7 +426,7 @@ fun StatsScreen(
                     .padding(start = 10.dp, top = 30.dp)
             ) {
                 Text(
-                    "Top ...",
+                    text = "Top ...",
                     color = ListenBrainzTheme.colorScheme.text,
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp)
                 )
@@ -699,142 +724,6 @@ fun ArtistCard(
     }
 }
 
-@Composable
-private fun RangeBar(
-    statsRangeState: StatsRange,
-    onClick: (StatsRange) -> Unit
-) {
-    LazyRow {
-        repeat(7) { position ->
-            val rangeAtIndex = when (position) {
-                0 -> StatsRange.THIS_WEEK
-                1 -> StatsRange.THIS_MONTH
-                2 -> StatsRange.THIS_YEAR
-                3 -> StatsRange.LAST_WEEK
-                4 -> StatsRange.LAST_MONTH
-                5 -> StatsRange.LAST_YEAR
-                6 -> StatsRange.ALL_TIME
-                else -> StatsRange.ALL_TIME
-            }
-            item {
-                if (position == 0) {
-                    Spacer(modifier = Modifier.width(10.dp))
-                }
-                ElevatedSuggestionChip(
-                    onClick = {
-                        onClick(rangeAtIndex)
-                    },
-                    label = {
-                        Text(
-                            rangeAtIndex.rangeString,
-                            color = when (statsRangeState == rangeAtIndex) {
-                                true -> ListenBrainzTheme.colorScheme.followerChipUnselected
-                                false -> ListenBrainzTheme.colorScheme.followerChipSelected
-                            },
-                            style = ListenBrainzTheme.textStyles.chips
-                        )
-                    },
-                    shape = ListenBrainzTheme.shapes.signatureChips,
-                    border = when (statsRangeState == rangeAtIndex) {
-                        true -> null
-                        false -> BorderStroke(1.dp, ListenBrainzTheme.colorScheme.lbSignature)
-                    },
-                    colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
-                        if (statsRangeState == rangeAtIndex) {
-                            ListenBrainzTheme.colorScheme.followerChipSelected
-                        } else {
-                            ListenBrainzTheme.colorScheme.followerChipUnselected
-                        }
-                    ),
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-            }
-        }
-    }
-}
-
-@Composable
-private fun UserGlobalBar(
-    dataScopeState: DataScope,
-    onUserGlobalChange: (DataScope) -> Unit,
-    username: String?
-) {
-    LazyRow {
-        item {
-            val reqdState = dataScopeState == DataScope.USER
-            Spacer(modifier = Modifier.width(10.dp))
-            ElevatedSuggestionChip(
-                onClick = {
-                    onUserGlobalChange(DataScope.USER)
-                },
-                label = {
-                    Text(
-                        username.orEmpty(), color = when (reqdState) {
-                            true -> ListenBrainzTheme.colorScheme.followerChipUnselected
-                            false -> ListenBrainzTheme.colorScheme.followerChipSelected
-                        }, style = ListenBrainzTheme.textStyles.chips
-                    )
-                },
-                shape = ListenBrainzTheme.shapes.signatureChips,
-                border = when (reqdState) {
-                    true -> null
-                    false -> BorderStroke(1.dp, ListenBrainzTheme.colorScheme.lbSignature)
-                },
-                colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
-                    if (reqdState) {
-                        ListenBrainzTheme.colorScheme.followerChipSelected
-                    } else {
-                        ListenBrainzTheme.colorScheme.followerChipUnselected
-                    }
-                ),
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-        }
-        item {
-            val reqdState = dataScopeState == DataScope.GLOBAL
-            ElevatedSuggestionChip(
-                onClick = {
-                    onUserGlobalChange(DataScope.GLOBAL)
-                },
-                label = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            "Global", color = when (reqdState) {
-                                true -> ListenBrainzTheme.colorScheme.followerChipUnselected
-                                false -> ListenBrainzTheme.colorScheme.followerChipSelected
-                            }, style = ListenBrainzTheme.textStyles.chips
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Icon(
-                            painter = painterResource(id = R.drawable.globe),
-                            contentDescription = "",
-                            modifier = Modifier.height(25.dp),
-                            tint = when (reqdState) {
-                                true -> ListenBrainzTheme.colorScheme.followerChipUnselected
-                                false -> ListenBrainzTheme.colorScheme.followerChipSelected
-                            }
-                        )
-                    }
-
-                },
-                shape = ListenBrainzTheme.shapes.signatureChips,
-                border = when (reqdState) {
-                    true -> null
-                    false -> BorderStroke(1.dp, ListenBrainzTheme.colorScheme.lbSignature)
-                },
-                colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
-                    if (reqdState) {
-                        ListenBrainzTheme.colorScheme.followerChipSelected
-                    } else {
-                        ListenBrainzTheme.colorScheme.followerChipUnselected
-                    }
-                ),
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-        }
-    }
-}
-
 private fun valueFormatter(value: Int, statsRange: StatsRange): String {
     val label: String = when (statsRange) {
         StatsRange.THIS_WEEK, StatsRange.LAST_WEEK -> when (value % 7) {
@@ -870,7 +759,7 @@ private fun valueFormatter(value: Int, statsRange: StatsRange): String {
     return label
 }
 
-@Preview(showBackground = true)
+@PreviewLightDark
 @Composable
 private fun StatsScreenPreview() {
     // Create mock data for artists
@@ -1103,7 +992,7 @@ private fun StatsScreenPreview() {
 
     val mockFeedUiState = FeedUiState()
 
-    ListenBrainzTheme {
+    PreviewSurface {
         StatsScreen(
             username = "test_user",
             uiState = mockUiState,
