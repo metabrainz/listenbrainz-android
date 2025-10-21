@@ -62,22 +62,18 @@ import com.patrykandpatrick.vico.core.common.Dimensions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
-import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.ErrorBar
-import org.listenbrainz.android.ui.components.ListenCardSmall
+import org.listenbrainz.android.ui.components.ListenCardSmallDefault
 import org.listenbrainz.android.ui.components.SuccessBar
-import org.listenbrainz.android.ui.components.dialogs.Dialog
 import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
 import org.listenbrainz.android.ui.screens.artist.formatNumber
 import org.listenbrainz.android.ui.screens.feed.FeedUiState
-import org.listenbrainz.android.ui.screens.feed.SocialDropdown
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.screens.profile.listens.Dialogs
 import org.listenbrainz.android.ui.screens.profile.listens.ListenDialogBundleKeys
@@ -211,8 +207,6 @@ fun StatsScreen(
     }
 
     val dialogsState = rememberDialogsState()
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
 
     LaunchedEffectUnit {
         snapshotFlow { currentTabSelection }.collectLatest {
@@ -446,7 +440,10 @@ fun StatsScreen(
 
                                if((uiState.statsTabUIState.topArtists?.size ?: 0) > 5){
                                    LoadMoreButton(
-                                       modifier = Modifier.padding(16.dp),
+                                       modifier = Modifier.padding(
+                                           vertical = 16.dp,
+                                           horizontal = ListenBrainzTheme.paddings.horizontal
+                                       ),
                                        state = artistsCollapseState
                                    ) {
                                        artistsCollapseState = !artistsCollapseState
@@ -463,28 +460,40 @@ fun StatsScreen(
                        }
                        else{
                            Column (horizontalAlignment = Alignment.CenterHorizontally) {
-                               topAlbums.mapIndexed {
-                                       index, topAlbum ->
-                                   ListenCardSmall(
-                                       trackName = topAlbum.releaseName ?: "",
-                                       artists = topAlbum.artists ?: listOf(FeedListenArtist(topAlbum.artistName ?: "", null, "")),
+                               topAlbums.mapIndexed { index, topAlbum ->
+                                   val metadata = topAlbum.toMetadata()
+                                   ListenCardSmallDefault(
+                                       metadata = metadata,
                                        coverArtUrl = getCoverArtUrl(topAlbum.caaReleaseMbid, topAlbum.caaId),
-                                       modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, end = 10.dp),
+                                       modifier = Modifier
+                                           .padding(
+                                               vertical = ListenBrainzTheme.paddings.vertical,
+                                               horizontal = ListenBrainzTheme.paddings.horizontal
+                                           ),
                                        color = app_bg_secondary_dark,
                                        titleColor = ListenBrainzTheme.colorScheme.followerChipSelected,
                                        subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),
                                        enableTrailingContent = true,
                                        listenCount = topAlbum.listenCount,
-                                       goToArtistPage = goToArtistPage
-                                       )
-                                   {
-
-                                   }
+                                       goToArtistPage = goToArtistPage,
+                                       onDropdownError = {
+                                           snackbarState.showSnackbar(it.toast)
+                                       },
+                                       onDropdownSuccess = {
+                                           snackbarState.showSnackbar(it)
+                                       },
+                                       onClick = {
+                                           metadata.trackMetadata?.let { playListen(it) }
+                                       }
+                                   )
                                }
 
-                               if((uiState.statsTabUIState.topAlbums?.size ?: 0) > 5) {
+                               if ((uiState.statsTabUIState.topAlbums?.size ?: 0) > 5) {
                                    LoadMoreButton(
-                                       modifier = Modifier.padding(16.dp),
+                                       modifier = Modifier.padding(
+                                           vertical = 16.dp,
+                                           horizontal = ListenBrainzTheme.paddings.horizontal
+                                       ),
                                        state = albumsCollapseState
                                    ) {
                                        albumsCollapseState = !albumsCollapseState
@@ -501,56 +510,29 @@ fun StatsScreen(
                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                topSongs.mapIndexed { index, topSong ->
                                    val metadata = Metadata(trackMetadata = topSong.toTrackMetadata())
-                                   ListenCardSmall(
-                                       trackName = topSong.trackName ?: "",
-                                       artists = topSong.artists ?:listOf(FeedListenArtist(topSong.artistName ?: "", null, "")),
+                                   ListenCardSmallDefault(
+                                       metadata = metadata,
                                        coverArtUrl = getCoverArtUrl(topSong.caaReleaseMbid, topSong.caaId),
-                                       modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, end = 10.dp),
+                                       modifier = Modifier
+                                           .padding(
+                                               vertical = ListenBrainzTheme.paddings.vertical,
+                                               horizontal = ListenBrainzTheme.paddings.horizontal
+                                           ),
                                        color = app_bg_secondary_dark,
                                        titleColor = ListenBrainzTheme.colorScheme.followerChipSelected,
                                        subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),
-                                       onDropdownIconClick = {
-                                           dropdownItemIndex.value = index
-                                       },
-                                       dropDown = {
-                                           SocialDropdown(
-                                               isExpanded = dropdownItemIndex.value == index,
-                                               onDismiss = {
-                                                   dropdownItemIndex.value = null
-                                               },
-                                               metadata = metadata,
-                                               onRecommend = { onRecommend(metadata) },
-                                               onPersonallyRecommend = {
-                                                   dialogsState.activateDialog(Dialog.PERSONAL_RECOMMENDATION , ListenDialogBundleKeys.listenDialogBundle(0, index))
-                                                   dropdownItemIndex.value = null
-                                               },
-                                               onReview = {
-                                                   dialogsState.activateDialog(Dialog.REVIEW , ListenDialogBundleKeys.listenDialogBundle(0, index))
-                                                   dropdownItemIndex.value = null
-                                               },
-                                               onPin = {
-                                                   dialogsState.activateDialog(Dialog.PIN , ListenDialogBundleKeys.listenDialogBundle(0, index))
-                                                   dropdownItemIndex.value = null
-                                               },
-                                               onOpenInMusicBrainz = {
-                                                   try {
-                                                       uriHandler.openUri("https://musicbrainz.org/recording/${metadata.trackMetadata?.mbidMapping?.recordingMbid}")
-                                                   }
-                                                   catch(e : Error) {
-                                                       scope.launch {
-                                                           snackbarState.showSnackbar(context.getString(R.string.err_generic_toast))
-                                                       }
-                                                   }
-                                                   dropdownItemIndex.value = null
-                                               }
-                                           )
-                                       },
                                        enableTrailingContent = true,
                                        listenCount = topSong.listenCount,
-                                       goToArtistPage = goToArtistPage
+                                       goToArtistPage = goToArtistPage,
+                                       onDropdownError = {
+                                           snackbarState.showSnackbar(it.toast)
+                                       },
+                                       onDropdownSuccess = {
+                                           snackbarState.showSnackbar(it)
+                                       }
                                    ) {
                                        val trackMetadata = metadata.trackMetadata
-                                       if(trackMetadata != null){
+                                       if (trackMetadata != null){
                                            playListen(trackMetadata)
                                        }
                                    }
@@ -558,7 +540,10 @@ fun StatsScreen(
 
                                if((uiState.statsTabUIState.topSongs?.size ?: 0) > 5) {
                                    LoadMoreButton(
-                                       modifier = Modifier.padding(16.dp),
+                                       modifier = Modifier.padding(
+                                           vertical = 16.dp,
+                                           horizontal = ListenBrainzTheme.paddings.horizontal
+                                       ),
                                        state = songsCollapseState
                                    ) {
                                        songsCollapseState = !songsCollapseState
@@ -572,7 +557,7 @@ fun StatsScreen(
         }
     }
 
-    ErrorBar(error = socialUiState.error, onErrorShown = onErrorShown )
+    ErrorBar(error = socialUiState.error, onErrorShown = onErrorShown)
     SuccessBar(resId = socialUiState.successMsgId, onMessageShown = onMessageShown, snackbarState = snackbarState)
 
     Dialogs(
