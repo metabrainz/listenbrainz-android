@@ -51,8 +51,8 @@ class ListeningNowViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             appPreferences.username.getFlow().collectLatest { username ->
                 fetchListenFromAPI(username)
-                Log.d("Socket listning", "Listening for $username")
-                socketRepository.listen(username).collectLatest { listen ->
+                Log.d("Socket listening", "Listening for $username")
+                socketRepository.listen { username }.collectLatest { listen ->
                     updateUIState(listen)
                 }
             }
