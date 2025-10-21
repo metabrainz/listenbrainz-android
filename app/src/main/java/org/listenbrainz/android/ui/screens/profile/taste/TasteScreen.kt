@@ -168,7 +168,7 @@ fun TasteScreen(
                     icon = rememberVectorPainter(Icons.Default.HeartBroken)
                 )
             )
-            
+
             SelectionChipBar(
                 items = lovedHatedChips,
                 selectedItemId = when (lovedHatedState.value) {
@@ -197,7 +197,7 @@ fun TasteScreen(
                 }
             }
         ) { index, feedback ->
-            val metadata = Metadata(trackMetadata = feedback.trackMetadata)
+            val metadata = feedback.toMetadata()
             ListenCardSmall(
                 modifier = Modifier
                     .padding(
