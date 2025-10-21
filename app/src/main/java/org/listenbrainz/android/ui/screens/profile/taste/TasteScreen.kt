@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
@@ -54,11 +55,13 @@ import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
 import org.listenbrainz.android.ui.screens.feed.FeedUiState
 import org.listenbrainz.android.ui.screens.feed.SocialDropdown
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
+import org.listenbrainz.android.ui.screens.profile.TasteTabUIState
 import org.listenbrainz.android.ui.screens.profile.listens.Dialogs
 import org.listenbrainz.android.ui.screens.profile.listens.ListenDialogBundleKeys
 import org.listenbrainz.android.ui.screens.profile.listens.LoadMoreButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple_night
+import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
@@ -79,6 +82,7 @@ fun TasteScreen(
     val dropdownItemIndex: MutableState<Int?> = rememberSaveable {
         mutableStateOf(null)
     }
+
     TasteScreen(
         uiState = uiState,
         socialUiState = socialUiState,
@@ -442,6 +446,200 @@ private fun LovedHatedBar(
                     ListenBrainzTheme.colorScheme.followerChipUnselected
                 }
             ),
+        )
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun TasteScreenPreview() {
+    // Create mock data for loved songs
+    val mockLovedSongs = UserFeedback(
+        count = 10,
+        feedback = listOf(
+            UserFeedbackEntry(
+                created = 1234567890,
+                recordingMBID = "mbid1",
+                score = 1,
+                trackMetadata = TrackMetadata(
+                    additionalInfo = null,
+                    artistName = "The Beatles",
+                    mbidMapping = MbidMapping(
+                        artistMbids = listOf("artist-mbid-1"),
+                        artists = listOf(
+                            FeedListenArtist("The Beatles", "artist-mbid-1", null)
+                        ),
+                        caaId = 123456L,
+                        caaReleaseMbid = "release-mbid-1",
+                        recordingMbid = "recording-mbid-1",
+                        recordingName = "Yesterday",
+                        releaseMbid = "release-mbid-1"
+                    ),
+                    releaseName = "Help!",
+                    trackName = "Yesterday"
+                )
+            ),
+            UserFeedbackEntry(
+                created = 1234567891,
+                recordingMBID = "mbid2",
+                score = 1,
+                trackMetadata = TrackMetadata(
+                    additionalInfo = null,
+                    artistName = "Pink Floyd",
+                    mbidMapping = MbidMapping(
+                        artistMbids = listOf("artist-mbid-2"),
+                        artists = listOf(
+                            FeedListenArtist("Pink Floyd", "artist-mbid-2", null)
+                        ),
+                        caaId = 789012L,
+                        caaReleaseMbid = "release-mbid-2",
+                        recordingMbid = "recording-mbid-2",
+                        recordingName = "Comfortably Numb",
+                        releaseMbid = "release-mbid-2"
+                    ),
+                    releaseName = "The Wall",
+                    trackName = "Comfortably Numb"
+                )
+            ),
+            UserFeedbackEntry(
+                created = 1234567892,
+                recordingMBID = "mbid3",
+                score = 1,
+                trackMetadata = TrackMetadata(
+                    additionalInfo = null,
+                    artistName = "Led Zeppelin",
+                    mbidMapping = MbidMapping(
+                        artistMbids = listOf("artist-mbid-3"),
+                        artists = listOf(
+                            FeedListenArtist("Led Zeppelin", "artist-mbid-3", null)
+                        ),
+                        caaId = 345678L,
+                        caaReleaseMbid = "release-mbid-3",
+                        recordingMbid = "recording-mbid-3",
+                        recordingName = "Stairway to Heaven",
+                        releaseMbid = "release-mbid-3"
+                    ),
+                    releaseName = "Led Zeppelin IV",
+                    trackName = "Stairway to Heaven"
+                )
+            )
+        )
+    )
+
+    // Create mock data for hated songs
+    val mockHatedSongs = UserFeedback(
+        count = 3,
+        feedback = listOf(
+            UserFeedbackEntry(
+                created = 1234567893,
+                recordingMBID = "mbid4",
+                score = -1,
+                trackMetadata = TrackMetadata(
+                    additionalInfo = null,
+                    artistName = "Artist A",
+                    mbidMapping = MbidMapping(
+                        artistMbids = listOf("artist-mbid-4"),
+                        artists = listOf(
+                            FeedListenArtist("Artist A", "artist-mbid-4", null)
+                        ),
+                        caaId = null,
+                        caaReleaseMbid = null,
+                        recordingMbid = "recording-mbid-4",
+                        recordingName = "Annoying Song",
+                        releaseMbid = null
+                    ),
+                    releaseName = "Bad Album",
+                    trackName = "Annoying Song"
+                )
+            )
+        )
+    )
+
+    // Create mock data for pinned recordings
+    val mockPins = AllPinnedRecordings(
+        pinnedRecordings = listOf(
+            PinnedRecording(
+                created = 1.234568E9f,
+                rowId = 1,
+                trackMetadata = TrackMetadata(
+                    additionalInfo = null,
+                    artistName = "Queen",
+                    mbidMapping = MbidMapping(
+                        artistMbids = listOf("artist-mbid-5"),
+                        artists = listOf(
+                            FeedListenArtist("Queen", "artist-mbid-5", null)
+                        ),
+                        caaId = 901234L,
+                        caaReleaseMbid = "release-mbid-5",
+                        recordingMbid = "recording-mbid-5",
+                        recordingName = "Bohemian Rhapsody",
+                        releaseMbid = "release-mbid-5"
+                    ),
+                    releaseName = "A Night at the Opera",
+                    trackName = "Bohemian Rhapsody"
+                ),
+                blurbContent = "This is my favorite song of all time!"
+            ),
+            PinnedRecording(
+                created = 1234567895f,
+                rowId = 2,
+                trackMetadata = TrackMetadata(
+                    additionalInfo = null,
+                    artistName = "David Bowie",
+                    mbidMapping = MbidMapping(
+                        artistMbids = listOf("artist-mbid-6"),
+                        artists = listOf(
+                            FeedListenArtist("David Bowie", "artist-mbid-6", null)
+                        ),
+                        caaId = 567890L,
+                        caaReleaseMbid = "release-mbid-6",
+                        recordingMbid = "recording-mbid-6",
+                        recordingName = "Space Oddity",
+                        releaseMbid = "release-mbid-6"
+                    ),
+                    releaseName = "Space Oddity",
+                    trackName = "Space Oddity"
+                ),
+                blurbContent = "A timeless classic that never gets old."
+            )
+        ),
+        totalCount = 2,
+        userName = "preview_user",
+        count = 2,
+        offset = 0
+    )
+
+    // Create the UI state with mock data
+    val mockProfileUiState = ProfileUiState(
+        isSelf = true,
+        tasteTabUIState = TasteTabUIState(
+            isLoading = false,
+            lovedSongs = mockLovedSongs,
+            hatedSongs = mockHatedSongs,
+            pins = mockPins
+        )
+    )
+
+    val mockSocialUiState = SocialUiState()
+    val mockFeedUiState = FeedUiState()
+
+    PreviewSurface {
+        TasteScreen(
+            uiState = mockProfileUiState,
+            socialUiState = mockSocialUiState,
+            feedUiState = mockFeedUiState,
+            snackbarState = remember { SnackbarHostState() },
+            dropdownItemIndex = remember { mutableStateOf(null) },
+            playListen = {},
+            onPin = { _, _ -> },
+            onRecommend = {},
+            searchUsers = {},
+            isCritiqueBrainzLinked = { null },
+            onReview = { _, _, _, _, _ -> },
+            onPersonallyRecommend = { _, _, _ -> },
+            onErrorShown = {},
+            onMessageShown = {},
+            goToArtistPage = {}
         )
     }
 }
