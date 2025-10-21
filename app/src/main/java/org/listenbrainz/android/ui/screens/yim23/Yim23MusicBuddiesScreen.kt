@@ -2,6 +2,7 @@ package org.listenbrainz.android.ui.screens.yim23
 
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -60,23 +61,28 @@ fun Yim23MusicBuddiesScreen (
 @Composable
 private fun Yim23MusicBuddies (viewModel: Yim23ViewModel, goToUserPage: (String?) -> Unit,) {
     val musicBuddies  = remember {
-        viewModel.getSimilarUsers() ?: listOf()
+        viewModel.getSimilarUsers().orEmpty()
     }
-    Box (modifier = Modifier
-        .fillMaxWidth()
-        .padding(start = 11.dp, end = 11.dp)
-        .clip(
-            RoundedCornerShape(10.dp)
-        )
-        .height(300.dp)
-        .background(
-            Color(0xFFe0e5de)
-        )
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 11.dp, end = 11.dp)
+            .clip(RoundedCornerShape(10.dp))
+            .height(300.dp)
+            .background(
+                Color(0xFFe0e5de)
+            )
     ) {
-        LazyColumn (state = rememberLazyListState()) {
-            itemsIndexed(musicBuddies.toList()) {index , it ->
-                SimilarUserCard(uiModeIsDark = false,index = index, userName = it.first,
-                    similarity = it.second.toFloat() , cardBackGround = Color(0xFFe0e5de), goToUserPage = goToUserPage)
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            itemsIndexed(items = musicBuddies) { index , it ->
+                SimilarUserCard(
+                    uiModeIsDark = false,
+                    index = index,
+                    userName = it.first,
+                    similarity = it.second.toFloat(),
+                    cardBackGround = Color(0xFFe0e5de),
+                    goToUserPage = goToUserPage
+                )
             }
         }
     }

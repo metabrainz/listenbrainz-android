@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
@@ -53,7 +54,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -74,7 +74,6 @@ import androidx.compose.ui.zIndex
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.Metadata
-import org.listenbrainz.android.model.SimilarUser
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.feed.ReviewEntityType
@@ -331,7 +330,7 @@ fun ListensScreen(
                     state = listState,
                     modifier = Modifier
                         .testTag("listensScreenScrollableContainer"),
-                    contentPadding = PaddingValues(top = 8.dp)
+                    contentPadding = PaddingValues(top = 8.dp, bottom = 16.dp)
                 ) {
                     item {
                         Row(
@@ -434,7 +433,7 @@ fun ListensScreen(
                     item {
                         RecentListensText(
                             modifier = Modifier
-                                .padding(top = 30.dp, bottom = 10.dp)
+                                .headerTextVerticalPadding()
                                 .fillParentMaxWidth()
                                 .clickable(interactionSource = null, indication = null) {
                                     showAllListens = true
@@ -554,52 +553,50 @@ fun ListensScreen(
                         }
                     }
 
-                    item {
-                        if (!uiState.listensTabUiState.similarUsers.isNullOrEmpty()) {
-                            Box(
+                    if (!uiState.listensTabUiState.similarUsers.isNullOrEmpty()) {
+                        item {
+                            Text(
                                 modifier = Modifier
-                                    .padding(vertical = 30.dp)
-                                    .clip(shape = RoundedCornerShape(20.dp))
-                                    .fillMaxWidth()
-                                    .background(
-                                        ListenBrainzTheme.colorScheme.songsListenedToBG
-                                    )
-                            ) {
-                                Column {
-                                    Spacer(30.dp)
-                                    Text(
-                                        "Similar Users",
-                                        fontSize = 22.sp,
-                                        modifier = Modifier.padding(start = ListenBrainzTheme.paddings.horizontal)
-                                    )
-                                    Spacer(10.dp)
-                                    SimilarUsersCard(
-                                        similarUsers = when (similarUsersCollapsibleState) {
-                                            true -> uiState.listensTabUiState.similarUsers.take(5)
-                                            false -> uiState.listensTabUiState.similarUsers
-                                        }, goToUserPage = { username ->
-                                            if (username != null) {
-                                                goToUserProfile(username)
-                                            }
+                                    .headerTextVerticalPadding()
+                                    .padding(horizontal = ListenBrainzTheme.paddings.horizontal),
+                                text = "Similar Users",
+                                color = ListenBrainzTheme.colorScheme.text,
+                                style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),
+                            )
+                        }
+
+                        itemsIndexed(
+                            if (similarUsersCollapsibleState) {
+                                uiState.listensTabUiState.similarUsers.take(5)
+                            } else {
+                                uiState.listensTabUiState.similarUsers
+                            }
+                        ) { index, item ->
+                            SimilarUserCard(
+                                index = index,
+                                userName = item.username,
+                                similarity = item.similarity.toFloat(),
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                goToUserPage = goToUserProfile
+                            )
+                        }
+
+                        item {
+                            if ((uiState.listensTabUiState.similarUsers.size) > 5) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    LoadMoreButton(
+                                        modifier = Modifier
+                                            .padding(horizontal = ListenBrainzTheme.paddings.horizontal)
+                                            .padding(top = 16.dp),
+                                        state = similarUsersCollapsibleState,
+                                        onClick = {
+                                            similarUsersCollapsibleState =
+                                                !similarUsersCollapsibleState
                                         }
                                     )
-                                    if ((uiState.listensTabUiState.similarUsers.size) > 5) {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.Center
-                                        ) {
-                                            LoadMoreButton(
-                                                modifier = Modifier
-                                                    .padding(horizontal = ListenBrainzTheme.paddings.horizontal)
-                                                    .padding(top = 16.dp),
-                                                state = similarUsersCollapsibleState,
-                                                onClick = {
-                                                    similarUsersCollapsibleState =
-                                                        !similarUsersCollapsibleState
-                                                }
-                                            )
-                                        }
-                                    }
                                 }
                             }
                         }
@@ -923,13 +920,14 @@ private fun FollowersCard(
     onFollowButtonClick: (String?, Boolean) -> Unit,
     goToUserPage: (String?) -> Unit
 ) {
-    Column(modifier = Modifier.padding(start = ListenBrainzTheme.paddings.horizontal, top = 30.dp, end = ListenBrainzTheme.paddings.horizontal)) {
+    Column(modifier = Modifier.padding(horizontal =  ListenBrainzTheme.paddings.horizontal)) {
         Text(
+            modifier = Modifier.headerTextVerticalPadding(),
             text = if (followersState) "Followers" else "Followings",
             color = ListenBrainzTheme.colorScheme.text,
             style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp)
         )
-        Spacer(10.dp)
+
         Row {
             Card(
                 colors = CardDefaults.cardColors(
@@ -1021,27 +1019,6 @@ private fun FollowersCard(
 }
 
 @Composable
-private fun ColumnScope.SimilarUsersCard(similarUsers: List<SimilarUser>, goToUserPage: (String?) -> Unit) {
-    Spacer(20.dp)
-    Text(
-        "Similar Users",
-        color = ListenBrainzTheme.colorScheme.text,
-        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),
-        modifier = Modifier.padding(horizontal = ListenBrainzTheme.paddings.horizontal)
-    )
-    Spacer(20.dp)
-    similarUsers.mapIndexed { index, item ->
-        SimilarUserCard(
-            index = index,
-            userName = item.username,
-            similarity = item.similarity.toFloat(),
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-            goToUserPage = goToUserPage
-        )
-    }
-}
-
-@Composable
 private fun FollowCard(
     parentUsername: String,
     username: String?,
@@ -1098,6 +1075,8 @@ private fun AddListensButton(modifier: Modifier = Modifier) {
     }
 }
 
+fun Modifier.headerTextVerticalPadding() =
+    padding(top = 30.dp, bottom = 10.dp)
 
 @PreviewLightDark
 @Composable
