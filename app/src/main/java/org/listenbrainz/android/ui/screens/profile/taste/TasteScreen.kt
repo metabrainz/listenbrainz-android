@@ -41,12 +41,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.MbidMapping
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.model.feed.ReviewEntityType
+import org.listenbrainz.android.model.user.AllPinnedRecordings
+import org.listenbrainz.android.model.user.UserFeedback
+import org.listenbrainz.android.model.user.UserFeedbackEntry
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.SuccessBar
