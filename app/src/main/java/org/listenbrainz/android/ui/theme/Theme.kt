@@ -254,6 +254,7 @@ data class Shapes(
     val listenCard: Shape = RoundedCornerShape(16.dp),
     val chips: Shape = RoundedCornerShape(4.dp),
     val lbButton: Shape = RoundedCornerShape(6.dp),
+    val signatureChips: Shape = RoundedCornerShape(10.dp),
 )
 
 val LocalShapes = staticCompositionLocalOf { Shapes() }

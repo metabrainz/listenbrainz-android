@@ -7,7 +7,7 @@ data class CurrentPins(
 )
 
 data class PinnedRecording(
-    @SerializedName("created"        ) val created: Float? = null,
+    @SerializedName("created"        ) val created: Long? = null,
     @SerializedName("row_id"         ) val rowId: Int? = null,
     @SerializedName("track_metadata" ) val trackMetadata: TrackMetadata? = null,
     
