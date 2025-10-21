@@ -305,6 +305,7 @@ fun ListensScreen(
                             }
                         ) {
                             Text(
+                                modifier = Modifier.zIndex(1f),
                                 text = "Back",
                                 fontSize = 14.sp,
                             )
