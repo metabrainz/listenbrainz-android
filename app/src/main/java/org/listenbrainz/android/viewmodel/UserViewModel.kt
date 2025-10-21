@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
@@ -39,6 +40,7 @@ import org.listenbrainz.android.ui.screens.profile.playlists.CollabPlaylistPagin
 import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistPagingSource
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
 import org.listenbrainz.android.ui.screens.profile.stats.DataScope
+import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
@@ -53,8 +55,9 @@ class UserViewModel @Inject constructor(
     @IoDispatcher val ioDispatcher: CoroutineDispatcher,
 ) : BaseViewModel<ProfileUiState>() {
 
-    private var isLoggedInUser by mutableStateOf(false)
-    private val currentUser: MutableStateFlow<String?> = MutableStateFlow(null)
+    private val currentUser = MutableStateFlow<String?>(null)
+    private val isLoggedInUser = currentUser
+        .map { it == appPreferences.username.get() }
 
     //Semaphore to limit the number of concurrent cover art fetches
     private val coverArtSemaphore = Semaphore(2)
@@ -200,9 +203,6 @@ class UserViewModel @Inject constructor(
             return
 
         val username = inputUsername ?: appPreferences.username.get()
-        if (inputUsername != null) {
-            isLoggedInUser = inputUsername == appPreferences.username.get()
-        }
         val listenCount = userRepository.fetchUserListenCount(username).data?.payload?.count
         val listens: List<Listen>? =
             listensRepository.fetchUserListens(username).data?.payload?.listens
@@ -572,19 +572,21 @@ class UserViewModel @Inject constructor(
 
     override fun createUiStateFlow(): StateFlow<ProfileUiState> {
         return combine(
+            isLoggedInUser,
             listenStateFlow,
             statsStateFlow,
             tasteStateFlow,
             createdForFlow,
             playlistFlow
-        ) { listensUIState, statsUIState, tasteUIState, createdForUIState, playlistUIState ->
+        ) { data ->
+            var index = 0
             ProfileUiState(
-                isSelf = isLoggedInUser,
-                listensTabUiState = listensUIState,
-                statsTabUIState = statsUIState,
-                tasteTabUIState = tasteUIState,
-                createdForTabUIState = createdForUIState,
-                playlistTabUIState = playlistUIState
+                isSelf = data[index++] as Boolean,
+                listensTabUiState = data[index++] as ListensTabUiState,
+                statsTabUIState = data[index++] as StatsTabUIState,
+                tasteTabUIState = data[index++] as TasteTabUIState,
+                createdForTabUIState = data[index++] as CreatedForTabUIState,
+                playlistTabUIState = data[index] as PlaylistTabUIState
             )
         }.stateIn(
             viewModelScope,
