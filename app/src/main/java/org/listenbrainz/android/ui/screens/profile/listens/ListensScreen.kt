@@ -330,12 +330,13 @@ fun ListensScreen(
                 LazyColumn(
                     state = listState,
                     modifier = Modifier
-                        .testTag("listensScreenScrollableContainer")
+                        .testTag("listensScreenScrollableContainer"),
+                    contentPadding = PaddingValues(top = 8.dp)
                 ) {
                     item {
                         Row(
                             modifier = Modifier
-                                .padding(top = 8.dp)
+                                .padding(bottom = ListenBrainzTheme.paddings.sectionSeparation)
                                 .padding(horizontal = ListenBrainzTheme.paddings.horizontal),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -388,10 +389,8 @@ fun ListensScreen(
                     item {
                         Column(
                             modifier = Modifier
-                                .padding(
-                                    vertical = ListenBrainzTheme.paddings.sectionSeparation,
-                                    horizontal = ListenBrainzTheme.paddings.horizontal
-                                )
+                                .padding(bottom = ListenBrainzTheme.paddings.vertical)
+                                .padding(horizontal = ListenBrainzTheme.paddings.horizontal)
                                 .shadow(4.dp, shape = ListenBrainzTheme.shapes.listenCardSmall)
                                 .background(
                                     color = ListenBrainzTheme.colorScheme.level1,
@@ -407,12 +406,24 @@ fun ListensScreen(
                                 listenCount = uiState.listensTabUiState.listenCount,
                                 isSelf = uiState.isSelf
                             )
+                        }
+                    }
 
-                            HorizontalDivider(
-                                modifier = Modifier.padding(vertical = ListenBrainzTheme.paddings.sectionSeparation),
-                                color = ListenBrainzTheme.colorScheme.hint.copy(0.4f)
-                            )
-
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .padding(bottom = ListenBrainzTheme.paddings.vertical)
+                                .padding(horizontal = ListenBrainzTheme.paddings.horizontal)
+                                .shadow(4.dp, shape = ListenBrainzTheme.shapes.listenCardSmall)
+                                .background(
+                                    color = ListenBrainzTheme.colorScheme.level1,
+                                    shape = ListenBrainzTheme.shapes.listenCardSmall
+                                )
+                                .padding(
+                                    horizontal = ListenBrainzTheme.paddings.insideCard,
+                                    vertical = ListenBrainzTheme.paddings.insideCard * 2
+                                )
+                        ) {
                             FollowersInformation(
                                 followersCount = uiState.listensTabUiState.followersCount,
                                 followingCount = uiState.listensTabUiState.followingCount
@@ -810,7 +821,12 @@ private fun SongsListened(
             fontSize = 18.sp
         )
 
-        Spacer(2.dp)
+        HorizontalDivider(
+            modifier = Modifier
+                .padding(vertical = ListenBrainzTheme.paddings.sectionSeparation)
+                .fillMaxWidth(0.8f),
+            color = ListenBrainzTheme.colorScheme.hint.copy(0.4f)
+        )
 
         Text(
             listenCount.toString(),
