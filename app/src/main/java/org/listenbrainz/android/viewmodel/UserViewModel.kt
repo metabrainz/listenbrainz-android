@@ -92,7 +92,7 @@ class UserViewModel @Inject constructor(
             .getLoginStatusFlow()
             .stateIn(
                 viewModelScope,
-                SharingStarted.Lazily,
+                SharingStarted.Eagerly,
                 STATUS_LOGGED_OUT
             )
     private val listenStateFlow: MutableStateFlow<ListensTabUiState> =
@@ -109,7 +109,6 @@ class UserViewModel @Inject constructor(
             collabPlaylists = collabPlaylistPager
         )
     )
-
 
     private fun createNewUserPlaylistPagingSource() = UserPlaylistPagingSource(
         username = currentUser.value,
@@ -193,23 +192,14 @@ class UserViewModel @Inject constructor(
         )
     }
 
-    suspend fun getUserDataFromRemote(
-        inputUsername: String?
-    ) = coroutineScope {
-        if (inputUsername != null) {
-            currentUser.emit(inputUsername)
-        }
-        val listensTabData = async { getUserListensData(inputUsername) }
-        val statsTabData = async { getUserStatsData(inputUsername) }
-        val tasteTabData = async { getUserTasteData(inputUsername) }
-        val createdForTabData = async { getCreatedForYouPlaylists(inputUsername) }
-        listensTabData.await()
-        statsTabData.await()
-        tasteTabData.await()
-        createdForTabData.await()
+    suspend fun updateUser(username: String) {
+        currentUser.emit(username)
     }
 
-    private suspend fun getUserListensData(inputUsername: String?) {
+    suspend fun getUserListensData(inputUsername: String? = currentUser.value) {
+        if (!listenStateFlow.value.isLoading)
+            return
+
         val username = inputUsername ?: appPreferences.username.get()
         if (inputUsername != null) {
             isLoggedInUser = inputUsername == appPreferences.username.get()
@@ -263,7 +253,10 @@ class UserViewModel @Inject constructor(
         listenStateFlow.emit(listensTabState)
     }
 
-    private suspend fun getUserStatsData(inputUsername: String?) {
+    suspend fun getUserStatsData(inputUsername: String? = currentUser.value) {
+        if (!statsStateFlow.value.isLoading)
+            return
+
         val userThisWeekListeningActivity = userRepository.getUserListeningActivity(
             inputUsername,
             StatsRange.THIS_WEEK.apiIdenfier
@@ -341,7 +334,7 @@ class UserViewModel @Inject constructor(
         statsStateFlow.emit(statsTabState)
     }
 
-    suspend fun getUserTopArtists(inputUsername: String?) {
+    suspend fun getUserTopArtists(inputUsername: String? = currentUser.value) {
         statsStateFlow.value = statsStateFlow.value.copy(isLoading = true)
         val userTopArtistsThisWeek = userRepository.getTopArtists(
             inputUsername,
@@ -389,7 +382,7 @@ class UserViewModel @Inject constructor(
     }
 
 
-    suspend fun getUserTopAlbums(inputUsername: String?) {
+    suspend fun getUserTopAlbums(inputUsername: String? = currentUser.value) {
         statsStateFlow.value = statsStateFlow.value.copy(isLoading = true)
         val userTopAlbumsThisWeek = userRepository.getTopAlbums(
             inputUsername,
@@ -436,7 +429,7 @@ class UserViewModel @Inject constructor(
         )
     }
 
-    suspend fun getUserTopSongs(inputUsername: String?) {
+    suspend fun getUserTopSongs(inputUsername: String? = currentUser.value) {
         statsStateFlow.value = statsStateFlow.value.copy(isLoading = true)
         val userTopSongsThisWeek = userRepository.getTopSongs(
             inputUsername,
@@ -483,7 +476,10 @@ class UserViewModel @Inject constructor(
         )
     }
 
-    private suspend fun getUserTasteData(inputUsername: String?) {
+    suspend fun getUserTasteData(inputUsername: String? = currentUser.value) {
+        if (!statsStateFlow.value.isLoading)
+            return
+
         val lovedSongs = userRepository.getUserFeedback(inputUsername, 1).data
         val hatedSongs = userRepository.getUserFeedback(inputUsername, -1).data
         val userPins = userRepository.fetchUserPins(inputUsername).data
@@ -497,7 +493,10 @@ class UserViewModel @Inject constructor(
     }
 
     //This function gets the createdForYou playlists and fetches the playlist data for each playlist
-    private suspend fun getCreatedForYouPlaylists(inputUsername: String?) {
+    suspend fun getCreatedForYouPlaylists(inputUsername: String? = currentUser.value) {
+        if (!createdForFlow.value.isLoading)
+            return
+
         createdForFlow.value = createdForFlow.value.copy(isLoading = true)
         val createdForYouPlaylists = userRepository.getCreatedForYouPlaylists(inputUsername).data
         //Map to store the playlist data for each playlist
