@@ -466,9 +466,7 @@ fun StatsScreen(
                                         ),
                                         trailingContent = {
                                             if (topAlbum.listenCount != null) {
-                                                ButtonLB(onClick = {}) {
-                                                    Text(text = topAlbum.listenCount.toString())
-                                                }
+                                                ListenCountChip(formatNumber(topAlbum.listenCount))
                                             }
                                         },
                                         goToArtistPage = goToArtistPage,
@@ -523,9 +521,7 @@ fun StatsScreen(
                                         ),
                                         trailingContent = {
                                             if (topSong.listenCount != null) {
-                                                ButtonLB(onClick = {}) {
-                                                    Text(text = topSong.listenCount.toString())
-                                                }
+                                                ListenCountChip(formatNumber(topSong.listenCount))
                                             }
                                         },
                                         goToArtistPage = goToArtistPage,
@@ -611,24 +607,32 @@ fun ArtistCard(
                             .padding(end = 10.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .background(ListenBrainzTheme.colorScheme.followerChipSelected)
-                                .padding(horizontal = 6.dp, vertical = 2.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = listenCountLabel,
-                                fontWeight = FontWeight.Bold,
-                                color = ListenBrainzTheme.colorScheme.followerChipUnselected
-                            )
-                        }
+                        ListenCountChip(listenCountLabel)
                     }
                 }
-
             }
         }
+    }
+}
+
+@Composable
+fun ListenCountChip(
+    listenCountLabel: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .clip(CircleShape)
+            .background(ListenBrainzTheme.colorScheme.followerChipSelected)
+            .padding(horizontal = 6.dp, vertical = 2.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = listenCountLabel,
+            fontWeight = FontWeight.Bold,
+            color = ListenBrainzTheme.colorScheme.followerChipUnselected,
+            fontSize = 14.sp
+        )
     }
 }
 
