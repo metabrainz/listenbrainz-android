@@ -329,6 +329,7 @@ fun ListensScreen(
                     ) {
                         items(
                             count = listensPagingItems.itemCount,
+                            contentType = { "listen" }
                         ) { index ->
                             val listen = listensPagingItems[index]
                             if (listen != null) {
@@ -336,7 +337,9 @@ fun ListensScreen(
                             }
                         }
 
-                        item {
+                        item(
+                            contentType = { "loader" }
+                        ) {
                             if (listensPagingItems.loadState.append == LoadState.Loading) {
                                 CircularProgressIndicator(
                                     modifier = Modifier
@@ -431,48 +434,20 @@ fun ListensScreen(
                         }
                     }
 
-                    item {
-                        Column(
-                            modifier = Modifier
-                                .padding(bottom = ListenBrainzTheme.paddings.vertical)
-                                .padding(horizontal = ListenBrainzTheme.paddings.horizontal)
-                                .shadow(4.dp, shape = ListenBrainzTheme.shapes.listenCardSmall)
-                                .background(
-                                    color = ListenBrainzTheme.colorScheme.level1,
-                                    shape = ListenBrainzTheme.shapes.listenCardSmall
-                                )
-                                .padding(
-                                    horizontal = ListenBrainzTheme.paddings.insideCard,
-                                    vertical = ListenBrainzTheme.paddings.insideCard * 2
-                                )
-                        ) {
-                            FollowersInformation(
-                                followersCount = uiState.listensTabUiState.followersCount,
-                                followingCount = uiState.listensTabUiState.followingCount
+                    items(
+                        count = listensPagingItems.itemCount.coerceAtMost(5),
+                        key = listensPagingItems.itemKey { it.sharedTransitionId },
+                        contentType = { "listen" }
+                    ) { index ->
+                        listensPagingItems[index]?.let {
+                            ListenCardItem(
+                                modifier = Modifier.animateItem(),
+                                listen = it
                             )
                         }
                     }
 
-                    item {
-                        RecentListensText(
-                            modifier = Modifier
-                                .headerTextVerticalPadding()
-                                .fillParentMaxWidth()
-                                .clickable(interactionSource = null, indication = null) {
-                                    showAllListens = true
-                                }
-                        )
-                    }
-
-                    items(
-                        count = listensPagingItems.itemCount.coerceAtMost(5)
-                    ) { index ->
-                        listensPagingItems[index]?.let {
-                            ListenCardItem(it)
-                        }
-                    }
-
-                    item {
+                    item(contentType = "LoadMoreButton") {
                         LoadMoreButton(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -591,7 +566,8 @@ fun ListensScreen(
                                 uiState.listensTabUiState.similarUsers.take(5)
                             } else {
                                 uiState.listensTabUiState.similarUsers
-                            }
+                            },
+                            contentType = { _, _ -> "SimilarUserCard" }
                         ) { index, item ->
                             SimilarUserCard(
                                 index = index,
@@ -768,7 +744,7 @@ private fun SongsListened(
 
         HorizontalDivider(
             modifier = Modifier
-                .padding(vertical = ListenBrainzTheme.paddings.sectionSeparation)
+                .padding(vertical = 8.dp)
                 .fillMaxWidth(0.8f),
             color = ListenBrainzTheme.colorScheme.hint.copy(0.4f)
         )
