@@ -12,7 +12,18 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.request.header
+import io.ktor.serialization.gson.gson
+import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
+import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.yimdata.YimData
 import org.listenbrainz.android.repository.preferences.AppPreferences
@@ -20,7 +31,8 @@ import org.listenbrainz.android.service.AlbumService
 import org.listenbrainz.android.service.ArtistService
 import org.listenbrainz.android.service.BlogService
 import org.listenbrainz.android.service.CBService
-import org.listenbrainz.android.service.FeedService
+import org.listenbrainz.android.service.FeedServiceKtor
+import org.listenbrainz.android.service.FeedServiceKtorImpl
 import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.service.MBService
 import org.listenbrainz.android.service.PlaylistService
@@ -35,6 +47,7 @@ import org.listenbrainz.android.util.Constants.LISTENBRAINZ_API_BASE_URL
 import org.listenbrainz.android.util.Constants.LISTENBRAINZ_BETA_API_BASE_URL
 import org.listenbrainz.android.util.Constants.MB_BASE_URL
 import org.listenbrainz.android.util.HeaderInterceptor
+import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Utils
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -85,13 +98,6 @@ class ServiceModule {
     fun providesSocialService(appPreferences: AppPreferences): SocialService =
         constructRetrofit(appPreferences)
             .create(SocialService::class.java)
-    
-    
-    @Singleton
-    @Provides
-    fun providesFeedService(appPreferences: AppPreferences): FeedService =
-        constructRetrofit(appPreferences)
-            .create(FeedService::class.java)
 
     @Singleton
     @Provides
@@ -228,4 +234,48 @@ class ServiceModule {
         .addConverterFactory(GsonConverterFactory.create(yimGson))
         .build()
         .create(Yim23Service::class.java)
+
+    @Singleton
+    @Provides
+    fun providesHttpClient(appPreferences: AppPreferences): HttpClient {
+        return HttpClient(OkHttp) {
+            install(ContentNegotiation) {
+                gson() // using Gson with Ktor so I don't need to Serialize my network models
+            }
+
+            if (BuildConfig.DEBUG) {
+                install(Logging) {
+                    logger = object : Logger {
+                        override fun log(message: String) {
+                            Log.d("Ktor_Android: $message")
+                        }
+                    }
+                    level = LogLevel.ALL
+                }
+
+                engine {
+                    config {
+                        addInterceptor(ChuckerInterceptor(App.context))
+                    }
+                }
+            }
+
+            defaultRequest {
+                url(LISTENBRAINZ_API_BASE_URL)
+
+                runBlocking {
+                    val accessToken = appPreferences.lbAccessToken.get()
+                    if (accessToken.isNotEmpty()) {
+                        header("Authorization", "Token $accessToken")
+                    }
+                }
+            }
+        }
+    }
+
+    @Singleton
+    @Provides
+    fun providesFeedServiceKtor(httpClient: HttpClient): FeedServiceKtor {
+        return FeedServiceKtorImpl(httpClient)
+    }
 }
