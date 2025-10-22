@@ -199,7 +199,7 @@ fun FeedScreen(
     }
 
     /** CONTENT */
-    Column() {
+    Column {
         TopBar(
             modifier = Modifier.statusBarsPadding(),
             topBarActions = topBarActions,
@@ -647,7 +647,7 @@ fun SimilarListens(
 
         items(count = pagingData.itemCount) { index: Int ->
 
-            pagingData[index]?.apply {
+            pagingData[index]?.run {
 
                 ListenCardSmall(
                     modifier = Modifier.padding(

@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.screens.feed.events
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
@@ -12,7 +11,6 @@ import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
 import org.listenbrainz.android.ui.screens.feed.SocialDropdown
-import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 

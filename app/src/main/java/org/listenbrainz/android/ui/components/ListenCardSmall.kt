@@ -1,10 +1,8 @@
 package org.listenbrainz.android.ui.components
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -15,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.GenericShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +32,7 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -46,6 +44,7 @@ import org.listenbrainz.android.model.AdditionalInfo
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.TrackMetadata
+import org.listenbrainz.android.model.feed.FeedEventType
 import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.screens.feed.SocialDropdownDefault
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -66,6 +65,7 @@ fun ListenCardSmall(
     trackName: String,
     artists: List<FeedListenArtist?>,
     coverArtUrl: String?,
+    listenedAt: Long? = null,
     @DrawableRes errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
     onDropdownIconClick: () -> Unit = {},
     titleColor: Color = ListenBrainzTheme.colorScheme.listenText,
@@ -108,6 +108,7 @@ fun ListenCardSmall(
         shadowElevation = 4.dp,
         color = color
     ) {
+        val showTrailingContent = trailingContent != null
         Column {
             Row(
                 modifier = Modifier
@@ -131,22 +132,52 @@ fun ListenCardSmall(
                     titleAndSubtitle(Modifier.weight(1f))
                 }
 
+                @Composable
+                fun Long.TimestampText() {
+                    Text(
+                        text = remember(this) {
+                            FeedEventType.getTimeStringForFeed(this)
+                        },
+                        color = ListenBrainzTheme.colorScheme.hint,
+                        fontSize = ListenBrainzTheme.textStyles.listenSubtitle.fontSize,
+                        maxLines = 1,
+                    )
+                }
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.End
                 ) {
                     // Trailing content
-                    if (trailingContent != null) {
+                    if (showTrailingContent) {
                         val modifier = Modifier.thenIf(dropDown == null) {
                             padding(end = 6.dp)
                         }
                         trailingContent(modifier)
-                    }
+                    } else
+                        listenedAt?.TimestampText()
 
                     // Dropdown Icon
                     if (dropDown != null) {
-                        Column(modifier = Modifier.weight(1f, fill = false)) {
-                            DropdownButton(onDropdownIconClick = onDropdownIconClick)
+                        Column(
+                            modifier = Modifier
+                                .weight(1f, fill = false)
+                                .padding(horizontal = 8.dp),
+                            horizontalAlignment = Alignment.End,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            DropdownButton(
+                                modifier = Modifier
+                                    .thenIf(showTrailingContent && listenedAt != null) {
+                                        padding(top = ListenBrainzTheme.paddings.insideButton)
+                                    }
+                                    .weight(1f, fill = false),
+                                onDropdownIconClick = onDropdownIconClick
+                            )
+
+                            if (showTrailingContent) {
+                                listenedAt?.TimestampText()
+                            }
                         }
                         dropDown()
                     }
@@ -168,6 +199,7 @@ fun ListenCardSmall(
     trackName: String,
     artist: String,
     coverArtUrl: String?,
+    listenedAt: Long? = null,
     @DrawableRes errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
     onDropdownIconClick: () -> Unit = {},
     dropDown: @Composable () -> Unit = {},
@@ -189,6 +221,7 @@ fun ListenCardSmall(
         trackName = trackName,
         artists = listOf(FeedListenArtist(artist, null, "")),
         coverArtUrl = coverArtUrl,
+        listenedAt = listenedAt,
         errorAlbumArt = errorAlbumArt,
         onDropdownIconClick = onDropdownIconClick,
         dropDown = dropDown,
@@ -209,7 +242,7 @@ fun ListenCardSmallDefault(
     metadata: Metadata,
     coverArtUrl: String?,
     @DrawableRes errorAlbumArt: Int = R.drawable.ic_coverartarchive_logo_no_text,
-    trailingContent: @Composable (modifier: Modifier) -> Unit = {},
+    trailingContent: @Composable ((modifier: Modifier) -> Unit)? = null,
     blurbContent: @Composable (ColumnScope.(modifier: Modifier) -> Unit)? = null,
     preCoverArtContent: @Composable ((modifier: Modifier) -> Unit)? = null,
     color: Color = ListenBrainzTheme.colorScheme.level1,
@@ -235,6 +268,7 @@ fun ListenCardSmallDefault(
             onDropdownIconClick = {
                 isDropdownExpanded = !isDropdownExpanded
             },
+            listenedAt = metadata.listenedAt ?: metadata.created,
             dropDown = {
                 SocialDropdownDefault(
                     isExpanded = isDropdownExpanded,
@@ -259,17 +293,14 @@ fun ListenCardSmallDefault(
 
 @Composable
 private fun DropdownButton(modifier: Modifier = Modifier, onDropdownIconClick: () -> Unit) {
-    IconButton(
-        modifier = modifier,
-        onClick = onDropdownIconClick
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_options),
-            contentDescription = "",
-            tint = ListenBrainzTheme.colorScheme.hint,
-            modifier = Modifier.padding(horizontal = ListenBrainzTheme.paddings.insideCard)
-        )
-    }
+    Icon(
+        painter = painterResource(id = R.drawable.ic_options),
+        contentDescription = "",
+        tint = ListenBrainzTheme.colorScheme.hint,
+        modifier = modifier
+            .clickable(onClick = onDropdownIconClick)
+            .padding(horizontal = ListenBrainzTheme.paddings.insideButton)
+    )
 }
 
 @Composable
@@ -352,6 +383,7 @@ private fun ListenCardSmallPreview() {
     ListenBrainzTheme {
         ListenCardSmallDefault(
             metadata = Metadata(
+                listenedAt = System.currentTimeMillis() / 1000,
                 trackMetadata = TrackMetadata(
                     trackName = "Title",
                     artistName = "Artist",
@@ -378,26 +410,30 @@ private fun ListenCardSmallPreview() {
     }
 }
 
-
 @PreviewLightDark
 @Composable
-private fun ListenCardSmallDefaultPreview() {
+private fun ListenCardSmallNoTrailingContentPreview() {
     ListenBrainzTheme {
         ListenCardSmallDefault(
             metadata = Metadata(
+                listenedAt = System.currentTimeMillis() / 1000,
                 trackMetadata = TrackMetadata(
                     trackName = "Title",
                     artistName = "Artist",
                     additionalInfo = AdditionalInfo(),
                     releaseName = "",
                     mbidMapping = null
-                )
+                ),
             ),
             coverArtUrl = "",
             goToArtistPage = {},
-            onDropdownError = {},
+            blurbContent = {
+                Column(modifier = it) {
+                    Text(text = "Blurb Content", color = ListenBrainzTheme.colorScheme.text)
+                }
+            },
             onDropdownSuccess = {},
-            onClick = {},
-        )
+            onDropdownError = {},
+        ) {}
     }
 }

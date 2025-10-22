@@ -17,24 +17,24 @@ interface FeedService {
     suspend fun getFeedEvents(
         @Path("user_name") username: String,
         @Query("count") count: Int = 25,
-        @Query("max_ts") maxTs: Int? = null,
-        @Query("min_ts") minTs: Int? = null
+        @Query("max_ts") maxTs: Long? = null,
+        @Query("min_ts") minTs: Long? = null
     ) : Response<FeedData>
     
     @GET("user/{user_name}/feed/events/listens/following")
     suspend fun getFeedFollowListens(
         @Path("user_name") username: String,
         @Query("count") count: Int = 40,
-        @Query("max_ts") maxTs: Int? = null,
-        @Query("min_ts") minTs: Int? = null
+        @Query("max_ts") maxTs: Long? = null,
+        @Query("min_ts") minTs: Long? = null
     ) : Response<FeedData>
     
     @GET("user/{user_name}/feed/events/listens/similar")
     suspend fun getFeedSimilarListens(
         @Path("user_name") username: String,
         @Query("count") count: Int = 40,
-        @Query("max_ts") maxTs: Int? = null,
-        @Query("min_ts") minTs: Int? = null
+        @Query("max_ts") maxTs: Long? = null,
+        @Query("min_ts") minTs: Long? = null
     ) : Response<FeedData>
     
     @POST("user/{user_name}/feed/events/delete")

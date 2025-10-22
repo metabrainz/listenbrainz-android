@@ -78,8 +78,8 @@ fun <K, V> snapshotStateMapSaver() = Saver<SnapshotStateMap<K, V>, Any>(
 
 inline fun Modifier.thenIf(
     condition: Boolean,
-    crossinline other: Modifier.() -> Modifier,
-) = if (condition) other() else this
+    crossinline other: @Composable Modifier.() -> Modifier,
+) = composed { if (condition) other() else this }
 
 fun <T : Any> PagingData<T>.snapshot(): List<T> {
     val pagingDataPresenter = object : PagingDataPresenter<T>(

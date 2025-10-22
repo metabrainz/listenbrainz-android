@@ -295,7 +295,7 @@ private fun BaseFeedLayoutPreview() {
             parentUser = "Jasjeet",
             event = FeedEvent(
                 id = 0,
-                created = System.currentTimeMillis().toInt(),
+                created = System.currentTimeMillis(),
                 type = "like",
                 hidden = false, metadata = Metadata(user1 = "JasjeetTest"),
                 username = "Jasjeet"
