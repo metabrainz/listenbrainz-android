@@ -7,6 +7,7 @@ hilt = "2.52"
 compose = "1.7.6"
 room = "2.6.1"
 accompanist = "0.36.0"
+threetenabp = "1.4.9"
 work = "2.10.0"
 exoplayer = "2.19.1"
 paging = "3.3.5"
@@ -134,6 +135,7 @@ socket-io = { module = "io.socket:socket.io-client", version.ref = "socketIo" }
 junit = { module = "junit:junit", version.ref = "junit" }
 androidx-test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "testExtJunit" }
 androidx-test-ext-junit-ktx = { module = "androidx.test.ext:junit-ktx", version.ref = "testExtJunit" }
+threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabp" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "okhttp" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version = "1.8.1" }

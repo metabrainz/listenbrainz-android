@@ -9,6 +9,7 @@ import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventType
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.PreviewSurface
 
 @Composable
 fun UnknownFeedLayout(
@@ -28,18 +29,16 @@ fun UnknownFeedLayout(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun FollowFeedLayoutPreview() {
-    ListenBrainzTheme {
-        Surface(color = ListenBrainzTheme.colorScheme.background) {
-            UnknownFeedLayout(
-                event = FeedEvent(
-                    id = 0,
-                    created = 0,
-                    type = "unknown",
-                    hidden = false,
-                    metadata = Metadata(),
-                    username = "Jasjeet"
-                )
+    PreviewSurface {
+        UnknownFeedLayout(
+            event = FeedEvent(
+                id = 0,
+                created = 0,
+                type = "unknown",
+                hidden = false,
+                metadata = Metadata(),
+                username = "Jasjeet"
             )
-        }
+        )
     }
 }

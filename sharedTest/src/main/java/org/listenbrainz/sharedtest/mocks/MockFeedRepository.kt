@@ -10,8 +10,8 @@ import org.listenbrainz.android.util.Resource
 class MockFeedRepository : FeedRepository {
     override suspend fun getFeedEvents(
         username: String?,
-        maxTs: Int?,
-        minTs: Int?,
+        maxTs: Long?,
+        minTs: Long?,
         count: Int
     ): Resource<FeedData> {
         TODO("Not yet implemented")
@@ -19,8 +19,8 @@ class MockFeedRepository : FeedRepository {
 
     override suspend fun getFeedFollowListens(
         username: String?,
-        maxTs: Int?,
-        minTs: Int?,
+        maxTs: Long?,
+        minTs: Long?,
         count: Int
     ): Resource<FeedData> {
         TODO("Not yet implemented")
@@ -28,8 +28,8 @@ class MockFeedRepository : FeedRepository {
 
     override suspend fun getFeedSimilarListens(
         username: String?,
-        maxTs: Int?,
-        minTs: Int?,
+        maxTs: Long?,
+        minTs: Long?,
         count: Int
     ): Resource<FeedData> {
         TODO("Not yet implemented")

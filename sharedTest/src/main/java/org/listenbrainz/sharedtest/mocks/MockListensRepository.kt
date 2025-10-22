@@ -13,7 +13,12 @@ import org.listenbrainz.android.util.Resource
 import org.listenbrainz.sharedtest.testdata.ListensRepositoryTestData.listensTestData
 
 class MockListensRepository : ListensRepository {
-    override suspend fun fetchUserListens(username: String?): Resource<Listens> {
+    override suspend fun fetchUserListens(
+        username: String?,
+        count: Int,
+        maxTs: Long?,
+        minTs: Long?
+    ): Resource<Listens> {
         return if(username.isNullOrEmpty()){
             ResponseError.DOES_NOT_EXIST.asResource()
         } else{

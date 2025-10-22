@@ -16,11 +16,11 @@ import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
+import org.listenbrainz.android.util.Utils.LaunchedEffectUnit
 import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
 fun ProfileScreen(
-    context: Context = LocalContext.current,
     viewModel: UserViewModel = hiltViewModel(),
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
@@ -33,7 +33,6 @@ fun ProfileScreen(
     navigateToCreateAccount: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
-    val uiState = viewModel.uiState.collectAsState()
     // Scroll to the top when shouldScrollToTop becomes true
     LaunchedEffect(scrollRequestState) {
         onScrollToTop {
@@ -43,34 +42,30 @@ fun ProfileScreen(
 
     val loginStatus by viewModel.loginStatusFlow.collectAsState()
 
-    Column() {
+    Column {
         TopBar(
             modifier = Modifier.statusBarsPadding(),
             topBarActions = topBarActions,
             title = AppNavigationItem.Profile.title
         )
-        when (loginStatus) {
-            STATUS_LOGGED_IN -> {
-                LaunchedEffect(Unit) {
-                    viewModel.getUserDataFromRemote(username)
-                }
 
-                BaseProfileScreen(
-                    username = username,
-                    snackbarState = snackbarState,
-                    uiState = uiState.value,
-                    goToUserProfile = goToUserProfile,
-                    goToArtistPage = goToArtistPage,
-                    goToPlaylist = goToPlaylist,
-                )
-            }
-
-            else -> LoginScreen(
+        if (loginStatus == STATUS_LOGGED_IN) {
+            BaseProfileScreen(
+                username = username,
+                snackbarState = snackbarState,
+                onScrollToTop = onScrollToTop,
+                scrollRequestState = scrollRequestState,
+                goToUserProfile = goToUserProfile,
+                goToArtistPage = goToArtistPage,
+                goToPlaylist = goToPlaylist
+            )
+        } else {
+            LoginScreen(
                 navigateToCreateAccount = navigateToCreateAccount,
-                navigateToUserProfile =
-             {
-                goToUserProfile(viewModel.appPreferences.username.get())
-            })
+                navigateToUserProfile = {
+                    goToUserProfile(viewModel.appPreferences.username.get())
+                }
+            )
         }
     }
 }

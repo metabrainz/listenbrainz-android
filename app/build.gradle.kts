@@ -23,7 +23,7 @@ android {
     val versionMap = mapOf(
         major to 2,
         minor to 10,
-        patch to 0,
+        patch to 1,
         build to 0
     )
     fun versionCode() = versionMap[major]!! * 10000 + versionMap[minor]!! * 100 + versionMap[patch]!! * 10 + versionMap[build]!! * 1
@@ -254,6 +254,9 @@ dependencies {
     implementation(libs.socket.io) {
         exclude(group = "org.json", module = "json")
     }
+
+    // Date time
+    implementation(libs.threetenabp)
 
     // Logging
     implementation(libs.logger.android)

@@ -34,6 +34,7 @@ import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
 import org.listenbrainz.android.ui.screens.feed.SocialDropdown
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils
 
 @Composable
@@ -132,7 +133,8 @@ fun ReviewFeedLayout(
                             .padding(4.dp)
                             .align(Alignment.TopEnd)
                             .clickable {
-                                uriHandler.openUri("https://critiquebrainz.org/review/${event.metadata.reviewMbid}") },
+                                uriHandler.openUri("https://critiquebrainz.org/review/${event.metadata.reviewMbid}")
+                            },
                         painter = painterResource(id = R.drawable.ic_redirect),
                         tint = ListenBrainzTheme.colorScheme.lbSignature,
                         contentDescription = "Go to CritiqueBrainz website"
@@ -151,35 +153,33 @@ fun ReviewFeedLayout(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun ReviewFeedLayoutPreview() {
-    ListenBrainzTheme {
-        Surface(color = ListenBrainzTheme.colorScheme.background) {
-            ReviewFeedLayout(
-                event = FeedEvent(
-                    id = 0,
-                    created = 0,
-                    type = "like",
-                    hidden = false,
-                    metadata = Metadata(
-                        rating = 3,
-                        blurbContent = "Good song.",
-                        entityType = "track"
-                    ),
-                    username = "JasjeetTest"
+    PreviewSurface {
+        ReviewFeedLayout(
+            event = FeedEvent(
+                id = 0,
+                created = 0,
+                type = "like",
+                hidden = false,
+                metadata = Metadata(
+                    rating = 3,
+                    blurbContent = "Good song.",
+                    entityType = "track"
                 ),
-                onDeleteOrHide = {},
-                onDropdownClick = {},
-                parentUser = "Jasjeet",
-                onClick = {},
-                dropdownState = null,
-                index = 0,
-                onOpenInMusicBrainz = {},
-                onPin = {},
-                onRecommend = {},
-                onPersonallyRecommend = {},
-                onReview = {},
-                goToUserPage = {},
-                goToArtistPage = {}
-            )
-        }
+                username = "JasjeetTest"
+            ),
+            onDeleteOrHide = {},
+            onDropdownClick = {},
+            parentUser = "Jasjeet",
+            onClick = {},
+            dropdownState = null,
+            index = 0,
+            onOpenInMusicBrainz = {},
+            onPin = {},
+            onRecommend = {},
+            onPersonallyRecommend = {},
+            onReview = {},
+            goToUserPage = {},
+            goToArtistPage = {}
+        )
     }
 }

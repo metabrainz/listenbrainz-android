@@ -15,6 +15,7 @@ import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
 import org.listenbrainz.android.ui.screens.feed.SocialDropdown
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils
 
 @Composable
@@ -86,31 +87,29 @@ fun PinFeedLayout(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PinFeedLayoutPreview() {
-    ListenBrainzTheme {
-        Surface(color = ListenBrainzTheme.colorScheme.background) {
-            PinFeedLayout(
-                event = FeedEvent(
-                    id = 0,
-                    created = 0,
-                    type = "like",
-                    hidden = false, metadata = Metadata(blurbContent = "Good song."),
-                    username = "JasjeetTest"
-                ),
-                onDeleteOrHide = {},
-                onDropdownClick = {},
-                parentUser = "Jasjeet",
-                isHidden = false,
-                onClick = {},
-                dropdownState = null,
-                index = 0,
-                onOpenInMusicBrainz = {},
-                onPin = {},
-                onRecommend = {},
-                onPersonallyRecommend = {},
-                onReview = {},
-                goToUserPage = {},
-                goToArtistPage = {},
-            )
-        }
+    PreviewSurface {
+        PinFeedLayout(
+            event = FeedEvent(
+                id = 0,
+                created = 0,
+                type = "like",
+                hidden = false, metadata = Metadata(blurbContent = "Good song."),
+                username = "JasjeetTest"
+            ),
+            onDeleteOrHide = {},
+            onDropdownClick = {},
+            parentUser = "Jasjeet",
+            isHidden = false,
+            onClick = {},
+            dropdownState = null,
+            index = 0,
+            onOpenInMusicBrainz = {},
+            onPin = {},
+            onRecommend = {},
+            onPersonallyRecommend = {},
+            onReview = {},
+            goToUserPage = {},
+            goToArtistPage = {},
+        )
     }
 }

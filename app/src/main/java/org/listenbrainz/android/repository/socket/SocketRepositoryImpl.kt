@@ -20,7 +20,8 @@ class SocketRepositoryImpl @Inject constructor(): SocketRepository {
         IO.Options.builder().setPath("/socket.io/").build()
     )
 
-    override fun listen(username: String) = callbackFlow {
+    override fun listen(usernameProvider: suspend () -> String) = callbackFlow {
+        val username = usernameProvider()
         socket
             .on(EVENT_CONNECT) {
                 Log.d("Listen socket connected.")
@@ -48,5 +49,4 @@ class SocketRepositoryImpl @Inject constructor(): SocketRepository {
             socket.off()
         }
     }
-
 }

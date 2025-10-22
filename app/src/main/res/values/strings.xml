@@ -259,6 +259,9 @@ For added safety, you can continue updating through your preferred app store ins
     </string>
     <string name="error_apk_install">Error starting APK installation</string>
     <string name="notification_listening_title">♫ Listening now</string>
+    <string name="load_more">Load More</string>
+    <string name="load_less">Load Less</string>
+    <string name="musicbrainz" translatable="false">MusicBrainz</string>
 
     <!-- Listen Submission Notification Idle States -->
     <string-array name="notification_idle_messages">
@@ -277,4 +280,7 @@ For added safety, you can continue updating through your preferred app store ins
         <item>Hit me with your best track</item>
         <item>So silent...</item>
     </string-array>
+
+    <string name="album_title">Album</string>
+    <string name="songs_title">Songs</string>
 </resources>
