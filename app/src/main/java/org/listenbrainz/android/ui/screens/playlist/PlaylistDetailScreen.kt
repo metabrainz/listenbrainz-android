@@ -53,7 +53,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -84,14 +83,12 @@ import org.listenbrainz.android.ui.components.dialogs.BaseDialog
 import org.listenbrainz.android.ui.components.dialogs.DialogNegativeButton
 import org.listenbrainz.android.ui.components.dialogs.DialogPositiveButton
 import org.listenbrainz.android.ui.components.dialogs.DialogText
-import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.feed.RetryButton
 import org.listenbrainz.android.ui.screens.profile.createdforyou.formatDateLegacy
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
-import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.util.Utils.formatDurationSeconds
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
@@ -560,7 +557,6 @@ private fun PlaylistDetailContent(
                             overflow = TextOverflow.Ellipsis
                         )
                     },
-                    enableTrailingContent = true,
                     preCoverArtContent = if (playlistDetailUIState.isUserPlaylistOwner) { modifier2 ->
                         Icon(
                             modifier = modifier2.padding(horizontal = 4.dp),

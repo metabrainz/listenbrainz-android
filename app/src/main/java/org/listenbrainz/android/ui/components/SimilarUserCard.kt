@@ -41,20 +41,18 @@ import java.text.DecimalFormat
  */
 @Composable
 fun SimilarUserCard(
-    uiModeIsDark: Boolean = onScreenUiModeIsDark(),
-    cardBackGround: Color = MaterialTheme.colorScheme.background,
     index: Int,
     userName: String,
     similarity: Float,
-    modifier: Modifier = Modifier
-        .fillMaxWidth()
-        .padding(vertical = 4.dp),
+    modifier: Modifier = Modifier,
+    uiModeIsDark: Boolean = onScreenUiModeIsDark(),
+    cardBackGround: Color = ListenBrainzTheme.colorScheme.level1,
     goToUserPage: (String) -> Unit,
 ){
     Surface(
         modifier = modifier,
         color = cardBackGround,
-        shape = RoundedCornerShape(5.dp),
+        shape = ListenBrainzTheme.shapes.listenCardSmall,
         shadowElevation = 5.dp,
     ) {
         Box(

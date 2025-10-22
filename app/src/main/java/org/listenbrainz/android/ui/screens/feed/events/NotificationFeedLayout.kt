@@ -9,6 +9,7 @@ import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventType
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.PreviewSurface
 
 /**
  * @param isHidden should be a state.*/
@@ -32,20 +33,18 @@ fun NotificationFeedLayout(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun NotificationFeedLayoutPreview() {
-    ListenBrainzTheme {
-        Surface(color = ListenBrainzTheme.colorScheme.background) {
-            NotificationFeedLayout(
-                event = FeedEvent(
-                    id = 0,
-                    created = 0,
-                    type = "notification",
-                    hidden = false,
-                    metadata = Metadata(),
-                    username = "Jasjeet"
-                ),
-                onDeleteOrHide = {},
-                goToUserPage = {}
-            )
-        }
+    PreviewSurface {
+        NotificationFeedLayout(
+            event = FeedEvent(
+                id = 0,
+                created = 0,
+                type = "notification",
+                hidden = false,
+                metadata = Metadata(),
+                username = "Jasjeet"
+            ),
+            onDeleteOrHide = {},
+            goToUserPage = {}
+        )
     }
 }

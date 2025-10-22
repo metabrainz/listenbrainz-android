@@ -25,6 +25,7 @@ import org.listenbrainz.android.ui.components.dialogs.UserTag
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
 import org.listenbrainz.android.ui.screens.feed.SocialDropdown
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils
 
 @Composable
@@ -121,34 +122,32 @@ fun PersonalRecommendationFeedLayout(
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun PersonalRecommendationFeedLayoutPreview() {
-    ListenBrainzTheme {
-        Surface(color = ListenBrainzTheme.colorScheme.background) {
-            PersonalRecommendationFeedLayout(
-                event = FeedEvent(
-                    id = 0,
-                    created = 0,
-                    type = "like",
-                    hidden = false,
-                    metadata = Metadata(
-                        blurbContent = "Good song.",
-                        usersList = listOf("JasjeetTest", "akshaaatt")
-                    ),
-                    username = "Jasjeet"
+    PreviewSurface {
+        PersonalRecommendationFeedLayout(
+            event = FeedEvent(
+                id = 0,
+                created = 0,
+                type = "like",
+                hidden = false,
+                metadata = Metadata(
+                    blurbContent = "Good song.",
+                    usersList = listOf("JasjeetTest", "akshaaatt")
                 ),
-                onDeleteOrHide = {},
-                onDropdownClick = {},
-                parentUser = "Jasjeet",
-                onClick = {},
-                dropdownState = null,
-                index = 0,
-                onOpenInMusicBrainz = {},
-                onPin = {},
-                onRecommend = {},
-                onPersonallyRecommend = {},
-                onReview = {},
-                goToUserPage = {},
-                goToArtistPage = {}
-            )
-        }
+                username = "Jasjeet"
+            ),
+            onDeleteOrHide = {},
+            onDropdownClick = {},
+            parentUser = "Jasjeet",
+            onClick = {},
+            dropdownState = null,
+            index = 0,
+            onOpenInMusicBrainz = {},
+            onPin = {},
+            onRecommend = {},
+            onPersonallyRecommend = {},
+            onReview = {},
+            goToUserPage = {},
+            goToArtistPage = {}
+        )
     }
 }

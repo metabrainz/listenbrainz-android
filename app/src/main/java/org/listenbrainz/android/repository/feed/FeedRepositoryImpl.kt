@@ -16,8 +16,8 @@ class FeedRepositoryImpl @Inject constructor(
     
     override suspend fun getFeedEvents(
         username: String?,
-        maxTs: Int?,
-        minTs: Int?,
+        maxTs: Long?,
+        minTs: Long?,
         count: Int
     ) : Resource<FeedData> = parseResponse {
         if (username.isNullOrEmpty()) return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
@@ -33,8 +33,8 @@ class FeedRepositoryImpl @Inject constructor(
     
     override suspend fun getFeedFollowListens(
         username: String?,
-        maxTs: Int?,
-        minTs: Int?,
+        maxTs: Long?,
+        minTs: Long?,
         count: Int
     ): Resource<FeedData> = parseResponse {
         if (username.isNullOrEmpty()) return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
@@ -50,8 +50,8 @@ class FeedRepositoryImpl @Inject constructor(
     
     override suspend fun getFeedSimilarListens(
         username: String?,
-        maxTs: Int?,
-        minTs: Int?,
+        maxTs: Long?,
+        minTs: Long?,
         count: Int
     ): Resource<FeedData> =parseResponse {
         if (username.isNullOrEmpty()) return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()

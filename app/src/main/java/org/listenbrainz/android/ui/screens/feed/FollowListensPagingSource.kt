@@ -15,13 +15,13 @@ class FollowListensPagingSource(
     private val onError: (error: ResponseError?) -> Unit,
     private val feedRepository: FeedRepository,
     private val ioDispatcher: CoroutineDispatcher
-): PagingSource<Int, FeedUiEventItem>() {
+): PagingSource<Long, FeedUiEventItem>() {
     
-    override fun getRefreshKey(state: PagingState<Int, FeedUiEventItem>): Int {
-        return (System.currentTimeMillis()/1000).toInt()
+    override fun getRefreshKey(state: PagingState<Long, FeedUiEventItem>): Long {
+        return (System.currentTimeMillis() / 1000)
     }
     
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, FeedUiEventItem> {
+    override suspend fun load(params: LoadParams<Long>): LoadResult<Long, FeedUiEventItem> {
         
         val username = username()
         if (username.isEmpty()) {
@@ -36,7 +36,6 @@ class FollowListensPagingSource(
         
         return when (result.status) {
             Resource.Status.SUCCESS -> {
-                
                 val processedEvents = processFeedEvents(result.data)
                 val nextKey = processedEvents.lastOrNull()?.event?.created?.let { newKey ->
                     // Termination condition.
@@ -60,9 +59,7 @@ class FollowListensPagingSource(
                 onError(result.error)
                 LoadResult.Error(Exception(result.error?.toast))
             }
-            
         }
-        
     }
     
     companion object {

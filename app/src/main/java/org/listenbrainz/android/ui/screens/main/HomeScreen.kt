@@ -135,9 +135,6 @@ fun HomeScreen(
         },
         navigateToSettingsScreen = {
             navController.navigate(AppNavigationItem.Settings.route) {
-                popUpTo(AppNavigationItem.Feed.route) {
-                    saveState = true
-                }
                 launchSingleTop = true
                 restoreState = true
             }

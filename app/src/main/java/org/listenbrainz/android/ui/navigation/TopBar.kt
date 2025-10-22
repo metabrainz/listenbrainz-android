@@ -10,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -20,6 +21,7 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
+@Immutable
 data class TopBarActions(
     val popBackStackInSettingsScreen: ()-> Unit = {},
     val navigateToSettingsScreen: ()-> Unit = {},
