@@ -434,8 +434,10 @@ fun ListensScreen(
                         }
                     }
 
+                    val previewListenCount = 5
+
                     items(
-                        count = listensPagingItems.itemCount.coerceAtMost(5),
+                        count = listensPagingItems.itemCount.coerceAtMost(previewListenCount),
                         key = listensPagingItems.itemKey { it.sharedTransitionId },
                         contentType = { "listen" }
                     ) { index ->
@@ -447,23 +449,25 @@ fun ListensScreen(
                         }
                     }
 
-                    item(contentType = "LoadMoreButton") {
-                        LoadMoreButton(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .wrapContentSize()
-                                .padding(horizontal = ListenBrainzTheme.paddings.horizontal)
-                                .padding(top = 16.dp)
-                                .zIndex(1f)
-                                .sharedBounds(
-                                    sharedContentState = rememberSharedContentState("listens back"),
-                                    animatedVisibilityScope = this@AnimatedContent,
-                                ),
-                            state = true,
-                            onClick = {
-                                showAllListens = true
-                            }
-                        )
+                    if (listensPagingItems.itemCount > previewListenCount) {
+                        item(contentType = "LoadMoreButton") {
+                            LoadMoreButton(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .wrapContentSize()
+                                    .padding(horizontal = ListenBrainzTheme.paddings.horizontal)
+                                    .padding(top = 16.dp)
+                                    .zIndex(1f)
+                                    .sharedBounds(
+                                        sharedContentState = rememberSharedContentState("listens back"),
+                                        animatedVisibilityScope = this@AnimatedContent,
+                                    ),
+                                state = true,
+                                onClick = {
+                                    showAllListens = true
+                                }
+                            )
+                        }
                     }
 
                     if (!uiState.isSelf) {
