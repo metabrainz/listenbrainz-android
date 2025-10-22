@@ -291,69 +291,9 @@ class UserViewModel @Inject constructor(
             inputUsername,
             StatsRange.THIS_WEEK.apiIdenfier
         ).data?.payload?.listeningActivity ?: listOf()
-        val userThisMonthListeningActivity = userRepository.getUserListeningActivity(
-            inputUsername,
-            StatsRange.THIS_MONTH.apiIdenfier
-        ).data?.payload?.listeningActivity ?: listOf()
-        val userThisYearListeningActivity = userRepository.getUserListeningActivity(
-            inputUsername,
-            StatsRange.THIS_YEAR.apiIdenfier
-        ).data?.payload?.listeningActivity ?: listOf()
-        val userLastWeekListeningActivity = userRepository.getUserListeningActivity(
-            inputUsername,
-            StatsRange.LAST_WEEK.apiIdenfier
-        ).data?.payload?.listeningActivity ?: listOf()
-        val userLastMonthListeningActivity = userRepository.getUserListeningActivity(
-            inputUsername,
-            StatsRange.LAST_MONTH.apiIdenfier
-        ).data?.payload?.listeningActivity ?: listOf()
-        val userLastYearListeningActivity = userRepository.getUserListeningActivity(
-            inputUsername,
-            StatsRange.LAST_YEAR.apiIdenfier
-        ).data?.payload?.listeningActivity ?: listOf()
-        val userAllTimeListeningActivity = userRepository.getUserListeningActivity(
-            inputUsername,
-            StatsRange.ALL_TIME.apiIdenfier
-        ).data?.payload?.listeningActivity ?: listOf()
-
-        val globalThisWeekListeningActivity =
-            userRepository.getGlobalListeningActivity(StatsRange.THIS_WEEK.apiIdenfier).data?.payload?.listeningActivity
-                ?: listOf()
-        val globalThisMonthListeningActivity =
-            userRepository.getGlobalListeningActivity(StatsRange.THIS_MONTH.apiIdenfier).data?.payload?.listeningActivity
-                ?: listOf()
-        val globalThisYearListeningActivity =
-            userRepository.getGlobalListeningActivity(StatsRange.THIS_YEAR.apiIdenfier).data?.payload?.listeningActivity
-                ?: listOf()
-        val globalLastWeekListeningActivity =
-            userRepository.getGlobalListeningActivity(StatsRange.LAST_WEEK.apiIdenfier).data?.payload?.listeningActivity
-                ?: listOf()
-        val globalLastMonthListeningActivity =
-            userRepository.getGlobalListeningActivity(StatsRange.LAST_MONTH.apiIdenfier).data?.payload?.listeningActivity
-                ?: listOf()
-        val globalLastYearListeningActivity =
-            userRepository.getGlobalListeningActivity(StatsRange.LAST_YEAR.apiIdenfier).data?.payload?.listeningActivity
-                ?: listOf()
-        val globalAllTimeListeningActivity =
-            userRepository.getGlobalListeningActivity(StatsRange.ALL_TIME.apiIdenfier).data?.payload?.listeningActivity
-                ?: listOf()
 
         val userListeningActivityMap = mapOf(
             Pair(DataScope.USER, StatsRange.THIS_WEEK) to userThisWeekListeningActivity,
-            Pair(DataScope.USER, StatsRange.THIS_MONTH) to userThisMonthListeningActivity,
-            Pair(DataScope.USER, StatsRange.THIS_YEAR) to userThisYearListeningActivity,
-            Pair(DataScope.USER, StatsRange.LAST_WEEK) to userLastWeekListeningActivity,
-            Pair(DataScope.USER, StatsRange.LAST_MONTH) to userLastMonthListeningActivity,
-            Pair(DataScope.USER, StatsRange.LAST_YEAR) to userLastYearListeningActivity,
-            Pair(DataScope.USER, StatsRange.ALL_TIME) to userAllTimeListeningActivity,
-
-            Pair(DataScope.GLOBAL, StatsRange.THIS_WEEK) to globalThisWeekListeningActivity,
-            Pair(DataScope.GLOBAL, StatsRange.THIS_MONTH) to globalThisMonthListeningActivity,
-            Pair(DataScope.GLOBAL, StatsRange.THIS_YEAR) to globalThisYearListeningActivity,
-            Pair(DataScope.GLOBAL, StatsRange.LAST_WEEK) to globalLastWeekListeningActivity,
-            Pair(DataScope.GLOBAL, StatsRange.LAST_MONTH) to globalLastMonthListeningActivity,
-            Pair(DataScope.GLOBAL, StatsRange.LAST_YEAR) to globalLastYearListeningActivity,
-            Pair(DataScope.GLOBAL, StatsRange.ALL_TIME) to globalAllTimeListeningActivity,
         )
 
         val statsTabState = StatsTabUIState(
@@ -364,8 +304,41 @@ class UserViewModel @Inject constructor(
         statsStateFlow.emit(statsTabState)
     }
 
+    suspend fun getListeningActivity(
+        inputUsername: String? = currentUser.value,
+        range: StatsRange,
+        scope: DataScope
+    ) {
+        val key = Pair(scope, range)
+
+        if (statsStateFlow.value.userListeningActivity.containsKey(key)) {
+            return
+        }
+
+        val listeningActivity = if (scope == DataScope.USER) {
+            userRepository.getUserListeningActivity(
+                inputUsername,
+                range.apiIdenfier
+            ).data?.payload?.listeningActivity ?: listOf()
+        } else {
+            userRepository.getGlobalListeningActivity(
+                range.apiIdenfier
+            ).data?.payload?.listeningActivity ?: listOf()
+        }
+
+        val updatedMap = statsStateFlow.value.userListeningActivity.toMutableMap()
+        updatedMap[key] = listeningActivity
+
+        statsStateFlow.value = statsStateFlow.value.copy(
+            userListeningActivity = updatedMap
+        )
+    }
+
     suspend fun getUserTopArtists(inputUsername: String? = currentUser.value) {
-        statsStateFlow.value = statsStateFlow.value.copy(isLoading = true)
+        if (statsStateFlow.value.topArtists != null) {
+            return
+        }
+
         val userTopArtistsThisWeek = userRepository.getTopArtists(
             inputUsername,
             rangeString = StatsRange.THIS_WEEK.apiIdenfier
@@ -405,15 +378,14 @@ class UserViewModel @Inject constructor(
             StatsRange.ALL_TIME to userTopArtistsAllTime
         )
 
-        statsStateFlow.value = statsStateFlow.value.copy(
-            isLoading = false,
-            topArtists = topArtists
-        )
+        statsStateFlow.value = statsStateFlow.value.copy(topArtists = topArtists)
     }
 
-
     suspend fun getUserTopAlbums(inputUsername: String? = currentUser.value) {
-        statsStateFlow.value = statsStateFlow.value.copy(isLoading = true)
+        if (statsStateFlow.value.topAlbums != null) {
+            return
+        }
+
         val userTopAlbumsThisWeek = userRepository.getTopAlbums(
             inputUsername,
             rangeString = StatsRange.THIS_WEEK.apiIdenfier
@@ -453,14 +425,14 @@ class UserViewModel @Inject constructor(
             StatsRange.ALL_TIME to userTopAlbumsAllTime
         )
 
-        statsStateFlow.value = statsStateFlow.value.copy(
-            isLoading = false,
-            topAlbums = topAlbums
-        )
+        statsStateFlow.value = statsStateFlow.value.copy(topAlbums = topAlbums)
     }
 
     suspend fun getUserTopSongs(inputUsername: String? = currentUser.value) {
-        statsStateFlow.value = statsStateFlow.value.copy(isLoading = true)
+        if (statsStateFlow.value.topSongs != null) {
+            return
+        }
+
         val userTopSongsThisWeek = userRepository.getTopSongs(
             inputUsername,
             rangeString = StatsRange.THIS_WEEK.apiIdenfier
@@ -500,10 +472,7 @@ class UserViewModel @Inject constructor(
             StatsRange.ALL_TIME to userTopSongsAllTime
         )
 
-        statsStateFlow.value = statsStateFlow.value.copy(
-            isLoading = false,
-            topSongs = topSongs
-        )
+        statsStateFlow.value = statsStateFlow.value.copy(topSongs = topSongs)
     }
 
     suspend fun getUserTasteData(inputUsername: String? = currentUser.value) {

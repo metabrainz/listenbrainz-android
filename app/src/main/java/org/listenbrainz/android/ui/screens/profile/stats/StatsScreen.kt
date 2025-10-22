@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedSuggestionChip
@@ -41,6 +42,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -97,33 +99,17 @@ fun StatsScreen(
     username: String?,
     viewModel: UserViewModel,
     socialViewModel: SocialViewModel,
-    feedViewModel: FeedViewModel,
     snackbarState: SnackbarHostState,
     goToArtistPage: (String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val socialUiState by socialViewModel.uiState.collectAsState()
-    val feedUiState by feedViewModel.uiState.collectAsState()
-    val dropdownItemIndex: MutableState<Int?> = rememberSaveable {
-        mutableStateOf(null)
-    }
-    val statsRangeState: MutableState<StatsRange> = remember {
-        mutableStateOf(StatsRange.THIS_WEEK)
-    }
-    val dataScopeState: MutableState<DataScope> = remember {
-        mutableStateOf(DataScope.USER)
-    }
 
     StatsScreen(
         username = username,
         uiState = uiState,
-        statsRangeState = statsRangeState.value,
-        setStatsRange = { range ->
-            statsRangeState.value = range
-        },
-        dataScopeState = dataScopeState.value,
-        setUserGlobal = { selection ->
-            dataScopeState.value = selection
+        fetchListeningActivity = { range, scope ->
+            viewModel.getListeningActivity(username, range, scope)
         },
         fetchTopArtists = {
             viewModel.getUserTopArtists(it)
@@ -134,38 +120,16 @@ fun StatsScreen(
         fetchTopSongs = {
             viewModel.getUserTopSongs(it)
         },
-        dropdownItemIndex = dropdownItemIndex,
-        feedUiState = feedUiState,
         playListen = {
             socialViewModel.playListen(it)
         },
         snackbarState = snackbarState,
         socialUiState = socialUiState,
-        onRecommend = { metadata ->
-            socialViewModel.recommend(metadata)
-            dropdownItemIndex.value = null
-        },
         onErrorShown = {
             socialViewModel.clearErrorFlow()
         },
         onMessageShown = {
             socialViewModel.clearMsgFlow()
-        },
-        onPin = { metadata, blurbContent ->
-            socialViewModel.pin(metadata, blurbContent)
-            dropdownItemIndex.value = null
-        },
-        searchUsers = { query ->
-            feedViewModel.searchUser(query)
-        },
-        isCritiqueBrainzLinked = {
-            feedViewModel.isCritiqueBrainzLinked()
-        },
-        onReview = { type, blurbContent, rating, locale, metadata ->
-            socialViewModel.review(metadata, type, blurbContent, rating, locale)
-        },
-        onPersonallyRecommend = { metadata, users, blurbContent ->
-            socialViewModel.personallyRecommend(metadata, users, blurbContent)
         },
         goToArtistPage = goToArtistPage
     )
@@ -175,30 +139,23 @@ fun StatsScreen(
 fun StatsScreen(
     username: String?,
     uiState: ProfileUiState,
-    uriHandler: UriHandler = LocalUriHandler.current,
-    statsRangeState: StatsRange,
-    setStatsRange: (StatsRange) -> Unit,
-    dataScopeState: DataScope,
-    setUserGlobal: (DataScope) -> Unit,
+    fetchListeningActivity: suspend (StatsRange, DataScope) -> Unit,
     fetchTopArtists: suspend (String?) -> Unit,
     fetchTopAlbums: suspend (String?) -> Unit,
     fetchTopSongs: suspend (String?) -> Unit,
-    dropdownItemIndex: MutableState<Int?>,
-    feedUiState: FeedUiState,
     playListen: (TrackMetadata) -> Unit,
     snackbarState: SnackbarHostState,
     socialUiState: SocialUiState,
-    onRecommend: (metadata: Metadata) -> Unit,
     onErrorShown: () -> Unit,
     onMessageShown: () -> Unit,
-    onPin: (metadata: Metadata, blurbContent: String) -> Unit,
-    searchUsers: (String) -> Unit,
-    isCritiqueBrainzLinked: suspend () -> Boolean?,
-    onReview: (type: ReviewEntityType, blurbContent: String, rating: Int?, locale: String, metadata: Metadata) -> Unit,
-    onPersonallyRecommend: (metadata: Metadata, users: List<String>, blurbContent: String) -> Unit,
     goToArtistPage: (String) -> Unit,
 ) {
-    val coroutineScope = rememberCoroutineScope()
+    var statsRangeState by remember {
+        mutableStateOf(StatsRange.THIS_WEEK)
+    }
+    var dataScopeState by remember {
+        mutableStateOf(DataScope.USER)
+    }
     var currentTabSelection by remember {
         mutableStateOf(CategoryState.ARTISTS)
     }
@@ -212,6 +169,16 @@ fun StatsScreen(
         mutableStateOf(true)
     }
 
+    // Fetch listening activity when range or scope changes
+    LaunchedEffectUnit {
+        snapshotFlow {
+            statsRangeState to dataScopeState
+        }.collectLatest { (range, scope) ->
+            fetchListeningActivity(range, scope)
+        }
+    }
+
+    // Fetch category data (artists/albums/songs) when tab selection changes
     LaunchedEffectUnit {
         snapshotFlow { currentTabSelection }.collectLatest {
             when (it) {
@@ -275,7 +242,7 @@ fun StatsScreen(
                 items = chipItems,
                 selectedItemId = statsRangeState.name,
                 onItemSelected = { data ->
-                    setStatsRange(StatsRange.valueOf(data.id))
+                    statsRangeState = StatsRange.valueOf(data.id)
                 }
             )
         }
@@ -292,7 +259,7 @@ fun StatsScreen(
                 items = userGlobalChips,
                 selectedItemId = dataScopeState.name,
                 onItemSelected = { data ->
-                    setUserGlobal(DataScope.valueOf(data.id))
+                    dataScopeState = DataScope.valueOf(data.id)
                 }
             )
         }
@@ -646,13 +613,14 @@ fun ArtistCard(
                     ) {
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(16.dp))
+                                .clip(CircleShape)
                                 .background(ListenBrainzTheme.colorScheme.followerChipSelected)
-                                .padding(6.dp),
+                                .padding(horizontal = 6.dp, vertical = 2.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = listenCountLabel,
+                                fontWeight = FontWeight.Bold,
                                 color = ListenBrainzTheme.colorScheme.followerChipUnselected
                             )
                         }
@@ -930,32 +898,19 @@ private fun StatsScreenPreview() {
         successMsgId = null
     )
 
-    val mockFeedUiState = FeedUiState()
-
     PreviewSurface {
         StatsScreen(
             username = "test_user",
             uiState = mockUiState,
-            statsRangeState = StatsRange.THIS_WEEK,
-            setStatsRange = {},
-            dataScopeState = DataScope.USER,
-            setUserGlobal = {},
+            fetchListeningActivity = { _, _ -> },
             fetchTopArtists = {},
             fetchTopAlbums = {},
             fetchTopSongs = {},
-            dropdownItemIndex = remember { mutableStateOf(null) },
-            feedUiState = mockFeedUiState,
             playListen = {},
             snackbarState = remember { SnackbarHostState() },
             socialUiState = mockSocialUiState,
-            onRecommend = {},
             onErrorShown = {},
             onMessageShown = {},
-            onPin = { _, _ -> },
-            searchUsers = {},
-            isCritiqueBrainzLinked = { null },
-            onReview = { _, _, _, _, _ -> },
-            onPersonallyRecommend = { _, _, _ -> },
             goToArtistPage = {}
         )
     }

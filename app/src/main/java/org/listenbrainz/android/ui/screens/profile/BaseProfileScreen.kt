@@ -273,7 +273,6 @@ fun BaseProfileScreen(
                         snackbarState = snackbarState,
                         socialViewModel = socialViewModel,
                         viewModel = viewModel,
-                        feedViewModel = feedViewModel,
                         goToArtistPage = goToArtistPage
                     )
                 }
