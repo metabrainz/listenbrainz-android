@@ -1,6 +1,5 @@
 package org.listenbrainz.android.ui.screens.profile.stats
 
-import CategoryState
 import android.text.TextUtils
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -37,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.platform.testTag
@@ -70,6 +70,7 @@ import org.listenbrainz.android.model.user.Artist
 import org.listenbrainz.android.model.user.ListeningActivity
 import org.listenbrainz.android.model.user.TopArtists
 import org.listenbrainz.android.model.user.TopArtistsPayload
+import org.listenbrainz.android.ui.components.ButtonLB
 import org.listenbrainz.android.ui.components.ChipItem
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
@@ -81,11 +82,12 @@ import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.screens.profile.StatsTabUIState
 import org.listenbrainz.android.ui.screens.profile.listens.LoadMoreButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.ui.theme.app_bg_secondary_dark
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils.LaunchedEffectUnit
+import org.listenbrainz.android.util.Utils.Spacer
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
+import org.listenbrainz.android.util.getStringResource
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
@@ -413,61 +415,29 @@ fun StatsScreen(
 
         item {
             Column(
-                modifier = Modifier
-                    .padding(start = 10.dp, top = 30.dp)
+                modifier = Modifier.padding(top = 30.dp)
             ) {
                 Text(
+                    modifier = Modifier.padding(horizontal = ListenBrainzTheme.paddings.horizontal),
                     text = "Top ...",
                     color = ListenBrainzTheme.colorScheme.text,
                     style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp)
                 )
-                Box(modifier = Modifier.height(10.dp))
-                Row {
-                    repeat(3) { position ->
-                        val readState = when (position) {
-                            0 -> currentTabSelection == CategoryState.ARTISTS
-                            1 -> currentTabSelection == CategoryState.ALBUMS
-                            2 -> currentTabSelection == CategoryState.SONGS
-                            else -> true
+
+                Spacer(10.dp)
+
+                val context = LocalContext.current
+                SelectionChipBar(
+                    items = remember {
+                        CategoryState.entries.map {
+                            ChipItem(it.text.getStringResource(context), it.ordinal)
                         }
-                        val label = when (position) {
-                            0 -> "Artists"
-                            1 -> "Albums"
-                            2 -> "Songs"
-                            else -> ""
-                        }
-                        ElevatedSuggestionChip(
-                            onClick = {
-                                when (position) {
-                                    0 -> currentTabSelection = CategoryState.ARTISTS
-                                    1 -> currentTabSelection = CategoryState.ALBUMS
-                                    2 -> currentTabSelection = CategoryState.SONGS
-                                }
-                            },
-                            label = {
-                                Text(
-                                    label, color = when (readState) {
-                                        true -> ListenBrainzTheme.colorScheme.followerChipUnselected
-                                        false -> ListenBrainzTheme.colorScheme.followerChipSelected
-                                    }, style = ListenBrainzTheme.textStyles.chips
-                                )
-                            },
-                            shape = RoundedCornerShape(12.dp),
-                            border = when (readState) {
-                                true -> null
-                                false -> BorderStroke(1.dp, lb_purple_night)
-                            },
-                            colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
-                                if (readState) {
-                                    ListenBrainzTheme.colorScheme.followerChipSelected
-                                } else {
-                                    ListenBrainzTheme.colorScheme.followerChipUnselected
-                                }
-                            ),
-                        )
-                        Spacer(modifier = Modifier.width(10.dp))
-                    }
+                    },
+                    selectedItemId = currentTabSelection.ordinal,
+                ) { chip ->
+                    currentTabSelection = CategoryState.entries[chip.id]
                 }
+
                 when (currentTabSelection) {
                     CategoryState.ARTISTS ->
                         if (uiState.statsTabUIState.isLoading) {
@@ -476,13 +446,16 @@ fun StatsScreen(
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 topArtists.map { topArtist ->
                                     ArtistCard(
+                                        modifier = Modifier.padding(
+                                            vertical = ListenBrainzTheme.paddings.lazyListAdjacent,
+                                            horizontal = ListenBrainzTheme.paddings.horizontal
+                                        ),
                                         artistName = topArtist.artistName ?: "",
                                         listenCountLabel = formatNumber(topArtist.listenCount ?: 0)
                                     ) {
                                         if (topArtist.artistMbid != null) {
                                             goToArtistPage(topArtist.artistMbid)
                                         }
-
                                     }
                                 }
 
@@ -517,16 +490,20 @@ fun StatsScreen(
                                         ),
                                         modifier = Modifier
                                             .padding(
-                                                vertical = ListenBrainzTheme.paddings.vertical,
+                                                vertical = ListenBrainzTheme.paddings.lazyListAdjacent,
                                                 horizontal = ListenBrainzTheme.paddings.horizontal
                                             ),
-                                        color = app_bg_secondary_dark,
                                         titleColor = ListenBrainzTheme.colorScheme.followerChipSelected,
                                         subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(
                                             alpha = 0.7f
                                         ),
-                                        enableTrailingContent = true,
-                                        listenCount = topAlbum.listenCount,
+                                        trailingContent = {
+                                            if (topAlbum.listenCount != null) {
+                                                ButtonLB(onClick = {}) {
+                                                    Text(text = topAlbum.listenCount.toString())
+                                                }
+                                            }
+                                        },
                                         goToArtistPage = goToArtistPage,
                                         onDropdownError = {
                                             snackbarState.showSnackbar(it.toast)
@@ -570,16 +547,20 @@ fun StatsScreen(
                                         ),
                                         modifier = Modifier
                                             .padding(
-                                                vertical = ListenBrainzTheme.paddings.vertical,
+                                                vertical = ListenBrainzTheme.paddings.lazyListAdjacent,
                                                 horizontal = ListenBrainzTheme.paddings.horizontal
                                             ),
-                                        color = app_bg_secondary_dark,
                                         titleColor = ListenBrainzTheme.colorScheme.followerChipSelected,
                                         subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(
                                             alpha = 0.7f
                                         ),
-                                        enableTrailingContent = true,
-                                        listenCount = topSong.listenCount,
+                                        trailingContent = {
+                                            if (topSong.listenCount != null) {
+                                                ButtonLB(onClick = {}) {
+                                                    Text(text = topSong.listenCount.toString())
+                                                }
+                                            }
+                                        },
                                         goToArtistPage = goToArtistPage,
                                         onDropdownError = {
                                             snackbarState.showSnackbar(it.toast)
@@ -632,7 +613,6 @@ fun ArtistCard(
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(end = 10.dp, top = 10.dp)
             .clickable(enabled = true) { onClick() },
         shape = ListenBrainzTheme.shapes.listenCardSmall,
         shadowElevation = 4.dp,

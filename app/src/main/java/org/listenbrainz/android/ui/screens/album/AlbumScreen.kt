@@ -285,9 +285,7 @@ private fun TopListenersCard(
                 ArtistCard(
                     artistName = it?.userName ?: "",
                     listenCountLabel = formatNumber(it?.listenCount ?: 0)
-                ) {
-
-                }
+                ) {}
                 Spacer(modifier = Modifier.height(12.dp))
             }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {

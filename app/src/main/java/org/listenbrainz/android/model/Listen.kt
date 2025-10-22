@@ -1,6 +1,8 @@
 package org.listenbrainz.android.model
 
 import com.google.gson.annotations.SerializedName
+import org.listenbrainz.android.util.defaultZoneOffset
+import org.threeten.bp.LocalDateTime
 
 data class Listen(
     @SerializedName("inserted_at") val insertedAt: Long,
@@ -18,6 +20,13 @@ data class Listen(
             trackMetadata = trackMetadata
         )
     }
+
+    val listenedAtDateTime get() = listenedAt?.let {
+        LocalDateTime.ofEpochSecond(it, 0, defaultZoneOffset())
+    }
+
+    val insertedAtDateTime get() =
+        LocalDateTime.ofEpochSecond(insertedAt, 0, defaultZoneOffset())
 
     val sharedTransitionId
         get() = trackMetadata.sharedTransitionId + (listenedAt ?: insertedAt).toString()

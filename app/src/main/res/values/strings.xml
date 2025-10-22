@@ -280,4 +280,7 @@ For added safety, you can continue updating through your preferred app store ins
         <item>Hit me with your best track</item>
         <item>So silent...</item>
     </string-array>
+
+    <string name="album_title">Album</string>
+    <string name="songs_title">Songs</string>
 </resources>

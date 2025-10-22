@@ -25,9 +25,9 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
  * @param label Display text for the chip
  * @param icon Optional painter for the icon to display
  */
-data class ChipItem(
+data class ChipItem<T>(
     val label: String,
-    val id: String,
+    val id: T,
     val icon: Painter? = null
 )
 
@@ -41,15 +41,16 @@ data class ChipItem(
  * @param modifier Modifier to be applied to the container
  */
 @Composable
-fun SelectionChipBar(
-    items: List<ChipItem>,
-    selectedItemId: String,
-    onItemSelected: (ChipItem) -> Unit,
+fun <T> SelectionChipBar(
+    items: List<ChipItem<T>>,
+    selectedItemId: T,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(horizontal = ListenBrainzTheme.paddings.horizontal),
+    onItemSelected: (ChipItem<T>) -> Unit,
 ) {
     LazyRow(
         modifier = modifier,
-        contentPadding = PaddingValues(start = ListenBrainzTheme.paddings.horizontal)
+        contentPadding = contentPadding
     ) {
         items.forEach { item ->
             item {

@@ -25,7 +25,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Done
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -76,7 +75,6 @@ import org.listenbrainz.android.ui.components.dialogs.ReviewDialog
 import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions
-import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils
@@ -592,7 +590,6 @@ fun FollowListens(
                             }
                         )
                     },
-                    enableTrailingContent = true,
                     trailingContent = { modifier ->
                         Column(modifier, horizontalAlignment = Alignment.End) {
                             TitleAndSubtitle(
@@ -699,7 +696,6 @@ fun SimilarListens(
                             }
                         )
                     },
-                    enableTrailingContent = true,
                     trailingContent = { modifier ->
                         /*TitleAndSubtitle(
                             modifier = modifier,

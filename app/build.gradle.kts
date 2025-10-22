@@ -247,6 +247,9 @@ dependencies {
         exclude(group = "org.json", module = "json")
     }
 
+    // Date time
+    implementation(libs.threetenabp)
+
     // Logging
     implementation(libs.logger.android)
 

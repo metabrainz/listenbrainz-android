@@ -143,7 +143,7 @@ private fun ArtistScreen(
     snackBarState: SnackbarHostState,
     goToAlbumPage: (String) -> Unit,
 ) {
-    Column() {
+    Column {
         TopBar(
             modifier = Modifier.statusBarsPadding(),
             topBarActions = topBarActions,
