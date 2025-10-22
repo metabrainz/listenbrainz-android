@@ -60,7 +60,7 @@ class ListensViewModel @Inject constructor(
     private val listeningNowFlow = socketRepository
         .listen { username.first { it.isNotEmpty() } }
         .onEach { listen ->
-            if (listen.listenedAt != null) {
+            if (listen?.listenedAt != null) {
                 listensFlow.getAndUpdate {
                     listOf(listen) + it
                 }
