@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.screens.profile.stats
 
 import android.text.TextUtils
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -16,21 +15,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -38,8 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -67,19 +59,16 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
-import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.model.user.Artist
 import org.listenbrainz.android.model.user.ListeningActivity
 import org.listenbrainz.android.model.user.TopArtists
 import org.listenbrainz.android.model.user.TopArtistsPayload
-import org.listenbrainz.android.ui.components.ButtonLB
 import org.listenbrainz.android.ui.components.ChipItem
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
 import org.listenbrainz.android.ui.components.SelectionChipBar
 import org.listenbrainz.android.ui.components.SuccessBar
 import org.listenbrainz.android.ui.screens.artist.formatNumber
-import org.listenbrainz.android.ui.screens.feed.FeedUiState
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.screens.profile.StatsTabUIState
 import org.listenbrainz.android.ui.screens.profile.listens.LoadMoreButton
@@ -90,7 +79,6 @@ import org.listenbrainz.android.util.Utils.LaunchedEffectUnit
 import org.listenbrainz.android.util.Utils.Spacer
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.util.getStringResource
-import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 
@@ -323,11 +311,11 @@ fun StatsScreen(
                             ColumnCartesianLayer.ColumnProvider.series(
                                 listOf(
                                     rememberLineComponent(
-                                        color = Color(0xFF353070),
+                                        color = ListenBrainzTheme.colorScheme.lbSignature,
                                         thickness = 25.dp,
                                     ),
                                     rememberLineComponent(
-                                        color = Color(0xFFEB743B),
+                                        color = ListenBrainzTheme.colorScheme.lbSignatureInverse,
                                         thickness = 25.dp,
                                     )
                                 )
