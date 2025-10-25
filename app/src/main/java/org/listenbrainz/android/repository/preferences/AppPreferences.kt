@@ -47,7 +47,7 @@ interface AppPreferences {
     /** Default is false. */
     val shouldListenNewPlayers: DataStorePreference<Boolean>
 
-    val isCrashReportingEnabled: DataStorePreference<Boolean>
+    val sentryOptIn: DataStorePreference<Boolean>
 
     val isNotificationServiceAllowed: Boolean
 

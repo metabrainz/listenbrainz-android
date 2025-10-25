@@ -32,6 +32,7 @@ import org.listenbrainz.android.ui.screens.onboarding.auth.LoginConsentScreenUIS
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.AppInfo
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
 import org.listenbrainz.android.util.Log
+import org.listenbrainz.android.util.SentryController
 import org.listenbrainz.android.util.Utils.getAllInstalledApps
 import org.listenbrainz.android.util.Utils.getListeningApps
 import javax.inject.Inject
@@ -41,6 +42,7 @@ class DashBoardViewModel @Inject constructor(
     val appPreferences: AppPreferences,
     private val application: Application,
     private val remotePlaybackHandler: RemotePlaybackHandler,
+    private val sentryController: SentryController,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : AndroidViewModel(application) {
 
@@ -59,6 +61,7 @@ class DashBoardViewModel @Inject constructor(
     val consentScreenUIState = _consentScreenUIState.asStateFlow()
 
     init {
+        observeSentryOptInPreference()
         viewModelScope.launch {
             val cacheData = appPreferences.consentScreenDataCache.getFlow().first()
             if(cacheData.isNotEmpty()){
@@ -72,20 +75,28 @@ class DashBoardViewModel @Inject constructor(
         }
     }
 
-    object CrashReporter {
-        var isEnabled: Boolean = true
-
-        fun logException(throwable: Throwable) {
-            if (isEnabled) {
-                Sentry.captureException(throwable)
+    private fun observeSentryOptInPreference() {
+        viewModelScope.launch {
+            appPreferences.sentryOptIn.getFlow().collect { enabled ->
+                sentryController.setEnabled(enabled)
+                Log.d("Sentry reporting ${if (enabled) "enabled" else "disabled"}")
             }
         }
+    }
 
-        fun logMessage(message: String) {
-            if (isEnabled) {
-                Sentry.captureMessage(message)
-            }
+    fun toggleSentryOptIn(enabled: Boolean) {
+        viewModelScope.launch(ioDispatcher) {
+            appPreferences.sentryOptIn.set(enabled)
+            // The observer will automatically update sentryController
         }
+    }
+
+    fun logCrash(throwable: Throwable) {
+        sentryController.logException(throwable)
+    }
+
+    fun logMessage(message: String) {
+        sentryController.logMessage(message)
     }
 
     // Sets Ui mode for XML layouts.
@@ -107,14 +118,13 @@ class DashBoardViewModel @Inject constructor(
         }
     }
 
-
     fun updatePermissionStatus(activity: ComponentActivity) {
         viewModelScope.launch(ioDispatcher) {
             val requiredPermissions = PermissionEnum.getAllRelevantPermissions()
             val permissionMap = mutableMapOf<PermissionEnum, PermissionStatus>()
             val permissionsReqeustedOnce = appPreferences.requestedPermissionsList.getFlow().first()
             requiredPermissions.forEach { permission ->
-                if (permission.isGranted(activity)) {
+                if (permission.isGranted(activity, appPreferences)) {
                     permissionMap[permission] = PermissionStatus.GRANTED
                     //This is to ensure that the permission is marked as requested (for devices which already gave permission before any prompt)
                     markPermissionAsRequested(permission)
@@ -340,28 +350,8 @@ class DashBoardViewModel @Inject constructor(
         viewModelScope.launch { remotePlaybackHandler.disconnectSpotify() }
     }
 
-    init {
-        observeCrashReportingPreference()
-    }
 
-    private fun observeCrashReportingPreference() {
-        viewModelScope.launch {
-            appPreferences.isCrashReportingEnabled.getFlow().collect { enabled ->
-                setCrashReportingEnabled(enabled)
-            }
-        }
-    }
 
-    private fun setCrashReportingEnabled(enabled: Boolean) {
-        CrashReporter.isEnabled = enabled
-        Log.d("Crash reporting ${if (enabled) "enabled" else "disabled"}")
-    }
 
-    fun toggleCrashReporting(enabled: Boolean) {
-        viewModelScope.launch(ioDispatcher) {
-            appPreferences.isCrashReportingEnabled.set(enabled)
-            // observer automatically updates CrashReporter.isEnabled
-        }
-    }
 
 }

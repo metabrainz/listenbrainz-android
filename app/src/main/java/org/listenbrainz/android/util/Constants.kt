@@ -43,7 +43,7 @@ object Constants {
         const val PREFERENCE_LAST_VERSION_CHECK_LAUNCH_COUNT = "last_version_check_launch_count"
         const val PREFERENCE_LAST_UPDATE_PROMPT_LAUNCH_COUNT = "last_update_prompt_launch_count"
         const val PREFERENCE_DOWNLOAD_ID = "download_id"
-        const val CRASH_REPORT_ENABLED = "is_crash_reporting_enabled"
+        const val SENTRY_OPT_IN = "sentry_opt_in"
         const val LINKED_SERVICES = "LINKED_SERVICES"
         const val USERNAME = "username"
         const val CURRENT_PLAYABLE = "CURRENT_PLAYABLE"

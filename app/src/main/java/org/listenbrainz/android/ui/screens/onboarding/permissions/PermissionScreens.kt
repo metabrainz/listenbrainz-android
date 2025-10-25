@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -59,7 +60,11 @@ fun PermissionScreen(dashBoardViewModel: DashBoardViewModel = hiltViewModel(),
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val permissionsRequestedOnce by dashBoardViewModel.permissionsRequestedAteastOnce.collectAsState()
     val filteredPermissions = permissions.filter { it.key != PermissionEnum.BATTERY_OPTIMIZATION && it.key != PermissionEnum.READ_NOTIFICATIONS &&
-            it.key != PermissionEnum.CRASH_REPORTING  }
+            it.key != PermissionEnum.SENTRY_OPT_IN  }
+
+    val isSentryOptIn by dashBoardViewModel.appPreferences.sentryOptIn
+        .getFlow()
+        .collectAsState(initial = true)
 
     LaunchedEffect(filteredPermissions) {
         if (filteredPermissions.isEmpty() || filteredPermissions.all { it.value == PermissionStatus.GRANTED }) {
@@ -72,25 +77,28 @@ fun PermissionScreen(dashBoardViewModel: DashBoardViewModel = hiltViewModel(),
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { perm ->
         }
     PermissionScreenBase(
-        filteredPermissions,
+        permissions = filteredPermissions,
         onGrantPermissionClick = { permission ->
-            if (activity != null) {
-                permission.requestPermission(activity, permissionsRequestedOnce, {
+            activity?.let {
+                permission.requestPermission(it, permissionsRequestedOnce) {
                     dashBoardViewModel.markPermissionAsRequested(permission)
                     launcher.launch(permission.permission)
-                })
+                }
             }
         },
-        onRejectPermissionClick = {
-            onExit() // Continue without accepting permissions
-        })
+        onRejectPermissionClick = onExit,
+        isSentryOptIn = isSentryOptIn,
+        onToggleSentryOptIn = { dashBoardViewModel.toggleSentryOptIn(it) }
+    )
 }
 
 @Composable
 private fun PermissionScreenBase(
     permissions: Map<PermissionEnum, PermissionStatus>,
     onGrantPermissionClick: (PermissionEnum) -> Unit,
-    onRejectPermissionClick: () -> Unit
+    onRejectPermissionClick: () -> Unit,
+    isSentryOptIn: Boolean,
+    onToggleSentryOptIn: (Boolean) -> Unit
 ) {
     FloatingContentAwareLayout(
         modifier = Modifier
@@ -161,19 +169,22 @@ private fun PermissionScreenBase(
                 item {
                     Spacer(Modifier.height(32.dp))
                     Text(
-                        text = "Crash Reporting",
+                        text = "Analytics & Crash Reporting",
                         color = Color.White,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        text = "Help us improve ListenBrainz by sharing crash reports (powered by Sentry). You can change this later in Settings.",
+                        text = PermissionEnum.SENTRY_OPT_IN.rationaleText,
                         color = Color.White.copy(alpha = 0.7f),
                         fontSize = 16.sp
                     )
                     Spacer(Modifier.height(16.dp))
-                    CrashReportingToggle()
+                    SentryOptInToggle(
+                        isEnabled = isSentryOptIn,
+                        onToggle = onToggleSentryOptIn
+                    )
                 }
 
                 item{
@@ -259,11 +270,10 @@ fun PermissionCard(
 }
 
 @Composable
-fun CrashReportingToggle(viewModel: DashBoardViewModel = hiltViewModel()) {
-    val isEnabled by viewModel.appPreferences.isCrashReportingEnabled.getFlow()
-        .collectAsState(initial = true)
-    val coroutineScope = rememberCoroutineScope()
-
+fun SentryOptInToggle(
+    isEnabled: Boolean,
+    onToggle: (Boolean) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -275,17 +285,15 @@ fun CrashReportingToggle(viewModel: DashBoardViewModel = hiltViewModel()) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = if (isEnabled) "Crash Reporting Enabled" else "Enable Crash Reporting",
+            text = if (isEnabled) "Reporting Enabled" else "Reporting Disabled",
             color = ListenBrainzTheme.colorScheme.text,
             fontWeight = FontWeight.Bold,
             fontSize = 18.sp,
             modifier = Modifier.weight(1f)
         )
-        androidx.compose.material3.Switch(
+        Switch(
             checked = isEnabled,
-            onCheckedChange = {
-                viewModel.toggleCrashReporting(it)
-            }
+            onCheckedChange = onToggle
         )
     }
 }
@@ -295,14 +303,18 @@ fun CrashReportingToggle(viewModel: DashBoardViewModel = hiltViewModel()) {
 @Composable
 private fun PermissionScreenPreview() {
     ListenBrainzTheme {
-        OnboardingScreenBackground(backStack = rememberNavBackStack(NavigationItem.OnboardingScreens.PermissionScreen))
+        OnboardingScreenBackground(
+            backStack = rememberNavBackStack(NavigationItem.OnboardingScreens.PermissionScreen)
+        )
         PermissionScreenBase(
             permissions = mapOf(
                 PermissionEnum.READ_NOTIFICATIONS to PermissionStatus.DENIED_TWICE,
                 PermissionEnum.BATTERY_OPTIMIZATION to PermissionStatus.NOT_REQUESTED
             ),
             onGrantPermissionClick = {},
-            onRejectPermissionClick = {}
+            onRejectPermissionClick = {},
+            isSentryOptIn = true,
+            onToggleSentryOptIn = {}
         )
     }
 }

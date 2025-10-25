@@ -152,22 +152,7 @@ fun AppNavigation(
         }
         appComposable(route = AppNavigationItem.Settings.route) {
             SettingsScreen(
-                appPreferences = AppPreferencesImpl(LocalContext.current),
-                callbacks = SettingsCallbacks(
-                    logout = {},
-                    getVersion = { "1.0.0" },
-                    fetchLinkedServices = {},
-                    getPackageIcon = { null },
-                    getPackageLabel = { "" },
-                    setWhitelist = {},
-                    onLoginRequest = {},
-                    onOnboardingRequest = {},
-                    checkForUpdates = {}
-                ),
-                preferencesUiState = PreferencesUiState(),
-                isBatteryOptimizationPermissionGranted = false,
-                topBarActions = topAppBarActions,
-                dashBoardViewModel = dashBoardViewModel
+                callbacks = settingsCallbacks
             )
         }
 

@@ -140,6 +140,7 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
                 stringPreferencesKey(Constants.Strings.PREFERENCE_LAST_UPDATE_PROMPT_LAUNCH_COUNT)
             val GITHUB_DOWNLOAD_ID = longPreferencesKey(Constants.Strings.PREFERENCE_DOWNLOAD_ID)
             val IS_CRASH_REPORTING_ENABLED = booleanPreferencesKey(Constants.Strings.CRASH_REPORT_ENABLED)
+            val SENTRY_OPT_IN = booleanPreferencesKey(Constants.Strings.SENTRY_OPT_IN)
         }
 
         fun String?.asStringList(): List<String> {
@@ -267,15 +268,22 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
             }
         }
 
-    override val isCrashReportingEnabled: DataStorePreference<Boolean>
+    override val sentryOptIn: DataStorePreference<Boolean>
         get() = object : DataStorePreference<Boolean> {
             override fun getFlow(): Flow<Boolean> =
                 datastore.map { prefs ->
+                    // Default to true. If old pref exists, use it.
+                    prefs[PreferenceKeys.SENTRY_OPT_IN] ?:
                     prefs[PreferenceKeys.IS_CRASH_REPORTING_ENABLED] ?: true
                 }
+
             override suspend fun set(value: Boolean) {
                 context.dataStore.edit { prefs ->
-                    prefs[PreferenceKeys.IS_CRASH_REPORTING_ENABLED] = value
+                    prefs[PreferenceKeys.SENTRY_OPT_IN] = value
+                    // Clear old one if it exists
+                    if (prefs.contains(PreferenceKeys.IS_CRASH_REPORTING_ENABLED)) {
+                        prefs.remove(PreferenceKeys.IS_CRASH_REPORTING_ENABLED)
+                    }
                 }
             }
         }

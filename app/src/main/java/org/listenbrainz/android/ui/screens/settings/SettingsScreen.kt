@@ -1,6 +1,8 @@
 package org.listenbrainz.android.ui.screens.settings
 
+import android.app.Application
 import android.content.Intent
+import android.content.res.Configuration
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.LocalActivity
@@ -42,12 +44,16 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -72,15 +78,18 @@ import org.listenbrainz.android.viewmodel.SettingsViewModel
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     listensViewModel: ListensViewModel = hiltViewModel(),
-//    dashBoardViewModel: DashBoardViewModel = hiltViewModel(),
+    dashBoardViewModel: DashBoardViewModel = hiltViewModel(),
     callbacks: SettingsCallbacksToHomeScreen
 ) {
-    val dashBoardViewModel: DashBoardViewModel = hiltViewModel()
-
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val isBatteryOptimizationPermissionGranted =
         permissions[PermissionEnum.BATTERY_OPTIMIZATION] == PermissionStatus.GRANTED
     val preferencesUiState by listensViewModel.preferencesUiState.collectAsState()
+
+    val sentryOptIn by dashBoardViewModel.appPreferences.sentryOptIn
+        .getFlow()
+        .collectAsState(initial = true)
+
     SettingsScreen(
         appPreferences = viewModel.appPreferences,
         preferencesUiState = preferencesUiState,
@@ -99,8 +108,8 @@ fun SettingsScreen(
         },
         isBatteryOptimizationPermissionGranted = isBatteryOptimizationPermissionGranted,
         topBarActions = callbacks.topBarActions,
-        dashBoardViewModel = dashBoardViewModel
-
+        sentryOptIn = sentryOptIn,
+        onToggleSentry = { dashBoardViewModel.toggleSentryOptIn(it) }
     )
 }
 
@@ -111,7 +120,8 @@ fun SettingsScreen(
     preferencesUiState: PreferencesUiState,
     isBatteryOptimizationPermissionGranted: Boolean = true,
     topBarActions: TopBarActions,
-    dashBoardViewModel: DashBoardViewModel
+    sentryOptIn: Boolean,
+    onToggleSentry: (Boolean) -> Unit
 ) {
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
@@ -134,8 +144,7 @@ fun SettingsScreen(
         .collectAsState(initial = false)
     val indentedModifier = Modifier.padding(start = 16.dp)
 
-    val preferences = AppPreferencesImpl(LocalContext.current)
-    val sentryOptIn by preferences.isCrashReportingEnabled.getFlow().collectAsState(initial = true)
+    val sentryOptIn by appPreferences.sentryOptIn.getFlow().collectAsState(initial = true)
     val coroutineScope = rememberCoroutineScope()
 
     LifecycleResumeEffect(key1 = Unit) {
@@ -305,18 +314,13 @@ fun SettingsScreen(
             )
             HorizontalDivider()
 
-            val crashReportingEnabled by appPreferences.isCrashReportingEnabled
-                .getFlow()
-                .collectAsState(initial = false)
-
             SettingsSwitchOption(
-                title = "Send crash reports",
-                subtitle = "Help improve ListenBrainz by automatically sending anonymous crash data",
-                isChecked = crashReportingEnabled
+                title = "Allow Analytics & Crash Reporting",
+                subtitle = "Help improve ListenBrainz by automatically sending anonymous data",
+                isChecked = sentryOptIn
             ) { checked ->
-                scope.launch {
-                    appPreferences.isCrashReportingEnabled.set(checked)
-                    dashBoardViewModel.toggleCrashReporting(checked)
+                coroutineScope.launch {
+                    onToggleSentry(checked)
                 }
             }
 
@@ -493,28 +497,31 @@ fun SettingsScreen(
     }
 }
 
-//@Preview
-//@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-//@Composable
-//fun SettingsScreenPreview() {
-//    ListenBrainzTheme {
-//        SettingsScreen(
-//            appPreferences = AppPreferencesImpl(LocalContext.current),
-//            preferencesUiState = PreferencesUiState(),
-//            callbacks = SettingsCallbacks(
-//                logout = {},
-//                getVersion = { "1.0.0" },
-//                fetchLinkedServices = {},
-//                getPackageIcon = { null },
-//                getPackageLabel = { "" },
-//                setWhitelist = {},
-//                onLoginRequest = {},
-//                onOnboardingRequest = {},
-//                checkForUpdates = {}
-//            ),
-//            topBarActions = TopBarActions(),
-//            isBatteryOptimizationPermissionGranted = true,
-//            dashBoardViewModel = TODO()
-//        )
-//    }
-//}
+@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun SettingsScreenPreview() {
+    ListenBrainzTheme {
+        val context = LocalContext.current
+
+        SettingsScreen(
+            appPreferences = AppPreferencesImpl(context),
+            preferencesUiState = PreferencesUiState(),
+            callbacks = SettingsCallbacks(
+                logout = {},
+                getVersion = { "1.0.0" },
+                fetchLinkedServices = {},
+                getPackageIcon = { null },
+                getPackageLabel = { "" },
+                setWhitelist = {},
+                onLoginRequest = {},
+                onOnboardingRequest = {},
+                checkForUpdates = {}
+            ),
+            topBarActions = TopBarActions(),
+            isBatteryOptimizationPermissionGranted = true,
+            sentryOptIn = true, // Pass fake state
+            onToggleSentry = {}   // Pass empty lambda
+        )
+    }
+}

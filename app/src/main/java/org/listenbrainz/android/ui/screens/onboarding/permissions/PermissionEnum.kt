@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import kotlinx.coroutines.flow.first
 import org.listenbrainz.android.R
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
 
 /**
@@ -74,11 +75,11 @@ enum class PermissionEnum(
         minSdk = 23
     ),
 
-    CRASH_REPORTING(
-        permission = "CRASH_REPORTING",
-        title = "Send crash reports",
+    SENTRY_OPT_IN(
+        permission = "SENTRY_OPT_IN",
+        title = "Allow Crash Reporting",
         permanentlyDeclinedRationale = "You can still use the app without sending crash data.",
-        rationaleText = "Help improve ListenBrainz by automatically sending anonymous crash data.",
+        rationaleText = "Help improve ListenBrainz by automatically sending anonymous crash and performance data.",
         image = R.drawable.ic_crash,
         minSdk = 0
     ),
@@ -114,13 +115,14 @@ enum class PermissionEnum(
                     !activity.shouldShowRequestPermissionRationale(permission) && ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED
                 else false
             }
-            READ_NOTIFICATIONS, BATTERY_OPTIMIZATION, CRASH_REPORTING->false
+            READ_NOTIFICATIONS, BATTERY_OPTIMIZATION, SENTRY_OPT_IN->false
         }
     }
 
     //This function checks if the permission is granted or not
     //If a permission is not applicable for the current Android version, it will return true
-    fun isGranted(context: Context): Boolean {
+    suspend fun isGranted(context: Context, appPreferences: AppPreferences): Boolean
+    {
         if(!isPermissionApplicable()) return true
         return when(this){
             SEND_NOTIFICATIONS, ACCESS_MUSIC_AUDIO, READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE ->
@@ -136,18 +138,9 @@ enum class PermissionEnum(
                 val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
                 powerManager.isIgnoringBatteryOptimizations(context.packageName)
             }
-            CRASH_REPORTING -> {
-                // Blocking read from DataStorePreference<Boolean> for onboarding checks
-                val pref = AppPreferencesImpl(context).isCrashReportingEnabled
-                var result = true
-                runCatching {
-                    kotlinx.coroutines.runBlocking {
-                        result = pref.getFlow().first()
-                    }
-                }
-                result
+            SENTRY_OPT_IN -> {
+                appPreferences.sentryOptIn.getFlow().first()
             }
-
         }
     }
 
@@ -178,8 +171,7 @@ enum class PermissionEnum(
                     activity.startActivity(intent)
                 }
             }
-            CRASH_REPORTING -> {
-            }
+            SENTRY_OPT_IN -> Unit
         }
     }
 
@@ -191,13 +183,23 @@ enum class PermissionEnum(
         fun getPermissionsForPermissionScreen(): List<PermissionEnum> = PermissionEnum.entries.filter {
             it.isPermissionApplicable() &&
                     it != READ_NOTIFICATIONS && // READ_NOTIFICATIONS is handled separately
-                    it != BATTERY_OPTIMIZATION // BATTERY_OPTIMIZATION is handled separately
+                    it != BATTERY_OPTIMIZATION && // BATTERY_OPTIMIZATION is handled separately
+                    it != SENTRY_OPT_IN // SENTRY_OPT_IN is handled separately with a toggle
         }
 
-        fun getListOfPermissionsToBeLaunchedTogether(context: Activity, permissionsRequestedOnce: List<String>): Array<String>{
-            return getPermissionsForPermissionScreen().filter { permission->
-                !permission.isGranted(context) && !permission.isPermissionPermanentlyDeclined(context, permissionsRequestedOnce)
-            }.map { it.permission }.toList().toTypedArray()
+        suspend fun getListOfPermissionsToBeLaunchedTogether(
+            context: Activity,
+            permissionsRequestedOnce: List<String>,
+            appPreferences: AppPreferences
+        ): Array<String> {
+            return getPermissionsForPermissionScreen()
+                .filter { permission ->
+                    !permission.isGranted(context, appPreferences) &&
+                            !permission.isPermissionPermanentlyDeclined(context, permissionsRequestedOnce)
+                }
+                .map { it.permission }
+                .toTypedArray()
         }
+
     }
 }
