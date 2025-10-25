@@ -236,7 +236,7 @@ fun ListeningNowCard(
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .background(ListenBrainzTheme.colorScheme.background)
+                .background(ListenBrainzTheme.colorScheme.level2)
                 .clickable {
                     coroutineScope.launch {
                         backdropScaffoldState.conceal()
@@ -318,7 +318,7 @@ fun ListeningNowLayoutPreview() {
         ListeningNowLayout(
             uiState = ListeningNowUIState(
                 song = Listen(
-                    insertedAt = "1234567890",
+                    insertedAt = 1234567890,
                     listenedAt = 1234567890,
                     recordingMsid = "test-msid",
                     trackMetadata = TrackMetadata(
@@ -346,7 +346,7 @@ fun ListeningNowCardPreview() {
         ListeningNowCard(
             uiState = ListeningNowUIState(
                 song = Listen(
-                    insertedAt = "1234567890",
+                    insertedAt = 1234567890,
                     listenedAt = 1234567890,
                     recordingMsid = "test-msid",
                     trackMetadata = TrackMetadata(
@@ -377,7 +377,7 @@ fun ListeningNowCardLandscapePreview() {
         ListeningNowCard(
             uiState = ListeningNowUIState(
                 song = Listen(
-                    insertedAt = "1234567890",
+                    insertedAt = 1234567890,
                     listenedAt = 1234567890,
                     recordingMsid = "test-msid",
                     trackMetadata = TrackMetadata(

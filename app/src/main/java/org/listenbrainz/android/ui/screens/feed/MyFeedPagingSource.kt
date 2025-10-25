@@ -16,13 +16,13 @@ class MyFeedPagingSource (
     private val onError: (error: ResponseError?) -> Unit,
     private val feedRepository: FeedRepository,
     private val ioDispatcher: CoroutineDispatcher
-): PagingSource<Int, FeedUiEventItem>() {
+): PagingSource<Long, FeedUiEventItem>() {
 
-    override fun getRefreshKey(state: PagingState<Int, FeedUiEventItem>): Int {
-        return (System.currentTimeMillis()/1000).toInt()
+    override fun getRefreshKey(state: PagingState<Long, FeedUiEventItem>): Long {
+        return System.currentTimeMillis() / 1000
     }
     
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, FeedUiEventItem> {
+    override suspend fun load(params: LoadParams<Long>): LoadResult<Long, FeedUiEventItem> {
         
         val username = username()
         if (username.isEmpty()) {

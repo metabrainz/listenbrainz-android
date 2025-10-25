@@ -25,7 +25,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Done
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -76,8 +75,8 @@ import org.listenbrainz.android.ui.components.dialogs.ReviewDialog
 import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions
-import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
@@ -200,7 +199,7 @@ fun FeedScreen(
     }
 
     /** CONTENT */
-    Column() {
+    Column {
         TopBar(
             modifier = Modifier.statusBarsPadding(),
             topBarActions = topBarActions,
@@ -591,7 +590,6 @@ fun FollowListens(
                             }
                         )
                     },
-                    enableTrailingContent = true,
                     trailingContent = { modifier ->
                         Column(modifier, horizontalAlignment = Alignment.End) {
                             TitleAndSubtitle(
@@ -649,7 +647,7 @@ fun SimilarListens(
 
         items(count = pagingData.itemCount) { index: Int ->
 
-            pagingData[index]?.apply {
+            pagingData[index]?.run {
 
                 ListenCardSmall(
                     modifier = Modifier.padding(
@@ -698,7 +696,6 @@ fun SimilarListens(
                             }
                         )
                     },
-                    enableTrailingContent = true,
                     trailingContent = { modifier ->
                         /*TitleAndSubtitle(
                             modifier = modifier,
@@ -840,13 +837,12 @@ private enum class FeedDialogBundleKeys {
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun FeedScreenPreview() {
-    ListenBrainzTheme {
-        Surface(color = ListenBrainzTheme.colorScheme.background) {
-            FeedScreen(
-                uiState = FeedUiState(
-                    FeedUiEventData(eventList = flow {
-                        emit(
-                            PagingData.from(
+    PreviewSurface {
+        FeedScreen(
+            uiState = FeedUiState(
+                FeedUiEventData(eventList = flow {
+                    emit(
+                        PagingData.from(
                             List(30) {
                                 FeedUiEventItem(
                                     eventType = FeedEventType.LISTEN,
@@ -861,25 +857,25 @@ private fun FeedScreenPreview() {
                                 )
                             }
                         ))
-                    })
-                ),
-                scrollToTopState = false,
-                callbacks = FeedCallbacks(
-                    onScrollToTop = {},
-                    onDeleteOrHide = { _, _, _ -> },
-                    onErrorShown = {},
-                    onRecommend = {},
-                    onPersonallyRecommend = { _, _, _ -> },
-                    onReview = { _, _, _, _, _ -> },
-                    onPin = { _, _ -> },
-                    searchFollower = {},
-                    isCritiqueBrainzLinked = { true },
-                    onPlay = {},
-                    goToUserPage = {},
-                    goToArtistPage = {}
-                ),
-                topBarActions = TopBarActions()
-            )
-        }
+                })
+            ),
+            scrollToTopState = false,
+            callbacks = FeedCallbacks(
+                onScrollToTop = {},
+                onDeleteOrHide = { _, _, _ -> },
+                onErrorShown = {},
+                onRecommend = {},
+                onPersonallyRecommend = { _, _, _ -> },
+                onReview = { _, _, _, _, _ -> },
+                onPin = { _, _ -> },
+                searchFollower = {},
+                isCritiqueBrainzLinked = { true },
+                onPlay = {},
+                goToUserPage = {},
+                goToArtistPage = {}
+            ),
+            topBarActions = TopBarActions()
+        )
     }
+
 }

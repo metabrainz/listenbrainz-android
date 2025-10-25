@@ -10,8 +10,13 @@ import org.listenbrainz.android.model.TokenValidation
 import org.listenbrainz.android.util.Resource
 
 interface ListensRepository {
-    
-    suspend fun fetchUserListens(username: String?): Resource<Listens>
+
+    suspend fun fetchUserListens(
+        username: String?,
+        count: Int = 100,
+        maxTs: Long? = null,
+        minTs: Long? = null
+    ): Resource<Listens>
     
     suspend fun fetchCoverArt(mbid: String): Resource<CoverArt>
 

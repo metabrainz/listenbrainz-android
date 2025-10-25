@@ -10,13 +10,15 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
@@ -37,10 +39,12 @@ import org.listenbrainz.android.ui.screens.profile.PlaylistTabUIState
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.screens.profile.StatsTabUIState
 import org.listenbrainz.android.ui.screens.profile.TasteTabUIState
+import org.listenbrainz.android.ui.screens.profile.listens.UserListensPagingSource
 import org.listenbrainz.android.ui.screens.profile.playlists.CollabPlaylistPagingSource
 import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistPagingSource
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
-import org.listenbrainz.android.ui.screens.profile.stats.UserGlobal
+import org.listenbrainz.android.ui.screens.profile.stats.DataScope
+import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
 import org.listenbrainz.android.util.Resource
 import javax.inject.Inject
@@ -55,14 +59,36 @@ class UserViewModel @Inject constructor(
     @IoDispatcher val ioDispatcher: CoroutineDispatcher,
 ) : BaseViewModel<ProfileUiState>() {
 
-    private var isLoggedInUser by mutableStateOf(false)
-    private val currentUser: MutableStateFlow<String?> = MutableStateFlow(null)
+    private val currentUser = MutableStateFlow<String?>(null)
+    private val isLoggedInUser = currentUser
+        .map { it == appPreferences.username.get() }
 
     //Semaphore to limit the number of concurrent cover art fetches
     private val coverArtSemaphore = Semaphore(2)
 
     //Caching the fetched cover arts
     private val coverArtCache = mutableMapOf<UserPlaylist, String?>()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val recentListensPager: Flow<PagingData<Listen>> = currentUser
+        .flatMapLatest { username ->
+            if (username != null) {
+                Pager(
+                    PagingConfig(
+                        pageSize = 30,
+                        enablePlaceholders = true
+                    ),
+                    initialKey = null,
+                ) {
+                    createNewUserListensPagingSource()
+                }
+                    .flow
+                    .cachedIn(viewModelScope)
+            } else {
+                emptyFlow()
+            }
+        }
+
     private val userPlaylistPager: Flow<PagingData<UserPlaylist>> = Pager(
         PagingConfig(
             pageSize = PlaylistDataRepository.USER_PLAYLISTS_FETCH_COUNT,
@@ -92,11 +118,11 @@ class UserViewModel @Inject constructor(
             .getLoginStatusFlow()
             .stateIn(
                 viewModelScope,
-                SharingStarted.Lazily,
+                SharingStarted.Eagerly,
                 STATUS_LOGGED_OUT
             )
     private val listenStateFlow: MutableStateFlow<ListensTabUiState> =
-        MutableStateFlow(ListensTabUiState())
+        MutableStateFlow(ListensTabUiState(recentListens = recentListensPager))
     private val statsStateFlow: MutableStateFlow<StatsTabUIState> =
         MutableStateFlow(StatsTabUIState())
     private val tasteStateFlow: MutableStateFlow<TasteTabUIState> =
@@ -105,11 +131,19 @@ class UserViewModel @Inject constructor(
         MutableStateFlow(CreatedForTabUIState())
     private val playlistFlow: MutableStateFlow<PlaylistTabUIState> = MutableStateFlow(
         PlaylistTabUIState(
+            isLoading = false,
             userPlaylists = userPlaylistPager,
             collabPlaylists = collabPlaylistPager
         )
     )
 
+    private fun createNewUserListensPagingSource() =
+        UserListensPagingSource(
+            username = currentUser.value,
+            onError = { error -> emitError(error) },
+            ioDispatcher = ioDispatcher,
+            listensRepository = listensRepository,
+        )
 
     private fun createNewUserPlaylistPagingSource() = UserPlaylistPagingSource(
         username = currentUser.value,
@@ -193,30 +227,16 @@ class UserViewModel @Inject constructor(
         )
     }
 
-    suspend fun getUserDataFromRemote(
-        inputUsername: String?
-    ) = coroutineScope {
-        if (inputUsername != null) {
-            currentUser.emit(inputUsername)
-        }
-        val listensTabData = async { getUserListensData(inputUsername) }
-        val statsTabData = async { getUserStatsData(inputUsername) }
-        val tasteTabData = async { getUserTasteData(inputUsername) }
-        val createdForTabData = async { getCreatedForYouPlaylists(inputUsername) }
-        listensTabData.await()
-        statsTabData.await()
-        tasteTabData.await()
-        createdForTabData.await()
+    fun updateUser(username: String) {
+        currentUser.value = username
     }
 
-    private suspend fun getUserListensData(inputUsername: String?) {
+    suspend fun getUserListensData(inputUsername: String? = currentUser.value) {
+        if (!listenStateFlow.value.isLoading)
+            return
+
         val username = inputUsername ?: appPreferences.username.get()
-        if (inputUsername != null) {
-            isLoggedInUser = inputUsername == appPreferences.username.get()
-        }
         val listenCount = userRepository.fetchUserListenCount(username).data?.payload?.count
-        val listens: List<Listen>? =
-            listensRepository.fetchUserListens(username).data?.payload?.listens
         val followers = socialRepository.getFollowers(username).data?.followers
         val currentUserFollowing =
             socialRepository.getFollowing(appPreferences.username.get()).data?.following
@@ -253,7 +273,7 @@ class UserViewModel @Inject constructor(
             followers = followersState,
             followingCount = followingCount,
             following = followingState,
-            recentListens = listens,
+            recentListens = recentListensPager,
             compatibility = compatibility,
             similarUsers = similarUsers,
             pinnedSong = currentPins,
@@ -263,74 +283,17 @@ class UserViewModel @Inject constructor(
         listenStateFlow.emit(listensTabState)
     }
 
-    private suspend fun getUserStatsData(inputUsername: String?) {
+    suspend fun getUserStatsData(inputUsername: String? = currentUser.value) {
+        if (!statsStateFlow.value.isLoading)
+            return
+
         val userThisWeekListeningActivity = userRepository.getUserListeningActivity(
             inputUsername,
             StatsRange.THIS_WEEK.apiIdenfier
         ).data?.payload?.listeningActivity ?: listOf()
-        val userThisMonthListeningActivity = userRepository.getUserListeningActivity(
-            inputUsername,
-            StatsRange.THIS_MONTH.apiIdenfier
-        ).data?.payload?.listeningActivity ?: listOf()
-        val userThisYearListeningActivity = userRepository.getUserListeningActivity(
-            inputUsername,
-            StatsRange.THIS_YEAR.apiIdenfier
-        ).data?.payload?.listeningActivity ?: listOf()
-        val userLastWeekListeningActivity = userRepository.getUserListeningActivity(
-            inputUsername,
-            StatsRange.LAST_WEEK.apiIdenfier
-        ).data?.payload?.listeningActivity ?: listOf()
-        val userLastMonthListeningActivity = userRepository.getUserListeningActivity(
-            inputUsername,
-            StatsRange.LAST_MONTH.apiIdenfier
-        ).data?.payload?.listeningActivity ?: listOf()
-        val userLastYearListeningActivity = userRepository.getUserListeningActivity(
-            inputUsername,
-            StatsRange.LAST_YEAR.apiIdenfier
-        ).data?.payload?.listeningActivity ?: listOf()
-        val userAllTimeListeningActivity = userRepository.getUserListeningActivity(
-            inputUsername,
-            StatsRange.ALL_TIME.apiIdenfier
-        ).data?.payload?.listeningActivity ?: listOf()
-
-        val globalThisWeekListeningActivity =
-            userRepository.getGlobalListeningActivity(StatsRange.THIS_WEEK.apiIdenfier).data?.payload?.listeningActivity
-                ?: listOf()
-        val globalThisMonthListeningActivity =
-            userRepository.getGlobalListeningActivity(StatsRange.THIS_MONTH.apiIdenfier).data?.payload?.listeningActivity
-                ?: listOf()
-        val globalThisYearListeningActivity =
-            userRepository.getGlobalListeningActivity(StatsRange.THIS_YEAR.apiIdenfier).data?.payload?.listeningActivity
-                ?: listOf()
-        val globalLastWeekListeningActivity =
-            userRepository.getGlobalListeningActivity(StatsRange.LAST_WEEK.apiIdenfier).data?.payload?.listeningActivity
-                ?: listOf()
-        val globalLastMonthListeningActivity =
-            userRepository.getGlobalListeningActivity(StatsRange.LAST_MONTH.apiIdenfier).data?.payload?.listeningActivity
-                ?: listOf()
-        val globalLastYearListeningActivity =
-            userRepository.getGlobalListeningActivity(StatsRange.LAST_YEAR.apiIdenfier).data?.payload?.listeningActivity
-                ?: listOf()
-        val globalAllTimeListeningActivity =
-            userRepository.getGlobalListeningActivity(StatsRange.ALL_TIME.apiIdenfier).data?.payload?.listeningActivity
-                ?: listOf()
 
         val userListeningActivityMap = mapOf(
-            Pair(UserGlobal.USER, StatsRange.THIS_WEEK) to userThisWeekListeningActivity,
-            Pair(UserGlobal.USER, StatsRange.THIS_MONTH) to userThisMonthListeningActivity,
-            Pair(UserGlobal.USER, StatsRange.THIS_YEAR) to userThisYearListeningActivity,
-            Pair(UserGlobal.USER, StatsRange.LAST_WEEK) to userLastWeekListeningActivity,
-            Pair(UserGlobal.USER, StatsRange.LAST_MONTH) to userLastMonthListeningActivity,
-            Pair(UserGlobal.USER, StatsRange.LAST_YEAR) to userLastYearListeningActivity,
-            Pair(UserGlobal.USER, StatsRange.ALL_TIME) to userAllTimeListeningActivity,
-
-            Pair(UserGlobal.GLOBAL, StatsRange.THIS_WEEK) to globalThisWeekListeningActivity,
-            Pair(UserGlobal.GLOBAL, StatsRange.THIS_MONTH) to globalThisMonthListeningActivity,
-            Pair(UserGlobal.GLOBAL, StatsRange.THIS_YEAR) to globalThisYearListeningActivity,
-            Pair(UserGlobal.GLOBAL, StatsRange.LAST_WEEK) to globalLastWeekListeningActivity,
-            Pair(UserGlobal.GLOBAL, StatsRange.LAST_MONTH) to globalLastMonthListeningActivity,
-            Pair(UserGlobal.GLOBAL, StatsRange.LAST_YEAR) to globalLastYearListeningActivity,
-            Pair(UserGlobal.GLOBAL, StatsRange.ALL_TIME) to globalAllTimeListeningActivity,
+            Pair(DataScope.USER, StatsRange.THIS_WEEK) to userThisWeekListeningActivity,
         )
 
         val statsTabState = StatsTabUIState(
@@ -341,8 +304,41 @@ class UserViewModel @Inject constructor(
         statsStateFlow.emit(statsTabState)
     }
 
-    suspend fun getUserTopArtists(inputUsername: String?) {
-        statsStateFlow.value = statsStateFlow.value.copy(isLoading = true)
+    suspend fun getListeningActivity(
+        inputUsername: String? = currentUser.value,
+        range: StatsRange,
+        scope: DataScope
+    ) {
+        val key = Pair(scope, range)
+
+        if (statsStateFlow.value.userListeningActivity.containsKey(key)) {
+            return
+        }
+
+        val listeningActivity = if (scope == DataScope.USER) {
+            userRepository.getUserListeningActivity(
+                inputUsername,
+                range.apiIdenfier
+            ).data?.payload?.listeningActivity ?: listOf()
+        } else {
+            userRepository.getGlobalListeningActivity(
+                range.apiIdenfier
+            ).data?.payload?.listeningActivity ?: listOf()
+        }
+
+        val updatedMap = statsStateFlow.value.userListeningActivity.toMutableMap()
+        updatedMap[key] = listeningActivity
+
+        statsStateFlow.value = statsStateFlow.value.copy(
+            userListeningActivity = updatedMap
+        )
+    }
+
+    suspend fun getUserTopArtists(inputUsername: String? = currentUser.value) {
+        if (statsStateFlow.value.topArtists != null) {
+            return
+        }
+
         val userTopArtistsThisWeek = userRepository.getTopArtists(
             inputUsername,
             rangeString = StatsRange.THIS_WEEK.apiIdenfier
@@ -382,15 +378,14 @@ class UserViewModel @Inject constructor(
             StatsRange.ALL_TIME to userTopArtistsAllTime
         )
 
-        statsStateFlow.value = statsStateFlow.value.copy(
-            isLoading = false,
-            topArtists = topArtists
-        )
+        statsStateFlow.value = statsStateFlow.value.copy(topArtists = topArtists)
     }
 
+    suspend fun getUserTopAlbums(inputUsername: String? = currentUser.value) {
+        if (statsStateFlow.value.topAlbums != null) {
+            return
+        }
 
-    suspend fun getUserTopAlbums(inputUsername: String?) {
-        statsStateFlow.value = statsStateFlow.value.copy(isLoading = true)
         val userTopAlbumsThisWeek = userRepository.getTopAlbums(
             inputUsername,
             rangeString = StatsRange.THIS_WEEK.apiIdenfier
@@ -430,14 +425,14 @@ class UserViewModel @Inject constructor(
             StatsRange.ALL_TIME to userTopAlbumsAllTime
         )
 
-        statsStateFlow.value = statsStateFlow.value.copy(
-            isLoading = false,
-            topAlbums = topAlbums
-        )
+        statsStateFlow.value = statsStateFlow.value.copy(topAlbums = topAlbums)
     }
 
-    suspend fun getUserTopSongs(inputUsername: String?) {
-        statsStateFlow.value = statsStateFlow.value.copy(isLoading = true)
+    suspend fun getUserTopSongs(inputUsername: String? = currentUser.value) {
+        if (statsStateFlow.value.topSongs != null) {
+            return
+        }
+
         val userTopSongsThisWeek = userRepository.getTopSongs(
             inputUsername,
             rangeString = StatsRange.THIS_WEEK.apiIdenfier
@@ -477,13 +472,13 @@ class UserViewModel @Inject constructor(
             StatsRange.ALL_TIME to userTopSongsAllTime
         )
 
-        statsStateFlow.value = statsStateFlow.value.copy(
-            isLoading = false,
-            topSongs = topSongs
-        )
+        statsStateFlow.value = statsStateFlow.value.copy(topSongs = topSongs)
     }
 
-    private suspend fun getUserTasteData(inputUsername: String?) {
+    suspend fun getUserTasteData(inputUsername: String? = currentUser.value) {
+        if (!tasteStateFlow.value.isLoading)
+            return
+
         val lovedSongs = userRepository.getUserFeedback(inputUsername, 1).data
         val hatedSongs = userRepository.getUserFeedback(inputUsername, -1).data
         val userPins = userRepository.fetchUserPins(inputUsername).data
@@ -497,7 +492,10 @@ class UserViewModel @Inject constructor(
     }
 
     //This function gets the createdForYou playlists and fetches the playlist data for each playlist
-    private suspend fun getCreatedForYouPlaylists(inputUsername: String?) {
+    suspend fun getCreatedForYouPlaylists(inputUsername: String? = currentUser.value) {
+        if (!createdForFlow.value.isLoading)
+            return
+
         createdForFlow.value = createdForFlow.value.copy(isLoading = true)
         val createdForYouPlaylists = userRepository.getCreatedForYouPlaylists(inputUsername).data
         //Map to store the playlist data for each playlist
@@ -555,7 +553,7 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    fun deleltePlaylist(
+    fun deletePlaylist(
         playlistMbid: String?,
         onCompletion: (String) -> Unit
     ) {
@@ -574,19 +572,21 @@ class UserViewModel @Inject constructor(
 
     override fun createUiStateFlow(): StateFlow<ProfileUiState> {
         return combine(
+            isLoggedInUser,
             listenStateFlow,
             statsStateFlow,
             tasteStateFlow,
             createdForFlow,
             playlistFlow
-        ) { listensUIState, statsUIState, tasteUIState, createdForUIState, playlistUIState ->
+        ) { data ->
+            var index = 0
             ProfileUiState(
-                isSelf = isLoggedInUser,
-                listensTabUiState = listensUIState,
-                statsTabUIState = statsUIState,
-                tasteTabUIState = tasteUIState,
-                createdForTabUIState = createdForUIState,
-                playlistTabUIState = playlistUIState
+                isSelf = data[index++] as Boolean,
+                listensTabUiState = data[index++] as ListensTabUiState,
+                statsTabUIState = data[index++] as StatsTabUIState,
+                tasteTabUIState = data[index++] as TasteTabUIState,
+                createdForTabUIState = data[index++] as CreatedForTabUIState,
+                playlistTabUIState = data[index] as PlaylistTabUIState
             )
         }.stateIn(
             viewModelScope,

@@ -201,7 +201,7 @@ private fun YimSimilarUsersList(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.secondary),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(
             horizontal = paddings.smallPadding,
             vertical = paddings.smallPadding

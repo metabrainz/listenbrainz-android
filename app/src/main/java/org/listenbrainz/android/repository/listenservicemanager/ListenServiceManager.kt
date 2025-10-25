@@ -4,6 +4,7 @@ import android.media.MediaMetadata
 import android.media.session.PlaybackState
 import android.service.notification.StatusBarNotification
 import org.listenbrainz.android.util.ListenSubmissionState
+import java.lang.AutoCloseable
 import javax.inject.Singleton
 
 @Singleton
@@ -18,6 +19,4 @@ interface ListenServiceManager {
     fun onNotificationPosted(sbn: StatusBarNotification?, mediaPlaying: Boolean)
     
     fun onNotificationRemoved(sbn: StatusBarNotification?)
-    
-    fun close()
 }

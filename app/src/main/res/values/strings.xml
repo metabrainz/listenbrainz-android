@@ -233,34 +233,6 @@
     <string name="tt_yim_statistics_parent" translatable="false">tt_yim_statistics_parent</string>
     <string name="title_activity_settings" translatable="false">SettingsActivity</string>
 
-    <!-- Scrobble -->
-    <string name="state_scrobbling">Now scrobbling…</string>
-    <string name="state_scrobbled">Scrobbled</string>
-    <string name="unscrobble">Unscrobble</string>
-    <string name="state_unscrobbled">Unscrobbled</string>
-    <string name="state_unrecognised_artist">Unrecognised artist</string>
-    <string name="tap_to_edit">(Tap to edit)</string>
-    <string name="recently_scrobbled">Recently Scrobbled</string>
-    <string name="new_player" formatted="true"
-        comment="(%1 = App name) detected (shown in notification, when a new music player is detected)"
-        >%1$s detected</string>
-    <string name="new_player_prompt">Keep scrobbling this app?</string>
-    <string name="no_scrobbles">No songs here yet…</string>
-    <string name="channel_err"
-        comment="Its a noun"
-        >Scrobble errors</string>
-    <string name="new_app">New app</string>
-    <string name="no_apps_enabled">No apps are enabled</string>
-    <string name="n_more" formatted="true"
-        comment="n more( pending scrobbles)"
-        >%1$d more</string>
-    <string name="pending_scrobbles">Pending Scrobbles</string>
-    <string name="pending_scrobble">Pending scrobble</string>
-    <string name="pending_scrobbles_noti">Processing pending scrobbles</string>
-    <string name="s_top_scrobbles" formatted="true"
-        comment="%1= the word weekly or monthly"
-        >%1$s top scrobbles</string>
-
     <!-- CritiqueBrainz-->
     <string name="cb_review_tc">You acknowledge and agree that your contributed reviews to CritiqueBrainz are licensed under a Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0) license. You agree to license your work under this license. You represent and warrant that you own or control all rights in and to the work, that nothing in the work infringes the rights of any third-party, and that you have the permission to use and to license the work under the selected Creative Commons license. Finally, you give the MetaBrainz Foundation permission to license this content for commercial use outside of Creative Commons licenses in order to support the operations of the organization.</string>
     <string name="track_added_successfully">Track added successfully</string>
@@ -286,4 +258,29 @@ If you installed the app from a trusted app store, updating from GitHub will ski
 For added safety, you can continue updating through your preferred app store instead.
     </string>
     <string name="error_apk_install">Error starting APK installation</string>
+    <string name="notification_listening_title">♫ Listening now</string>
+    <string name="load_more">Load More</string>
+    <string name="load_less">Load Less</string>
+    <string name="musicbrainz" translatable="false">MusicBrainz</string>
+
+    <!-- Listen Submission Notification Idle States -->
+    <string-array name="notification_idle_messages">
+        <item>Waiting for the beat to drop...</item>
+        <item>Press play and let\'s listen some tunes</item>
+        <item>No music detected... yet!</item>
+        <item>Standing by for your next jam</item>
+        <item>Ears open, waiting for music</item>
+        <item>Vibing in silence... for now</item>
+        <item>Nothing playing? That\'s unusual</item>
+        <item>Let\'s hear what you\'re into today</item>
+        <item>Silence... *crickets chirping*</item>
+        <item>What are we listening to today?</item>
+        <item>Ready when you are</item>
+        <item>Patiently waiting for some tunes...</item>
+        <item>Hit me with your best track</item>
+        <item>So silent...</item>
+    </string-array>
+
+    <string name="album_title">Album</string>
+    <string name="songs_title">Songs</string>
 </resources>
