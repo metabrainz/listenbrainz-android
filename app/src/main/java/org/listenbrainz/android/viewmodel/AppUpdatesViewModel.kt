@@ -12,19 +12,25 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import org.listenbrainz.android.R
 import org.listenbrainz.android.model.InstallSource
 import org.listenbrainz.android.model.githubupdates.GithubUpdatesList
 import org.listenbrainz.android.model.githubupdates.GithubUpdatesListItem
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.Constants
+import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.isNewerVersion
-import org.listenbrainz.android.R
 import java.io.File
 import javax.inject.Inject
 
@@ -98,7 +104,7 @@ class AppUpdatesViewModel @Inject constructor(
         }
     }
 
-    fun checkForGithubUpdates(onUpdateNotAvailable: ()-> Unit = {}) {
+    fun checkForGithubUpdates(onResult: suspend (Boolean) -> Unit = {}) {
         viewModelScope.launch {
             val installSource = appPreferences.installSource.get()
             val currentLaunchCount = appPreferences.appLaunchCount.get()
@@ -194,9 +200,7 @@ class AppUpdatesViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(isUpdateAvailable = isUpdateAvailable)
                     }
-                    if (!isUpdateAvailable) {
-                        onUpdateNotAvailable()
-                    }
+                    onResult(isUpdateAvailable)
                 }
             }
             appPreferences.lastVersionCheckLaunchCount.set(currentLaunchCount)
@@ -290,11 +294,13 @@ class AppUpdatesViewModel @Inject constructor(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val pm = application.packageManager
             try {
-                val permissions = pm.getPackageInfo(application.packageName, PackageManager.GET_PERMISSIONS)
-                val hasRequestInstallPackagePerm =  Manifest.permission.REQUEST_INSTALL_PACKAGES in permissions.requestedPermissions.orEmpty()
+                val permissions =
+                    pm.getPackageInfo(application.packageName, PackageManager.GET_PERMISSIONS)
+                val hasRequestInstallPackagePerm =
+                    Manifest.permission.REQUEST_INSTALL_PACKAGES in permissions.requestedPermissions.orEmpty()
 
                 val hasInstallPermission = if (hasRequestInstallPackagePerm) {
-                     pm.canRequestPackageInstalls()
+                    pm.canRequestPackageInstalls()
                 } else {
                     false
                 }
@@ -392,7 +398,11 @@ class AppUpdatesViewModel @Inject constructor(
             Log.d(TAG, "APK installation started")
         } catch (e: Exception) {
             Log.e(TAG, "Error starting APK installation", e)
-            Toast.makeText(context, context.getString(R.string.error_apk_install), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                context.getString(R.string.error_apk_install),
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -476,7 +486,10 @@ class AppUpdatesViewModel @Inject constructor(
     private fun Boolean?.isTrue(): Boolean = this == true
 
     // Play Store update methods
-    fun checkPlayStoreUpdate(activity: ComponentActivity) {
+    fun checkPlayStoreUpdate(
+        activity: ComponentActivity,
+        onResult: suspend (Boolean) -> Unit = {}
+    ) {
         viewModelScope.launch {
             val installSource = appPreferences.installSource.get()
             if (installSource != InstallSource.PLAY_STORE) {
@@ -484,6 +497,7 @@ class AppUpdatesViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(isLoading = false)
                 }
+                onResult(false)
                 return@launch
             }
             val isUpdateAvailable = appUpdatesRepository.checkPlayStoreUpdate(activity)
@@ -495,6 +509,7 @@ class AppUpdatesViewModel @Inject constructor(
                 )
             }
             Log.d(TAG, "Play Store update available: $isUpdateAvailable")
+            onResult(isUpdateAvailable)
         }
     }
 
@@ -584,14 +599,29 @@ class AppUpdatesViewModel @Inject constructor(
         }
     }
 
-    fun checkForUpdates(activity: ComponentActivity, onUpdateNotAvailable: () -> Unit){
-        viewModelScope.launch {
-            val installSource = appPreferences.installSource.get()
-            if(installSource == InstallSource.PLAY_STORE){
-                checkPlayStoreUpdate(activity)
-            }else{
-                checkForGithubUpdates(onUpdateNotAvailable)
+    suspend fun checkForUpdates(activity: ComponentActivity): Boolean {
+                val installSource = appPreferences.installSource.get()
+                return if (installSource == InstallSource.PLAY_STORE) {
+                    suspendCancellableCoroutine { cont->
+                        checkPlayStoreUpdate(activity) { isAvailable ->
+                            if (cont.isActive) cont.resume(isAvailable) { cause, _, _ ->
+                                {
+                                    Log.e(TAG, "Coroutine cancelled", cause)
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    suspendCancellableCoroutine { cont ->
+                        checkForGithubUpdates() { isAvailable ->
+                            if (cont.isActive) cont.resume(isAvailable) { cause, _, _ ->
+                                {
+                                    Log.e(TAG, "Coroutine cancelled", cause)
+                                }
+                            }
+                        }
+                    }
+                }
             }
-        }
-    }
+
 }
