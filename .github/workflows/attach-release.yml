@@ -63,7 +63,7 @@ jobs:
             return { tag_name: latestRelease.tag_name };
             
       - name: Attach APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ListenBrainz
           path: app/build/outputs/apk/release/app-release.apk
