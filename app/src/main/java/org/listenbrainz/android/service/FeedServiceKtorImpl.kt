@@ -20,8 +20,8 @@ class FeedServiceKtorImpl @Inject constructor(
     override suspend fun getFeedEvents(
         username: String,
         count: Int,
-        maxTs: Int?,
-        minTs: Int?
+        maxTs: Long?,
+        minTs: Long?
     ): FeedData {
         return httpClient.get("user/$username/feed/events") {
             url {
@@ -35,8 +35,8 @@ class FeedServiceKtorImpl @Inject constructor(
     override suspend fun getFeedFollowListens(
         username: String,
         count: Int,
-        maxTs: Int?,
-        minTs: Int?
+        maxTs: Long?,
+        minTs: Long?
     ): FeedData {
         return httpClient.get("user/$username/feed/events/listens/following") {
             url {
@@ -50,8 +50,8 @@ class FeedServiceKtorImpl @Inject constructor(
     override suspend fun getFeedSimilarListens(
         username: String,
         count: Int,
-        maxTs: Int?,
-        minTs: Int?
+        maxTs: Long?,
+        minTs: Long?
     ): FeedData {
         return httpClient.get("user/$username/feed/events/listens/similar") {
             url {

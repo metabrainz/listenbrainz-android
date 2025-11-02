@@ -10,22 +10,22 @@ interface FeedServiceKtor {
     suspend fun getFeedEvents(
         username: String,
         count: Int = 25,
-        maxTs: Int? = null,
-        minTs: Int? = null
+        maxTs: Long? = null,
+        minTs: Long? = null
     ): FeedData
 
     suspend fun getFeedFollowListens(
         username: String,
         count: Int = 40,
-        maxTs: Int? = null,
-        minTs: Int? = null
+        maxTs: Long? = null,
+        minTs: Long? = null
     ): FeedData
 
     suspend fun getFeedSimilarListens(
         username: String,
         count: Int = 40,
-        maxTs: Int? = null,
-        minTs: Int? = null
+        maxTs: Long? = null,
+        minTs: Long? = null
     ): FeedData
 
     suspend fun deleteEvent(
