@@ -1,20 +1,21 @@
 package org.listenbrainz.android.model.feed
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import org.listenbrainz.android.model.Metadata
 
 @Immutable
+@Serializable
 data class FeedEvent(
-    @SerializedName("id"        ) val id: Int? = null,
-    @SerializedName("created"   ) val created: Long,
-    @SerializedName("event_type") val type: String,
-    @SerializedName("hidden"    ) val hidden: Boolean? = null,
-    @SerializedName("metadata"  ) val metadata: Metadata,
-    @SerializedName("user_name" ) val username: String? = null,
-    @SerializedName("similarity") val similarity: Float? = null,
-    @SerializedName("user_id"   ) val userId: Int? = null
+    @SerialName("id") val id: Int? = null,
+    @SerialName("created") val created: Long,
+    @SerialName("event_type") val type: String,
+    @SerialName("hidden") val hidden: Boolean? = null,
+    @SerialName("metadata") val metadata: Metadata,
+    @SerialName("user_name") val username: String? = null,
+    @SerialName("similarity") val similarity: Float? = null,
+    @SerialName("user_id") val userId: Int? = null
 ) {
     /** Quick getter for blurbContent.*/
     val blurbContent: String?

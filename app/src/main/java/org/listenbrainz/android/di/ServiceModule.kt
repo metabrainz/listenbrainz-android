@@ -21,7 +21,9 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.header
 import io.ktor.serialization.gson.gson
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.application.App
@@ -57,14 +59,14 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class ServiceModule {
-    
+
     private val okHttpClient by lazy {
         OkHttpClient
             .Builder()
             .addInterceptor(ChuckerInterceptor(App.context))
             .build()
     }
-    
+
     private fun constructRetrofit(appPreferences: AppPreferences): Retrofit =
         Retrofit.Builder()
             .client(
@@ -77,7 +79,7 @@ class ServiceModule {
             .baseUrl(LISTENBRAINZ_API_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-    
+
     @get:Singleton
     @get:Provides
     val blogService: BlogService = Retrofit.Builder()
@@ -85,14 +87,14 @@ class ServiceModule {
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build().create(BlogService::class.java)
-    
+
     @Singleton
     @Provides
     fun providesListensService(appPreferences: AppPreferences): ListensService =
         constructRetrofit(appPreferences)
             .create(ListensService::class.java)
-    
-    
+
+
     @Singleton
     @Provides
     fun providesSocialService(appPreferences: AppPreferences): SocialService =
@@ -177,11 +179,11 @@ class ServiceModule {
             )
             .build()
             .create(YouTubeApiService::class.java)
-    
+
     /** YIM **/
-    
+
     private val yimGson: Gson by lazy {
-        
+
         GsonBuilder()
             /** Since a TopRelease may or may not contain "caaId", "caaReleaseMbid" or "releaseMbid", so we perform a check. */
             /*.registerTypeAdapter(
@@ -206,7 +208,7 @@ class ServiceModule {
             .registerTypeAdapter(
                 YimData::class.java, JsonDeserializer<YimData>
                 { jsonElement: JsonElement, _: Type, _: JsonDeserializationContext ->
-                
+
                     val element = Gson().fromJson(jsonElement, YimData::class.java)
                     return@JsonDeserializer if (element.totalListenCount == 0) null else element
                     // "totalListenCount" field is our null checker.
@@ -215,7 +217,7 @@ class ServiceModule {
             .create()
     }
 
-    
+
     @get:Singleton
     @get:Provides
     val yimService: YimService = Retrofit.Builder()
@@ -240,7 +242,18 @@ class ServiceModule {
     fun providesHttpClient(appPreferences: AppPreferences): HttpClient {
         return HttpClient(OkHttp) {
             install(ContentNegotiation) {
-                gson() // using Gson with Ktor so I don't need to Serialize my network models
+                json(Json {
+                    ignoreUnknownKeys = true
+                    isLenient = true
+                    coerceInputValues = true
+
+                    /*
+                     Default values aren't encoded by default in kotlinx.serialization
+                     setting this field to true will ensure default encoding
+                     source: https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/json.md#encoding-defaults
+                                            *encodeDefaults = true*
+                     */
+                })
             }
 
             if (BuildConfig.DEBUG) {
@@ -255,6 +268,7 @@ class ServiceModule {
 
                 engine {
                     config {
+                        //  only helpful for androidMain, expected to not work on other source targets
                         addInterceptor(ChuckerInterceptor(App.context))
                     }
                 }
