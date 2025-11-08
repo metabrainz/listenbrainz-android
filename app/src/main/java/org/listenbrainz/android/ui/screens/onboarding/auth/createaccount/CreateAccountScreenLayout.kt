@@ -17,7 +17,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -29,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalAutofillManager
@@ -58,6 +61,12 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
 
+enum class CreateAccountScreenState {
+    IDLE,
+    SHOWING_CAPTCHA,
+    EMAIL_VERIFICATION
+}
+
 @Composable
 fun CreateAccountScreenLayout(
     username: String,
@@ -66,7 +75,8 @@ fun CreateAccountScreenLayout(
     email: String,
     error: String?,
     isLoading: Boolean,
-    showEmailVerification: Boolean = false,
+    screenState: CreateAccountScreenState = CreateAccountScreenState.IDLE,
+    captchaContent: @Composable () -> Unit = {},
     onUsernameChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onConfirmPasswordChange: (String) -> Unit,
@@ -76,7 +86,7 @@ fun CreateAccountScreenLayout(
     onPressBackInVerificationState: ()-> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    if(showEmailVerification){
+    if(screenState == CreateAccountScreenState.EMAIL_VERIFICATION){
         BackHandler {
             onPressBackInVerificationState()
         }
@@ -86,32 +96,50 @@ fun CreateAccountScreenLayout(
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
-        AnimatedContent(targetState = showEmailVerification) {
-            if (it) {
-                EmailVerificationCard(
-                    email = email,
-                    onVerificationCompleteClick = onVerificationCompleteClick,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(horizontal = 24.dp)
-                )
-            } else {
-                CreateAccountCard(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(horizontal = 24.dp),
-                    username = username,
-                    password = password,
-                    confirmPassword = confirmPassword,
-                    email = email,
-                    error = error,
-                    isLoading = isLoading,
-                    onUsernameChange = onUsernameChange,
-                    onPasswordChange = onPasswordChange,
-                    onConfirmPasswordChange = onConfirmPasswordChange,
-                    onEmailChange = onEmailChange,
-                    onCreateAccountClick = onCreateAccountClick,
-                )
+        AnimatedContent(targetState = screenState) { state ->
+            when (state) {
+                CreateAccountScreenState.EMAIL_VERIFICATION -> {
+                    EmailVerificationCard(
+                        email = email,
+                        onVerificationCompleteClick = onVerificationCompleteClick,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(horizontal = 24.dp)
+                    )
+                }
+                CreateAccountScreenState.SHOWING_CAPTCHA -> {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Box(
+                            modifier = Modifier
+                                .height(200.dp)
+                                .width(500.dp)
+                                .align(Alignment.Center)
+                                .padding(horizontal = 24.dp)
+                                .clip(RoundedCornerShape(16.dp))
+
+                        ) {
+                            captchaContent()
+                        }
+                    }
+                }
+                CreateAccountScreenState.IDLE -> {
+                    CreateAccountCard(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(horizontal = 24.dp),
+                        username = username,
+                        password = password,
+                        confirmPassword = confirmPassword,
+                        email = email,
+                        error = error,
+                        isLoading = isLoading,
+                        onUsernameChange = onUsernameChange,
+                        onPasswordChange = onPasswordChange,
+                        onConfirmPasswordChange = onConfirmPasswordChange,
+                        onEmailChange = onEmailChange,
+                        onCreateAccountClick = onCreateAccountClick,
+                    )
+                }
             }
         }
         OnboardingBackButton(
@@ -486,7 +514,7 @@ private fun EmailVerificationScreenLayoutPreview() {
             email = "user@example.com",
             error = null,
             isLoading = false,
-            showEmailVerification = true,
+            screenState = CreateAccountScreenState.EMAIL_VERIFICATION,
             onUsernameChange = {},
             onPasswordChange = {},
             onConfirmPasswordChange = {},

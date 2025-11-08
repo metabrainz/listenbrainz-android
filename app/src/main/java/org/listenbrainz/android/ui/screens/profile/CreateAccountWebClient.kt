@@ -1,16 +1,15 @@
 package org.listenbrainz.android.ui.screens.profile
 
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Build
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.core.net.toUri
 import com.limurse.logger.Logger
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.util.Resource
-import androidx.core.net.toUri
 
 private const val TAG = "CreateAccountWebClient"
 
@@ -24,6 +23,7 @@ class CreateAccountWebClient(
 ) : WebViewClient() {
 
     // Track account creation flow state
+    private var isCaptaVerified: Boolean = false
     private var hasTriedFormSubmission = false
     private var isAccountCreationFailed = false
     private var currentPage: String? = null
@@ -76,6 +76,13 @@ class CreateAccountWebClient(
         Logger.d(TAG, "Page loaded: ${uri.host}${uri.path}")
 
         when {
+            uri.host == "musicbrainz.org" && uri.path == "/register" && !isCaptaVerified -> {
+                Logger.d(TAG, "Hiding other elements except captcha")
+                if(view != null) {
+                    hideOtherElementsExceptCaptcha(view)
+                }
+//                isCaptaVerified = true
+            }
             uri.host == "musicbrainz.org" && uri.path == "/register" && hasTriedFormSubmission -> {
                 checkForRegistrationErrors(view)
             }
@@ -94,7 +101,10 @@ class CreateAccountWebClient(
             }
 
             uri.host == "listenbrainz.org" -> {
-                Logger.d(TAG, "Successfully redirected to ListenBrainz - account creation successful")
+                Logger.d(
+                    TAG,
+                    "Successfully redirected to ListenBrainz - account creation successful"
+                )
                 onLoad(Resource.success("Account created successfully! Please check your inbox to verify your email address."))
             }
         }
@@ -180,6 +190,53 @@ class CreateAccountWebClient(
                         actualResponse = result
                     }))
                 }
+            }
+        }, 2000)
+    }
+
+    private fun hideOtherElementsExceptCaptcha(view: WebView) {
+        val script = """
+(function() {
+  const waitForCaptcha = setInterval(() => {
+    const captcha = document.querySelector('.mtcaptcha');
+    if (captcha) {
+      clearInterval(waitForCaptcha);
+
+      // Hide header/footer and unrelated rows
+      const toHide = [
+        '.header', '#footer', 
+        '.fullwidth > p', '.fullwidth > h1',
+        '.register-form > form > .row:not(:has(.mtcaptcha))'
+      ];
+      toHide.forEach(sel => {
+        document.querySelectorAll(sel).forEach(e => e.style.display = 'none');
+      });
+
+      // Remove spacing from containers
+      const containers = ['html', 'body', '#page', '.fullwidth', '.register-form', 'form', '.row'];
+      containers.forEach(sel => {
+        document.querySelectorAll(sel).forEach(e => {
+          e.style.margin = '0';
+          e.style.padding = '0';
+        });
+      });
+
+      // Remove spacing from body
+      document.body.style.overflow = 'hidden';
+      document.body.style.padding = '0';
+      document.body.style.margin = '0';
+
+      // Add small left padding to captcha
+      captcha.style.paddingLeft = '8px';
+    }
+  }, 500);
+})();
+
+        """.trimIndent()
+
+        view.postDelayed({
+            view.evaluateJavascript(script) { result ->
+
             }
         }, 2000)
     }

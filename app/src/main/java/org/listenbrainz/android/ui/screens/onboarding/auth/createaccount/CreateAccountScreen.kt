@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.screens.onboarding.auth.createaccount
 
 import android.util.Log
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,13 +48,12 @@ fun ListenBrainzCreateAccountScreen(onBackPress: ()-> Unit) {
     val scope = rememberCoroutineScope()
 
     var createAccountState by remember { mutableStateOf<CreateAccountState>(CreateAccountState.Idle) }
-    var username by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
+    var screenState by remember { mutableStateOf(CreateAccountScreenState.IDLE) }
+    var username by remember { mutableStateOf("hemangmishra") }
+    var email by remember { mutableStateOf("23bcs103@iiitdmj.ac.in") }
+    var password by remember { mutableStateOf("hemangmishra") }
+    var confirmPassword by remember { mutableStateOf("hemangmishra") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-    var isCreatingAccount by remember { mutableStateOf(false) }
-    var showEmailVerification by remember { mutableStateOf(false) }
     var createAccountTimeoutJob by remember { mutableStateOf<Job?>(null) }
 
     val validateEmail = { email: String ->
@@ -65,8 +63,6 @@ fun ListenBrainzCreateAccountScreen(onBackPress: ()-> Unit) {
     val validatePasswordMatch = { password: String, confirmPassword: String ->
         password == confirmPassword
     }
-
-    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
 
     val startTimeout = {
         createAccountTimeoutJob?.cancel()
@@ -79,10 +75,10 @@ fun ListenBrainzCreateAccountScreen(onBackPress: ()-> Unit) {
                 }
                 Log.d(TAG, "Account creation timer tick: ${it + 1} seconds")
             }
-            if (createAccountState !is CreateAccountState.Success && isCreatingAccount) {
+            if (createAccountState !is CreateAccountState.Success && screenState == CreateAccountScreenState.SHOWING_CAPTCHA) {
                 Log.d(TAG, "Account creation timeout")
                 createAccountState = CreateAccountState.Error("Account creation timed out. Please try again.")
-                isCreatingAccount = false
+                screenState = CreateAccountScreenState.IDLE
             }
         }
     }
@@ -95,58 +91,6 @@ fun ListenBrainzCreateAccountScreen(onBackPress: ()-> Unit) {
 
     Box(modifier = Modifier.fillMaxSize()) {
 
-        if (isCreatingAccount) {
-            CreateAccountWebViewClient(
-                modifier = Modifier,
-                username = username,
-                email = email,
-                password = password,
-                confirmPassword = confirmPassword,
-                onLoad = { resource ->
-                    Log.d(TAG, "Load state: ${createAccountState}, data: ${resource.data}, error: ${resource.error}")
-
-                    if (createAccountState !is CreateAccountState.Error) {
-                        when {
-                            resource.isSuccess -> {
-                                clearTimeout()
-                                createAccountState = CreateAccountState.Success(resource.data ?: "Account created successfully!")
-
-                                scope.launch {
-                                    delay(1500.milliseconds)
-                                    showEmailVerification = true
-                                    isCreatingAccount = false
-                                    createAccountState = CreateAccountState.Idle
-                                }
-                            }
-
-                            resource.isFailed -> {
-                                createAccountState = CreateAccountState.Error(
-                                    resource.error?.actualResponse?.takeIf {
-                                        it != "null"
-                                    } ?: "Account creation failed"
-                                )
-                                isCreatingAccount = false
-                                clearTimeout()
-                            }
-
-                            resource.isLoading -> {
-                                createAccountState = when {
-                                    createAccountState == CreateAccountState.SubmittingForm -> CreateAccountState.CreatingAccount
-                                    createAccountState !is CreateAccountState.Loading -> CreateAccountState.Loading("Connecting...")
-                                    else -> createAccountState
-                                }
-                            }
-                        }
-                    }
-                },
-                onPageLoadStateChange = { isLoading, message ->
-                    if (isLoading && createAccountState !is CreateAccountState.Error) {
-                        createAccountState = CreateAccountState.Loading(message ?: "Loading...")
-                    }
-                }
-            )
-        }
-
         CreateAccountScreenLayout(
             username = username,
             password = password,
@@ -155,7 +99,57 @@ fun ListenBrainzCreateAccountScreen(onBackPress: ()-> Unit) {
             error = if (createAccountState is CreateAccountState.Error) (createAccountState as CreateAccountState.Error).message else errorMessage,
             isLoading = createAccountState is CreateAccountState.Loading || createAccountState is CreateAccountState.CreatingAccount ||
                        createAccountState is CreateAccountState.SubmittingForm,
-            showEmailVerification = showEmailVerification,
+            screenState = screenState,
+            captchaContent = {
+                CreateAccountWebViewClient(
+                    modifier = Modifier,
+                    username = username,
+                    email = email,
+                    password = password,
+                    confirmPassword = confirmPassword,
+                    onLoad = { resource ->
+                        Log.d(TAG, "Load state: ${createAccountState}, data: ${resource.data}, error: ${resource.error}")
+
+                        if (createAccountState !is CreateAccountState.Error) {
+                            when {
+                                resource.isSuccess -> {
+                                    clearTimeout()
+                                    createAccountState = CreateAccountState.Success(resource.data ?: "Account created successfully!")
+
+                                    scope.launch {
+                                        delay(1500.milliseconds)
+                                        screenState = CreateAccountScreenState.EMAIL_VERIFICATION
+                                        createAccountState = CreateAccountState.Idle
+                                    }
+                                }
+
+                                resource.isFailed -> {
+                                    createAccountState = CreateAccountState.Error(
+                                        resource.error?.actualResponse?.takeIf {
+                                            it != "null"
+                                        } ?: "Account creation failed"
+                                    )
+                                    screenState = CreateAccountScreenState.IDLE
+                                    clearTimeout()
+                                }
+
+                                resource.isLoading -> {
+                                    createAccountState = when {
+                                        createAccountState == CreateAccountState.SubmittingForm -> CreateAccountState.CreatingAccount
+                                        createAccountState !is CreateAccountState.Loading -> CreateAccountState.Loading("Connecting...")
+                                        else -> createAccountState
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    onPageLoadStateChange = { isLoading, message ->
+                        if (isLoading && createAccountState !is CreateAccountState.Error) {
+                            createAccountState = CreateAccountState.Loading(message ?: "Loading...")
+                        }
+                    }
+                )
+            },
             onUsernameChange = { username = it },
             onCreateAccountClick = {
                 errorMessage = null
@@ -187,27 +181,28 @@ fun ListenBrainzCreateAccountScreen(onBackPress: ()-> Unit) {
                     }
                 }
 
-                startTimeout()
 
-                createAccountState = CreateAccountState.SubmittingForm
-                isCreatingAccount = true
+//                startTimeout()
+//
+//                createAccountState = CreateAccountState.SubmittingForm
+                screenState = CreateAccountScreenState.SHOWING_CAPTCHA
             },
             onPasswordChange = { password = it },
             onConfirmPasswordChange = { confirmPassword = it },
             onEmailChange = { email = it },
             onVerificationCompleteClick = {
-                showEmailVerification = false
+                screenState = CreateAccountScreenState.IDLE
                 createAccountState = CreateAccountState.Idle
                 onBackPress()
             },
             onPressBackInVerificationState = {
-                showEmailVerification = false
+                screenState = CreateAccountScreenState.IDLE
                 createAccountState = CreateAccountState.Idle
             },
             modifier = Modifier,
         )
 
-        if (createAccountState !is CreateAccountState.Idle) {
+        if (createAccountState !is CreateAccountState.Idle && screenState != CreateAccountScreenState.SHOWING_CAPTCHA) {
             val showDialog = createAccountState is CreateAccountState.Loading ||
                             createAccountState is CreateAccountState.CreatingAccount ||
                             createAccountState is CreateAccountState.Error ||
