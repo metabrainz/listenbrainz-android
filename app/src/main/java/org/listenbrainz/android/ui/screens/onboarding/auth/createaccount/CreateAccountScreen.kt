@@ -21,12 +21,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.onboarding.auth.CreateAccountWebViewClient
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.viewmodel.CreateAccountViewModel
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -46,6 +48,7 @@ sealed class CreateAccountState {
 @Composable
 fun ListenBrainzCreateAccountScreen(onBackPress: ()-> Unit) {
     val scope = rememberCoroutineScope()
+    val vm : CreateAccountViewModel = hiltViewModel()
 
     var createAccountState by remember { mutableStateOf<CreateAccountState>(CreateAccountState.Idle) }
     var screenState by remember { mutableStateOf(CreateAccountScreenState.IDLE) }
@@ -147,7 +150,11 @@ fun ListenBrainzCreateAccountScreen(onBackPress: ()-> Unit) {
                         if (isLoading && createAccountState !is CreateAccountState.Error) {
                             createAccountState = CreateAccountState.Loading(message ?: "Loading...")
                         }
-                    }
+                    },
+                    onCaptchaVerified = {
+
+                    },
+                    viewModel = vm
                 )
             },
             onUsernameChange = { username = it },

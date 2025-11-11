@@ -6,6 +6,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -47,6 +48,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation3.runtime.rememberNavBackStack
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
@@ -83,16 +85,17 @@ fun CreateAccountScreenLayout(
     onEmailChange: (String) -> Unit,
     onCreateAccountClick: () -> Unit,
     onVerificationCompleteClick: () -> Unit = {},
-    onPressBackInVerificationState: ()-> Unit = {},
+    onPressBackInVerificationState: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    if(screenState == CreateAccountScreenState.EMAIL_VERIFICATION){
+    if (screenState == CreateAccountScreenState.EMAIL_VERIFICATION) {
         BackHandler {
             onPressBackInVerificationState()
         }
     }
     Box(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier
+            .fillMaxSize()
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
@@ -107,13 +110,38 @@ fun CreateAccountScreenLayout(
                             .padding(horizontal = 24.dp)
                     )
                 }
+
                 CreateAccountScreenState.SHOWING_CAPTCHA -> {
-                    Box(modifier = Modifier.fillMaxSize()) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Top
+                    ) {
+                        Spacer(
+                            Modifier
+                                .statusBarsPadding()
+                                .height(100.dp)
+                        )
+                        Text(
+                            "CAPTCHA Verification",
+                            color = Color.White,
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Please complete the verification below to continue",
+                            color = Color.White.copy(alpha = 0.8f),
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(horizontal = 32.dp)
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
                         Box(
                             modifier = Modifier
                                 .height(200.dp)
                                 .width(500.dp)
-                                .align(Alignment.Center)
+                                .align(Alignment.CenterHorizontally)
                                 .padding(horizontal = 24.dp)
                                 .clip(RoundedCornerShape(16.dp))
 
@@ -122,6 +150,7 @@ fun CreateAccountScreenLayout(
                         }
                     }
                 }
+
                 CreateAccountScreenState.IDLE -> {
                     CreateAccountCard(
                         modifier = Modifier
@@ -438,7 +467,7 @@ private fun EmailVerificationCard(
                         val intent = Intent.createChooser(
                             Intent(Intent.ACTION_MAIN)
                                 .addCategory(Intent.CATEGORY_APP_EMAIL)
-                                .apply { 
+                                .apply {
                                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
                                 },
                             "Open email app"
@@ -461,7 +490,7 @@ private fun EmailVerificationCard(
                     Text(
                         text = "Open Inbox",
                         fontWeight = FontWeight.Bold,
-                        color = if(isSystemInDarkTheme()) lb_purple_night else lb_purple,
+                        color = if (isSystemInDarkTheme()) lb_purple_night else lb_purple,
                     )
                 }
 

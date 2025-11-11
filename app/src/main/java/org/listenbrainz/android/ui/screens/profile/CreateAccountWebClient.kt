@@ -202,10 +202,11 @@ class CreateAccountWebClient(
     if (captcha) {
       clearInterval(waitForCaptcha);
 
-      // Hide header/footer and unrelated rows
+      // Hide header/footer, warnings, and unrelated rows
       const toHide = [
         '.header', '#footer', 
         '.fullwidth > p', '.fullwidth > h1',
+        '.fullwidth > .warning',
         '.register-form > form > .row:not(:has(.mtcaptcha))'
       ];
       toHide.forEach(sel => {
