@@ -39,10 +39,10 @@ data class CreateAccountUIState(
 )
 
 data class CreateAccountCredentials(
-    val username: String = "hello20",
-    val email: String = "23bcs103@iiitdmj.ac.in",
-    val password: String = "hemangmishra",
-    val confirmPassword: String = "hemangmishra"
+    val username: String = "",
+    val email: String = "",
+    val password: String = "",
+    val confirmPassword: String = ""
 )
 
 class CreateAccountViewModel : ViewModel() {
