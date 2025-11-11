@@ -14,6 +14,7 @@ data class CreateAccountUIState(
     val credentials: CreateAccountCredentials = CreateAccountCredentials(),
     val reloadTrigger: Int = 0,
     val captchaSetupComplete: Boolean = false,
+    val submitFormTrigger: Boolean = false
 )
 data class CreateAccountCredentials(
     val username: String = "",
@@ -45,6 +46,18 @@ class CreateAccountViewModel: ViewModel() {
     fun reloadWebView() {
         _uiState.update {
             it.copy(reloadTrigger = it.reloadTrigger + 1, captchaSetupComplete = false)
+        }
+    }
+
+    fun submitForm(){
+        _uiState.update {
+            it.copy(submitFormTrigger = true)
+        }
+    }
+
+    fun resetSubmitFormTrigger(){
+        _uiState.update {
+            it.copy(submitFormTrigger = false)
         }
     }
 }

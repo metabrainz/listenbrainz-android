@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -298,7 +299,7 @@ fun ListenBrainzCreateAccountScreen(onBackPress: ()-> Unit) {
                             )
                         }
                     },
-                    properties = androidx.compose.ui.window.DialogProperties(
+                    properties = DialogProperties(
                         dismissOnBackPress = createAccountState is CreateAccountState.Error,
                         dismissOnClickOutside = createAccountState is CreateAccountState.Error
                     )

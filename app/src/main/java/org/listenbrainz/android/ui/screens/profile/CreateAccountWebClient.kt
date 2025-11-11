@@ -21,6 +21,7 @@ class CreateAccountWebClient(
 
     // Track account creation flow state
     private var hasPageInitiallyLoadedWithCaptchaSetup: Boolean = false
+    private var webView: WebView? = null
     private var isCaptaVerified: Boolean = false
     private var hasTriedFormSubmission = false
     private var isAccountCreationFailed = false
@@ -61,6 +62,7 @@ class CreateAccountWebClient(
 
     override fun onPageFinished(view: WebView?, url: String?) {
         super.onPageFinished(view, url)
+        webView = view
         callbacks.onPageLoadStateChange(false, null)
 
         if (url == null) {
@@ -76,8 +78,8 @@ class CreateAccountWebClient(
         when {
             uri.host == "musicbrainz.org" && uri.path == "/register" && !hasPageInitiallyLoadedWithCaptchaSetup -> {
                 Logger.d(TAG, "Hiding other elements except captcha")
-                if(view != null) {
-                    hideOtherElementsExceptCaptcha(view){
+                if (view != null) {
+                    hideOtherElementsExceptCaptcha(view) {
                         Logger.d(TAG, "Captcha setup complete")
                         callbacks.onCaptchaSetupComplete()
                         hasPageInitiallyLoadedWithCaptchaSetup = true
@@ -152,7 +154,13 @@ class CreateAccountWebClient(
         }
     }
 
-    private fun submitRegistrationForm(view: WebView, credentials: CreateAccountCredentials) {
+    fun submitRegistrationForm(credentials: CreateAccountCredentials) {
+        if (webView == null) {
+            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                actualResponse = "WebView is null, cannot submit registration form"
+            }))
+            return
+        }
         val username = credentials.username
         val email = credentials.email
         val password = credentials.password
@@ -197,16 +205,18 @@ class CreateAccountWebClient(
             })();
         """.trimIndent()
 
-        view.postDelayed({
-            view.evaluateJavascript(registrationScript) { result ->
-                if (result != "\"Registration submitted\"") {
-                    Logger.e(TAG, "Error submitting registration form: $result")
-                    callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
-                        actualResponse = result
-                    }))
+        webView?.let { view ->
+            view.postDelayed({
+                view.evaluateJavascript(registrationScript) { result ->
+                    if (result != "\"Registration submitted\"") {
+                        Logger.e(TAG, "Error submitting registration form: $result")
+                        callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                            actualResponse = result
+                        }))
+                    }
                 }
-            }
-        }, 2000)
+            }, 2000)
+        }
     }
 
     private fun hideOtherElementsExceptCaptcha(view: WebView, onComplete: () -> Unit) {
@@ -254,6 +264,31 @@ class CreateAccountWebClient(
             view.evaluateJavascript(script) { result ->
                 onComplete()
             }
+        }, 2000)
+
+        setupCaptchaListener(view = view)
+    }
+
+    private fun setupCaptchaListener(view: WebView) {
+        val script = """
+            (function() {
+              const interval = setInterval(() => {
+                const tokenInput = document.querySelector('#mtcaptcha-verifiedtoken-1');
+                if (tokenInput && tokenInput.value.trim() !== "") {
+                  clearInterval(interval);
+                  console.log("Captcha verified token:", tokenInput.value);
+
+                  if (window.AndroidInterface && window.AndroidInterface.onCaptchaVerified) {
+                    window.AndroidInterface.onCaptchaVerified();
+                  }
+                }
+              }, 1000);
+            })();
+
+        """.trimIndent()
+
+        view.postDelayed({
+            view.evaluateJavascript(script, null)
         }, 2000)
     }
 }

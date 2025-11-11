@@ -17,7 +17,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import org.listenbrainz.android.ui.screens.onboarding.auth.createaccount.CreateAccountClientCallbacks
 import org.listenbrainz.android.ui.screens.onboarding.auth.createaccount.CreateAccountWebAppInterface
 import org.listenbrainz.android.ui.screens.profile.CreateAccountWebClient
-import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.viewmodel.CreateAccountViewModel
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -29,6 +28,15 @@ fun CreateAccountWebViewClient(
     callbacks: CreateAccountClientCallbacks
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var webClientRef by remember { mutableStateOf<CreateAccountWebClient?>(null) }
+
+    LaunchedEffect(uiState.submitFormTrigger) {
+        if (uiState.submitFormTrigger) {
+            webClientRef?.submitRegistrationForm(uiState.credentials)
+            viewModel.resetSubmitFormTrigger()
+        }
+    }
+
     key(uiState.reloadTrigger) {
         AndroidView(
             modifier = modifier,
@@ -51,14 +59,19 @@ fun CreateAccountWebViewClient(
                     clearCache(true)
                     clearHistory()
 
-                    webViewClient = CreateAccountWebClient(
+                    val client = CreateAccountWebClient(
                         callbacks = callbacks
                     )
+                    webViewClient = client
+                    webClientRef = client
 
                     addJavascriptInterface(
                         CreateAccountWebAppInterface(
-                            onCaptchaVerified = onCaptchaVerified
-                        ), "CreateAccountWebAppInterface"
+                            onCaptchaVerificationCompleted = {
+                                // Triggering form submission from ViewModel after captcha is verified
+                                viewModel.submitForm()
+                            }
+                        ), "AndroidInterface"
                     )
 
                     viewModel.setCaptchaNotComplete()
