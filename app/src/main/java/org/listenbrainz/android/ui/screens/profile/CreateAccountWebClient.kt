@@ -9,20 +9,18 @@ import android.webkit.WebViewClient
 import androidx.core.net.toUri
 import com.limurse.logger.Logger
 import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.android.ui.screens.onboarding.auth.createaccount.CreateAccountClientCallbacks
 import org.listenbrainz.android.util.Resource
+import org.listenbrainz.android.viewmodel.CreateAccountCredentials
 
 private const val TAG = "CreateAccountWebClient"
 
 class CreateAccountWebClient(
-    val username: String,
-    val email: String,
-    val password: String,
-    val confirmPassword: String,
-    private val onLoad: (Resource<String>) -> Unit,
-    private val onPageLoadStateChange: (Boolean, String?) -> Unit,
+    private val callbacks: CreateAccountClientCallbacks
 ) : WebViewClient() {
 
     // Track account creation flow state
+    private var hasPageInitiallyLoadedWithCaptchaSetup: Boolean = false
     private var isCaptaVerified: Boolean = false
     private var hasTriedFormSubmission = false
     private var isAccountCreationFailed = false
@@ -32,18 +30,18 @@ class CreateAccountWebClient(
         super.onPageStarted(view, url, favicon)
 
         url?.let {
-            val uri = it.toUri()
-            currentPage = when {
-                uri.host == "musicbrainz.org" && uri.path == "/register" ->
-                    "Connecting to MusicBrainz registration..."
-
-                uri.host == "listenbrainz.org" ->
-                    "Redirecting to ListenBrainz..."
-
-                else -> "Loading page..."
-            }
-            onPageLoadStateChange(true, currentPage)
-            Logger.d(TAG, "Loading: $url")
+//            val uri = it.toUri()
+//            currentPage = when {
+//                uri.host == "musicbrainz.org" && uri.path == "/register" ->
+//                    "Connecting to MusicBrainz registration..."
+//
+//                uri.host == "listenbrainz.org" ->
+//                    "Redirecting to ListenBrainz..."
+//
+//                else -> "Loading page..."
+//            }
+//            onPageLoadStateChange(true, currentPage)
+//            Logger.d(TAG, "Loading: $url")
         }
     }
 
@@ -63,10 +61,10 @@ class CreateAccountWebClient(
 
     override fun onPageFinished(view: WebView?, url: String?) {
         super.onPageFinished(view, url)
-        onPageLoadStateChange(false, null)
+        callbacks.onPageLoadStateChange(false, null)
 
         if (url == null) {
-            onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
                 actualResponse = "URL is null, cannot proceed with account creation"
             }))
             return
@@ -76,38 +74,51 @@ class CreateAccountWebClient(
         Logger.d(TAG, "Page loaded: ${uri.host}${uri.path}")
 
         when {
-            uri.host == "musicbrainz.org" && uri.path == "/register" && !isCaptaVerified -> {
+            uri.host == "musicbrainz.org" && uri.path == "/register" && !hasPageInitiallyLoadedWithCaptchaSetup -> {
                 Logger.d(TAG, "Hiding other elements except captcha")
                 if(view != null) {
-                    hideOtherElementsExceptCaptcha(view)
+                    hideOtherElementsExceptCaptcha(view){
+                        Logger.d(TAG, "Captcha setup complete")
+                        callbacks.onCaptchaSetupComplete()
+                        hasPageInitiallyLoadedWithCaptchaSetup = true
+                    }
                 }
-//                isCaptaVerified = true
-            }
-            uri.host == "musicbrainz.org" && uri.path == "/register" && hasTriedFormSubmission -> {
-                checkForRegistrationErrors(view)
-            }
-
-            !hasTriedFormSubmission && uri.host == "musicbrainz.org" && uri.path == "/register" && !isAccountCreationFailed -> {
-                hasTriedFormSubmission = true
-                Logger.d(TAG, "Submitting registration form")
-                onLoad(Resource.loading())
-                if (view != null) {
-                    submitRegistrationForm(view)
-                } else {
-                    onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
-                        actualResponse = "WebView is null, cannot submit registration form"
-                    }))
-                }
-            }
-
-            uri.host == "listenbrainz.org" -> {
-                Logger.d(
-                    TAG,
-                    "Successfully redirected to ListenBrainz - account creation successful"
-                )
-                onLoad(Resource.success("Account created successfully! Please check your inbox to verify your email address."))
             }
         }
+
+//        when {
+//            uri.host == "musicbrainz.org" && uri.path == "/register" && !isCaptaVerified -> {
+//                Logger.d(TAG, "Hiding other elements except captcha")
+//                if(view != null) {
+//                    hideOtherElementsExceptCaptcha(view)
+//                }
+////                isCaptaVerified = true
+//            }
+//            uri.host == "musicbrainz.org" && uri.path == "/register" && hasTriedFormSubmission -> {
+//                checkForRegistrationErrors(view)
+//            }
+//
+//            !hasTriedFormSubmission && uri.host == "musicbrainz.org" && uri.path == "/register" && !isAccountCreationFailed -> {
+//                hasTriedFormSubmission = true
+//                Logger.d(TAG, "Submitting registration form")
+//                onLoad(Resource.loading())
+//                if (view != null) {
+//                    submitRegistrationForm(view)
+//                } else {
+//                    onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+//                        actualResponse = "WebView is null, cannot submit registration form"
+//                    }))
+//                }
+//            }
+//
+//            uri.host == "listenbrainz.org" -> {
+//                Logger.d(
+//                    TAG,
+//                    "Successfully redirected to ListenBrainz - account creation successful"
+//                )
+//                onLoad(Resource.success("Account created successfully! Please check your inbox to verify your email address."))
+//            }
+//        }
     }
 
     private fun checkForRegistrationErrors(view: WebView?) {
@@ -119,7 +130,7 @@ class CreateAccountWebClient(
                 Logger.e(TAG, "Registration failed: $errorMsg")
                 isAccountCreationFailed = true
 
-                onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
                     actualResponse = errorMsg
                 }))
             } else {
@@ -132,7 +143,7 @@ class CreateAccountWebClient(
                         Logger.e(TAG, "Registration failed: $errorMsg")
                         isAccountCreationFailed = true
 
-                        onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                        callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
                             actualResponse = errorMsg
                         }))
                     }
@@ -141,9 +152,13 @@ class CreateAccountWebClient(
         }
     }
 
-    private fun submitRegistrationForm(view: WebView) {
+    private fun submitRegistrationForm(view: WebView, credentials: CreateAccountCredentials) {
+        val username = credentials.username
+        val email = credentials.email
+        val password = credentials.password
+        val confirmPassword = credentials.confirmPassword
         if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-            onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
                 actualResponse = "All fields are required"
             }))
             return
@@ -186,7 +201,7 @@ class CreateAccountWebClient(
             view.evaluateJavascript(registrationScript) { result ->
                 if (result != "\"Registration submitted\"") {
                     Logger.e(TAG, "Error submitting registration form: $result")
-                    onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                    callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
                         actualResponse = result
                     }))
                 }
@@ -194,7 +209,7 @@ class CreateAccountWebClient(
         }, 2000)
     }
 
-    private fun hideOtherElementsExceptCaptcha(view: WebView) {
+    private fun hideOtherElementsExceptCaptcha(view: WebView, onComplete: () -> Unit) {
         val script = """
 (function() {
   const waitForCaptcha = setInterval(() => {
@@ -237,7 +252,7 @@ class CreateAccountWebClient(
 
         view.postDelayed({
             view.evaluateJavascript(script) { result ->
-
+                onComplete()
             }
         }, 2000)
     }

@@ -2,9 +2,11 @@ package org.listenbrainz.android.ui.screens.onboarding.auth.createaccount
 
 import android.content.Intent
 import android.content.res.Configuration
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,11 +29,13 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
@@ -51,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation3.runtime.rememberNavBackStack
 import org.listenbrainz.android.R
+import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton
 import org.listenbrainz.android.ui.navigation.NavigationItem
@@ -62,6 +67,7 @@ import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingSup
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
+import org.listenbrainz.android.viewmodel.CreateAccountUIState
 
 enum class CreateAccountScreenState {
     IDLE,
@@ -77,6 +83,7 @@ fun CreateAccountScreenLayout(
     email: String,
     error: String?,
     isLoading: Boolean,
+    uiState: CreateAccountUIState,
     screenState: CreateAccountScreenState = CreateAccountScreenState.IDLE,
     captchaContent: @Composable () -> Unit = {},
     onUsernameChange: (String) -> Unit,
@@ -86,6 +93,7 @@ fun CreateAccountScreenLayout(
     onCreateAccountClick: () -> Unit,
     onVerificationCompleteClick: () -> Unit = {},
     onPressBackInVerificationState: () -> Unit = {},
+    onRefreshClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     if (screenState == CreateAccountScreenState.EMAIL_VERIFICATION) {
@@ -99,6 +107,68 @@ fun CreateAccountScreenLayout(
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
+
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .alpha(if (screenState == CreateAccountScreenState.SHOWING_CAPTCHA) 1f else 0.0f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
+        ) {
+            Spacer(
+                Modifier
+                    .statusBarsPadding()
+                    .height(100.dp)
+            )
+            Text(
+                "CAPTCHA Verification",
+                color = Color.White,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Please complete the verification below to continue",
+                color = Color.White.copy(alpha = 0.8f),
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 32.dp)
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            Box(
+                modifier = Modifier
+                    .height(200.dp)
+                    .width(372.dp)
+                    .align(Alignment.CenterHorizontally)
+                    .padding(horizontal = 24.dp)
+                    .clip(RoundedCornerShape(16.dp))
+
+            ) {
+                captchaContent()
+                if (!uiState.captchaSetupComplete) {
+                    Card(
+                        modifier = Modifier.fillMaxSize(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White
+                        ),
+                        shape = ListenBrainzTheme.shapes.listenCardSmall
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            LoadingAnimation()
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            RefreshSection(onRefreshClick = onRefreshClick)
+            Spacer(modifier = Modifier.height(32.dp))
+        }
+
         AnimatedContent(targetState = screenState) { state ->
             when (state) {
                 CreateAccountScreenState.EMAIL_VERIFICATION -> {
@@ -112,43 +182,7 @@ fun CreateAccountScreenLayout(
                 }
 
                 CreateAccountScreenState.SHOWING_CAPTCHA -> {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Top
-                    ) {
-                        Spacer(
-                            Modifier
-                                .statusBarsPadding()
-                                .height(100.dp)
-                        )
-                        Text(
-                            "CAPTCHA Verification",
-                            color = Color.White,
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Please complete the verification below to continue",
-                            color = Color.White.copy(alpha = 0.8f),
-                            fontSize = 14.sp,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(horizontal = 32.dp)
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Box(
-                            modifier = Modifier
-                                .height(200.dp)
-                                .width(500.dp)
-                                .align(Alignment.CenterHorizontally)
-                                .padding(horizontal = 24.dp)
-                                .clip(RoundedCornerShape(16.dp))
 
-                        ) {
-                            captchaContent()
-                        }
-                    }
                 }
 
                 CreateAccountScreenState.IDLE -> {
@@ -167,6 +201,8 @@ fun CreateAccountScreenLayout(
                         onConfirmPasswordChange = onConfirmPasswordChange,
                         onEmailChange = onEmailChange,
                         onCreateAccountClick = onCreateAccountClick,
+                        onRefreshClick = onRefreshClick,
+                        uiState = uiState
                     )
                 }
             }
@@ -193,11 +229,13 @@ private fun CreateAccountCard(
     email: String,
     error: String?,
     isLoading: Boolean,
+    uiState: CreateAccountUIState,
     onUsernameChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onConfirmPasswordChange: (String) -> Unit,
     onEmailChange: (String) -> Unit,
     onCreateAccountClick: () -> Unit,
+    onRefreshClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -243,7 +281,13 @@ private fun CreateAccountCard(
                     onCreateAccountClick = {
                         autoFillManager?.commit()
                         onCreateAccountClick()
-                    }
+                    },
+                    isEnabled = uiState.captchaSetupComplete
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                RefreshSection(
+                    onRefreshClick = onRefreshClick,
+                    textColor = ListenBrainzTheme.colorScheme.text.copy(alpha = 0.7f)
                 )
             }
         }
@@ -372,6 +416,47 @@ private fun CodeOfConductSection() {
 }
 
 @Composable
+private fun RefreshSection(
+    textColor: Color = Color.White.copy(0.9f),
+    onRefreshClick: () -> Unit
+) {
+    val isLightTheme = !isSystemInDarkTheme()
+    val linkColor = if (!isLightTheme) lb_purple_night else lb_purple
+
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = textColor
+            ),
+            text = buildAnnotatedString {
+                append("Facing any issues? ")
+                withLink(
+                    link = LinkAnnotation.Clickable(
+                        tag = "refresh",
+                        styles = TextLinkStyles(
+                            style = SpanStyle(
+                                color = linkColor,
+                                textDecoration = TextDecoration.Underline,
+                                fontWeight = FontWeight.Bold
+                            )
+                        ),
+                        linkInteractionListener = {
+                            onRefreshClick()
+                        }
+                    )
+                ) {
+                    append("Refresh")
+                }
+            },
+        )
+    }
+}
+
+@Composable
 private fun ErrorSection(error: String?) {
     if (!error.isNullOrEmpty()) {
         Text(
@@ -386,13 +471,18 @@ private fun ErrorSection(error: String?) {
 @Composable
 private fun CreateAccountButton(
     isLoading: Boolean,
+    isEnabled: Boolean,
     onCreateAccountClick: () -> Unit
 ) {
+    val context = LocalContext.current
     OnboardingYellowButton(
         modifier = Modifier.fillMaxWidth(),
         text = "Create Account",
-        isEnabled = !isLoading,
-        onClick = onCreateAccountClick
+        isEnabled = !isLoading && isEnabled,
+        onClick = onCreateAccountClick,
+        onClickWhileDisabled = {
+            Toast.makeText(context, "Loading CAPTCHA, please wait...", Toast.LENGTH_SHORT).show()
+        }
     )
 }
 
@@ -526,6 +616,7 @@ private fun CreateAccountScreenLayoutPreview() {
             onConfirmPasswordChange = {},
             onEmailChange = {},
             onCreateAccountClick = {},
+            uiState = CreateAccountUIState()
         )
     }
 }
@@ -550,6 +641,7 @@ private fun EmailVerificationScreenLayoutPreview() {
             onEmailChange = {},
             onCreateAccountClick = {},
             onVerificationCompleteClick = {},
+            uiState = CreateAccountUIState()
         )
     }
 }

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +50,7 @@ sealed class CreateAccountState {
 fun ListenBrainzCreateAccountScreen(onBackPress: ()-> Unit) {
     val scope = rememberCoroutineScope()
     val vm : CreateAccountViewModel = hiltViewModel()
+    val uiState by vm.uiState.collectAsState()
 
     var createAccountState by remember { mutableStateOf<CreateAccountState>(CreateAccountState.Idle) }
     var screenState by remember { mutableStateOf(CreateAccountScreenState.IDLE) }
@@ -106,53 +108,54 @@ fun ListenBrainzCreateAccountScreen(onBackPress: ()-> Unit) {
             captchaContent = {
                 CreateAccountWebViewClient(
                     modifier = Modifier,
-                    username = username,
-                    email = email,
-                    password = password,
-                    confirmPassword = confirmPassword,
-                    onLoad = { resource ->
-                        Log.d(TAG, "Load state: ${createAccountState}, data: ${resource.data}, error: ${resource.error}")
+                    callbacks = CreateAccountClientCallbacks(
+                        onLoad = { resource ->
+                            Log.d(TAG, "Load state: ${createAccountState}, data: ${resource.data}, error: ${resource.error}")
 
-                        if (createAccountState !is CreateAccountState.Error) {
-                            when {
-                                resource.isSuccess -> {
-                                    clearTimeout()
-                                    createAccountState = CreateAccountState.Success(resource.data ?: "Account created successfully!")
+                            if (createAccountState !is CreateAccountState.Error) {
+                                when {
+                                    resource.isSuccess -> {
+                                        clearTimeout()
+                                        createAccountState = CreateAccountState.Success(resource.data ?: "Account created successfully!")
 
-                                    scope.launch {
-                                        delay(1500.milliseconds)
-                                        screenState = CreateAccountScreenState.EMAIL_VERIFICATION
-                                        createAccountState = CreateAccountState.Idle
+                                        scope.launch {
+                                            delay(1500.milliseconds)
+                                            screenState = CreateAccountScreenState.EMAIL_VERIFICATION
+                                            createAccountState = CreateAccountState.Idle
+                                        }
                                     }
-                                }
 
-                                resource.isFailed -> {
-                                    createAccountState = CreateAccountState.Error(
-                                        resource.error?.actualResponse?.takeIf {
-                                            it != "null"
-                                        } ?: "Account creation failed"
-                                    )
-                                    screenState = CreateAccountScreenState.IDLE
-                                    clearTimeout()
-                                }
+                                    resource.isFailed -> {
+                                        createAccountState = CreateAccountState.Error(
+                                            resource.error?.actualResponse?.takeIf {
+                                                it != "null"
+                                            } ?: "Account creation failed"
+                                        )
+                                        screenState = CreateAccountScreenState.IDLE
+                                        clearTimeout()
+                                    }
 
-                                resource.isLoading -> {
-                                    createAccountState = when {
-                                        createAccountState == CreateAccountState.SubmittingForm -> CreateAccountState.CreatingAccount
-                                        createAccountState !is CreateAccountState.Loading -> CreateAccountState.Loading("Connecting...")
-                                        else -> createAccountState
+                                    resource.isLoading -> {
+                                        createAccountState = when {
+                                            createAccountState == CreateAccountState.SubmittingForm -> CreateAccountState.CreatingAccount
+                                            createAccountState !is CreateAccountState.Loading -> CreateAccountState.Loading("Connecting...")
+                                            else -> createAccountState
+                                        }
                                     }
                                 }
                             }
+                        },
+                        onPageLoadStateChange = { isLoading, message ->
+                            if (isLoading && createAccountState !is CreateAccountState.Error) {
+                                createAccountState = CreateAccountState.Loading(message ?: "Loading...")
+                            }
+                        },
+                        onCaptchaSetupComplete = {
+                            vm.setCaptchaSetupComplete()
                         }
-                    },
-                    onPageLoadStateChange = { isLoading, message ->
-                        if (isLoading && createAccountState !is CreateAccountState.Error) {
-                            createAccountState = CreateAccountState.Loading(message ?: "Loading...")
-                        }
-                    },
+                    ),
                     onCaptchaVerified = {
-
+                        //TODO
                     },
                     viewModel = vm
                 )
@@ -206,7 +209,11 @@ fun ListenBrainzCreateAccountScreen(onBackPress: ()-> Unit) {
                 screenState = CreateAccountScreenState.IDLE
                 createAccountState = CreateAccountState.Idle
             },
+            onRefreshClick = {
+                vm.reloadWebView()
+            },
             modifier = Modifier,
+            uiState = uiState
         )
 
         if (createAccountState !is CreateAccountState.Idle && screenState != CreateAccountScreenState.SHOWING_CAPTCHA) {
