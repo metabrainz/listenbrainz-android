@@ -24,7 +24,6 @@ import org.listenbrainz.android.viewmodel.CreateAccountViewModel
 fun CreateAccountWebViewClient(
     modifier: Modifier = Modifier,
     viewModel: CreateAccountViewModel,
-    onCaptchaVerified: () -> Unit,
     callbacks: CreateAccountClientCallbacks
 ) {
     val uiState by viewModel.uiState.collectAsState()

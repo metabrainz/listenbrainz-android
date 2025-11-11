@@ -68,12 +68,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.viewmodel.CreateAccountUIState
-
-enum class CreateAccountScreenState {
-    IDLE,
-    SHOWING_CAPTCHA,
-    EMAIL_VERIFICATION
-}
+import org.listenbrainz.android.viewmodel.CreateAccountScreenState
 
 @Composable
 fun CreateAccountScreenLayout(

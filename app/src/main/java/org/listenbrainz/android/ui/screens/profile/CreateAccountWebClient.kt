@@ -19,30 +19,27 @@ class CreateAccountWebClient(
     private val callbacks: CreateAccountClientCallbacks
 ) : WebViewClient() {
 
-    // Track account creation flow state
-    private var hasPageInitiallyLoadedWithCaptchaSetup: Boolean = false
+    // Only store WebView reference for form submission
     private var webView: WebView? = null
-    private var isCaptaVerified: Boolean = false
-    private var hasTriedFormSubmission = false
-    private var isAccountCreationFailed = false
-    private var currentPage: String? = null
+    // Track if we've already set up the captcha (to avoid duplicate setup on page reload)
+    private var captchaSetupCompleted: Boolean = false
 
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
 
         url?.let {
-//            val uri = it.toUri()
-//            currentPage = when {
-//                uri.host == "musicbrainz.org" && uri.path == "/register" ->
-//                    "Connecting to MusicBrainz registration..."
-//
-//                uri.host == "listenbrainz.org" ->
-//                    "Redirecting to ListenBrainz..."
-//
-//                else -> "Loading page..."
-//            }
-//            onPageLoadStateChange(true, currentPage)
-//            Logger.d(TAG, "Loading: $url")
+            val uri = it.toUri()
+            val message = when {
+                uri.host == "musicbrainz.org" && uri.path == "/register" ->
+                    "Connecting to MusicBrainz..."
+                uri.host == "listenbrainz.org" ->
+                    "Redirecting to ListenBrainz..."
+                else -> "Loading page..."
+            }
+            if(captchaSetupCompleted) {
+                callbacks.onPageLoadStateChange(true, message)
+            }
+            Logger.d(TAG, "Page started loading: $url")
         }
     }
 
@@ -53,11 +50,16 @@ class CreateAccountWebClient(
     ) {
         super.onReceivedError(view, request, error)
 
-        val errorMsg = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        val errorMsg = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             "Error loading page: ${error?.description}"
-        else "Error loading page"
-        Logger.e(TAG, errorMsg)
+        } else {
+            "Error loading page"
+        }
 
+        Logger.e(TAG, errorMsg)
+        callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+            actualResponse = errorMsg
+        }))
     }
 
     override fun onPageFinished(view: WebView?, url: String?) {
@@ -66,6 +68,7 @@ class CreateAccountWebClient(
         callbacks.onPageLoadStateChange(false, null)
 
         if (url == null) {
+            Logger.e(TAG, "URL is null on page finished")
             callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
                 actualResponse = "URL is null, cannot proceed with account creation"
             }))
@@ -73,83 +76,32 @@ class CreateAccountWebClient(
         }
 
         val uri = url.toUri()
-        Logger.d(TAG, "Page loaded: ${uri.host}${uri.path}")
+        Logger.d(TAG, "Page finished loading: ${uri.host}${uri.path}")
 
         when {
-            uri.host == "musicbrainz.org" && uri.path == "/register" && !hasPageInitiallyLoadedWithCaptchaSetup -> {
+            uri.host == "musicbrainz.org" && uri.path == "/register" && !captchaSetupCompleted -> {
                 Logger.d(TAG, "Hiding other elements except captcha")
                 if (view != null) {
                     hideOtherElementsExceptCaptcha(view) {
                         Logger.d(TAG, "Captcha setup complete")
                         callbacks.onCaptchaSetupComplete()
-                        hasPageInitiallyLoadedWithCaptchaSetup = true
+                        captchaSetupCompleted = true
                     }
                 }
             }
-        }
 
-//        when {
-//            uri.host == "musicbrainz.org" && uri.path == "/register" && !isCaptaVerified -> {
-//                Logger.d(TAG, "Hiding other elements except captcha")
-//                if(view != null) {
-//                    hideOtherElementsExceptCaptcha(view)
-//                }
-////                isCaptaVerified = true
-//            }
-//            uri.host == "musicbrainz.org" && uri.path == "/register" && hasTriedFormSubmission -> {
-//                checkForRegistrationErrors(view)
-//            }
-//
-//            !hasTriedFormSubmission && uri.host == "musicbrainz.org" && uri.path == "/register" && !isAccountCreationFailed -> {
-//                hasTriedFormSubmission = true
-//                Logger.d(TAG, "Submitting registration form")
-//                onLoad(Resource.loading())
-//                if (view != null) {
-//                    submitRegistrationForm(view)
-//                } else {
-//                    onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
-//                        actualResponse = "WebView is null, cannot submit registration form"
-//                    }))
-//                }
-//            }
-//
-//            uri.host == "listenbrainz.org" -> {
-//                Logger.d(
-//                    TAG,
-//                    "Successfully redirected to ListenBrainz - account creation successful"
-//                )
-//                onLoad(Resource.success("Account created successfully! Please check your inbox to verify your email address."))
-//            }
-//        }
-    }
+            // Successful redirect to ListenBrainz
+            uri.host == "listenbrainz.org" -> {
+                Logger.d(TAG, "Successfully redirected to ListenBrainz - account created")
+                callbacks.onLoad(
+                    Resource.success("Account created successfully! Please check your inbox to verify your email address.")
+                )
+            }
 
-    private fun checkForRegistrationErrors(view: WebView?) {
-        view?.evaluateJavascript(
-            "(function() { return document.querySelector('.error') ? document.querySelector('.error').textContent : null; })()"
-        ) { errorResult ->
-            if (errorResult != "null" && errorResult != null) {
-                val errorMsg = errorResult.replace("\"", "").trim()
-                Logger.e(TAG, "Registration failed: $errorMsg")
-                isAccountCreationFailed = true
-
-                callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
-                    actualResponse = errorMsg
-                }))
-            } else {
-                // Check for .errors element if .error is not found
-                view.evaluateJavascript(
-                    "(function() { return document.querySelector('.errors') ? document.querySelector('.errors').textContent : null; })()"
-                ) { errorsResult ->
-                    if (errorsResult != "null" && errorsResult != null) {
-                        val errorMsg = errorsResult.replace("\"", "").trim()
-                        Logger.e(TAG, "Registration failed: $errorMsg")
-                        isAccountCreationFailed = true
-
-                        callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
-                            actualResponse = errorMsg
-                        }))
-                    }
-                }
+            // Still on registration page after form submission - check for errors
+            uri.host == "musicbrainz.org" && uri.path == "/register" && captchaSetupCompleted -> {
+                Logger.d(TAG, "Checking for registration errors")
+                view?.let { checkForRegistrationErrors(it) }
             }
         }
     }
@@ -229,7 +181,7 @@ class CreateAccountWebClient(
 
       // Hide header/footer, warnings, and unrelated rows
       const toHide = [
-        '.header', '#footer', 
+        '.header', '#footer',
         '.fullwidth > p', '.fullwidth > h1',
         '.fullwidth > .warning',
         '.register-form > form > .row:not(:has(.mtcaptcha))'
@@ -276,7 +228,7 @@ class CreateAccountWebClient(
                 const tokenInput = document.querySelector('#mtcaptcha-verifiedtoken-1');
                 if (tokenInput && tokenInput.value.trim() !== "") {
                   clearInterval(interval);
-                  console.log("Captcha verified token:", tokenInput.value);
+                  console.log("Captcha verified, token found");
 
                   if (window.AndroidInterface && window.AndroidInterface.onCaptchaVerified) {
                     window.AndroidInterface.onCaptchaVerified();
@@ -290,5 +242,34 @@ class CreateAccountWebClient(
         view.postDelayed({
             view.evaluateJavascript(script, null)
         }, 2000)
+    }
+
+    private fun checkForRegistrationErrors(view: WebView?) {
+        view?.evaluateJavascript(
+            "(function() { return document.querySelector('.error') ? document.querySelector('.error').textContent : null; })()"
+        ) { errorResult ->
+            if (errorResult != "null" && errorResult != null) {
+                val errorMsg = errorResult.replace("\"", "").trim()
+                Logger.e(TAG, "Registration failed: $errorMsg")
+
+                callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                    actualResponse = errorMsg
+                }))
+            } else {
+                // Check for .errors element if .error is not found
+                view.evaluateJavascript(
+                    "(function() { return document.querySelector('.errors') ? document.querySelector('.errors').textContent : null; })()"
+                ) { errorsResult ->
+                    if (errorsResult != "null" && errorsResult != null) {
+                        val errorMsg = errorsResult.replace("\"", "").trim()
+                        Logger.e(TAG, "Registration failed: $errorMsg")
+
+                        callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                            actualResponse = errorMsg
+                        }))
+                    }
+                }
+            }
+        }
     }
 }
