@@ -1,6 +1,7 @@
 package org.listenbrainz.android.model
 
 import androidx.compose.runtime.Immutable
+import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
@@ -8,47 +9,47 @@ import kotlinx.serialization.json.JsonElement
 @Immutable
 @Serializable
 data class Metadata(
-    @SerialName("blurb_content")
+    @SerializedName("blurb_content") @SerialName("blurb_content")
     val blurbContent: String? = null,
-    @SerialName("created")
+    @SerializedName("created") @SerialName("created")
     val created: Long? = null,
-    @SerialName("entity_id")
+    @SerializedName("entity_id") @SerialName("entity_id")
     val entityId: String? = null,
-    @SerialName("entity_name")
+    @SerializedName("entity_name") @SerialName("entity_name")
     val entityName: String? = null,
-    @SerialName("entity_type")
+    @SerializedName("entity_type") @SerialName("entity_type")
     val entityType: String? = null,
-    @SerialName("inserted_at")
+    @SerializedName("inserted_at") @SerialName("inserted_at")
     val insertedAt: Long? = null,
-    @SerialName("listened_at")
+    @SerializedName("listened_at") @SerialName("listened_at")
     val listenedAt: Long? = null,
-    @SerialName("listened_at_iso")
+    @SerializedName("listened_at_iso") @SerialName("listened_at_iso")
     val listenedAtIso: JsonElement? = null,
-    @SerialName("message")
+    @SerializedName("message") @SerialName("message")
     val message: String? = null,
-    @SerialName("playing_now")
+    @SerializedName("playing_now") @SerialName("playing_now")
     val playingNow: JsonElement? = null,
-    @SerialName("rating")
+    @SerializedName("rating") @SerialName("rating")
     val rating: Int? = null,
-    @SerialName("relationship_type")
+    @SerializedName("relationship_type") @SerialName("relationship_type")
     val relationshipType: String? = null,
-    @SerialName("review_mbid")
+    @SerializedName("review_mbid") @SerialName("review_mbid")
     val reviewMbid: String? = null,
-    @SerialName("text")
+    @SerializedName("text") @SerialName("text")
     val text: String? = null,
-    @SerialName("track_metadata")
+    @SerializedName("track_metadata") @SerialName("track_metadata")
     val trackMetadata: TrackMetadata? = null,
-    @SerialName("user_name")
+    @SerializedName("user_name") @SerialName("user_name")
     val username: String? = null,
     /** Used in personal recommendation to the user ahs recommended a song to. Only applicable
      * to self, i.e., parentUser or the logged in user.*/
-    @SerialName("users")
+    @SerializedName("users") @SerialName("users")
     val usersList: List<String>? = null,
     /** Used for follow following taglines. This is the one who followed. */
-    @SerialName("user_name_0")
+    @SerializedName("user_name_0") @SerialName("user_name_0")
     val user0: String? = null,
     /** Used for follow following taglines. This is the one who was followed. */
-    @SerialName("user_name_1")
+    @SerializedName("user_name_1") @SerialName("user_name_1")
     val user1: String? = null
 ) {
     val sharedTransitionId

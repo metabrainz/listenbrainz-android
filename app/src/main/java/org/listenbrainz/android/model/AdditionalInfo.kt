@@ -1,60 +1,61 @@
 package org.listenbrainz.android.model
 
 import androidx.compose.runtime.Immutable
+import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Immutable
 @Serializable
 data class AdditionalInfo(
-    @SerialName("artist_msid")
+    @SerializedName("artist_msid") @SerialName("artist_msid")
     val artistMsid: String? = null,
-    @SerialName("artist_names")
+    @SerializedName("artist_names") @SerialName("artist_names")
     val artistNames: List<String>? = null,
-    @SerialName("discnumber")
+    @SerializedName("discnumber") @SerialName("discnumber")
     val discNumber: Int? = null,
-    @SerialName("duration_ms")
+    @SerializedName("duration_ms") @SerialName("duration_ms")
     val durationMs: Int? = null,
-    @SerialName("isrc")
+    @SerializedName("isrc") @SerialName("isrc")
     val isrc: String? = null,
-    @SerialName("listening_from")
+    @SerializedName("listening_from") @SerialName("listening_from")
     val listeningFrom: String? = null,
-    @SerialName("recording_msid")
+    @SerializedName("recording_msid") @SerialName("recording_msid")
     val recordingMsid: String? = null,
-    @SerialName("release_artist_name")
+    @SerializedName("release_artist_name") @SerialName("release_artist_name")
     val releaseArtistName: String? = null,
-    @SerialName("release_artist_names")
+    @SerializedName("release_artist_names") @SerialName("release_artist_names")
     val releaseArtistNames: List<String>? = null,
-    @SerialName("release_msid")
+    @SerializedName("release_msid") @SerialName("release_msid")
     val releaseMsid: String? = null,
-    @SerialName("release_mbid")
+    @SerializedName("release_mbid") @SerialName("release_mbid")
     val releaseMbid: String? = null,
-    @SerialName("spotify_album_artist_ids")
+    @SerializedName("spotify_album_artist_ids") @SerialName("spotify_album_artist_ids")
     val spotifyAlbumArtistIds: List<String>? = null,
-    @SerialName("spotify_album_id")
+    @SerializedName("spotify_album_id") @SerialName("spotify_album_id")
     val spotifyAlbumId: String? = null,
-    @SerialName("spotify_artist_ids")
+    @SerializedName("spotify_artist_ids") @SerialName("spotify_artist_ids")
     val spotifyArtistIds: List<String>? = null,
-    @SerialName("spotify_id")
+    @SerializedName("spotify_id") @SerialName("spotify_id")
     val spotifyId: String? = null,
-    @SerialName("tracknumber")
+    @SerializedName("tracknumber") @SerialName("tracknumber")
     val trackNumber: Int? = null,
 
     // Used for listen submission body
-    @SerialName("media_player")
+    @SerializedName("media_player") @SerialName("media_player")
     val mediaPlayer: String? = null,
-    @SerialName("submission_client")
+    @SerializedName("submission_client") @SerialName("submission_client")
     val submissionClient: String? = null,
-    @SerialName("submission_client_version")
+    @SerializedName("submission_client_version") @SerialName("submission_client_version")
     val submissionClientVersion: String? = null,
 
     // Feed Specific
-    @SerialName("artist_mbids")
+    @SerializedName("artist_mbids") @SerialName("artist_mbids")
     val artistMbids: List<String>? = null,
-    @SerialName("origin_url")
+    @SerializedName("origin_url") @SerialName("origin_url")
     val originUrl: String? = null,
-    @SerialName("recording_mbid")
+    @SerializedName("recording_mbid") @SerialName("recording_mbid")
     val recordingMbid: String? = null,
-    @SerialName("release_group_mbid")
+    @SerializedName("release_group_mbid") @SerialName("release_group_mbid")
     val releaseGroupMbid: String? = null,
 )
