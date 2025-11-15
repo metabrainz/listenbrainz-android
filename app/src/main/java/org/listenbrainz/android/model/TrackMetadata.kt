@@ -14,7 +14,7 @@ data class TrackMetadata(
     @SerialName("track_name") val trackName: String
 ) {
     val sharedTransitionId
-        get() = (mbidMapping?.recordingMbid ?: mbidMapping?.recordingName.orEmpty() ?: trackName) +
+        get() = (mbidMapping?.recordingMbid ?: mbidMapping?.recordingName ?: trackName) +
                 (mbidMapping?.artistMbids?.joinToString() ?: artistName) +
                 (mbidMapping?.releaseMbid ?: releaseName) +
                 mbidMapping?.caaReleaseMbid.orEmpty()
