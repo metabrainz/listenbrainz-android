@@ -14,6 +14,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
@@ -241,6 +242,15 @@ class ServiceModule {
     @Provides
     fun providesHttpClient(appPreferences: AppPreferences): HttpClient {
         return HttpClient(OkHttp) {
+            /*
+             * RedirectResponseException for 3xx responses.
+             * ClientRequestException for 4xx responses.
+             * ServerResponseException for 5xx responses.
+             */
+            expectSuccess = true
+
+            // TODO: Use HttpResponseValidator in future.
+
             install(ContentNegotiation) {
                 json(Json {
                     ignoreUnknownKeys = true

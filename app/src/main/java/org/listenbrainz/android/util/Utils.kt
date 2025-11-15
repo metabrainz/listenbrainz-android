@@ -2,7 +2,6 @@ package org.listenbrainz.android.util
 
 import android.Manifest
 import android.app.ActivityManager
-import android.app.NotificationManager
 import android.content.ActivityNotFoundException
 import android.content.ContentValues
 import android.content.Context
@@ -32,12 +31,10 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.displayCutout
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.DisposableEffectResult
@@ -55,28 +52,38 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.content.PermissionChecker
 import androidx.core.view.WindowCompat
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.limurse.logger.Logger
-import com.limurse.logger.Logger.compressLogsInZipFile
-import com.limurse.logger.Logger.e
 import com.limurse.logger.util.FileIntent
+import io.ktor.client.call.body
+import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.ResponseException
+import io.ktor.client.plugins.ServerResponseException
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import okhttp3.*
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.ApiError
 import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.android.model.ResponseError.AUTH_HEADER_NOT_FOUND
+import org.listenbrainz.android.model.ResponseError.BAD_GATEWAY
+import org.listenbrainz.android.model.ResponseError.BAD_REQUEST
 import org.listenbrainz.android.model.ResponseError.Companion.getError
+import org.listenbrainz.android.model.ResponseError.DOES_NOT_EXIST
+import org.listenbrainz.android.model.ResponseError.INTERNAL_SERVER_ERROR
+import org.listenbrainz.android.model.ResponseError.RATE_LIMIT_EXCEEDED
+import org.listenbrainz.android.model.ResponseError.SERVICE_UNAVAILABLE
+import org.listenbrainz.android.model.ResponseError.UNAUTHORISED
+import org.listenbrainz.android.model.ResponseError.UNKNOWN
 import retrofit2.Response
 import java.io.*
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
-import java.util.*
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
 /**
  * A set of fairly general Android utility methods.
@@ -97,6 +104,50 @@ object Utils {
             }
         
         }.getOrElse { logAndReturn(it) }
+
+    class PreEmptiveBadRequestException(val responseError: ResponseError) : Exception()
+
+    class KtorRequestScope {
+        @OptIn(ExperimentalContracts::class)
+        fun failIf(condition: Boolean, error: () -> ResponseError) {
+            contract {
+                returns() implies !condition
+            }
+            if (condition) {
+                throw PreEmptiveBadRequestException(error())
+            }
+        }
+    }
+
+    /** General function to parse an API endpoint's response executed by Ktor.
+     * @param request Call the API endpoint here. Run any pre-conditional checks to directly return error/success in some cases. */
+    suspend inline fun <T> parseKtorResponse(request: KtorRequestScope.() -> T): Resource<T> =
+        runCatching {
+            Resource.success(KtorRequestScope().request())
+        }.getOrElse { error ->
+            return@getOrElse when (error) {
+                is ResponseException -> {
+                    val code = error.response.status
+                    val responseError = when (code) {
+                        HttpStatusCode.BadRequest -> BAD_REQUEST
+                        HttpStatusCode.Unauthorized -> AUTH_HEADER_NOT_FOUND
+                        HttpStatusCode.Forbidden -> UNAUTHORISED
+                        HttpStatusCode.NotFound -> DOES_NOT_EXIST
+                        HttpStatusCode.TooManyRequests -> RATE_LIMIT_EXCEEDED
+                        HttpStatusCode.InternalServerError -> INTERNAL_SERVER_ERROR
+                        HttpStatusCode.BadGateway -> BAD_GATEWAY
+                        HttpStatusCode.ServiceUnavailable -> SERVICE_UNAVAILABLE
+                        else -> UNKNOWN
+                    }.apply {
+                        actualResponse = error.response.body<ApiError>().error
+                    }
+
+                    Resource.failure(responseError)
+                }
+                is PreEmptiveBadRequestException -> Resource.failure(error.responseError)
+                else -> logAndReturn(error)
+            }
+        }
     
     fun <T> logAndReturn(it: Throwable) : Resource<T> {
         it.printStackTrace()

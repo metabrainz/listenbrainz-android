@@ -7,7 +7,7 @@ import org.listenbrainz.android.model.feed.FeedEventDeletionData
 import org.listenbrainz.android.model.feed.FeedEventVisibilityData
 import org.listenbrainz.android.service.FeedServiceKtor
 import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.Utils.logAndReturn
+import org.listenbrainz.android.util.Utils.parseKtorResponse
 import javax.inject.Inject
 
 class FeedRepositoryImpl @Inject constructor(
@@ -19,18 +19,17 @@ class FeedRepositoryImpl @Inject constructor(
         maxTs: Long?,
         minTs: Long?,
         count: Int
-    ): Resource<FeedData> = runCatching {
-        if (username.isNullOrEmpty()) return@runCatching ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
+    ): Resource<FeedData> = parseKtorResponse {
+        failIf(username.isNullOrEmpty()) {
+            ResponseError.AUTH_HEADER_NOT_FOUND
+        }
 
-        val data = service.getFeedEvents(
+        service.getFeedEvents(
             username = username,
             maxTs = maxTs,
             minTs = minTs,
             count = count
         )
-        Resource.success(data)
-    }.getOrElse {
-        logAndReturn(it)
     }
     
     
@@ -39,18 +38,17 @@ class FeedRepositoryImpl @Inject constructor(
         maxTs: Long?,
         minTs: Long?,
         count: Int
-    ): Resource<FeedData> = runCatching {
-        if (username.isNullOrEmpty()) return@runCatching ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
+    ): Resource<FeedData> = parseKtorResponse {
+        failIf(username.isNullOrEmpty()) {
+            ResponseError.AUTH_HEADER_NOT_FOUND
+        }
 
-        val data = service.getFeedFollowListens(
+        service.getFeedFollowListens(
             username = username,
             maxTs = maxTs,
             minTs = minTs,
             count = count
         )
-        Resource.success(data)
-    }.getOrElse {
-        logAndReturn(it)
     }
     
     
@@ -59,69 +57,58 @@ class FeedRepositoryImpl @Inject constructor(
         maxTs: Long?,
         minTs: Long?,
         count: Int
-    ): Resource<FeedData> = runCatching {
-        if (username.isNullOrEmpty()) return@runCatching ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
+    ): Resource<FeedData> = parseKtorResponse {
+        failIf(username.isNullOrEmpty()) {
+            ResponseError.AUTH_HEADER_NOT_FOUND
+        }
 
-        val data = service.getFeedSimilarListens(
+        service.getFeedSimilarListens(
             username = username,
             maxTs = maxTs,
             minTs = minTs,
             count = count
         )
-        Resource.success(data)
-    }.getOrElse {
-        logAndReturn(it)
     }
 
 
     override suspend fun deleteEvent(
         username: String?,
         data: FeedEventDeletionData
-    ): Resource<SocialResponse> =
-        runCatching {
-            if (username.isNullOrEmpty()) return@runCatching ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
-
-            val response = service.deleteEvent(
-                username = username,
-                body = data
-            )
-            Resource.success(response)
-        }.getOrElse {
-            logAndReturn(it)
+    ): Resource<SocialResponse> = parseKtorResponse {
+        failIf(username.isNullOrEmpty()) {
+            ResponseError.AUTH_HEADER_NOT_FOUND
         }
 
+        service.deleteEvent(
+            username = username,
+            body = data
+        )
+    }
 
     override suspend fun hideEvent(
         username: String?,
         data: FeedEventVisibilityData
-    ): Resource<SocialResponse> =
-        runCatching {
-            if (username.isNullOrEmpty()) return@runCatching ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
-
-            val response = service.hideEvent(
-                username = username,
-                body = data
-            )
-            Resource.success(response)
-        }.getOrElse {
-            logAndReturn(it)
+    ): Resource<SocialResponse> = parseKtorResponse {
+        failIf(username.isNullOrEmpty()) {
+            ResponseError.AUTH_HEADER_NOT_FOUND
         }
 
+        service.hideEvent(
+            username = username, body = data
+        )
+    }
 
     override suspend fun unhideEvent(
         username: String?,
         data: FeedEventVisibilityData
-    ): Resource<SocialResponse> =
-        runCatching {
-            if (username.isNullOrEmpty()) return@runCatching ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
-
-            val response = service.unhideEvent(
-                username = username,
-                body = data
-            )
-            Resource.success(response)
-        }.getOrElse {
-            logAndReturn(it)
+    ): Resource<SocialResponse> = parseKtorResponse {
+        failIf(username.isNullOrEmpty()) {
+            ResponseError.AUTH_HEADER_NOT_FOUND
         }
-    
+
+        service.unhideEvent(
+            username = username,
+            body = data
+        )
+    }
 }
