@@ -23,6 +23,8 @@ import io.ktor.client.request.header
 import io.ktor.serialization.gson.gson
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import org.listenbrainz.android.BuildConfig
@@ -278,9 +280,15 @@ class ServiceModule {
                 url(LISTENBRAINZ_API_BASE_URL)
 
                 runBlocking {
-                    val accessToken = appPreferences.lbAccessToken.get()
-                    if (accessToken.isNotEmpty()) {
-                        header("Authorization", "Token $accessToken")
+                    runCatching {
+                        withTimeout(3000) {
+                            val accessToken = appPreferences.lbAccessToken.get()
+                            if (accessToken.isNotEmpty()) {
+                                header("Authorization", "Token $accessToken")
+                            }
+                        }
+                    }.getOrElse {
+                        Log.d("Error loading access token: ${it.message}")
                     }
                 }
             }
