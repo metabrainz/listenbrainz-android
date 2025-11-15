@@ -14,3 +14,4 @@ play_config.json
 
 # Sentry Config File
 sentry.properties
+/app/.idea
