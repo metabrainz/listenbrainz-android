@@ -199,10 +199,7 @@ class MainActivity : ComponentActivity() {
                                     },
                                     checkForUpdates = {
                                         appUpdatesViewModel.checkForUpdates(
-                                            activity = this@MainActivity,
-                                            onUpdateNotAvailable = {
-                                                Toast.makeText(this@MainActivity, "No updates available", Toast.LENGTH_SHORT).show()
-                                            }
+                                            activity = this@MainActivity
                                         )
                                     },
                                     topBarActions = TopBarActions(),
