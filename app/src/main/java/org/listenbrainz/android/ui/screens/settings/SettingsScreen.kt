@@ -46,17 +46,13 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import com.limurse.logger.Logger
-import com.limurse.logger.util.FileIntent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.UiMode
@@ -121,7 +117,7 @@ fun SettingsScreen(
     var showLogoutDialog by remember { mutableStateOf(false) }
     val darkTheme = ListenBrainzTheme.uiModeIsDark
     val scope = rememberCoroutineScope()
-
+    var isCheckingForUpdates by remember { mutableStateOf(false) }
     var darkThemeCheckedState by remember { mutableStateOf(darkTheme) }
 
     /** This preference state can only be changed when the user exits the app, and we always update
@@ -283,12 +279,24 @@ fun SettingsScreen(
 
             HorizontalDivider()
 
-            SettingsTextOption(
-                modifier = Modifier.clickable {
-                    callbacks.checkForUpdates()
-                },
+            SettingsLoadingOption(
                 title = "Check for updates",
-                subtitle = "Check if a new version of the app is available"
+                subtitle = "Check if a new version of the app is available",
+                isLoading = isCheckingForUpdates,
+                onClick = {
+                    scope.launch {
+                        isCheckingForUpdates = true
+                        val isAvailable = callbacks.checkForUpdates()
+                        isCheckingForUpdates = false
+                        if (!isAvailable) {
+                            Toast.makeText(
+                                context,
+                                "You are already on the latest version!!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
             )
 
             HorizontalDivider()
@@ -475,6 +483,7 @@ fun SettingsScreen(
         }
     }
 }
+
 @Preview
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
@@ -492,7 +501,7 @@ fun SettingsScreenPreview() {
                 setWhitelist = {},
                 onLoginRequest = {},
                 onOnboardingRequest = {},
-                checkForUpdates = {}
+                checkForUpdates = suspend{false}
             ),
             topBarActions = TopBarActions()
         )

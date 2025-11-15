@@ -50,7 +50,7 @@ enum class PermissionEnum(
         permanentlyDeclinedRationale = "This permission is needed to access and play your local music files.",
         rationaleText = "Lets BrainzPlayer read your stored music for browsing and playback within the app.",
         image = R.drawable.ic_storage,
-        minSdk = 19,
+        minSdk = 23,
         maxSdk = 32
     ),
 
@@ -78,8 +78,9 @@ enum class PermissionEnum(
         permanentlyDeclinedRationale = "Required to manage and access your saved music files.",
         rationaleText = "Needed to store, organize, and play music files from your device.",
         image = R.drawable.ic_storage,
-        minSdk = 19,
-        maxSdk = 32
+        minSdk = 23,
+        //Maximum sdk update to 28, as scoped storage replaces it from API 29, even though not strictly in API 29
+        maxSdk = 28
     );
 
     //This function checks if the permission is applicable for the current Android version
