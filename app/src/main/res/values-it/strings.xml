@@ -1,3 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="title_tracks">Tracce</string>
+    <string name="releases">Pubblicazioni</string>
+    <string name="app_name">ListenBrainz</string>
+    <string name="search_hint">Cerca su ListenBrainz</string>
+    <string name="search_card">Esplora i dati di ListenBrainz</string>
+    <string name="dash_collections">Collezioni</string>
 </resources>
