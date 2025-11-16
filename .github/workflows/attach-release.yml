@@ -63,7 +63,7 @@ jobs:
             return { tag_name: latestRelease.tag_name };
             
       - name: Attach APK and AAB
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ListenBrainz-Release-Files
           path: |
