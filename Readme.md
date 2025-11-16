@@ -42,7 +42,6 @@ When you use the ListenBrainz Android app, you need to create an account with Li
 	    
 * Prerequisite: Latest version of the Android Studio and SDKs on your pc.
 * Clone this repository.
-* Add dummy `sentryDsn` in your `local.properties` file.
 * Use the `gradlew build` command to build the project directly or use the IDE to run the project to your phone or the emulator.
 
 ## Downloading
