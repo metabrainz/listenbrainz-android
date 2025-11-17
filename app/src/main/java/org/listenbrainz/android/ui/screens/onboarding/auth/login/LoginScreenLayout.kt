@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.onboarding.auth
+package org.listenbrainz.android.ui.screens.onboarding.auth.login
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
@@ -45,6 +45,8 @@ import org.listenbrainz.android.ui.theme.lb_purple_night
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalAutofillManager
 import androidx.compose.ui.text.style.TextAlign
+import org.listenbrainz.android.ui.screens.onboarding.auth.AuthPasswordField
+import org.listenbrainz.android.ui.screens.onboarding.auth.AuthUsernameField
 import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
 import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingSupportButton
 
