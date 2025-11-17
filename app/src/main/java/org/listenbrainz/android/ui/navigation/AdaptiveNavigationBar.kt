@@ -161,7 +161,10 @@ fun AdaptiveNavigationBar(
                         }
                         // A quick way to navigate to back layer content.
                         backdropScaffoldState.reveal()
-
+                        val current = navController.currentBackStackEntry?.destination?.route
+                        if(current == AppNavigationItem.Settings.route) {
+                            navController.popBackStack()
+                        }
                         when (item.route) {
                             AppNavigationItem.Profile.route -> {
                                 val profileRoute = AppNavigationItem.Profile.route +
