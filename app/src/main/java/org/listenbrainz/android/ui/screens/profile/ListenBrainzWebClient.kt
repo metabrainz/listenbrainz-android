@@ -7,6 +7,7 @@ import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import org.json.JSONObject
 import com.limurse.logger.Logger
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.util.Resource
@@ -211,6 +212,9 @@ class ListenBrainzWebClient(
             return
         }
 
+        val usernameEscaped = JSONObject.quote(username);
+        val passwordEscaped = JSONObject.quote(password);
+
         // Submit login form
         val loginScript = """
             (function(){
@@ -224,8 +228,8 @@ class ListenBrainzWebClient(
                 if (!usernameField) return "Error: Username field not found";
                 if (!passwordField) return "Error: Password field not found";
                 
-                usernameField.value = '$username';
-                passwordField.value = '$password';
+                usernameField.value = $usernameEscaped;
+                passwordField.value = $passwordEscaped;
                 
                 var form = formContainer.querySelector('form');
                 if (!form) return "Error: Form not found";
