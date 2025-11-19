@@ -12,23 +12,23 @@ import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.util.Resource
 import androidx.core.net.toUri
 import androidx.core.view.postDelayed
+import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginCallbacks
 
 private const val TAG = "ListenBrainzWebClient"
 
 class ListenBrainzWebClient(
-    val username: String,
-    val password: String,
-    private val onLoad: (Resource<String>) -> Unit,
-    private val onPageLoadStateChange: (Boolean, String?) -> Unit,
+    private val callbacks: LoginCallbacks
 ) : WebViewClient() {
 
     // Track auth flow state
+    private var hasLoginFormReadyCallbackBeenMade = false
     private var hasTriedFormSubmission = false
     private var hasTriedRedirectToLoginEndpoint = false
     private var hasTriedSettingsNavigation = false
     private var isLoginFailed = false
     private var currentPage: String? = null
     private var hasTriedOAuthAuthentication = false
+    private var webView: WebView? = null
 
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
@@ -36,22 +36,22 @@ class ListenBrainzWebClient(
         // Update UI with current page info
         url?.let {
             val uri = it.toUri()
-            currentPage = when {
-                uri.host == "musicbrainz.org" && uri.path == "/login" ->
-                    "Connecting to MusicBrainz..."
-
-                uri.host == "listenbrainz.org" && uri.path == "/login" ->
-                    "Connecting to ListenBrainz..."
-
-                uri.host == "listenbrainz.org" && uri.path == "/login/musicbrainz" ->
-                    "Authenticating with ListenBrainz..."
-
-                uri.host == "listenbrainz.org" && uri.path?.contains("/settings") == true ->
-                    "Retrieving authentication token..."
-
-                else -> "Loading page..."
-            }
-            onPageLoadStateChange(true, currentPage)
+//            currentPage = when {
+//                uri.host == "musicbrainz.org" && uri.path == "/login" ->
+//                    "Connecting to MusicBrainz..."
+//
+//                uri.host == "listenbrainz.org" && uri.path == "/login" ->
+//                    "Connecting to ListenBrainz..."
+//
+//                uri.host == "listenbrainz.org" && uri.path == "/login/musicbrainz" ->
+//                    "Authenticating with ListenBrainz..."
+//
+//                uri.host == "listenbrainz.org" && uri.path?.contains("/settings") == true ->
+//                    "Retrieving authentication token..."
+//
+//                else -> "Loading page..."
+//            }
+//            callbacks.onPageLoadStateChange(true, currentPage)
             Logger.d(TAG, "Loading: $url")
         }
     }
@@ -76,14 +76,14 @@ class ListenBrainzWebClient(
 
     override fun onPageFinished(view: WebView?, url: String?) {
         super.onPageFinished(view, url)
-        onPageLoadStateChange(false, null)
 
         if (url == null) {
-            onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
                 actualResponse = "URL is null, cannot proceed with login"
             }))
             return
         }
+        webView = view
 
         val uri = url.toUri()
         Logger.d(TAG, "Page loaded: ${uri.host}${uri.path}")
@@ -95,17 +95,10 @@ class ListenBrainzWebClient(
             }
 
             // Submit login form on MusicBrainz login page
-            !hasTriedFormSubmission && uri.host == "musicbrainz.org" && uri.path == "/login" && !isLoginFailed -> {
-                hasTriedFormSubmission = true
-                Logger.d(TAG, "Submitting login form")
-                onLoad(Resource.loading())
-                if (view != null) {
-                    submitLoginForm(view)
-                } else {
-                    onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
-                        actualResponse = "WebView is null, cannot submit login form"
-                    }))
-                }
+            !hasTriedFormSubmission && uri.host == "musicbrainz.org" && uri.path == "/login" && !hasLoginFormReadyCallbackBeenMade -> {
+                hasLoginFormReadyCallbackBeenMade = true
+                callbacks.onMusicBrainzLoginFormLoaded()
+                Logger.d(TAG, "Login form is ready")
             }
 
             //Edge case 1: User's account is not linked with ListenBrainz
@@ -113,7 +106,7 @@ class ListenBrainzWebClient(
                 Logger.e(TAG, "Account not linked with ListenBrainz, running script to accept")
                 hasTriedOAuthAuthentication = true
                 view?.postDelayed({
-                    allowAccess(view)
+                    showOAuthPrompt(view)
                 }, 2000)
             }
 
@@ -134,7 +127,7 @@ class ListenBrainzWebClient(
                 Logger.e(TAG, "Login failed: $errorMsg")
                 isLoginFailed = true
 
-                onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
                     actualResponse = errorMsg
                 }))
             }
@@ -153,11 +146,12 @@ class ListenBrainzWebClient(
             // Edge case 2: Data protection terms not accepted. This is not a blocker for login, so we
             // can skip this step.
             uri.path?.contains("agree-to-terms") == true -> {
-                view?.postDelayed(2000) {
-                    checkForEmailVerificationError(view) {
-                        view.loadUrl("https://listenbrainz.org/settings")
-                    }
-                }
+                showGDPRPrompt(view)
+//                view?.postDelayed(2000) {
+//                    checkForEmailVerificationError(view) {
+//                        view.loadUrl("https://listenbrainz.org/settings")
+//                    }
+//                }
             }
 
             // Step 2: Navigate to settings to get token with edge case 2
@@ -175,7 +169,7 @@ class ListenBrainzWebClient(
 
             // Step 3: Extract token from settings page
             uri.path?.contains("/settings") == true -> {
-                onLoad(Resource.loading())
+                callbacks.onLoad(Resource.loading())
                 Logger.d(TAG, "Extracting token from settings page")
 
                 view?.postDelayed({
@@ -192,20 +186,20 @@ class ListenBrainzWebClient(
             val token = value.removePrefix("\"").removeSuffix("\"")
             if (token.isNotEmpty() && token != "not found") {
                 Logger.d(TAG, "Auth token found")
-                onLoad(Resource.success(token))
+                callbacks.onLoad(Resource.success(token))
             } else {
                 Logger.e(TAG, "Auth token not found")
-                onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
                     actualResponse = "Could not retrieve authentication token"
                 }))
             }
         }
     }
 
-    private fun submitLoginForm(view: WebView) {
+    fun submitLoginForm(username: String, password: String) {
         // Validate inputs
         if (username.isEmpty() || password.isEmpty()) {
-            onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
                 actualResponse = "Username and password cannot be empty"
             }))
             return
@@ -220,16 +214,16 @@ class ListenBrainzWebClient(
 
                 var usernameField = document.getElementById('id-username');
                 var passwordField = document.getElementById('id-password');
-                
+
                 if (!usernameField) return "Error: Username field not found";
                 if (!passwordField) return "Error: Password field not found";
-                
+
                 usernameField.value = '$username';
                 passwordField.value = '$password';
-                
+
                 var form = formContainer.querySelector('form');
                 if (!form) return "Error: Form not found";
-                
+
                 form.submit();
                 return "Login submitted";
             } catch (e) {
@@ -238,11 +232,12 @@ class ListenBrainzWebClient(
             })();
         """.trimIndent()
 
-        view.postDelayed({
-            view.evaluateJavascript(loginScript) { result ->
+        webView?.postDelayed({
+            webView?.evaluateJavascript(loginScript) { result ->
+                hasTriedFormSubmission = true
                 if (result != "\"Login submitted\"") {
                     Logger.e(TAG, "Error submitting login form: $result")
-                    onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                    callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
                         actualResponse = result
                     }))
                 }
@@ -250,43 +245,148 @@ class ListenBrainzWebClient(
         }, 2000)
     }
 
-    private fun allowAccess(view: WebView?) {
+    private fun showOAuthPrompt(view: WebView?) {
         val allowAccessScript = """
-        (function () {
-  try {
-    var attempts = 0;
+(function () {
+  const wait = setInterval(() => {
+    const main = document.querySelector("#oauth-prompt");
+    if (main) {
+      clearInterval(wait);
 
-    function tryClick() {
-      var formContainer = document.getElementById('react-container');
-      if (!formContainer) return "Error: Form container not found";
+      const toHide = [
+        "nav.navbar",                 
+        ".container > :not(#react-container)",
+      ];
+      toHide.forEach(sel => {
+        document.querySelectorAll(sel).forEach(e => e.style.display = "none");
+      });
 
-      var button = formContainer.querySelector('button.btn.btn-primary');
-      if (button) {
-        button.click();
-        return "Allow access clicked";
-      }
+      const containers = [
+        "html", "body",
+        ".container",
+        "#react-container",
+        "#oauth-prompt",
+      ];
 
-      if (attempts < 20) { // wait up to ~2 seconds
-        attempts++;
-        setTimeout(tryClick, 100);
-      }
+      containers.forEach(sel => {
+        document.querySelectorAll(sel).forEach(e => {
+          e.style.margin = "0";
+          e.style.padding = "0";
+        });
+      });
+
+      /* Keep everything at top-left */
+      document.body.style.overflow = "hidden";
+      document.body.style.margin = "0";
+      document.body.style.padding = "16px";  
+      const btn = document.querySelector(".btn-primary");
+      if (btn) btn.style.marginLeft = "12px";
+
+      console.log("Cleaned and aligned to top-left!");
     }
-
-    tryClick();
-    return "Waiting for Allow access button...";
-  } catch (e) {
-    return "Error: " + e.message;
-  }
+  }, 300);
 })();
 
     """.trimIndent()
 
-        view?.evaluateJavascript(allowAccessScript) { result ->
-            Logger.d(TAG, "Allow access result: $result")
+        view?.evaluateJavascript(allowAccessScript) {
+            Logger.d(TAG, "Formatted OAuth prompt")
+            callbacks.showOAuthAuthorizationPrompt()
             //Changing variable as this redirects to login page again
             hasTriedRedirectToLoginEndpoint = false
         }
     }
+
+    private fun showGDPRPrompt(view: WebView?) {
+        val allowAccessScript = """
+(function () {
+  const PERMA_HIDE = [
+    // Navigation + Sidebars
+    'nav',
+    '#side-nav',
+    '#side-nav-overlay',
+    '.sidebar-nav',
+
+    // Footer
+    '.footer',
+
+    // Toasts
+    '.Toastify',
+
+    // Music Player + Queue + Actions
+    '[data-testid="brainzplayer"]',
+    '[data-testid="brainzplayer-ui"]',
+    '.music-player',
+    '.player-buttons',
+    '.player-buttons.secondary',
+    '.queue',
+    '#brainz-player',
+    '.controls',
+    '.actions',
+    '.content',
+    '.volume',
+    '.progress-bar-wrapper',
+    '.progress',
+    '.progress-numbers',
+    '.cover-art-scroll-wrapper'
+  ];
+
+  function hideEverything() {
+    PERMA_HIDE.forEach(sel => {
+      document.querySelectorAll(sel).forEach(e => {
+        e.style.display = 'none';
+        e.style.visibility = 'hidden';
+        e.style.opacity = '0';
+      });
+    });
+  }
+
+  /* Initial cleanup */
+  hideEverything();
+
+  /* MutationObserver to block any new elements React inserts */
+  const observer = new MutationObserver(() => hideEverything());
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  const CLEAN_SELECTORS = [
+    'html',
+    'body',
+    '#react-container',
+    '.container-react',
+    '.container-react-main',
+    '[role="main"]'
+  ];
+
+  CLEAN_SELECTORS.forEach(sel => {
+    document.querySelectorAll(sel).forEach(e => {
+      e.style.margin = '0';
+      e.style.padding = '0';
+    });
+  });
+
+  document.body.style.padding = '16px';
+
+  document.querySelectorAll('.well').forEach(w => {
+    w.style.margin = '0';
+    w.style.marginBottom = '12px';
+    w.style.maxWidth = '600px';
+  });
+
+  /* Spacing above the submit button */
+  const submitButton = document.querySelector('button[type="submit"]');
+  if (submitButton) submitButton.style.marginTop = '4px';
+
+  console.log("Clean GDPR-only mode + Player permanently blocked.");
+
+})();
+    """.trimIndent()
+
+        view?.evaluateJavascript(allowAccessScript) {
+            Logger.d(TAG, "Formatted GDPR prompt")
+            callbacks.showGDPRConsentPrompt()
+        }
+    }
+
 
     private fun checkForEmailVerificationError(view: WebView?, noErrorLambda: () -> Unit) {
         val errorScript = """
@@ -306,7 +406,7 @@ class ListenBrainzWebClient(
                 if (errorMsg.contains("verify the email before proceeding"))
                     errorMsg = "Email is not verified or already in use. Please check your inbox."
                 Logger.e(TAG, "Error in logging in $errorMsg")
-                onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
                     actualResponse = errorMsg
                 }))
             } else {
