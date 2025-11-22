@@ -1,3 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="title_tracks">Nummers</string>
+    <string name="releases">Uitgaven</string>
+    <string name="recording_releases">Staat op uitgaven</string>
+    <string name="app_name">ListenBrainz</string>
 </resources>
