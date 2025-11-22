@@ -121,15 +121,32 @@ class LoginViewModel() : BaseViewModel<LoginUIState>() {
     }
 
     fun onLoad(resource: Resource<String>, validateAndSaveUserDetails: suspend (Resource<String>)-> Resource<Unit>, onLoginFinished: ()-> Unit) {
-        Logger.d(TAG, "Load state: ${uiState.value.loginInState}, data: ${resource.data}, error: ${resource.error}")
+        Logger.d(TAG, "Load state: ${uiState.value.loginInState}, data: ${resource.data?.take(20)}, error: ${resource.error?.actualResponse}")
         val state = loginUIState.value.loginInState
-        if (state !is LoginState.Error){
-            when {
-                resource.isSuccess -> {
+
+        // Ignore if already in error state to prevent multiple error dialogs
+        if (state is LoginState.Error){
+            Logger.d(TAG, "Already in error state, ignoring new load event")
+            return
+        }
+
+        when {
+            resource.isSuccess -> {
+                val token = resource.data
+                if (token.isNullOrBlank()) {
+                    Logger.e(TAG, "Token is null or blank")
+                    clearTimeout()
                     loginUIState.update {
-                        it.copy(loginInState = LoginState.VerifyingToken)
+                        it.copy(loginInState = LoginState.Error("Authentication token is empty"))
                     }
-                    viewModelScope.launch {
+                    return
+                }
+
+                loginUIState.update {
+                    it.copy(loginInState = LoginState.VerifyingToken)
+                }
+                viewModelScope.launch {
+                    try {
                         val validationResult = validateAndSaveUserDetails(resource)
                         loginUIState.update {
                             it.copy(loginInState = if(validationResult.status == Resource.Status.SUCCESS){
@@ -137,9 +154,11 @@ class LoginViewModel() : BaseViewModel<LoginUIState>() {
                                 LoginState.Success("Login successful")
                             } else {
                                 clearTimeout()
-                                LoginState.Error(validationResult.error?.actualResponse?.takeIf { res->
-                                    res != "null"
-                                } ?: "Login failed during validation")
+                                val errorMsg = validationResult.error?.actualResponse?.takeIf { res->
+                                    res != "null" && res.isNotBlank()
+                                } ?: "Login failed during validation"
+                                Logger.e(TAG, "Validation failed: $errorMsg")
+                                LoginState.Error(errorMsg)
                             })
                         }
                         if(validationResult.status == Resource.Status.SUCCESS) {
@@ -147,25 +166,31 @@ class LoginViewModel() : BaseViewModel<LoginUIState>() {
                             cleanup()
                             onLoginFinished()
                         }
+                    } catch (e: Exception) {
+                        Logger.e(TAG, "Exception during validation: ${e.message}")
+                        clearTimeout()
+                        loginUIState.update {
+                            it.copy(loginInState = LoginState.Error("Login failed: ${e.message}"))
+                        }
                     }
                 }
+            }
 
-                resource.isFailed -> {
-                    clearTimeout()
-                    loginUIState.update {
-                        it.copy(
-                            loginInState = LoginState.Error(resource.error?.actualResponse?.takeIf { res->
-                                res != "null"
-                            } ?: "Login failed")
-                        )
-                    }
-                    viewModelScope.launch {
-                        delay(1.seconds)
-                        onRefreshClick()
-                    }
+            resource.isFailed -> {
+                clearTimeout()
+                val errorMsg = resource.error?.actualResponse?.takeIf { res->
+                    res != "null" && res.isNotBlank()
+                } ?: "Login failed"
+                Logger.e(TAG, "Login failed: $errorMsg")
+                loginUIState.update {
+                    it.copy(
+                        loginInState = LoginState.Error(errorMsg)
+                    )
                 }
-
-
+                viewModelScope.launch {
+                    delay(2.seconds)
+                    onRefreshClick()
+                }
             }
         }
 
@@ -199,6 +224,48 @@ class LoginViewModel() : BaseViewModel<LoginUIState>() {
         }
     }
 
+    fun onOAuthAcceptClicked(){
+        loginUIState.update {
+            it.copy(
+                loginInState = LoginState.Loading
+            )
+        }
+        viewModelScope.launch {
+            delay(1000)
+            navigateToSettingsTrigger()
+        }
+    }
+
+    fun onOAuthDeclineClicked(){
+        loginUIState.update {
+            it.copy(
+                loginInState = LoginState.Error("OAuth authorization declined by user.")
+            )
+        }
+        clearTimeout()
+    }
+
+    fun onGDPRAcceptClicked(){
+        loginUIState.update {
+            it.copy(
+                loginInState = LoginState.Loading
+            )
+        }
+        viewModelScope.launch {
+            delay(1000)
+            navigateToSettingsTrigger()
+        }
+    }
+
+    fun onGDPRDeclineClicked(){
+        loginUIState.update {
+            it.copy(
+                loginInState = LoginState.Error("GDPR consent declined by user.")
+            )
+        }
+        clearTimeout()
+    }
+
     fun onDismissDialogInErrorState() {
         loginUIState.update {
             it.copy(
@@ -214,6 +281,14 @@ class LoginViewModel() : BaseViewModel<LoginUIState>() {
         loginUIState.update {
             it.copy(
                 submitFormTrigger = false
+            )
+        }
+    }
+
+    fun navigateToSettingsTrigger(){
+        loginUIState.update {
+            it.copy(
+                settingsNavigationTrigger = it.settingsNavigationTrigger + 1
             )
         }
     }

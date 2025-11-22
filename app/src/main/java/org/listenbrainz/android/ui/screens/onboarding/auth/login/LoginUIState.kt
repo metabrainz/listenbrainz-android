@@ -7,7 +7,8 @@ data class LoginUIState(
     val reloadTrigger: Int = 0,
     val submitFormTrigger: Boolean = false,
     val loginInState: LoginState = LoginState.LoadingLoginForm,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val settingsNavigationTrigger: Int = 0
 )
 
 sealed class LoginState {

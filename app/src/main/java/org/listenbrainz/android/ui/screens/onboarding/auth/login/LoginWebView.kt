@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -85,7 +86,11 @@ fun ListenBrainzLogin(
                         },
                         onMusicBrainzLoginFormLoaded = vm::onLoginFormLoaded,
                         showGDPRConsentPrompt = vm::showGDPRConsentPrompt,
-                        showOAuthAuthorizationPrompt = vm::showOAuthAuthorizationPrompt
+                        showOAuthAuthorizationPrompt = vm::showOAuthAuthorizationPrompt,
+                        onOAuthAllowClick = vm::onOAuthAcceptClicked,
+                        onOAuthCancelClick = vm::onOAuthDeclineClicked,
+                        onGDPRAgreeClick = vm::onGDPRAcceptClicked,
+                        onGDPRDisagreeClick = vm::onGDPRDeclineClicked
                     )
                 )
             },
@@ -102,6 +107,7 @@ fun ListenBrainzLogin(
 //
             if (showDialog) {
                 AlertDialog(
+                    modifier = Modifier.alpha(0.5f),
                     containerColor = ListenBrainzTheme.colorScheme.background,
                     onDismissRequest = vm::onDismissDialogInErrorState,
                     title = {
@@ -183,8 +189,8 @@ fun ListenBrainzLogin(
                         )
                     },
                     properties = DialogProperties(
-                        dismissOnBackPress = true,
-                        dismissOnClickOutside = true,
+                        dismissOnBackPress = loginState is LoginState.Error,
+                        dismissOnClickOutside = loginState is LoginState.Error,
                         usePlatformDefaultWidth = true
                     )
                 )
@@ -216,6 +222,10 @@ private fun ListenBrainzClient(
         }
     }
 
+    LaunchedEffect(uiState.settingsNavigationTrigger) {
+        webViewClientRef?.navigateToSettings(null)
+    }
+
     // Use AndroidView to embed a WebView
     key(uiState.reloadTrigger) {
         AndroidView(
@@ -237,6 +247,12 @@ private fun ListenBrainzClient(
                     // Clear cookies
                     CookieManager.getInstance().removeAllCookies(null)
                     CookieManager.getInstance().flush()
+
+                    addJavascriptInterface(
+                        LoginWebViewInterface(
+                            callbacks = callbacks
+                        ),"AndroidInterface"
+                    )
 
                     val client = ListenBrainzWebClient(
                         callbacks = callbacks

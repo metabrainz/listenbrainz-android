@@ -3,6 +3,7 @@ package org.listenbrainz.android.ui.screens.profile
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -26,7 +27,6 @@ class ListenBrainzWebClient(
     private var hasTriedRedirectToLoginEndpoint = false
     private var hasTriedSettingsNavigation = false
     private var isLoginFailed = false
-    private var currentPage: String? = null
     private var hasTriedOAuthAuthentication = false
     private var webView: WebView? = null
 
@@ -35,23 +35,6 @@ class ListenBrainzWebClient(
 
         // Update UI with current page info
         url?.let {
-            val uri = it.toUri()
-//            currentPage = when {
-//                uri.host == "musicbrainz.org" && uri.path == "/login" ->
-//                    "Connecting to MusicBrainz..."
-//
-//                uri.host == "listenbrainz.org" && uri.path == "/login" ->
-//                    "Connecting to ListenBrainz..."
-//
-//                uri.host == "listenbrainz.org" && uri.path == "/login/musicbrainz" ->
-//                    "Authenticating with ListenBrainz..."
-//
-//                uri.host == "listenbrainz.org" && uri.path?.contains("/settings") == true ->
-//                    "Retrieving authentication token..."
-//
-//                else -> "Loading page..."
-//            }
-//            callbacks.onPageLoadStateChange(true, currentPage)
             Logger.d(TAG, "Loading: $url")
         }
     }
@@ -83,10 +66,12 @@ class ListenBrainzWebClient(
             }))
             return
         }
-        webView = view
+        if(view != null) {
+            webView = view
+        }
 
         val uri = url.toUri()
-        Logger.d(TAG, "Page loaded: ${uri.host}${uri.path}")
+        Log.d(TAG, "Page loaded: ${uri.host}${uri.path}")
 
         when {
             // Check for login errors on MusicBrainz login page
@@ -119,28 +104,47 @@ class ListenBrainzWebClient(
     }
 
     private fun checkForLoginErrors(view: WebView?) {
-        view?.evaluateJavascript(
+        if (view == null) {
+            Logger.e(TAG, "WebView is null, cannot check for login errors")
+            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                actualResponse = "WebView is not available"
+            }))
+            return
+        }
+
+        view.evaluateJavascript(
             "(function() { return document.querySelector('.error') ? document.querySelector('.error').textContent : null; })()"
         ) { result ->
-            if (result != "null") {
+            if (result != null && result != "null" && result.isNotEmpty()) {
                 val errorMsg = result.replace("\"", "").trim()
-                Logger.e(TAG, "Login failed: $errorMsg")
-                isLoginFailed = true
+                if (errorMsg.isNotEmpty()) {
+                    Logger.e(TAG, "Login failed: $errorMsg")
+                    isLoginFailed = true
 
-                callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
-                    actualResponse = errorMsg
-                }))
+                    callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                        actualResponse = errorMsg
+                    }))
+                }
             }
         }
     }
 
     private fun handleListenBrainzNavigation(view: WebView?, uri: Uri) {
-        when {
+         when {
             // Step 1: Redirect to login endpoint
-            !hasTriedRedirectToLoginEndpoint -> {
-                Logger.d(TAG, "Redirecting to login endpoint")
+//            !hasTriedRedirectToLoginEndpoint -> {
+//                Logger.d(TAG, "Redirecting to login endpoint $uri")
+//                hasTriedRedirectToLoginEndpoint = true
+//                view?.loadUrl("https://listenbrainz.org/login/musicbrainz")
+//            }
+//
+            uri.path?.endsWith("login/") == true && !hasTriedRedirectToLoginEndpoint-> {
+                Logger.d(TAG, "Redirecting to login endpoint from $uri")
                 hasTriedRedirectToLoginEndpoint = true
-                view?.loadUrl("https://listenbrainz.org/login/musicbrainz")
+                view?.postDelayed(1000) {
+                    view.loadUrl("https://listenbrainz.org/login/musicbrainz")
+                    hasTriedSettingsNavigation = false
+                }
             }
 
             // Edge case 2: Data protection terms not accepted. This is not a blocker for login, so we
@@ -156,15 +160,8 @@ class ListenBrainzWebClient(
 
             // Step 2: Navigate to settings to get token with edge case 2
             !hasTriedSettingsNavigation -> {
-                view?.postDelayed({
-                    checkForEmailVerificationError(view) {
-                        if(!hasTriedSettingsNavigation) {
-                            Logger.d(TAG, "Navigating to settings page")
-                            hasTriedSettingsNavigation = true
-                            view.loadUrl("https://listenbrainz.org/settings")
-                        }
-                    }
-                }, 2000)
+                Logger.d(TAG, "Navigating to settings page to extract token")
+                navigateToSettings(view)
             }
 
             // Step 3: Extract token from settings page
@@ -179,20 +176,61 @@ class ListenBrainzWebClient(
         }
     }
 
+    fun navigateToSettings(view: WebView?) {
+        val view = view?: webView
+        if (view == null) {
+            Logger.e(TAG, "WebView is null, cannot navigate to settings")
+            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                actualResponse = "WebView is not available"
+            }))
+            return
+        }
+
+
+        hasTriedSettingsNavigation = true
+        view?.postDelayed(1000) {
+            checkForEmailVerificationError(view){}
+            view.loadUrl("https://listenbrainz.org/settings")
+        }
+    }
+
     private fun extractToken(view: WebView?) {
-        view?.evaluateJavascript(
-            "(function() { return document.getElementById('auth-token') ? document.getElementById('auth-token').value : 'not found'; })();"
-        ) { value ->
-            val token = value.removePrefix("\"").removeSuffix("\"")
-            if (token.isNotEmpty() && token != "not found") {
-                Logger.d(TAG, "Auth token found")
-                callbacks.onLoad(Resource.success(token))
-            } else {
-                Logger.e(TAG, "Auth token not found")
-                callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
-                    actualResponse = "Could not retrieve authentication token"
-                }))
+        if (view == null) {
+            Logger.e(TAG, "WebView is null, cannot extract token")
+            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                actualResponse = "WebView is not available"
+            }))
+            return
+        }
+
+        try {
+            view.evaluateJavascript(
+                "(function() { return document.getElementById('auth-token') ? document.getElementById('auth-token').value : 'not found'; })();"
+            ) { value ->
+                if (value == null) {
+                    Logger.e(TAG, "Auth token extraction returned null")
+                    callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                        actualResponse = "Could not retrieve authentication token"
+                    }))
+                    return@evaluateJavascript
+                }
+
+                val token = value.removePrefix("\"").removeSuffix("\"").trim()
+                if (token.isNotEmpty() && token != "not found" && token != "null") {
+                    Logger.d(TAG, "Auth token found")
+                    callbacks.onLoad(Resource.success(token))
+                } else {
+                    Logger.e(TAG, "Auth token not found or invalid: $token")
+                    callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                        actualResponse = "Could not retrieve authentication token. Please ensure you're logged in."
+                    }))
+                }
             }
+        } catch (e: Exception) {
+            Logger.e(TAG, "Exception while extracting token: ${e.message}")
+            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                actualResponse = "Failed to extract token: ${e.message}"
+            }))
         }
     }
 
@@ -201,6 +239,16 @@ class ListenBrainzWebClient(
         if (username.isEmpty() || password.isEmpty()) {
             callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
                 actualResponse = "Username and password cannot be empty"
+            }))
+            return
+        }
+
+        // Check if webView is available
+        val currentWebView = webView
+        if (currentWebView == null) {
+            Logger.e(TAG, "WebView is null, cannot submit login form")
+            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                actualResponse = "Login form is not ready. Please try again."
             }))
             return
         }
@@ -232,20 +280,35 @@ class ListenBrainzWebClient(
             })();
         """.trimIndent()
 
-        webView?.postDelayed({
-            webView?.evaluateJavascript(loginScript) { result ->
-                hasTriedFormSubmission = true
-                if (result != "\"Login submitted\"") {
-                    Logger.e(TAG, "Error submitting login form: $result")
-                    callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
-                        actualResponse = result
-                    }))
+        currentWebView.postDelayed(2000) {
+            try {
+                currentWebView.evaluateJavascript(loginScript) { result ->
+                    hasTriedFormSubmission = true
+                    if (result != "\"Login submitted\"") {
+                        val errorMsg = result?.replace("\"", "")?.trim() ?: "Unknown error during form submission"
+                        Logger.e(TAG, "Error submitting login form: $errorMsg")
+                        callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                            actualResponse = errorMsg
+                        }))
+                    } else {
+                        Logger.d(TAG, "Login form submitted successfully")
+                    }
                 }
+            } catch (e: Exception) {
+                Logger.e(TAG, "Exception while submitting login form: ${e.message}")
+                callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                    actualResponse = "Failed to submit login form: ${e.message}"
+                }))
             }
-        }, 2000)
+        }
     }
 
     private fun showOAuthPrompt(view: WebView?) {
+        if (view == null) {
+            Logger.e(TAG, "WebView is null, cannot show OAuth prompt")
+            return
+        }
+
         val allowAccessScript = """
 (function () {
   const wait = setInterval(() => {
@@ -289,106 +352,130 @@ class ListenBrainzWebClient(
 
     """.trimIndent()
 
-        view?.evaluateJavascript(allowAccessScript) {
-            Logger.d(TAG, "Formatted OAuth prompt")
-            callbacks.showOAuthAuthorizationPrompt()
-            //Changing variable as this redirects to login page again
-            hasTriedRedirectToLoginEndpoint = false
+        try {
+            view.evaluateJavascript(allowAccessScript) {
+                Logger.d(TAG, "Formatted OAuth prompt")
+                callbacks.showOAuthAuthorizationPrompt()
+                //Changing variable as this redirects to login page again
+                hasTriedRedirectToLoginEndpoint = false
+                hasTriedSettingsNavigation = false
+            }
+        } catch (e: Exception) {
+            Logger.e(TAG, "Exception while showing OAuth prompt: ${e.message}")
         }
+
+        setupOAuthListener(view)
     }
 
     private fun showGDPRPrompt(view: WebView?) {
+        if (view == null) {
+            Logger.e(TAG, "WebView is null, cannot show GDPR prompt")
+            return
+        }
+
         val allowAccessScript = """
-(function () {
-  const PERMA_HIDE = [
-    // Navigation + Sidebars
-    'nav',
-    '#side-nav',
-    '#side-nav-overlay',
-    '.sidebar-nav',
-
-    // Footer
-    '.footer',
-
-    // Toasts
-    '.Toastify',
-
-    // Music Player + Queue + Actions
-    '[data-testid="brainzplayer"]',
-    '[data-testid="brainzplayer-ui"]',
-    '.music-player',
-    '.player-buttons',
-    '.player-buttons.secondary',
-    '.queue',
-    '#brainz-player',
-    '.controls',
-    '.actions',
-    '.content',
-    '.volume',
-    '.progress-bar-wrapper',
-    '.progress',
-    '.progress-numbers',
-    '.cover-art-scroll-wrapper'
-  ];
-
-  function hideEverything() {
-    PERMA_HIDE.forEach(sel => {
-      document.querySelectorAll(sel).forEach(e => {
-        e.style.display = 'none';
-        e.style.visibility = 'hidden';
-        e.style.opacity = '0';
+                (function () {
+      const PERMA_HIDE = [
+        // Navigation + Sidebars
+        'nav',
+        '#side-nav',
+        '#side-nav-overlay',
+        '.sidebar-nav',
+    
+        // Footer
+        '.footer',
+    
+        // Toasts
+        '.Toastify',
+    
+        // Music Player + Queue + Actions
+        '[data-testid="brainzplayer"]',
+        '[data-testid="brainzplayer-ui"]',
+        '.music-player',
+        '.player-buttons',
+        '.player-buttons.secondary',
+        '.queue',
+        '#brainz-player',
+        '.controls',
+        '.actions',
+        '.content',
+        '.volume',
+        '.progress-bar-wrapper',
+        '.progress',
+        '.progress-numbers',
+        '.cover-art-scroll-wrapper'
+      ];
+    
+      function hideEverything() {
+        PERMA_HIDE.forEach(sel => {
+          document.querySelectorAll(sel).forEach(e => {
+            e.style.display = 'none';
+            e.style.visibility = 'hidden';
+            e.style.opacity = '0';
+          });
+        });
+      }
+    
+      /* Initial cleanup */
+      hideEverything();
+    
+      /* MutationObserver to block any new elements React inserts */
+      const observer = new MutationObserver(() => hideEverything());
+      observer.observe(document.body, { childList: true, subtree: true });
+    
+      const CLEAN_SELECTORS = [
+        'html',
+        'body',
+        '#react-container',
+        '.container-react',
+        '.container-react-main',
+        '[role="main"]'
+      ];
+    
+      CLEAN_SELECTORS.forEach(sel => {
+        document.querySelectorAll(sel).forEach(e => {
+          e.style.margin = '0';
+          e.style.padding = '0';
+        });
       });
-    });
-  }
-
-  /* Initial cleanup */
-  hideEverything();
-
-  /* MutationObserver to block any new elements React inserts */
-  const observer = new MutationObserver(() => hideEverything());
-  observer.observe(document.body, { childList: true, subtree: true });
-
-  const CLEAN_SELECTORS = [
-    'html',
-    'body',
-    '#react-container',
-    '.container-react',
-    '.container-react-main',
-    '[role="main"]'
-  ];
-
-  CLEAN_SELECTORS.forEach(sel => {
-    document.querySelectorAll(sel).forEach(e => {
-      e.style.margin = '0';
-      e.style.padding = '0';
-    });
-  });
-
-  document.body.style.padding = '16px';
-
-  document.querySelectorAll('.well').forEach(w => {
-    w.style.margin = '0';
-    w.style.marginBottom = '12px';
-    w.style.maxWidth = '600px';
-  });
-
-  /* Spacing above the submit button */
-  const submitButton = document.querySelector('button[type="submit"]');
-  if (submitButton) submitButton.style.marginTop = '4px';
-
-  console.log("Clean GDPR-only mode + Player permanently blocked.");
-
-})();
+    
+      document.body.style.padding = '16px';
+    
+      document.querySelectorAll('.well').forEach(w => {
+        w.style.margin = '0';
+        w.style.marginBottom = '12px';
+        w.style.maxWidth = '600px';
+      });
+    
+      /* Spacing above the submit button */
+      const submitButton = document.querySelector('button[type="submit"]');
+      if (submitButton) submitButton.style.marginTop = '4px';
+    
+    })();
     """.trimIndent()
 
-        view?.evaluateJavascript(allowAccessScript) {
-            Logger.d(TAG, "Formatted GDPR prompt")
-            callbacks.showGDPRConsentPrompt()
+        try {
+            view.evaluateJavascript(allowAccessScript) {
+                setupGDPRListener(view)
+                Logger.d(TAG, "Formatted GDPR prompt")
+                callbacks.showGDPRConsentPrompt()
+                //Setting up listener
+            }
+        } catch (e: Exception) {
+            Logger.e(TAG, "Exception while showing GDPR prompt: ${e.message}")
         }
     }
 
 
     private fun checkForEmailVerificationError(view: WebView?, noErrorLambda: () -> Unit) {
+        if (view == null) {
+            Logger.e(TAG, "WebView is null, cannot check for email verification error")
+            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                actualResponse = "WebView is not available"
+            }))
+            return
+        }
+
         val errorScript = """
         (function () {
           try {
@@ -400,18 +487,110 @@ class ListenBrainzWebClient(
         })();
     """.trimIndent()
 
-        view?.evaluateJavascript(errorScript) { result ->
-            if (result != "null" && result != null) {
-                var errorMsg = result.removePrefix("\"").removeSuffix("\"")
-                if (errorMsg.contains("verify the email before proceeding"))
-                    errorMsg = "Email is not verified or already in use. Please check your inbox."
-                Logger.e(TAG, "Error in logging in $errorMsg")
-                callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
-                    actualResponse = errorMsg
-                }))
-            } else {
-                noErrorLambda()
+        try {
+            view.evaluateJavascript(errorScript) { result ->
+                if (result != null && result != "null" && result.isNotEmpty()) {
+                    var errorMsg = result.removePrefix("\"").removeSuffix("\"").trim()
+                    if (errorMsg.isNotEmpty()) {
+                        if (errorMsg.contains("verify the email before proceeding"))
+                            errorMsg = "Email is not verified or already in use. Please check your inbox."
+                        Logger.e(TAG, "Error in logging in: $errorMsg")
+                        callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                            actualResponse = errorMsg
+                        }))
+                    } else {
+                        noErrorLambda()
+                    }
+                } else {
+                    noErrorLambda()
+                }
             }
+        } catch (e: Exception) {
+            Logger.e(TAG, "Exception while checking email verification error: ${e.message}")
+            noErrorLambda()
         }
     }
+
+    fun setupOAuthListener(view: WebView){
+        val script = """
+            (function () {
+
+              function setupOAuthListeners() {
+                const allowBtn = document.querySelector('button[type="submit"]');
+                const cancelBtn = document.querySelector('a.btn.btn-default');
+
+                if (!allowBtn && !cancelBtn) return;
+
+                if (allowBtn) {
+                  allowBtn.addEventListener('click', function () {
+                    if (window.AndroidInterface) {
+                      window.AndroidInterface.onAllowClicked();
+                    }
+                  });
+                }
+
+                if (cancelBtn) {
+                  cancelBtn.addEventListener('click', function () {
+                    if (window.AndroidInterface) {
+                      window.AndroidInterface.onCancelClicked();
+                    }
+                  });
+                }
+              }
+
+              // Initial setup
+              setupOAuthListeners();
+
+              // In case React re-renders anything
+              const observer = new MutationObserver(setupOAuthListeners);
+              observer.observe(document.body, { childList: true, subtree: true });
+
+            })();
+
+        """.trimIndent()
+
+        view.postDelayed({
+            view.evaluateJavascript(script, null)
+        }, 2000)
+    }
+
+    fun setupGDPRListener(view: WebView){
+        val script = """
+            (function () {
+
+              document.addEventListener("click", function (e) {
+                const t = e.target;
+
+                // Agree radio
+                if (t.matches('#gdpr-agree')) {
+                  window.AndroidInterface?.onGDPRSuccess();
+                }
+
+                // Disagree radio
+                if (t.matches('#gdpr-disagree')) {
+                  window.AndroidInterface?.onGDPRDelete();
+                }
+
+                // Submit
+                if (t.matches('button[type="submit"]')) {
+                  const agree = document.querySelector('#gdpr-agree')?.checked;
+                  const disagree = document.querySelector('#gdpr-disagree')?.checked;
+
+                  if (agree) {
+                    window.AndroidInterface?.onGDPRSubmitSuccess();
+                  } else if (disagree) {
+                    window.AndroidInterface?.onGDPRSubmitDelete();
+                  }
+                }
+              });
+
+            })();
+
+        """.trimIndent()
+
+        view.postDelayed({
+            view.evaluateJavascript(script, null)
+        }, 2000)
+    }
+
 }
