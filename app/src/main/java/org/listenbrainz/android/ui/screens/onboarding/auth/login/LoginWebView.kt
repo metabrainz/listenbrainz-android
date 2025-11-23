@@ -104,10 +104,8 @@ fun ListenBrainzLogin(
                     loginState is LoginState.Error ||
                     loginState is LoginState.Success ||
                     loginState is LoginState.SubmittingCredentials
-//
             if (showDialog) {
                 AlertDialog(
-                    modifier = Modifier.alpha(0.5f),
                     containerColor = ListenBrainzTheme.colorScheme.background,
                     onDismissRequest = vm::onDismissDialogInErrorState,
                     title = {
@@ -135,7 +133,7 @@ fun ListenBrainzLogin(
                                     Spacer(modifier = Modifier.height(16.dp))
                                     Text(
                                         text = when (loginState) {
-                                            is LoginState.SubmittingCredentials -> "Submitting credentials..."
+                                            is LoginState.SubmittingCredentials -> "Logging in..."
                                             is LoginState.VerifyingToken -> "Verifying token..."
                                             else -> "Loading..."
                                         },

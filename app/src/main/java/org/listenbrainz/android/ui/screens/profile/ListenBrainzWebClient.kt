@@ -326,9 +326,6 @@ class ListenBrainzWebClient(
     private fun checkForLoginErrors(view: WebView?) {
         if (view == null) {
             Logger.e(TAG, "WebView is null, cannot check for login errors")
-            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
-                actualResponse = "WebView is not available"
-            }))
             return
         }
 
@@ -387,9 +384,6 @@ class ListenBrainzWebClient(
         val view = view?: webView
         if (view == null) {
             Logger.e(TAG, "WebView is null, cannot navigate to settings")
-            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
-                actualResponse = "WebView is not available"
-            }))
             return
         }
 

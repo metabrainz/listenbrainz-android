@@ -230,10 +230,6 @@ class LoginViewModel() : BaseViewModel<LoginUIState>() {
                 loginInState = LoginState.Loading
             )
         }
-        viewModelScope.launch {
-            delay(1000)
-            navigateToSettingsTrigger()
-        }
     }
 
     fun onOAuthDeclineClicked(){

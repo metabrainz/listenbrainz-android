@@ -81,7 +81,7 @@ fun LoginScreenLayout(
                 .alpha(
                     if (uiState.loginInState == LoginState.ShowingGDPRConsentPrompt ||
                         uiState.loginInState == LoginState.ShowingOAuthAuthorizationPrompt
-                    ) 1f else 0.5f
+                    ) 1f else 0f
                 ),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
