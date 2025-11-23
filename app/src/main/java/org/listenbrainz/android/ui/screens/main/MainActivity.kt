@@ -318,6 +318,15 @@ class MainActivity : ComponentActivity() {
     fun onboardingBackHandler(key: NavKey) {
         if (!dashBoardViewModel.appPreferences.onboardingCompleted && key is NavigationItem.OnboardingScreens) {
             onboardingScreensQueue.add(0, key)
+        } else {
+            runBlocking {
+                val isUserLoggedIn = dashBoardViewModel.appPreferences.isUserLoggedIn()
+                if (!isUserLoggedIn && (key == NavigationItem.OnboardingScreens.LoginConsentScreen ||
+                            key == NavigationItem.OnboardingScreens.LoginScreen)
+                ) {
+                    onboardingScreensQueue.add(0, key)
+                }
+            }
         }
     }
 

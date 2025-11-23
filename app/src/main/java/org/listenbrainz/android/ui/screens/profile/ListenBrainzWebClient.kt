@@ -3,7 +3,6 @@ package org.listenbrainz.android.ui.screens.profile
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -20,6 +19,227 @@ private const val TAG = "ListenBrainzWebClient"
 class ListenBrainzWebClient(
     private val callbacks: LoginCallbacks
 ) : WebViewClient() {
+
+    companion object {
+        private const val SCRIPT_CHECK_LOGIN_ERROR = """
+            (function() { 
+                return document.querySelector('.error') ? document.querySelector('.error').textContent : null; 
+            })()
+        """
+
+        private const val SCRIPT_EXTRACT_TOKEN = """
+            (function() { 
+                return document.getElementById('auth-token') ? document.getElementById('auth-token').value : 'not found'; 
+            })();
+        """
+
+        private const val SCRIPT_CHECK_EMAIL_VERIFICATION_ERROR = """
+            (function () {
+              try {
+                var errorElement = document.querySelector('.alert.alert-danger');
+                return errorElement ? errorElement.textContent.trim() : null;
+              } catch (e) {
+                return "Error: " + e.message;
+              }
+            })();
+        """
+
+        private const val SCRIPT_OAUTH_PROMPT_FORMATTING = """
+            (function () {
+              const wait = setInterval(() => {
+                const main = document.querySelector("#oauth-prompt");
+                if (main) {
+                  clearInterval(wait);
+
+                  const toHide = [
+                    "nav.navbar",                 
+                    ".container > :not(#react-container)",
+                  ];
+                  toHide.forEach(sel => {
+                    document.querySelectorAll(sel).forEach(e => e.style.display = "none");
+                  });
+
+                  const containers = [
+                    "html", "body",
+                    ".container",
+                    "#react-container",
+                    "#oauth-prompt",
+                  ];
+
+                  containers.forEach(sel => {
+                    document.querySelectorAll(sel).forEach(e => {
+                      e.style.margin = "0";
+                      e.style.padding = "0";
+                    });
+                  });
+
+                  document.body.style.overflow = "hidden";
+                  document.body.style.margin = "0";
+                  document.body.style.padding = "16px";  
+                  const btn = document.querySelector(".btn-primary");
+                  if (btn) btn.style.marginLeft = "12px";
+
+                  console.log("Cleaned and aligned to top-left!");
+                }
+              }, 300);
+            })();
+        """
+
+        private const val SCRIPT_GDPR_PROMPT_FORMATTING = """
+            (function () {
+              const PERMA_HIDE = [
+                'nav',
+                '#side-nav',
+                '#side-nav-overlay',
+                '.sidebar-nav',
+                '.footer',
+                '.Toastify',
+                '[data-testid="brainzplayer"]',
+                '[data-testid="brainzplayer-ui"]',
+                '.music-player',
+                '.player-buttons',
+                '.player-buttons.secondary',
+                '.queue',
+                '#brainz-player',
+                '.controls',
+                '.actions',
+                '.content',
+                '.volume',
+                '.progress-bar-wrapper',
+                '.progress',
+                '.progress-numbers',
+                '.cover-art-scroll-wrapper'
+              ];
+            
+              function hideEverything() {
+                PERMA_HIDE.forEach(sel => {
+                  document.querySelectorAll(sel).forEach(e => {
+                    e.style.display = 'none';
+                    e.style.visibility = 'hidden';
+                    e.style.opacity = '0';
+                  });
+                });
+              }
+            
+              hideEverything();
+            
+              const observer = new MutationObserver(() => hideEverything());
+              observer.observe(document.body, { childList: true, subtree: true });
+            
+              const CLEAN_SELECTORS = [
+                'html',
+                'body',
+                '#react-container',
+                '.container-react',
+                '.container-react-main',
+                '[role="main"]'
+              ];
+            
+              CLEAN_SELECTORS.forEach(sel => {
+                document.querySelectorAll(sel).forEach(e => {
+                  e.style.margin = '0';
+                  e.style.padding = '0';
+                });
+              });
+            
+              document.body.style.padding = '16px';
+            
+              document.querySelectorAll('.well').forEach(w => {
+                w.style.margin = '0';
+                w.style.marginBottom = '12px';
+                w.style.maxWidth = '600px';
+              });
+            
+              const submitButton = document.querySelector('button[type="submit"]');
+              if (submitButton) submitButton.style.marginTop = '4px';
+            })();
+        """
+
+        private const val SCRIPT_OAUTH_LISTENER = """
+            (function () {
+              function setupOAuthListeners() {
+                const allowBtn = document.querySelector('button[type="submit"]');
+                const cancelBtn = document.querySelector('a.btn.btn-default');
+
+                if (!allowBtn && !cancelBtn) return;
+
+                if (allowBtn) {
+                  allowBtn.addEventListener('click', function () {
+                    if (window.AndroidInterface) {
+                      window.AndroidInterface.onAllowClicked();
+                    }
+                  });
+                }
+
+                if (cancelBtn) {
+                  cancelBtn.addEventListener('click', function () {
+                    if (window.AndroidInterface) {
+                      window.AndroidInterface.onCancelClicked();
+                    }
+                  });
+                }
+              }
+
+              setupOAuthListeners();
+
+              const observer = new MutationObserver(setupOAuthListeners);
+              observer.observe(document.body, { childList: true, subtree: true });
+            })();
+        """
+
+        private const val SCRIPT_GDPR_LISTENER = """
+            (function () {
+              document.addEventListener("click", function (e) {
+                const t = e.target;
+
+                if (t.matches('#gdpr-agree')) {
+                  window.AndroidInterface?.onGDPRSuccess();
+                }
+
+                if (t.matches('#gdpr-disagree')) {
+                  window.AndroidInterface?.onGDPRDelete();
+                }
+
+                if (t.matches('button[type="submit"]')) {
+                  const agree = document.querySelector('#gdpr-agree')?.checked;
+                  const disagree = document.querySelector('#gdpr-disagree')?.checked;
+
+                  if (agree) {
+                    window.AndroidInterface?.onGDPRSubmitSuccess();
+                  } else if (disagree) {
+                    window.AndroidInterface?.onGDPRSubmitDelete();
+                  }
+                }
+              });
+            })();
+        """
+
+        fun getLoginFormSubmissionScript(username: String, password: String): String = """
+            (function(){
+            try {
+                var formContainer = document.getElementById('page');
+                if(!formContainer) return "Error: Form container not found";
+
+                var usernameField = document.getElementById('id-username');
+                var passwordField = document.getElementById('id-password');
+
+                if (!usernameField) return "Error: Username field not found";
+                if (!passwordField) return "Error: Password field not found";
+
+                usernameField.value = '$username';
+                passwordField.value = '$password';
+
+                var form = formContainer.querySelector('form');
+                if (!form) return "Error: Form not found";
+
+                form.submit();
+                return "Login submitted";
+            } catch (e) {
+                return "Error: " + e.message;
+            }
+            })();
+        """.trimIndent()
+    }
 
     // Track auth flow state
     private var hasLoginFormReadyCallbackBeenMade = false
@@ -71,7 +291,7 @@ class ListenBrainzWebClient(
         }
 
         val uri = url.toUri()
-        Log.d(TAG, "Page loaded: ${uri.host}${uri.path}")
+        Logger.d(TAG, "Page loaded: ${uri.host}${uri.path}")
 
         when {
             // Check for login errors on MusicBrainz login page
@@ -112,9 +332,7 @@ class ListenBrainzWebClient(
             return
         }
 
-        view.evaluateJavascript(
-            "(function() { return document.querySelector('.error') ? document.querySelector('.error').textContent : null; })()"
-        ) { result ->
+        view.evaluateJavascript(SCRIPT_CHECK_LOGIN_ERROR) { result ->
             if (result != null && result != "null" && result.isNotEmpty()) {
                 val errorMsg = result.replace("\"", "").trim()
                 if (errorMsg.isNotEmpty()) {
@@ -132,12 +350,6 @@ class ListenBrainzWebClient(
     private fun handleListenBrainzNavigation(view: WebView?, uri: Uri) {
          when {
             // Step 1: Redirect to login endpoint
-//            !hasTriedRedirectToLoginEndpoint -> {
-//                Logger.d(TAG, "Redirecting to login endpoint $uri")
-//                hasTriedRedirectToLoginEndpoint = true
-//                view?.loadUrl("https://listenbrainz.org/login/musicbrainz")
-//            }
-//
             uri.path?.endsWith("login/") == true && !hasTriedRedirectToLoginEndpoint-> {
                 Logger.d(TAG, "Redirecting to login endpoint from $uri")
                 hasTriedRedirectToLoginEndpoint = true
@@ -151,11 +363,6 @@ class ListenBrainzWebClient(
             // can skip this step.
             uri.path?.contains("agree-to-terms") == true -> {
                 showGDPRPrompt(view)
-//                view?.postDelayed(2000) {
-//                    checkForEmailVerificationError(view) {
-//                        view.loadUrl("https://listenbrainz.org/settings")
-//                    }
-//                }
             }
 
             // Step 2: Navigate to settings to get token with edge case 2
@@ -188,7 +395,7 @@ class ListenBrainzWebClient(
 
 
         hasTriedSettingsNavigation = true
-        view?.postDelayed(1000) {
+        view.postDelayed(1000) {
             checkForEmailVerificationError(view){}
             view.loadUrl("https://listenbrainz.org/settings")
         }
@@ -204,9 +411,7 @@ class ListenBrainzWebClient(
         }
 
         try {
-            view.evaluateJavascript(
-                "(function() { return document.getElementById('auth-token') ? document.getElementById('auth-token').value : 'not found'; })();"
-            ) { value ->
+            view.evaluateJavascript(SCRIPT_EXTRACT_TOKEN) { value ->
                 if (value == null) {
                     Logger.e(TAG, "Auth token extraction returned null")
                     callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
@@ -254,35 +459,9 @@ class ListenBrainzWebClient(
         }
 
         // Submit login form
-        val loginScript = """
-            (function(){
-            try {
-                var formContainer = document.getElementById('page');
-                if(!formContainer) return "Error: Form container not found";
-
-                var usernameField = document.getElementById('id-username');
-                var passwordField = document.getElementById('id-password');
-
-                if (!usernameField) return "Error: Username field not found";
-                if (!passwordField) return "Error: Password field not found";
-
-                usernameField.value = '$username';
-                passwordField.value = '$password';
-
-                var form = formContainer.querySelector('form');
-                if (!form) return "Error: Form not found";
-
-                form.submit();
-                return "Login submitted";
-            } catch (e) {
-                return "Error: " + e.message;
-            }
-            })();
-        """.trimIndent()
-
         currentWebView.postDelayed(2000) {
             try {
-                currentWebView.evaluateJavascript(loginScript) { result ->
+                currentWebView.evaluateJavascript(getLoginFormSubmissionScript(username, password)) { result ->
                     hasTriedFormSubmission = true
                     if (result != "\"Login submitted\"") {
                         val errorMsg = result?.replace("\"", "")?.trim() ?: "Unknown error during form submission"
@@ -309,51 +488,8 @@ class ListenBrainzWebClient(
             return
         }
 
-        val allowAccessScript = """
-(function () {
-  const wait = setInterval(() => {
-    const main = document.querySelector("#oauth-prompt");
-    if (main) {
-      clearInterval(wait);
-
-      const toHide = [
-        "nav.navbar",                 
-        ".container > :not(#react-container)",
-      ];
-      toHide.forEach(sel => {
-        document.querySelectorAll(sel).forEach(e => e.style.display = "none");
-      });
-
-      const containers = [
-        "html", "body",
-        ".container",
-        "#react-container",
-        "#oauth-prompt",
-      ];
-
-      containers.forEach(sel => {
-        document.querySelectorAll(sel).forEach(e => {
-          e.style.margin = "0";
-          e.style.padding = "0";
-        });
-      });
-
-      /* Keep everything at top-left */
-      document.body.style.overflow = "hidden";
-      document.body.style.margin = "0";
-      document.body.style.padding = "16px";  
-      const btn = document.querySelector(".btn-primary");
-      if (btn) btn.style.marginLeft = "12px";
-
-      console.log("Cleaned and aligned to top-left!");
-    }
-  }, 300);
-})();
-
-    """.trimIndent()
-
         try {
-            view.evaluateJavascript(allowAccessScript) {
+            view.evaluateJavascript(SCRIPT_OAUTH_PROMPT_FORMATTING) {
                 Logger.d(TAG, "Formatted OAuth prompt")
                 callbacks.showOAuthAuthorizationPrompt()
                 //Changing variable as this redirects to login page again
@@ -373,89 +509,8 @@ class ListenBrainzWebClient(
             return
         }
 
-        val allowAccessScript = """
-                (function () {
-      const PERMA_HIDE = [
-        // Navigation + Sidebars
-        'nav',
-        '#side-nav',
-        '#side-nav-overlay',
-        '.sidebar-nav',
-    
-        // Footer
-        '.footer',
-    
-        // Toasts
-        '.Toastify',
-    
-        // Music Player + Queue + Actions
-        '[data-testid="brainzplayer"]',
-        '[data-testid="brainzplayer-ui"]',
-        '.music-player',
-        '.player-buttons',
-        '.player-buttons.secondary',
-        '.queue',
-        '#brainz-player',
-        '.controls',
-        '.actions',
-        '.content',
-        '.volume',
-        '.progress-bar-wrapper',
-        '.progress',
-        '.progress-numbers',
-        '.cover-art-scroll-wrapper'
-      ];
-    
-      function hideEverything() {
-        PERMA_HIDE.forEach(sel => {
-          document.querySelectorAll(sel).forEach(e => {
-            e.style.display = 'none';
-            e.style.visibility = 'hidden';
-            e.style.opacity = '0';
-          });
-        });
-      }
-    
-      /* Initial cleanup */
-      hideEverything();
-    
-      /* MutationObserver to block any new elements React inserts */
-      const observer = new MutationObserver(() => hideEverything());
-      observer.observe(document.body, { childList: true, subtree: true });
-    
-      const CLEAN_SELECTORS = [
-        'html',
-        'body',
-        '#react-container',
-        '.container-react',
-        '.container-react-main',
-        '[role="main"]'
-      ];
-    
-      CLEAN_SELECTORS.forEach(sel => {
-        document.querySelectorAll(sel).forEach(e => {
-          e.style.margin = '0';
-          e.style.padding = '0';
-        });
-      });
-    
-      document.body.style.padding = '16px';
-    
-      document.querySelectorAll('.well').forEach(w => {
-        w.style.margin = '0';
-        w.style.marginBottom = '12px';
-        w.style.maxWidth = '600px';
-      });
-    
-      /* Spacing above the submit button */
-      const submitButton = document.querySelector('button[type="submit"]');
-      if (submitButton) submitButton.style.marginTop = '4px';
-    
-    })();
-    """.trimIndent()
-
         try {
-            view.evaluateJavascript(allowAccessScript) {
+            view.evaluateJavascript(SCRIPT_GDPR_PROMPT_FORMATTING) {
                 setupGDPRListener(view)
                 Logger.d(TAG, "Formatted GDPR prompt")
                 callbacks.showGDPRConsentPrompt()
@@ -476,19 +531,8 @@ class ListenBrainzWebClient(
             return
         }
 
-        val errorScript = """
-        (function () {
-          try {
-            var errorElement = document.querySelector('.alert.alert-danger');
-            return errorElement ? errorElement.textContent.trim() : null;
-          } catch (e) {
-            return "Error: " + e.message;
-          }
-        })();
-    """.trimIndent()
-
         try {
-            view.evaluateJavascript(errorScript) { result ->
+            view.evaluateJavascript(SCRIPT_CHECK_EMAIL_VERIFICATION_ERROR) { result ->
                 if (result != null && result != "null" && result.isNotEmpty()) {
                     var errorMsg = result.removePrefix("\"").removeSuffix("\"").trim()
                     if (errorMsg.isNotEmpty()) {
@@ -512,84 +556,14 @@ class ListenBrainzWebClient(
     }
 
     fun setupOAuthListener(view: WebView){
-        val script = """
-            (function () {
-
-              function setupOAuthListeners() {
-                const allowBtn = document.querySelector('button[type="submit"]');
-                const cancelBtn = document.querySelector('a.btn.btn-default');
-
-                if (!allowBtn && !cancelBtn) return;
-
-                if (allowBtn) {
-                  allowBtn.addEventListener('click', function () {
-                    if (window.AndroidInterface) {
-                      window.AndroidInterface.onAllowClicked();
-                    }
-                  });
-                }
-
-                if (cancelBtn) {
-                  cancelBtn.addEventListener('click', function () {
-                    if (window.AndroidInterface) {
-                      window.AndroidInterface.onCancelClicked();
-                    }
-                  });
-                }
-              }
-
-              // Initial setup
-              setupOAuthListeners();
-
-              // In case React re-renders anything
-              const observer = new MutationObserver(setupOAuthListeners);
-              observer.observe(document.body, { childList: true, subtree: true });
-
-            })();
-
-        """.trimIndent()
-
         view.postDelayed({
-            view.evaluateJavascript(script, null)
+            view.evaluateJavascript(SCRIPT_OAUTH_LISTENER, null)
         }, 2000)
     }
 
     fun setupGDPRListener(view: WebView){
-        val script = """
-            (function () {
-
-              document.addEventListener("click", function (e) {
-                const t = e.target;
-
-                // Agree radio
-                if (t.matches('#gdpr-agree')) {
-                  window.AndroidInterface?.onGDPRSuccess();
-                }
-
-                // Disagree radio
-                if (t.matches('#gdpr-disagree')) {
-                  window.AndroidInterface?.onGDPRDelete();
-                }
-
-                // Submit
-                if (t.matches('button[type="submit"]')) {
-                  const agree = document.querySelector('#gdpr-agree')?.checked;
-                  const disagree = document.querySelector('#gdpr-disagree')?.checked;
-
-                  if (agree) {
-                    window.AndroidInterface?.onGDPRSubmitSuccess();
-                  } else if (disagree) {
-                    window.AndroidInterface?.onGDPRSubmitDelete();
-                  }
-                }
-              });
-
-            })();
-
-        """.trimIndent()
-
         view.postDelayed({
-            view.evaluateJavascript(script, null)
+            view.evaluateJavascript(SCRIPT_GDPR_LISTENER, null)
         }, 2000)
     }
 
