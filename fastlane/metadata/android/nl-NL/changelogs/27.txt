@@ -1,0 +1,1 @@
+Ook het nummer waarnaar je luistert wordt nu naar de server verzonden. De UI is opgefrist.

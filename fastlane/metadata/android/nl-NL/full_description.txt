@@ -1,0 +1,3 @@
+ListenBrainz houdt bij naar welke muziek je luistert en biedt inzicht in je luistergewoonten.
+Maak visualisaties over de muziek die je hebt geluisterd en deel je smaak met anderen.
+We gebruiken je luistergeschiedenis om muziek aan te raden, je te vertellen over nieuwe muziek van je favoriete artiesten en te laten zien waar gebruikers met een soortgelijke smaak als jij naar luisteren.
