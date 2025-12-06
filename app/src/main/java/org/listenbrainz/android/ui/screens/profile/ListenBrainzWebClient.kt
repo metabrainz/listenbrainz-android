@@ -7,6 +7,7 @@ import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import org.json.JSONObject
 import com.limurse.logger.Logger
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.util.Resource
@@ -441,6 +442,9 @@ class ListenBrainzWebClient(
             }))
             return
         }
+
+        val usernameEscaped = JSONObject.quote(username);
+        val passwordEscaped = JSONObject.quote(password);
 
         // Check if webView is available
         val currentWebView = webView
