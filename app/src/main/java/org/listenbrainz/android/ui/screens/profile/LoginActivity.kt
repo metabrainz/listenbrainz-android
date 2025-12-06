@@ -46,7 +46,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.ui.components.LoadingAnimation
-import org.listenbrainz.android.ui.screens.onboarding.auth.ListenBrainzLogin
+import org.listenbrainz.android.ui.screens.onboarding.auth.login.ListenBrainzLogin
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource

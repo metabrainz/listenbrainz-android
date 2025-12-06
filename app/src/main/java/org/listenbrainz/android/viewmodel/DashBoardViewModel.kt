@@ -27,7 +27,7 @@ import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
-import org.listenbrainz.android.ui.screens.onboarding.auth.LoginConsentScreenUIState
+import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginConsentScreenUIState
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.AppInfo
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
 import org.listenbrainz.android.util.Log
