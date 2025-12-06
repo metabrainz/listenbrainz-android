@@ -38,7 +38,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
-import org.listenbrainz.android.ui.screens.onboarding.auth.ListenBrainzLogin
+import org.listenbrainz.android.ui.screens.onboarding.auth.login.ListenBrainzLogin
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.ListensViewModel
 

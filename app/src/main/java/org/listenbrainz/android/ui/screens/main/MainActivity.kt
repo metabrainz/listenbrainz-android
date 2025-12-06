@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.screens.main
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -12,7 +11,6 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -41,9 +39,9 @@ import org.listenbrainz.android.ui.screens.appupdates.InstallAppDialog
 import org.listenbrainz.android.ui.screens.appupdates.InstallPermissionRationaleDialog
 import org.listenbrainz.android.ui.screens.appupdates.PlayStoreUpdateAvailableDialog
 import org.listenbrainz.android.ui.screens.appupdates.PlayStoreUpdateReadyDialog
-import org.listenbrainz.android.ui.screens.onboarding.auth.ConsentScreenDataInitializer
-import org.listenbrainz.android.ui.screens.onboarding.auth.ListenBrainzLogin
-import org.listenbrainz.android.ui.screens.onboarding.auth.LoginConsentScreen
+import org.listenbrainz.android.ui.screens.onboarding.auth.login.ConsentScreenDataInitializer
+import org.listenbrainz.android.ui.screens.onboarding.auth.login.ListenBrainzLogin
+import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginConsentScreen
 import org.listenbrainz.android.ui.screens.onboarding.auth.createaccount.ListenBrainzCreateAccountScreen
 import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.ListeningAppSelectionScreen
@@ -320,6 +318,15 @@ class MainActivity : ComponentActivity() {
     fun onboardingBackHandler(key: NavKey) {
         if (!dashBoardViewModel.appPreferences.onboardingCompleted && key is NavigationItem.OnboardingScreens) {
             onboardingScreensQueue.add(0, key)
+        } else {
+            runBlocking {
+                val isUserLoggedIn = dashBoardViewModel.appPreferences.isUserLoggedIn()
+                if (!isUserLoggedIn && (key == NavigationItem.OnboardingScreens.LoginConsentScreen ||
+                            key == NavigationItem.OnboardingScreens.LoginScreen)
+                ) {
+                    onboardingScreensQueue.add(0, key)
+                }
+            }
         }
     }
 

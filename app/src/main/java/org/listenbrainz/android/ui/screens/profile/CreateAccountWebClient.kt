@@ -8,6 +8,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.net.toUri
 import com.limurse.logger.Logger
+import org.json.JSONObject
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.ui.screens.onboarding.auth.createaccount.CreateAccountClientCallbacks
 import org.listenbrainz.android.util.Resource
@@ -113,10 +114,10 @@ class CreateAccountWebClient(
             }))
             return
         }
-        val username = credentials.username
-        val email = credentials.email
-        val password = credentials.password
-        val confirmPassword = credentials.confirmPassword
+        val username = JSONObject.quote(credentials.username)
+        val email = JSONObject.quote(credentials.email)
+        val password = JSONObject.quote(credentials.password)
+        val confirmPassword = JSONObject.quote(credentials.confirmPassword)
         if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
                 actualResponse = "All fields are required"
@@ -141,10 +142,10 @@ class CreateAccountWebClient(
                     if (!passwordField) return "Error: Password field not found";
                     if (!confirmPasswordField) return "Error: Confirm Password field not found";
 
-                    usernameField.value = '$username';
-                    emailField.value = '$email';
-                    passwordField.value = '$password';
-                    confirmPasswordField.value = '$confirmPassword';
+                    usernameField.value = $username;
+                    emailField.value = $email;
+                    passwordField.value = $password;
+                    confirmPasswordField.value = $confirmPassword;
 
                     var form = formContainer.querySelector('form');
                     if (!form) return "Error: Form not found";

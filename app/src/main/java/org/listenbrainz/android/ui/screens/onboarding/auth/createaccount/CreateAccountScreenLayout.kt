@@ -411,7 +411,7 @@ private fun CodeOfConductSection() {
 }
 
 @Composable
-private fun RefreshSection(
+fun RefreshSection(
     textColor: Color = Color.White.copy(0.9f),
     onRefreshClick: () -> Unit
 ) {
