@@ -215,7 +215,11 @@ class ListenBrainzWebClient(
             })();
         """
 
-        fun getLoginFormSubmissionScript(username: String, password: String): String = """
+        fun getLoginFormSubmissionScript(username: String, password: String): String {
+            val usernameEscaped = JSONObject.quote(username)
+            val passwordEscaped = JSONObject.quote(password)
+
+            return """
             (function(){
             try {
                 var formContainer = document.getElementById('page');
@@ -227,8 +231,8 @@ class ListenBrainzWebClient(
                 if (!usernameField) return "Error: Username field not found";
                 if (!passwordField) return "Error: Password field not found";
 
-                usernameField.value = '$username';
-                passwordField.value = '$password';
+                usernameField.value = $usernameEscaped;
+                passwordField.value = $passwordEscaped;
 
                 var form = formContainer.querySelector('form');
                 if (!form) return "Error: Form not found";
@@ -240,6 +244,7 @@ class ListenBrainzWebClient(
             }
             })();
         """.trimIndent()
+        }
     }
 
     // Track auth flow state
@@ -442,9 +447,6 @@ class ListenBrainzWebClient(
             }))
             return
         }
-
-        val usernameEscaped = JSONObject.quote(username);
-        val passwordEscaped = JSONObject.quote(password);
 
         // Check if webView is available
         val currentWebView = webView
