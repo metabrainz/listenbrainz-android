@@ -21,7 +21,7 @@ android {
 
     val versionMap = mapOf(
         major to 2,
-        minor to 11,
+        minor to 12,
         patch to 0,
         build to 0
     )
