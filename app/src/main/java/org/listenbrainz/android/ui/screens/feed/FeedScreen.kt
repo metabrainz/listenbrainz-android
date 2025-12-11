@@ -11,6 +11,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -50,12 +51,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.font.FontWeight
@@ -486,77 +490,100 @@ private fun MyFeed(
 
     val inRefreshingState = pagingData.loadState.refresh is LoadState.Loading
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .widthIn(max = LocalConfiguration.current.screenWidthDp.dp),
-        state = listState
+    val count = remember { mutableStateOf(0) }
+
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxSize()
     ) {
+        val maxHeight = with(LocalDensity.current) { maxHeight.toPx() }
 
-        item { StartingSpacer() }
-
-        if (inRefreshingState) {
-            items(4) {
+        SubcomposeLayout { it->
+            val item = subcompose("item") {
                 ShimmerMyFeedItem(shimmerInstance)
+            }.first().measure(it)
+            val itemHeight = item.height
+
+            count.value = if (itemHeight > 0) {
+                (maxHeight / itemHeight).toInt()
+            } else {
+                4
             }
-        } else {
-            items(pagingData.itemCount) { index ->
-                pagingData[index]?.apply {
-                    AnimatedVisibility(
-                        visible = uiState.isDeletedMap[event.id] != true,
-                        enter = expandVertically(),
-                        exit = shrinkVertically()
-                    ) {
-                        eventType.Content(
-                            event = event,
-                            parentUser = parentUser,
-                            isHidden = uiState.isHiddenMap[event.id] == true,
-                            onDeleteOrHide = {
-                                onDeleteOrHide(event, eventType, parentUser)
-                            },
-                            dropDownState = dropdownItemIndex.value,
-                            index = index,
-                            onDropdownClick = {
-                                dropdownItemIndex.value =
-                                    if (dropdownItemIndex.value == null) index else null
-                            },
-                            onRecommend = {
-                                recommendTrack(event)
-                                dropdownItemIndex.value = null
-                            },
-                            onPersonallyRecommend = {
-                                personallyRecommendTrack(index)
-                                dropdownItemIndex.value = null
-                            },
-                            onReview = {
-                                review(index)
-                                dropdownItemIndex.value = null
-                            },
-                            onPin = {
-                                pin(index)
-                                dropdownItemIndex.value = null
-                            },
-                            onOpenInMusicBrainz = {
-                                uriHandler.openUri(
-                                    "https://musicbrainz.org/recording/${
-                                        event.metadata.trackMetadata?.mbidMapping?.recordingMbid
-                                            ?: return@Content
-                                    }"
-                                )
-                                dropdownItemIndex.value = null
-                            },
-                            onClick = {
-                                onPlay(event)
-                                dropdownItemIndex.value = null
-                            },
-                            goToUserPage = goToUserPage,
-                            goToArtistPage = goToArtistPage
-                        )
+
+            layout(it.maxWidth, it.maxHeight) {}
+        }
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .widthIn(max = LocalConfiguration.current.screenWidthDp.dp),
+            state = listState
+        ) {
+
+            item { StartingSpacer() }
+
+            if (inRefreshingState) {
+                items(count.value) {
+                    ShimmerMyFeedItem(shimmerInstance)
+                }
+            } else {
+                items(pagingData.itemCount) { index ->
+                    pagingData[index]?.apply {
+                        AnimatedVisibility(
+                            visible = uiState.isDeletedMap[event.id] != true,
+                            enter = expandVertically(),
+                            exit = shrinkVertically()
+                        ) {
+                            eventType.Content(
+                                event = event,
+                                parentUser = parentUser,
+                                isHidden = uiState.isHiddenMap[event.id] == true,
+                                onDeleteOrHide = {
+                                    onDeleteOrHide(event, eventType, parentUser)
+                                },
+                                dropDownState = dropdownItemIndex.value,
+                                index = index,
+                                onDropdownClick = {
+                                    dropdownItemIndex.value =
+                                        if (dropdownItemIndex.value == null) index else null
+                                },
+                                onRecommend = {
+                                    recommendTrack(event)
+                                    dropdownItemIndex.value = null
+                                },
+                                onPersonallyRecommend = {
+                                    personallyRecommendTrack(index)
+                                    dropdownItemIndex.value = null
+                                },
+                                onReview = {
+                                    review(index)
+                                    dropdownItemIndex.value = null
+                                },
+                                onPin = {
+                                    pin(index)
+                                    dropdownItemIndex.value = null
+                                },
+                                onOpenInMusicBrainz = {
+                                    uriHandler.openUri(
+                                        "https://musicbrainz.org/recording/${
+                                            event.metadata.trackMetadata?.mbidMapping?.recordingMbid
+                                                ?: return@Content
+                                        }"
+                                    )
+                                    dropdownItemIndex.value = null
+                                },
+                                onClick = {
+                                    onPlay(event)
+                                    dropdownItemIndex.value = null
+                                },
+                                goToUserPage = goToUserPage,
+                                goToArtistPage = goToArtistPage
+                            )
+                        }
                     }
                 }
-            }
 
-            item { PagerRearLoadingIndicator(pagingData) }
+                item { PagerRearLoadingIndicator(pagingData) }
+            }
         }
     }
 }
@@ -582,98 +609,122 @@ fun FollowListens(
 
     val inRefreshingState = pagingData.loadState.refresh is LoadState.Loading
 
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
-        state = listState,
+    var count = remember { mutableStateOf(0) }
+
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxSize()
     ) {
+        val maxHeight = with(LocalDensity.current) { maxHeight.toPx() }
 
-        item { StartingSpacer() }
-
-        if (inRefreshingState) {
-            items(10) {
+        SubcomposeLayout {
+            val item = subcompose("item") {
                 ShimmerListensItem(shimmerInstance)
+            }.first().measure(it)
+            val itemHeight = item.height
+
+            count.value = if (itemHeight > 0) {
+                (maxHeight / itemHeight).toInt()
+            } else {
+                4
             }
-        } else {
 
-            items(count = pagingData.itemCount) { index: Int ->
+            layout(it.maxWidth, it.maxHeight) {}
+        }
 
-                pagingData[index]?.apply {
 
-                    ListenCardSmall(
-                        modifier = Modifier.padding(
-                            horizontal = ListenBrainzTheme.paddings.horizontal,
-                            vertical = ListenBrainzTheme.paddings.lazyListAdjacent
-                        ),
-                        trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
-                        artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(
-                            FeedListenArtist(
-                                event.metadata.trackMetadata?.artistName ?: "",
-                                null,
-                                ""
-                            )
-                        ),
-                        coverArtUrl =
-                            Utils.getCoverArtUrl(
-                                caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
-                                caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
-                            ),
-                        onDropdownIconClick = {
-                            dropdownItemIndex.value =
-                                if (dropdownItemIndex.value == null) index else null
-                        },
-                        dropDown = {
-                            SocialDropdown(
-                                isExpanded = dropdownItemIndex.value == index,
-                                metadata = event.metadata,
-                                onDismiss = {
-                                    dropdownItemIndex.value = null
-                                },
-                                onRecommend = {
-                                    recommendTrack(event)
-                                    dropdownItemIndex.value = null
-                                },
-                                onPersonallyRecommend = {
-                                    personallyRecommendTrack(index)
-                                    dropdownItemIndex.value = null
-                                },
-                                onReview = {
-                                    review(index)
-                                    dropdownItemIndex.value = null
-                                },
-                                onPin = {
-                                    pin(index)
-                                    dropdownItemIndex.value = null
-                                },
-                                onOpenInMusicBrainz = {
-                                    uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@SocialDropdown}")
-                                }
-                            )
-                        },
-                        trailingContent = { modifier ->
-                            Column(modifier, horizontalAlignment = Alignment.End) {
-                                TitleAndSubtitle(
-                                    title = event.username ?: "Unknown",
-                                    artists = listOf(),
-                                    titleColor = ListenBrainzTheme.colorScheme.lbSignature,
-                                    goToArtistPage = goToArtistPage
-                                )
-                                Date(
-                                    event = event,
-                                    parentUser = parentUser,
-                                    eventType = eventType
-                                )
-                            }
-                        },
-                        goToArtistPage = goToArtistPage
-                    ) {
-                        onPlay(event)
-                    }
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            state = listState,
+        ) {
 
+            item { StartingSpacer() }
+
+            if (inRefreshingState) {
+                items(count.value) {
+                    ShimmerListensItem(shimmerInstance)
                 }
-            }
+            } else {
 
-            item {
-                PagerRearLoadingIndicator(pagingData)
+                items(count = pagingData.itemCount) { index: Int ->
+
+                    pagingData[index]?.apply {
+
+                        ListenCardSmall(
+                            modifier = Modifier.padding(
+                                horizontal = ListenBrainzTheme.paddings.horizontal,
+                                vertical = ListenBrainzTheme.paddings.lazyListAdjacent
+                            ),
+                            trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
+                            artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(
+                                FeedListenArtist(
+                                    event.metadata.trackMetadata?.artistName ?: "",
+                                    null,
+                                    ""
+                                )
+                            ),
+                            coverArtUrl =
+                                Utils.getCoverArtUrl(
+                                    caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
+                                    caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
+                                ),
+                            onDropdownIconClick = {
+                                dropdownItemIndex.value =
+                                    if (dropdownItemIndex.value == null) index else null
+                            },
+                            dropDown = {
+                                SocialDropdown(
+                                    isExpanded = dropdownItemIndex.value == index,
+                                    metadata = event.metadata,
+                                    onDismiss = {
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onRecommend = {
+                                        recommendTrack(event)
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onPersonallyRecommend = {
+                                        personallyRecommendTrack(index)
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onReview = {
+                                        review(index)
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onPin = {
+                                        pin(index)
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onOpenInMusicBrainz = {
+                                        uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@SocialDropdown}")
+                                    }
+                                )
+                            },
+                            trailingContent = { modifier ->
+                                Column(modifier, horizontalAlignment = Alignment.End) {
+                                    TitleAndSubtitle(
+                                        title = event.username ?: "Unknown",
+                                        artists = listOf(),
+                                        titleColor = ListenBrainzTheme.colorScheme.lbSignature,
+                                        goToArtistPage = goToArtistPage
+                                    )
+                                    Date(
+                                        event = event,
+                                        parentUser = parentUser,
+                                        eventType = eventType
+                                    )
+                                }
+                            },
+                            goToArtistPage = goToArtistPage
+                        ) {
+                            onPlay(event)
+                        }
+
+                    }
+                }
+
+                item {
+                    PagerRearLoadingIndicator(pagingData)
+                }
             }
         }
     }
@@ -700,77 +751,99 @@ fun SimilarListens(
 
     val inRefreshingState = pagingData.loadState.refresh is LoadState.Loading
 
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
-        state = listState
+    var count = remember { mutableStateOf(0) }
+
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxSize()
     ) {
+        val maxHeight = with(LocalDensity.current) { maxHeight.toPx() }
 
-        item { StartingSpacer() }
-
-        if (inRefreshingState) {
-            items(10) {
+        SubcomposeLayout {
+            val item = subcompose("item") {
                 ShimmerListensItem(shimmerInstance)
+            }.first().measure(it)
+            val itemHeight = item.height
+
+            count.value = if (itemHeight > 0) {
+                (maxHeight / itemHeight).toInt()
+            } else {
+                4
             }
-        } else {
+
+            layout(it.maxWidth, it.maxHeight) {}
+        }
+
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            state = listState
+        ) {
+
+            item { StartingSpacer() }
+
+            if (inRefreshingState) {
+                items(count.value) {
+                    ShimmerListensItem(shimmerInstance)
+                }
+            } else {
 
 
-            items(count = pagingData.itemCount) { index: Int ->
+                items(count = pagingData.itemCount) { index: Int ->
 
-                pagingData[index]?.run {
+                    pagingData[index]?.run {
 
-                    ListenCardSmall(
-                        modifier = Modifier.padding(
-                            horizontal = ListenBrainzTheme.paddings.horizontal,
-                            vertical = ListenBrainzTheme.paddings.lazyListAdjacent
-                        ),
-                        trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
-                        artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(
-                            FeedListenArtist(
-                                event.metadata.trackMetadata?.artistName ?: "",
-                                null,
-                                ""
-                            )
-                        ),
-                        coverArtUrl =
-                            Utils.getCoverArtUrl(
-                                caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
-                                caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
+                        ListenCardSmall(
+                            modifier = Modifier.padding(
+                                horizontal = ListenBrainzTheme.paddings.horizontal,
+                                vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                             ),
-                        onDropdownIconClick = {
-                            dropdownItemIndex.value = if (dropdownItemIndex.value == null) {
-                                index
-                            } else {
-                                null
-                            }
-                        },
-                        dropDown = {
-                            SocialDropdown(
-                                isExpanded = dropdownItemIndex.value == index,
-                                metadata = event.metadata,
-                                onDismiss = { dropdownItemIndex.value = null },
-                                onRecommend = {
-                                    recommendTrack(event)
-                                    dropdownItemIndex.value = null
-                                },
-                                onPersonallyRecommend = {
-                                    personallyRecommendTrack(index)
-                                    dropdownItemIndex.value = null
-                                },
-                                onReview = {
-                                    review(index)
-                                    dropdownItemIndex.value = null
-                                },
-                                onPin = {
-                                    pin(index)
-                                    dropdownItemIndex.value = null
-                                },
-                                onOpenInMusicBrainz = {
-                                    uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@SocialDropdown}")
+                            trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
+                            artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(
+                                FeedListenArtist(
+                                    event.metadata.trackMetadata?.artistName ?: "",
+                                    null,
+                                    ""
+                                )
+                            ),
+                            coverArtUrl =
+                                Utils.getCoverArtUrl(
+                                    caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
+                                    caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
+                                ),
+                            onDropdownIconClick = {
+                                dropdownItemIndex.value = if (dropdownItemIndex.value == null) {
+                                    index
+                                } else {
+                                    null
                                 }
-                            )
-                        },
-                        trailingContent = { modifier ->
-                            /*TitleAndSubtitle(
+                            },
+                            dropDown = {
+                                SocialDropdown(
+                                    isExpanded = dropdownItemIndex.value == index,
+                                    metadata = event.metadata,
+                                    onDismiss = { dropdownItemIndex.value = null },
+                                    onRecommend = {
+                                        recommendTrack(event)
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onPersonallyRecommend = {
+                                        personallyRecommendTrack(index)
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onReview = {
+                                        review(index)
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onPin = {
+                                        pin(index)
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onOpenInMusicBrainz = {
+                                        uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@SocialDropdown}")
+                                    }
+                                )
+                            },
+                            trailingContent = { modifier ->
+                                /*TitleAndSubtitle(
                                 modifier = modifier,
                                 title = event.username ?: "Unknown",
                                 subtitle = similarityToPercent(event.similarity),
@@ -778,31 +851,32 @@ fun SimilarListens(
                                 titleColor = ListenBrainzTheme.colorScheme.lbSignature,
                                 subtitleColor = ListenBrainzTheme.colorScheme.lbSignatureInverse
                             )*/
-                            Column(modifier, horizontalAlignment = Alignment.End) {
-                                TitleAndSubtitle(
-                                    title = event.username ?: "Unknown",
-                                    artists = listOf(),
-                                    titleColor = ListenBrainzTheme.colorScheme.lbSignature,
-                                    goToArtistPage = goToArtistPage
-                                )
-                                Date(
-                                    event = event,
-                                    parentUser = parentUser,
-                                    eventType = eventType
-                                )
-                            }
-                        },
-                        goToArtistPage = goToArtistPage
-                    ) {
-                        onPlay(event)
+                                Column(modifier, horizontalAlignment = Alignment.End) {
+                                    TitleAndSubtitle(
+                                        title = event.username ?: "Unknown",
+                                        artists = listOf(),
+                                        titleColor = ListenBrainzTheme.colorScheme.lbSignature,
+                                        goToArtistPage = goToArtistPage
+                                    )
+                                    Date(
+                                        event = event,
+                                        parentUser = parentUser,
+                                        eventType = eventType
+                                    )
+                                }
+                            },
+                            goToArtistPage = goToArtistPage
+                        ) {
+                            onPlay(event)
+                        }
+
                     }
-
                 }
-            }
 
 
-            item {
-                PagerRearLoadingIndicator(pagingData)
+                item {
+                    PagerRearLoadingIndicator(pagingData)
+                }
             }
         }
     }
