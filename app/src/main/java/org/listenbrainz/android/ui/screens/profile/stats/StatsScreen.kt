@@ -1,20 +1,29 @@
 package org.listenbrainz.android.ui.screens.profile.stats
 
 import android.text.TextUtils
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -25,11 +34,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -51,9 +62,16 @@ import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.cartesian.data.columnSeries
 import com.patrykandpatrick.vico.core.cartesian.layer.ColumnCartesianLayer
 import com.patrykandpatrick.vico.core.common.Dimensions
+import com.valentinilk.shimmer.Shimmer
+import com.valentinilk.shimmer.ShimmerBounds
+import com.valentinilk.shimmer.ShimmerTheme
+import com.valentinilk.shimmer.rememberShimmer
+import com.valentinilk.shimmer.shimmer
+import com.valentinilk.shimmer.shimmerSpec
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Metadata
@@ -73,7 +91,6 @@ import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.screens.profile.StatsTabUIState
 import org.listenbrainz.android.ui.screens.profile.listens.LoadMoreButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils.LaunchedEffectUnit
 import org.listenbrainz.android.util.Utils.Spacer
@@ -96,17 +113,17 @@ fun StatsScreen(
     StatsScreen(
         username = username,
         uiState = uiState,
-        fetchListeningActivity = { range, scope ->
-            viewModel.getListeningActivity(username, range, scope)
+        fetchListeningActivity = { range, scope , refresh->
+            viewModel.getListeningActivity(username, range, scope,refresh)
         },
-        fetchTopArtists = {
-            viewModel.getUserTopArtists(it)
+        fetchTopArtists = { user, refresh ->
+            viewModel.getUserTopArtists(user, refresh)
         },
-        fetchTopAlbums = {
-            viewModel.getUserTopAlbums(it)
+        fetchTopAlbums = { user, refresh ->
+            viewModel.getUserTopAlbums(user, refresh)
         },
-        fetchTopSongs = {
-            viewModel.getUserTopSongs(it)
+        fetchTopSongs = { user, refresh ->
+            viewModel.getUserTopSongs(user, refresh)
         },
         playListen = {
             socialViewModel.playListen(it)
@@ -123,14 +140,15 @@ fun StatsScreen(
     )
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun StatsScreen(
     username: String?,
     uiState: ProfileUiState,
-    fetchListeningActivity: suspend (StatsRange, DataScope) -> Unit,
-    fetchTopArtists: suspend (String?) -> Unit,
-    fetchTopAlbums: suspend (String?) -> Unit,
-    fetchTopSongs: suspend (String?) -> Unit,
+    fetchListeningActivity: suspend (StatsRange, DataScope,Boolean) -> Unit,
+    fetchTopArtists: suspend (String?, Boolean) -> Unit,
+    fetchTopAlbums: suspend (String?, Boolean) -> Unit,
+    fetchTopSongs: suspend (String?, Boolean) -> Unit,
     playListen: (TrackMetadata) -> Unit,
     snackbarState: SnackbarHostState,
     socialUiState: SocialUiState,
@@ -157,34 +175,89 @@ fun StatsScreen(
         mutableStateOf(true)
     }
 
-    // Fetch listening activity when range or scope changes
+    val scope = rememberCoroutineScope()
+
+    val isLoading = uiState.statsTabUIState.isLoading
+
+    val isRefreshing = remember(
+        currentTabSelection,
+        isLoading
+    ) {
+        isLoading
+    }
+
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isRefreshing,
+        onRefresh = {
+            scope.launch {
+                snapshotFlow {
+                    statsRangeState to dataScopeState
+                }.collectLatest { (range, scope) ->
+                    fetchListeningActivity(range, scope,true)
+                }
+                when (currentTabSelection) {
+                    CategoryState.ARTISTS -> fetchTopArtists(username, true)
+                    CategoryState.ALBUMS -> fetchTopAlbums(username, true)
+                    CategoryState.SONGS -> fetchTopSongs(username, true)
+                }
+            }
+        }
+    )
+
+// Fetch listening activity when range or scope changes
     LaunchedEffectUnit {
         snapshotFlow {
             statsRangeState to dataScopeState
         }.collectLatest { (range, scope) ->
-            fetchListeningActivity(range, scope)
+            fetchListeningActivity(range, scope,false)
         }
     }
 
-    // Fetch category data (artists/albums/songs) when tab selection changes
+    val shimmerInstance = rememberShimmer(
+        shimmerBounds = ShimmerBounds.View,
+        theme = ShimmerTheme(
+            animationSpec = infiniteRepeatable(
+                animation = shimmerSpec(
+                    durationMillis = 300,
+                    delayMillis = 800,
+                ),
+                repeatMode = RepeatMode.Restart,
+            ),
+            blendMode = BlendMode.DstIn,
+            rotation = 10.0f,
+            shaderColors = listOf(
+                Color.White.copy(alpha = 0.25f),
+                Color.White.copy(alpha = 1.00f),
+                Color.White.copy(alpha = 0.25f),
+            ),
+            shaderColorStops = listOf(
+                0.0f,
+                0.5f,
+                1.0f,
+            ),
+            shimmerWidth = 500.dp,
+        )
+    )
+
+// Fetch category data (artists/albums/songs) when tab selection changes
     LaunchedEffectUnit {
         snapshotFlow { currentTabSelection }.collectLatest {
             when (it) {
                 CategoryState.ARTISTS -> {
                     if (uiState.statsTabUIState.topArtists == null) {
-                        fetchTopArtists(username)
+                        fetchTopArtists(username, false)
                     }
                 }
 
                 CategoryState.ALBUMS -> {
                     if (uiState.statsTabUIState.topAlbums == null) {
-                        fetchTopAlbums(username)
+                        fetchTopAlbums(username, false)
                     }
                 }
 
                 CategoryState.SONGS -> {
                     if (uiState.statsTabUIState.topSongs == null) {
-                        fetchTopSongs(username)
+                        fetchTopSongs(username, false)
                     }
                 }
             }
@@ -215,327 +288,373 @@ fun StatsScreen(
             ?: listOf()
     }
 
-    LazyColumn(modifier = Modifier.testTag("statsScreenScrollableContainer")) {
-        item {
-            val chipItems = listOf(
-                ChipItem(id = "THIS_WEEK", label = StatsRange.THIS_WEEK.rangeString),
-                ChipItem(id = "THIS_MONTH", label = StatsRange.THIS_MONTH.rangeString),
-                ChipItem(id = "THIS_YEAR", label = StatsRange.THIS_YEAR.rangeString),
-                ChipItem(id = "LAST_WEEK", label = StatsRange.LAST_WEEK.rangeString),
-                ChipItem(id = "LAST_MONTH", label = StatsRange.LAST_MONTH.rangeString),
-                ChipItem(id = "LAST_YEAR", label = StatsRange.LAST_YEAR.rangeString),
-                ChipItem(id = "ALL_TIME", label = StatsRange.ALL_TIME.rangeString)
-            )
-            SelectionChipBar(
-                items = chipItems,
-                selectedItemId = statsRangeState.name,
-                onItemSelected = { data ->
-                    statsRangeState = StatsRange.valueOf(data.id)
-                }
-            )
-        }
-        item {
-            val userGlobalChips = listOf(
-                ChipItem(id = "USER", label = username.orEmpty()),
-                ChipItem(
-                    id = "GLOBAL",
-                    label = "Global",
-                    icon = painterResource(id = R.drawable.globe)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pullRefresh(state = pullRefreshState)
+    ) {
+        LazyColumn(modifier = Modifier.testTag("statsScreenScrollableContainer")) {
+            item {
+                val chipItems = listOf(
+                    ChipItem(id = "THIS_WEEK", label = StatsRange.THIS_WEEK.rangeString),
+                    ChipItem(id = "THIS_MONTH", label = StatsRange.THIS_MONTH.rangeString),
+                    ChipItem(id = "THIS_YEAR", label = StatsRange.THIS_YEAR.rangeString),
+                    ChipItem(id = "LAST_WEEK", label = StatsRange.LAST_WEEK.rangeString),
+                    ChipItem(id = "LAST_MONTH", label = StatsRange.LAST_MONTH.rangeString),
+                    ChipItem(id = "LAST_YEAR", label = StatsRange.LAST_YEAR.rangeString),
+                    ChipItem(id = "ALL_TIME", label = StatsRange.ALL_TIME.rangeString)
                 )
-            )
-            SelectionChipBar(
-                items = userGlobalChips,
-                selectedItemId = dataScopeState.name,
-                onItemSelected = { data ->
-                    dataScopeState = DataScope.valueOf(data.id)
-                }
-            )
-        }
-        item {
-            Spacer(modifier = Modifier.height(10.dp))
-            Box {
-                Column {
-                    Text(
-                        text = "Listening activity",
-                        color = ListenBrainzTheme.colorScheme.text,
-                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),
-                        modifier = Modifier.padding(start = 10.dp)
+                SelectionChipBar(
+                    items = chipItems,
+                    selectedItemId = statsRangeState.name,
+                    onItemSelected = { data ->
+                        statsRangeState = StatsRange.valueOf(data.id)
+                    }
+                )
+            }
+            item {
+                val userGlobalChips = listOf(
+                    ChipItem(id = "USER", label = username.orEmpty()),
+                    ChipItem(
+                        id = "GLOBAL",
+                        label = "Global",
+                        icon = painterResource(id = R.drawable.globe)
                     )
-
-                    Spacer(modifier = Modifier.height(15.dp))
-
-                    val data = uiState.statsTabUIState.userListeningActivity[Pair(
-                        dataScopeState,
-                        statsRangeState
-                    )] ?: listOf()
-                    if (data.isNotEmpty()) {
-                        val modelProducer = remember {
-                            CartesianChartModelProducer()
-                        }
-
-                        val splitIndex = when (statsRangeState) {
-                            StatsRange.THIS_WEEK -> 7
-                            StatsRange.LAST_WEEK -> 7
-                            StatsRange.THIS_MONTH -> 30
-                            StatsRange.LAST_MONTH -> 30
-                            StatsRange.LAST_YEAR -> 12
-                            StatsRange.THIS_YEAR -> 12
-                            StatsRange.ALL_TIME -> 0
-                        }
-                        val listenCountsFirstPart = data.subList(0, minOf(splitIndex, data.size))
-                            .mapNotNull { it?.listenCount }
-                        val listenCountsSecondPart = if (data.size > splitIndex) {
-                            data.subList(splitIndex, data.size).mapNotNull { it?.listenCount }
-                        } else {
-                            emptyList()
-                        }
-
-                        LaunchedEffect(data) {
-                            withContext(Dispatchers.Default) {
-                                while (isActive) {
-                                    modelProducer.runTransaction {
-                                        columnSeries {
-                                            if (listenCountsFirstPart.isNotEmpty()) {
-                                                series(y = listenCountsFirstPart)
-                                            }
-                                            if (listenCountsSecondPart.isNotEmpty()) {
-                                                series(y = listenCountsSecondPart)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        val columnProvider =
-                            ColumnCartesianLayer.ColumnProvider.series(
-                                listOf(
-                                    rememberLineComponent(
-                                        color = ListenBrainzTheme.colorScheme.lbSignature,
-                                        thickness = 25.dp,
-                                    ),
-                                    rememberLineComponent(
-                                        color = ListenBrainzTheme.colorScheme.lbSignatureInverse,
-                                        thickness = 25.dp,
-                                    )
-                                )
-                            )
-
-                        CartesianChartHost(
-                            modifier = Modifier
-                                .padding(start = 11.dp, end = 11.dp)
-                                .height(250.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .testTag("listeningActivityChart"),
-                            chart = rememberCartesianChart(
-                                rememberColumnCartesianLayer(
-                                    columnProvider = columnProvider,
-                                    spacing = 25.dp,
-                                    mergeMode = { ColumnCartesianLayer.MergeMode.Grouped },
-                                ),
-                                startAxis = rememberStartAxis(
-                                    label = rememberTextComponent(
-                                        color = ListenBrainzTheme.colorScheme.text,
-                                        textSize = 11.sp,
-                                        padding = Dimensions.of(ListenBrainzTheme.paddings.tinyPadding)
-                                    )
-                                ),
-                                bottomAxis = rememberBottomAxis(
-                                    label = rememberTextComponent(
-                                        ellipsize = TextUtils.TruncateAt.MARQUEE,
-                                        textSize = 11.sp,
-                                        color = ListenBrainzTheme.colorScheme.text,
-                                        padding = Dimensions.of(ListenBrainzTheme.paddings.tinyPadding)
-                                    ),
-                                    guideline = null,
-                                    valueFormatter = { value, chartValues, verticalAxisPosition ->
-                                        valueFormatter(value.toInt(), statsRangeState)
-                                    },
-                                ),
-                            ),
-                            modelProducer = modelProducer,
-                        )
-
-                    } else {
+                )
+                SelectionChipBar(
+                    items = userGlobalChips,
+                    selectedItemId = dataScopeState.name,
+                    onItemSelected = { data ->
+                        dataScopeState = DataScope.valueOf(data.id)
+                    }
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(10.dp))
+                Box {
+                    Column {
                         Text(
-                            "There are no statistics available for this user for this period",
+                            text = "Listening activity",
                             color = ListenBrainzTheme.colorScheme.text,
+                            style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),
                             modifier = Modifier.padding(start = 10.dp)
                         )
-                    }
 
-                }
-            }
-        }
+                        Spacer(modifier = Modifier.height(15.dp))
 
-        item {
-            Column(
-                modifier = Modifier.padding(top = 30.dp)
-            ) {
-                Text(
-                    modifier = Modifier.padding(horizontal = ListenBrainzTheme.paddings.horizontal),
-                    text = "Top ...",
-                    color = ListenBrainzTheme.colorScheme.text,
-                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp)
-                )
+                        val data = uiState.statsTabUIState.userListeningActivity[Pair(
+                            dataScopeState,
+                            statsRangeState
+                        )] ?: listOf()
 
-                Spacer(10.dp)
 
-                val context = LocalContext.current
-                SelectionChipBar(
-                    items = remember {
-                        CategoryState.entries.map {
-                            ChipItem(it.text.getStringResource(context), it.ordinal)
-                        }
-                    },
-                    selectedItemId = currentTabSelection.ordinal,
-                ) { chip ->
-                    currentTabSelection = CategoryState.entries[chip.id]
-                }
-
-                when (currentTabSelection) {
-                    CategoryState.ARTISTS ->
-                        if (uiState.statsTabUIState.isLoading) {
-                            CircularProgressIndicator()
-                        } else {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                topArtists.map { topArtist ->
-                                    ArtistCard(
-                                        modifier = Modifier.padding(
-                                            vertical = ListenBrainzTheme.paddings.lazyListAdjacent,
-                                            horizontal = ListenBrainzTheme.paddings.horizontal
-                                        ),
-                                        artistName = topArtist.artistName ?: "",
-                                        listenCountLabel = formatNumber(topArtist.listenCount ?: 0)
-                                    ) {
-                                        if (topArtist.artistMbid != null) {
-                                            goToArtistPage(topArtist.artistMbid)
-                                        }
-                                    }
-                                }
-
-                                if ((uiState.statsTabUIState.topArtists?.size ?: 0) > 5) {
-                                    LoadMoreButton(
-                                        modifier = Modifier.padding(
-                                            vertical = 16.dp,
-                                            horizontal = ListenBrainzTheme.paddings.horizontal
-                                        ),
-                                        state = artistsCollapseState
-                                    ) {
-                                        artistsCollapseState = !artistsCollapseState
-                                    }
-                                }
-                            }
-                        }
-
-                    CategoryState.ALBUMS ->
-                        if (uiState.statsTabUIState.isLoading) {
-                            CircularProgressIndicator(
-                                color = lb_purple_night
-                            )
-                        } else {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                topAlbums.mapIndexed { index, topAlbum ->
-                                    val metadata = topAlbum.toMetadata()
-                                    ListenCardSmallDefault(
-                                        metadata = metadata,
-                                        coverArtUrl = getCoverArtUrl(
-                                            topAlbum.caaReleaseMbid,
-                                            topAlbum.caaId
-                                        ),
-                                        modifier = Modifier
-                                            .padding(
-                                                vertical = ListenBrainzTheme.paddings.lazyListAdjacent,
-                                                horizontal = ListenBrainzTheme.paddings.horizontal
-                                            ),
-                                        titleColor = ListenBrainzTheme.colorScheme.followerChipSelected,
-                                        subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(
-                                            alpha = 0.7f
-                                        ),
-                                        trailingContent = {
-                                            if (topAlbum.listenCount != null) {
-                                                ListenCountChip(formatNumber(topAlbum.listenCount))
-                                            }
-                                        },
-                                        goToArtistPage = goToArtistPage,
-                                        onDropdownError = {
-                                            snackbarState.showSnackbar(it.toast)
-                                        },
-                                        onDropdownSuccess = {
-                                            snackbarState.showSnackbar(it)
-                                        },
-                                        onClick = {
-                                            metadata.trackMetadata?.let { playListen(it) }
-                                        }
+                        if (isRefreshing) {
+                            Box(
+                                modifier = Modifier
+                                    .padding(horizontal = 11.dp)
+                                    .fillMaxWidth()
+                                    .height(250.dp)
+                                    .shimmer(shimmerInstance)
+                                    .background(
+                                        Color.Gray.copy(alpha = 0.8f),
+                                        RoundedCornerShape(12.dp)
                                     )
+                            )
+
+                        } else {
+                            if (data.isNotEmpty()) {
+                                val modelProducer = remember {
+                                    CartesianChartModelProducer()
                                 }
 
-                                if ((uiState.statsTabUIState.topAlbums?.size ?: 0) > 5) {
-                                    LoadMoreButton(
-                                        modifier = Modifier.padding(
-                                            vertical = 16.dp,
-                                            horizontal = ListenBrainzTheme.paddings.horizontal
-                                        ),
-                                        state = albumsCollapseState
-                                    ) {
-                                        albumsCollapseState = !albumsCollapseState
+                                val splitIndex = when (statsRangeState) {
+                                    StatsRange.THIS_WEEK -> 7
+                                    StatsRange.LAST_WEEK -> 7
+                                    StatsRange.THIS_MONTH -> 30
+                                    StatsRange.LAST_MONTH -> 30
+                                    StatsRange.LAST_YEAR -> 12
+                                    StatsRange.THIS_YEAR -> 12
+                                    StatsRange.ALL_TIME -> 0
+                                }
+                                val listenCountsFirstPart =
+                                    data.subList(0, minOf(splitIndex, data.size))
+                                        .mapNotNull { it?.listenCount }
+                                val listenCountsSecondPart = if (data.size > splitIndex) {
+                                    data.subList(splitIndex, data.size)
+                                        .mapNotNull { it?.listenCount }
+                                } else {
+                                    emptyList()
+                                }
+
+                                LaunchedEffect(data) {
+                                    withContext(Dispatchers.Default) {
+                                        while (isActive) {
+                                            modelProducer.runTransaction {
+                                                columnSeries {
+                                                    if (listenCountsFirstPart.isNotEmpty()) {
+                                                        series(y = listenCountsFirstPart)
+                                                    }
+                                                    if (listenCountsSecondPart.isNotEmpty()) {
+                                                        series(y = listenCountsSecondPart)
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
-                            }
-                        }
 
-                    CategoryState.SONGS -> {
-                        if (uiState.statsTabUIState.isLoading) {
-                            CircularProgressIndicator()
-                        } else {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                topSongs.mapIndexed { index, topSong ->
-                                    val metadata =
-                                        Metadata(trackMetadata = topSong.toTrackMetadata())
-                                    ListenCardSmallDefault(
-                                        metadata = metadata,
-                                        coverArtUrl = getCoverArtUrl(
-                                            topSong.caaReleaseMbid,
-                                            topSong.caaId
+                                val columnProvider =
+                                    ColumnCartesianLayer.ColumnProvider.series(
+                                        listOf(
+                                            rememberLineComponent(
+                                                color = ListenBrainzTheme.colorScheme.lbSignature,
+                                                thickness = 25.dp,
+                                            ),
+                                            rememberLineComponent(
+                                                color = ListenBrainzTheme.colorScheme.lbSignatureInverse,
+                                                thickness = 25.dp,
+                                            )
+                                        )
+                                    )
+
+                                CartesianChartHost(
+                                    modifier = Modifier
+                                        .padding(start = 11.dp, end = 11.dp)
+                                        .height(250.dp)
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .testTag("listeningActivityChart"),
+                                    chart = rememberCartesianChart(
+                                        rememberColumnCartesianLayer(
+                                            columnProvider = columnProvider,
+                                            spacing = 25.dp,
+                                            mergeMode = { ColumnCartesianLayer.MergeMode.Grouped },
                                         ),
-                                        modifier = Modifier
-                                            .padding(
+                                        startAxis = rememberStartAxis(
+                                            label = rememberTextComponent(
+                                                color = ListenBrainzTheme.colorScheme.text,
+                                                textSize = 11.sp,
+                                                padding = Dimensions.of(ListenBrainzTheme.paddings.tinyPadding)
+                                            )
+                                        ),
+                                        bottomAxis = rememberBottomAxis(
+                                            label = rememberTextComponent(
+                                                ellipsize = TextUtils.TruncateAt.MARQUEE,
+                                                textSize = 11.sp,
+                                                color = ListenBrainzTheme.colorScheme.text,
+                                                padding = Dimensions.of(ListenBrainzTheme.paddings.tinyPadding)
+                                            ),
+                                            guideline = null,
+                                            valueFormatter = { value, chartValues, verticalAxisPosition ->
+                                                valueFormatter(value.toInt(), statsRangeState)
+                                            },
+                                        ),
+                                    ),
+                                    modelProducer = modelProducer,
+                                )
+
+                            } else {
+                                Text(
+                                    "There are no statistics available for this user for this period",
+                                    color = ListenBrainzTheme.colorScheme.text,
+                                    modifier = Modifier.padding(start = 10.dp)
+                                )
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            item {
+                Column(
+                    modifier = Modifier.padding(top = 30.dp)
+                ) {
+                    Text(
+                        modifier = Modifier.padding(horizontal = ListenBrainzTheme.paddings.horizontal),
+                        text = "Top ...",
+                        color = ListenBrainzTheme.colorScheme.text,
+                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp)
+                    )
+
+                    Spacer(10.dp)
+
+                    val context = LocalContext.current
+                    SelectionChipBar(
+                        items = remember {
+                            CategoryState.entries.map {
+                                ChipItem(it.text.getStringResource(context), it.ordinal)
+                            }
+                        },
+                        selectedItemId = currentTabSelection.ordinal,
+                    ) { chip ->
+                        currentTabSelection = CategoryState.entries[chip.id]
+                    }
+
+                    when (currentTabSelection) {
+                        CategoryState.ARTISTS ->
+                            if (isRefreshing) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Spacer(modifier = Modifier.height(5.dp))
+                                    repeat(3) {
+                                        ShimmerTopArtistItem(shimmerInstance)
+                                    }
+                                }
+                            } else {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    topArtists.map { topArtist ->
+                                        ArtistCard(
+                                            modifier = Modifier.padding(
                                                 vertical = ListenBrainzTheme.paddings.lazyListAdjacent,
                                                 horizontal = ListenBrainzTheme.paddings.horizontal
                                             ),
-                                        titleColor = ListenBrainzTheme.colorScheme.followerChipSelected,
-                                        subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(
-                                            alpha = 0.7f
-                                        ),
-                                        trailingContent = {
-                                            if (topSong.listenCount != null) {
-                                                ListenCountChip(formatNumber(topSong.listenCount))
+                                            artistName = topArtist.artistName ?: "",
+                                            listenCountLabel = formatNumber(
+                                                topArtist.listenCount ?: 0
+                                            )
+                                        ) {
+                                            if (topArtist.artistMbid != null) {
+                                                goToArtistPage(topArtist.artistMbid)
                                             }
-                                        },
-                                        goToArtistPage = goToArtistPage,
-                                        onDropdownError = {
-                                            snackbarState.showSnackbar(it.toast)
-                                        },
-                                        onDropdownSuccess = {
-                                            snackbarState.showSnackbar(it)
                                         }
-                                    ) {
-                                        val trackMetadata = metadata.trackMetadata
-                                        if (trackMetadata != null) {
-                                            playListen(trackMetadata)
+                                    }
+
+                                    if ((uiState.statsTabUIState.topArtists?.size ?: 0) > 5) {
+                                        LoadMoreButton(
+                                            modifier = Modifier.padding(
+                                                vertical = 16.dp,
+                                                horizontal = ListenBrainzTheme.paddings.horizontal
+                                            ),
+                                            state = artistsCollapseState
+                                        ) {
+                                            artistsCollapseState = !artistsCollapseState
                                         }
                                     }
                                 }
+                            }
 
-                                if ((uiState.statsTabUIState.topSongs?.size ?: 0) > 5) {
-                                    LoadMoreButton(
-                                        modifier = Modifier.padding(
-                                            vertical = 16.dp,
-                                            horizontal = ListenBrainzTheme.paddings.horizontal
-                                        ),
-                                        state = songsCollapseState
-                                    ) {
-                                        songsCollapseState = !songsCollapseState
+                        CategoryState.ALBUMS ->
+                            if (isRefreshing) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Spacer(modifier = Modifier.height(5.dp))
+                                    repeat(3) {
+                                        ShimmerTopAlbumsAndSongsItem(shimmerInstance)
+                                    }
+                                }
+                            } else {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    topAlbums.mapIndexed { index, topAlbum ->
+                                        val metadata = topAlbum.toMetadata()
+                                        ListenCardSmallDefault(
+                                            metadata = metadata,
+                                            coverArtUrl = getCoverArtUrl(
+                                                topAlbum.caaReleaseMbid,
+                                                topAlbum.caaId
+                                            ),
+                                            modifier = Modifier
+                                                .padding(
+                                                    vertical = ListenBrainzTheme.paddings.lazyListAdjacent,
+                                                    horizontal = ListenBrainzTheme.paddings.horizontal
+                                                ),
+                                            titleColor = ListenBrainzTheme.colorScheme.followerChipSelected,
+                                            subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(
+                                                alpha = 0.7f
+                                            ),
+                                            trailingContent = {
+                                                if (topAlbum.listenCount != null) {
+                                                    ListenCountChip(formatNumber(topAlbum.listenCount))
+                                                }
+                                            },
+                                            goToArtistPage = goToArtistPage,
+                                            onDropdownError = {
+                                                snackbarState.showSnackbar(it.toast)
+                                            },
+                                            onDropdownSuccess = {
+                                                snackbarState.showSnackbar(it)
+                                            },
+                                            onClick = {
+                                                metadata.trackMetadata?.let { playListen(it) }
+                                            }
+                                        )
+                                    }
+
+                                    if ((uiState.statsTabUIState.topAlbums?.size ?: 0) > 5) {
+                                        LoadMoreButton(
+                                            modifier = Modifier.padding(
+                                                vertical = 16.dp,
+                                                horizontal = ListenBrainzTheme.paddings.horizontal
+                                            ),
+                                            state = albumsCollapseState
+                                        ) {
+                                            albumsCollapseState = !albumsCollapseState
+                                        }
+                                    }
+                                }
+                            }
+
+                        CategoryState.SONGS -> {
+                            if (isRefreshing) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Spacer(modifier = Modifier.height(5.dp))
+                                    repeat(3) {
+                                        ShimmerTopAlbumsAndSongsItem(shimmerInstance)
+                                    }
+                                }
+                            } else {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    topSongs.mapIndexed { index, topSong ->
+                                        val metadata =
+                                            Metadata(trackMetadata = topSong.toTrackMetadata())
+                                        ListenCardSmallDefault(
+                                            metadata = metadata,
+                                            coverArtUrl = getCoverArtUrl(
+                                                topSong.caaReleaseMbid,
+                                                topSong.caaId
+                                            ),
+                                            modifier = Modifier
+                                                .padding(
+                                                    vertical = ListenBrainzTheme.paddings.lazyListAdjacent,
+                                                    horizontal = ListenBrainzTheme.paddings.horizontal
+                                                ),
+                                            titleColor = ListenBrainzTheme.colorScheme.followerChipSelected,
+                                            subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(
+                                                alpha = 0.7f
+                                            ),
+                                            trailingContent = {
+                                                if (topSong.listenCount != null) {
+                                                    ListenCountChip(formatNumber(topSong.listenCount))
+                                                }
+                                            },
+                                            goToArtistPage = goToArtistPage,
+                                            onDropdownError = {
+                                                snackbarState.showSnackbar(it.toast)
+                                            },
+                                            onDropdownSuccess = {
+                                                snackbarState.showSnackbar(it)
+                                            }
+                                        ) {
+                                            val trackMetadata = metadata.trackMetadata
+                                            if (trackMetadata != null) {
+                                                playListen(trackMetadata)
+                                            }
+                                        }
+                                    }
+
+                                    if ((uiState.statsTabUIState.topSongs?.size ?: 0) > 5) {
+                                        LoadMoreButton(
+                                            modifier = Modifier.padding(
+                                                vertical = 16.dp,
+                                                horizontal = ListenBrainzTheme.paddings.horizontal
+                                            ),
+                                            state = songsCollapseState
+                                        ) {
+                                            songsCollapseState = !songsCollapseState
+                                        }
                                     }
                                 }
                             }
@@ -544,6 +663,13 @@ fun StatsScreen(
                 }
             }
         }
+        PullRefreshIndicator(
+            modifier = Modifier.align(Alignment.TopCenter),
+            refreshing = isRefreshing,
+            contentColor = ListenBrainzTheme.colorScheme.lbSignatureInverse,
+            backgroundColor = ListenBrainzTheme.colorScheme.level1,
+            state = pullRefreshState
+        )
     }
 
     ErrorBar(error = socialUiState.error, onErrorShown = onErrorShown)
@@ -552,6 +678,113 @@ fun StatsScreen(
         onMessageShown = onMessageShown,
         snackbarState = snackbarState
     )
+}
+
+@Composable
+fun ShimmerTopArtistItem(shimmer: Shimmer) {
+    Row(
+        modifier = Modifier
+            .padding(horizontal = 11.dp)
+            .fillMaxWidth()
+            .height(ListenBrainzTheme.sizes.listenCardHeight)
+            .background(
+                Color.Gray.copy(alpha = 0.1f),
+                RoundedCornerShape(6.dp)
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(start = 13.dp)
+                .width(140.dp)
+                .height(18.dp)
+                .shimmer(shimmer)
+                .background(
+                    Color.Gray.copy(alpha = 0.8f),
+                    RoundedCornerShape(2.dp)
+                )
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Box(
+            modifier = Modifier
+                .padding(end = 18.dp)
+                .size(27.dp)
+                .shimmer(shimmer)
+                .background(
+                    Color.Gray.copy(alpha = 0.8f),
+                    CircleShape
+                )
+        )
+    }
+    Spacer(modifier = Modifier.height(12.dp))
+}
+
+@Composable
+fun ShimmerTopAlbumsAndSongsItem(shimmer: Shimmer) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp)
+            .height(ListenBrainzTheme.sizes.listenCardHeight)
+            .background(
+                Color.Gray.copy(alpha = 0.1f),
+                RoundedCornerShape(6.dp)
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .height(72.dp)
+                .width(60.dp)
+                .shimmer(shimmer)
+                .background(
+                    Color.Gray.copy(alpha = 0.8f),
+                    RoundedCornerShape(
+                        topStart = 6.dp,
+                        bottomStart = 6.dp
+                    )
+                )
+        )
+        Spacer(modifier = Modifier.padding(6.dp))
+        Column(
+            modifier = Modifier.fillMaxHeight(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(10.dp)
+                    .shimmer(shimmer)
+                    .background(
+                        Color.Gray.copy(alpha = 0.8f),
+                        RoundedCornerShape(2.dp)
+                    )
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Box(
+                modifier = Modifier
+                    .width(80.dp)
+                    .height(8.dp)
+                    .shimmer(shimmer)
+                    .background(
+                        Color.Gray.copy(alpha = 0.8f),
+                        RoundedCornerShape(2.dp)
+                    )
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Box(
+            modifier = Modifier
+                .padding(end = 26.dp)
+                .size(27.dp)
+                .shimmer(shimmer)
+                .background(
+                    Color.Gray.copy(alpha = 0.8f),
+                    CircleShape
+                )
+        )
+    }
+    Spacer(modifier = Modifier.height(12.dp))
 }
 
 @Composable
@@ -894,10 +1127,10 @@ private fun StatsScreenPreview() {
         StatsScreen(
             username = "test_user",
             uiState = mockUiState,
-            fetchListeningActivity = { _, _ -> },
-            fetchTopArtists = {},
-            fetchTopAlbums = {},
-            fetchTopSongs = {},
+            fetchListeningActivity = { _, _ ,_-> },
+            fetchTopArtists = { _, _ -> },
+            fetchTopAlbums = { _, _ -> },
+            fetchTopSongs = { _, _ -> },
             playListen = {},
             snackbarState = remember { SnackbarHostState() },
             socialUiState = mockSocialUiState,
