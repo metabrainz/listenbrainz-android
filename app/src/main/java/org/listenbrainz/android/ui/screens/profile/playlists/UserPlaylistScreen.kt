@@ -2,15 +2,23 @@ package org.listenbrainz.android.ui.screens.profile.playlists
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -39,12 +47,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.valentinilk.shimmer.Shimmer
+import com.valentinilk.shimmer.ShimmerBounds
+import com.valentinilk.shimmer.ShimmerTheme
+import com.valentinilk.shimmer.rememberShimmer
+import com.valentinilk.shimmer.shimmer
+import com.valentinilk.shimmer.shimmerSpec
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
@@ -219,6 +238,33 @@ private fun UserPlaylistScreenBase(
     onDropdownItemClick: (PlaylistDropdownItems, UserPlaylist) -> Unit,
     onCreatePlaylistClick: () -> Unit
 ) {
+
+    val shimmerInstance = rememberShimmer(
+        shimmerBounds = ShimmerBounds.View,
+        theme = ShimmerTheme(
+            animationSpec = infiniteRepeatable(
+                animation = shimmerSpec(
+                    durationMillis = 300,
+                    delayMillis = 800,
+                ),
+                repeatMode = RepeatMode.Restart,
+            ),
+            blendMode = BlendMode.DstIn,
+            rotation = 6.0f,
+            shaderColors = listOf(
+                Color.White.copy(alpha = 0.25f),
+                Color.White.copy(alpha = 1.00f),
+                Color.White.copy(alpha = 0.25f),
+            ),
+            shaderColorStops = listOf(
+                0.0f,
+                0.5f,
+                1.0f,
+            ),
+            shimmerWidth = 350.dp,
+        )
+    )
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -240,71 +286,150 @@ private fun UserPlaylistScreenBase(
                     AnimatedContent(currentPlaylistView) { currentPlaylistView ->
                         when (currentPlaylistView) {
                             PlaylistView.LIST -> {
-                                LazyColumn(
-                                    modifier = Modifier.padding(
-                                        ListenBrainzTheme.paddings.horizontal
-                                    )
+
+                                val count = remember { mutableStateOf(0) }
+
+                                BoxWithConstraints(
+                                    modifier = Modifier.fillMaxSize()
                                 ) {
-                                    items(if (isCurrentScreenCollab) collabPlaylistDataSize else userPlaylistDataSize) { index ->
-                                        val playlist =
-                                            if (isCurrentScreenCollab) getCollabPlaylist(index) else getUserPlaylist(
-                                                index
-                                            )
-                                        if (playlist != null) {
-                                            val coverArt by produceState<String?>(initialValue = null, key1 = playlist){
-                                                value = getPlaylistCoverArt(playlist)
+                                    val maxHeight = with(LocalDensity.current) { maxHeight.toPx() }
+
+                                    SubcomposeLayout {
+                                        val item = subcompose("item") {
+                                            ShimmerListItem(shimmerInstance)
+                                        }.first().measure(it)
+                                        val itemHeight = item.height
+
+                                        count.value = if (itemHeight > 0) {
+                                            (maxHeight / itemHeight).toInt()
+                                        } else {
+                                            4
+                                        }
+
+                                        layout(it.maxWidth, it.maxHeight) {}
+                                    }
+                                    LazyColumn(
+                                        modifier = Modifier.padding(
+                                            ListenBrainzTheme.paddings.horizontal
+                                        )
+                                    ) {
+                                        if (isRefreshing) {
+                                            items(count.value) {
+                                                ShimmerListItem(shimmerInstance)
+                                                Spacer(modifier = Modifier.height(8.dp))
                                             }
-                                            PlaylistListViewCard(
-                                                modifier = Modifier,
-                                                title = playlist.title ?: "",
-                                                updatedDate = formatDateLegacy(
-                                                    playlist.extension.createdForYouExtensionData.lastModifiedAt
-                                                        ?: "",
-                                                    showTime = false
-                                                ),
-                                                onClickCard = { onClickPlaylist(playlist) },
-                                                coverArt = coverArt,
-                                                onDropdownClick = {
-                                                    onDropdownItemClick(it, playlist)
-                                                },
-                                                canUserEdit = isUserSelf && !isCurrentScreenCollab
-                                            )
-                                            Spacer(modifier = Modifier.height(8.dp))
+                                        } else {
+                                            items(if (isCurrentScreenCollab) collabPlaylistDataSize else userPlaylistDataSize) { index ->
+                                                val playlist =
+                                                    if (isCurrentScreenCollab) getCollabPlaylist(
+                                                        index
+                                                    ) else getUserPlaylist(
+                                                        index
+                                                    )
+                                                if (playlist != null) {
+                                                    val coverArt by produceState<String?>(
+                                                        initialValue = null,
+                                                        key1 = playlist
+                                                    ) {
+                                                        value = getPlaylistCoverArt(playlist)
+                                                    }
+                                                    PlaylistListViewCard(
+                                                        modifier = Modifier,
+                                                        title = playlist.title ?: "",
+                                                        updatedDate = formatDateLegacy(
+                                                            playlist.extension.createdForYouExtensionData.lastModifiedAt
+                                                                ?: "",
+                                                            showTime = false
+                                                        ),
+                                                        onClickCard = { onClickPlaylist(playlist) },
+                                                        coverArt = coverArt,
+                                                        onDropdownClick = {
+                                                            onDropdownItemClick(it, playlist)
+                                                        },
+                                                        canUserEdit = isUserSelf && !isCurrentScreenCollab
+                                                    )
+                                                    Spacer(modifier = Modifier.height(8.dp))
+                                                }
+                                            }
                                         }
                                     }
                                 }
                             }
 
                             PlaylistView.GRID -> {
-                                LazyVerticalGrid(
-                                    columns = GridCells.Adaptive(150.dp),
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalArrangement = Arrangement.Center
+
+                                val count = remember { mutableStateOf(0) }
+
+                                BoxWithConstraints(
+                                    modifier = Modifier.fillMaxSize()
                                 ) {
-                                    items(if (isCurrentScreenCollab) collabPlaylistDataSize else userPlaylistDataSize) { index ->
-                                        val playlist =
-                                            if (isCurrentScreenCollab) getCollabPlaylist(index) else getUserPlaylist(
-                                                index
-                                            )
-                                        if (playlist != null) {
-                                            val coverArt by produceState<String?>(initialValue = null, key1 = playlist){
-                                                value = getPlaylistCoverArt(playlist)
+                                    val maxHeight = with(LocalDensity.current) { maxHeight.toPx() }
+                                    val maxWidth = with(LocalDensity.current) { maxWidth.toPx() }
+
+                                    SubcomposeLayout {
+                                        val item = subcompose("item") {
+                                            ShimmerGridItem(shimmerInstance)
+                                        }.first().measure(it)
+                                        val itemHeight = item.height
+                                        val itemWidth = item.width
+
+                                        val row = if (itemHeight > 0) {
+                                            (maxHeight / itemHeight).toInt()
+                                        } else {
+                                            2
+                                        }
+                                        val column = if (itemWidth > 0) {
+                                            (maxWidth / itemWidth).toInt()
+                                        } else {
+                                            2
+                                        }
+
+                                        count.value = (row - 1) * column
+
+                                        layout(it.maxWidth, it.maxHeight) {}
+                                    }
+
+                                    LazyVerticalGrid(
+                                        columns = GridCells.Adaptive(150.dp),
+                                        horizontalArrangement = Arrangement.Center,
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        if (isRefreshing) {
+                                            items(count.value * 2) {
+                                                ShimmerGridItem(shimmerInstance)
                                             }
-                                            PlaylistGridViewCard(
-                                                modifier = Modifier,
-                                                title = playlist.title ?: "",
-                                                updatedDate = formatDateLegacy(
-                                                    playlist.extension.createdForYouExtensionData.lastModifiedAt
-                                                        ?: "",
-                                                    showTime = false
-                                                ),
-                                                onClickCard = { onClickPlaylist(playlist) },
-                                                coverArt = coverArt,
-                                                onDropdownClick = {
-                                                    onDropdownItemClick(it, playlist)
-                                                },
-                                                canUserEdit = isUserSelf && !isCurrentScreenCollab
-                                            )
+                                        } else {
+                                            items(if (isCurrentScreenCollab) collabPlaylistDataSize else userPlaylistDataSize) { index ->
+                                                val playlist =
+                                                    if (isCurrentScreenCollab) getCollabPlaylist(
+                                                        index
+                                                    ) else getUserPlaylist(
+                                                        index
+                                                    )
+                                                if (playlist != null) {
+                                                    val coverArt by produceState<String?>(
+                                                        initialValue = null,
+                                                        key1 = playlist
+                                                    ) {
+                                                        value = getPlaylistCoverArt(playlist)
+                                                    }
+                                                    PlaylistGridViewCard(
+                                                        modifier = Modifier,
+                                                        title = playlist.title ?: "",
+                                                        updatedDate = formatDateLegacy(
+                                                            playlist.extension.createdForYouExtensionData.lastModifiedAt
+                                                                ?: "",
+                                                            showTime = false
+                                                        ),
+                                                        onClickCard = { onClickPlaylist(playlist) },
+                                                        coverArt = coverArt,
+                                                        onDropdownClick = {
+                                                            onDropdownItemClick(it, playlist)
+                                                        },
+                                                        canUserEdit = isUserSelf && !isCurrentScreenCollab
+                                                    )
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -363,6 +488,113 @@ private fun UserPlaylistScreenBase(
         }
 
     }
+}
+
+@Composable
+fun ShimmerListItem(shimmer: Shimmer) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(ListenBrainzTheme.sizes.listenCardHeight)
+            .background(
+                Color.Gray.copy(alpha = 0.1f),
+                RoundedCornerShape(6.dp)
+            )
+    ) {
+        Box(
+            modifier = Modifier
+                .height(ListenBrainzTheme.sizes.listenCardHeight)
+                .width(60.dp)
+                .shimmer(shimmer)
+                .background(
+                    Color.Gray.copy(alpha = 0.8f),
+                    RoundedCornerShape(topStart = 6.dp, bottomStart = 6.dp)
+                )
+        )
+        Spacer(modifier = Modifier.padding(6.dp))
+        Column(
+            modifier = Modifier.fillMaxHeight(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(10.dp)
+                    .shimmer(shimmer)
+                    .background(
+                        Color.Gray.copy(alpha = 0.8f),
+                        RoundedCornerShape(2.dp)
+                    )
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Box(
+                modifier = Modifier
+                    .width(80.dp)
+                    .height(8.dp)
+                    .shimmer(shimmer)
+                    .background(
+                        Color.Gray.copy(alpha = 0.8f),
+                        RoundedCornerShape(2.dp)
+                    )
+            )
+        }
+    }
+
+}
+
+@Composable
+fun ShimmerGridItem(shimmer: Shimmer) {
+    Column(
+        modifier = Modifier
+            .padding(8.dp)
+            .width(150.dp)
+            .clip(ListenBrainzTheme.shapes.listenCardSmall)
+            .background(
+                Color.Gray.copy(alpha = 0.1f),
+                shape = ListenBrainzTheme.shapes.listenCardSmall,
+            )
+    ) {
+        Box(
+            modifier = Modifier
+                .aspectRatio(1f)
+                .shimmer(shimmer)
+                .background(
+                    Color.Gray.copy(alpha = 0.8f),
+                    RoundedCornerShape(topStart = 6.dp, topEnd = 6.dp)
+                )
+        )
+        Spacer(modifier = Modifier.padding(6.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(140.dp)
+                    .height(10.dp)
+                    .shimmer(shimmer)
+                    .background(
+                        Color.Gray.copy(alpha = 0.8f),
+                        RoundedCornerShape(2.dp)
+                    )
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Box(
+                modifier = Modifier
+                    .width(80.dp)
+                    .height(8.dp)
+                    .shimmer(shimmer)
+                    .background(
+                        Color.Gray.copy(alpha = 0.8f),
+                        RoundedCornerShape(2.dp)
+                    )
+            )
+        }
+        Spacer(modifier = Modifier.padding(20.dp))
+    }
+
 }
 
 @Composable
@@ -447,7 +679,7 @@ fun UserPlaylistScreenPreview() {
             isCurrentScreenCollab = true,
             currentPlaylistView = PlaylistView.GRID,
             onPlaylistSectionClick = {},
-            getPlaylistCoverArt = {null},
+            getPlaylistCoverArt = { null },
             onCollabSectionClick = {},
             onClickPlaylistViewChange = { },
             onClickPlaylist = { },

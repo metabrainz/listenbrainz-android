@@ -1,16 +1,28 @@
 package org.listenbrainz.android.ui.screens.profile.taste
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.HeartBroken
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,14 +32,25 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.valentinilk.shimmer.Shimmer
+import com.valentinilk.shimmer.ShimmerBounds
+import com.valentinilk.shimmer.ShimmerTheme
+import com.valentinilk.shimmer.rememberShimmer
+import com.valentinilk.shimmer.shimmer
+import com.valentinilk.shimmer.shimmerSpec
+import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.MbidMapping
 import org.listenbrainz.android.model.Metadata
@@ -69,6 +92,9 @@ fun TasteScreen(
         uiState = uiState,
         socialUiState = socialUiState,
         snackbarState = snackbarState,
+        fetchTasteData = {
+            viewModel.getUserTasteData(refresh = it)
+        },
         playListen = {
             socialViewModel.playListen(it)
         },
@@ -82,12 +108,14 @@ fun TasteScreen(
     )
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TasteScreen(
     uiState: ProfileUiState,
     socialUiState: SocialUiState,
     snackbarState: SnackbarHostState,
     uriHandler: UriHandler = LocalUriHandler.current,
+    fetchTasteData: suspend (Boolean) -> Unit,
     playListen: (TrackMetadata) -> Unit,
     onErrorShown: () -> Unit,
     onMessageShown: () -> Unit,
@@ -103,128 +131,123 @@ fun TasteScreen(
         mutableStateOf(true)
     }
 
-    LazyColumn {
-        item {
-            val lovedHatedChips = listOf(
-                ChipItem(
-                    id = LovedHated.Loved.name,
-                    label = LovedHated.Loved.name,
-                    icon = painterResource(id = R.drawable.heart)
-                ),
-                ChipItem(
-                    id = LovedHated.Hated.name,
-                    label = LovedHated.Hated.name,
-                    icon = rememberVectorPainter(Icons.Default.HeartBroken)
-                )
-            )
+    val isLoading = uiState.tasteTabUIState.isLoading
 
-            SelectionChipBar(
-                items = lovedHatedChips,
-                selectedItemId = when (lovedHatedState.value) {
-                    LovedHated.Loved -> LovedHated.Loved.name
-                    LovedHated.Hated -> LovedHated.Hated.name
-                },
-                onItemSelected = { data ->
-                    lovedHatedState.value = when (data.id) {
-                        LovedHated.Loved.name -> LovedHated.Loved
-                        LovedHated.Hated.name -> LovedHated.Hated
-                        else -> LovedHated.Loved
-                    }
-                }
-            )
-        }
-        itemsIndexed(
-            items = when (lovedHatedState.value) {
-                LovedHated.Loved -> when (lovedHatedCollapsibleState.value) {
-                    true -> uiState.tasteTabUIState.lovedSongs?.feedback?.take(5) ?: listOf()
-                    false -> uiState.tasteTabUIState.lovedSongs?.feedback ?: listOf()
-                }
+    val scope = rememberCoroutineScope()
 
-                LovedHated.Hated -> when (lovedHatedCollapsibleState.value) {
-                    true -> uiState.tasteTabUIState.hatedSongs?.feedback?.take(5) ?: listOf()
-                    false -> uiState.tasteTabUIState.hatedSongs?.feedback ?: listOf()
-                }
+    val isRefreshing = remember(
+        isLoading
+    ) {
+        isLoading
+    }
+
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isRefreshing,
+        onRefresh = {
+            scope.launch {
+                fetchTasteData(true)
             }
-        ) { index, feedback ->
-            val metadata = feedback.toMetadata()
-            ListenCardSmallDefault(
-                modifier = Modifier
-                    .padding(
-                        horizontal = ListenBrainzTheme.paddings.horizontal,
-                        vertical = ListenBrainzTheme.paddings.lazyListAdjacent
+        }
+    )
+
+    val shimmerInstance = rememberShimmer(
+        shimmerBounds = ShimmerBounds.View,
+        theme = ShimmerTheme(
+            animationSpec = infiniteRepeatable(
+                animation = shimmerSpec(
+                    durationMillis = 300,
+                    delayMillis = 800,
+                ),
+                repeatMode = RepeatMode.Restart,
+            ),
+            blendMode = BlendMode.DstIn,
+            rotation = 10.0f,
+            shaderColors = listOf(
+                Color.White.copy(alpha = 0.25f),
+                Color.White.copy(alpha = 1.00f),
+                Color.White.copy(alpha = 0.25f),
+            ),
+            shaderColorStops = listOf(
+                0.0f,
+                0.5f,
+                1.0f,
+            ),
+            shimmerWidth = 500.dp,
+        )
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pullRefresh(pullRefreshState)
+    ) {
+        LazyColumn {
+            item {
+                val lovedHatedChips = listOf(
+                    ChipItem(
+                        id = LovedHated.Loved.name,
+                        label = LovedHated.Loved.name,
+                        icon = painterResource(id = R.drawable.heart)
                     ),
-                metadata = metadata,
-                coverArtUrl = getCoverArtUrl(
-                    caaReleaseMbid = feedback.trackMetadata?.mbidMapping?.caaReleaseMbid,
-                    caaId = feedback.trackMetadata?.mbidMapping?.caaId
-                ),
-                onDropdownError = { error ->
-                    snackbarState.showSnackbar(error.toast)
-                },
-                onDropdownSuccess = { message ->
-                    snackbarState.showSnackbar(message)
-                },
-                goToArtistPage = goToArtistPage
-            ) {
-                if (feedback.trackMetadata != null) {
-                    playListen(feedback.trackMetadata)
-                }
-            }
-        }
-        item {
-            if ((uiState.tasteTabUIState.lovedSongs?.count
-                    ?: 0) > 5 || (uiState.tasteTabUIState.hatedSongs?.count ?: 0) > 5
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    LoadMoreButton(
-                        modifier = Modifier.padding(16.dp),
-                        state = lovedHatedCollapsibleState.value
-                    ) {
-                        lovedHatedCollapsibleState.value = !lovedHatedCollapsibleState.value
-                    }
-                }
-                Spacer(modifier = Modifier.height(20.dp))
-            }
-        }
-        item {
-            val pinnedRecordings = when (pinsCollapsibleState.value) {
-                true -> uiState.tasteTabUIState.pins?.pinnedRecordings?.take(5) ?: listOf()
-                false -> uiState.tasteTabUIState.pins?.pinnedRecordings ?: listOf()
-            }
-
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = ListenBrainzTheme.paddings.horizontal)
-                    .padding(bottom = 16.dp)
-            ) {
-                Text(
-                    modifier = Modifier.headerTextVerticalPadding(),
-                    text = "Pins",
-                    fontSize = 22.sp,
+                    ChipItem(
+                        id = LovedHated.Hated.name,
+                        label = LovedHated.Hated.name,
+                        icon = rememberVectorPainter(Icons.Default.HeartBroken)
+                    )
                 )
 
-                pinnedRecordings.mapIndexed { index, recording: PinnedRecording ->
-                    val metadata = recording.toMetadata()
+                SelectionChipBar(
+                    items = lovedHatedChips,
+                    selectedItemId = when (lovedHatedState.value) {
+                        LovedHated.Loved -> LovedHated.Loved.name
+                        LovedHated.Hated -> LovedHated.Hated.name
+                    },
+                    onItemSelected = { data ->
+                        lovedHatedState.value = when (data.id) {
+                            LovedHated.Loved.name -> LovedHated.Loved
+                            LovedHated.Hated.name -> LovedHated.Hated
+                            else -> LovedHated.Loved
+                        }
+                    }
+                )
+            }
+            if (isRefreshing) {
+                item {
+                    Spacer(modifier = Modifier.height(3.dp))
+                }
+                items(3) {
+                    ShimmerLovedHatedItem(shimmerInstance)
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+            } else {
+                itemsIndexed(
+                    items = when (lovedHatedState.value) {
+                        LovedHated.Loved -> when (lovedHatedCollapsibleState.value) {
+                            true -> uiState.tasteTabUIState.lovedSongs?.feedback?.take(5)
+                                ?: listOf()
+
+                            false -> uiState.tasteTabUIState.lovedSongs?.feedback ?: listOf()
+                        }
+
+                        LovedHated.Hated -> when (lovedHatedCollapsibleState.value) {
+                            true -> uiState.tasteTabUIState.hatedSongs?.feedback?.take(5)
+                                ?: listOf()
+
+                            false -> uiState.tasteTabUIState.hatedSongs?.feedback ?: listOf()
+                        }
+                    }
+                ) { index, feedback ->
+                    val metadata = feedback.toMetadata()
                     ListenCardSmallDefault(
-                        blurbContent = if (!recording.blurbContent.isNullOrBlank()) {
-                            { modifier ->
-                                Text(
-                                    modifier = modifier,
-                                    text = recording.blurbContent
-                                )
-                            }
-                        } else null,
                         modifier = Modifier
                             .padding(
+                                horizontal = ListenBrainzTheme.paddings.horizontal,
                                 vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                             ),
                         metadata = metadata,
                         coverArtUrl = getCoverArtUrl(
-                            caaReleaseMbid = recording.trackMetadata?.mbidMapping?.caaReleaseMbid,
-                            caaId = recording.trackMetadata?.mbidMapping?.caaId
+                            caaReleaseMbid = feedback.trackMetadata?.mbidMapping?.caaReleaseMbid,
+                            caaId = feedback.trackMetadata?.mbidMapping?.caaId
                         ),
                         onDropdownError = { error ->
                             snackbarState.showSnackbar(error.toast)
@@ -234,31 +257,117 @@ fun TasteScreen(
                         },
                         goToArtistPage = goToArtistPage
                     ) {
-                        if (recording.trackMetadata != null) {
-                            playListen(recording.trackMetadata)
+                        if (feedback.trackMetadata != null) {
+                            playListen(feedback.trackMetadata)
                         }
                     }
-
                 }
             }
-
-        }
-        item {
-            if ((uiState.tasteTabUIState.pins?.count ?: 0) > 5) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+            item {
+                if ((uiState.tasteTabUIState.lovedSongs?.count
+                        ?: 0) > 5 || (uiState.tasteTabUIState.hatedSongs?.count ?: 0) > 5
                 ) {
-                    LoadMoreButton(
-                        modifier = Modifier.padding(16.dp),
-                        state = pinsCollapsibleState.value
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        pinsCollapsibleState.value = !pinsCollapsibleState.value
+                        LoadMoreButton(
+                            modifier = Modifier.padding(16.dp),
+                            state = lovedHatedCollapsibleState.value
+                        ) {
+                            lovedHatedCollapsibleState.value = !lovedHatedCollapsibleState.value
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
+            }
+            item {
+                val pinnedRecordings = when (pinsCollapsibleState.value) {
+                    true -> uiState.tasteTabUIState.pins?.pinnedRecordings?.take(5) ?: listOf()
+                    false -> uiState.tasteTabUIState.pins?.pinnedRecordings ?: listOf()
+                }
+
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = ListenBrainzTheme.paddings.horizontal)
+                        .padding(bottom = 16.dp)
+                ) {
+                    Text(
+                        modifier = Modifier.headerTextVerticalPadding(),
+                        text = "Pins",
+                        fontSize = 22.sp,
+                    )
+
+                    if (isRefreshing) {
+                        Column {
+                            repeat(4) {
+                                ShimmerPinsItem(shimmerInstance)
+                                Spacer(modifier = Modifier.height(10.dp))
+                            }
+                        }
+                    } else {
+                        pinnedRecordings.mapIndexed { index, recording: PinnedRecording ->
+                            val metadata = recording.toMetadata()
+                            ListenCardSmallDefault(
+                                blurbContent = if (!recording.blurbContent.isNullOrBlank()) {
+                                    { modifier ->
+                                        Text(
+                                            modifier = modifier,
+                                            text = recording.blurbContent
+                                        )
+                                    }
+                                } else null,
+                                modifier = Modifier
+                                    .padding(
+                                        vertical = ListenBrainzTheme.paddings.lazyListAdjacent
+                                    ),
+                                metadata = metadata,
+                                coverArtUrl = getCoverArtUrl(
+                                    caaReleaseMbid = recording.trackMetadata?.mbidMapping?.caaReleaseMbid,
+                                    caaId = recording.trackMetadata?.mbidMapping?.caaId
+                                ),
+                                onDropdownError = { error ->
+                                    snackbarState.showSnackbar(error.toast)
+                                },
+                                onDropdownSuccess = { message ->
+                                    snackbarState.showSnackbar(message)
+                                },
+                                goToArtistPage = goToArtistPage
+                            ) {
+                                if (recording.trackMetadata != null) {
+                                    playListen(recording.trackMetadata)
+                                }
+                            }
+
+                        }
                     }
                 }
-                Spacer(modifier = Modifier.height(20.dp))
+
+            }
+            item {
+                if ((uiState.tasteTabUIState.pins?.count ?: 0) > 5) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        LoadMoreButton(
+                            modifier = Modifier.padding(16.dp),
+                            state = pinsCollapsibleState.value
+                        ) {
+                            pinsCollapsibleState.value = !pinsCollapsibleState.value
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
             }
         }
+        PullRefreshIndicator(
+            modifier = Modifier.align(Alignment.TopCenter),
+            refreshing = isRefreshing,
+            contentColor = ListenBrainzTheme.colorScheme.lbSignatureInverse,
+            backgroundColor = ListenBrainzTheme.colorScheme.level1,
+            state = pullRefreshState
+        )
     }
 
     ErrorBar(error = socialUiState.error, onErrorShown = onErrorShown)
@@ -267,6 +376,141 @@ fun TasteScreen(
         onMessageShown = onMessageShown,
         snackbarState = snackbarState
     )
+}
+
+@Composable
+fun ShimmerLovedHatedItem(shimmer: Shimmer) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp)
+            .height(ListenBrainzTheme.sizes.listenCardHeight)
+            .background(
+                Color.Gray.copy(alpha = 0.1f),
+                RoundedCornerShape(6.dp)
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .height(72.dp)
+                .width(60.dp)
+                .shimmer(shimmer)
+                .background(
+                    Color.Gray.copy(alpha = 0.8f),
+                    RoundedCornerShape(
+                        topStart = 6.dp,
+                        bottomStart = 6.dp
+                    )
+                )
+        )
+        Spacer(modifier = Modifier.padding(6.dp))
+        Column(
+            modifier = Modifier.fillMaxHeight(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(10.dp)
+                    .shimmer(shimmer)
+                    .background(
+                        Color.Gray.copy(alpha = 0.8f),
+                        RoundedCornerShape(2.dp)
+                    )
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Box(
+                modifier = Modifier
+                    .width(80.dp)
+                    .height(8.dp)
+                    .shimmer(shimmer)
+                    .background(
+                        Color.Gray.copy(alpha = 0.8f),
+                        RoundedCornerShape(2.dp)
+                    )
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Box(
+            modifier = Modifier
+                .padding(end = 26.dp)
+                .width(80.dp)
+                .height(10.dp)
+                .shimmer(shimmer)
+                .background(
+                    Color.Gray.copy(alpha = 0.8f),
+                    RoundedCornerShape(2.dp)
+                )
+        )
+    }
+}
+
+@Composable
+fun ShimmerPinsItem(shimmer: Shimmer) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(ListenBrainzTheme.sizes.listenCardHeight)
+            .background(
+                Color.Gray.copy(alpha = 0.1f),
+                RoundedCornerShape(6.dp)
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .height(72.dp)
+                .width(60.dp)
+                .shimmer(shimmer)
+                .background(
+                    Color.Gray.copy(alpha = 0.8f),
+                    RoundedCornerShape(
+                        topStart = 6.dp,
+                        bottomStart = 6.dp
+                    )
+                )
+        )
+        Spacer(modifier = Modifier.padding(6.dp))
+        Column(
+            modifier = Modifier.fillMaxHeight(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(10.dp)
+                    .shimmer(shimmer)
+                    .background(
+                        Color.Gray.copy(alpha = 0.8f),
+                        RoundedCornerShape(2.dp)
+                    )
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Box(
+                modifier = Modifier
+                    .width(80.dp)
+                    .height(8.dp)
+                    .shimmer(shimmer)
+                    .background(
+                        Color.Gray.copy(alpha = 0.8f),
+                        RoundedCornerShape(2.dp)
+                    )
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Box(
+            modifier = Modifier
+                .padding(end = 26.dp)
+                .width(80.dp)
+                .height(10.dp)
+                .shimmer(shimmer)
+                .background(
+                    Color.Gray.copy(alpha = 0.8f),
+                    RoundedCornerShape(2.dp)
+                )
+        )
+    }
 }
 
 @PreviewLightDark
@@ -446,6 +690,7 @@ private fun TasteScreenPreview() {
             uiState = mockProfileUiState,
             socialUiState = mockSocialUiState,
             snackbarState = remember { SnackbarHostState() },
+            fetchTasteData = {},
             playListen = {},
             onErrorShown = {},
             onMessageShown = {},
