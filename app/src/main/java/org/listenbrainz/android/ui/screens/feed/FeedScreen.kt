@@ -4,12 +4,18 @@ import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.os.Bundle
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,6 +29,8 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
@@ -34,6 +42,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -42,10 +51,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.font.FontWeight
@@ -56,6 +70,12 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.valentinilk.shimmer.Shimmer
+import com.valentinilk.shimmer.ShimmerBounds
+import com.valentinilk.shimmer.ShimmerTheme
+import com.valentinilk.shimmer.rememberShimmer
+import com.valentinilk.shimmer.shimmer
+import com.valentinilk.shimmer.shimmerSpec
 import kotlinx.coroutines.flow.flow
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.Metadata
@@ -164,6 +184,32 @@ fun FeedScreen(
         }
     }
 
+    val shimmerInstance = rememberShimmer(
+        shimmerBounds = ShimmerBounds.View,
+        theme = ShimmerTheme(
+            animationSpec = infiniteRepeatable(
+                animation = shimmerSpec(
+                    durationMillis = 300,
+                    delayMillis = 800,
+                ),
+                repeatMode = RepeatMode.Restart,
+            ),
+            blendMode = BlendMode.DstIn,
+            rotation = 6.0f,
+            shaderColors = listOf(
+                Color.White.copy(alpha = 0.25f),
+                Color.White.copy(alpha = 1.00f),
+                Color.White.copy(alpha = 0.25f),
+            ),
+            shaderColorStops = listOf(
+                0.0f,
+                0.5f,
+                1.0f,
+            ),
+            shimmerWidth = 350.dp,
+        )
+    )
+
     val dialogsState = rememberDialogsState()
 
     val pullRefreshState = rememberPullRefreshState(
@@ -251,7 +297,8 @@ fun FeedScreen(
                         },
                         onPlay = callbacks.onPlay,
                         goToUserPage = callbacks.goToUserPage,
-                        goToArtistPage = callbacks.goToArtistPage
+                        goToArtistPage = callbacks.goToArtistPage,
+                        shimmerInstance = shimmerInstance
                     )
 
                     1 -> FollowListens(
@@ -277,7 +324,8 @@ fun FeedScreen(
                             )
                         },
                         onPlay = callbacks.onPlay,
-                        goToArtistPage = callbacks.goToArtistPage
+                        goToArtistPage = callbacks.goToArtistPage,
+                        shimmerInstance = shimmerInstance
                     )
 
                     2 -> SimilarListens(
@@ -303,7 +351,8 @@ fun FeedScreen(
                             )
                         },
                         onPlay = callbacks.onPlay,
-                        goToArtistPage = callbacks.goToArtistPage
+                        goToArtistPage = callbacks.goToArtistPage,
+                        shimmerInstance = shimmerInstance
                     )
                 }
             }
@@ -434,83 +483,107 @@ private fun MyFeed(
     onPlay: (FeedEvent) -> Unit,
     goToUserPage: (String) -> Unit,
     goToArtistPage: (String) -> Unit,
+    shimmerInstance: Shimmer,
     uriHandler: UriHandler = LocalUriHandler.current
 ) {
-    // Since, at most one drop down will be active at a time, then we only need to maintain one state variable.
-    val dropdownItemIndex: MutableState<Int?> = rememberSaveable {
-        mutableStateOf(null)
-    }
+    val dropdownItemIndex = rememberSaveable { mutableStateOf<Int?>(null) }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .widthIn(max = LocalConfiguration.current.screenWidthDp.dp),
-        state = listState
+    val inRefreshingState = pagingData.loadState.refresh is LoadState.Loading
+
+    val count = remember { mutableStateOf(0) }
+
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxSize()
     ) {
+        val maxHeight = with(LocalDensity.current) { maxHeight.toPx() }
 
-        item { StartingSpacer() }
+        SubcomposeLayout { it->
+            val item = subcompose("item") {
+                ShimmerMyFeedItem(shimmerInstance)
+            }.first().measure(it)
+            val itemHeight = item.height
 
-        items(count = pagingData.itemCount) { index: Int ->
-
-            pagingData[index]?.apply {
-                AnimatedVisibility(
-                    visible = uiState.isDeletedMap[event.id] != true,
-                    enter = expandVertically(),
-                    exit = shrinkVertically()
-                ) {
-                    eventType.Content(
-                        event = event,
-                        parentUser = parentUser,
-                        isHidden = uiState.isHiddenMap[event.id] == true,
-                        onDeleteOrHide = {
-                            onDeleteOrHide(
-                                event,
-                                eventType,
-                                parentUser
-                            )
-                        },
-                        dropDownState = dropdownItemIndex.value,
-                        index = index,
-                        onDropdownClick = {
-                            dropdownItemIndex.value = if (dropdownItemIndex.value == null) {
-                                index
-                            } else {
-                                null
-                            }
-                        },
-                        onRecommend = {
-                            recommendTrack(event)
-                            dropdownItemIndex.value = null
-                        },
-                        onPersonallyRecommend = {
-                            personallyRecommendTrack(index)
-                            dropdownItemIndex.value = null
-                        },
-                        onReview = {
-                            review(index)
-                            dropdownItemIndex.value = null
-                        },
-                        onPin = {
-                            pin(index)
-                            dropdownItemIndex.value = null
-                        },
-                        onOpenInMusicBrainz = {
-                            uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@Content}")
-                            dropdownItemIndex.value = null
-                        },
-                        onClick = {
-                            onPlay(event)
-                            dropdownItemIndex.value = null
-                        },
-                        goToUserPage = goToUserPage,
-                        goToArtistPage = goToArtistPage
-                    )
-                }
+            count.value = if (itemHeight > 0) {
+                (maxHeight / itemHeight).toInt()
+            } else {
+                4
             }
+
+            layout(it.maxWidth, it.maxHeight) {}
         }
 
-        item {
-            PagerRearLoadingIndicator(pagingData)
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .widthIn(max = LocalConfiguration.current.screenWidthDp.dp),
+            state = listState
+        ) {
+
+            item { StartingSpacer() }
+
+            if (inRefreshingState) {
+                items(count.value) {
+                    ShimmerMyFeedItem(shimmerInstance)
+                }
+            } else {
+                items(pagingData.itemCount) { index ->
+                    pagingData[index]?.apply {
+                        AnimatedVisibility(
+                            visible = uiState.isDeletedMap[event.id] != true,
+                            enter = expandVertically(),
+                            exit = shrinkVertically()
+                        ) {
+                            eventType.Content(
+                                event = event,
+                                parentUser = parentUser,
+                                isHidden = uiState.isHiddenMap[event.id] == true,
+                                onDeleteOrHide = {
+                                    onDeleteOrHide(event, eventType, parentUser)
+                                },
+                                dropDownState = dropdownItemIndex.value,
+                                index = index,
+                                onDropdownClick = {
+                                    dropdownItemIndex.value =
+                                        if (dropdownItemIndex.value == null) index else null
+                                },
+                                onRecommend = {
+                                    recommendTrack(event)
+                                    dropdownItemIndex.value = null
+                                },
+                                onPersonallyRecommend = {
+                                    personallyRecommendTrack(index)
+                                    dropdownItemIndex.value = null
+                                },
+                                onReview = {
+                                    review(index)
+                                    dropdownItemIndex.value = null
+                                },
+                                onPin = {
+                                    pin(index)
+                                    dropdownItemIndex.value = null
+                                },
+                                onOpenInMusicBrainz = {
+                                    uriHandler.openUri(
+                                        "https://musicbrainz.org/recording/${
+                                            event.metadata.trackMetadata?.mbidMapping?.recordingMbid
+                                                ?: return@Content
+                                        }"
+                                    )
+                                    dropdownItemIndex.value = null
+                                },
+                                onClick = {
+                                    onPlay(event)
+                                    dropdownItemIndex.value = null
+                                },
+                                goToUserPage = goToUserPage,
+                                goToArtistPage = goToArtistPage
+                            )
+                        }
+                    }
+                }
+
+                item { PagerRearLoadingIndicator(pagingData) }
+            }
         }
     }
 }
@@ -526,6 +599,7 @@ fun FollowListens(
     pin: (index: Int) -> Unit,
     onPlay: (FeedEvent) -> Unit,
     uriHandler: UriHandler = LocalUriHandler.current,
+    shimmerInstance: Shimmer,
     goToArtistPage: (String) -> Unit,
 ) {
     // Since, at most one drop down will be active at a time, then we only need to maintain one state variable.
@@ -533,90 +607,126 @@ fun FollowListens(
         mutableStateOf(null)
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
-        state = listState,
+    val inRefreshingState = pagingData.loadState.refresh is LoadState.Loading
+
+    var count = remember { mutableStateOf(0) }
+
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxSize()
     ) {
+        val maxHeight = with(LocalDensity.current) { maxHeight.toPx() }
 
-        item { StartingSpacer() }
+        SubcomposeLayout {
+            val item = subcompose("item") {
+                ShimmerListensItem(shimmerInstance)
+            }.first().measure(it)
+            val itemHeight = item.height
 
-        items(count = pagingData.itemCount) { index: Int ->
+            count.value = if (itemHeight > 0) {
+                (maxHeight / itemHeight).toInt()
+            } else {
+                4
+            }
 
-            pagingData[index]?.apply {
+            layout(it.maxWidth, it.maxHeight) {}
+        }
 
-                ListenCardSmall(
-                    modifier = Modifier.padding(
-                        horizontal = ListenBrainzTheme.paddings.horizontal,
-                        vertical = ListenBrainzTheme.paddings.lazyListAdjacent
-                    ),
-                    trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
-                    artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(
-                        FeedListenArtist(event.metadata.trackMetadata?.artistName ?: "", null, "")
-                    ),
-                    coverArtUrl =
-                        Utils.getCoverArtUrl(
-                            caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
-                            caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
-                        ),
-                    onDropdownIconClick = {
-                        dropdownItemIndex.value =
-                            if (dropdownItemIndex.value == null) index else null
-                    },
-                    dropDown = {
-                        SocialDropdown(
-                            isExpanded = dropdownItemIndex.value == index,
-                            metadata = event.metadata,
-                            onDismiss = {
-                                dropdownItemIndex.value = null
+
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            state = listState,
+        ) {
+
+            item { StartingSpacer() }
+
+            if (inRefreshingState) {
+                items(count.value) {
+                    ShimmerListensItem(shimmerInstance)
+                }
+            } else {
+
+                items(count = pagingData.itemCount) { index: Int ->
+
+                    pagingData[index]?.apply {
+
+                        ListenCardSmall(
+                            modifier = Modifier.padding(
+                                horizontal = ListenBrainzTheme.paddings.horizontal,
+                                vertical = ListenBrainzTheme.paddings.lazyListAdjacent
+                            ),
+                            trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
+                            artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(
+                                FeedListenArtist(
+                                    event.metadata.trackMetadata?.artistName ?: "",
+                                    null,
+                                    ""
+                                )
+                            ),
+                            coverArtUrl =
+                                Utils.getCoverArtUrl(
+                                    caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
+                                    caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
+                                ),
+                            onDropdownIconClick = {
+                                dropdownItemIndex.value =
+                                    if (dropdownItemIndex.value == null) index else null
                             },
-                            onRecommend = {
-                                recommendTrack(event)
-                                dropdownItemIndex.value = null
+                            dropDown = {
+                                SocialDropdown(
+                                    isExpanded = dropdownItemIndex.value == index,
+                                    metadata = event.metadata,
+                                    onDismiss = {
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onRecommend = {
+                                        recommendTrack(event)
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onPersonallyRecommend = {
+                                        personallyRecommendTrack(index)
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onReview = {
+                                        review(index)
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onPin = {
+                                        pin(index)
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onOpenInMusicBrainz = {
+                                        uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@SocialDropdown}")
+                                    }
+                                )
                             },
-                            onPersonallyRecommend = {
-                                personallyRecommendTrack(index)
-                                dropdownItemIndex.value = null
+                            trailingContent = { modifier ->
+                                Column(modifier, horizontalAlignment = Alignment.End) {
+                                    TitleAndSubtitle(
+                                        title = event.username ?: "Unknown",
+                                        artists = listOf(),
+                                        titleColor = ListenBrainzTheme.colorScheme.lbSignature,
+                                        goToArtistPage = goToArtistPage
+                                    )
+                                    Date(
+                                        event = event,
+                                        parentUser = parentUser,
+                                        eventType = eventType
+                                    )
+                                }
                             },
-                            onReview = {
-                                review(index)
-                                dropdownItemIndex.value = null
-                            },
-                            onPin = {
-                                pin(index)
-                                dropdownItemIndex.value = null
-                            },
-                            onOpenInMusicBrainz = {
-                                uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@SocialDropdown}")
-                            }
-                        )
-                    },
-                    trailingContent = { modifier ->
-                        Column(modifier, horizontalAlignment = Alignment.End) {
-                            TitleAndSubtitle(
-                                title = event.username ?: "Unknown",
-                                artists = listOf(),
-                                titleColor = ListenBrainzTheme.colorScheme.lbSignature,
-                                goToArtistPage = goToArtistPage
-                            )
-                            Date(
-                                event = event,
-                                parentUser = parentUser,
-                                eventType = eventType
-                            )
+                            goToArtistPage = goToArtistPage
+                        ) {
+                            onPlay(event)
                         }
-                    },
-                    goToArtistPage = goToArtistPage
-                ) {
-                    onPlay(event)
+
+                    }
                 }
 
+                item {
+                    PagerRearLoadingIndicator(pagingData)
+                }
             }
         }
-
-        item {
-            PagerRearLoadingIndicator(pagingData)
-        }
-
     }
 }
 
@@ -631,6 +741,7 @@ fun SimilarListens(
     pin: (index: Int) -> Unit,
     onPlay: (FeedEvent) -> Unit,
     uriHandler: UriHandler = LocalUriHandler.current,
+    shimmerInstance: Shimmer,
     goToArtistPage: (String) -> Unit
 ) {
     // Since, at most one drop down will be active at a time, then we only need to maintain one state variable.
@@ -638,100 +749,327 @@ fun SimilarListens(
         mutableStateOf(null)
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
-        state = listState
+    val inRefreshingState = pagingData.loadState.refresh is LoadState.Loading
+
+    var count = remember { mutableStateOf(0) }
+
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxSize()
     ) {
+        val maxHeight = with(LocalDensity.current) { maxHeight.toPx() }
 
-        item { StartingSpacer() }
+        SubcomposeLayout {
+            val item = subcompose("item") {
+                ShimmerListensItem(shimmerInstance)
+            }.first().measure(it)
+            val itemHeight = item.height
 
-        items(count = pagingData.itemCount) { index: Int ->
+            count.value = if (itemHeight > 0) {
+                (maxHeight / itemHeight).toInt()
+            } else {
+                4
+            }
 
-            pagingData[index]?.run {
+            layout(it.maxWidth, it.maxHeight) {}
+        }
 
-                ListenCardSmall(
-                    modifier = Modifier.padding(
-                        horizontal = ListenBrainzTheme.paddings.horizontal,
-                        vertical = ListenBrainzTheme.paddings.lazyListAdjacent
-                    ),
-                    trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
-                    artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(
-                        FeedListenArtist(event.metadata.trackMetadata?.artistName ?: "", null, "")
-                    ),
-                    coverArtUrl =
-                        Utils.getCoverArtUrl(
-                            caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
-                            caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
-                        ),
-                    onDropdownIconClick = {
-                        dropdownItemIndex.value = if (dropdownItemIndex.value == null) {
-                            index
-                        } else {
-                            null
-                        }
-                    },
-                    dropDown = {
-                        SocialDropdown(
-                            isExpanded = dropdownItemIndex.value == index,
-                            metadata = event.metadata,
-                            onDismiss = { dropdownItemIndex.value = null },
-                            onRecommend = {
-                                recommendTrack(event)
-                                dropdownItemIndex.value = null
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth(),
+            state = listState
+        ) {
+
+            item { StartingSpacer() }
+
+            if (inRefreshingState) {
+                items(count.value) {
+                    ShimmerListensItem(shimmerInstance)
+                }
+            } else {
+
+
+                items(count = pagingData.itemCount) { index: Int ->
+
+                    pagingData[index]?.run {
+
+                        ListenCardSmall(
+                            modifier = Modifier.padding(
+                                horizontal = ListenBrainzTheme.paddings.horizontal,
+                                vertical = ListenBrainzTheme.paddings.lazyListAdjacent
+                            ),
+                            trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
+                            artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(
+                                FeedListenArtist(
+                                    event.metadata.trackMetadata?.artistName ?: "",
+                                    null,
+                                    ""
+                                )
+                            ),
+                            coverArtUrl =
+                                Utils.getCoverArtUrl(
+                                    caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
+                                    caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
+                                ),
+                            onDropdownIconClick = {
+                                dropdownItemIndex.value = if (dropdownItemIndex.value == null) {
+                                    index
+                                } else {
+                                    null
+                                }
                             },
-                            onPersonallyRecommend = {
-                                personallyRecommendTrack(index)
-                                dropdownItemIndex.value = null
+                            dropDown = {
+                                SocialDropdown(
+                                    isExpanded = dropdownItemIndex.value == index,
+                                    metadata = event.metadata,
+                                    onDismiss = { dropdownItemIndex.value = null },
+                                    onRecommend = {
+                                        recommendTrack(event)
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onPersonallyRecommend = {
+                                        personallyRecommendTrack(index)
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onReview = {
+                                        review(index)
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onPin = {
+                                        pin(index)
+                                        dropdownItemIndex.value = null
+                                    },
+                                    onOpenInMusicBrainz = {
+                                        uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@SocialDropdown}")
+                                    }
+                                )
                             },
-                            onReview = {
-                                review(index)
-                                dropdownItemIndex.value = null
-                            },
-                            onPin = {
-                                pin(index)
-                                dropdownItemIndex.value = null
-                            },
-                            onOpenInMusicBrainz = {
-                                uriHandler.openUri("https://musicbrainz.org/recording/${event.metadata.trackMetadata?.mbidMapping?.recordingMbid ?: return@SocialDropdown}")
-                            }
-                        )
-                    },
-                    trailingContent = { modifier ->
-                        /*TitleAndSubtitle(
-                            modifier = modifier,
-                            title = event.username ?: "Unknown",
-                            subtitle = similarityToPercent(event.similarity),
-                            alignment = Alignment.End,
-                            titleColor = ListenBrainzTheme.colorScheme.lbSignature,
-                            subtitleColor = ListenBrainzTheme.colorScheme.lbSignatureInverse
-                        )*/
-                        Column(modifier, horizontalAlignment = Alignment.End) {
-                            TitleAndSubtitle(
+                            trailingContent = { modifier ->
+                                /*TitleAndSubtitle(
+                                modifier = modifier,
                                 title = event.username ?: "Unknown",
-                                artists = listOf(),
+                                subtitle = similarityToPercent(event.similarity),
+                                alignment = Alignment.End,
                                 titleColor = ListenBrainzTheme.colorScheme.lbSignature,
-                                goToArtistPage = goToArtistPage
-                            )
-                            Date(
-                                event = event,
-                                parentUser = parentUser,
-                                eventType = eventType
-                            )
+                                subtitleColor = ListenBrainzTheme.colorScheme.lbSignatureInverse
+                            )*/
+                                Column(modifier, horizontalAlignment = Alignment.End) {
+                                    TitleAndSubtitle(
+                                        title = event.username ?: "Unknown",
+                                        artists = listOf(),
+                                        titleColor = ListenBrainzTheme.colorScheme.lbSignature,
+                                        goToArtistPage = goToArtistPage
+                                    )
+                                    Date(
+                                        event = event,
+                                        parentUser = parentUser,
+                                        eventType = eventType
+                                    )
+                                }
+                            },
+                            goToArtistPage = goToArtistPage
+                        ) {
+                            onPlay(event)
                         }
-                    },
-                    goToArtistPage = goToArtistPage
-                ) {
-                    onPlay(event)
+
+                    }
                 }
 
+
+                item {
+                    PagerRearLoadingIndicator(pagingData)
+                }
             }
         }
-
-        item {
-            PagerRearLoadingIndicator(pagingData)
-        }
-
     }
+}
+
+@Composable
+fun ShimmerMyFeedItem(shimmer: Shimmer) {
+    Row(
+        modifier = Modifier
+            .padding(top = 10.dp)
+            .padding(end = 8.dp, start = 10.dp)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(17.dp)
+                    .shimmer(shimmer)
+                    .background(
+                        Color.Gray.copy(alpha = 0.8f),
+                        CircleShape
+                    )
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            VerticalDivider(
+                thickness = 2.dp,
+                modifier = Modifier.height(90.dp),
+                color = Color.Gray.copy(0.8f)
+            )
+        }
+        Spacer(modifier = Modifier.padding(start = 12.dp))
+        Column(
+            modifier = Modifier,
+            horizontalAlignment = Alignment.Start
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(130.dp)
+                    .height(12.dp)
+                    .shimmer(shimmer)
+                    .background(
+                        Color.Gray.copy(alpha = 0.8f),
+                        RoundedCornerShape(2.dp)
+                    )
+            )
+            Spacer(modifier = Modifier.padding(3.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(72.dp)
+                    .padding(vertical = 8.dp)
+                    .background(
+                        Color.Gray.copy(alpha = 0.1f),
+                        RoundedCornerShape(6.dp)
+                    )
+            ) {
+                Box(
+                    modifier = Modifier
+                        .height(72.dp)
+                        .width(60.dp)
+                        .shimmer(shimmer)
+                        .background(
+                            Color.Gray.copy(alpha = 0.8f),
+                            RoundedCornerShape(topStart = 6.dp, bottomStart = 6.dp)
+                        )
+                )
+                Spacer(modifier = Modifier.padding(6.dp))
+                Column(
+                    modifier = Modifier.fillMaxHeight(),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(100.dp)
+                            .height(10.dp)
+                            .shimmer(shimmer)
+                            .background(
+                                Color.Gray.copy(alpha = 0.8f),
+                                RoundedCornerShape(2.dp)
+                            )
+                    )
+                    Spacer(modifier = Modifier.height(5.dp))
+                    Box(
+                        modifier = Modifier
+                            .width(80.dp)
+                            .height(8.dp)
+                            .shimmer(shimmer)
+                            .background(
+                                Color.Gray.copy(alpha = 0.8f),
+                                RoundedCornerShape(2.dp)
+                            )
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.padding(3.dp))
+            Box(
+                modifier = Modifier
+                    .align(alignment = Alignment.End)
+                    .width(80.dp)
+                    .height(12.dp)
+                    .shimmer(shimmer)
+                    .background(
+                        Color.Gray.copy(alpha = 0.8f),
+                        RoundedCornerShape(2.dp)
+                    )
+            )
+        }
+    }
+}
+
+@Composable
+fun ShimmerListensItem(shimmer: Shimmer) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp)
+            .height(72.dp)
+            .padding(vertical = 5.dp)
+            .background(
+                Color.Gray.copy(alpha = 0.1f),
+                RoundedCornerShape(6.dp)
+            )
+    ) {
+        Box(
+            modifier = Modifier
+                .height(72.dp)
+                .width(60.dp)
+                .shimmer(shimmer)
+                .background(
+                    Color.Gray.copy(alpha = 0.8f),
+                    RoundedCornerShape(topStart = 6.dp, bottomStart = 6.dp)
+                )
+        )
+        Spacer(modifier = Modifier.padding(6.dp))
+        Column(
+            modifier = Modifier.fillMaxHeight(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(10.dp)
+                    .shimmer(shimmer)
+                    .background(
+                        Color.Gray.copy(alpha = 0.8f),
+                        RoundedCornerShape(2.dp)
+                    )
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Box(
+                modifier = Modifier
+                    .width(80.dp)
+                    .height(8.dp)
+                    .shimmer(shimmer)
+                    .background(
+                        Color.Gray.copy(alpha = 0.8f),
+                        RoundedCornerShape(2.dp)
+                    )
+            )
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(end = 30.dp)
+                .weight(1f),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.End
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(60.dp)
+                    .height(10.dp)
+                    .shimmer(shimmer)
+                    .background(
+                        Color.Gray.copy(alpha = 0.8f),
+                        RoundedCornerShape(2.dp)
+                    )
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Box(
+                modifier = Modifier
+                    .width(80.dp)
+                    .height(8.dp)
+                    .shimmer(shimmer)
+                    .background(
+                        Color.Gray.copy(alpha = 0.8f),
+                        RoundedCornerShape(2.dp)
+                    )
+            )
+        }
+    }
+
 }
 
 @Composable
