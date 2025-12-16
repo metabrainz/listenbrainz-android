@@ -80,6 +80,8 @@ import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.android.ui.screens.feed.events.LikeDislikeButton
+import org.listenbrainz.android.viewmodel.SongViewModel
 
 @Composable
 fun FeedScreen(
@@ -150,6 +152,7 @@ fun FeedScreen(
     val similarListensPagingData =
         uiState.similarListensFeedState.eventList.collectAsLazyPagingItems()
     val similarListensListState = rememberLazyListState()
+    val songViewModel: SongViewModel = hiltViewModel()
 
     val pagerState = rememberPagerState { 3 }
     val isRefreshing = remember(
@@ -229,6 +232,7 @@ fun FeedScreen(
                         listState = myFeedListState,
                         pagingData = myFeedPagingData,
                         uiState = uiState.myFeedState,
+                        songViewModel = songViewModel,
                         onDeleteOrHide = callbacks.onDeleteOrHide,
                         recommendTrack = callbacks.onRecommend,
                         personallyRecommendTrack = { index ->
@@ -257,6 +261,7 @@ fun FeedScreen(
                     1 -> FollowListens(
                         listState = followListensListState,
                         pagingData = followListensPagingData,
+                        songViewModel = songViewModel,
                         recommendTrack = callbacks.onRecommend,
                         personallyRecommendTrack = { index ->
                             dialogsState.activateDialog(
@@ -283,6 +288,7 @@ fun FeedScreen(
                     2 -> SimilarListens(
                         listState = similarListensListState,
                         pagingData = similarListensPagingData,
+                        songViewModel = songViewModel,
                         recommendTrack = callbacks.onRecommend,
                         personallyRecommendTrack = { index ->
                             dialogsState.activateDialog(
@@ -432,6 +438,7 @@ private fun MyFeed(
     review: (index: Int) -> Unit,
     pin: (index: Int) -> Unit,
     onPlay: (FeedEvent) -> Unit,
+    songViewModel: SongViewModel,
     goToUserPage: (String) -> Unit,
     goToArtistPage: (String) -> Unit,
     uriHandler: UriHandler = LocalUriHandler.current
@@ -523,6 +530,7 @@ fun FollowListens(
     recommendTrack: (event: FeedEvent) -> Unit,
     personallyRecommendTrack: (index: Int) -> Unit,
     review: (index: Int) -> Unit,
+    songViewModel: SongViewModel,
     pin: (index: Int) -> Unit,
     onPlay: (FeedEvent) -> Unit,
     uriHandler: UriHandler = LocalUriHandler.current,
@@ -591,6 +599,16 @@ fun FollowListens(
                         )
                     },
                     trailingContent = { modifier ->
+                        val likeState by songViewModel.likeState.collectAsState()
+
+                        LikeDislikeButton(
+                            likeState = likeState,
+                            onTap = { songViewModel.onLikeTap() },
+                            onLongPress = { songViewModel.onLikeLongPress() }
+                        )
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
                         Column(modifier, horizontalAlignment = Alignment.End) {
                             TitleAndSubtitle(
                                 title = event.username ?: "Unknown",
@@ -628,6 +646,7 @@ fun SimilarListens(
     recommendTrack: (event: FeedEvent) -> Unit,
     personallyRecommendTrack: (index: Int) -> Unit,
     review: (index: Int) -> Unit,
+    songViewModel: SongViewModel,
     pin: (index: Int) -> Unit,
     onPlay: (FeedEvent) -> Unit,
     uriHandler: UriHandler = LocalUriHandler.current,
@@ -705,6 +724,16 @@ fun SimilarListens(
                             titleColor = ListenBrainzTheme.colorScheme.lbSignature,
                             subtitleColor = ListenBrainzTheme.colorScheme.lbSignatureInverse
                         )*/
+                        val likeState by songViewModel.likeState.collectAsState()
+
+                        LikeDislikeButton(
+                            likeState = likeState,
+                            onTap = { songViewModel.onLikeTap() },
+                            onLongPress = { songViewModel.onLikeLongPress() }
+                        )
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
                         Column(modifier, horizontalAlignment = Alignment.End) {
                             TitleAndSubtitle(
                                 title = event.username ?: "Unknown",
