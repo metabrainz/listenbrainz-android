@@ -27,4 +27,7 @@ sealed interface NavigationItem :NavKey{
 
     @Serializable
     data object CreateAccountScreen: NavigationItem
+
+    @Serializable
+    data object ReorderBottomTabs : NavigationItem
 }
