@@ -3,11 +3,11 @@ package org.listenbrainz.sharedtest.mocks
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.listenbrainz.android.model.InstallSource
-import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.preferences.DataStorePreference
+import org.listenbrainz.android.ui.navigation.BottomNavItem
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testAccessToken
@@ -111,6 +111,17 @@ class MockAppPreferences(
             }
 
             override suspend fun set(value: String) {
+                TODO("Not yet implemented")
+            }
+        }
+
+    override val navBarOrder: DataStorePreference<List<BottomNavItem>> =
+        object : DataStorePreference<List<BottomNavItem>> {
+
+            override fun getFlow(): Flow<List<BottomNavItem>> =
+                flow { emit(BottomNavItem.entries.toList()) }
+
+            override suspend fun set(value: List<BottomNavItem>) {
                 TODO("Not yet implemented")
             }
         }
