@@ -2,9 +2,7 @@ package org.listenbrainz.android.ui.screens.settings
 
 import android.graphics.drawable.Drawable
 import androidx.compose.runtime.Immutable
-import kotlinx.coroutines.flow.Flow
 import org.listenbrainz.android.ui.navigation.TopBarActions
-import org.listenbrainz.android.util.Resource
 
 @Immutable
 data class SettingsCallbacks(
