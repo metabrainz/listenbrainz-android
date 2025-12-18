@@ -13,6 +13,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptionsBuilder
@@ -38,6 +39,7 @@ import org.listenbrainz.android.viewmodel.DashBoardViewModel
 @Composable
 fun AppNavigation(
     navController: NavController = rememberNavController(),
+    startRoute: String,
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
     dashBoardViewModel: DashBoardViewModel,
@@ -47,7 +49,7 @@ fun AppNavigation(
 ) {
     fun NavOptionsBuilder.defaultNavOptions() {
         // Avoid building large backstack
-        popUpTo(AppNavigationItem.Feed.route) {
+        popUpTo(navController.graph.findStartDestination().id) {
             saveState = true
         }
         // Avoid copies
@@ -85,7 +87,7 @@ fun AppNavigation(
     NavHost(
         navController = navController as NavHostController,
         modifier = Modifier.fillMaxSize(),
-        startDestination = AppNavigationItem.Feed.route
+        startDestination = startRoute
     ) {
         appComposable(route = AppNavigationItem.Feed.route) {
             FeedScreen(
