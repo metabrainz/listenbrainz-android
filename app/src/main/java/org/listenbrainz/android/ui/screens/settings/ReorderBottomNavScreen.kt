@@ -67,10 +67,14 @@ fun ReorderBottomNavScreen(
         .collectAsState(
             initial = BottomNavItem.entries.toList()
         )
-    var items by remember(storedItems) {
+    var items by remember {
         mutableStateOf(storedItems)
     }
     val listState = rememberLazyListState()
+
+    LaunchedEffect(storedItems) {
+        items = storedItems
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
