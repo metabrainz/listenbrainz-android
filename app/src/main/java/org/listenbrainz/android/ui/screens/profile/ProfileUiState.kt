@@ -20,7 +20,7 @@ import org.listenbrainz.android.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.model.userPlaylist.UserPlaylists
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningNowUiState
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
-import org.listenbrainz.android.ui.screens.profile.stats.UserGlobal
+import org.listenbrainz.android.ui.screens.profile.stats.DataScope
 
 data class ProfileUiState(
     val isSelf: Boolean = false,
@@ -39,7 +39,7 @@ data class ListensTabUiState(
     val listeningNow: ListeningNowUiState? = null,
     val pinnedSong: PinnedRecording? = null,
     val compatibility: Float? = null,
-    val recentListens: List<Listen>? = emptyList(),
+    val recentListens: Flow<PagingData<Listen>> = emptyFlow(),
     val followers: List<Pair<String, Boolean>>? = emptyList(),
     val following: List<Pair<String, Boolean>>? = emptyList(),
     val similarUsers: List<SimilarUser>? = emptyList(),
@@ -56,7 +56,7 @@ data class TasteTabUIState(
 
 data class StatsTabUIState(
     val isLoading: Boolean = true,
-    val userListeningActivity: Map<Pair<UserGlobal, StatsRange>, List<ListeningActivity?>> = mapOf(),
+    val userListeningActivity: Map<Pair<DataScope, StatsRange>, List<ListeningActivity?>> = mapOf(),
     val topArtists: Map<StatsRange, TopArtists?>? = null,
     val topAlbums: Map<StatsRange, TopAlbums?>? = null,
     val topSongs: Map<StatsRange, TopSongs?>? = null,

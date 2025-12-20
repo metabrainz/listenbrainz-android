@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -40,8 +41,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.LoadingAnimation
+import org.listenbrainz.android.ui.navigation.TopBar
+import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.artist.BioCard
 import org.listenbrainz.android.ui.screens.artist.Links
 import org.listenbrainz.android.ui.screens.artist.ReviewsCard
@@ -59,9 +63,9 @@ import org.listenbrainz.android.viewmodel.SocialViewModel
 fun AlbumScreen(
     albumMbid: String,
     viewModel: AlbumViewModel = hiltViewModel(),
-    feedViewModel: FeedViewModel = hiltViewModel(),
     socialViewModel: SocialViewModel = hiltViewModel(),
     snackBarState: SnackbarHostState,
+    topBarActions: TopBarActions
 ) {
     LaunchedEffect(Unit) {
         viewModel.fetchAlbumData(albumMbid)
@@ -69,84 +73,90 @@ fun AlbumScreen(
     val uiState by viewModel.uiState.collectAsState()
     AlbumScreen(
         uiState = uiState,
-        feedViewModel = feedViewModel,
         socialViewModel = socialViewModel,
         snackBarState = snackBarState,
-        albumMbid = albumMbid
+        albumMbid = albumMbid,
+        topBarActions = topBarActions
     )
 }
 
 @Composable
 private fun AlbumScreen(
     uiState: AlbumUiState,
-    feedViewModel: FeedViewModel,
     socialViewModel: SocialViewModel,
     snackBarState: SnackbarHostState,
     albumMbid: String,
+    topBarActions: TopBarActions
 ) {
-    AnimatedContent(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-        targetState = uiState.isLoading,
-        transitionSpec = {
-            fadeIn() togetherWith fadeOut()
-        }
-    ) { isLoading ->
-        if (isLoading) {
-            LoadingAnimation()
-        } else {
-            LazyColumn {
-                item {
-                    BioCard(
-                        header = uiState.name,
-                        coverArt = uiState.coverArt,
-                        displayRadioButton = false,
-                        useWebView = false,
-                        totalPlays = uiState.totalPlays,
-                        totalListeners = uiState.totalListeners,
-                        artists = uiState.artists,
-                        albumType = uiState.type,
-                        albumReleaseDate = uiState.releaseDate,
-                        albumTags = uiState.tags
-                    )
-                }
-                item {
-                    ArtistRadio()
-                }
-                item {
-                    val artistMbid = when (uiState.artists.isNotEmpty()) {
-                        true -> uiState.artists[0]?.artistMbid
-                        false -> null
-                    }
-                    val links = when (uiState.artists.isNotEmpty()) {
-                        true -> uiState.artists[0]?.rels
-                        false -> null
-                    }
-                    Links(
-                        parseLinks(artistMbid, links)
-                    )
-                }
-                item {
-                    TrackListCard(uiState = uiState)
-                }
-                item {
-                    TopListenersCard(uiState = uiState)
-                }
-                item {
-                    if (uiState.name != null) {
-                        ReviewsCard(
-                            reviewOfEntity = uiState.reviews,
-                            feedViewModel = feedViewModel,
-                            socialViewModel = socialViewModel,
-                            snackBarState = snackBarState,
-                            goToUserPage = {},
-                            onErrorShown = { socialViewModel.clearErrorFlow() },
-                            onMessageShown = { socialViewModel.clearMsgFlow() },
-                            albumMbid = albumMbid,
-                            albumName = uiState.name
+    Column {
+        TopBar(
+            modifier = Modifier.statusBarsPadding(),
+            topBarActions = topBarActions,
+            title = AppNavigationItem.Album.title
+        )
+        AnimatedContent(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+            targetState = uiState.isLoading,
+            transitionSpec = {
+                fadeIn() togetherWith fadeOut()
+            }
+        ) { isLoading ->
+            if (isLoading) {
+                LoadingAnimation()
+            } else {
+                LazyColumn {
+                    item {
+                        BioCard(
+                            header = uiState.name,
+                            coverArt = uiState.coverArt,
+                            displayRadioButton = false,
+                            useWebView = false,
+                            totalPlays = uiState.totalPlays,
+                            totalListeners = uiState.totalListeners,
+                            artists = uiState.artists,
+                            albumType = uiState.type,
+                            albumReleaseDate = uiState.releaseDate,
+                            albumTags = uiState.tags
                         )
                     }
+                    item {
+                        ArtistRadio()
+                    }
+                    item {
+                        val artistMbid = when (uiState.artists.isNotEmpty()) {
+                            true -> uiState.artists[0]?.artistMbid
+                            false -> null
+                        }
+                        val links = when (uiState.artists.isNotEmpty()) {
+                            true -> uiState.artists[0]?.rels
+                            false -> null
+                        }
+                        Links(
+                            parseLinks(artistMbid, links)
+                        )
+                    }
+                    item {
+                        TrackListCard(uiState = uiState)
+                    }
+                    item {
+                        TopListenersCard(uiState = uiState)
+                    }
+                    item {
+                        if (uiState.name != null) {
+                            ReviewsCard(
+                                reviewOfEntity = uiState.reviews,
+                                socialViewModel = socialViewModel,
+                                snackBarState = snackBarState,
+                                goToUserPage = {},
+                                onErrorShown = { socialViewModel.clearErrorFlow() },
+                                onMessageShown = { socialViewModel.clearMsgFlow() },
+                                albumMbid = albumMbid,
+                                albumName = uiState.name
+                            )
+                        }
 
+                    }
                 }
             }
         }
@@ -275,9 +285,7 @@ private fun TopListenersCard(
                 ArtistCard(
                     artistName = it?.userName ?: "",
                     listenCountLabel = formatNumber(it?.listenCount ?: 0)
-                ) {
-
-                }
+                ) {}
                 Spacer(modifier = Modifier.height(12.dp))
             }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {

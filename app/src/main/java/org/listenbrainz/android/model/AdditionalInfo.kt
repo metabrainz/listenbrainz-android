@@ -8,7 +8,7 @@ data class AdditionalInfo(
     @SerializedName("artist_msid"              ) val artistMsid: String? = null,
     @SerializedName("artist_names"             ) val artistNames: List<String>? = null,
     @SerializedName("discnumber"               ) val discNumber: Int? = null,
-    @SerializedName("duration_ms"              ) var durationMs: Int? = null,
+    @SerializedName("duration_ms"              ) val durationMs: Int? = null,
     @SerializedName("isrc"                     ) val isrc: String? = null,
     @SerializedName("listening_from"           ) val listeningFrom: String? = null,
     @SerializedName("recording_msid"           ) val recordingMsid: String? = null,

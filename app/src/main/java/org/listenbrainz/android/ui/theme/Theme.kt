@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -12,7 +13,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -22,15 +22,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.accompanist.systemuicontroller.SystemUiController
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
@@ -55,7 +52,7 @@ data class ColorScheme(
     val text: Color,
     val listenText: Color,
     /** Used for stars.*/
-    val golden: Color = Color(0xFFF9A825),
+    val golden: Color,
     val hint: Color,
     /** Used for BP **/
     val gradientBrush: Brush,
@@ -73,7 +70,6 @@ data class ColorScheme(
     val followingButtonBorder: BorderStroke?,
     /** Used for Artist Pages **/
     val artistBioColor: Color,
-    val playlistScreenGradient: Brush
 )
 
 
@@ -107,7 +103,7 @@ private val colorSchemeDark = ColorScheme(
     onBackground = Color.White,
     nav = bp_bottom_song_viewpager_dark,
     level1 = app_bottom_nav_dark,
-    level2 = Color(0xFF3B3B3B),
+    level2 = Color(0xFF363636),
     lbSignature = Color(0xFF9AABD1),
     lbSignatureSecondary = lb_yellow,
     lbSignatureInverse = lb_orange,
@@ -130,14 +126,7 @@ private val colorSchemeDark = ColorScheme(
             Color.Transparent
         )
     ),
-    playlistScreenGradient = Brush.verticalGradient(
-        listOf(
-            Color(0xFF282828),
-            Color(0xFF313131),
-            Color(0xFF393939),
-            Color(0xFF404040),
-        )
-    ),
+    golden = Color(0xFFF9A825),
     followerChipSelected = lb_purple_night,
     followerChipUnselected = app_bg_dark,
     followerCardColor = app_bg_secondary_dark,
@@ -153,7 +142,7 @@ private val colorSchemeLight = ColorScheme(
     onBackground = Color.Black,
     nav = bp_bottom_song_viewpager_day,
     level1 = app_bottom_nav_day,
-    level2 = Color(0xFFE3E3E3),
+    level2 = Color(0xFFD3D3D3),
     lbSignature = lb_purple,
     lbSignatureSecondary = lb_yellow,
     lbSignatureInverse = Color(0xFFE5743E),
@@ -180,14 +169,7 @@ private val colorSchemeLight = ColorScheme(
             Color.Transparent
         )
     ),
-    playlistScreenGradient = Brush.verticalGradient(
-        listOf(
-            Color(0xFFFEFEFE),
-            Color(0xFFF5F5F5),
-            Color(0xFFE9E9E9),
-            Color(0xFFDFDFDF),
-        )
-    ),
+    golden = Color(0xFFD39214),
     followerChipSelected = lb_purple,
     followerChipUnselected = Color.White,
     followerCardColor = Color.White,
@@ -242,6 +224,7 @@ data class Paddings(
     val lazyListAdjacent: Dp = 6.dp,
     val coverArtAndTextGap: Dp = 8.dp,
     val insideCard: Dp = 8.dp,
+    val sectionSeparation: Dp = 16.dp,
     /** Padding for text inside custom made buttons.*/
     val insideButton: Dp = 8.dp,
     val adjacentDialogButtons: Dp = 8.dp,
@@ -269,7 +252,9 @@ data class Shapes(
     val listenCardSmall: Shape = RoundedCornerShape(8.dp),
     val dialogs: Shape = RoundedCornerShape(4.dp),
     val listenCard: Shape = RoundedCornerShape(16.dp),
-    val chips: Shape = RoundedCornerShape(4.dp)
+    val chips: Shape = RoundedCornerShape(4.dp),
+    val lbButton: Shape = RoundedCornerShape(6.dp),
+    val signatureChips: Shape = RoundedCornerShape(10.dp),
 )
 
 val LocalShapes = staticCompositionLocalOf { Shapes() }
@@ -315,7 +300,6 @@ fun onScreenUiModeIsDark() : Boolean {
 @Composable
 fun ListenBrainzTheme(
     systemTheme: Boolean = isSystemInDarkTheme(),
-    systemUiController: SystemUiController = rememberSystemUiController(),
     context: Context = LocalContext.current,
     appPreferences: AppPreferences = AppPreferencesImpl(context),
     // Dynamic color is available on Android 12+
@@ -355,30 +339,27 @@ fun ListenBrainzTheme(
             UiMode.FOLLOW_SYSTEM -> if (systemTheme) colorSchemeDark else colorSchemeLight
         }
     }
-    
-    val view = LocalView.current
-    if (!view.isInEditMode) {
-        SideEffect {
-            val isDark = when (uiMode){
-                UiMode.DARK -> false
-                UiMode.LIGHT -> true
-                UiMode.FOLLOW_SYSTEM -> !systemTheme
-            }
-            systemUiController.statusBarDarkContentEnabled = isDark
-            systemUiController.navigationBarDarkContentEnabled = isDark
-        }
+
+    val textStyleLB = remember(localColorScheme) {
+        TextStyle(color = localColorScheme.text)
     }
 
-    CompositionLocalProvider(
-        LocalPaddings provides Paddings(),
-        LocalShapes provides Shapes(),
-        LocalSizes provides Sizes(),
-        LocalTextStyles provides TextStyles(),
-        LocalUiMode provides uiMode,
-        LocalColorScheme provides localColorScheme
+    MaterialTheme(
+        colorScheme = colorScheme,
     ) {
-        MaterialTheme(
-            colorScheme = colorScheme,
+        CompositionLocalProvider(
+            LocalPaddings provides Paddings(),
+            LocalShapes provides Shapes(),
+            LocalSizes provides Sizes(),
+            LocalTextStyles provides TextStyles(),
+            LocalUiMode provides uiMode,
+            LocalColorScheme provides localColorScheme,
+            LocalTextStyle provides LocalTextStyle
+                .current
+                .merge(textStyleLB),
+            androidx.compose.material.LocalTextStyle provides androidx.compose.material.LocalTextStyle
+                .current
+                .merge(textStyleLB),
             content = content
         )
     }

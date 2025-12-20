@@ -7,7 +7,7 @@ data class CurrentPins(
 )
 
 data class PinnedRecording(
-    @SerializedName("created"        ) val created: Float? = null,
+    @SerializedName("created"        ) val created: Long? = null,
     @SerializedName("row_id"         ) val rowId: Int? = null,
     @SerializedName("track_metadata" ) val trackMetadata: TrackMetadata? = null,
     
@@ -16,4 +16,10 @@ data class PinnedRecording(
     @SerializedName("recording_mbid" ) val recordingMbid : String? = null,
     @SerializedName("blurb_content"  ) val blurbContent  : String? = null,
     @SerializedName("pinned_until"   ) val pinnedUntil   : Int?    = null
-)
+) {
+    fun toMetadata() = Metadata(
+        trackMetadata = trackMetadata,
+        blurbContent = blurbContent,
+        created = created,
+    )
+}

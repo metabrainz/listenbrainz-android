@@ -73,7 +73,9 @@ fun OverviewScreen(
                     0,
                     0L
                 )
-                brainzPlayerViewModel.playOrToggleSong(artist.songs[0], true)
+                artist.songs.getOrNull(0)?.let {
+                    brainzPlayerViewModel.playOrToggleSong(it, true)
+                }
             }
         )
         AlbumsOverview(

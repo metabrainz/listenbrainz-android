@@ -86,19 +86,4 @@ class UserRepositoryImpl @Inject constructor(
             service.getCreatedForYouPlaylists(username)
         }
     }
-
-    override suspend fun getUserPlaylists(username: String?, offset: Int, count: Int): Resource<UserPlaylistPayload> {
-        return parseResponse {
-            if(username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
-            service.getUserPlaylists(username, offset, count)
-        }
-    }
-
-    override suspend fun getUserCollabPlaylists(username: String?, offset: Int, count: Int): Resource<UserPlaylistPayload> {
-        return parseResponse {
-            if (username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
-            service.getUserCollabPlaylists(username, offset, count)
-        }
-    }
-
 }

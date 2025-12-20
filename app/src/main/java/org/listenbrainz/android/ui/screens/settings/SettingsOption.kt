@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.screens.settings
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,8 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material3.Icon
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,7 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
-import org.listenbrainz.android.ui.components.Switch
+import org.listenbrainz.android.ui.components.SwitchLB
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @Composable
@@ -49,7 +49,7 @@ fun SettingsSwitchOption(
             )
         }
 
-        Switch(
+        SwitchLB(
             checked = isChecked,
             onCheckedChange = onCheckedChange,
         )
@@ -149,6 +149,42 @@ private fun SettingsText(
                 modifier = Modifier
                     .padding(top = 6.dp, end = 6.dp)
                     .fillMaxWidth(0.9f)
+            )
+        }
+    }
+}
+
+@Composable
+fun SettingsLoadingOption(
+    modifier: Modifier = Modifier,
+    title: String,
+    subtitle: String,
+    enabled: Boolean = true,
+    isLoading: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = ListenBrainzTheme.paddings.settings)
+            .clickable(enabled = !isLoading){
+                onClick()
+            },
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column {
+            SettingsText(
+                title = title,
+                subtitle = subtitle,
+                enabled = !isLoading
+            )
+        }
+        if(isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(24.dp),
+                color = ListenBrainzTheme.colorScheme.lbSignature,
+                strokeWidth = 2.dp
             )
         }
     }

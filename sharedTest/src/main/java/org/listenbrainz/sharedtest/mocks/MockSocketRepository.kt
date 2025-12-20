@@ -6,8 +6,7 @@ import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.repository.socket.SocketRepository
 
 class MockSocketRepository : SocketRepository {
-    override fun listen(username: String): Flow<Listen> {
+    override fun listen(usernameProvider: suspend () -> String): Flow<Listen?> {
         return flow {  }
     }
-
 }

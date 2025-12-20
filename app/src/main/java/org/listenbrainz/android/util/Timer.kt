@@ -1,43 +1,17 @@
 package org.listenbrainz.android.util
 
-import android.annotation.SuppressLint
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
-import android.media.MediaMetadata
-import android.os.Build
 import android.os.Handler
 import android.os.SystemClock
-import android.util.Log
-import androidx.core.app.AlarmManagerCompat
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.hilt.work.HiltWorker
-import androidx.work.BackoffPolicy
-import androidx.work.Constraints
-import androidx.work.Data
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequest
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.OutOfQuotaPolicy
-import androidx.work.WorkInfo
-import androidx.work.WorkManager
-import androidx.work.WorkRequest
-import androidx.work.Worker
-import androidx.work.WorkerParameters
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
-import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.OnTimerListener
 import org.listenbrainz.android.model.TimerState
-import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
-import org.listenbrainz.android.service.ListenSubmissionWorker
-import org.listenbrainz.android.util.ListenSubmissionState.Companion
-import org.listenbrainz.android.util.ListenSubmissionState.Companion.DEFAULT_DURATION
-import java.util.concurrent.TimeUnit
 
 interface Timer {
+    val state: TimerState
+
+    val durationLeft: Long
+
+    val initialDuration: Long
+
     fun startOrResume(delay: Long = 0L)
 
     fun setDuration(duration: Long)
@@ -55,280 +29,153 @@ interface Timer {
 
 /** **NOT** thread safe.*/
 abstract class TimerBase: Timer {
-    companion object {
-        private const val MESSAGE_TOKEN = 69
-        private const val TAG = "Timer"
-    }
-    
-    private var mState: TimerState = TimerState.ENDED
+    final override var state: TimerState = TimerState.ENDED
+        private set
+    final override var durationLeft: Long = 0L
+        private set
+    final override var initialDuration = 0L
+        private set
+
     private var mListener: OnTimerListener? = null
-    
-    private var mInitialDuration = 0L
     private var mResumeTs: Long = 0
-    private var mDurationLeft: Long = 0L
     
     override fun setDuration(duration: Long) {
-        mInitialDuration = duration
-        mDurationLeft = duration
+        initialDuration = duration
+        durationLeft = duration
     }
     
     override fun setOnTimerListener(listener: OnTimerListener) {
         mListener = listener
-        Log.d(TAG, "setOnTimerListener: ")
     }
     
     protected fun startOrResume(
         delay: Long = 0L,
-        postDelayed: (durationLeft: Long, token: Int, block: () -> Unit) -> Unit
+        postDelayed: (durationLeft: Long, block: () -> Unit) -> Unit
     ) {
-        when (mState) {
+        when (state) {
             TimerState.RUNNING -> return
             TimerState.PAUSED -> {
                 mResumeTs = SystemClock.uptimeMillis()
 
                 postDelayed(
-                    mDurationLeft,
-                    MESSAGE_TOKEN,
-                ) { end() }
-                Log.d(TAG,"Timer resumed")
+                    durationLeft,
+                    ::end
+                )
                 
                 mListener?.onTimerResumed()
-                mState = TimerState.RUNNING
+                state = TimerState.RUNNING
             }
             TimerState.ENDED -> {
                 mResumeTs = SystemClock.uptimeMillis()
-                mDurationLeft += delay
+                durationLeft += delay
                 
                 postDelayed(
-                    mDurationLeft,
-                    MESSAGE_TOKEN,
-                ) { end() }
-                Log.d(TAG,"Timer started")
+                    durationLeft,
+                    ::end
+                )
     
                 mListener?.onTimerStarted()
-                mState = TimerState.RUNNING
+                state = TimerState.RUNNING
             }
         }
     }
     
     override fun end() {
-        if (mState == TimerState.ENDED) {
+        if (state == TimerState.ENDED) {
             return
         }
-        mState = TimerState.ENDED
+        state = TimerState.ENDED
         mListener?.onTimerEnded()
         reset()
     }
     
     /** Discard current listen post and stop timer.*/
-    protected fun stop(removePosts: (Int) -> Unit) {
-        if (mState == TimerState.ENDED) {
+    protected fun stop(removePosts: () -> Unit) {
+        if (state == TimerState.ENDED) {
             return
         }
-        mState = TimerState.ENDED
-        removePosts(MESSAGE_TOKEN)
+        state = TimerState.ENDED
+        removePosts()
         reset()
     }
     
     protected fun extendDuration(
         extensionSeconds: (passedSeconds: Long) -> Long,
-        removePosts: (Int) -> Unit,
-        postDelayed: (duration: Long, token: Int, block: () -> Unit) -> Unit,
+        removePosts: () -> Unit,
+        postDelayed: (duration: Long, block: () -> Unit) -> Unit,
     ) {
         pause(removePosts)
-        mDurationLeft = extensionSeconds(/*passedSeconds =*/mInitialDuration - mDurationLeft)
+        durationLeft = extensionSeconds(/*passedSeconds =*/initialDuration - durationLeft)
         startOrResume(postDelayed = postDelayed)
     }
     
-    protected fun pause(removePosts: (Int) -> Unit) {
-        Log.d(TAG,"Timer paused")
-        if (mState == TimerState.PAUSED || mState == TimerState.ENDED) {
+    protected fun pause(removePosts: () -> Unit) {
+        if (state == TimerState.PAUSED || state == TimerState.ENDED) {
             return
         }
-        mState = TimerState.PAUSED
-        removePosts(MESSAGE_TOKEN)
+        state = TimerState.PAUSED
+        removePosts()
         
-        val durationLeft = mDurationLeft - (SystemClock.uptimeMillis() - mResumeTs)
+        val durationLeft = durationLeft - (SystemClock.uptimeMillis() - mResumeTs)
         mListener?.onTimerPaused(durationLeft)
-        mDurationLeft = durationLeft
+        this@TimerBase.durationLeft = durationLeft
     }
     
     private fun reset() {
         mResumeTs = 0L
-        mDurationLeft = 0L
-        mInitialDuration = 0L
+        durationLeft = 0L
+        initialDuration = 0L
     }
 }
 
 
 class TimerJQ(
-    private val jobQueue: JobQueue
+    private val jobQueue: JobQueue,
+    private val uniqueToken: Any
 ): TimerBase() {
-    override fun startOrResume(delay: Long) = startOrResume(delay) { durationLeft, token, block ->
-        jobQueue.postDelayed(durationLeft, token) { block() }
+    override fun startOrResume(delay: Long) = startOrResume(delay) { durationLeft, block ->
+        jobQueue.postDelayed(durationLeft, uniqueToken) { block() }
     }
 
-    override fun stop() = stop { jobQueue.removePosts(it) }
+    override fun stop() = stop { jobQueue.removePosts(uniqueToken) }
 
     override fun extendDuration(extensionSeconds: (passedSeconds: Long) -> Long) = extendDuration(
         extensionSeconds = extensionSeconds,
-        removePosts = { jobQueue.removePosts(it) },
-        postDelayed = { duration, token, block ->
-            jobQueue.postDelayed(duration, token) { block() }
+        removePosts = { jobQueue.removePosts(uniqueToken) },
+        postDelayed = { duration, block ->
+            jobQueue.postDelayed(duration, uniqueToken) { block() }
         }
     )
 
-    override fun pause() = pause { jobQueue.removePosts(it) }
+    override fun pause() = pause { jobQueue.removePosts(uniqueToken) }
 }
 
 
 class TimerHandler(
-    private val handler: Handler
+    private val handler: Handler,
+    private val uniqueToken: Any
 ): TimerBase() {
-    override fun startOrResume(delay: Long) = startOrResume(delay) { durationLeft, token, block ->
+    override fun startOrResume(delay: Long) = startOrResume(delay) { durationLeft, block ->
         handler.postAtTime(
             { block() },
-            token,
+            uniqueToken,
             SystemClock.uptimeMillis() + durationLeft,
         )
     }
 
-    override fun stop() = stop { handler.removeCallbacksAndMessages(it) }
+    override fun stop() = stop { handler.removeCallbacksAndMessages(uniqueToken) }
 
     override fun extendDuration(extensionSeconds: (passedSeconds: Long) -> Long) = extendDuration(
         extensionSeconds = extensionSeconds,
-        removePosts = { handler.removeCallbacksAndMessages(it) },
-        postDelayed = { duration, token, block ->
+        removePosts = { handler.removeCallbacksAndMessages(uniqueToken) },
+        postDelayed = { duration,  block ->
             handler.postAtTime(
                 { block() },
-                token,
+                uniqueToken,
                 SystemClock.uptimeMillis() + duration,
             )
         }
     )
 
-    override fun pause() = pause { handler.removeCallbacksAndMessages(it) }
-}
-
-class TimerWorkManager(private val workManager: WorkManager): TimerBase() {
-
-    companion object {
-        private const val TAG = "Timer"
-    }
-
-    private var mState: TimerState = TimerState.ENDED
-    private var mListener: OnTimerListener? = null
-
-    private var mInitialDuration = 0L
-    private var mResumeTs: Long = 0
-    private var mDurationLeft: Long = 0L
-
-    override fun setDuration(duration: Long) {
-        mInitialDuration = duration
-        mDurationLeft = duration
-    }
-
-    override fun setOnTimerListener(listener: OnTimerListener) {
-        mListener = listener
-        Log.d(TAG, "setOnTimerListener: ")
-    }
-
-    override fun startOrResume(delay: Long) {
-        when (mState) {
-            TimerState.RUNNING -> return
-            TimerState.PAUSED -> {
-                mResumeTs = SystemClock.uptimeMillis()
-
-                scheduleRequest()
-                Log.d(TAG,"Timer resumed")
-
-                mListener?.onTimerResumed()
-                mState = TimerState.RUNNING
-            }
-            TimerState.ENDED -> {
-                mResumeTs = SystemClock.uptimeMillis()
-                mDurationLeft += delay
-
-                scheduleRequest()
-                Log.d(TAG,"Timer started")
-
-                mListener?.onTimerStarted()
-                mState = TimerState.RUNNING
-            }
-        }
-    }
-
-    private fun scheduleRequest() {
-        val constraints = Constraints.Builder().run {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                setTriggerContentMaxDelay(mDurationLeft, TimeUnit.MILLISECONDS)
-            } else this
-        }.build()
-
-        val request = OneTimeWorkRequestBuilder<TimerWorker>()
-            .setInitialDelay(mDurationLeft, TimeUnit.MILLISECONDS)
-            .setConstraints(constraints)
-            .build()
-
-        workManager
-            .beginUniqueWork(TAG, ExistingWorkPolicy.APPEND_OR_REPLACE, request)
-            .enqueue()
-    }
-
-    override fun end() {
-        if (mState == TimerState.ENDED) {
-            return
-        }
-        mState = TimerState.ENDED
-        mListener?.onTimerEnded()
-        reset()
-    }
-
-    /** Discard current listen post and stop timer.*/
-    override fun stop() {
-        if (mState == TimerState.ENDED) {
-            return
-        }
-        mState = TimerState.ENDED
-        workManager.cancelUniqueWork(TAG)
-        reset()
-    }
-
-    override fun extendDuration(extensionSeconds: (passedSeconds: Long) -> Long) {
-        pause()
-        mDurationLeft = extensionSeconds(/*passedSeconds =*/mInitialDuration - mDurationLeft)
-        startOrResume()
-    }
-
-    override fun pause() {
-        Log.d(TAG,"Timer paused")
-        if (mState == TimerState.PAUSED || mState == TimerState.ENDED) {
-            return
-        }
-        mState = TimerState.PAUSED
-        workManager.cancelUniqueWork(TAG)
-
-        val durationLeft = mDurationLeft - (SystemClock.uptimeMillis() - mResumeTs)
-        mListener?.onTimerPaused(durationLeft)
-        mDurationLeft = durationLeft
-    }
-
-    private fun reset() {
-        mResumeTs = 0L
-        mDurationLeft = 0L
-        mInitialDuration = 0L
-    }
-}
-
-@HiltWorker
-class TimerWorker @AssistedInject constructor(
-    @Assisted context: Context,
-    @Assisted workerParams: WorkerParameters,
-    private val listenServiceManager: ListenServiceManager
-): Worker(context, workerParams) {
-    override fun doWork(): Result {
-        //end()
-        listenServiceManager.listenSubmissionState.timer.end()
-        return Result.success()
-    }
+    override fun pause() = pause { handler.removeCallbacksAndMessages(uniqueToken) }
 }

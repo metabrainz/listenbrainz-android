@@ -1,0 +1,6 @@
+New:
+1. In app account creation flow.
+2. Compliance warnings.
+Bug fixes:
+1. Login timing out.
+2. Compliance fixes.

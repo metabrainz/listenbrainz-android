@@ -8,7 +8,7 @@ import org.listenbrainz.android.model.Metadata
 @Immutable
 data class FeedEvent(
     @SerializedName("id"        ) val id: Int? = null,
-    @SerializedName("created"   ) val created: Int,
+    @SerializedName("created"   ) val created: Long,
     @SerializedName("event_type") val type: String,
     @SerializedName("hidden"    ) val hidden: Boolean? = null,
     @SerializedName("metadata"  ) val metadata: Metadata,

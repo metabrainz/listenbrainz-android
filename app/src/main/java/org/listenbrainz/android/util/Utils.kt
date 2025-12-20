@@ -1,5 +1,6 @@
 package org.listenbrainz.android.util
 
+import android.Manifest
 import android.app.ActivityManager
 import android.app.NotificationManager
 import android.content.ActivityNotFoundException
@@ -7,6 +8,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
 import android.graphics.Bitmap
@@ -23,14 +25,19 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.DisposableEffectResult
@@ -42,18 +49,29 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import androidx.core.content.PermissionChecker
 import androidx.core.view.WindowCompat
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.limurse.logger.Logger
+import com.limurse.logger.Logger.compressLogsInZipFile
+import com.limurse.logger.Logger.e
+import com.limurse.logger.util.FileIntent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import okhttp3.*
+import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.ResponseError.Companion.getError
-import org.listenbrainz.android.util.Constants.Strings.CHANNEL_ID
 import retrofit2.Response
 import java.io.*
 import java.security.MessageDigest
@@ -197,22 +215,22 @@ object Utils {
 
     @Composable
     fun getStatusBarHeight() =
-        androidx.compose.foundation.layout.WindowInsets.statusBars.asPaddingValues()
+        WindowInsets.statusBars.asPaddingValues()
             .calculateTopPadding()
 
     @Composable
     fun getDisplayCutoutHeight() =
         if (LocalConfiguration.current.orientation == ORIENTATION_PORTRAIT) {
-            androidx.compose.foundation.layout.WindowInsets.displayCutout.asPaddingValues()
+            WindowInsets.displayCutout.asPaddingValues()
                 .calculateTopPadding()
         } else {
-            androidx.compose.foundation.layout.WindowInsets.displayCutout.asPaddingValues()
+            WindowInsets.displayCutout.asPaddingValues()
                 .calculateStartPadding(LocalLayoutDirection.current)
         }
 
     @Composable
     fun getNavigationBarHeight() =
-        androidx.compose.foundation.layout.WindowInsets.navigationBars.asPaddingValues()
+        WindowInsets.navigationBars.asPaddingValues()
             .calculateBottomPadding()
 
     @Composable
@@ -220,6 +238,12 @@ object Utils {
 
     @Composable
     fun VerticalSpacer(height: Dp) = Spacer(Modifier.height(height))
+
+    @Composable
+    fun ColumnScope.Spacer(height: Dp) = Spacer(modifier = Modifier.height(height))
+
+    @Composable
+    fun RowScope.Spacer(height: Dp) = Spacer(modifier = Modifier.width(height))
 
     @Composable
     fun Int.toDp() = with(LocalDensity.current) { this@toDp.toDp() }
@@ -239,6 +263,13 @@ object Utils {
 
     fun Dp.toPx(context: Context) = this.value * context.resources.displayMetrics.density
     fun Dp.toPx(density: Int) = this.value * density
+
+    @Composable
+    fun TextUnit.toDp() = with(LocalDensity.current) { this@toDp.toDp() }
+    fun TextUnit.toDp(context: Context) {
+        val density = Density(context)
+        return with(density) { this@toDp.toDp() }
+    }
 
     @Composable
     fun SetSystemBarsForegroundAppearance(lightAppearance: Boolean) {
@@ -295,26 +326,49 @@ object Utils {
             data = Uri.fromParts("package", packageName, null)
         })
     }
-    
-    
-    fun notifyListen(songTitle: String, artistName: String, albumArt: Bitmap?, nm: NotificationManager, context: Context) {
-        val notificationBuilder = NotificationCompat.Builder(context,
-            CHANNEL_ID
-        )
-        .setContentTitle(songTitle)
-        .setContentText(artistName)
-        .setSmallIcon(R.drawable.ic_listenbrainz_logo_no_text)
-        .setLargeIcon(albumArt) // Set the album art here
-        .setPriority(NotificationCompat.PRIORITY_LOW)
-        .setAutoCancel(false)
-        .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
 
-        try {
-            nm.notify(0, notificationBuilder.build())
-        } catch (e: RuntimeException) {
-            Log.e(message = "Error showing notification")
+    fun Context.getListeningApps(): List<ApplicationInfo>{
+        val intents = listOf(
+            "android.media.browse.MediaBrowserService",
+            "android.media.session.MediaSessionService"
+        )
+        val musicAppsPackages = mutableListOf<ApplicationInfo>()
+        intents.forEach { intentString->
+            val services = packageManager.queryIntentServices(Intent(intentString), PackageManager.GET_META_DATA)
+            for (resolveInfo in services){
+                val packageName = resolveInfo.serviceInfo.packageName
+                val appInfo = packageManager.getApplicationInfo(packageName, 0)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                    val category = packageManager.getApplicationInfo(packageName, 0).category
+                    if (category == ApplicationInfo.CATEGORY_AUDIO || category == ApplicationInfo.CATEGORY_VIDEO){
+                        musicAppsPackages.add(appInfo)
+                    }
+                }else{
+                    //Don't apply the additional category filter for API version < 26
+                    musicAppsPackages.add(appInfo)
+                }
+            }
         }
+        return musicAppsPackages
     }
+
+    //Function to fetch installed apps
+    fun Context.getAllInstalledApps(): List<ApplicationInfo>{
+        val apps = mutableListOf<ApplicationInfo>()
+        val intent = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_LAUNCHER)
+        }
+        packageManager.queryIntentActivities(intent, 0).forEach { resolveInfo->
+            try {
+                val appInfo = packageManager.getApplicationInfo(resolveInfo.activityInfo.packageName, 0)
+                apps.add(appInfo)
+            }catch (e: Exception){
+                Log.e("Could not fetch ApplicationInfo for ${resolveInfo.activityInfo.packageName}")
+            }
+        }
+        return apps
+    }
+
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun Icon.toBitmap(context: Context): Bitmap? {
@@ -552,4 +606,112 @@ object Utils {
         }
         return true
     }
+
+    fun ComponentActivity.askNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                1
+            )
+        }
+    }
+
+    /**
+     * Compares the current app version with the latest version from GitHub.
+     * @param currentVersion The current app version (e.g., "2.8.3")
+     * @param latestVersion The latest version from GitHub (e.g., "2.8.4-beta")
+     * @return true if the latest version is newer than the current version
+     */
+    fun isNewerVersion(currentVersion: String, latestVersion: String?): Boolean {
+        if (latestVersion.isNullOrBlank()) return false
+
+        // Clean version strings (remove 'v' prefix if present)
+        val cleanCurrentVersion = currentVersion.removePrefix("v")
+        val cleanLatestVersion = latestVersion.removePrefix("v")
+
+        try {
+            // Split versions by dots to get major, minor, patch
+            val currentParts = cleanCurrentVersion.split("-")[0].split(".")
+            val latestParts = cleanLatestVersion.split("-")[0].split(".")
+
+            // Compare major version
+            val currentMajor = currentParts.getOrNull(0)?.toIntOrNull() ?: 0
+            val latestMajor = latestParts.getOrNull(0)?.toIntOrNull() ?: 0
+            if (latestMajor > currentMajor) return true
+            if (latestMajor < currentMajor) return false
+
+            // Compare minor version
+            val currentMinor = currentParts.getOrNull(1)?.toIntOrNull() ?: 0
+            val latestMinor = latestParts.getOrNull(1)?.toIntOrNull() ?: 0
+            if (latestMinor > currentMinor) return true
+            if (latestMinor < currentMinor) return false
+
+            // Compare patch version
+            val currentPatch = currentParts.getOrNull(2)?.toIntOrNull() ?: 0
+            val latestPatch = latestParts.getOrNull(2)?.toIntOrNull() ?: 0
+            return latestPatch > currentPatch
+
+            // Versions are the same up to the patch level
+        } catch (e: Exception) {
+            android.util.Log.e("AppUpdatesViewModel", "Error comparing versions", e)
+            return false
+        }
+    }
+
+    fun submitLogs(context: Context) {
+        Logger.apply {
+            compressLogsInZipFile { zipFile ->
+                zipFile?.let {
+                    FileIntent
+                        .fromFile(
+                            context,
+                            it,
+                            BuildConfig.APPLICATION_ID
+                        )
+                        ?.let { intent ->
+                            intent.putExtra(Intent.EXTRA_SUBJECT, "Log Files")
+                            intent.putExtra(
+                                Intent.EXTRA_EMAIL,
+                                arrayOf("mobile@metabrainz.org")
+                            )
+                            intent.putExtra(
+                                Intent.EXTRA_TEXT,
+                                "Please find the attached log files."
+                            )
+                            intent.putExtra(
+                                Intent.EXTRA_STREAM,
+                                FileProvider.getUriForFile(
+                                    context,
+                                    "${BuildConfig.APPLICATION_ID}.provider",
+                                    zipFile
+                                )
+                            )
+                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            try {
+                                context.startActivity(
+                                    Intent.createChooser(
+                                        intent,
+                                        "Email logs..."
+                                    )
+                                )
+                            } catch (e: java.lang.Exception) {
+                                e(throwable = e)
+                            }
+                        }
+                }
+            }
+        }
+    }
+
+    val Context.canShowNotifications get() =
+        ActivityCompat.checkSelfPermission(
+        this,
+        Manifest.permission.POST_NOTIFICATIONS
+    ) == PackageManager.PERMISSION_GRANTED
 }

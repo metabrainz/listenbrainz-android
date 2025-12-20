@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,7 +25,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Done
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -57,6 +57,7 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.flow.flow
+import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.feed.FeedCallbacks
 import org.listenbrainz.android.model.feed.FeedEvent
@@ -72,7 +73,10 @@ import org.listenbrainz.android.ui.components.dialogs.PersonalRecommendationDial
 import org.listenbrainz.android.ui.components.dialogs.PinDialog
 import org.listenbrainz.android.ui.components.dialogs.ReviewDialog
 import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
+import org.listenbrainz.android.ui.navigation.TopBar
+import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
@@ -82,16 +86,18 @@ fun FeedScreen(
     viewModel: FeedViewModel = hiltViewModel(),
     socialViewModel: SocialViewModel = hiltViewModel(),
     scrollToTopState: Boolean,
+    topAppBarActions: TopBarActions,
     onScrollToTop: (suspend () -> Unit) -> Unit,
     goToUserPage: (String) -> Unit,
     goToArtistPage: (String) -> Unit
 ) {
-    
+
     val uiState by viewModel.uiState.collectAsState()
-    
+
     FeedScreen(
         uiState = uiState,
         scrollToTopState = scrollToTopState,
+        topBarActions = topAppBarActions,
         callbacks = remember {
             FeedCallbacks(
                 onScrollToTop = onScrollToTop,
@@ -131,17 +137,20 @@ fun FeedScreen(
 fun FeedScreen(
     uiState: FeedUiState,
     scrollToTopState: Boolean,
+    topBarActions: TopBarActions,
     callbacks: FeedCallbacks,
 ) {
     val myFeedPagingData = uiState.myFeedState.eventList.collectAsLazyPagingItems()
     val myFeedListState = rememberLazyListState()
-    
-    val followListensPagingData = uiState.followListensFeedState.eventList.collectAsLazyPagingItems()
+
+    val followListensPagingData =
+        uiState.followListensFeedState.eventList.collectAsLazyPagingItems()
     val followListensListState = rememberLazyListState()
-    
-    val similarListensPagingData = uiState.similarListensFeedState.eventList.collectAsLazyPagingItems()
+
+    val similarListensPagingData =
+        uiState.similarListensFeedState.eventList.collectAsLazyPagingItems()
     val similarListensListState = rememberLazyListState()
-    
+
     val pagerState = rememberPagerState { 3 }
     val isRefreshing = remember(
         pagerState.currentPage,
@@ -154,9 +163,9 @@ fun FeedScreen(
             else -> false
         }
     }
-    
+
     val dialogsState = rememberDialogsState()
-    
+
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
         onRefresh = {
@@ -167,18 +176,20 @@ fun FeedScreen(
             }
         }
     )
-    
-    LaunchedEffect(scrollToTopState){
+
+    LaunchedEffect(scrollToTopState) {
         callbacks.onScrollToTop {
-            when (pagerState.currentPage){
+            when (pagerState.currentPage) {
                 0 -> {
                     myFeedListState.scrollToItem(0)
                     myFeedPagingData.refresh()
                 }
+
                 1 -> {
                     followListensListState.scrollToItem(0)
                     followListensPagingData.refresh()
                 }
+
                 2 -> {
                     similarListensListState.scrollToItem(0)
                     similarListensPagingData.refresh()
@@ -186,135 +197,142 @@ fun FeedScreen(
             }
         }
     }
-    
+
     /** CONTENT */
-    Box(
-        Modifier
-            .fillMaxSize()
-            .pullRefresh(state = pullRefreshState)
-    ) {
-        if (myFeedPagingData.itemCount == 0 && myFeedPagingData.loadState.refresh is LoadState.Error) {
-            RetryButton(
-                modifier = Modifier.align(Alignment.Center),
-            ) {
-                myFeedPagingData.retry()
-                similarListensPagingData.retry()
-                followListensPagingData.retry()
+    Column {
+        TopBar(
+            modifier = Modifier.statusBarsPadding(),
+            topBarActions = topBarActions,
+            title = AppNavigationItem.Feed.title
+        )
+        Box(
+            Modifier
+                .fillMaxSize()
+                .pullRefresh(state = pullRefreshState)
+        ) {
+            if (myFeedPagingData.itemCount == 0 && myFeedPagingData.loadState.refresh is LoadState.Error) {
+                RetryButton(
+                    modifier = Modifier.align(Alignment.Center),
+                ) {
+                    myFeedPagingData.retry()
+                    similarListensPagingData.retry()
+                    followListensPagingData.retry()
+                }
             }
-        }
-    
-        HorizontalPager(
-            state = pagerState,
-            beyondViewportPageCount = 1
-        ) { position ->
-            when (position) {
-                0 -> MyFeed(
-                    listState = myFeedListState,
-                    pagingData = myFeedPagingData,
-                    uiState = uiState.myFeedState,
-                    onDeleteOrHide = callbacks.onDeleteOrHide,
-                    recommendTrack = callbacks.onRecommend,
-                    personallyRecommendTrack = { index ->
-                        dialogsState.activateDialog(
-                            Dialog.PERSONAL_RECOMMENDATION,
-                            FeedDialogBundleKeys.feedDialogBundle(0, index),
-                        )
-                    },
-                    review = { index ->
-                        dialogsState.activateDialog(
-                            Dialog.REVIEW,
-                            FeedDialogBundleKeys.feedDialogBundle(0, index)
-                        )
-                    },
-                    pin = { index ->
-                        dialogsState.activateDialog(
-                            Dialog.PIN,
-                            FeedDialogBundleKeys.feedDialogBundle(0, index)
-                        )
-                    },
-                    onPlay = callbacks.onPlay,
-                    goToUserPage = callbacks.goToUserPage,
-                    goToArtistPage = callbacks.goToArtistPage
-                )
-            
-                1 -> FollowListens(
-                    listState = followListensListState,
-                    pagingData = followListensPagingData,
-                    recommendTrack = callbacks.onRecommend,
-                    personallyRecommendTrack = { index ->
-                        dialogsState.activateDialog(
-                            Dialog.PERSONAL_RECOMMENDATION,
-                            FeedDialogBundleKeys.feedDialogBundle(1, index)
-                        )
-                    },
-                    review = { index ->
-                        dialogsState.activateDialog(
-                            Dialog.REVIEW,
-                            FeedDialogBundleKeys.feedDialogBundle(1, index)
-                        )
-                    },
-                    pin = { index ->
-                        dialogsState.activateDialog(
-                            Dialog.PIN,
-                            FeedDialogBundleKeys.feedDialogBundle(1, index)
-                        )
-                    },
-                    onPlay = callbacks.onPlay,
-                    goToArtistPage = callbacks.goToArtistPage
-                )
-            
-                2 -> SimilarListens(
-                    listState = similarListensListState,
-                    pagingData = similarListensPagingData,
-                    recommendTrack = callbacks.onRecommend,
-                    personallyRecommendTrack = { index ->
-                        dialogsState.activateDialog(
-                            Dialog.PERSONAL_RECOMMENDATION,
-                            FeedDialogBundleKeys.feedDialogBundle(2, index)
-                        )
-                    },
-                    review = { index ->
-                        dialogsState.activateDialog(
-                            Dialog.REVIEW,
-                            FeedDialogBundleKeys.feedDialogBundle(2, index)
-                        )
-                    },
-                    pin = { index ->
-                        dialogsState.activateDialog(
-                            Dialog.PIN,
-                            FeedDialogBundleKeys.feedDialogBundle(2, index)
-                        )
-                    },
-                    onPlay = callbacks.onPlay,
-                    goToArtistPage = callbacks.goToArtistPage
-                )
-            }
-        }
-        
-        Column(Modifier.fillMaxWidth()) {
-            ErrorBar(error = uiState.error, onErrorShown = callbacks.onErrorShown)
-            NavigationChips(
-                chips = remember {
-                    listOf(
-                        "My Feed",
-                        "Follow Listens",
-                        "Similar Listens"
-                    )
-                },
-                currentPageStateProvider = { pagerState.currentPage }
+
+            HorizontalPager(
+                state = pagerState,
+                beyondViewportPageCount = 1
             ) { position ->
-                pagerState.animateScrollToPage(position)
+                when (position) {
+                    0 -> MyFeed(
+                        listState = myFeedListState,
+                        pagingData = myFeedPagingData,
+                        uiState = uiState.myFeedState,
+                        onDeleteOrHide = callbacks.onDeleteOrHide,
+                        recommendTrack = callbacks.onRecommend,
+                        personallyRecommendTrack = { index ->
+                            dialogsState.activateDialog(
+                                Dialog.PERSONAL_RECOMMENDATION,
+                                FeedDialogBundleKeys.feedDialogBundle(0, index),
+                            )
+                        },
+                        review = { index ->
+                            dialogsState.activateDialog(
+                                Dialog.REVIEW,
+                                FeedDialogBundleKeys.feedDialogBundle(0, index)
+                            )
+                        },
+                        pin = { index ->
+                            dialogsState.activateDialog(
+                                Dialog.PIN,
+                                FeedDialogBundleKeys.feedDialogBundle(0, index)
+                            )
+                        },
+                        onPlay = callbacks.onPlay,
+                        goToUserPage = callbacks.goToUserPage,
+                        goToArtistPage = callbacks.goToArtistPage
+                    )
+
+                    1 -> FollowListens(
+                        listState = followListensListState,
+                        pagingData = followListensPagingData,
+                        recommendTrack = callbacks.onRecommend,
+                        personallyRecommendTrack = { index ->
+                            dialogsState.activateDialog(
+                                Dialog.PERSONAL_RECOMMENDATION,
+                                FeedDialogBundleKeys.feedDialogBundle(1, index)
+                            )
+                        },
+                        review = { index ->
+                            dialogsState.activateDialog(
+                                Dialog.REVIEW,
+                                FeedDialogBundleKeys.feedDialogBundle(1, index)
+                            )
+                        },
+                        pin = { index ->
+                            dialogsState.activateDialog(
+                                Dialog.PIN,
+                                FeedDialogBundleKeys.feedDialogBundle(1, index)
+                            )
+                        },
+                        onPlay = callbacks.onPlay,
+                        goToArtistPage = callbacks.goToArtistPage
+                    )
+
+                    2 -> SimilarListens(
+                        listState = similarListensListState,
+                        pagingData = similarListensPagingData,
+                        recommendTrack = callbacks.onRecommend,
+                        personallyRecommendTrack = { index ->
+                            dialogsState.activateDialog(
+                                Dialog.PERSONAL_RECOMMENDATION,
+                                FeedDialogBundleKeys.feedDialogBundle(2, index)
+                            )
+                        },
+                        review = { index ->
+                            dialogsState.activateDialog(
+                                Dialog.REVIEW,
+                                FeedDialogBundleKeys.feedDialogBundle(2, index)
+                            )
+                        },
+                        pin = { index ->
+                            dialogsState.activateDialog(
+                                Dialog.PIN,
+                                FeedDialogBundleKeys.feedDialogBundle(2, index)
+                            )
+                        },
+                        onPlay = callbacks.onPlay,
+                        goToArtistPage = callbacks.goToArtistPage
+                    )
+                }
             }
-            PullRefreshIndicator(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                refreshing = isRefreshing,
-                contentColor = ListenBrainzTheme.colorScheme.lbSignatureInverse,
-                backgroundColor = ListenBrainzTheme.colorScheme.level1,
-                state = pullRefreshState
-            )
+
+            Column(Modifier.fillMaxWidth()) {
+                ErrorBar(error = uiState.error, onErrorShown = callbacks.onErrorShown)
+                NavigationChips(
+                    chips = remember {
+                        listOf(
+                            "My Feed",
+                            "Follow Listens",
+                            "Similar Listens"
+                        )
+                    },
+                    currentPageStateProvider = { pagerState.currentPage }
+                ) { position ->
+                    pagerState.animateScrollToPage(position)
+                }
+                PullRefreshIndicator(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    refreshing = isRefreshing,
+                    contentColor = ListenBrainzTheme.colorScheme.lbSignatureInverse,
+                    backgroundColor = ListenBrainzTheme.colorScheme.level1,
+                    state = pullRefreshState
+                )
+            }
         }
     }
-    
+
     Dialogs(
         deactivateDialog = {
             dialogsState.deactivateDialog()
@@ -331,7 +349,7 @@ fun FeedScreen(
         callbacks = callbacks,
         searchUserResult = uiState.searchResult,
     )
-    
+
 }
 
 @Composable
@@ -343,7 +361,7 @@ private fun Dialogs(
     searchUserResult: List<String>,
     callbacks: FeedCallbacks
 ) {
-    when (currentDialog){
+    when (currentDialog) {
         Dialog.NONE -> Unit
         Dialog.PIN -> {
             val metadata = pagingSource[currentEventIndex!!]?.event?.metadata
@@ -357,6 +375,7 @@ private fun Dialogs(
                 }
             )
         }
+
         Dialog.PERSONAL_RECOMMENDATION -> {
             val metadata = pagingSource[currentEventIndex!!]?.event?.metadata
             PersonalRecommendationDialog(
@@ -366,10 +385,15 @@ private fun Dialogs(
                 searchResult = searchUserResult,
                 searchUsers = callbacks.searchFollower,
                 onSubmit = { users, blurbContent ->
-                    callbacks.onPersonallyRecommend(pagingSource[currentEventIndex]?.event!!, users, blurbContent)
+                    callbacks.onPersonallyRecommend(
+                        pagingSource[currentEventIndex]?.event!!,
+                        users,
+                        blurbContent
+                    )
                 }
             )
         }
+
         Dialog.REVIEW -> {
             val metadata = pagingSource[currentEventIndex!!]?.event?.metadata
             if (metadata != null) {
@@ -383,7 +407,13 @@ private fun Dialogs(
                     onDismiss = deactivateDialog,
                     isCritiqueBrainzLinked = callbacks.isCritiqueBrainzLinked,
                     onSubmit = { type, blurbContent, rating, locale ->
-                        callbacks.onReview(pagingSource[currentEventIndex]?.event!!, type, blurbContent, rating, locale)
+                        callbacks.onReview(
+                            pagingSource[currentEventIndex]?.event!!,
+                            type,
+                            blurbContent,
+                            rating,
+                            locale
+                        )
                     }
                 )
             }
@@ -410,18 +440,18 @@ private fun MyFeed(
     val dropdownItemIndex: MutableState<Int?> = rememberSaveable {
         mutableStateOf(null)
     }
-    
+
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
             .widthIn(max = LocalConfiguration.current.screenWidthDp.dp),
         state = listState
     ) {
-        
+
         item { StartingSpacer() }
-        
+
         items(count = pagingData.itemCount) { index: Int ->
-            
+
             pagingData[index]?.apply {
                 AnimatedVisibility(
                     visible = uiState.isDeletedMap[event.id] != true,
@@ -442,7 +472,7 @@ private fun MyFeed(
                         dropDownState = dropdownItemIndex.value,
                         index = index,
                         onDropdownClick = {
-                            dropdownItemIndex.value = if (dropdownItemIndex.value == null){
+                            dropdownItemIndex.value = if (dropdownItemIndex.value == null) {
                                 index
                             } else {
                                 null
@@ -478,7 +508,7 @@ private fun MyFeed(
                 }
             }
         }
-        
+
         item {
             PagerRearLoadingIndicator(pagingData)
         }
@@ -502,18 +532,18 @@ fun FollowListens(
     val dropdownItemIndex: MutableState<Int?> = rememberSaveable {
         mutableStateOf(null)
     }
-    
+
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
         state = listState,
     ) {
-        
+
         item { StartingSpacer() }
-        
+
         items(count = pagingData.itemCount) { index: Int ->
-            
+
             pagingData[index]?.apply {
-                
+
                 ListenCardSmall(
                     modifier = Modifier.padding(
                         horizontal = ListenBrainzTheme.paddings.horizontal,
@@ -521,7 +551,7 @@ fun FollowListens(
                     ),
                     trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
                     artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(
-                        FeedListenArtist(event.metadata.trackMetadata?.artistName ?: "" , null, "")
+                        FeedListenArtist(event.metadata.trackMetadata?.artistName ?: "", null, "")
                     ),
                     coverArtUrl =
                         Utils.getCoverArtUrl(
@@ -529,7 +559,8 @@ fun FollowListens(
                             caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
                         ),
                     onDropdownIconClick = {
-                        dropdownItemIndex.value = if (dropdownItemIndex.value == null) index else null
+                        dropdownItemIndex.value =
+                            if (dropdownItemIndex.value == null) index else null
                     },
                     dropDown = {
                         SocialDropdown(
@@ -559,7 +590,6 @@ fun FollowListens(
                             }
                         )
                     },
-                    enableTrailingContent = true,
                     trailingContent = { modifier ->
                         Column(modifier, horizontalAlignment = Alignment.End) {
                             TitleAndSubtitle(
@@ -579,14 +609,14 @@ fun FollowListens(
                 ) {
                     onPlay(event)
                 }
-                
+
             }
         }
-        
+
         item {
             PagerRearLoadingIndicator(pagingData)
         }
-        
+
     }
 }
 
@@ -607,33 +637,35 @@ fun SimilarListens(
     val dropdownItemIndex: MutableState<Int?> = rememberSaveable {
         mutableStateOf(null)
     }
-    
+
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
         state = listState
     ) {
-        
+
         item { StartingSpacer() }
-        
+
         items(count = pagingData.itemCount) { index: Int ->
-            
-            pagingData[index]?.apply {
-                
+
+            pagingData[index]?.run {
+
                 ListenCardSmall(
                     modifier = Modifier.padding(
                         horizontal = ListenBrainzTheme.paddings.horizontal,
                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
                     trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
-                    artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(FeedListenArtist(event.metadata.trackMetadata?.artistName ?: "" , null, "")),
+                    artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(
+                        FeedListenArtist(event.metadata.trackMetadata?.artistName ?: "", null, "")
+                    ),
                     coverArtUrl =
                         Utils.getCoverArtUrl(
                             caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
                             caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
                         ),
                     onDropdownIconClick = {
-                        dropdownItemIndex.value = if (dropdownItemIndex.value == null){
-                             index
+                        dropdownItemIndex.value = if (dropdownItemIndex.value == null) {
+                            index
                         } else {
                             null
                         }
@@ -664,7 +696,6 @@ fun SimilarListens(
                             }
                         )
                     },
-                    enableTrailingContent = true,
                     trailingContent = { modifier ->
                         /*TitleAndSubtitle(
                             modifier = modifier,
@@ -692,14 +723,14 @@ fun SimilarListens(
                 ) {
                     onPlay(event)
                 }
-                
+
             }
         }
-        
+
         item {
             PagerRearLoadingIndicator(pagingData)
         }
-        
+
     }
 }
 
@@ -725,7 +756,7 @@ fun RetryButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
 
 @Composable
 private fun PagerRearLoadingIndicator(pagingData: LazyPagingItems<FeedUiEventItem>) {
-    
+
     Box(
         modifier = if (pagingData.itemCount == 0) Modifier.fillMaxSize() else Modifier.fillMaxWidth()
     ) {
@@ -733,7 +764,7 @@ private fun PagerRearLoadingIndicator(pagingData: LazyPagingItems<FeedUiEventIte
             pagingData.itemCount != 0 &&
             pagingData.loadState.append is LoadState.Loading
         ) {
-            
+
             CircularProgressIndicator(
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -742,9 +773,9 @@ private fun PagerRearLoadingIndicator(pagingData: LazyPagingItems<FeedUiEventIte
                 strokeCap = StrokeCap.Round,
                 color = ListenBrainzTheme.colorScheme.lbSignature
             )
-            
+
         } else if (pagingData.loadState.append is LoadState.Error) {
-            
+
             RetryButton(
                 modifier = Modifier
                     .align(Alignment.Center)
@@ -753,7 +784,7 @@ private fun PagerRearLoadingIndicator(pagingData: LazyPagingItems<FeedUiEventIte
                     pagingData.retry()
                 }
             )
-            
+
         } else if (
             pagingData.loadState.refresh is LoadState.NotLoading &&
             pagingData.loadState.append is LoadState.NotLoading
@@ -765,23 +796,23 @@ private fun PagerRearLoadingIndicator(pagingData: LazyPagingItems<FeedUiEventIte
                     .padding(vertical = 32.dp), // Default height of m3 button is 40.dp)
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                
+
                 Icon(
                     imageVector = Icons.Rounded.Done,
                     contentDescription = "End of feed.",
                     tint = ListenBrainzTheme.colorScheme.lbSignature
                 )
-                
+
                 Spacer(modifier = Modifier.width(6.dp))
-                
+
                 Text(
                     text = "You are all caught up!",
                     fontWeight = FontWeight.Medium,
                     color = ListenBrainzTheme.colorScheme.lbSignature
                 )
             }
-            
-            
+
+
         }
     }
 }
@@ -790,6 +821,7 @@ private fun PagerRearLoadingIndicator(pagingData: LazyPagingItems<FeedUiEventIte
 private enum class FeedDialogBundleKeys {
     PAGE,
     EVENT_INDEX;
+
     companion object {
         fun feedDialogBundle(page: Int, eventIndex: Int): Bundle {
             return Bundle().apply {
@@ -805,13 +837,13 @@ private enum class FeedDialogBundleKeys {
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun FeedScreenPreview() {
-    ListenBrainzTheme {
-        Surface (color = ListenBrainzTheme.colorScheme.background) {
-            FeedScreen(
-                uiState = FeedUiState(
-                    FeedUiEventData(eventList = flow {
-                        emit(PagingData.from(
-                            List(30){
+    PreviewSurface {
+        FeedScreen(
+            uiState = FeedUiState(
+                FeedUiEventData(eventList = flow {
+                    emit(
+                        PagingData.from(
+                            List(30) {
                                 FeedUiEventItem(
                                     eventType = FeedEventType.LISTEN,
                                     parentUser = "Jasjeet",
@@ -825,24 +857,25 @@ private fun FeedScreenPreview() {
                                 )
                             }
                         ))
-                    })
-                ),
-                scrollToTopState = false,
-                callbacks = FeedCallbacks(
-                    onScrollToTop = {},
-                    onDeleteOrHide = {_,_,_ -> },
-                    onErrorShown = {},
-                    onRecommend = {},
-                    onPersonallyRecommend = {_,_,_ -> },
-                    onReview = {_,_,_,_,_ ->},
-                    onPin = {_,_ ->},
-                    searchFollower = {},
-                    isCritiqueBrainzLinked = {true},
-                    onPlay = {},
-                    goToUserPage = {},
-                    goToArtistPage = {}
-                ),
-            )
-        }
+                })
+            ),
+            scrollToTopState = false,
+            callbacks = FeedCallbacks(
+                onScrollToTop = {},
+                onDeleteOrHide = { _, _, _ -> },
+                onErrorShown = {},
+                onRecommend = {},
+                onPersonallyRecommend = { _, _, _ -> },
+                onReview = { _, _, _, _, _ -> },
+                onPin = { _, _ -> },
+                searchFollower = {},
+                isCritiqueBrainzLinked = { true },
+                onPlay = {},
+                goToUserPage = {},
+                goToArtistPage = {}
+            ),
+            topBarActions = TopBarActions()
+        )
     }
+
 }

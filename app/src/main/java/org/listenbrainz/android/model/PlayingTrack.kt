@@ -7,7 +7,7 @@ import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractDura
 import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractReleaseName
 import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractTitle
 
-/** Track metadata class for Listen Scrobble service.*/
+/** Track metadata class for Listen service.*/
 data class PlayingTrack(
     var artist: String? = null,
     var title: String? = null,
@@ -17,31 +17,21 @@ data class PlayingTrack(
     var pkgName: String? = null,
     var playingNowSubmitted: Boolean = false,
     var submitted: Boolean = false,
-    var playbackState: Int? = null
 ) {
     val timestampSeconds: Long
         get() = timestamp / 1000
+
+    val id: String
+        get() = "$title - $artist - $pkgName"
     
     /** This means there's no track playing.*/
     fun isNothing(): Boolean = artist == null && title == null
     
     fun isSubmitted(): Boolean = submitted
+
+    fun isDurationAbsent(): Boolean = duration <= 0L
     
-    /** Determines if this track is a notification scrobbled track or not.*/
-    fun isNotificationTrack(): Boolean = artist != null && title != null && duration == 0L
-    
-    fun isCallbackTrack(): Boolean = !isNotificationTrack()
-    
-    fun reset() {
-        artist = null
-        title = null
-        releaseName = null
-        timestamp = 0
-        duration = 0
-        pkgName = null
-        playingNowSubmitted = false
-        submitted = false
-    }
+    fun isDurationPresent(): Boolean = !isDurationAbsent()
     
     /** Similar means that the basic metadata matches. A song if replayed will be similar.*/
     fun isSimilarTo(other: Any): Boolean {
@@ -70,11 +60,9 @@ data class PlayingTrack(
                 // means our track is outdated for sure.
                 when {
                     newTrack.duration != 0L -> {
-                        // New track is callback track, duration data available.
                         newTrack.timestamp - timestamp >= newTrack.duration
                     }
                     this.duration != 0L -> {
-                        // New track is callback track, duration data available.
                         newTrack.timestamp - timestamp >= this.duration
                     }
                     submitted -> true
@@ -90,6 +78,8 @@ data class PlayingTrack(
     }
     
     companion object {
+        val Nothing get() = PlayingTrack()
+
         fun MediaMetadata.toPlayingTrack(pkgName: String): PlayingTrack {
             return PlayingTrack(
                 timestamp = System.currentTimeMillis(),
@@ -97,8 +87,7 @@ data class PlayingTrack(
                 title = extractTitle(),
                 duration = extractDuration(),
                 releaseName = extractReleaseName(),
-                pkgName = pkgName,
-                playingNowSubmitted = false
+                pkgName = pkgName
             )
         }
     }

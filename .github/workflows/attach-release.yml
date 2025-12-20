@@ -30,19 +30,15 @@ jobs:
           echo "keyAlias=$KEYSTORE_KEY_ALIAS" >> keystore.properties
           echo "storePassword=$KEYSTORE_STORE_PASSWORD" >> keystore.properties
           echo "keyPassword=$KEYSTORE_KEY_PASSWORD" >> keystore.properties
-          echo "sentryDsn=$SENTRY_DSN" >> keystore.properties
           echo "youtubeApiKey=$YOUTUBE_API_KEY" >> keystore.properties
           echo "spotifyClientId=$SPOTIFY_CLIENT_ID" >> keystore.properties
-          echo "auth.token=$SENTRY_AUTH_TOKEN" >> sentry.properties
         env:
           ANDROID_KEYSTORE_FILE: ${{ secrets.ANDROID_KEYSTORE_FILE }}
           KEYSTORE_KEY_ALIAS: ${{ secrets.KEYSTORE_KEY_ALIAS }}
           KEYSTORE_KEY_PASSWORD: ${{ secrets.KEYSTORE_KEY_PASSWORD }}
           KEYSTORE_STORE_PASSWORD: ${{ secrets.KEYSTORE_STORE_PASSWORD }}
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           
       - name: Cache Gradle dependencies
         uses: actions/cache@v4
@@ -51,8 +47,10 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle.properties') }}
           restore-keys: ${{ runner.os }}-gradle-
 
-      - name: Build APK
-        run: ./gradlew assembleRelease
+      - name: Build APK and AAB
+        run: |
+          ./gradlew assembleGithubRelease
+          ./gradlew bundlePlaystoreRelease
 
       - name: Find release tag name
         id: find_release
@@ -64,9 +62,11 @@ jobs:
             const latestRelease = releases.data[0];
             return { tag_name: latestRelease.tag_name };
             
-      - name: Attach APK
-        uses: actions/upload-artifact@v4
+      - name: Attach APK and AAB
+        uses: actions/upload-artifact@v5
         with:
-          name: ListenBrainz
-          path: app/build/outputs/apk/release/app-release.apk
+          name: ListenBrainz-Release-Files
+          path: |
+            app/build/outputs/apk/github/release/app-github-release.apk
+            app/build/outputs/bundle/playstoreRelease/app-playstore-release.aab
         if: github.ref == ('refs/tags/${{ steps.find_release.outputs.tag_name }}')

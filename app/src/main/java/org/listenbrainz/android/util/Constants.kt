@@ -13,11 +13,17 @@ object Constants {
     const val SPOTIFY_REDIRECT_URI = "org.listenbrainz.android://callback"
     const val LISTENBRAINZ_API_BASE_URL = "https://api.listenbrainz.org/1/"
     const val LISTENBRAINZ_BETA_API_BASE_URL = "https://beta-api.listenbrainz.org/1/"
-    const val ONBOARDING = "onboarding_lb"
+    const val ONBOARDING = "onboarding_lb_updated"
     const val ABOUT_URL = "https://listenbrainz.org/about"
     const val LB_BASE_URL = "https://listenbrainz.org/"
     const val MB_BASE_URL = "https://musicbrainz.org/"
     const val CB_BASE_URL = "https://critiquebrainz.org/"
+
+    const val GITHUB_API_BASE_URL = " https://api.github.com/repos/metabrainz/listenbrainz-android/"
+
+    // App update constants
+    const val VERSION_CHECK_DURATION = 1
+    const val RE_PROMPT_USER_AFTER_DENIAL = 10
 
     object Strings {
         const val TIMESTAMP = "timestamp"
@@ -28,8 +34,15 @@ object Constants {
         const val PREFERENCE_LISTENING_APPS = "listening_apps"
         const val PREFERENCE_SYSTEM_THEME = "app_theme"
         const val PREFERENCE_PERMS = "perms_code"
+        const val PREFERENCE_LOGIN_CONSENT_SCREEN_CACHE = "login_consent_screen_cache"
         const val PREFERENCE_ALBUMS_ON_DEVICE = "PREFERENCE_ALBUMS_ON_DEVICE"
         const val PREFERENCE_SONGS_ON_DEVICE = "PREFERENCE_SONGS_ON_DEVICE"
+        const val PREFERENCE_REQUESTED_PERMISSIONS = "requested_permissions"
+        const val PREFERENCE_INSTALL_SOURCE = "install_source"
+        const val PREFERENCE_APP_LAUNCH_COUNT = "app_launch_count"
+        const val PREFERENCE_LAST_VERSION_CHECK_LAUNCH_COUNT = "last_version_check_launch_count"
+        const val PREFERENCE_LAST_UPDATE_PROMPT_LAUNCH_COUNT = "last_update_prompt_launch_count"
+        const val PREFERENCE_DOWNLOAD_ID = "download_id"
         const val LINKED_SERVICES = "LINKED_SERVICES"
         const val USERNAME = "username"
         const val CURRENT_PLAYABLE = "CURRENT_PLAYABLE"
@@ -37,13 +50,6 @@ object Constants {
         const val REFRESH_TOKEN = "refresh_token"
         const val STATUS_LOGGED_IN = 1
         const val STATUS_LOGGED_OUT = 0
-
-        const val CHANNEL_NOTI_SCROBBLING = "noti_scrobbling"
-        const val CHANNEL_NOTI_SCR_ERR = "noti_scrobble_errors"
-        const val CHANNEL_NOTI_NEW_APP = "noti_new_app"
-        const val CHANNEL_NOTI_PENDING = "noti_pending_scrobbles"
-        const val CHANNEL_ID = "listen_scrobble_channel"
-
         const val CHANNEL_PIXEL_NP =
             "com.google.intelligence.sense.ambientmusic.MusicNotificationChannel"
         const val PACKAGE_PIXEL_NP = "com.google.intelligence.sense"

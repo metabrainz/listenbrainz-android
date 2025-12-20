@@ -53,7 +53,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -71,6 +70,7 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.playlist.MoveTrack
 import org.listenbrainz.android.model.playlist.PlaylistData
 import org.listenbrainz.android.model.playlist.PlaylistTrack
@@ -83,12 +83,12 @@ import org.listenbrainz.android.ui.components.dialogs.BaseDialog
 import org.listenbrainz.android.ui.components.dialogs.DialogNegativeButton
 import org.listenbrainz.android.ui.components.dialogs.DialogPositiveButton
 import org.listenbrainz.android.ui.components.dialogs.DialogText
-import org.listenbrainz.android.ui.components.dialogs.rememberDialogsState
+import org.listenbrainz.android.ui.navigation.TopBar
+import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.feed.RetryButton
 import org.listenbrainz.android.ui.screens.profile.createdforyou.formatDateLegacy
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
-import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.util.Utils.formatDurationSeconds
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
@@ -103,6 +103,7 @@ fun PlaylistDetailScreen(
     playlistViewModel: PlaylistDataViewModel = hiltViewModel(),
     socialViewModel: SocialViewModel = hiltViewModel(),
     snackbarState: SnackbarHostState,
+    topBarActions: TopBarActions,
     goToArtistPage: (String) -> Unit,
     goToUserPage: (String) -> Unit
 ) {
@@ -119,163 +120,160 @@ fun PlaylistDetailScreen(
     val addTrackSheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
     var isEditPlaylistBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
     var isDuplicatePlaylistDialogVisible by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         playlistViewModel.getDataInPlaylistScreen(playlistMBID)
     }
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .pullRefresh(pullRefreshState)
-    ) {
-        AnimatedContent(
-            uiState.playlistDetailUIState.isLoading and !uiState.playlistDetailUIState.isRefreshing,
-            modifier = Modifier.fillMaxSize()
-        ) { isLoading ->
-            Box(modifier = Modifier.fillMaxSize()) {
-                if (isLoading) {
-                    Box(
-                        modifier = Modifier.align(Alignment.Center)
-                    ) {
-                        LoadingAnimation()
-                    }
-
-                } else {
-                    if (uiState.playlistDetailUIState.playlistData != null) {
-                        PlaylistDetailContent(
-                            playlistDetailUIState = uiState.playlistDetailUIState,
-                            goToArtistPage = goToArtistPage,
-                            onTrackClick = {
-                                it.toMetadata().trackMetadata?.let { it1 ->
-                                    socialViewModel.playListen(
-                                        it1
-                                    )
-                                }
-                            },
-                            showsnackbar = {
-                                scope.launch {
-                                    snackbarState.showSnackbar(it)
-                                }
-                            },
-                            onAddTrackClick = {
-                                playlistViewModel.changeAddTrackBottomSheetState(true)
-                            },
-                            onEditPlaylistClick = {
-                                isEditPlaylistBottomSheetVisible = true
-                            },
-                            goToUserPage = goToUserPage,
-                            onDuplicatePlaylistClick = {
-                                isDuplicatePlaylistDialogVisible = true
-                            },
-                            onSharePlaylistClick = {
-                                if (uiState.playlistDetailUIState.playlistData?.identifier != null)
-                                    Utils.shareLink(
-                                        context,
-                                        uiState.playlistDetailUIState.playlistData?.identifier!!
-                                    )
-                            },
-                            onPermanentlyMoveTrack = {
-                                playlistViewModel.reorderPlaylist(it)
-                            },
-                            onTemporarilyMoveTrack = { fromIndex, toIndex ->
-                                playlistViewModel.temporarilyMoveTrack(fromIndex, toIndex)
-                            }
-                        )
-                    } else {
-                        Column(
-                            modifier = Modifier.align(Alignment.Center),
-                            horizontalAlignment = Alignment.CenterHorizontally
+    Column {
+        TopBar(
+            modifier = Modifier.statusBarsPadding(),
+            topBarActions = topBarActions,
+            title = AppNavigationItem.PlaylistScreen.title
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .pullRefresh(pullRefreshState)
+        ) {
+            AnimatedContent(
+                uiState.playlistDetailUIState.isLoading and !uiState.playlistDetailUIState.isRefreshing,
+                modifier = Modifier.fillMaxSize()
+            ) { isLoading ->
+                Box(modifier = Modifier.fillMaxSize()) {
+                    if (isLoading) {
+                        Box(
+                            modifier = Modifier.align(Alignment.Center)
                         ) {
-                            HelperText(
-                                modifier = Modifier.padding(16.dp),
-                                text = "Couldn't load the playlist data"
+                            LoadingAnimation()
+                        }
+
+                    } else {
+                        if (uiState.playlistDetailUIState.playlistData != null) {
+                            PlaylistDetailContent(
+                                playlistDetailUIState = uiState.playlistDetailUIState,
+                                goToArtistPage = goToArtistPage,
+                                onTrackClick = {
+                                    it.toMetadata().trackMetadata?.let { it1 ->
+                                        socialViewModel.playListen(
+                                            it1
+                                        )
+                                    }
+                                },
+                                showsnackbar = {
+                                    scope.launch {
+                                        snackbarState.showSnackbar(it)
+                                    }
+                                },
+                                onAddTrackClick = {
+                                    playlistViewModel.changeAddTrackBottomSheetState(true)
+                                },
+                                onEditPlaylistClick = {
+                                    isEditPlaylistBottomSheetVisible = true
+                                },
+                                goToUserPage = goToUserPage,
+                                onDuplicatePlaylistClick = {
+                                    isDuplicatePlaylistDialogVisible = true
+                                },
+                                onSharePlaylistClick = {
+                                    if (uiState.playlistDetailUIState.playlistData?.identifier != null)
+                                        Utils.shareLink(
+                                            context,
+                                            uiState.playlistDetailUIState.playlistData?.identifier!!
+                                        )
+                                },
+                                onPermanentlyMoveTrack = {
+                                    playlistViewModel.reorderPlaylist(it)
+                                },
+                                onTemporarilyMoveTrack = { fromIndex, toIndex ->
+                                    playlistViewModel.temporarilyMoveTrack(fromIndex, toIndex)
+                                },
+                                onRemoveTrackFromPlaylist = { index ->
+                                    playlistViewModel.deleteTrackFromPlaylist(index)
+                                }
                             )
-                            RetryButton() {
-                                playlistViewModel.getDataInPlaylistScreen(playlistMBID)
+                        } else {
+                            Column(
+                                modifier = Modifier.align(Alignment.Center),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                HelperText(
+                                    modifier = Modifier.padding(16.dp),
+                                    text = "Couldn't load the playlist data"
+                                )
+                                RetryButton() {
+                                    playlistViewModel.getDataInPlaylistScreen(playlistMBID)
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-        PullRefreshIndicator(
-            modifier = Modifier.align(Alignment.TopCenter),
-            refreshing = uiState.playlistDetailUIState.isRefreshing,
-            contentColor = ListenBrainzTheme.colorScheme.lbSignatureInverse,
-            backgroundColor = ListenBrainzTheme.colorScheme.level1,
-            state = pullRefreshState
-        )
+            PullRefreshIndicator(
+                modifier = Modifier.align(Alignment.TopCenter),
+                refreshing = uiState.playlistDetailUIState.isRefreshing,
+                contentColor = ListenBrainzTheme.colorScheme.lbSignatureInverse,
+                backgroundColor = ListenBrainzTheme.colorScheme.level1,
+                state = pullRefreshState
+            )
 
-        if (isEditPlaylistBottomSheetVisible)
-            ModalBottomSheet(
-                onDismissRequest = {
-                    isEditPlaylistBottomSheetVisible = false
-                },
-                sheetState = sheetState,
-                modifier = Modifier.statusBarsPadding(),
+
+            CreateEditPlaylistScreen(
+                viewModel = playlistViewModel,
+                isVisible = isEditPlaylistBottomSheetVisible,
+                mbid = playlistMBID
             ) {
-                CreateEditPlaylistScreen(
-                    viewModel = playlistViewModel,
-                    snackbarHostState = snackbarState,
-                    bottomSheetState = sheetState,
-                    mbid = playlistMBID
+                isEditPlaylistBottomSheetVisible = false
+
+            }
+
+
+            if (uiState.playlistDetailUIState.isAddTrackBottomSheetVisible) {
+                ModalBottomSheet(
+                    onDismissRequest = {
+                        playlistViewModel.changeAddTrackBottomSheetState(false)
+                    },
+                    sheetState = addTrackSheetState,
+                    modifier = Modifier.statusBarsPadding()
                 ) {
-                    scope.launch {
-                        sheetState.hide()
-                        isEditPlaylistBottomSheetVisible = false
-                    }
+                    AddTrackToPlaylist(
+                        modifier = Modifier.fillMaxSize(),
+                        playlistDetailUIState = uiState.playlistDetailUIState,
+                        onTrackSelect = { recordingData ->
+                            playlistViewModel.addTrackToPlaylist(
+                                recordingData
+                            )
+                            playlistViewModel.changeAddTrackBottomSheetState(false)
+                        },
+                        onQueryChange = {
+                            playlistViewModel.queryRecordings(it)
+                        },
+                        onDismiss = {
+                            playlistViewModel.changeAddTrackBottomSheetState(false)
+                            playlistViewModel.queryRecordings("")
+                        }
+                    )
                 }
             }
 
-        if (uiState.playlistDetailUIState.isAddTrackBottomSheetVisible) {
-            ModalBottomSheet(
-                onDismissRequest = {
-                    playlistViewModel.changeAddTrackBottomSheetState(false)
-                },
-                sheetState = addTrackSheetState,
-                modifier = Modifier.statusBarsPadding()
-            ) {
-                AddTrackToPlaylist(
-                    modifier = Modifier.fillMaxSize(),
-                    playlistDetailUIState = uiState.playlistDetailUIState,
-                    onTrackSelect = { recordingData ->
-                        playlistViewModel.addTrackToPlaylist(
-                            recordingData
-                        )
-                        playlistViewModel.changeAddTrackBottomSheetState(false)
-                    },
-                    onQueryChange = {
-                        playlistViewModel.queryRecordings(it)
-                    },
+            if (isDuplicatePlaylistDialogVisible) {
+                PlaylistDuplicateConfirmationDialog(
                     onDismiss = {
-                        playlistViewModel.changeAddTrackBottomSheetState(false)
-                        playlistViewModel.queryRecordings("")
+                        isDuplicatePlaylistDialogVisible = false
+                    },
+                    onSave = {
+                        playlistViewModel.duplicatePlaylist(playlistMBID)
+                        isDuplicatePlaylistDialogVisible = false
                     }
                 )
             }
-        }
 
-        if(isDuplicatePlaylistDialogVisible){
-            PlaylistDuplicateConfirmationDialog(
-                onDismiss = {
-                    isDuplicatePlaylistDialogVisible = false
-                },
-                onSave = {
-                    playlistViewModel.duplicatePlaylist(playlistMBID)
-                    isDuplicatePlaylistDialogVisible = false
-                }
-            )
+            ErrorBar(socialUiState.error, socialViewModel::clearErrorFlow)
+            SuccessBar(socialUiState.successMsgId, socialViewModel::clearMsgFlow, snackbarState)
+            ErrorBar(uiState.error, playlistViewModel::clearErrorFlow)
+            SuccessBar(uiState.successMsg, playlistViewModel::clearMsgFlow, snackbarState)
         }
-
-        ErrorBar(socialUiState.error, socialViewModel::clearErrorFlow)
-        SuccessBar(socialUiState.successMsgId, socialViewModel::clearMsgFlow, snackbarState)
-        ErrorBar(uiState.error, playlistViewModel::clearErrorFlow)
-        SuccessBar(uiState.successMsg, playlistViewModel::clearMsgFlow, snackbarState)
     }
 }
 
@@ -287,6 +285,7 @@ private fun PlaylistDetailContent(
     showsnackbar: (String) -> Unit,
     onAddTrackClick: () -> Unit,
     onTrackClick: (PlaylistTrack) -> Unit,
+    onRemoveTrackFromPlaylist: (index: Int)->Unit,
     onEditPlaylistClick: () -> Unit,
     onSharePlaylistClick: () -> Unit,
     onDuplicatePlaylistClick: () -> Unit,
@@ -318,7 +317,11 @@ private fun PlaylistDetailContent(
     val scope = rememberCoroutineScope()
 
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(brush = ListenBrainzTheme.colorScheme.userPageGradient)
+    ) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -437,6 +440,7 @@ private fun PlaylistDetailContent(
             item {
                 Row(
                     modifier = Modifier
+                        .background(brush = ListenBrainzTheme.colorScheme.userPageGradient)
                         .padding(vertical = 16.dp)
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -504,15 +508,16 @@ private fun PlaylistDetailContent(
             itemsIndexed(
                 playlists,
                 contentType = { index, _ -> DraggableItem(index = index) }) { index, playlistTrack ->
-                val modifier = if (draggingItemIndex == index && playlistDetailUIState.isUserPlaylistOwner) {
-                    Modifier
-                        .zIndex(1f)
-                        .graphicsLayer {
-                            translationY = delta
-                        }
-                } else {
-                    Modifier
-                }
+                val modifier =
+                    if (draggingItemIndex == index && playlistDetailUIState.isUserPlaylistOwner) {
+                        Modifier
+                            .zIndex(1f)
+                            .graphicsLayer {
+                                translationY = delta
+                            }
+                    } else {
+                        Modifier
+                    }
                 ListenCardSmallDefault(
                     modifier = modifier.padding(
                         horizontal = ListenBrainzTheme.paddings.horizontal,
@@ -533,6 +538,11 @@ private fun PlaylistDetailContent(
                     onClick = {
                         onTrackClick(playlistTrack)
                     },
+                    onRemoveFromPlaylist = if(playlistDetailUIState.isUserPlaylistOwner) {
+                        {
+                            onRemoveTrackFromPlaylist(index)
+                        }
+                    } else null,
                     trailingContent = {
                         Text(
                             modifier = Modifier
@@ -547,7 +557,6 @@ private fun PlaylistDetailContent(
                             overflow = TextOverflow.Ellipsis
                         )
                     },
-                    enableTrailingContent = true,
                     preCoverArtContent = if (playlistDetailUIState.isUserPlaylistOwner) { modifier2 ->
                         Icon(
                             modifier = modifier2.padding(horizontal = 4.dp),
@@ -595,9 +604,8 @@ fun PlaylistCard(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(0.dp, 0.dp, 16.dp, 16.dp))
             .background(
-                brush = ListenBrainzTheme.colorScheme.playlistScreenGradient
+                color = ListenBrainzTheme.colorScheme.background
             )
             .padding(top = ListenBrainzTheme.paddings.defaultPadding)
     ) {
@@ -717,7 +725,7 @@ fun PlaylistCard(
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
                         )
-                    }else if(isTextOverflowing){
+                    } else if (isTextOverflowing) {
                         Text(
                             text = "Read less",
                             color = themeColors.listenText,
@@ -773,9 +781,12 @@ fun PlaylistDuplicateConfirmationDialog(onDismiss: () -> Unit, onSave: () -> Uni
             )
         },
         footer = {
-            Row(horizontalArrangement = Arrangement.End,
-                modifier = Modifier.padding(4.dp)
-                    .fillMaxWidth()) {
+            Row(
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier
+                    .padding(4.dp)
+                    .fillMaxWidth()
+            ) {
                 DialogNegativeButton(text = "Cancel") {
                     onDismiss()
                 }
@@ -832,7 +843,8 @@ fun PlaylistDetailScreenPreview() {
             onDuplicatePlaylistClick = {},
             onSharePlaylistClick = {},
             onPermanentlyMoveTrack = {},
-            onTemporarilyMoveTrack = { _, _ -> }
+            onTemporarilyMoveTrack = { _, _ -> },
+            onRemoveTrackFromPlaylist = {}
         )
     }
 }

@@ -4,62 +4,38 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.net.Uri
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AppNavigationItem
-import org.listenbrainz.android.ui.screens.search.SearchBarState
-import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+
+@Immutable
+data class TopBarActions(
+    val popBackStackInSettingsScreen: ()-> Unit = {},
+    val navigateToSettingsScreen: ()-> Unit = {},
+    val activateSearch: () -> Unit = {}
+)
 
 @Composable
 fun TopBar(
     modifier: Modifier = Modifier,
-    navController: NavController = rememberNavController(),
-    searchBarState: SearchBarState,
+    title: String,
     backgroundColor: Color = Color.Transparent,
     context: Context = LocalContext.current,
+    topBarActions: TopBarActions
 ) {
-    AnimatedVisibility(
-        visible = !searchBarState.isActive,
-        enter = fadeIn(),
-        exit = fadeOut()
-    ) {
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentDestination = navBackStackEntry?.destination
-        val title: String = currentDestination?.route?.let {
-            when (it) {
-                AppNavigationItem.Feed.route -> AppNavigationItem.Feed.title
-                AppNavigationItem.BrainzPlayer.route -> AppNavigationItem.BrainzPlayer.title
-                AppNavigationItem.Explore.route -> AppNavigationItem.Explore.title
-                "${AppNavigationItem.Profile.route}/{username}" -> AppNavigationItem.Profile.title
-                AppNavigationItem.Settings.route -> AppNavigationItem.Settings.title
-                AppNavigationItem.About.route -> AppNavigationItem.About.title
-                AppNavigationItem.HueSound.route -> AppNavigationItem.HueSound.title
-                "${AppNavigationItem.Artist.route}/{mbid}" -> AppNavigationItem.Artist.title
-                "${AppNavigationItem.Album.route}/{mbid}" -> AppNavigationItem.Album.title
-                "${AppNavigationItem.PlaylistScreen.route}/{mbid}" -> AppNavigationItem.PlaylistScreen.title
-                else -> ""
-            }
-        } ?: "ListenBrainz"
-
         TopAppBar(
             modifier = modifier,
             title = { Text(text = title) },
@@ -83,7 +59,7 @@ fun TopBar(
             contentColor = MaterialTheme.colorScheme.onSurface,
             elevation = 0.dp,
             actions = {
-                IconButton(onClick = { searchBarState.activate() }) {
+                IconButton(onClick = { topBarActions.activateSearch() }) {
                     Icon(
                         painterResource(id = R.drawable.ic_search),
                         contentDescription = "Search users"
@@ -91,26 +67,16 @@ fun TopBar(
                 }
 
                 IconButton(onClick = {
-                    if (navBackStackEntry?.destination?.route == AppNavigationItem.Settings.route) {
-                        navController.popBackStack()
+                    if (title == AppNavigationItem.Settings.title) {
+                        topBarActions.popBackStackInSettingsScreen()
                     } else {
-                        navController.navigate(AppNavigationItem.Settings.route) {
-                            // Avoid building large backstack
-                            popUpTo(AppNavigationItem.Feed.route) {
-                                saveState = true
-                            }
-                            // Avoid copies
-                            launchSingleTop = true
-                            // Restore previous state
-                            restoreState = true
-                        }
+                        topBarActions.navigateToSettingsScreen()
                     }
                 }) {
                     Icon(painterResource(id = R.drawable.ic_settings), "Settings")
                 }
             }
         )
-    }
 }
 
 @Preview
@@ -119,8 +85,12 @@ fun TopBar(
 fun TopBarPreview() {
     ListenBrainzTheme {
         TopBar(
-            navController = rememberNavController(),
-            searchBarState = rememberSearchBarState()
+            topBarActions = TopBarActions(
+                popBackStackInSettingsScreen = {},
+                navigateToSettingsScreen = {},
+                activateSearch = {}
+            ),
+            title = "ListenBrainz",
         )
     }
 }

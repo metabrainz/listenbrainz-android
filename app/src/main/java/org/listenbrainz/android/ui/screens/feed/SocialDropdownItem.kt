@@ -58,4 +58,16 @@ interface SocialDropdownItem {
         override val title: String = "Inspect listen"
         override val onClick: (() -> Unit)? = onClick
     }
+
+    class ADD_TO_PLAYLIST(onClick: (() -> Unit)?): SocialDropdownItem {
+        override val icon: Int = R.drawable.add_track_to_playlist
+        override val title: String = "Add to playlist"
+        override val onClick: (() -> Unit)? = onClick
+    }
+
+    class REMOVE_FROM_PLAYLIST(onClick: (() -> Unit)?): SocialDropdownItem{
+        override val icon: Int = R.drawable.playlist_remove_circle
+        override val title: String = "Remove from playlist"
+        override val onClick: (() -> Unit)? = onClick
+    }
 }

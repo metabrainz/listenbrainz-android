@@ -8,10 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -34,6 +32,7 @@ import org.listenbrainz.android.ui.screens.feed.FeedScreen
 import org.listenbrainz.android.ui.screens.playlist.PlaylistDetailScreen
 import org.listenbrainz.android.ui.screens.profile.LoginScreen
 import org.listenbrainz.android.ui.screens.profile.ProfileScreen
+import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScreen
 import org.listenbrainz.android.ui.screens.settings.SettingsScreen
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
@@ -42,7 +41,10 @@ fun AppNavigation(
     navController: NavController = rememberNavController(),
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
+    dashBoardViewModel: DashBoardViewModel,
     snackbarState: SnackbarHostState,
+    settingsCallbacks: SettingsCallbacksToHomeScreen,
+    topAppBarActions: TopBarActions
 ) {
     fun NavOptionsBuilder.defaultNavOptions() {
         // Avoid building large backstack
@@ -91,25 +93,35 @@ fun AppNavigation(
                 scrollToTopState = scrollRequestState,
                 onScrollToTop = onScrollToTop,
                 goToUserPage = ::goToUserProfile,
-                goToArtistPage = ::goToArtistPage
+                goToArtistPage = ::goToArtistPage,
+                topAppBarActions = topAppBarActions
             )
         }
         appComposable(route = AppNavigationItem.BrainzPlayer.route) {
-            BrainzPlayerScreen()
+            BrainzPlayerScreen(
+                topAppBarActions
+            )
         }
         appComposable(route = AppNavigationItem.Explore.route) {
-            ExploreScreen(goToHueSoundScreen = { navController.navigate(AppNavigationItem.HueSound.route) })
+            ExploreScreen(
+                topAppBarActions
+            )
         }
         appComposable(
             route = AppNavigationItem.Profile.route
         ) {
             val viewModel = hiltViewModel<DashBoardViewModel>()
-            LoginScreen {
-                val username = viewModel.usernameFlow.first()
-                if (username.isNotBlank()) {
-                    goToUserProfile(username)
-                }
-            }
+            LoginScreen(
+                navigateToCreateAccount = {
+                    settingsCallbacks.navigateToCreateAccount()
+                },
+                navigateToUserProfile =
+                    {
+                        val username = viewModel.usernameFlow.first()
+                        if (username.isNotBlank()) {
+                            goToUserProfile(username)
+                        }
+                    })
         }
         appComposable(
             route = "${AppNavigationItem.Profile.route}/{username}",
@@ -128,13 +140,20 @@ fun AppNavigation(
                 snackbarState = snackbarState,
                 goToUserProfile = ::goToUserProfile,
                 goToArtistPage = ::goToArtistPage,
-                goToPlaylist = ::goToPlaylist
+                goToPlaylist = ::goToPlaylist,
+                topBarActions = topAppBarActions,
+                navigateToCreateAccount = {
+                    settingsCallbacks.navigateToCreateAccount()
+                }
             )
         }
         appComposable(
             route = AppNavigationItem.Settings.route
         ) {
-            SettingsScreen()
+            SettingsScreen(
+                dashBoardViewModel = dashBoardViewModel,
+                callbacks = settingsCallbacks
+            )
         }
         appComposable(
             route = "${AppNavigationItem.Artist.route}/{mbid}",
@@ -155,7 +174,8 @@ fun AppNavigation(
                     goToArtistPage = ::goToArtistPage,
                     snackBarState = snackbarState,
                     goToUserPage = ::goToUserProfile,
-                    goToAlbumPage = ::goToAlbumPage
+                    goToAlbumPage = ::goToAlbumPage,
+                    topBarActions = topAppBarActions
                 )
             }
         }
@@ -173,7 +193,11 @@ fun AppNavigation(
                     snackbarState.showSnackbar("The album page can't be loaded")
                 }
             } else {
-                AlbumScreen(albumMbid = albumMbid, snackBarState = snackbarState)
+                AlbumScreen(
+                    albumMbid = albumMbid,
+                    snackBarState = snackbarState,
+                    topBarActions = topAppBarActions
+                )
             }
         }
         appComposable(
@@ -183,19 +207,20 @@ fun AppNavigation(
                     type = NavType.StringType
                 }
             )
-        ){ backStackTrace ->
+        ) { backStackTrace ->
             val playlistMbid = backStackTrace.arguments?.getString("mbid")
-            if (playlistMbid == null){
-                LaunchedEffect(Unit){
+            if (playlistMbid == null) {
+                LaunchedEffect(Unit) {
                     snackbarState.showSnackbar("The playlist page can't be loaded")
                 }
             } else {
-                 PlaylistDetailScreen(
+                PlaylistDetailScreen(
                     playlistMBID = playlistMbid,
                     snackbarState = snackbarState,
                     goToArtistPage = ::goToArtistPage,
-                     goToUserPage = ::goToUserProfile
-                 )
+                    goToUserPage = ::goToUserProfile,
+                    topBarActions = topAppBarActions
+                )
             }
         }
 

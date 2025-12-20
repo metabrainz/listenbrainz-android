@@ -2,6 +2,7 @@ package org.listenbrainz.sharedtest.mocks
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import org.listenbrainz.android.model.InstallSource
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode
@@ -17,7 +18,6 @@ import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername
     preference as default value here.
 */
 class MockAppPreferences(
-    override var permissionsPreference: String? = PermissionStatus.NOT_REQUESTED.name,
     override var onboardingCompleted: Boolean = false,
     override var currentPlayable: Playable? = null,
     override val refreshToken: String? = "",
@@ -25,7 +25,7 @@ class MockAppPreferences(
     override var songsOnDevice: Boolean = true,
     override val version: String = "",
     override val isNotificationServiceAllowed: Boolean = true,
-    override var linkedServices: List<LinkedService> = listOf()
+    override var linkedServices: List<LinkedService> = listOf(),
 ) : AppPreferences {
     
     override val themePreference: DataStorePreference<UiMode> =
@@ -94,8 +94,42 @@ class MockAppPreferences(
                 TODO("Not yet implemented")
             }
         }
-    
-    
+
+    override val requestedPermissionsList: DataStorePreference<List<String>> =
+        object : DataStorePreference<List<String>> {
+            override fun getFlow(): Flow<List<String>> = flow {  }
+
+            override suspend fun set(value: List<String>) {
+                TODO("Not yet implemented")
+            }
+        }
+
+    override val consentScreenDataCache: DataStorePreference<String> =
+        object : DataStorePreference<String> {
+            override fun getFlow(): Flow<String> = flow {
+                emit("")
+            }
+
+            override suspend fun set(value: String) {
+                TODO("Not yet implemented")
+            }
+        }
+
+    override val installSource: DataStorePreference<InstallSource>
+        get() = TODO("Not yet implemented")
+
+    override val appLaunchCount: DataStorePreference<Int>
+        get() = TODO("Not yet implemented")
+
+    override val lastVersionCheckLaunchCount: DataStorePreference<Int>
+        get() = TODO("Not yet implemented")
+
+    override val lastUpdatePromptLaunchCount: DataStorePreference<Int>
+        get() = TODO("Not yet implemented")
+
+    override val downloadId: DataStorePreference<Long>
+        get() = TODO("Not yet implemented")
+
     override suspend fun logoutUser(): Boolean {
         TODO("Not yet implemented")
     }

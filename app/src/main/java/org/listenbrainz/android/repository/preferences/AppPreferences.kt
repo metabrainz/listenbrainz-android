@@ -1,6 +1,7 @@
 package org.listenbrainz.android.repository.preferences
 
 import kotlinx.coroutines.flow.Flow
+import org.listenbrainz.android.model.InstallSource
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.util.LinkedService
@@ -8,17 +9,9 @@ import org.listenbrainz.android.util.LinkedService
 interface AppPreferences {
     
     val themePreference: DataStorePreference<UiMode>
-    
-    /**
-     *
-     * [PermissionStatus.NOT_REQUESTED] -> permission not requested even once.
-     *
-     * [PermissionStatus.GRANTED]-> permission granted.
-     *
-     * [PermissionStatus.DENIED_ONCE] -> permission is denied once, user can be asked for permission again.
-     *
-     * [PermissionStatus.DENIED_TWICE] -> permission is denied twice and cannot be asked again. User need to go to settings to enable the permission.*/
-    var permissionsPreference: String?
+
+    /** List of permissions requested by the app atleast once. */
+    val requestedPermissionsList: DataStorePreference<List<String>>
 
     /** Whitelist for ListenSubmissionService.*/
     val listeningWhitelist: DataStorePreference<List<String>>
@@ -51,7 +44,7 @@ interface AppPreferences {
     /** Default is true. */
     val isListeningAllowed: DataStorePreference<Boolean>
     
-    /** Default is true. */
+    /** Default is false. */
     val shouldListenNewPlayers: DataStorePreference<Boolean>
 
     val isNotificationServiceAllowed: Boolean
@@ -63,4 +56,20 @@ interface AppPreferences {
     
     /** Used to tell the user that they don't have any songs on their device. */
     var songsOnDevice: Boolean
+
+    /** Cache for Login Consent Screen Data */
+    val consentScreenDataCache: DataStorePreference<String>
+
+    val installSource: DataStorePreference<InstallSource>
+    
+    /** Current app launch count. Incremented on each app launch. */
+    val appLaunchCount: DataStorePreference<Int>
+    
+    /** Launch count when version was last checked. */
+    val lastVersionCheckLaunchCount: DataStorePreference<Int>
+    
+    /** Launch count when user was last prompted to update. */
+    val lastUpdatePromptLaunchCount: DataStorePreference<Int>
+
+    val downloadId: DataStorePreference<Long>
 }

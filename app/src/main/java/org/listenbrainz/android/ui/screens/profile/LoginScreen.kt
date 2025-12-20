@@ -2,6 +2,7 @@ package org.listenbrainz.android.ui.screens.profile
 
 import android.content.Intent
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -37,12 +38,14 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
+import org.listenbrainz.android.ui.screens.onboarding.auth.login.ListenBrainzLogin
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.ListensViewModel
 
 @Composable
 fun LoginScreen(
     navigateToUserProfile: suspend () -> Unit,
+    navigateToCreateAccount: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     var startLogin by remember { mutableStateOf(false) }
@@ -92,7 +95,10 @@ fun LoginScreen(
     }
 
     if (startLogin) {
-        ListenBrainzLogin {
+        ListenBrainzLogin(
+            modifier = Modifier.background(ListenBrainzTheme.colorScheme.background),
+            onCreateAccountClicked = navigateToCreateAccount
+        ) {
             scope.launch {
                 navigateToUserProfile()
                 startLogin = false
@@ -105,6 +111,9 @@ fun LoginScreen(
 @Composable
 private fun Preview() {
     ListenBrainzTheme {
-        LoginScreen {}
+        LoginScreen(
+            navigateToUserProfile = {},
+            navigateToCreateAccount = {}
+        )
     }
 }

@@ -160,8 +160,7 @@ fun AddTrackToPlaylist(
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
-                        },
-                        enableTrailingContent = true
+                        }
                     )
                 }
                 item {

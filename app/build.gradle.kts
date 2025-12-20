@@ -8,13 +8,26 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.sentry)
 }
 
 val keystorePropertiesFile = rootProject.file("keystore.properties")
 val localPropertiesFile = rootProject.file("local.properties")
 
 android {
+    val major = "major"
+    val minor = "minor"
+    val patch = "patch"
+    val build = "build"
+
+    val versionMap = mapOf(
+        major to 2,
+        minor to 12,
+        patch to 0,
+        build to 0
+    )
+    fun versionCode() = versionMap[major]!! * 10000 + versionMap[minor]!! * 100 + versionMap[patch]!! * 10 + versionMap[build]!! * 1
+    fun versionName() = "${versionMap[major]}.${versionMap[minor]}.${versionMap[patch]}.${versionMap[build]}"
+
     namespace = "org.listenbrainz.android"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
@@ -22,8 +35,8 @@ android {
         applicationId = "org.listenbrainz.android"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 61
-        versionName = "2.8.4"
+        versionCode = versionCode()
+        versionName = versionName()
         multiDexEnabled = true
         testInstrumentationRunner = "org.listenbrainz.android.di.CustomTestRunner"
         vectorDrawables {
@@ -51,11 +64,10 @@ android {
                 ?.apply { load(FileInputStream(localPropertiesFile)) }
 
             fun addStringRes(name: String) =
-                resValue("string", name, localProperties?.getProperty(name)?.toString().toString())
+                resValue("string", name, localProperties?.getProperty(name).orEmpty())
 
             addStringRes("youtubeApiKey")
             addStringRes("spotifyClientId")
-            addStringRes("sentryDsn")
 
             resValue("string", "environment", "debug")
 
@@ -69,11 +81,10 @@ android {
                 ?.apply { load(FileInputStream(keystorePropertiesFile)) }
 
             fun addStringRes(name: String) =
-                resValue("string", name, keystoreProperties?.getProperty(name)?.toString().toString())
+                resValue("string", name, keystoreProperties?.getProperty(name).orEmpty())
 
             addStringRes("youtubeApiKey")
             addStringRes("spotifyClientId")
-            addStringRes("sentryDsn")
 
             resValue("string", "environment", "production")
 
@@ -84,6 +95,17 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+    }
+
+    flavorDimensions += "version"
+    productFlavors {
+        create("playstore") {
+            dimension = "version"
+        }
+
+        create("github") {
+            dimension = "version"
         }
     }
 
@@ -114,17 +136,6 @@ android {
         includeInApk = false
         includeInBundle = true
     }
-}
-
-sentry {
-    org.set("metabrainz")
-    projectName.set("android")
-
-    // this will upload your source code to Sentry to show it as part of the stack traces
-    // disable if you don't want to expose your sources
-    includeSourceContext.set(true)
-    // TODO: Enable when server upload body max size is increased.
-    autoUploadProguardMapping.set(false)
 }
 
 dependencies {
@@ -206,6 +217,10 @@ dependencies {
     implementation(libs.google.exoplayer.ui)
     implementation(libs.google.exoplayer.mediasession)
 
+    // Google Play Core for in-app updates
+    implementation(libs.app.update)
+    implementation(libs.app.update.ktx)
+
     // Spotify SDK
     api(project(":spotify-app-remote"))
 
@@ -214,6 +229,9 @@ dependencies {
     implementation(libs.socket.io) {
         exclude(group = "org.json", module = "json")
     }
+
+    // Date time
+    implementation(libs.threetenabp)
 
     // Logging
     implementation(libs.logger.android)
@@ -252,4 +270,10 @@ dependencies {
     // Chucker
     debugImplementation(libs.chucker)
     releaseImplementation(libs.chucker.noop)
+
+    //Navigation 3 API
+    implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+    implementation(libs.compose.shimmer)
 }

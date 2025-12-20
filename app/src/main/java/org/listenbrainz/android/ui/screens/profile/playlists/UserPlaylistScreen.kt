@@ -1,7 +1,6 @@
 package org.listenbrainz.android.ui.screens.profile.playlists
 
 import android.content.res.Configuration
-import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -28,10 +26,8 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -40,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -67,7 +64,7 @@ fun UserPlaylistScreen(
     snackbarState: SnackbarHostState,
     userViewModel: UserViewModel,
     playlistViewModel: PlaylistDataViewModel,
-    goToPlaylist: (String)->Unit
+    goToPlaylist: (String) -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -89,9 +86,6 @@ fun UserPlaylistScreen(
             userPlaylistsData.loadState.refresh is LoadState.Loading
         }
     }
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
     var isBottomSheetVisible by rememberSaveable { mutableStateOf(false) }
 
     val pullRefreshState = rememberPullRefreshState(
@@ -116,6 +110,7 @@ fun UserPlaylistScreen(
         getUserPlaylist = { index ->
             userPlaylistsData[index]
         },
+        getPlaylistCoverArt = userViewModel::fetchCoverArt,
         getCollabPlaylist = { index ->
             collabPlaylistsData[index]
         },
@@ -161,7 +156,7 @@ fun UserPlaylistScreen(
                 }
 
                 PlaylistDropdownItems.DELETE -> {
-                    userViewModel.deleltePlaylist(
+                    userViewModel.deletePlaylist(
                         playlist.getPlaylistMBID(),
                         onCompletion = {
                             scope.launch {
@@ -191,28 +186,15 @@ fun UserPlaylistScreen(
         }
     )
 
-    if (isBottomSheetVisible)
-        ModalBottomSheet(
-            onDismissRequest = {
-                currentMBID = null
-                isBottomSheetVisible = false
-            },
-            sheetState = sheetState,
-            modifier = Modifier.statusBarsPadding(),
-        ) {
-            CreateEditPlaylistScreen(
-                viewModel = playlistViewModel,
-                snackbarHostState = snackbarState,
-                bottomSheetState = sheetState,
-                mbid = currentMBID
-            ) {
-                currentMBID = null
-                scope.launch {
-                    sheetState.hide()
-                    isBottomSheetVisible = false
-                }
-            }
-        }
+    CreateEditPlaylistScreen(
+        viewModel = playlistViewModel,
+        isVisible = isBottomSheetVisible,
+        mbid = currentMBID
+    ) {
+        currentMBID = null
+        isBottomSheetVisible = false
+    }
+
 }
 
 
@@ -225,6 +207,7 @@ private fun UserPlaylistScreenBase(
     userPlaylistDataSize: Int,
     collabPlaylistDataSize: Int,
     isCurrentScreenCollab: Boolean,
+    getPlaylistCoverArt: suspend (UserPlaylist) -> String?,
     getUserPlaylist: (Int) -> UserPlaylist?,
     getCollabPlaylist: (Int) -> UserPlaylist?,
     currentPlaylistView: PlaylistView,
@@ -268,6 +251,9 @@ private fun UserPlaylistScreenBase(
                                                 index
                                             )
                                         if (playlist != null) {
+                                            val coverArt by produceState<String?>(initialValue = null, key1 = playlist){
+                                                value = getPlaylistCoverArt(playlist)
+                                            }
                                             PlaylistListViewCard(
                                                 modifier = Modifier,
                                                 title = playlist.title ?: "",
@@ -277,7 +263,7 @@ private fun UserPlaylistScreenBase(
                                                     showTime = false
                                                 ),
                                                 onClickCard = { onClickPlaylist(playlist) },
-                                                coverArt = playlist.coverArt,
+                                                coverArt = coverArt,
                                                 onDropdownClick = {
                                                     onDropdownItemClick(it, playlist)
                                                 },
@@ -301,6 +287,9 @@ private fun UserPlaylistScreenBase(
                                                 index
                                             )
                                         if (playlist != null) {
+                                            val coverArt by produceState<String?>(initialValue = null, key1 = playlist){
+                                                value = getPlaylistCoverArt(playlist)
+                                            }
                                             PlaylistGridViewCard(
                                                 modifier = Modifier,
                                                 title = playlist.title ?: "",
@@ -310,7 +299,7 @@ private fun UserPlaylistScreenBase(
                                                     showTime = false
                                                 ),
                                                 onClickCard = { onClickPlaylist(playlist) },
-                                                coverArt = playlist.coverArt,
+                                                coverArt = coverArt,
                                                 onDropdownClick = {
                                                     onDropdownItemClick(it, playlist)
                                                 },
@@ -352,7 +341,7 @@ private fun UserPlaylistScreenBase(
             modifier = Modifier.align(Alignment.TopCenter),
             refreshing = isRefreshing,
             contentColor = ListenBrainzTheme.colorScheme.lbSignatureInverse,
-                backgroundColor = ListenBrainzTheme.colorScheme.level1,
+            backgroundColor = ListenBrainzTheme.colorScheme.level1,
             state = pullRefreshState
         )
 
@@ -458,6 +447,7 @@ fun UserPlaylistScreenPreview() {
             isCurrentScreenCollab = true,
             currentPlaylistView = PlaylistView.GRID,
             onPlaylistSectionClick = {},
+            getPlaylistCoverArt = {null},
             onCollabSectionClick = {},
             onClickPlaylistViewChange = { },
             onClickPlaylist = { },

@@ -1,0 +1,8 @@
+New:
+1. Listening now is back along with updates to Listen submission.
+2. Updates to app will now be notified to the user.
+3. In app account creation flow.
+
+Fixes:
+1. Listen submission fixes for skipping listens.
+2. Login timing out.

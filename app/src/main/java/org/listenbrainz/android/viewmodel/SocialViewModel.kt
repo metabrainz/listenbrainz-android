@@ -52,7 +52,7 @@ class SocialViewModel @Inject constructor(
     @OptIn(FlowPreview::class)
     private val searchFollowerQuery = inputSearchFollowerQuery.asStateFlow().debounce(500).distinctUntilChanged()
     private val searchFollowerResult = MutableStateFlow<List<String>>(emptyList())
-    
+
     override val uiState: StateFlow<SocialUiState> = createUiStateFlow()
 
     init {
@@ -67,7 +67,6 @@ class SocialViewModel @Inject constructor(
                             it.startsWith(query, ignoreCase = true) || it.contains(query, ignoreCase = true)
                         } ?: emptyList()
                     )
-                    println(searchFollowerResult.value)
                 } else {
                     emitError(error = result.error)
                 }
@@ -104,7 +103,7 @@ class SocialViewModel @Inject constructor(
         }
         return result.data?.toLinkedServicesList()?.contains(LinkedService.CRITIQUEBRAINZ)
     }
-    
+
     fun playListen(trackMetadata: TrackMetadata) {
         val spotifyId = trackMetadata.additionalInfo?.spotifyId
         if (spotifyId != null){
@@ -118,7 +117,7 @@ class SocialViewModel @Inject constructor(
             playFromYoutubeMusic(trackMetadata)
         }
     }
-    
+
     private fun playFromYoutubeMusic(trackMetadata: TrackMetadata) {
         viewModelScope.launch {
             remotePlaybackHandler.apply {
@@ -133,15 +132,15 @@ class SocialViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun play(){
         remotePlaybackHandler.play()
     }
-    
+
     fun pause(){
         remotePlaybackHandler.pause()
     }
-    
+
     fun recommend(metadata: Metadata) {
         viewModelScope.launch(ioDispatcher) {
             val result = repository.postRecommendationToAll(
@@ -156,7 +155,7 @@ class SocialViewModel @Inject constructor(
                     )
                 )
             )
-            
+
             if (result.status == Resource.Status.FAILED){
                 emitError(result.error)
             }
@@ -165,7 +164,7 @@ class SocialViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun personallyRecommend(metadata: Metadata, users: List<String>, blurbContent: String) {
         viewModelScope.launch(ioDispatcher) {
             val result = repository.postPersonalRecommendation(
@@ -182,7 +181,7 @@ class SocialViewModel @Inject constructor(
                     )
                 )
             )
-            
+
             if (result.status == Resource.Status.FAILED){
                 emitError(result.error)
             }
@@ -191,7 +190,7 @@ class SocialViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun review(metadata: Metadata, entityType: ReviewEntityType, blurbContent: String, rating: Int?, locale: String){
         viewModelScope.launch(ioDispatcher) {
             val result = repository.postReview(
@@ -213,7 +212,7 @@ class SocialViewModel @Inject constructor(
                     )
                 )
             )
-            
+
             if (result.status == Resource.Status.FAILED){
                 emitError(result.error)
             }
@@ -222,7 +221,7 @@ class SocialViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun pin(metadata: Metadata, blurbContent: String? ) {
         viewModelScope.launch(ioDispatcher) {
             val result = repository.pin(
@@ -230,7 +229,7 @@ class SocialViewModel @Inject constructor(
                 recordingMbid = metadata.trackMetadata?.mbidMapping?.recordingMbid,
                 blurbContent = blurbContent
             )
-            
+
             if (result.status == Resource.Status.FAILED){
                 emitError(result.error)
             }

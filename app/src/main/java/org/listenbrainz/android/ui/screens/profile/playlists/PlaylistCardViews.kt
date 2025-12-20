@@ -161,7 +161,7 @@ fun PlaylistListViewCard(
         artists = emptyList(),
         coverArtUrl = null,
         goToArtistPage = {},
-        alternateCoverArt = {
+        coverArt = {
             CoverArtComposable(
                 modifier = it.aspectRatio(1f),
                 coverArt = coverArt,
@@ -170,7 +170,7 @@ fun PlaylistListViewCard(
                 areImagesClickable = false
             )
         },
-        alternateTitleAndSubtitle = {
+        titleAndSubtitle = {
             Column(modifier = it) {
                 Text(
                     text = title,

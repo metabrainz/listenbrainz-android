@@ -44,10 +44,9 @@
     <string name="previous">Précédent</string>
     <string name="finish">Terminer</string>
     <string name="state_unrecognised_artist">Artiste non reconnu</string>
-    <string name="no_scrobbles">Aucun morceau ici pour le moment…</string>
+    <string name="no_listens">Aucun morceau ici pour le moment…</string>
     <string name="new_app">Nouvelle application</string>
     <string name="no_apps_enabled">Aucune application n\'est activée</string>
-    <string name="n_more" formatted="true" comment="n more( pending scrobbles)">%1$d de plus</string>
     <string name="recommendation_greeting">Morceau recommandé avec succès !</string>
     <string name="personal_recommendation_greeting">Recommandation de morceau envoyée avec succès !</string>
     <string name="pin_greeting">Morceau épinglé avec succès !</string>
@@ -122,4 +121,5 @@
     <string name="labeladd">Ajouter un label</string>
     <string name="recordingadd">Ajouter un enregistrement</string>
     <string name="bp_loading_text">Chargement de votre bibliothèque musicale en cours</string>
+    <string name="permission_screen_rationale">ListenBrainz needs permissions for playback, history tracking, and submissions. We respect your privacy and don\'t collect or share personal data.</string>
 </resources>

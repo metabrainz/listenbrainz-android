@@ -1,4 +1,6 @@
+package org.listenbrainz.android.ui.screens.profile.taste
+
 enum class LovedHated {
-    loved,
-    hated,
+    Loved,
+    Hated,
 }

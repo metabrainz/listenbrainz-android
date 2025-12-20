@@ -20,7 +20,9 @@ interface ListensService {
     @GET("user/{user_name}/listens")
     suspend fun getUserListens(
         @Path("user_name") username: String,
-        @Query("count") count: Int
+        @Query("count") count: Int,
+        @Query("max_ts") maxTs: Long? = null,
+        @Query("min_ts") minTs: Long? = null
     ): Response<Listens>
     
     @GET("http://coverartarchive.org/release/{MBID}")
@@ -38,5 +40,10 @@ interface ListensService {
     suspend fun getServicesLinkedToAccount(
         @Path("user_name") username: String,
     ): Response<ListenBrainzExternalServices>
+
+    @GET("user/{user_name}/playing-now")
+    suspend fun getNowPlaying(
+        @Path("user_name") username: String
+    ): Response<Listens>
     
 }
