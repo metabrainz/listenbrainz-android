@@ -48,6 +48,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -490,7 +491,7 @@ private fun MyFeed(
 
     val inRefreshingState = pagingData.loadState.refresh is LoadState.Loading
 
-    val count = remember { mutableStateOf(0) }
+    var count by remember { mutableIntStateOf(0) }
 
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize()
@@ -503,7 +504,7 @@ private fun MyFeed(
             }.first().measure(it)
             val itemHeight = item.height
 
-            count.value = if (itemHeight > 0) {
+            count = if (itemHeight > 0) {
                 (maxHeight / itemHeight).toInt()
             } else {
                 4
@@ -522,7 +523,7 @@ private fun MyFeed(
             item { StartingSpacer() }
 
             if (inRefreshingState) {
-                items(count.value) {
+                items(count + 1) {
                     ShimmerMyFeedItem(shimmerInstance)
                 }
             } else {
