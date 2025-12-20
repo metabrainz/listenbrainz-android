@@ -46,8 +46,11 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,6 +62,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
@@ -491,102 +495,97 @@ private fun MyFeed(
 
     val inRefreshingState = pagingData.loadState.refresh is LoadState.Loading
 
-    var count by remember { mutableIntStateOf(0) }
-
-    BoxWithConstraints(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        val maxHeight = with(LocalDensity.current) { maxHeight.toPx() }
-
-        SubcomposeLayout { it->
-            val item = subcompose("item") {
-                ShimmerMyFeedItem(shimmerInstance)
-            }.first().measure(it)
-            val itemHeight = item.height
-
-            count = if (itemHeight > 0) {
-                (maxHeight / itemHeight).toInt()
-            } else {
-                4
-            }
-
-            layout(it.maxWidth, it.maxHeight) {}
-        }
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .widthIn(max = LocalConfiguration.current.screenWidthDp.dp),
-            state = listState
-        ) {
-
-            item { StartingSpacer() }
-
-            if (inRefreshingState) {
-                items(count + 1) {
-                    ShimmerMyFeedItem(shimmerInstance)
-                }
-            } else {
-                items(pagingData.itemCount) { index ->
-                    pagingData[index]?.apply {
-                        AnimatedVisibility(
-                            visible = uiState.isDeletedMap[event.id] != true,
-                            enter = expandVertically(),
-                            exit = shrinkVertically()
-                        ) {
-                            eventType.Content(
-                                event = event,
-                                parentUser = parentUser,
-                                isHidden = uiState.isHiddenMap[event.id] == true,
-                                onDeleteOrHide = {
-                                    onDeleteOrHide(event, eventType, parentUser)
-                                },
-                                dropDownState = dropdownItemIndex.value,
-                                index = index,
-                                onDropdownClick = {
-                                    dropdownItemIndex.value =
-                                        if (dropdownItemIndex.value == null) index else null
-                                },
-                                onRecommend = {
-                                    recommendTrack(event)
-                                    dropdownItemIndex.value = null
-                                },
-                                onPersonallyRecommend = {
-                                    personallyRecommendTrack(index)
-                                    dropdownItemIndex.value = null
-                                },
-                                onReview = {
-                                    review(index)
-                                    dropdownItemIndex.value = null
-                                },
-                                onPin = {
-                                    pin(index)
-                                    dropdownItemIndex.value = null
-                                },
-                                onOpenInMusicBrainz = {
-                                    uriHandler.openUri(
-                                        "https://musicbrainz.org/recording/${
-                                            event.metadata.trackMetadata?.mbidMapping?.recordingMbid
-                                                ?: return@Content
-                                        }"
-                                    )
-                                    dropdownItemIndex.value = null
-                                },
-                                onClick = {
-                                    onPlay(event)
-                                    dropdownItemIndex.value = null
-                                },
-                                goToUserPage = goToUserPage,
-                                goToArtistPage = goToArtistPage
-                            )
-                        }
-                    }
-                }
-
-                item { PagerRearLoadingIndicator(pagingData) }
-            }
+    var height by remember { mutableIntStateOf(0) }
+    val count by remember {
+        derivedStateOf {
+            if (height == 0)
+                return@derivedStateOf 0
+            listState.layoutInfo.viewportSize.height / height
         }
     }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .widthIn(max = LocalConfiguration.current.screenWidthDp.dp),
+        state = listState
+    ) {
+        item { StartingSpacer() }
+
+        if (inRefreshingState) {
+            item(contentType = "shimmer") {
+                ShimmerMyFeedItem(
+                    shimmer = shimmerInstance,
+                    modifier = Modifier.onSizeChanged {
+                        height = it.height
+                    }
+                )
+            }
+
+            items(count, contentType = { "shimmer" }) {
+                ShimmerMyFeedItem(shimmerInstance)
+            }
+        } else {
+            items(pagingData.itemCount) { index ->
+                pagingData[index]?.apply {
+                    AnimatedVisibility(
+                        visible = uiState.isDeletedMap[event.id] != true,
+                        enter = expandVertically(),
+                        exit = shrinkVertically()
+                    ) {
+                        eventType.Content(
+                            event = event,
+                            parentUser = parentUser,
+                            isHidden = uiState.isHiddenMap[event.id] == true,
+                            onDeleteOrHide = {
+                                onDeleteOrHide(event, eventType, parentUser)
+                            },
+                            dropDownState = dropdownItemIndex.value,
+                            index = index,
+                            onDropdownClick = {
+                                dropdownItemIndex.value =
+                                    if (dropdownItemIndex.value == null) index else null
+                            },
+                            onRecommend = {
+                                recommendTrack(event)
+                                dropdownItemIndex.value = null
+                            },
+                            onPersonallyRecommend = {
+                                personallyRecommendTrack(index)
+                                dropdownItemIndex.value = null
+                            },
+                            onReview = {
+                                review(index)
+                                dropdownItemIndex.value = null
+                            },
+                            onPin = {
+                                pin(index)
+                                dropdownItemIndex.value = null
+                            },
+                            onOpenInMusicBrainz = {
+                                uriHandler.openUri(
+                                    "https://musicbrainz.org/recording/${
+                                        event.metadata.trackMetadata?.mbidMapping?.recordingMbid
+                                            ?: return@Content
+                                    }"
+                                )
+                                dropdownItemIndex.value = null
+                            },
+                            onClick = {
+                                onPlay(event)
+                                dropdownItemIndex.value = null
+                            },
+                            goToUserPage = goToUserPage,
+                            goToArtistPage = goToArtistPage
+                        )
+                    }
+                }
+            }
+
+            item { PagerRearLoadingIndicator(pagingData) }
+        }
+    }
+
 }
 
 
@@ -884,9 +883,12 @@ fun SimilarListens(
 }
 
 @Composable
-fun ShimmerMyFeedItem(shimmer: Shimmer) {
+fun ShimmerMyFeedItem(
+    shimmer: Shimmer,
+    modifier: Modifier = Modifier,
+) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .padding(top = 10.dp)
             .padding(end = 8.dp, start = 10.dp)
     ) {
