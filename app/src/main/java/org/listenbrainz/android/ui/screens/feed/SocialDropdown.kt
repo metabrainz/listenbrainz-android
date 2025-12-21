@@ -26,11 +26,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.CoroutineScope
-import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.feed.ReviewEntityType
-import org.listenbrainz.android.ui.components.dialogs.AlertDialog
 import org.listenbrainz.android.ui.components.dialogs.Dialog
 import org.listenbrainz.android.ui.components.dialogs.PersonalRecommendationDialog
 import org.listenbrainz.android.ui.components.dialogs.PinDialog
@@ -52,7 +50,6 @@ fun SocialDropdownDefault(
     onSuccess: suspend CoroutineScope.(message: String) -> Unit,
     onRemoveFromPlaylist: (() -> Unit)? = null,
     onDropdownDismiss: () -> Unit,
-    onDeleteListen: (() -> Unit)? = null
 ) {
     if (metadata == null || LocalView.current.isInEditMode) return
 
@@ -105,11 +102,6 @@ fun SocialDropdownDefault(
             {
                 onRemoveFromPlaylist()
                 onDropdownDismiss()
-            }
-        } else null,
-        onDelete = if (onDeleteListen != null) {
-            {
-                dialogsState.activateDialog(Dialog.DELETE_LISTEN)
             }
         } else null,
     )
@@ -168,20 +160,6 @@ fun SocialDropdownDefault(
                 }
             )
         }
-        Dialog.DELETE_LISTEN -> {
-            AlertDialog(
-                title = "Delete Listen",
-                message = "Are you sure you want to delete this listen?",
-                onDismiss = dialogsState::deactivateDialog,
-                onCancel = dialogsState::deactivateDialog,
-                onOkay = {
-                    metadata.trackMetadata?.additionalInfo?.listenedAt?.let {
-                        viewModel.deleteListen(it.toString())
-                        onDeleteListen?.invoke()
-                    }
-                }
-            )
-        }
     }
 
     SelectPlaylist(
@@ -189,9 +167,6 @@ fun SocialDropdownDefault(
         isSheetVisible = currentSheet == SocialDropdownSheets.SELECT_PLAYLIST_TO_ADD_TRACK,
         onCreateNewPlaylist = {
             currentSheet = SocialDropdownSheets.CREATE_NEW_PLAYLIST
-        },
-        onTrackSelected = {
-            viewModel.addTrackToPlaylist(it, metadata)
         },
         onDismiss = {
             currentSheet = SocialDropdownSheets.NONE
@@ -202,8 +177,7 @@ fun SocialDropdownDefault(
             currentSheet = SocialDropdownSheets.SELECT_PLAYLIST_TO_ADD_TRACK
         },
         isVisible = currentSheet == SocialDropdownSheets.CREATE_NEW_PLAYLIST,
-        mbid = null,
-        viewModel = hiltViewModel()
+        mbid = null
     )
 
 }
@@ -222,10 +196,10 @@ fun SocialDropdown(
     onReview: (() -> Unit)? = null,
     onAddToPlaylist: (() -> Unit)? = null,
     onRemoveFromPlaylist: (() -> Unit)? = null,
-    onDelete: (() -> Unit)? = null,
 
     // TODO: Implement these
     onLink: (() -> Unit)? = null,
+    onDelete: (() -> Unit)? = null,
     onInspect: (() -> Unit)? = null
 ) {
     val list = remember {
@@ -238,7 +212,6 @@ fun SocialDropdown(
         val recordingMbid = metadata.trackMetadata?.mbidMapping?.recordingMbid
             ?: metadata.reviewMbid
             ?: metadata.trackMetadata?.additionalInfo?.recordingMbid
-        val listenedAt = metadata.trackMetadata?.additionalInfo?.listenedAt
 
         mutableListOf<SocialDropdownItem>().apply {
             if (recordingMbid != null) {
@@ -264,12 +237,9 @@ fun SocialDropdown(
             if(onRemoveFromPlaylist != null)
                 add(SocialDropdownItem.REMOVE_FROM_PLAYLIST(onRemoveFromPlaylist))
 
-            if (onDelete != null && listenedAt != null){
-                add(SocialDropdownItem.DELETE(onDelete))
-            }
-
             // TODO: Add these in future once we have its metadata conditions.
             //add(SocialDropdownItem.LINK(onLink))
+            //add(SocialDropdownItem.DELETE(onDelete)),
             //add(SocialDropdownItem.INSPECT(onInspect))
         }
     }
