@@ -121,7 +121,7 @@ private fun PermissionScreenBase(
                     .fillMaxSize()
                     .padding(horizontal = 24.dp)
             ) {
-                item{
+                item  {
                     Spacer(Modifier
                         .statusBarsPadding()
                         .height(100.dp))

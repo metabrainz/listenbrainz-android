@@ -1,0 +1,3 @@
+ListenBrainz śledzi muzykę, której słuchasz i zapewnia wgląd w Twoje nawyki słuchania.
+Korzystając z naszych wizualizacji, możesz użyć ListenBrainz do śledzenia swoich nawyków słuchania i dzielenia się swoim gustem z innymi.
+Na podstawie historii słuchania polecamy muzykę, która może Ci się spodobać, nową muzykę od twoich ulubionych artystów oraz to, czego słuchali podobni gustem użytkownicy.

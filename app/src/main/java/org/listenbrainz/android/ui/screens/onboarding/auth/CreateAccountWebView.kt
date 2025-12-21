@@ -1,68 +1,83 @@
 package org.listenbrainz.android.ui.screens.onboarding.auth
 
 import android.annotation.SuppressLint
-import android.os.Build
-import android.view.View
 import android.view.ViewGroup
 import android.webkit.CookieManager
-import android.webkit.CookieSyncManager
 import android.webkit.WebView
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import org.listenbrainz.android.ui.screens.onboarding.auth.createaccount.CreateAccountClientCallbacks
+import org.listenbrainz.android.ui.screens.onboarding.auth.createaccount.CreateAccountWebAppInterface
 import org.listenbrainz.android.ui.screens.profile.CreateAccountWebClient
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.android.viewmodel.CreateAccountViewModel
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun CreateAccountWebViewClient(
     modifier: Modifier = Modifier,
-    username: String,
-    email: String,
-    password: String,
-    confirmPassword: String,
-    onLoad: (Resource<String>) -> Unit,
-    onPageLoadStateChange: (Boolean, String?) -> Unit
+    viewModel: CreateAccountViewModel,
+    callbacks: CreateAccountClientCallbacks
 ) {
-    AndroidView(
-        modifier = modifier
-            .alpha(0f)
-            .size(1.dp),
-        factory = { context ->
-            WebView(context).apply {
-                layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-                )
+    val uiState by viewModel.uiState.collectAsState()
+    var webClientRef by remember { mutableStateOf<CreateAccountWebClient?>(null) }
 
-                settings.apply {
-                    javaScriptEnabled = true
-                    setSupportMultipleWindows(false)
-                    javaScriptCanOpenWindowsAutomatically = false
-                }
-
-                CookieManager.getInstance().removeAllCookies(null)
-                CookieManager.getInstance().flush()
-
-                clearCache(true)
-                clearHistory()
-
-                webViewClient = CreateAccountWebClient(
-                    username = username,
-                    email = email,
-                    password = password,
-                    confirmPassword = confirmPassword,
-                    onLoad = onLoad,
-                    onPageLoadStateChange = onPageLoadStateChange
-                )
-
-                loadUrl("https://musicbrainz.org/register?returnto=https://listenbrainz.org/")
-            }
+    LaunchedEffect(uiState.submitFormTrigger) {
+        if (uiState.submitFormTrigger) {
+            webClientRef?.submitRegistrationForm(uiState.credentials)
+            viewModel.resetSubmitFormTrigger()
         }
-    )
+    }
 
+    key(uiState.reloadTrigger) {
+        AndroidView(
+            modifier = modifier,
+            factory = { context ->
+                WebView(context).apply {
+                    layoutParams = ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT
+                    )
+
+                    settings.apply {
+                        javaScriptEnabled = true
+                        setSupportMultipleWindows(false)
+                        javaScriptCanOpenWindowsAutomatically = false
+                    }
+
+                    CookieManager.getInstance().removeAllCookies(null)
+                    CookieManager.getInstance().flush()
+
+                    clearCache(true)
+                    clearHistory()
+
+                    val client = CreateAccountWebClient(
+                        callbacks = callbacks
+                    )
+                    webViewClient = client
+                    webClientRef = client
+
+                    addJavascriptInterface(
+                        CreateAccountWebAppInterface(
+                            onCaptchaVerificationCompleted = {
+                                // Triggering form submission from ViewModel after captcha is verified
+                                viewModel.submitForm()
+                            }
+                        ), "AndroidInterface"
+                    )
+
+                    viewModel.setCaptchaNotComplete()
+
+                    loadUrl("https://musicbrainz.org/register?returnto=https://listenbrainz.org/")
+                }
+            }
+        )
+    }
 }

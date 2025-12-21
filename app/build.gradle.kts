@@ -8,7 +8,6 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.sentry)
 }
 
 val keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -22,8 +21,8 @@ android {
 
     val versionMap = mapOf(
         major to 2,
-        minor to 10,
-        patch to 1,
+        minor to 12,
+        patch to 0,
         build to 0
     )
     fun versionCode() = versionMap[major]!! * 10000 + versionMap[minor]!! * 100 + versionMap[patch]!! * 10 + versionMap[build]!! * 1
@@ -65,11 +64,10 @@ android {
                 ?.apply { load(FileInputStream(localPropertiesFile)) }
 
             fun addStringRes(name: String) =
-                resValue("string", name, localProperties?.getProperty(name)?.toString().toString())
+                resValue("string", name, localProperties?.getProperty(name).orEmpty())
 
             addStringRes("youtubeApiKey")
             addStringRes("spotifyClientId")
-            addStringRes("sentryDsn")
 
             resValue("string", "environment", "debug")
 
@@ -83,11 +81,10 @@ android {
                 ?.apply { load(FileInputStream(keystorePropertiesFile)) }
 
             fun addStringRes(name: String) =
-                resValue("string", name, keystoreProperties?.getProperty(name)?.toString().toString())
+                resValue("string", name, keystoreProperties?.getProperty(name).orEmpty())
 
             addStringRes("youtubeApiKey")
             addStringRes("spotifyClientId")
-            addStringRes("sentryDsn")
 
             resValue("string", "environment", "production")
 
@@ -138,20 +135,6 @@ android {
     dependenciesInfo {
         includeInApk = false
         includeInBundle = true
-    }
-}
-
-sentry {
-    org.set("metabrainz")
-    projectName.set("android")
-
-    // this will upload your source code to Sentry to show it as part of the stack traces
-    // disable if you don't want to expose your sources
-    includeSourceContext.set(true)
-    // TODO: Enable when server upload body max size is increased.
-    autoUploadProguardMapping.set(false)
-    autoInstallation {
-        sentryVersion = "8.17.0"
     }
 }
 
@@ -300,4 +283,5 @@ dependencies {
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+    implementation(libs.compose.shimmer)
 }

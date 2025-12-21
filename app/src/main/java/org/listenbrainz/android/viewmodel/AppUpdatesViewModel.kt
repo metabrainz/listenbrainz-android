@@ -33,6 +33,7 @@ import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.isNewerVersion
 import java.io.File
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 @HiltViewModel
 class AppUpdatesViewModel @Inject constructor(
@@ -600,28 +601,21 @@ class AppUpdatesViewModel @Inject constructor(
     }
 
     suspend fun checkForUpdates(activity: ComponentActivity): Boolean {
-                val installSource = appPreferences.installSource.get()
-                return if (installSource == InstallSource.PLAY_STORE) {
-                    suspendCancellableCoroutine { cont->
-                        checkPlayStoreUpdate(activity) { isAvailable ->
-                            if (cont.isActive) cont.resume(isAvailable) { cause, _, _ ->
-                                {
-                                    Log.e(TAG, "Coroutine cancelled", cause)
-                                }
-                            }
-                        }
+        val installSource = appPreferences.installSource.get()
+        return suspendCancellableCoroutine { cont ->
+            if (installSource == InstallSource.PLAY_STORE) {
+                checkPlayStoreUpdate(activity) { isAvailable ->
+                    cont.resume(isAvailable) { cause ->
+                        Log.e(TAG, "Coroutine cancelled", cause)
                     }
-                } else {
-                    suspendCancellableCoroutine { cont ->
-                        checkForGithubUpdates() { isAvailable ->
-                            if (cont.isActive) cont.resume(isAvailable) { cause, _, _ ->
-                                {
-                                    Log.e(TAG, "Coroutine cancelled", cause)
-                                }
-                            }
-                        }
+                }
+            } else {
+                checkForGithubUpdates { isAvailable ->
+                    cont.resume(isAvailable) { cause ->
+                        Log.e(TAG, "Coroutine cancelled", cause)
                     }
                 }
             }
-
+        }
+    }
 }

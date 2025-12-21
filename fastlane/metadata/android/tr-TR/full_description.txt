@@ -1,0 +1,3 @@
+ListenBrainz dinlediğiniz müziklerin takip eder ve dinleme alışkanlıklarınız hakkında size bilgi verir.
+Görselleştirmelerimizi kullanarak ListenBrainz'i müzik dinleme alışkanlıklarınızı takip etmek ve zevkinizi başkalarıyla paylaşmak için kullanabilirsiniz.
+Dinleme geçmişinize dayanarak, beğenebileceğiniz müzikleri, favori sanatçılarınızdan kaçırdığınız yeni müzikleri ve benzer kullanıcıların neler dinlediğini öneriyoruz.
