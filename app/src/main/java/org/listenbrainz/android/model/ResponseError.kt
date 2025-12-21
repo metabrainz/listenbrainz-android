@@ -1,9 +1,7 @@
 package org.listenbrainz.android.model
 
 import androidx.compose.runtime.Stable
-import com.google.gson.Gson
-import com.google.gson.JsonSyntaxException
-import com.google.gson.reflect.TypeToken
+import kotlinx.serialization.json.Json
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.error
 import retrofit2.Response
@@ -49,6 +47,7 @@ enum class ResponseError(val genericToast: String, var actualResponse: String? =
         Resource.failure(error = this.apply { this@ResponseError.actualResponse = actualResponse })
     
     companion object {
+        private val json = Json { ignoreUnknownKeys = true }
         
         /** Get [ResponseError] for a given Retrofit **error** [Response] from server.*/
         fun <T> getError(response: Response<T>) : ResponseError {
@@ -71,11 +70,8 @@ enum class ResponseError(val genericToast: String, var actualResponse: String? =
         /** Parsing server response into [ApiError] class. Consider using specific functions like [getSocialResponseError], etc. for each repository if
          * returning errors is the sole motive.*/
         fun <T> parseError(response: Response<T>) : ApiError = try {
-            Gson().fromJson(
-                /* json = */ response.error(),
-                /* typeOfT = */ object : TypeToken<ApiError>() {}.type
-            )
-        } catch (e: JsonSyntaxException) {
+            json.decodeFromString<ApiError>(response.error() ?: "")
+        } catch (e: Exception) {
             // Server doesn't return error in expected format.
             ApiError(response.code())
         }

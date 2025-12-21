@@ -96,8 +96,8 @@ class ListeningNowViewModel @Inject constructor(
         _listeningNowUIState.update {
             ListeningNowUIState(
                 imageURL = getCoverArtUrl(
-                    caaReleaseMbid = listen.trackMetadata.mbidMapping?.caaReleaseMbid,
-                    caaId = listen.trackMetadata.mbidMapping?.caaId,
+                    caaReleaseMbid = listen.trackMetadata?.mbidMapping?.caaReleaseMbid,
+                    caaId = listen.trackMetadata?.mbidMapping?.caaId,
                     size = 500
                 ),
                 song = listen
@@ -144,7 +144,7 @@ class ListeningNowViewModel @Inject constructor(
         val Listen.dismissDurationMs: Long
             get() {
                 val listenDurationMs = trackMetadata
-                    .additionalInfo
+                    ?.additionalInfo
                     ?.durationMs
                     ?.toLong()
                     // Default to 6 minutes for now listening dismiss

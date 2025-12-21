@@ -1,11 +1,11 @@
 package org.listenbrainz.android.model.yimdata
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class TopMissedPlaylist(
-    //@SerializedName("annotation" ) var annotation    : String?          = null,
-    //@SerializedName("creator"    ) var creator       : String?          = null,
-    @SerializedName("identifier" ) var identifier      : String             = "",
-    @SerializedName("title"      ) var title           : String             = "",
-    @SerializedName("track"      ) var tracksList      : ArrayList<Track>   = arrayListOf()
+    @SerialName("identifier") var identifier: String = "",
+    @SerialName("title") var title: String = "",
+    @SerialName("track") var tracksList: ArrayList<Track> = arrayListOf()
 )

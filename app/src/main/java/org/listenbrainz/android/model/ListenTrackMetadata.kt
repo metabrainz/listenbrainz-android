@@ -1,19 +1,21 @@
 package org.listenbrainz.android.model
 
 import androidx.room.Embedded
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 class ListenTrackMetadata(
-    @SerializedName("artist_name")
+    @SerialName("artist_name")
     var artist: String? = null,
     
-    @SerializedName("track_name")
+    @SerialName("track_name")
     var track: String? = null,
 
-    @SerializedName("release_name")
+    @SerialName("release_name")
     var release: String? = null,
     
-    @SerializedName("additional_info")
+    @SerialName("additional_info")
     @Embedded
     var additionalInfo: AdditionalInfo = AdditionalInfo()
 ) {

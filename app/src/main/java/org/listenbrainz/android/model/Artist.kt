@@ -1,5 +1,8 @@
 package org.listenbrainz.android.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Artist(
     val id: Long = 0,
     val name: String = "",

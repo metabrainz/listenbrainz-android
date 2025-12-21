@@ -1,5 +1,8 @@
 package org.listenbrainz.android.model
 
-class Blog (
-    val posts: List<BlogPost>
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class Blog(
+    val posts: List<BlogPost> = emptyList()
 )

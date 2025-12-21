@@ -1,5 +1,8 @@
 package org.listenbrainz.android.model.artist
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class WikipediaExtract(
     val canonical: String? = null,
     val content: String? = null,

@@ -1,9 +1,11 @@
 package org.listenbrainz.android.model.artist
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class CBReview(
-    @SerializedName("average_rating") val averageRating: AverageRating? = null,
+    @SerialName("average_rating") val averageRating: AverageRating? = null,
     val count: Int? = null,
     val limit: Int? = null,
     val offset: Int? = null,

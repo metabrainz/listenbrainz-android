@@ -1,15 +1,16 @@
 package org.listenbrainz.android.model.userPlaylist
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class UserPlaylistPayload(
-    @SerializedName("count")
+    @SerialName("count")
     val count: Int? = null,
-    @SerializedName("offset")
+    @SerialName("offset")
     val offset: Int? = null,
-    @SerializedName("playlist_count")
+    @SerialName("playlist_count")
     val playlistCount: Int? = null,
-    @SerializedName("playlists")
+    @SerialName("playlists")
     val playlists: List<UserPlaylists> = listOf()
 )

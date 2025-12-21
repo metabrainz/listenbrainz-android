@@ -1,11 +1,12 @@
 package org.listenbrainz.android.model.playlist
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class AdditionalMetadata(
-    @SerializedName("algorithm_metadata")
+    @SerialName("algorithm_metadata")
     val algorithmMetadata: AlgorithmMetadata = AlgorithmMetadata(),
-    @SerializedName("expires_at")
+    @SerialName("expires_at")
     val expiresAt: String? = null
 )

@@ -2,11 +2,15 @@ package org.listenbrainz.android.di
 
 import android.app.Application
 import com.chuckerteam.chucker.api.ChuckerInterceptor
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.Binds
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
@@ -15,7 +19,6 @@ import org.listenbrainz.android.service.GithubAppUpdatesService
 import org.listenbrainz.android.service.GithubUpdatesDownloadService
 import org.listenbrainz.android.util.Constants.GITHUB_API_BASE_URL
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
 
 @Module
@@ -26,6 +29,7 @@ abstract class AppUpdatesServiceModule {
     abstract fun bindsAppUpdatesRepository(appUpdatesRepositoryImpl: AppUpdatesRepositoryImpl): AppUpdatesRepository
 
     companion object {
+        val json = Json { ignoreUnknownKeys = true }
 
         private val httpClient by lazy {
             OkHttpClient
@@ -38,7 +42,7 @@ abstract class AppUpdatesServiceModule {
             return Retrofit.Builder()
                 .client(httpClient)
                 .baseUrl(GITHUB_API_BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
                 .build()
         }
 

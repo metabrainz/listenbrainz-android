@@ -4,11 +4,13 @@ import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import java.util.*
 
+@Serializable
 class ListenSubmitBody {
-    @SerializedName("listen_type")
+    @SerialName("listen_type")
     var listenType: String? = "single"
     @JvmField
     var payload: MutableList<Payload> = ArrayList()
@@ -27,17 +29,18 @@ class ListenSubmitBody {
                 '}'
     }
 
+    @Serializable
     @Entity(tableName = "PENDING_LISTENS")
     class Payload(
         
-        @SerializedName("listened_at")
+        @SerialName("listened_at")
         @ColumnInfo(name = "listened_at")
         @PrimaryKey
-        var timestamp: Long?,
+        var timestamp: Long? = null,
         
-        @SerializedName("track_metadata")
+        @SerialName("track_metadata")
         @Embedded
-        var metadata: ListenTrackMetadata
+        var metadata: ListenTrackMetadata = ListenTrackMetadata()
     ) {
         override fun toString(): String {
             return "Payload{" +

@@ -1,9 +1,10 @@
 package org.listenbrainz.android.model.userPlaylist
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class AlgorithmMetadata(
-    @SerializedName("source_patch")
+    @SerialName("source_patch")
     val sourcePatch: String? = null
 )

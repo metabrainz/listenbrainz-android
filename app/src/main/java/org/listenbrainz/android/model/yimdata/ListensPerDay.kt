@@ -1,12 +1,12 @@
 package org.listenbrainz.android.model.yimdata
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class ListensPerDay (
-    
-    @SerializedName("from_ts"      ) var fromTs      : Int     = 0,
-    @SerializedName("listen_count" ) var listenCount : Int     = 0,
-    @SerializedName("time_range"   ) var timeRange   : String  = "",
-    @SerializedName("to_ts"        ) var toTs        : Int     = 0
-
+    @SerialName("from_ts") var fromTs: Int = 0,
+    @SerialName("listen_count") var listenCount: Int = 0,
+    @SerialName("time_range") var timeRange: String = "",
+    @SerialName("to_ts") var toTs: Int = 0
 )

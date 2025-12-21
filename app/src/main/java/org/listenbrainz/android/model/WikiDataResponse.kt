@@ -1,7 +1,10 @@
 package org.listenbrainz.android.model
 
-class WikiDataResponse {
-    var sitelinks: Map<String, WikiDataEntry>? = null
-    var type: String? = null
-    var id: String? = null
-}
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class WikiDataResponse(
+    val sitelinks: Map<String, WikiDataEntry>? = null,
+    val type: String? = null,
+    val id: String? = null
+)

@@ -1,45 +1,46 @@
 package org.listenbrainz.android.model.githubupdates
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class Uploader(
-    @SerializedName("avatar_url")
+    @SerialName("avatar_url")
     val avatarUrl: String? = null,
-    @SerializedName("events_url")
+    @SerialName("events_url")
     val eventsUrl: String? = null,
-    @SerializedName("followers_url")
+    @SerialName("followers_url")
     val followersUrl: String? = null,
-    @SerializedName("following_url")
+    @SerialName("following_url")
     val followingUrl: String? = null,
-    @SerializedName("gists_url")
+    @SerialName("gists_url")
     val gistsUrl: String? = null,
-    @SerializedName("gravatar_id")
+    @SerialName("gravatar_id")
     val gravatarId: String? = null,
-    @SerializedName("html_url")
+    @SerialName("html_url")
     val htmlUrl: String? = null,
-    @SerializedName("id")
+    @SerialName("id")
     val id: Int? = null,
-    @SerializedName("login")
+    @SerialName("login")
     val login: String? = null,
-    @SerializedName("node_id")
+    @SerialName("node_id")
     val nodeId: String? = null,
-    @SerializedName("organizations_url")
+    @SerialName("organizations_url")
     val organizationsUrl: String? = null,
-    @SerializedName("received_events_url")
+    @SerialName("received_events_url")
     val receivedEventsUrl: String? = null,
-    @SerializedName("repos_url")
+    @SerialName("repos_url")
     val reposUrl: String? = null,
-    @SerializedName("site_admin")
+    @SerialName("site_admin")
     val siteAdmin: Boolean? = null,
-    @SerializedName("starred_url")
+    @SerialName("starred_url")
     val starredUrl: String? = null,
-    @SerializedName("subscriptions_url")
+    @SerialName("subscriptions_url")
     val subscriptionsUrl: String? = null,
-    @SerializedName("type")
+    @SerialName("type")
     val type: String? = null,
-    @SerializedName("url")
+    @SerialName("url")
     val url: String? = null,
-    @SerializedName("user_view_type")
+    @SerialName("user_view_type")
     val userViewType: String? = null
 )

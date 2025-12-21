@@ -1,8 +1,10 @@
 package org.listenbrainz.android.model.user
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class UserFeedback(
-    @SerializedName("count")    val count: Int? = null,
-    @SerializedName("feedback") val feedback: List<UserFeedbackEntry>? = null,
+    @SerialName("count") val count: Int? = null,
+    @SerialName("feedback") val feedback: List<UserFeedbackEntry>? = null,
 )

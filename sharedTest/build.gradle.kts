@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -54,10 +55,10 @@ dependencies {
     implementation(libs.material)
 
     // Networking
-    implementation(libs.gson)
     implementation(libs.retrofit)
     implementation(libs.okhttp)
-    implementation(libs.retrofit.converter.gson)
+    implementation(libs.retrofit.converter.kotlin)
+    implementation(libs.ktor.serialization.kotlinx.json)
 
     //Spotify SDK for mocking remotePlaybackHandler
     api(project(":spotify-app-remote"))

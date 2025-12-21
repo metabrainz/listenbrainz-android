@@ -259,9 +259,9 @@ fun ListenCardSmallDefault(
 
         ListenCardSmall(
             modifier = modifier,
-            trackName = metadata.trackMetadata.trackName,
+            trackName = metadata.trackMetadata.trackName ?: "--",
             artists = metadata.trackMetadata.mbidMapping?.artists ?: listOf(
-                FeedListenArtist(metadata.trackMetadata.artistName , null, "")
+                FeedListenArtist(metadata.trackMetadata.artistName ?: "--", null, "")
             ),
             coverArtUrl = coverArtUrl,
             errorAlbumArt = errorAlbumArt,

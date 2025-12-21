@@ -1,23 +1,25 @@
 package org.listenbrainz.android.model.recordingSearch
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class Aliase(
-    @SerializedName("begin-date")
+    @SerialName("begin-date")
     val beginDate: String? = null,
-    @SerializedName("end-date")
+    @SerialName("end-date")
     val endDate: String? = null,
-    @SerializedName("locale")
+    @SerialName("locale")
     val locale: String? = null,
-    @SerializedName("name")
+    @SerialName("name")
     val name: String? = null,
-    @SerializedName("primary")
-    val primary: Any? = null,
-    @SerializedName("sort-name")
+    @SerialName("primary")
+    val primary: JsonElement? = null,
+    @SerialName("sort-name")
     val sortName: String? = null,
-    @SerializedName("type")
+    @SerialName("type")
     val type: String? = null,
-    @SerializedName("type-id")
+    @SerialName("type-id")
     val typeId: String? = null
 )

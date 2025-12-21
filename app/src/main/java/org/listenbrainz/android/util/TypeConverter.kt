@@ -1,12 +1,11 @@
 package org.listenbrainz.android.util
 
 import androidx.room.TypeConverter
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.listenbrainz.android.model.AlbumEntity
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.SongEntity
-import java.lang.reflect.Type
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -14,49 +13,48 @@ import java.util.Locale
 
 object TypeConverter {
 
-    fun playableToJSON(playable: Playable) = Gson().toJson(playable)!!
+    private val json = Json { ignoreUnknownKeys = true }
 
-    fun playableFromJSON(playableJSON: String) : Playable {
-        val type: Type = object: TypeToken<Playable>() {}.type
-        return Gson().fromJson(
-            playableJSON,
-            type
-        )
+    fun playableToJSON(playable: Playable): String = json.encodeToString(playable)
+
+    fun playableFromJSON(playableJSON: String): Playable {
+        return json.decodeFromString(playableJSON)
     }
 
     @TypeConverter
-    fun playlistToJSON(playlist: List<SongEntity>) = Gson().toJson(playlist)!!
+    fun playlistToJSON(playlist: List<SongEntity>): String = json.encodeToString(playlist)
 
     @TypeConverter
-    fun playlistFromJSON(playListJSON: String): List<SongEntity>{
-        val type: Type = object: TypeToken<ArrayList<SongEntity>>() {}.type
-        return Gson().fromJson(
-            playListJSON,
-            type
-        ) ?: emptyList()
+    fun playlistFromJSON(playListJSON: String): List<SongEntity> {
+        return try {
+            json.decodeFromString(playListJSON)
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
 
     @TypeConverter
-    fun artistAlbumsToJSON(albums: List<AlbumEntity>) = Gson().toJson(albums)!!
+    fun artistAlbumsToJSON(albums: List<AlbumEntity>): String = json.encodeToString(albums)
 
     @TypeConverter
-    fun artistAlbumsFromJSON(albumsJSON: String): List<AlbumEntity>{
-        val type: Type = object: TypeToken<ArrayList<AlbumEntity>>() {}.type
-        return Gson().fromJson(
-            albumsJSON,
-            type
-        ) ?: emptyList()
+    fun artistAlbumsFromJSON(albumsJSON: String): List<AlbumEntity> {
+        return try {
+            json.decodeFromString(albumsJSON)
+        } catch (e: Exception) {
+            emptyList()
+        }
     }
     
     @TypeConverter
-    fun nullableListToJSON(list: List<String>?) = Gson().toJson(list)!!
+    fun nullableListToJSON(list: List<String>?): String = json.encodeToString(list)
     
     @TypeConverter
     fun nullableListFromJSON(listJSON: String): List<String>? {
-        return Gson().fromJson(
-            listJSON,
-            object: TypeToken<List<String>?>() {}.type
-        )
+        return try {
+            json.decodeFromString(listJSON)
+        } catch (e: Exception) {
+            null
+        }
     }
     
     @TypeConverter

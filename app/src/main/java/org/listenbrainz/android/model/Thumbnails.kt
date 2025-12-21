@@ -1,9 +1,13 @@
 package org.listenbrainz.android.model
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Thumbnails(
-    val `1200`: String,
-    val `250`: String,
-    val `500`: String,
-    val large: String,
-    val small: String
+    @SerialName("1200") val size1200: String? = null,
+    @SerialName("250") val size250: String? = null,
+    @SerialName("500") val size500: String? = null,
+    val large: String? = null,
+    val small: String? = null
 )

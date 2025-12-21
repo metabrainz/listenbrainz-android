@@ -1,10 +1,12 @@
 package org.listenbrainz.android.model.album
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import org.listenbrainz.android.model.artist.Artist
 
+@Serializable
 data class AlbumArtist(
-    @SerializedName("artist_credit_id") val artistCreditId: Int? = null,
+    @SerialName("artist_credit_id") val artistCreditId: Int? = null,
     val artists: List<Artist>? = listOf(),
     val name: String? = null,
 )

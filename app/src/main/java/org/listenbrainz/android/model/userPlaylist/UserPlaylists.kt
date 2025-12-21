@@ -1,10 +1,11 @@
 package org.listenbrainz.android.model.userPlaylist
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class UserPlaylists(
-    @SerializedName("playlist")
+    @SerialName("playlist")
     val playlist: UserPlaylist = UserPlaylist()
 ){
     fun getPlaylistMBID(): String? {

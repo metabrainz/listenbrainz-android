@@ -1,9 +1,10 @@
 package org.listenbrainz.android.model.playlist
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class Extension(
-    @SerializedName("https://musicbrainz.org/doc/jspf#playlist")
+    @SerialName("https://musicbrainz.org/doc/jspf#playlist")
     val playlistExtensionData: PlaylistExtensionData = PlaylistExtensionData()
 )

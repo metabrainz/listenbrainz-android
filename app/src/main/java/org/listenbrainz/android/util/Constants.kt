@@ -1,5 +1,6 @@
 package org.listenbrainz.android.util
 
+import kotlinx.serialization.Serializable
 import org.listenbrainz.android.util.Constants.SPOTIFY_PACKAGE_NAME
 
 object Constants {
@@ -60,6 +61,7 @@ object Constants {
     
 }
 
+@Serializable
 enum class LinkedService(val code: String, val packageName: String? = null) {
     
     SPOTIFY("spotify", SPOTIFY_PACKAGE_NAME),

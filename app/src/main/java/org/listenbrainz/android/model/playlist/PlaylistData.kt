@@ -1,22 +1,23 @@
 package org.listenbrainz.android.model.playlist
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class PlaylistData(
-    @SerializedName("annotation")
+    @SerialName("annotation")
     val annotation: String? = null,
-    @SerializedName("creator")
+    @SerialName("creator")
     val creator: String? = null,
-    @SerializedName("date")
+    @SerialName("date")
     val date: String? = null,
-    @SerializedName("extension")
+    @SerialName("extension")
     val extension: Extension = Extension(),
-    @SerializedName("identifier")
+    @SerialName("identifier")
     val identifier: String? = null,
-    @SerializedName("title")
+    @SerialName("title")
     val title: String? = null,
-    @SerializedName("track")
+    @SerialName("track")
     val track: List<PlaylistTrack> = listOf(),
     val coverArt: String? = null
 )

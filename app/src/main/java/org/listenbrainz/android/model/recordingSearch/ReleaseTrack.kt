@@ -1,15 +1,16 @@
 package org.listenbrainz.android.model.recordingSearch
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class ReleaseTrack(
-    @SerializedName("id")
+    @SerialName("id")
     val id: String? = null,
-    @SerializedName("length")
+    @SerialName("length")
     val length: Int? = null,
-    @SerializedName("number")
+    @SerialName("number")
     val number: String? = null,
-    @SerializedName("title")
+    @SerialName("title")
     val title: String? = null
 )

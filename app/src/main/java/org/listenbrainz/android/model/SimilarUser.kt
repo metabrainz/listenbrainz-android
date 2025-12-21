@@ -1,8 +1,10 @@
 package org.listenbrainz.android.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class SimilarUser(
-    val similarity: Double,
-    @SerializedName("user_name") val username: String
+    val similarity: Double = 0.0,
+    @SerialName("user_name") val username: String = ""
 )

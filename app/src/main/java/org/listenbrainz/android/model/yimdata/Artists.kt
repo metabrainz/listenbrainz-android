@@ -1,11 +1,11 @@
 package org.listenbrainz.android.model.yimdata
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Artists (
-    
-    @SerializedName("artist_mbid"  ) var artistMbid  : String  = "",
-    @SerializedName("artist_name"  ) var artistName  : String  = "",
-    @SerializedName("listen_count" ) var listenCount : Int     = 0
-
+    @SerialName("artist_mbid") var artistMbid: String = "",
+    @SerialName("artist_name") var artistName: String = "",
+    @SerialName("listen_count") var listenCount: Int = 0
 )

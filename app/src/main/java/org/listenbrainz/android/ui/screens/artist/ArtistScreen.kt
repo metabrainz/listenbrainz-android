@@ -630,7 +630,7 @@ private fun PopularTracks(
                         additionalInfo = null,
                         artistName = track?.artistName ?: "",
                         mbidMapping = MbidMapping(
-                            artists = track?.artists,
+                            artists = track?.artists.orEmpty(),
                             recordingMbid = track?.recordingMbid,
                             recordingName = track?.recordingName ?: "",
                             caaReleaseMbid = track?.caaReleaseMbid,

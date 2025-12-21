@@ -1,21 +1,24 @@
 package org.listenbrainz.android.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class CurrentPins(
-    @SerializedName("pinned_recording") val pinnedRecording: PinnedRecording? = null
+    @SerialName("pinned_recording") val pinnedRecording: PinnedRecording? = null
 )
 
+@Serializable
 data class PinnedRecording(
-    @SerializedName("created"        ) val created: Long? = null,
-    @SerializedName("row_id"         ) val rowId: Int? = null,
-    @SerializedName("track_metadata" ) val trackMetadata: TrackMetadata? = null,
+    @SerialName("created") val created: Long? = null,
+    @SerialName("row_id") val rowId: Int? = null,
+    @SerialName("track_metadata") val trackMetadata: TrackMetadata? = null,
     
     // Only below fields are used for posting pins.
-    @SerializedName("recording_msid" ) val recordingMsid : String? = null,
-    @SerializedName("recording_mbid" ) val recordingMbid : String? = null,
-    @SerializedName("blurb_content"  ) val blurbContent  : String? = null,
-    @SerializedName("pinned_until"   ) val pinnedUntil   : Int?    = null
+    @SerialName("recording_msid") val recordingMsid : String? = null,
+    @SerialName("recording_mbid") val recordingMbid : String? = null,
+    @SerialName("blurb_content") val blurbContent  : String? = null,
+    @SerialName("pinned_until") val pinnedUntil   : Int?    = null
 ) {
     fun toMetadata() = Metadata(
         trackMetadata = trackMetadata,

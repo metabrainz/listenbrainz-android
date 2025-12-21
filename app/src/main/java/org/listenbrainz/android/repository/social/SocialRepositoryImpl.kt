@@ -80,9 +80,9 @@ class SocialRepositoryImpl @Inject constructor(
     override suspend fun postReview(username: String?, data: Review): Resource<FeedEvent> = parseResponse {
         if (username.isNullOrEmpty())
             return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
-        if (data.metadata.text.length < 25)
+        if (data.metadata?.text.orEmpty().length < 25)
             return ResponseError.BAD_REQUEST.asResource("Review is too short. Please write a review longer than 25 letters.")
-        if (data.metadata.rating != null && data.metadata.rating !in 1..5)
+        if (data.metadata?.rating != null && data.metadata.rating !in 1..5)
             return ResponseError.BAD_REQUEST.asResource()
         
         service.postReview(
