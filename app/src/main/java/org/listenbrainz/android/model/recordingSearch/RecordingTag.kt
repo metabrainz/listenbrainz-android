@@ -1,11 +1,12 @@
 package org.listenbrainz.android.model.recordingSearch
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class RecordingTag(
-    @SerializedName("count")
+    @SerialName("count")
     val count: Int? = null,
-    @SerializedName("name")
+    @SerialName("name")
     val name: String? = null
 )

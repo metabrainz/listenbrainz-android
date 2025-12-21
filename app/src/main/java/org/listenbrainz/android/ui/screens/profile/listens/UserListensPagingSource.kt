@@ -47,11 +47,14 @@ class UserListensPagingSource(
                 // Get the minimum listened_at timestamp from the current batch
                 // This will be used as maxTs for the next page
                 val nextKey = if (listens.isNotEmpty()) {
-                    listens.minOfOrNull { it.listenedAt ?: it.insertedAt }
+                    listens
+                        .minOfOrNull { it.listenedAt ?: it.insertedAt ?: Long.MAX_VALUE }
+                        .takeIf { it != Long.MAX_VALUE }
                 } else {
                     null
                 }
 
+                println(listens.size)
                 LoadResult.Page(
                     data = listens,
                     prevKey = null, // We only support forward pagination

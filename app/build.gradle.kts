@@ -162,18 +162,17 @@ dependencies {
     implementation(libs.androidx.room.ktx)
 
     // Networking
-    implementation(libs.gson)
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.retrofit)
     implementation(libs.okhttp)
-    implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.retrofit.converter.kotlin)
 
     // Ktor
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
-    implementation(libs.ktor.serialization.gson)
     implementation(libs.ktor.client.logging)
 
     // Image loading and processing

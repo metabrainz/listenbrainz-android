@@ -1,7 +1,6 @@
 package org.listenbrainz.android.model
 
 import androidx.compose.runtime.Immutable
-import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -9,24 +8,19 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TrackMetadata(
     @SerialName("additional_info")
-    @SerializedName("additional_info")
-    val additionalInfo: AdditionalInfo?,
+    val additionalInfo: AdditionalInfo? = null,
     @SerialName("artist_name")
-    @SerializedName("artist_name")
-    val artistName: String,
+    val artistName: String? = null,
     @SerialName("mbid_mapping")
-    @SerializedName("mbid_mapping")
-    val mbidMapping: MbidMapping?,
+    val mbidMapping: MbidMapping? = null,
     @SerialName("release_name")
-    @SerializedName("release_name")
-    val releaseName: String?,
+    val releaseName: String? = null,
     @SerialName("track_name")
-    @SerializedName("track_name")
-    val trackName: String
+    val trackName: String? = null
 ) {
     val sharedTransitionId
-        get() = (mbidMapping?.recordingMbid ?: mbidMapping?.recordingName ?: trackName) +
-                (mbidMapping?.artistMbids?.joinToString() ?: artistName) +
-                (mbidMapping?.releaseMbid ?: releaseName) +
+        get() = (mbidMapping?.recordingMbid ?: mbidMapping?.recordingName ?: trackName).orEmpty() +
+                (mbidMapping?.artistMbids?.joinToString() ?: artistName).orEmpty() +
+                (mbidMapping?.releaseMbid ?: releaseName).orEmpty() +
                 mbidMapping?.caaReleaseMbid.orEmpty()
 }

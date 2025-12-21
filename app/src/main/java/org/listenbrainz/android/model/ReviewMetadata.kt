@@ -1,20 +1,22 @@
 package org.listenbrainz.android.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class ReviewMetadata(
     
-    @SerializedName("entity_name" ) var entityName : String,
+    @SerialName("entity_name") val entityName: String,
     /** **Mbid** of the entity.*/
-    @SerializedName("entity_id"   ) var entityId   : String,
+    @SerialName("entity_id") val entityId: String,
     /**"**recording**" or "**artist**" or "**release_group**"*/
-    @SerializedName("entity_type" ) var entityType : String,
+    @SerialName("entity_type") val entityType: String,
     
     /** Text should be minimum 25 characters, error should be thrown if not. */
-    @SerializedName("text"        ) var text       : String,
-    @SerializedName("language"    ) var language   : String = "en",
+    @SerialName("text") val text: String = "",
+    @SerialName("language") val language: String = "en",
     
     /** Rating should lie between 1..5 */
-    @SerializedName("rating"      ) var rating     : Int? = null
+    @SerialName("rating") val rating: Int? = null
 
 )

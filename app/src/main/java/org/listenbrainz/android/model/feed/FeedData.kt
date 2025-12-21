@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 data class FeedData(
-    val payload: FeedPayload
+    val payload: FeedPayload = FeedPayload()
 )

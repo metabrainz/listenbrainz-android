@@ -23,6 +23,7 @@ import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.RecommendationData
 import org.listenbrainz.android.model.RecommendationMetadata
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.Review
 import org.listenbrainz.android.model.ReviewMetadata
 import org.listenbrainz.android.model.SocialData
@@ -124,8 +125,9 @@ class SocialViewModel @Inject constructor(
                 playOnYoutube {
                     withContext(ioDispatcher) {
                         searchYoutubeMusicVideoId(
-                            trackMetadata.trackName,
-                            trackMetadata.artistName
+                            trackMetadata.trackName
+                                ?: return@withContext Resource.failure(ResponseError.DOES_NOT_EXIST),
+                            trackMetadata.artistName.orEmpty()
                         )
                     }
                 }
@@ -148,7 +150,7 @@ class SocialViewModel @Inject constructor(
                 data = RecommendationData(
                     metadata = RecommendationMetadata(
                         trackName = metadata.trackMetadata?.trackName ?: return@launch,
-                        artistName = metadata.trackMetadata.artistName,
+                        artistName = metadata.trackMetadata.artistName.orEmpty(),
                         releaseName = metadata.trackMetadata.releaseName,
                         recordingMbid = metadata.trackMetadata.mbidMapping?.recordingMbid,
                         recordingMsid = metadata.trackMetadata.additionalInfo?.recordingMsid
@@ -172,7 +174,7 @@ class SocialViewModel @Inject constructor(
                 data = RecommendationData(
                     metadata = RecommendationMetadata(
                         trackName = metadata.trackMetadata?.trackName ?: return@launch,
-                        artistName = metadata.trackMetadata.artistName,
+                        artistName = metadata.trackMetadata.artistName.orEmpty(),
                         releaseName = metadata.trackMetadata.releaseName,
                         recordingMbid = metadata.trackMetadata.mbidMapping?.recordingMbid,
                         recordingMsid = metadata.trackMetadata.additionalInfo?.recordingMsid,
@@ -203,7 +205,7 @@ class SocialViewModel @Inject constructor(
                             ReviewEntityType.ARTIST -> (when(metadata.trackMetadata.mbidMapping?.artistMbids?.size){
                                 1 -> metadata.trackMetadata.mbidMapping.artistMbids[0]
                                 else -> return@launch
-                            }).toString()
+                            })
                             ReviewEntityType.RELEASE_GROUP -> (metadata.trackMetadata.mbidMapping?.recordingMbid ?: return@launch).toString() },
                         entityType = entityType.code,
                         text = blurbContent,

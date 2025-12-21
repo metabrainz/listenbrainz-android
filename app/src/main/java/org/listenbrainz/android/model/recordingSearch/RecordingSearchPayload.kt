@@ -1,15 +1,16 @@
 package org.listenbrainz.android.model.recordingSearch
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class RecordingSearchPayload(
-    @SerializedName("count")
+    @SerialName("count")
     val count: Int? = null,
-    @SerializedName("created")
+    @SerialName("created")
     val created: String? = null,
-    @SerializedName("offset")
+    @SerialName("offset")
     val offset: Int? = null,
-    @SerializedName("recordings")
+    @SerialName("recordings")
     val recordings: List<RecordingData> = emptyList()
 )

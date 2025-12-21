@@ -1,10 +1,12 @@
 package org.listenbrainz.android.model.yimdata
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Yim23Track (
-    @SerializedName("creator"    ) var creator    : String    = "",
-    @SerializedName("identifier" ) var identifier : String    = "",
-    @SerializedName("extension") var extension : Yim23TrackExtension = Yim23TrackExtension(),
-    @SerializedName("title"      ) var title      : String    = ""
+    @SerialName("creator") var creator: String = "",
+    @SerialName("identifier") var identifier: String = "",
+    @SerialName("extension") var extension: Yim23TrackExtension = Yim23TrackExtension(),
+    @SerialName("title") var title: String = ""
 )

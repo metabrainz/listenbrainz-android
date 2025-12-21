@@ -1,13 +1,15 @@
 package org.listenbrainz.android.model.artist
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Artist(
     val area: String? = "",
-    @SerializedName("artist_mbid") val artistMbid: String? = "",
-    @SerializedName("begin_year") val beginYear: Int? = 0,
-    @SerializedName("end_year") val endYear: Int? = null,
-    @SerializedName("join_phrase") val joinPhrase: String? = null,
+    @SerialName("artist_mbid") val artistMbid: String? = "",
+    @SerialName("begin_year") val beginYear: Int? = 0,
+    @SerialName("end_year") val endYear: Int? = null,
+    @SerialName("join_phrase") val joinPhrase: String? = null,
     val gender: String? = "",
     val mbid: String? = "",
     val name: String? = "",

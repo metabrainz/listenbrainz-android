@@ -1,6 +1,8 @@
 package org.listenbrainz.android.model
 
 import android.media.MediaMetadata
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import org.listenbrainz.android.util.ListenSubmissionState.Companion.DEFAULT_DURATION
 import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractArtist
 import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractDuration
@@ -8,6 +10,7 @@ import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractRele
 import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractTitle
 
 /** Track metadata class for Listen service.*/
+@Serializable
 data class PlayingTrack(
     var artist: String? = null,
     var title: String? = null,

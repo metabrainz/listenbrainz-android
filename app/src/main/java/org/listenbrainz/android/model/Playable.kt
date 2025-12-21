@@ -1,10 +1,13 @@
 package org.listenbrainz.android.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Playable(
-    val type: PlayableType,
-    val id: Long,
+    val type: PlayableType = PlayableType.SONG,
+    val id: Long = 0L,
     var songs: List<Song> = emptyList(),
-    var currentSongIndex : Int,
+    var currentSongIndex: Int = 0,
     var seekTo: Long = 0L
 ) {
     companion object {
@@ -17,6 +20,7 @@ data class Playable(
     }
 }
 
+@Serializable
 enum class PlayableType{
     SONG,
     ARTIST,

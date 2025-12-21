@@ -1,21 +1,22 @@
 package org.listenbrainz.android.model.userPlaylist
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class UserPlaylistExtensionData(
-    @SerializedName("additional_metadata")
+    @SerialName("additional_metadata")
     val additionalMetadata: AdditionalMetadata = AdditionalMetadata(),
-    @SerializedName("collaborators")
+    @SerialName("collaborators")
     val collaborators: List<String> = listOf(),
-    @SerializedName("copied_from_deleted")
+    @SerialName("copied_from_deleted")
     val copiedFromDeleted: Boolean? = null,
-    @SerializedName("created_for")
+    @SerialName("created_for")
     val createdFor: String? = null,
-    @SerializedName("creator")
+    @SerialName("creator")
     val creator: String? = null,
-    @SerializedName("last_modified_at")
+    @SerialName("last_modified_at")
     val lastModifiedAt: String? = null,
-    @SerializedName("public")
+    @SerialName("public")
     val public: Boolean? = null
 )

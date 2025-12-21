@@ -255,8 +255,8 @@ fun ListensScreen(
                         ),
                     metadata = metadata,
                     coverArtUrl = getCoverArtUrl(
-                        caaReleaseMbid = listen.trackMetadata.mbidMapping?.caaReleaseMbid,
-                        caaId = listen.trackMetadata.mbidMapping?.caaId
+                        caaReleaseMbid = listen.trackMetadata?.mbidMapping?.caaReleaseMbid,
+                        caaId = listen.trackMetadata?.mbidMapping?.caaId
                     ),
                     onDropdownError = { error ->
                         snackbarState.showSnackbar(error.toast)
@@ -266,7 +266,7 @@ fun ListensScreen(
                     },
                     goToArtistPage = goToArtistPage,
                 ) {
-                    playListen(listen.trackMetadata)
+                    listen.trackMetadata?.let { playListen(it) }
                 }
             }
 

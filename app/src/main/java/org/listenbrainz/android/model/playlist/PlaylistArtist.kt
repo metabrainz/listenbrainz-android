@@ -1,13 +1,14 @@
 package org.listenbrainz.android.model.playlist
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class PlaylistArtist(
-    @SerializedName("artist_credit_name")
+    @SerialName("artist_credit_name")
     val artistCreditName: String? = null,
-    @SerializedName("artist_mbid")
+    @SerialName("artist_mbid")
     val artistMbid: String? = null,
-    @SerializedName("join_phrase")
+    @SerialName("join_phrase")
     val joinPhrase: String? = null
 )

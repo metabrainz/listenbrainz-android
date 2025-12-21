@@ -72,7 +72,7 @@ fun ListeningNowCard(listen: Listen?, coverArtUrl: String?, onItemClicked: () ->
                 if (listen != null){
                     Column(modifier = Modifier.align(Alignment.CenterVertically)) {
                         Text(
-                            text = listen.trackMetadata.trackName,
+                            text = listen.trackMetadata?.trackName ?: "--",
                             color = ListenBrainzTheme.colorScheme.listenText,
                             fontWeight = FontWeight.Bold,
                             style = ListenBrainzTheme.textStyles.listenTitle
@@ -81,14 +81,14 @@ fun ListeningNowCard(listen: Listen?, coverArtUrl: String?, onItemClicked: () ->
                         Spacer(modifier = Modifier.height(8.dp))
         
                         Text(
-                            text = listen.trackMetadata.artistName,
+                            text = listen.trackMetadata?.artistName ?: "--",
                             color = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),
                             style = ListenBrainzTheme.textStyles.listenSubtitle
                         )
     
                         Spacer(modifier = Modifier.height(8.dp))
                         
-                        if (!listen.trackMetadata.releaseName.isNullOrEmpty()){
+                        if (!listen.trackMetadata?.releaseName.isNullOrEmpty()) {
                             Row(verticalAlignment = Alignment.Bottom) {
                                 Text(
                                     text = listen.trackMetadata.releaseName,

@@ -170,13 +170,15 @@ class FeedViewModel @Inject constructor(
     
     private fun playFromYoutubeMusic(event: FeedEvent) {
         viewModelScope.launch {
-            if (event.metadata.trackMetadata != null){
+            if (event.metadata.trackMetadata != null
+                && event.metadata.trackMetadata.trackName != null
+            ){
                 remotePlaybackHandler.apply {
                     val result = playOnYoutube {
                         withContext(ioDispatcher) {
                             searchYoutubeMusicVideoId(
                                 event.metadata.trackMetadata.trackName,
-                                event.metadata.trackMetadata.artistName
+                                event.metadata.trackMetadata.artistName.orEmpty()
                             )
                         }
                     }
