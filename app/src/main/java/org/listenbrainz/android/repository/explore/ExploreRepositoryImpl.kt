@@ -7,10 +7,9 @@ import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.parseResponse
 
 
-class ExploreRepositoryImpl @Inject constructor(private val exploreService: ExploreService) :
-    ExploreRepository {
+class ExploreRepositoryImpl @Inject constructor(
+    private val exploreService: ExploreService
+) : ExploreRepository {
     override suspend fun getReleasesFromColor(color: String): Resource<HueSoundPayload> =
-        parseResponse {
-            exploreService.getReleasesFromColor(color)
-        }
+        parseResponse { exploreService.getReleasesFromColor(color) }
 }

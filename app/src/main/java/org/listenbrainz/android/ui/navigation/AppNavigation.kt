@@ -82,6 +82,13 @@ fun AppNavigation(
         }
     }
 
+    fun goToHueSound() {
+        navController.navigate(AppNavigationItem.HueSound.route) {
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
 
     NavHost(
         navController = navController as NavHostController,
@@ -104,7 +111,8 @@ fun AppNavigation(
         }
         appComposable(route = AppNavigationItem.Explore.route) {
             ExploreScreen(
-                topAppBarActions
+                goToHueSoundScreen = ::goToHueSound,
+                topBarActions = topAppBarActions
             )
         }
         appComposable(
@@ -225,7 +233,7 @@ fun AppNavigation(
         }
 
         appComposable(route = AppNavigationItem.HueSound.route) {
-            HueSoundScreen()
+            HueSoundScreen(snackbarState = snackbarState, topBarActions = topAppBarActions)
         }
     }
 }

@@ -2,6 +2,7 @@ package org.listenbrainz.android.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,16 +17,19 @@ import javax.inject.Inject
 @HiltViewModel
 class HueSoundViwModel @Inject constructor(
     private val exploreRepository: ExploreRepository,
-) :
-    BaseViewModel<HueSoundUiState>() {
+) : BaseViewModel<HueSoundUiState>() {
     private val releaseList = MutableStateFlow(listOf<Release>())
+    private val _selectedRelease = MutableStateFlow(Release())
     override val uiState: StateFlow<HueSoundUiState> = createUiStateFlow()
 
+
+    fun changeSelectedRelease(release: Release) {
+        _selectedRelease.value = release
+    }
+
     override fun createUiStateFlow(): StateFlow<HueSoundUiState> =
-        combine(
-            releaseList
-        ) { array ->
-            HueSoundUiState(releases = array[0])
+        combine(releaseList, _selectedRelease) { releases, selected ->
+            HueSoundUiState(releases = releases, selectedRelease = selected)
         }.stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
@@ -33,7 +37,7 @@ class HueSoundViwModel @Inject constructor(
         )
 
     fun onColorPickled(colorHex: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             releaseList.value =
                 exploreRepository.getReleasesFromColor(colorHex).data?.payload?.releases
                     ?: emptyList()
