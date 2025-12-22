@@ -102,6 +102,16 @@ fun ExploreScreen(
     }
 }
 
+/**
+ * Card used in the Explore screen.
+ *
+ * @param nextActivity Activity class to launch when the card is clicked.
+ * If non-null, clicking the card will start this activity and [nextScreen]
+ * will not be invoked.
+ * If `null`, no activity will be started and [nextScreen] will be called
+ * instead. In that case, callers are expected to provide a suitable
+ * navigation lambda via [nextScreen].
+ */
 @Composable
 private fun ExploreScreenCard(
     nextActivity: Class<out ComponentActivity>?,
