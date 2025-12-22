@@ -3,6 +3,6 @@ package org.listenbrainz.android.ui.screens.explore
 import org.listenbrainz.android.model.explore.Release
 
 data class HueSoundUiState(
-    var releases: List<Release> = emptyList(),
-    var selectedRelease: Release = Release()
+    val releases: List<Release> = emptyList(),
+    val selectedRelease: Release = Release()
 )

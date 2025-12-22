@@ -233,7 +233,11 @@ fun AppNavigation(
         }
 
         appComposable(route = AppNavigationItem.HueSound.route) {
-            HueSoundScreen(snackbarState = snackbarState, topBarActions = topAppBarActions)
+            HueSoundScreen(
+                snackbarState = snackbarState,
+                topBarActions = topAppBarActions,
+                goToArtistPage = ::goToArtistPage
+                )
         }
     }
 }

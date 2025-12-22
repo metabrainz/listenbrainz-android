@@ -73,22 +73,21 @@ import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
-import org.listenbrainz.android.viewmodel.HueSoundViwModel
+import org.listenbrainz.android.viewmodel.HueSoundViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import kotlin.math.atan2
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-//TODO : Make the screen adaptive
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HueSoundScreen(
     modifier: Modifier = Modifier,
     socialViewModel: SocialViewModel = hiltViewModel(),
-    hueSoundViwModel: HueSoundViwModel = hiltViewModel(),
+    hueSoundViwModel: HueSoundViewModel = hiltViewModel(),
     topBarActions: TopBarActions,
     snackbarState: SnackbarHostState,
-    goToArtistPage: (String) -> Unit = {}
+    goToArtistPage: (String) -> Unit
 ) {
     val uiState by hueSoundViwModel.uiState.collectAsStateWithLifecycle()
     val lazyGridState = rememberLazyGridState()

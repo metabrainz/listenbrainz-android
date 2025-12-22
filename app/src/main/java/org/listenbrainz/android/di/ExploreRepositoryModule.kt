@@ -12,5 +12,5 @@ import org.listenbrainz.android.repository.explore.ExploreRepositoryImpl
 abstract class ExploreRepositoryModule {
 
     @Binds
-    abstract fun bindsExploreRepository(repository: ExploreRepositoryImpl?): ExploreRepository?
+    abstract fun bindsExploreRepository(repository: ExploreRepositoryImpl): ExploreRepository
 }

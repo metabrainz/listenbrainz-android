@@ -15,7 +15,7 @@ import org.listenbrainz.android.ui.screens.explore.HueSoundUiState
 import javax.inject.Inject
 
 @HiltViewModel
-class HueSoundViwModel @Inject constructor(
+class HueSoundViewModel @Inject constructor(
     private val exploreRepository: ExploreRepository,
 ) : BaseViewModel<HueSoundUiState>() {
     private val releaseList = MutableStateFlow(listOf<Release>())

@@ -1,6 +1,6 @@
 package org.listenbrainz.android.repository.explore
 
-import jakarta.inject.Inject
+import javax.inject.Inject
 import org.listenbrainz.android.model.explore.HueSoundPayload
 import org.listenbrainz.android.service.ExploreService
 import org.listenbrainz.android.util.Resource
