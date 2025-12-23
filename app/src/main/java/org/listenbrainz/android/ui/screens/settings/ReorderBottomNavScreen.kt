@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import kotlinx.coroutines.channels.Channel
@@ -238,6 +239,13 @@ private fun ReorderList(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ){
+        item {
+            Text(
+                "* Hold and Drag the tabs to rearrange them",
+                color = Color.Gray,
+                fontWeight = FontWeight.Bold
+            )
+        }
         itemsIndexed(
             items = items,
             contentType = { index, _ -> DraggableItem(index = index) },
