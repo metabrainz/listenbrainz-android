@@ -5,8 +5,8 @@ import com.google.gson.annotations.SerializedName
 data class Listen(
     @SerializedName("inserted_at") val insertedAt: Long,
     @SerializedName("listened_at") val listenedAt: Long? = null,
-    @SerializedName("recording_msid") val recordingMsid: String,
-    @SerializedName("track_metadata") val trackMetadata: TrackMetadata,
+    @SerializedName("recording_msid") val recordingMsid: String?,
+    @SerializedName("track_metadata") val trackMetadata: TrackMetadata?,
     @SerializedName("user_name") val userName: String,
     @SerializedName("cover_art") val coverArt: CoverArt? = null
 ) {
@@ -20,5 +20,5 @@ data class Listen(
     }
 
     val sharedTransitionId
-        get() = trackMetadata.sharedTransitionId + (listenedAt ?: insertedAt).toString()
+        get() = trackMetadata?.sharedTransitionId + (listenedAt ?: insertedAt).toString()
 }

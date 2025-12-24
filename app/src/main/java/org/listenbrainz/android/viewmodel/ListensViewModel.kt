@@ -280,4 +280,22 @@ class ListensViewModel @Inject constructor(
             }
         }
     }*/
+
+    fun deleteListen(listen : Listen){
+        viewModelScope.launch {
+            val result = repository.deleteListen(listen)
+
+            if(result.status == SUCCESS){
+                listensFlow.getAndUpdate { currentList ->
+                    currentList.filter {
+                        // Keep items that DO NOT match the deleted listen
+                        it.listenedAt != listen.listenedAt || it.recordingMsid != listen.recordingMsid
+                    }
+                }
+            }else{
+                //handling error
+                emitError(result.error)
+            }
+        }
+    }
 }

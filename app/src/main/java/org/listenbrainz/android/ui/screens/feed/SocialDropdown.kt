@@ -50,6 +50,7 @@ fun SocialDropdownDefault(
     onSuccess: suspend CoroutineScope.(message: String) -> Unit,
     onRemoveFromPlaylist: (() -> Unit)? = null,
     onDropdownDismiss: () -> Unit,
+    onDelete: (() -> Unit)? = null,
 ) {
     if (metadata == null || LocalView.current.isInEditMode) return
 
@@ -104,6 +105,7 @@ fun SocialDropdownDefault(
                 onDropdownDismiss()
             }
         } else null,
+        onDelete = onDelete
     )
 
     LaunchedEffect(key1 = dialogsState.currentDialog) {
@@ -196,10 +198,10 @@ fun SocialDropdown(
     onReview: (() -> Unit)? = null,
     onAddToPlaylist: (() -> Unit)? = null,
     onRemoveFromPlaylist: (() -> Unit)? = null,
+    onDelete: (() -> Unit)? = null,
 
     // TODO: Implement these
     onLink: (() -> Unit)? = null,
-    onDelete: (() -> Unit)? = null,
     onInspect: (() -> Unit)? = null
 ) {
     val list = remember {
@@ -237,9 +239,12 @@ fun SocialDropdown(
             if(onRemoveFromPlaylist != null)
                 add(SocialDropdownItem.REMOVE_FROM_PLAYLIST(onRemoveFromPlaylist))
 
+            if (onDelete != null) {
+                add(SocialDropdownItem.DELETE(onDelete))
+            }
+
             // TODO: Add these in future once we have its metadata conditions.
             //add(SocialDropdownItem.LINK(onLink))
-            //add(SocialDropdownItem.DELETE(onDelete)),
             //add(SocialDropdownItem.INSPECT(onInspect))
         }
     }
