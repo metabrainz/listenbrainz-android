@@ -29,12 +29,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -44,9 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
@@ -145,23 +140,25 @@ fun ListeningNowLayout(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                Text(
-                    text = uiState.song.trackMetadata.trackName,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = titleColor,
-                    textAlign = TextAlign.Center,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .basicMarquee()
-                )
+                uiState.song.trackMetadata?.trackName?.let {
+                    Text(
+                        text = it,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = titleColor,
+                        textAlign = TextAlign.Center,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .basicMarquee()
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = uiState.song.trackMetadata.artistName,
+                    text = uiState.song.trackMetadata?.artistName ?: "",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Normal,
                     color = artistColor,
@@ -173,7 +170,7 @@ fun ListeningNowLayout(
                         .basicMarquee()
                 )
 
-                uiState.song.trackMetadata.releaseName?.let { albumName ->
+                uiState.song.trackMetadata?.releaseName?.let { albumName ->
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = albumName,
@@ -291,24 +288,26 @@ fun ListeningNowCardSongInfo(
     titleColor: Color,
     artistColor: Color
 ) {
-    val artist = currentlyPlayingSong.trackMetadata.artistName
-    val title = currentlyPlayingSong.trackMetadata.trackName
+    val artist = currentlyPlayingSong.trackMetadata?.artistName
+    val title = currentlyPlayingSong.trackMetadata?.trackName
 
-    Text(
-        text = when {
-            artist == "null" && title == "null" -> ""
-            artist == "null" -> title
-            title == "null" -> artist
-            else -> "$artist  -  $title"
-        },
-        fontSize = 14.sp,
-        fontWeight = FontWeight.Bold,
-        textAlign = TextAlign.Start,
-        color = titleColor,
-        modifier = Modifier.basicMarquee(),
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis
-    )
+    when {
+        artist == "null" && title == "null" -> ""
+        artist == "null" -> title
+        title == "null" -> artist
+        else -> "$artist  -  $title"
+    }?.let {
+        Text(
+            text = it,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Start,
+            color = titleColor,
+            modifier = Modifier.basicMarquee(),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
 }
 
 @Preview(showBackground = true)

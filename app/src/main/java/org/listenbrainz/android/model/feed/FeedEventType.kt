@@ -13,7 +13,9 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.hilt.navigation.compose.hiltViewModel
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.ui.screens.feed.events.FollowFeedLayout
 import org.listenbrainz.android.ui.screens.feed.events.ListenFeedLayout
 import org.listenbrainz.android.ui.screens.feed.events.ListenLikeFeedLayout
@@ -27,6 +29,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.TypeConverter
 import org.listenbrainz.android.util.Utils.getArticle
+import org.listenbrainz.android.viewmodel.ListensViewModel
 
 /**
  * @param icon Feed icon for the event, **must** be of width 19 dp.
@@ -183,22 +186,38 @@ enum class FeedEventType (
                 goToUserPage = goToUserPage,
                 goToArtistPage = goToArtistPage
             )
-            LISTEN -> ListenFeedLayout(
-                event = event,
-                parentUser = parentUser,
-                onDeleteOrHide = onDeleteOrHide,
-                onDropdownClick = onDropdownClick,
-                onClick = onClick,
-                dropdownState = dropDownState,
-                index = index,
-                onOpenInMusicBrainz = onOpenInMusicBrainz,
-                onPin = onPin,
-                onReview = onReview,
-                onPersonallyRecommend = onPersonallyRecommend,
-                onRecommend = onRecommend,
-                goToUserPage = goToUserPage,
-                goToArtistPage = goToArtistPage
-            )
+            LISTEN -> {
+                val listensViewModel: ListensViewModel = hiltViewModel()
+
+                ListenFeedLayout(
+                    event = event,
+                    parentUser = parentUser,
+                    onDeleteOrHide = onDeleteOrHide,
+                    onDropdownClick = onDropdownClick,
+                    onClick = onClick,
+                    dropdownState = dropDownState,
+                    index = index,
+                    onOpenInMusicBrainz = onOpenInMusicBrainz,
+                    onPin = onPin,
+                    onReview = onReview,
+                    onPersonallyRecommend = onPersonallyRecommend,
+                    onRecommend = onRecommend,
+                    goToUserPage = goToUserPage,
+                    goToArtistPage = goToArtistPage,
+
+                    onDeleteListen = {
+                        val listenToDelete = Listen(
+                            listenedAt = event.metadata.listenedAt ?: event.created,
+                            recordingMsid = event.metadata.trackMetadata?.additionalInfo?.recordingMsid,
+                            trackMetadata = event.metadata.trackMetadata,
+                            insertedAt = event.created,
+                            userName = event.username ?: parentUser,
+                            coverArt = null
+                        )
+                        listensViewModel.deleteListen(listenToDelete)
+                    }
+                )
+            }
             FOLLOW -> FollowFeedLayout(event = event, parentUser = parentUser, goToUserPage = goToUserPage)
             NOTIFICATION -> NotificationFeedLayout(event = event, onDeleteOrHide = onDeleteOrHide, goToUserPage = goToUserPage)
             REVIEW -> ReviewFeedLayout(

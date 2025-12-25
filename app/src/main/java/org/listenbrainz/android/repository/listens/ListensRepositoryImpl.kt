@@ -10,6 +10,8 @@ import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.PostResponse
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.TokenValidation
+import org.listenbrainz.android.model.DeleteListenBody
+import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.parseResponse
@@ -89,5 +91,14 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
             return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
 
         service.getNowPlaying(username = username)
+    }
+
+    override suspend fun deleteListen(listen: Listen): Resource<Void> = parseResponse {
+        service.deleteListen(
+            DeleteListenBody(
+                listenedAt = listen.listenedAt,
+                recordingMsid = listen.recordingMsid
+            )
+        )
     }
 }

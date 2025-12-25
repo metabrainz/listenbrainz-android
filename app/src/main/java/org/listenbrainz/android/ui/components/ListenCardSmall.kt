@@ -253,6 +253,7 @@ fun ListenCardSmallDefault(
     onRemoveFromPlaylist: (() -> Unit)? = null,
     goToArtistPage: (String) -> Unit,
     onClick: () -> Unit,
+    onDelete: (() -> Unit)? = null,
 ) {
     metadata.trackMetadata?.let {
         var isDropdownExpanded by remember { mutableStateOf(false) }
@@ -277,6 +278,7 @@ fun ListenCardSmallDefault(
                     onSuccess = onDropdownSuccess,
                     onRemoveFromPlaylist = onRemoveFromPlaylist,
                     onDropdownDismiss = { isDropdownExpanded = !isDropdownExpanded },
+                    onDelete = onDelete,
                 )
             },
             preCoverArtContent = preCoverArtContent,
@@ -406,6 +408,7 @@ private fun ListenCardSmallPreview() {
             },
             onDropdownSuccess = {},
             onDropdownError = {},
+            onClick = {}
         ) {}
     }
 }
@@ -434,6 +437,7 @@ private fun ListenCardSmallNoTrailingContentPreview() {
             },
             onDropdownSuccess = {},
             onDropdownError = {},
+            onClick = {}
         ) {}
     }
 }

@@ -7,8 +7,10 @@ import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.PostResponse
 import org.listenbrainz.android.model.TokenValidation
+import org.listenbrainz.android.model.DeleteListenBody
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
@@ -45,5 +47,9 @@ interface ListensService {
     suspend fun getNowPlaying(
         @Path("user_name") username: String
     ): Response<Listens>
-    
+
+    @DELETE("delete-listen")
+    suspend fun deleteListen(
+        @Body body: DeleteListenBody
+    ): Response<Void>
 }

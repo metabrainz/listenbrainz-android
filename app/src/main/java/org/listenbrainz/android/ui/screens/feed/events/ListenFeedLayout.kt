@@ -32,6 +32,7 @@ fun ListenFeedLayout (
     onReview: () -> Unit,
     goToUserPage: (String) -> Unit,
     goToArtistPage: (String) -> Unit,
+    onDeleteListen: (() -> Unit)? = null,
 ) {
     BaseFeedLayout(
         eventType = FeedEventType.LISTEN,
@@ -60,11 +61,13 @@ fun ListenFeedLayout (
                     onPin = onPin,
                     onRecommend = onRecommend,
                     onPersonallyRecommend = onPersonallyRecommend,
-                    onReview = onReview
+                    onReview = onReview,
+                    onDelete = onDeleteListen
+
                 )
             },
             onClick = onClick,
-            goToArtistPage = goToArtistPage
+            goToArtistPage = goToArtistPage,
         )
     }
 }
@@ -94,7 +97,8 @@ private fun ListenFeedLayoutPreview() {
             onPersonallyRecommend = {},
             onReview = {},
             goToUserPage = {},
-            goToArtistPage = {}
+            goToArtistPage = {},
+            onDeleteListen = {}
         )
     }
 }
