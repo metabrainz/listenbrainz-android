@@ -1,42 +1,23 @@
 package org.listenbrainz.android.ui.navigation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContent
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.BackdropScaffoldState
 import androidx.compose.material.BackdropValue
 import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Icon
 import androidx.compose.material.NavigationRail
-import androidx.compose.material.Text
 import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationRailItem
-import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -54,6 +35,7 @@ import org.listenbrainz.android.viewmodel.ListeningNowUIState
 
 @Composable
 fun AdaptiveNavigationBar(
+    items: List<AppNavigationItem>?,
     modifier: Modifier = Modifier,
     navController: NavController = rememberNavController(),
     backgroundColor: Color = ListenBrainzTheme.colorScheme.nav,
@@ -62,88 +44,16 @@ fun AdaptiveNavigationBar(
     scrollToTop: () -> Unit,
     username: String?,
     isLandscape: Boolean,
-    isAudioPermissionGranted: Boolean,
     currentlyPlayingSong: Song,
     listeningNowUIState: ListeningNowUIState,
     songList: List<Song>,
 ) {
-    val items = listOf(
-        AppNavigationItem.Feed,
-        AppNavigationItem.Explore,
-        AppNavigationItem.BrainzPlayer,
-        AppNavigationItem.Profile
-    ).filter { isAudioPermissionGranted ||  it != AppNavigationItem.BrainzPlayer  }
     val coroutineScope = rememberCoroutineScope()
-
-    @Composable
-    fun NavigationContent(
-        item: AppNavigationItem,
-        selected: Boolean,
-        onItemClick: () -> Unit,
-        isLandscape: Boolean,
-        scope: RowScope?
-    ) {
-        val navIcon = @Composable {
-            Icon(
-                painter = painterResource(
-                    id = if (selected) item.iconSelected else item.iconUnselected
-                ),
-                modifier = Modifier
-                    .size(24.dp)
-                    .padding(vertical = 4.dp),
-                contentDescription = item.title,
-                tint = contentColor ?: MaterialTheme.colorScheme.onSurface
-            )
-        }
-
-        val navLabel = @Composable {
-            Text(
-                text = item.title,
-                color = contentColor?: MaterialTheme.colorScheme.onSurface,
-            )
-        }
-
-        if (isLandscape) {
-            NavigationRailItem(
-                icon = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .safeContentPadding()
-                            .fillMaxWidth()
-                    ) {
-                        navIcon()
-                        navLabel()
-                    }
-                },
-                alwaysShowLabel = false,
-                selected = selected,
-                colors = NavigationRailItemDefaults.colors(
-                    indicatorColor = backgroundColor
-                ),
-                onClick = onItemClick
-            )
-        } else {
-            scope?.let {
-                it.BottomNavigationItem(
-                    icon = { navIcon() },
-                    label = { navLabel() },
-                    selectedContentColor = contentColor?: MaterialTheme.colorScheme.onSurface,
-                    unselectedContentColor = contentColor ?: colorResource(id = R.color.gray),
-                    alwaysShowLabel = true,
-                    selected = selected,
-                    onClick = onItemClick,
-                    modifier = Modifier.navigationBarsPadding()
-                )
-            }
-
-        }
-    }
 
     //composable with common navigation logic
     @Composable
     fun CommonNavigationLogic(scope: RowScope? = null) {
-        items.forEach { item ->
+        items?.forEach { item ->
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
             val selected = currentDestination?.route?.startsWith("${item.route}/") == true ||
@@ -154,6 +64,7 @@ fun AdaptiveNavigationBar(
                 selected = selected,
                 scope = scope,
                 isLandscape = isLandscape,
+                contentColor = contentColor,
                 onItemClick = {
                     coroutineScope.launch {
                         if (selected) {
@@ -245,12 +156,12 @@ fun AdaptiveNavigationBar(
 @Composable
 fun AdaptiveNavigationBarPreview() {
     AdaptiveNavigationBar(
+        items = BottomNavItem.entries.map { it.appNav },
         navController = rememberNavController(),
         scrollToTop = {},
         username = "pranavkonidena",
         isLandscape = true,
         currentlyPlayingSong = Song(),
-        isAudioPermissionGranted = true,
         songList = emptyList(),
         listeningNowUIState = ListeningNowUIState()
     )

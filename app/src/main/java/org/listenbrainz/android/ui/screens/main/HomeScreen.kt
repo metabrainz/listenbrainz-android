@@ -2,7 +2,6 @@ package org.listenbrainz.android.ui.screens.main
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
@@ -44,6 +43,7 @@ import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.navigation.AdaptiveNavigationBar
 import org.listenbrainz.android.ui.navigation.AppNavigation
+import org.listenbrainz.android.ui.navigation.BottomNavItem
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
@@ -127,6 +127,7 @@ fun HomeScreen(
     }
 
     val isListeningNowOpenedInConcealedState = backdropScaffoldState.targetValue != BackdropValue.Revealed && isNothingPlaying && listeningNowUIState.isListeningNow
+    val isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable()
 
     val topBarActions = TopBarActions(
         popBackStackInSettingsScreen = {
@@ -142,6 +143,17 @@ fun HomeScreen(
             searchBarState.activate()
         }
     )
+
+    val navOrder by dashBoardViewModel.appPreferences.navBarOrder
+        .getFlow()
+        .collectAsStateWithLifecycle(
+            initialValue = null
+        )
+    val orderedNavItems = navOrder?.map { it.appNav }
+    val filteredNavItems = orderedNavItems?.filter {
+        isAudioPermissionGranted || it != AppNavigationItem.BrainzPlayer
+    }
+    val startRoute = orderedNavItems?.firstOrNull()?.route
 
     Scaffold(
         modifier = Modifier
@@ -162,6 +174,7 @@ fun HomeScreen(
             ) {
                 if (!isLandScape) {
                     AdaptiveNavigationBar(
+                        items = filteredNavItems,
                         navController = navController,
                         backdropScaffoldState = backdropScaffoldState,
                         scrollToTop = { scrollToTopState = true },
@@ -169,7 +182,6 @@ fun HomeScreen(
                         isLandscape = false,
                         currentlyPlayingSong = currentlyPlayingSong.toSong,
                         songList = songList ?: emptyList(),
-                        isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable(),
                         listeningNowUIState = listeningNowUIState
                     )
                 }
@@ -195,6 +207,7 @@ fun HomeScreen(
         Row {
             if (isLandScape) {
                 AdaptiveNavigationBar(
+                    items = filteredNavItems,
                     navController = navController,
                     backdropScaffoldState = backdropScaffoldState,
                     scrollToTop = { scrollToTopState = true },
@@ -203,36 +216,38 @@ fun HomeScreen(
                     currentlyPlayingSong = currentlyPlayingSong.toSong,
                     songList = songList ?: emptyList(),
                     listeningNowUIState = listeningNowUIState,
-                    isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable()
                 )
             }
 //            if (isGrantedPerms == PermissionStatus.GRANTED.name) {
-            BrainzPlayerBackDropScreen(
-                modifier = Modifier.then(if (!isLandScape && !isListeningNowOpenedInConcealedState) Modifier.navigationBarsPadding() else Modifier),
-                backdropScaffoldState = backdropScaffoldState,
-                paddingValues = it,
-                brainzPlayerViewModel = brainzPlayerViewModel,
-                isLandscape = isLandScape,
-                listeningNowViewModel = listeningNowViewModel
-            ) {
-                AppNavigation(
-                    navController = navController,
-                    scrollRequestState = scrollToTopState,
-                    onScrollToTop = { scrollToTop ->
-                        scope.launch {
-                            if (scrollToTopState) {
-                                scrollToTop()
-                                scrollToTopState = false
+            if (startRoute != null && filteredNavItems != null) {
+                BrainzPlayerBackDropScreen(
+                    modifier = Modifier.then(if (!isLandScape && !isListeningNowOpenedInConcealedState) Modifier.navigationBarsPadding() else Modifier),
+                    backdropScaffoldState = backdropScaffoldState,
+                    paddingValues = it,
+                    brainzPlayerViewModel = brainzPlayerViewModel,
+                    isLandscape = isLandScape,
+                    listeningNowViewModel = listeningNowViewModel
+                ) {
+                    AppNavigation(
+                        navController = navController,
+                        startRoute = startRoute,
+                        scrollRequestState = scrollToTopState,
+                        onScrollToTop = { scrollToTop ->
+                            scope.launch {
+                                if (scrollToTopState) {
+                                    scrollToTop()
+                                    scrollToTopState = false
+                                }
                             }
-                        }
-                    },
-                    snackbarState = snackbarState,
-                    dashBoardViewModel = dashBoardViewModel,
-                    topAppBarActions = topBarActions,
-                    settingsCallbacks = settingsCallbacks.copy(
-                        topBarActions = topBarActions
+                        },
+                        snackbarState = snackbarState,
+                        dashBoardViewModel = dashBoardViewModel,
+                        topAppBarActions = topBarActions,
+                        settingsCallbacks = settingsCallbacks.copy(
+                            topBarActions = topBarActions
+                        )
                     )
-                )
+                }
             }
 //            }
         }

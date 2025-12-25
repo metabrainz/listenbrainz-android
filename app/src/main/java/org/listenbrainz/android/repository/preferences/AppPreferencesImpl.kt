@@ -31,6 +31,7 @@ import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Compan
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.LISTENING_WHITELIST
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.SHOULD_LISTEN_NEW_PLAYERS
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.THEME
+import org.listenbrainz.android.ui.navigation.BottomNavItem
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Constants.ONBOARDING
 import org.listenbrainz.android.util.Constants.Strings.CURRENT_PLAYABLE
@@ -139,6 +140,7 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
             val LAST_UPDATE_PROMPT_LAUNCH_COUNT =
                 stringPreferencesKey(Constants.Strings.PREFERENCE_LAST_UPDATE_PROMPT_LAUNCH_COUNT)
             val GITHUB_DOWNLOAD_ID = longPreferencesKey(Constants.Strings.PREFERENCE_DOWNLOAD_ID)
+            val BOTTOM_NAV_ORDER = stringPreferencesKey(Constants.Strings.PREFERENCE_NAV_ORDER)
         }
 
         fun String?.asStringList(): List<String> {
@@ -511,4 +513,37 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
                 }
             }
         }
+
+    override val navBarOrder: DataStorePreference<List<BottomNavItem>>
+        get() = object : DataStorePreference<List<BottomNavItem>> {
+            override fun getFlow(): Flow<List<BottomNavItem>> {
+                return datastore.map { prefs ->
+                    try {
+                        val stored = prefs[PreferenceKeys.BOTTOM_NAV_ORDER] ?: ""
+                        if (stored.isBlank()) {
+                            BottomNavItem.entries
+                        } else {
+                            val parsed = stored.split(",")
+                                .mapNotNull { id ->
+                                    BottomNavItem.entries.firstOrNull { it.navId == id }
+                                }
+                            parsed.ifEmpty {
+                                BottomNavItem.entries
+                            }
+                        }
+                    } catch (e: Exception) {
+                        BottomNavItem.entries
+                    }
+                }
+            }
+
+            override suspend fun set(value: List<BottomNavItem>) {
+                context.dataStore.edit { prefs ->
+                    prefs[PreferenceKeys.BOTTOM_NAV_ORDER] =
+                        value.joinToString(",") { it.navId }
+                }
+            }
+
+        }
+
 }

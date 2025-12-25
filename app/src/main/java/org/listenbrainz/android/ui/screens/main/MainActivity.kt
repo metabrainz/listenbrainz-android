@@ -46,6 +46,7 @@ import org.listenbrainz.android.ui.screens.onboarding.auth.createaccount.ListenB
 import org.listenbrainz.android.ui.screens.onboarding.introduction.IntroductionScreens
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.ListeningAppSelectionScreen
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionScreen
+import org.listenbrainz.android.ui.screens.settings.ReorderBottomNavScreen
 import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
@@ -203,6 +204,9 @@ class MainActivity : ComponentActivity() {
                                     topBarActions = TopBarActions(),
                                     navigateToCreateAccount = {
                                         backStack.add(NavigationItem.CreateAccountScreen)
+                                    },
+                                    onReorderNavigationTabs = {
+                                        backStack.add(NavigationItem.ReorderBottomTabs)
                                     }
                                 )
                             )
@@ -211,6 +215,14 @@ class MainActivity : ComponentActivity() {
                             ListenBrainzCreateAccountScreen(){
                                 backStack.remove(NavigationItem.CreateAccountScreen)
                             }
+                        }
+                        entry<NavigationItem.ReorderBottomTabs> {
+                            ReorderBottomNavScreen(
+                                appPreferences = dashBoardViewModel.appPreferences,
+                                onBack = {
+                                    backStack.remove(NavigationItem.ReorderBottomTabs)
+                                }
+                            )
                         }
                     },
                     transitionSpec = {
