@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FloatingActionButton
@@ -38,7 +40,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -51,6 +55,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -285,85 +290,72 @@ private fun UserPlaylistScreenBase(
                 AnimatedContent(currentPlaylistView) { currentPlaylistView ->
                     when (currentPlaylistView) {
                         PlaylistView.LIST -> {
-
-                            val count = remember { mutableStateOf(0) }
-
-                            BoxWithConstraints(
-                                modifier = Modifier.fillMaxSize()
-                            ) {
-                                val maxHeight =
-                                    with(LocalDensity.current) { maxHeight.toPx() }
-
-                                SubcomposeLayout {
-                                    val item = subcompose("item") {
-                                        ShimmerListItem(shimmerInstance)
-                                    }.first().measure(it)
-                                    val itemHeight = item.height
-
-                                    count.value = if (itemHeight > 0) {
-                                        (maxHeight / itemHeight).toInt()
-                                    } else {
-                                        4
+                            val listState = rememberLazyListState()
+                            var height by remember { mutableIntStateOf(0) }
+                            val count by remember {
+                                derivedStateOf {
+                                    if (height == 0) {
+                                        return@derivedStateOf 0
                                     }
-
-                                    layout(it.maxWidth, it.maxHeight) {}
+                                    listState.layoutInfo.viewportSize.height / height
                                 }
-                                LazyColumn(
-                                    modifier = Modifier.padding(
+                            }
+                            LazyColumn(
+                                modifier = Modifier
+                                    .padding(
                                         ListenBrainzTheme.paddings.horizontal
                                     )
-                                ) {
-                                    items(count.value) {
-                                        ShimmerListItem(shimmerInstance)
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                    }
+                                    .fillMaxSize(),
+                                state = listState
+                            ) {
+                                item(contentType = "shimmer") {
+                                    ShimmerListItem(
+                                        shimmerInstance,
+                                        modifier = Modifier.onSizeChanged {
+                                            height = it.height
+                                        }
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
+                                items(count, contentType = { "shimmer" }) {
+                                    ShimmerListItem(shimmerInstance)
+                                    Spacer(modifier = Modifier.height(8.dp))
                                 }
                             }
                         }
 
                         PlaylistView.GRID -> {
-
-                            val count = remember { mutableStateOf(0) }
-
-                            BoxWithConstraints(
-                                modifier = Modifier.fillMaxSize()
-                            ) {
-                                val maxHeight =
-                                    with(LocalDensity.current) { maxHeight.toPx() }
-                                val maxWidth =
-                                    with(LocalDensity.current) { maxWidth.toPx() }
-
-                                SubcomposeLayout {
-                                    val item = subcompose("item") {
-                                        ShimmerGridItem(shimmerInstance)
-                                    }.first().measure(it)
-                                    val itemHeight = item.height
-                                    val itemWidth = item.width
-
-                                    val row = if (itemHeight > 0) {
-                                        (maxHeight / itemHeight).toInt()
-                                    } else {
-                                        2
+                            val listState = rememberLazyGridState()
+                            var height by remember { mutableIntStateOf(0) }
+                            var width by remember { mutableIntStateOf(0) }
+                            val count by remember {
+                                derivedStateOf {
+                                    if (width == 0 || height == 0) {
+                                        return@derivedStateOf 0
                                     }
-                                    val column = if (itemWidth > 0) {
-                                        (maxWidth / itemWidth).toInt()
-                                    } else {
-                                        2
-                                    }
-
-                                    count.value = (row - 1) * column
-
-                                    layout(it.maxWidth, it.maxHeight) {}
+                                    val row = listState.layoutInfo.viewportSize.height / height
+                                    val column = listState.layoutInfo.viewportSize.width / width
+                                    (row * column * 2) - 1
                                 }
+                            }
 
-                                LazyVerticalGrid(
-                                    columns = GridCells.Adaptive(150.dp),
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    items(count.value * 2) {
-                                        ShimmerGridItem(shimmerInstance)
-                                    }
+                            LazyVerticalGrid(
+                                columns = GridCells.Adaptive(150.dp),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalArrangement = Arrangement.Center,
+                                state = listState
+                            ) {
+                                item(contentType = "shimmer") {
+                                    ShimmerGridItem(
+                                        shimmerInstance,
+                                        modifier = Modifier.onSizeChanged {
+                                            width = it.width
+                                            height = it.height
+                                        }
+                                    )
+                                }
+                                items(count, contentType = { "shimmer" }) {
+                                    ShimmerGridItem(shimmerInstance)
                                 }
                             }
                         }
@@ -514,9 +506,12 @@ private fun UserPlaylistScreenBase(
 }
 
 @Composable
-fun ShimmerListItem(shimmer: Shimmer) {
+fun ShimmerListItem(
+    shimmer: Shimmer,
+    modifier: Modifier = Modifier
+) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(ListenBrainzTheme.sizes.listenCardHeight)
             .background(
@@ -566,9 +561,11 @@ fun ShimmerListItem(shimmer: Shimmer) {
 }
 
 @Composable
-fun ShimmerGridItem(shimmer: Shimmer) {
+fun ShimmerGridItem(
+    shimmer: Shimmer, modifier: Modifier = Modifier
+) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .padding(8.dp)
             .width(150.dp)
             .clip(ListenBrainzTheme.shapes.listenCardSmall)

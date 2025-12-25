@@ -6,7 +6,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
@@ -30,7 +30,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -40,8 +42,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -164,9 +166,10 @@ private fun CreatedForYouScreen(
     }
 
     LaunchedEffect(isRefreshing) {
-        if(selectedPlaylist == null){
-           selectedPlaylist =  if (uiState.createdForTabUIState.createdForYouPlaylists.isNullOrEmpty()) null
-            else uiState.createdForTabUIState.createdForYouPlaylists[0].playlist
+        if (selectedPlaylist == null) {
+            selectedPlaylist =
+                if (uiState.createdForTabUIState.createdForYouPlaylists.isNullOrEmpty()) null
+                else uiState.createdForTabUIState.createdForYouPlaylists[0].playlist
         }
     }
 
@@ -224,35 +227,38 @@ private fun CreatedForYouScreen(
                                 .padding(bottom = 12.dp)
                         ) {
                             Spacer(modifier = Modifier.height(32.dp))
-                            val fixedItemSize = 140.dp
-                            val horizontalSpacing = 16.dp
-                            val count = remember { mutableStateOf(0) }
-                            BoxWithConstraints(
-                                Modifier.fillMaxWidth()
+                            val listState = rememberLazyListState()
+                            var width by remember { mutableIntStateOf(0) }
+                            val count by remember {
+                                derivedStateOf {
+                                    if (width == 0) {
+                                        return@derivedStateOf 0
+                                    }
+                                    listState.layoutInfo.viewportSize.width / width
+                                }
+                            }
+                            LazyRow(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                state = listState
                             ) {
-                                val maxWidth = with(LocalDensity.current) { maxWidth.value }
-
-                                val itemWidth = with(LocalDensity.current) {
-                                    (fixedItemSize + horizontalSpacing).toPx()
+                                item(contentType = "shimmer") {
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    ShimmerPlaylistTitleCardItem(
+                                        shimmerInstance,
+                                        modifier = Modifier
+                                            .onSizeChanged {
+                                                width = it.width
+                                            }
+                                    )
                                 }
-
-                                LaunchedEffect(maxWidth) {
-                                    count.value = (maxWidth / itemWidth).toInt() + 2
-                                }
-
-                                LazyRow(
-                                    modifier = Modifier.padding(vertical = 8.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                                ) {
-                                    items(count.value) { index ->
-                                        if (index == 0) {
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                        }
-                                        ShimmerPlaylistTitleCardItem(shimmerInstance)
-                                        if (index == count.value - 1) {
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                        }
+                                items(count, contentType = { "shimmer" }) { index ->
+                                    ShimmerPlaylistTitleCardItem(shimmerInstance)
+                                    if (index == count - 1) {
+                                        Spacer(modifier = Modifier.width(8.dp))
                                     }
                                 }
                             }
@@ -443,9 +449,12 @@ private fun CreatedForYouScreen(
 }
 
 @Composable
-fun ShimmerPlaylistTitleCardItem(shimmer: Shimmer) {
+fun ShimmerPlaylistTitleCardItem(
+    shimmer: Shimmer,
+    modifier: Modifier = Modifier
+) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .size(140.dp)
             .clip(shape = ListenBrainzTheme.shapes.listenCardSmall)
             .shimmer(shimmer)
