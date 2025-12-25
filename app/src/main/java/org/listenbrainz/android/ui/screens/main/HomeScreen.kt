@@ -31,6 +31,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -106,9 +107,21 @@ fun HomeScreen(
                 maxOf(maxOffset, backdropScaffoldState.requireOffset() - playerHeight)
         }
     }
-    LaunchedEffect(currentDestination) {
-        if (searchBarState.isActive)
-            searchBarState.deactivate()
+    val currentRoute = currentDestination?.route
+    var previousRoute by rememberSaveable { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(currentRoute) {
+        // Only close search if we're navigating between actual routes (not null transitions)
+        if (previousRoute != null && currentRoute != null && previousRoute != currentRoute) {
+            if (searchBarState.isActive) {
+                searchBarState.deactivate()
+            }
+        }
+
+        // Always update previousRoute when currentRoute is not null
+        if (currentRoute != null) {
+            previousRoute = currentRoute
+        }
     }
 
     val desiredBackgroundColor by remember {
