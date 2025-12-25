@@ -107,8 +107,8 @@ fun HomeScreen(
         }
     }
     LaunchedEffect(currentDestination) {
-        if (searchBarState.isActive) searchBarState.deactivate()
-        if (brainzplayerSearchBarState.isActive) brainzplayerSearchBarState.deactivate()
+        if (searchBarState.isActive)
+            searchBarState.deactivate()
     }
 
     val desiredBackgroundColor by remember {
