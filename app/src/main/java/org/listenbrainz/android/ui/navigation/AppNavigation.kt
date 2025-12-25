@@ -98,7 +98,7 @@ fun AppNavigation(
         }
         appComposable(route = AppNavigationItem.BrainzPlayer.route) {
             BrainzPlayerScreen(
-                topAppBarActions
+                topBarActions = topAppBarActions
             )
         }
         appComposable(route = AppNavigationItem.Explore.route) {
