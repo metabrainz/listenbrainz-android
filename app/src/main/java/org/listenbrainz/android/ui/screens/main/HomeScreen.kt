@@ -74,7 +74,6 @@ fun HomeScreen(
     var scrollToTopState by remember { mutableStateOf(false) }
     val snackbarState = remember { SnackbarHostState() }
     val searchBarState = rememberSearchBarState()
-    val brainzplayerSearchBarState = rememberSearchBarState()
     val scope = rememberCoroutineScope()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -244,8 +243,8 @@ fun HomeScreen(
 
         when (currentDestination?.route) {
             AppNavigationItem.BrainzPlayer.route -> BrainzPlayerSearchScreen(
-                isActive = brainzplayerSearchBarState.isActive,
-                deactivate = brainzplayerSearchBarState::deactivate,
+                isActive = searchBarState.isActive,
+                deactivate = searchBarState::deactivate,
             )
 
             else -> UserSearchScreen(

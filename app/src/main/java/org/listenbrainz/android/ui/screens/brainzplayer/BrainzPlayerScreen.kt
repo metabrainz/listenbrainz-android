@@ -18,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SuggestionChipDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -98,13 +99,13 @@ fun BrainzPlayerScreen(
             previewAlbums = topAlbums,
             artists = artists,
             previewArtists = topArtists,
-            playlists,
-            songsPlayedToday,
-            songsPlayedThisWeek,
-            topRecents,
-            songs,
-            albumSongsMap,
-            topBarActions
+            playlists = playlists,
+            songsPlayedToday = songsPlayedToday,
+            songsPlayedThisWeek = songsPlayedThisWeek,
+            recentlyPlayedSongs = topRecents,
+            songs = songs,
+            albumSongsMap = albumSongsMap,
+            topBarActions = topBarActions
         )
     }
 }
@@ -125,165 +126,173 @@ fun BrainzPlayerHomeScreen(
     brainzPlayerViewModel: BrainzPlayerViewModel = hiltViewModel(),
 ) {
     val currentTab = rememberSaveable { mutableIntStateOf(0) }
-
-    Column {
-        TopBar(
-            modifier = Modifier.statusBarsPadding(),
-            topBarActions = topBarActions,
-            title = AppNavigationItem.BrainzPlayer.title
-        )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .background(
-                    Brush.verticalGradient(
-                        listOf(
-                            ListenBrainzTheme.colorScheme.background,
-                            Color.Transparent
+    Surface(modifier = Modifier.fillMaxSize(), color = ListenBrainzTheme.colorScheme.background) {
+        Column {
+            TopBar(
+                modifier = Modifier.statusBarsPadding(),
+                topBarActions = topBarActions,
+                title = AppNavigationItem.BrainzPlayer.title
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                ListenBrainzTheme.colorScheme.background,
+                                Color.Transparent
+                            )
                         )
                     )
+            ) {
+                Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.chipsHorizontal / 2))
+                repeat(5) { position ->
+                    ElevatedSuggestionChip(
+                        modifier = Modifier.padding(ListenBrainzTheme.paddings.chipsHorizontal),
+                        colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
+                            if (position == currentTab.value) {
+                                ListenBrainzTheme.colorScheme.chipSelected
+                            } else {
+                                ListenBrainzTheme.colorScheme.chipUnselected
+                            }
+                        ),
+                        shape = ListenBrainzTheme.shapes.chips,
+                        elevation = SuggestionChipDefaults.elevatedSuggestionChipElevation(elevation = 4.dp),
+                        label = {
+                            androidx.compose.material3.Text(
+                                text = when (position) {
+                                    0 -> "Overview"
+                                    1 -> "Recent"
+                                    2 -> "Artists"
+                                    3 -> "Albums"
+                                    4 -> "Songs"
+                                    else -> "Overview"
+                                },
+                                style = ListenBrainzTheme.textStyles.chips,
+                                color = ListenBrainzTheme.colorScheme.text,
+                            )
+                        },
+                        onClick = { currentTab.value = position }
+                    )
+                }
+            }
+
+            when (currentTab.value) {
+                0 -> OverviewScreen(
+                    songsPlayedToday = songsPlayedToday,
+                    recentlyPlayedSongs = recentlyPlayedSongs,
+                    goToRecentScreen = { currentTab.value = 1 },
+                    goToArtistScreen = { currentTab.value = 2 },
+                    goToAlbumScreen = { currentTab.value = 3 },
+                    brainzPlayerViewModel = brainzPlayerViewModel,
+                    artists = previewArtists,
+                    albums = previewAlbums,
+                    albumSongsMap = albumSongsMap
                 )
-        ) {
-            Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.chipsHorizontal / 2))
-            repeat(5) { position ->
-                ElevatedSuggestionChip(
-                    modifier = Modifier.padding(ListenBrainzTheme.paddings.chipsHorizontal),
-                    colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
-                        if (position == currentTab.value) {
-                            ListenBrainzTheme.colorScheme.chipSelected
-                        } else {
-                            ListenBrainzTheme.colorScheme.chipUnselected
-                        }
-                    ),
-                    shape = ListenBrainzTheme.shapes.chips,
-                    elevation = SuggestionChipDefaults.elevatedSuggestionChipElevation(elevation = 4.dp),
-                    label = {
-                        androidx.compose.material3.Text(
-                            text = when (position) {
-                                0 -> "Overview"
-                                1 -> "Recent"
-                                2 -> "Artists"
-                                3 -> "Albums"
-                                4 -> "Songs"
-                                else -> "Overview"
-                            },
-                            style = ListenBrainzTheme.textStyles.chips,
-                            color = ListenBrainzTheme.colorScheme.text,
+
+                1 -> RecentPlaysScreen(
+                    songsPlayedToday = songsPlayedToday,
+                    songsPlayedThisWeek = songsPlayedThisWeek,
+                    onPlayIconClick = { song ->
+                        brainzPlayerViewModel.changePlayable(
+                            listOf(song),
+                            PlayableType.ALL_SONGS,
+                            song.mediaID,
+                            0,
+                            0L
                         )
+                        brainzPlayerViewModel.playOrToggleSong(song, true)
                     },
-                    onClick = { currentTab.value = position }
+                    onAddToQueue = { song ->
+                        brainzPlayerViewModel.addToQueue(listOf(song))
+                    },
+                    onPlayNext = { song ->
+                        brainzPlayerViewModel.playNext(listOf(song))
+                    },
+                    onAddToExistingPlaylist = { song ->
+                    },
+                    onAddToNewPlaylist = { song ->
+                    }
+                )
+
+                2 -> ArtistsOverviewScreen(
+                    artists = artists,
+                    onPlayClick = { artist ->
+                        brainzPlayerViewModel.changePlayable(
+                            artist.songs,
+                            PlayableType.ARTIST,
+                            artist.id,
+                            0,
+                            0L
+                        )
+                        brainzPlayerViewModel.playOrToggleSong(artist.songs[0], true)
+                    },
+                    onPlayNext = { artist ->
+                        brainzPlayerViewModel.playNext(artist.songs)
+                    },
+                    onAddToQueue = { artist ->
+                        brainzPlayerViewModel.addToQueue(artist.songs)
+                    },
+                    onAddToNewPlaylist = { artist ->
+                    },
+                    onAddToExistingPlaylist = { artist ->
+                    }
+                )
+
+                3 -> AlbumsOverViewScreen(
+                    albums = albums,
+                    onPlayIconClick = { album ->
+                        album?.let { nonNullAlbum ->
+                            val albumSongs = albumSongsMap[nonNullAlbum]
+                            if (albumSongs != null && albumSongs.isNotEmpty()) {
+                                val sortedSongs = albumSongs.sortedBy { it.trackNumber }
+                                brainzPlayerViewModel.changePlayable(
+                                    sortedSongs,
+                                    PlayableType.ALBUM,
+                                    nonNullAlbum.albumId,
+                                    sortedSongs.indexOf(sortedSongs.firstOrNull() ?: return@let),
+                                    0L
+                                )
+                                brainzPlayerViewModel.playOrToggleSong(
+                                    sortedSongs.firstOrNull() ?: return@let, true
+                                )
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "No songs available for this album.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                    }
+                )
+
+                4 -> SongsOverviewScreen(
+                    songs = songs,
+                    onPlayIconClick = { song, newPlayables ->
+                        brainzPlayerViewModel.changePlayable(
+                            newPlayables,
+                            PlayableType.ALL_SONGS,
+                            song.mediaID,
+                            newPlayables.sortedBy { it.discNumber }.indexOf(song),
+                            0L
+                        )
+                        brainzPlayerViewModel.playOrToggleSong(song, true)
+                    },
+                    onAddToQueue = { song ->
+                        brainzPlayerViewModel.addToQueue(listOf(song))
+                    },
+                    onPlayNext = { song ->
+                        brainzPlayerViewModel.playNext(listOf(song))
+                    },
+                    onAddToExistingPlaylist = { song ->
+                    },
+                    onAddToNewPlaylist = { song ->
+                    }
                 )
             }
         }
-
-        when (currentTab.value) {
-            0 -> OverviewScreen(
-                songsPlayedToday = songsPlayedToday,
-                recentlyPlayedSongs = recentlyPlayedSongs,
-                goToRecentScreen = { currentTab.value = 1 },
-                goToArtistScreen = { currentTab.value = 2 },
-                goToAlbumScreen = { currentTab.value = 3 },
-                brainzPlayerViewModel = brainzPlayerViewModel,
-                artists = previewArtists,
-                albums = previewAlbums,
-                albumSongsMap = albumSongsMap
-            )
-
-            1 -> RecentPlaysScreen(
-                songsPlayedToday = songsPlayedToday,
-                songsPlayedThisWeek = songsPlayedThisWeek,
-                onPlayIconClick = { song ->
-                    brainzPlayerViewModel.changePlayable(
-                        listOf(song),
-                        PlayableType.ALL_SONGS,
-                        song.mediaID,
-                        0,
-                        0L
-                    )
-                    brainzPlayerViewModel.playOrToggleSong(song, true)
-                },
-                onAddToQueue = { song ->
-                    brainzPlayerViewModel.addToQueue(listOf(song))
-                },
-                onPlayNext = { song ->
-                    brainzPlayerViewModel.playNext(listOf(song))
-                },
-                onAddToExistingPlaylist = { song ->
-                },
-                onAddToNewPlaylist = { song ->
-                }
-            )
-
-            2 -> ArtistsOverviewScreen(
-                artists = artists,
-                onPlayClick = { artist ->
-                    brainzPlayerViewModel.changePlayable(
-                        artist.songs,
-                        PlayableType.ARTIST,
-                        artist.id,
-                        0,
-                        0L
-                    )
-                    brainzPlayerViewModel.playOrToggleSong(artist.songs[0], true)
-                },
-                onPlayNext = { artist ->
-                    brainzPlayerViewModel.playNext(artist.songs)
-                },
-                onAddToQueue = { artist ->
-                    brainzPlayerViewModel.addToQueue(artist.songs)
-                },
-                onAddToNewPlaylist = { artist ->
-                },
-                onAddToExistingPlaylist = { artist ->
-                }
-            )
-
-            3 -> AlbumsOverViewScreen(
-                albums = albums,
-                onPlayIconClick = { album ->
-                    album?.let { nonNullAlbum ->
-                        val albumSongs = albumSongsMap[nonNullAlbum]
-                        if (albumSongs != null && albumSongs.isNotEmpty()) {
-                            val sortedSongs = albumSongs.sortedBy { it.trackNumber }
-                            brainzPlayerViewModel.changePlayable(
-                                sortedSongs,
-                                PlayableType.ALBUM,
-                                nonNullAlbum.albumId,
-                                sortedSongs.indexOf(sortedSongs.firstOrNull() ?: return@let),
-                                0L
-                            )
-                            brainzPlayerViewModel.playOrToggleSong(sortedSongs.firstOrNull() ?: return@let, true)
-                        } else {
-                            Toast.makeText(context, "No songs available for this album.", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-            )
-
-            4 -> SongsOverviewScreen(
-                songs = songs,
-                onPlayIconClick = { song, newPlayables ->
-                    brainzPlayerViewModel.changePlayable(
-                        newPlayables,
-                        PlayableType.ALL_SONGS,
-                        song.mediaID,
-                        newPlayables.sortedBy { it.discNumber }.indexOf(song),
-                        0L
-                    )
-                    brainzPlayerViewModel.playOrToggleSong(song, true)
-                },
-                onAddToQueue = { song ->
-                    brainzPlayerViewModel.addToQueue(listOf(song))
-                },
-                onPlayNext = { song ->
-                    brainzPlayerViewModel.playNext(listOf(song))
-                },
-                onAddToExistingPlaylist = { song ->
-                },
-                onAddToNewPlaylist = { song ->
-                }
-            )
-        }
     }
+
 }
