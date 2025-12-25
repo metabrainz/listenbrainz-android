@@ -107,6 +107,10 @@ fun HomeScreen(
                 maxOf(maxOffset, backdropScaffoldState.requireOffset() - playerHeight)
         }
     }
+    LaunchedEffect(currentDestination) {
+        if (searchBarState.isActive) searchBarState.deactivate()
+        if (brainzplayerSearchBarState.isActive) brainzplayerSearchBarState.deactivate()
+    }
 
     val desiredBackgroundColor by remember {
         derivedStateOf {
