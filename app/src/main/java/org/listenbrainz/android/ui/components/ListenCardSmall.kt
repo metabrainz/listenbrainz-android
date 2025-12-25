@@ -1,4 +1,5 @@
 package org.listenbrainz.android.ui.components
+import org.listenbrainz.android.viewmodel.LikeState
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.clickable
@@ -47,6 +48,7 @@ import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.feed.FeedEventType
 import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.screens.feed.SocialDropdownDefault
+import org.listenbrainz.android.ui.screens.feed.events.LikeDislikeButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.thenIf
 
@@ -59,6 +61,16 @@ import org.listenbrainz.android.util.thenIf
  * mutable state list or map with index/key rather than maintaining a state for each listen card. False means
  * dropdown should remain closed.
  * @author jasje*/
+@Composable
+private fun TimestampText(time: Long) {
+    Text(
+        text = FeedEventType.getTimeStringForFeed(time),
+        color = ListenBrainzTheme.colorScheme.hint,
+        fontSize = ListenBrainzTheme.textStyles.listenSubtitle.fontSize,
+        maxLines = 1,
+    )
+}
+
 @Composable
 fun ListenCardSmall(
     modifier: Modifier = Modifier,
@@ -91,7 +103,10 @@ fun ListenCardSmall(
             errorAlbumArt = errorAlbumArt
         )
     },
-    preCoverArtContent: @Composable ((modifier: Modifier) -> Unit)? = null,
+    onLikeClick: (() -> Unit)? = null,
+    onDislikeClick: (() -> Unit)? = null,
+    likeState: LikeState = LikeState.NEUTRAL,
+            preCoverArtContent: @Composable ((modifier: Modifier) -> Unit)? = null,
     isPlaying: Boolean = false,
     color: Color = if (isPlaying) {
         ListenBrainzTheme.colorScheme.level2
@@ -131,20 +146,10 @@ fun ListenCardSmall(
 
                     titleAndSubtitle(Modifier.weight(1f))
                 }
-
-                @Composable
-                fun Long.TimestampText() {
-                    Text(
-                        text = remember(this) {
-                            FeedEventType.getTimeStringForFeed(this)
-                        },
-                        color = ListenBrainzTheme.colorScheme.hint,
-                        fontSize = ListenBrainzTheme.textStyles.listenSubtitle.fontSize,
-                        maxLines = 1,
-                    )
-                }
+             }
 
                 Row(
+                    modifier = Modifier.weight(0.35f),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.End
                 ) {
@@ -155,7 +160,7 @@ fun ListenCardSmall(
                         }
                         trailingContent(modifier)
                     } else
-                        listenedAt?.TimestampText()
+                        listenedAt?.let { TimestampText(it) }
 
                     // Dropdown Icon
                     if (dropDown != null) {
@@ -189,6 +194,30 @@ fun ListenCardSmall(
 
                 blurbContent(Modifier.padding(ListenBrainzTheme.paddings.insideCard))
             }
+
+            if (onLikeClick != null && onDislikeClick != null) {
+                val currentLikeState = remember { mutableStateOf(likeState) }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    LikeDislikeButton(
+                        likeState = currentLikeState.value,
+                        onTap = {
+                            onLikeClick()
+                            currentLikeState.value = LikeState.LIKED
+                        },
+                        onLongPress = {
+                            onDislikeClick()
+                            currentLikeState.value = LikeState.DISLIKED
+                        }
+                    )
+                }
+            }
+
         }
     }
 }
@@ -215,6 +244,9 @@ fun ListenCardSmall(
     subtitleColor: Color = titleColor.copy(alpha = 0.7f),
     goToArtistPage: (String) -> Unit,
     onClick: () -> Unit,
+    onLikeClick: (() -> Unit)? = null,
+    onDislikeClick: (() -> Unit)? = null,
+    likeState: LikeState = LikeState.NEUTRAL
 ) {
     ListenCardSmall(
         modifier = modifier,
@@ -232,7 +264,10 @@ fun ListenCardSmall(
         titleColor = titleColor,
         subtitleColor = subtitleColor,
         goToArtistPage = goToArtistPage,
-        onClick = onClick
+        onClick = onClick,
+        onLikeClick = onLikeClick,
+        onDislikeClick = onDislikeClick,
+        likeState = likeState,
     )
 }
 
@@ -252,7 +287,9 @@ fun ListenCardSmallDefault(
     onDropdownSuccess: suspend CoroutineScope.(message: String) -> Unit,
     onRemoveFromPlaylist: (() -> Unit)? = null,
     goToArtistPage: (String) -> Unit,
-    onClick: () -> Unit,
+    onLikeClick: (() -> Unit)? = null,
+    onDislikeClick: (() -> Unit)? = null,
+    likeState: LikeState = LikeState.NEUTRAL
 ) {
     metadata.trackMetadata?.let {
         var isDropdownExpanded by remember { mutableStateOf(false) }
@@ -286,8 +323,10 @@ fun ListenCardSmallDefault(
             titleColor = titleColor,
             subtitleColor = subtitleColor,
             goToArtistPage = goToArtistPage,
-            onClick = onClick
-        )
+            onLikeClick = onLikeClick,
+            onDislikeClick = onDislikeClick,
+            likeState = likeState,
+            )
     }
 }
 
@@ -406,7 +445,7 @@ private fun ListenCardSmallPreview() {
             },
             onDropdownSuccess = {},
             onDropdownError = {},
-        ) {}
+        )
     }
 }
 
@@ -434,6 +473,7 @@ private fun ListenCardSmallNoTrailingContentPreview() {
             },
             onDropdownSuccess = {},
             onDropdownError = {},
-        ) {}
+            onLikeClick = {}
+        )
     }
 }

@@ -23,6 +23,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import kotlinx.coroutines.flow.first
 import org.listenbrainz.android.model.AppNavigationItem
+import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.ui.screens.album.AlbumScreen
 import org.listenbrainz.android.ui.screens.artist.ArtistScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen
@@ -93,7 +94,7 @@ fun AppNavigation(
                 onScrollToTop = onScrollToTop,
                 goToUserPage = ::goToUserProfile,
                 goToArtistPage = ::goToArtistPage,
-                topAppBarActions = topAppBarActions
+                topAppBarActions = topAppBarActions,
             )
         }
         appComposable(route = AppNavigationItem.BrainzPlayer.route) {

@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.listenbrainz.android.viewmodel.LikeState
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.brainzplayer.SongRepository
 import javax.inject.Inject
@@ -19,8 +20,35 @@ class SongViewModel @Inject constructor(
     private val appPreferences: AppPreferences
 ) : ViewModel() {
     val songs = songRepository.getSongsStream()
-    
-    // Refreshing variables.
+
+    // Liking/disliking state
+    private val _likeState = MutableStateFlow(LikeState.NEUTRAL)
+    val likeState = _likeState.asStateFlow()
+
+    fun onLikeTap() {
+        _likeState.value = when (_likeState.value) {
+            LikeState.NEUTRAL -> LikeState.LIKED
+            LikeState.LIKED -> LikeState.DISLIKED
+            LikeState.DISLIKED -> LikeState.NEUTRAL
+        }
+
+        submitLikeToApi()
+    }
+
+    fun onLikeLongPress() {
+        _likeState.value = LikeState.NEUTRAL
+        submitLikeToApi()
+    }
+
+    private fun submitLikeToApi() {
+        val score = when (_likeState.value) {
+            LikeState.LIKED -> 1
+            LikeState.DISLIKED -> -1
+            LikeState.NEUTRAL -> 0
+        }
+    }
+
+        // Refreshing variables.
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing = _isRefreshing.asStateFlow()
     
