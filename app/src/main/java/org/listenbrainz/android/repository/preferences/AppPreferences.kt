@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import org.listenbrainz.android.model.InstallSource
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode
+import org.listenbrainz.android.ui.navigation.BottomNavItem
 import org.listenbrainz.android.util.LinkedService
 
 interface AppPreferences {
@@ -72,4 +73,6 @@ interface AppPreferences {
     val lastUpdatePromptLaunchCount: DataStorePreference<Int>
 
     val downloadId: DataStorePreference<Long>
+
+    val navBarOrder: DataStorePreference<List<BottomNavItem>>
 }

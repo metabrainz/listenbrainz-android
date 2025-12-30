@@ -38,6 +38,7 @@ import org.listenbrainz.android.viewmodel.DashBoardViewModel
 @Composable
 fun AppNavigation(
     navController: NavController = rememberNavController(),
+    startRoute: String,
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
     dashBoardViewModel: DashBoardViewModel,
@@ -85,7 +86,7 @@ fun AppNavigation(
     NavHost(
         navController = navController as NavHostController,
         modifier = Modifier.fillMaxSize(),
-        startDestination = AppNavigationItem.Feed.route
+        startDestination = startRoute
     ) {
         appComposable(route = AppNavigationItem.Feed.route) {
             FeedScreen(

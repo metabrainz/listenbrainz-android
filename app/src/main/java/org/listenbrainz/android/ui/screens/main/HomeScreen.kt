@@ -2,7 +2,6 @@ package org.listenbrainz.android.ui.screens.main
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
@@ -127,6 +126,7 @@ fun HomeScreen(
     }
 
     val isListeningNowOpenedInConcealedState = backdropScaffoldState.targetValue != BackdropValue.Revealed && isNothingPlaying && listeningNowUIState.isListeningNow
+    val isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable()
 
     val topBarActions = TopBarActions(
         popBackStackInSettingsScreen = {
@@ -142,6 +142,17 @@ fun HomeScreen(
             searchBarState.activate()
         }
     )
+
+    val navOrder by dashBoardViewModel.appPreferences.navBarOrder
+        .getFlow()
+        .collectAsStateWithLifecycle(
+            initialValue = null
+        )
+    val orderedNavItems = navOrder?.map { it.appNav }
+    val filteredNavItems = orderedNavItems?.filter {
+        isAudioPermissionGranted || it != AppNavigationItem.BrainzPlayer
+    }
+    val startRoute = orderedNavItems?.firstOrNull()?.route
 
     Scaffold(
         modifier = Modifier
@@ -162,6 +173,7 @@ fun HomeScreen(
             ) {
                 if (!isLandScape) {
                     AdaptiveNavigationBar(
+                        items = filteredNavItems,
                         navController = navController,
                         backdropScaffoldState = backdropScaffoldState,
                         scrollToTop = { scrollToTopState = true },
@@ -169,7 +181,6 @@ fun HomeScreen(
                         isLandscape = false,
                         currentlyPlayingSong = currentlyPlayingSong.toSong,
                         songList = songList ?: emptyList(),
-                        isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable(),
                         listeningNowUIState = listeningNowUIState
                     )
                 }
@@ -195,6 +206,7 @@ fun HomeScreen(
         Row {
             if (isLandScape) {
                 AdaptiveNavigationBar(
+                    items = filteredNavItems,
                     navController = navController,
                     backdropScaffoldState = backdropScaffoldState,
                     scrollToTop = { scrollToTopState = true },
@@ -203,10 +215,10 @@ fun HomeScreen(
                     currentlyPlayingSong = currentlyPlayingSong.toSong,
                     songList = songList ?: emptyList(),
                     listeningNowUIState = listeningNowUIState,
-                    isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable()
                 )
             }
 //            if (isGrantedPerms == PermissionStatus.GRANTED.name) {
+        if (startRoute != null && filteredNavItems != null) {
             BrainzPlayerBackDropScreen(
                 modifier = Modifier.then(if (!isLandScape && !isListeningNowOpenedInConcealedState) Modifier.navigationBarsPadding() else Modifier),
                 backdropScaffoldState = backdropScaffoldState,
@@ -217,6 +229,7 @@ fun HomeScreen(
             ) {
                 AppNavigation(
                     navController = navController,
+                    startRoute = startRoute,
                     scrollRequestState = scrollToTopState,
                     onScrollToTop = { scrollToTop ->
                         scope.launch {
@@ -234,6 +247,7 @@ fun HomeScreen(
                     )
                 )
             }
+        }
 //            }
         }
 

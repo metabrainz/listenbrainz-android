@@ -1,22 +1,17 @@
 package org.listenbrainz.android.ui.navigation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.BackdropScaffoldState
 import androidx.compose.material.BackdropValue
 import androidx.compose.material.BottomNavigation
@@ -54,6 +49,7 @@ import org.listenbrainz.android.viewmodel.ListeningNowUIState
 
 @Composable
 fun AdaptiveNavigationBar(
+    items: List<AppNavigationItem>?,
     modifier: Modifier = Modifier,
     navController: NavController = rememberNavController(),
     backgroundColor: Color = ListenBrainzTheme.colorScheme.nav,
@@ -62,17 +58,10 @@ fun AdaptiveNavigationBar(
     scrollToTop: () -> Unit,
     username: String?,
     isLandscape: Boolean,
-    isAudioPermissionGranted: Boolean,
     currentlyPlayingSong: Song,
     listeningNowUIState: ListeningNowUIState,
     songList: List<Song>,
 ) {
-    val items = listOf(
-        AppNavigationItem.Feed,
-        AppNavigationItem.Explore,
-        AppNavigationItem.BrainzPlayer,
-        AppNavigationItem.Profile
-    ).filter { isAudioPermissionGranted ||  it != AppNavigationItem.BrainzPlayer  }
     val coroutineScope = rememberCoroutineScope()
 
     @Composable
@@ -143,7 +132,7 @@ fun AdaptiveNavigationBar(
     //composable with common navigation logic
     @Composable
     fun CommonNavigationLogic(scope: RowScope? = null) {
-        items.forEach { item ->
+        items?.forEach { item ->
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
             val selected = currentDestination?.route?.startsWith("${item.route}/") == true ||
@@ -245,12 +234,12 @@ fun AdaptiveNavigationBar(
 @Composable
 fun AdaptiveNavigationBarPreview() {
     AdaptiveNavigationBar(
+        items = BottomNavItem.entries.map { it.appNav },
         navController = rememberNavController(),
         scrollToTop = {},
         username = "pranavkonidena",
         isLandscape = true,
         currentlyPlayingSong = Song(),
-        isAudioPermissionGranted = true,
         songList = emptyList(),
         listeningNowUIState = ListeningNowUIState()
     )
