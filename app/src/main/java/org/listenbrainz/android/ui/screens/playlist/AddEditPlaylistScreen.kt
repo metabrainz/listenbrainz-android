@@ -94,15 +94,14 @@ fun CreateEditPlaylistScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.getInitialDataInCreatePlaylistScreen(mbid)
-    }
-
     LaunchedEffect(uiState.createEditScreenUIState.isSearching) {
         sheetState.expand()
     }
 
-    if (isVisible)
+    if (isVisible) {
+        LaunchedEffect(Unit) {
+            viewModel.getInitialDataInCreatePlaylistScreen(mbid)
+        }
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -174,6 +173,7 @@ fun CreateEditPlaylistScreen(
                 viewModel.clearErrorFlow()
             }
         }
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
