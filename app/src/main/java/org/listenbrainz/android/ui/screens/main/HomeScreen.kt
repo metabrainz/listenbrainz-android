@@ -2,7 +2,6 @@ package org.listenbrainz.android.ui.screens.main
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
@@ -31,7 +30,6 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -107,22 +105,6 @@ fun HomeScreen(
                 maxOf(maxOffset, backdropScaffoldState.requireOffset() - playerHeight)
         }
     }
-    val currentRoute = currentDestination?.route
-    var previousRoute by rememberSaveable { mutableStateOf<String?>(null) }
-
-    LaunchedEffect(currentRoute) {
-        // Only close search if we're navigating between actual routes (not null transitions)
-        if (previousRoute != null && currentRoute != null && previousRoute != currentRoute) {
-            if (searchBarState.isActive) {
-                searchBarState.deactivate()
-            }
-        }
-
-        // Always update previousRoute when currentRoute is not null
-        if (currentRoute != null) {
-            previousRoute = currentRoute
-        }
-    }
 
     val desiredBackgroundColor by remember {
         derivedStateOf {
@@ -187,7 +169,8 @@ fun HomeScreen(
                         currentlyPlayingSong = currentlyPlayingSong.toSong,
                         songList = songList ?: emptyList(),
                         isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable(),
-                        listeningNowUIState = listeningNowUIState
+                        listeningNowUIState = listeningNowUIState,
+                        searchBarState = searchBarState,
                     )
                 }
             }
@@ -217,10 +200,11 @@ fun HomeScreen(
                     scrollToTop = { scrollToTopState = true },
                     username = username,
                     isLandscape = true,
+                    isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable(),
                     currentlyPlayingSong = currentlyPlayingSong.toSong,
-                    songList = songList ?: emptyList(),
                     listeningNowUIState = listeningNowUIState,
-                    isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable()
+                    songList = songList ?: emptyList(),
+                    searchBarState = searchBarState
                 )
             }
 //            if (isGrantedPerms == PermissionStatus.GRANTED.name) {
