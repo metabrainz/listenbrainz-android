@@ -2,7 +2,6 @@ package org.listenbrainz.android.ui.screens.main
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
@@ -170,7 +169,8 @@ fun HomeScreen(
                         currentlyPlayingSong = currentlyPlayingSong.toSong,
                         songList = songList ?: emptyList(),
                         isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable(),
-                        listeningNowUIState = listeningNowUIState
+                        listeningNowUIState = listeningNowUIState,
+                        searchBarState = searchBarState,
                     )
                 }
             }
@@ -200,10 +200,11 @@ fun HomeScreen(
                     scrollToTop = { scrollToTopState = true },
                     username = username,
                     isLandscape = true,
+                    isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable(),
                     currentlyPlayingSong = currentlyPlayingSong.toSong,
-                    songList = songList ?: emptyList(),
                     listeningNowUIState = listeningNowUIState,
-                    isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable()
+                    songList = songList ?: emptyList(),
+                    searchBarState = searchBarState
                 )
             }
 //            if (isGrantedPerms == PermissionStatus.GRANTED.name) {
