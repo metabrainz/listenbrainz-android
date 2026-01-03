@@ -40,7 +40,8 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @Composable
 fun ExploreScreen(
-    topBarActions: TopBarActions
+    topBarActions: TopBarActions,
+    goToHueSoundScreen: () -> Unit = {}
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -57,6 +58,16 @@ fun ExploreScreen(
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
+                //HueSound
+                item {
+                    ExploreScreenCard(
+                        nextActivity = null,
+                        iconId = R.drawable.huesound_cover,
+                        title = "HueSound",
+                        subTitle = stringResource(id = R.string.discover),
+                        nextScreen = goToHueSoundScreen
+                    )
+                }
                 item {
                     ExploreScreenCard(
                         nextActivity = YearInMusic23Activity::class.java,
@@ -91,13 +102,24 @@ fun ExploreScreen(
     }
 }
 
+/**
+ * Card used in the Explore screen.
+ *
+ * @param nextActivity Activity class to launch when the card is clicked.
+ * If non-null, clicking the card will start this activity and [nextScreen]
+ * will not be invoked.
+ * If `null`, no activity will be started and [nextScreen] will be called
+ * instead. In that case, callers are expected to provide a suitable
+ * navigation lambda via [nextScreen].
+ */
 @Composable
 private fun ExploreScreenCard(
-    nextActivity: Class<out ComponentActivity>,
+    nextActivity: Class<out ComponentActivity>?,
     iconId: Int,
     title: String,
     subTitle: String,
-    context: Context = LocalContext.current
+    context: Context = LocalContext.current,
+    nextScreen: () -> Unit = {}
 ) {
     Surface(
         modifier = Modifier
@@ -107,12 +129,16 @@ private fun ExploreScreenCard(
                 vertical = 10.dp
             )
             .clickable {
-                context.startActivity(
-                    Intent(
-                        context,
-                        nextActivity
+                if (nextActivity != null)
+                    context.startActivity(
+                        Intent(
+                            context,
+                            nextActivity
+                        )
                     )
-                )
+                else {
+                    nextScreen()
+                }
             },
         color = ListenBrainzTheme.colorScheme.level1,
         elevation = 6.dp,

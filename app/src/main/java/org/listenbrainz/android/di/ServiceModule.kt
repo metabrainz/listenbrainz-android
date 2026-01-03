@@ -20,6 +20,7 @@ import org.listenbrainz.android.service.AlbumService
 import org.listenbrainz.android.service.ArtistService
 import org.listenbrainz.android.service.BlogService
 import org.listenbrainz.android.service.CBService
+import org.listenbrainz.android.service.ExploreService
 import org.listenbrainz.android.service.FeedService
 import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.service.MBService
@@ -78,8 +79,14 @@ class ServiceModule {
     fun providesListensService(appPreferences: AppPreferences): ListensService =
         constructRetrofit(appPreferences)
             .create(ListensService::class.java)
-    
-    
+
+    @Singleton
+    @Provides
+    fun providesExploreService(appPreferences: AppPreferences): ExploreService =
+        constructRetrofit(appPreferences)
+            .create(ExploreService::class.java)
+
+
     @Singleton
     @Provides
     fun providesSocialService(appPreferences: AppPreferences): SocialService =
