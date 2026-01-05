@@ -1,8 +1,6 @@
 package org.listenbrainz.android.ui.screens.profile.createdforyou
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,8 +12,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
@@ -25,16 +26,20 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -44,10 +49,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.valentinilk.shimmer.Shimmer
 import com.valentinilk.shimmer.ShimmerBounds
-import com.valentinilk.shimmer.ShimmerTheme
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
-import com.valentinilk.shimmer.shimmerSpec
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
@@ -64,6 +67,7 @@ import org.listenbrainz.android.ui.screens.feed.RetryButton
 import org.listenbrainz.android.ui.screens.profile.CreatedForTabUIState
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Utils.VerticalSpacer
 import org.listenbrainz.android.util.Utils.formatDurationSeconds
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
@@ -150,10 +154,14 @@ private fun CreatedForYouScreen(
 
     val scope = rememberCoroutineScope()
 
-    val isRefreshing = remember(
-        isLoading
-    ) {
-        isLoading
+    val isRefreshing = isLoading
+
+    LaunchedEffect(isRefreshing) {
+        if (selectedPlaylist == null) {
+            selectedPlaylist =
+                if (uiState.createdForTabUIState.createdForYouPlaylists.isNullOrEmpty()) null
+                else uiState.createdForTabUIState.createdForYouPlaylists[0].playlist
+        }
     }
 
     val pullRefreshState = rememberPullRefreshState(
@@ -167,29 +175,7 @@ private fun CreatedForYouScreen(
 
 
     val shimmerInstance = rememberShimmer(
-        shimmerBounds = ShimmerBounds.View,
-        theme = ShimmerTheme(
-            animationSpec = infiniteRepeatable(
-                animation = shimmerSpec(
-                    durationMillis = 300,
-                    delayMillis = 800,
-                ),
-                repeatMode = RepeatMode.Restart,
-            ),
-            blendMode = BlendMode.DstIn,
-            rotation = 6.0f,
-            shaderColors = listOf(
-                Color.White.copy(alpha = 0.25f),
-                Color.White.copy(alpha = 1.00f),
-                Color.White.copy(alpha = 0.25f),
-            ),
-            shaderColorStops = listOf(
-                0.0f,
-                0.5f,
-                1.0f,
-            ),
-            shimmerWidth = 350.dp,
-        )
+        shimmerBounds = ShimmerBounds.View
     )
 
     Box(
@@ -197,24 +183,9 @@ private fun CreatedForYouScreen(
             .fillMaxSize()
             .pullRefresh(pullRefreshState)
     ) {
-
-        if (uiState.createdForTabUIState.createdForYouPlaylists.isNullOrEmpty()) {
+        if (isRefreshing) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(ListenBrainzTheme.paddings.horizontal),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "No playlists found",
-                    fontWeight = FontWeight.Medium,
-                    color = ListenBrainzTheme.colorScheme.onBackground
-                )
-            }
-        } else {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
+                modifier = Modifier.fillMaxSize()
             ) {
                 LazyColumn {
                     item {
@@ -225,73 +196,150 @@ private fun CreatedForYouScreen(
                                 .padding(bottom = 12.dp)
                         ) {
                             Spacer(modifier = Modifier.height(32.dp))
-                            PlaylistSelectionCardRow(
-                                modifier = Modifier.padding(vertical = 8.dp),
-                                playlists = uiState.createdForTabUIState.createdForYouPlaylists.map { it.playlist },
-                                selectedPlaylist = selectedPlaylist,
-                                onPlaylistSelect = {
-                                    selectedPlaylist = it
-                                },
-                                refreshing = isRefreshing,
-                                shimmer = shimmerInstance,
-                                onSaveClick = onPlaylistSaveClick
-                            )
-                        }
-                    }
-
-                    item {
-                        AnimatedContent(
-                            selectedPlaylist,
-                            modifier = Modifier
-                                .background(brush = ListenBrainzTheme.colorScheme.userPageGradient)
-                        ) { playlist ->
-                            if (playlist == null) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillParentMaxWidth()
-                                        .padding(
-                                            horizontal = ListenBrainzTheme.paddings.horizontal,
-                                            vertical = 40.dp
-                                        ),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = "No playlist selected",
-                                        fontWeight = FontWeight.Medium,
-                                        color = ListenBrainzTheme.colorScheme.onBackground
+                            val listState = rememberLazyListState()
+                            var width by remember { mutableIntStateOf(0) }
+                            val count by remember {
+                                derivedStateOf {
+                                    if (width == 0) {
+                                        return@derivedStateOf 0
+                                    }
+                                    listState.layoutInfo.viewportSize.width / width
+                                }
+                            }
+                            LazyRow(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                state = listState
+                            ) {
+                                item(contentType = "shimmer") {
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    ShimmerPlaylistTitleCardItem(
+                                        shimmerInstance,
+                                        modifier = Modifier
+                                            .onSizeChanged {
+                                                width = it.width
+                                            }
                                     )
                                 }
-                            } else if (playlistData == null) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillParentMaxWidth()
-                                        .padding(
-                                            horizontal = ListenBrainzTheme.paddings.horizontal,
-                                            vertical = 40.dp
-                                        ),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Text(
-                                        text = "Playlist data could not be loaded :(",
-                                        fontWeight = FontWeight.Medium,
-                                        color = ListenBrainzTheme.colorScheme.onBackground
-                                    )
-
-                                    VerticalSpacer(8.dp)
-
-                                    RetryButton {
-                                        onRetryDataFetch(playlist)
+                                items(count, contentType = { "shimmer" }) { index ->
+                                    ShimmerPlaylistTitleCardItem(shimmerInstance)
+                                    if (index == count - 1) {
+                                        Spacer(modifier = Modifier.width(8.dp))
                                     }
                                 }
-                            } else {
-                                if (isRefreshing) {
-                                    ShimmerPlaylistDescriptionItem(shimmerInstance)
+                            }
+                        }
+                    }
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(brush = ListenBrainzTheme.colorScheme.userPageGradient)
+                        ) {
+                            ShimmerPlaylistDescriptionItem(shimmerInstance)
+                        }
+                    }
+                    items(5) {
+                        ShimmerPlaylistDataItem(shimmerInstance)
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+                }
+            }
+        } else {
+            if (uiState.createdForTabUIState.createdForYouPlaylists.isNullOrEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(ListenBrainzTheme.paddings.horizontal),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No playlists found",
+                        fontWeight = FontWeight.Medium,
+                        color = ListenBrainzTheme.colorScheme.onBackground
+                    )
+                }
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    LazyColumn {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(ListenBrainzTheme.colorScheme.background)
+                                    .padding(bottom = 12.dp)
+                            ) {
+                                Spacer(modifier = Modifier.height(32.dp))
+                                PlaylistSelectionCardRow(
+                                    modifier = Modifier.padding(vertical = 8.dp),
+                                    playlists = uiState.createdForTabUIState.createdForYouPlaylists.map { it.playlist },
+                                    selectedPlaylist = selectedPlaylist,
+                                    onPlaylistSelect = {
+                                        selectedPlaylist = it
+                                    },
+                                    onSaveClick = onPlaylistSaveClick
+                                )
+                            }
+                        }
+
+                        item {
+                            Log.e(selectedPlaylist,"initial playlist selected")
+                            AnimatedContent(
+                                selectedPlaylist,
+                                modifier = Modifier
+                                    .background(brush = ListenBrainzTheme.colorScheme.userPageGradient)
+                            ) { playlist ->
+                                if (playlist == null) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillParentMaxWidth()
+                                            .padding(
+                                                horizontal = ListenBrainzTheme.paddings.horizontal,
+                                                vertical = 40.dp
+                                            ),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "No playlist selected",
+                                            fontWeight = FontWeight.Medium,
+                                            color = ListenBrainzTheme.colorScheme.onBackground
+                                        )
+                                    }
+                                } else if (playlistData == null) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillParentMaxWidth()
+                                            .padding(
+                                                horizontal = ListenBrainzTheme.paddings.horizontal,
+                                                vertical = 40.dp
+                                            ),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = "Playlist data could not be loaded :(",
+                                            fontWeight = FontWeight.Medium,
+                                            color = ListenBrainzTheme.colorScheme.onBackground
+                                        )
+
+                                        VerticalSpacer(8.dp)
+
+                                        RetryButton {
+                                            onRetryDataFetch(playlist)
+                                        }
+                                    }
                                 } else {
                                     PlaylistHeadingAndDescription(
                                         title = playlistData.title ?: "No title",
                                         tracksCount = playlistData.track.size,
                                         lastUpdatedDate = playlistData.date ?: "No date",
-                                        description = playlistData.annotation ?: "No description",
+                                        description = playlistData.annotation
+                                            ?: "No description",
                                         onPlayAllClick = {
                                             onPlayAllClick()
                                         },
@@ -302,14 +350,7 @@ private fun CreatedForYouScreen(
                                 }
                             }
                         }
-                    }
 
-                    if (isRefreshing && playlistData!=null) {
-                        items(5){
-                            ShimmerPlaylistDataItem(shimmerInstance)
-                            Spacer(modifier = Modifier.height(12.dp))
-                        }
-                    } else {
                         items(playlistData?.track?.size ?: 0) { trackIndex ->
                             if (playlistData != null) {
                                 val playlist = playlistData.track[trackIndex]
@@ -373,6 +414,23 @@ private fun CreatedForYouScreen(
         resId = socialUiState.successMsgId,
         onMessageShown = onMessageShown,
         snackbarState = snackbarState
+    )
+}
+
+@Composable
+fun ShimmerPlaylistTitleCardItem(
+    shimmer: Shimmer,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .size(140.dp)
+            .clip(shape = ListenBrainzTheme.shapes.listenCardSmall)
+            .shimmer(shimmer)
+            .background(
+                color = Color.Gray.copy(alpha = 0.8f),
+                shape = ListenBrainzTheme.shapes.listenCardSmall
+            )
     )
 }
 

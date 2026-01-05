@@ -4,25 +4,20 @@ import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,15 +28,10 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.valentinilk.shimmer.Shimmer
-import com.valentinilk.shimmer.ShimmerBounds
-import com.valentinilk.shimmer.rememberShimmer
-import com.valentinilk.shimmer.shimmer
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.userPlaylist.AdditionalMetadata
 import org.listenbrainz.android.model.userPlaylist.UserPlaylistExtensionData
@@ -66,86 +56,41 @@ fun PlaylistSelectionCardRow(
     selectedPlaylist: UserPlaylist? = null,
     playlists: List<UserPlaylist>,
     onSaveClick: (UserPlaylist) -> Unit,
-    refreshing: Boolean = false,
-    shimmer: Shimmer,
     onPlaylistSelect: (UserPlaylist) -> Unit
 ) {
-    val fixedItemSize = 140.dp
-    val horizontalSpacing = 16.dp
-    val count = remember { mutableStateOf(0) }
-    BoxWithConstraints(
-        modifier.fillMaxWidth()
+    LazyRow(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        val maxWidth = with(LocalDensity.current) { maxWidth.value }
 
-        val itemWidth = with(LocalDensity.current) {
-            (fixedItemSize + horizontalSpacing).toPx()
-        }
-
-        LaunchedEffect(maxWidth) {
-            count.value = (maxWidth / itemWidth).toInt() + 2
-        }
-
-        LazyRow(
-            modifier = modifier,
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            if (refreshing) {
-                items(count.value) { index ->
-                    if (index == 0) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
-                    ShimmerPlaylistTitleCardItem(shimmer)
-                    if (index == count.value - 1) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
-                }
-            } else {
-                itemsIndexed(playlists) { index, playlist ->
-                    if (index == 0) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
-
-                    PlaylistTitleCard(
-                        modifier = Modifier.size(140.dp),
-                        title = remember(playlist) {
-                            modifyTitle(playlist)
-                        },
-                        fractionLeft = remember(playlist) {
-                            getFractionLeft(
-                                playlist.date,
-                                playlist.extension.createdForYouExtensionData.additionalMetadata.expiresAt
-                            )
-                        },
-                        isSelected = selectedPlaylist == playlist,
-                        cardBg = remember(index) { getCardBg(index) },
-                        alignment = Alignment.Center,
-                        onSaveClick = { onSaveClick(playlist) },
-                        onPlaylistSelect = { onPlaylistSelect(playlist) }
+        itemsIndexed(playlists) { index, playlist ->
+            if (index == 0) {
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+            PlaylistTitleCard(
+                modifier = Modifier.size(140.dp),
+                title = remember(playlist) {
+                    modifyTitle(playlist)
+                },
+                fractionLeft = remember(playlist) {
+                    getFractionLeft(
+                        playlist.date,
+                        playlist.extension.createdForYouExtensionData.additionalMetadata.expiresAt
                     )
+                },
+                isSelected = selectedPlaylist == playlist,
+                cardBg = remember(index) { getCardBg(index) },
+                alignment = Alignment.Center,
+                onSaveClick = { onSaveClick(playlist) },
+                onPlaylistSelect = { onPlaylistSelect(playlist) }
+            )
 
-                    if (index == playlists.lastIndex) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                    }
-                }
+            if (index == playlists.lastIndex) {
+                Spacer(modifier = Modifier.width(8.dp))
             }
         }
     }
-}
-
-@Composable
-fun ShimmerPlaylistTitleCardItem(shimmer: Shimmer) {
-    Box(
-        modifier = Modifier
-            .size(140.dp)
-            .clip(shape = ListenBrainzTheme.shapes.listenCardSmall)
-            .shimmer(shimmer)
-            .background(
-                color = Color.Gray.copy(alpha = 0.8f),
-                shape = ListenBrainzTheme.shapes.listenCardSmall
-            )
-    )
 }
 
 
@@ -329,9 +274,6 @@ fun PlaylistTitleCardRowPreview() {
                 )
             )
         )
-        val shimmerInstance = rememberShimmer(
-            shimmerBounds = ShimmerBounds.View
-        )
         PlaylistSelectionCardRow(
             modifier = Modifier.padding(16.dp),
             playlists = listOf(
@@ -344,8 +286,6 @@ fun PlaylistTitleCardRowPreview() {
             onPlaylistSelect = {
                 selectedPlaylist = it
             },
-            refreshing = false,
-            shimmer = shimmerInstance,
         )
     }
 }

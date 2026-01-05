@@ -1,8 +1,6 @@
 package org.listenbrainz.android.ui.screens.profile.stats
 
 import android.text.TextUtils
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -40,7 +38,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -64,10 +61,8 @@ import com.patrykandpatrick.vico.core.cartesian.layer.ColumnCartesianLayer
 import com.patrykandpatrick.vico.core.common.Dimensions
 import com.valentinilk.shimmer.Shimmer
 import com.valentinilk.shimmer.ShimmerBounds
-import com.valentinilk.shimmer.ShimmerTheme
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
-import com.valentinilk.shimmer.shimmerSpec
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.isActive
@@ -179,22 +174,13 @@ fun StatsScreen(
 
     val isLoading = uiState.statsTabUIState.isLoading
 
-    val isRefreshing = remember(
-        currentTabSelection,
-        isLoading
-    ) {
-        isLoading
-    }
+    val isRefreshing = isLoading
 
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
         onRefresh = {
             scope.launch {
-                snapshotFlow {
-                    statsRangeState to dataScopeState
-                }.collectLatest { (range, scope) ->
-                    fetchListeningActivity(range, scope,true)
-                }
+                fetchListeningActivity(statsRangeState, dataScopeState,true)
                 when (currentTabSelection) {
                     CategoryState.ARTISTS -> fetchTopArtists(username, true)
                     CategoryState.ALBUMS -> fetchTopAlbums(username, true)
@@ -214,29 +200,7 @@ fun StatsScreen(
     }
 
     val shimmerInstance = rememberShimmer(
-        shimmerBounds = ShimmerBounds.View,
-        theme = ShimmerTheme(
-            animationSpec = infiniteRepeatable(
-                animation = shimmerSpec(
-                    durationMillis = 300,
-                    delayMillis = 800,
-                ),
-                repeatMode = RepeatMode.Restart,
-            ),
-            blendMode = BlendMode.DstIn,
-            rotation = 10.0f,
-            shaderColors = listOf(
-                Color.White.copy(alpha = 0.25f),
-                Color.White.copy(alpha = 1.00f),
-                Color.White.copy(alpha = 0.25f),
-            ),
-            shaderColorStops = listOf(
-                0.0f,
-                0.5f,
-                1.0f,
-            ),
-            shimmerWidth = 500.dp,
-        )
+        shimmerBounds = ShimmerBounds.View
     )
 
 // Fetch category data (artists/albums/songs) when tab selection changes

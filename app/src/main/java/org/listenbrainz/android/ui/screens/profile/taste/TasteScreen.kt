@@ -1,7 +1,5 @@
 package org.listenbrainz.android.ui.screens.profile.taste
 
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,10 +31,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
@@ -46,10 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.valentinilk.shimmer.Shimmer
 import com.valentinilk.shimmer.ShimmerBounds
-import com.valentinilk.shimmer.ShimmerTheme
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
-import com.valentinilk.shimmer.shimmerSpec
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.MbidMapping
@@ -135,11 +129,7 @@ fun TasteScreen(
 
     val scope = rememberCoroutineScope()
 
-    val isRefreshing = remember(
-        isLoading
-    ) {
-        isLoading
-    }
+    val isRefreshing = isLoading
 
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing,
@@ -151,29 +141,7 @@ fun TasteScreen(
     )
 
     val shimmerInstance = rememberShimmer(
-        shimmerBounds = ShimmerBounds.View,
-        theme = ShimmerTheme(
-            animationSpec = infiniteRepeatable(
-                animation = shimmerSpec(
-                    durationMillis = 300,
-                    delayMillis = 800,
-                ),
-                repeatMode = RepeatMode.Restart,
-            ),
-            blendMode = BlendMode.DstIn,
-            rotation = 10.0f,
-            shaderColors = listOf(
-                Color.White.copy(alpha = 0.25f),
-                Color.White.copy(alpha = 1.00f),
-                Color.White.copy(alpha = 0.25f),
-            ),
-            shaderColorStops = listOf(
-                0.0f,
-                0.5f,
-                1.0f,
-            ),
-            shimmerWidth = 500.dp,
-        )
+        shimmerBounds = ShimmerBounds.View
     )
 
     Box(

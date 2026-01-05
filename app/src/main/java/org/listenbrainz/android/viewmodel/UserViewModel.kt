@@ -63,8 +63,6 @@ class UserViewModel @Inject constructor(
     private val isLoggedInUser = currentUser
         .map { it == appPreferences.username.get() }
 
-    private val _isLoginChecking = MutableStateFlow(true)
-    val isLoginChecking: StateFlow<Boolean> = _isLoginChecking
 
     //Semaphore to limit the number of concurrent cover art fetches
     private val coverArtSemaphore = Semaphore(2)
@@ -115,25 +113,15 @@ class UserViewModel @Inject constructor(
     }
         .flow
         .cachedIn(viewModelScope)
-    val loginStatusFlow: StateFlow<Int> =
+    val loginStatusFlow: StateFlow<Int?> =
         appPreferences
             .getLoginStatusFlow()
             .stateIn(
                 viewModelScope,
                 SharingStarted.Eagerly,
-                STATUS_LOGGED_OUT
+                null
             )
 
-    init {
-        viewModelScope.launch {
-            appPreferences.getLoginStatusFlow().collect {
-                if (it == STATUS_LOGGED_OUT || it == STATUS_LOGGED_IN) {
-                    _isLoginChecking.value = false
-                    return@collect
-                }
-            }
-        }
-    }
 
     private val listenStateFlow: MutableStateFlow<ListensTabUiState> =
         MutableStateFlow(ListensTabUiState(recentListens = recentListensPager))

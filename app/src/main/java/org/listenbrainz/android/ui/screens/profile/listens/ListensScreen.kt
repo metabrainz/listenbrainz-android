@@ -6,15 +6,12 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
@@ -30,7 +27,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -59,6 +55,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -67,13 +64,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.layout.SubcomposeLayout
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -92,11 +85,8 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.valentinilk.shimmer.Shimmer
 import com.valentinilk.shimmer.ShimmerBounds
-import com.valentinilk.shimmer.ShimmerTheme
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
-import com.valentinilk.shimmer.shimmerSpec
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
@@ -264,29 +254,7 @@ fun ListensScreen(
     )
 
     val shimmerInstance = rememberShimmer(
-        shimmerBounds = ShimmerBounds.View,
-        theme = ShimmerTheme(
-            animationSpec = infiniteRepeatable(
-                animation = shimmerSpec(
-                    durationMillis = 300,
-                    delayMillis = 800,
-                ),
-                repeatMode = RepeatMode.Restart,
-            ),
-            blendMode = BlendMode.DstIn,
-            rotation = 10.0f,
-            shaderColors = listOf(
-                Color.White.copy(alpha = 0.25f),
-                Color.White.copy(alpha = 1.00f),
-                Color.White.copy(alpha = 0.25f),
-            ),
-            shaderColorStops = listOf(
-                0.0f,
-                0.5f,
-                1.0f,
-            ),
-            shimmerWidth = 500.dp,
-        )
+        shimmerBounds = ShimmerBounds.View
     )
 
     // Scroll to the top when shouldScrollToTop becomes true
@@ -399,62 +367,56 @@ fun ListensScreen(
                             }
                         }
 
-                        val count = remember { mutableStateOf(0) }
-
-                        BoxWithConstraints(
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            val maxHeight = with(LocalDensity.current) { maxHeight.toPx() }
-
-                            SubcomposeLayout { it ->
-                                val item = subcompose("item") {
-                                    ShimmerListensItem(shimmerInstance)
-                                }.first().measure(it)
-                                val itemHeight = item.height
-
-                                count.value = if (itemHeight > 0) {
-                                    (maxHeight / itemHeight).toInt()
-                                } else {
-                                    10
+                        var height by remember { mutableIntStateOf(0) }
+                        val count by remember {
+                            derivedStateOf {
+                                if (height == 0) {
+                                    return@derivedStateOf 0
                                 }
-
-                                layout(it.maxWidth, it.maxHeight) {}
+                                listState.layoutInfo.viewportSize.height / height
                             }
-
-                            LazyColumn(
-                                contentPadding = PaddingValues(bottom = 16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                if (isRefreshing) {
-                                    item {
-                                        Spacer(modifier = Modifier.height(5.dp))
-                                    }
-                                    items(count.value) {
-                                        ShimmerListensItem(shimmerInstance)
-                                        Spacer(modifier = Modifier.height(12.dp))
-                                    }
-                                } else {
-                                    items(
-                                        count = listensPagingItems.itemCount,
-                                        contentType = { "listen" }
-                                    ) { index ->
-                                        val listen = listensPagingItems[index]
-                                        if (listen != null) {
-                                            ListenCardItem(listen = listen)
+                        }
+                        LazyColumn(
+                            contentPadding = PaddingValues(bottom = 16.dp),
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            if (isRefreshing) {
+                                item(contentType = "shimmer") {
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    ShimmerListensItem(
+                                        shimmerInstance,
+                                        modifier = Modifier.onSizeChanged{
+                                            height = it.height
                                         }
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                }
+                                items(count, contentType = {"shimmer"}) {
+                                    ShimmerListensItem(shimmerInstance)
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                }
+                            } else {
+                                items(
+                                    count = listensPagingItems.itemCount,
+                                    contentType = { "listen" }
+                                ) { index ->
+                                    val listen = listensPagingItems[index]
+                                    if (listen != null) {
+                                        ListenCardItem(listen = listen)
                                     }
                                 }
-                                item(
-                                    contentType = { "loader" }
-                                ) {
-                                    if (listensPagingItems.loadState.append == LoadState.Loading) {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier
-                                                .padding(top = 16.dp)
-                                                .size(24.dp),
-                                            color = ListenBrainzTheme.colorScheme.lbSignature
-                                        )
-                                    }
+                            }
+                            item(
+                                contentType = { "loader" }
+                            ) {
+                                if (listensPagingItems.loadState.append == LoadState.Loading) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier
+                                            .padding(top = 16.dp)
+                                            .size(24.dp),
+                                        color = ListenBrainzTheme.colorScheme.lbSignature
+                                    )
                                 }
                             }
                         }
@@ -1224,11 +1186,16 @@ private fun FollowersCard(
 }
 
 @Composable
-fun ShimmerListensItem(shimmer: Shimmer) {
+fun ShimmerListensItem(
+    shimmer: Shimmer,
+    modifier:Modifier = Modifier
+) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 10.dp)
+            .padding(
+                horizontal = ListenBrainzTheme.paddings.horizontal,
+            )
             .height(ListenBrainzTheme.sizes.listenCardHeight)
             .background(
                 Color.Gray.copy(alpha = 0.1f),
@@ -1238,7 +1205,7 @@ fun ShimmerListensItem(shimmer: Shimmer) {
     ) {
         Box(
             modifier = Modifier
-                .height(72.dp)
+                .height(ListenBrainzTheme.sizes.listenCardHeight)
                 .width(60.dp)
                 .shimmer(shimmer)
                 .background(

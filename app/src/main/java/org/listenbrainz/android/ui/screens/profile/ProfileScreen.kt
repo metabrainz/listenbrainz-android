@@ -45,7 +45,6 @@ fun ProfileScreen(
     }
 
     val loginStatus by viewModel.loginStatusFlow.collectAsState()
-    val isLoginChecking by viewModel.isLoginChecking.collectAsState()
 
     Column {
         TopBar(
@@ -55,16 +54,16 @@ fun ProfileScreen(
         )
 
         AnimatedContent(
-            targetState = isLoginChecking,
+            targetState = loginStatus,
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center,
             transitionSpec = {
                 fadeIn() togetherWith fadeOut()
             }
-        ) { loading ->
-            if (loading) {
+        ) { status ->
+            if (status == null) {
                 LoadingAnimation()
-            } else if (loginStatus == STATUS_LOGGED_IN) {
+            } else if (status == STATUS_LOGGED_IN) {
                 BaseProfileScreen(
                     username = username,
                     snackbarState = snackbarState,
