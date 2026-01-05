@@ -55,7 +55,7 @@ fun RecentPlaysScreen(
                     fontSize = 25.sp
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-                PlayedThisWeek(songsPlayed = songsPlayedToday, onPlayIconClick = onPlayIconClick, dropDownState = dropdownState,  onAddToQueue = onAddToQueue, onAddToNewPlaylist = onAddToNewPlaylist, onAddToExistingPlaylist = onAddToExistingPlaylist, onPlayNext = onPlayNext)
+                PlayedThisWeek(songsPlayed = songsPlayedToday, sectionChosen = 0, onPlayIconClick = onPlayIconClick, dropDownState = dropdownState,  onAddToQueue = onAddToQueue, onAddToNewPlaylist = onAddToNewPlaylist, onAddToExistingPlaylist = onAddToExistingPlaylist, onPlayNext = onPlayNext)
             }
         }
         if(songsPlayedThisWeek.isNotEmpty()) {
@@ -70,7 +70,7 @@ fun RecentPlaysScreen(
                     fontSize = 25.sp
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-                PlayedThisWeek(songsPlayed = songsPlayedThisWeek, onPlayIconClick = onPlayIconClick, dropDownState = dropdownState, onAddToQueue = onAddToQueue, onAddToNewPlaylist = onAddToNewPlaylist, onAddToExistingPlaylist = onAddToExistingPlaylist, onPlayNext = onPlayNext)
+                PlayedThisWeek(songsPlayed = songsPlayedThisWeek, sectionChosen = 1, onPlayIconClick = onPlayIconClick, dropDownState = dropdownState, onAddToQueue = onAddToQueue, onAddToNewPlaylist = onAddToNewPlaylist, onAddToExistingPlaylist = onAddToExistingPlaylist, onPlayNext = onPlayNext)
             }
         }
     }
@@ -81,6 +81,7 @@ fun RecentPlaysScreen(
 private fun PlayedThisWeek(
     songsPlayed: List<Song>,
     onPlayIconClick: (Song) -> Unit,
+    sectionChosen:Int,
     dropDownState : MutableState<Pair<Int,Int>>,
     onAddToQueue: (Song) -> Unit,
     onPlayNext: (Song) -> Unit,
@@ -104,10 +105,10 @@ private fun PlayedThisWeek(
                 errorAlbumArt = R.drawable.ic_erroralbumart,
                 onClick = { onPlayIconClick(it) },
                 goToArtistPage = {},
-                onDropdownIconClick = { dropDownState.value = Pair(2,index) },
+                onDropdownIconClick = { dropDownState.value = Pair(sectionChosen,index) },
                 dropDown = {
                     BrainzPlayerDropDownMenu(
-                        expanded = dropDownState.value == Pair(2,index),
+                        expanded = dropDownState.value == Pair(sectionChosen,index),
                         onDismiss = {dropDownState.value = Pair(-1,-1)},
                         onAddToQueue = {onAddToQueue(it)},
                         onPlayNext =  {onPlayNext(it)},

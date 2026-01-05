@@ -43,13 +43,14 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.ui.screens.brainzplayer.ListeningNowCard
+import org.listenbrainz.android.ui.screens.search.SearchBarState
+import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.SongViewPager
 import org.listenbrainz.android.viewmodel.ListeningNowUIState
 
 @Composable
 fun AdaptiveNavigationBar(
-    items: List<AppNavigationItem>?,
     modifier: Modifier = Modifier,
     navController: NavController = rememberNavController(),
     backgroundColor: Color = ListenBrainzTheme.colorScheme.nav,
@@ -58,10 +59,18 @@ fun AdaptiveNavigationBar(
     scrollToTop: () -> Unit,
     username: String?,
     isLandscape: Boolean,
+    isAudioPermissionGranted: Boolean,
     currentlyPlayingSong: Song,
     listeningNowUIState: ListeningNowUIState,
     songList: List<Song>,
+    searchBarState: SearchBarState,
 ) {
+    val items = listOf(
+        AppNavigationItem.Feed,
+        AppNavigationItem.Explore,
+        AppNavigationItem.BrainzPlayer,
+        AppNavigationItem.Profile
+    ).filter { isAudioPermissionGranted ||  it != AppNavigationItem.BrainzPlayer  }
     val coroutineScope = rememberCoroutineScope()
 
     @Composable
@@ -132,7 +141,7 @@ fun AdaptiveNavigationBar(
     //composable with common navigation logic
     @Composable
     fun CommonNavigationLogic(scope: RowScope? = null) {
-        items?.forEach { item ->
+        items.forEach { item ->
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
             val selected = currentDestination?.route?.startsWith("${item.route}/") == true ||
@@ -144,37 +153,34 @@ fun AdaptiveNavigationBar(
                 scope = scope,
                 isLandscape = isLandscape,
                 onItemClick = {
-                    coroutineScope.launch {
-                        if (selected) {
-                            scrollToTop()
-                        }
-                        // A quick way to navigate to back layer content.
-                        backdropScaffoldState.reveal()
-                        val current = navController.currentBackStackEntry?.destination?.route
-                        if(current == AppNavigationItem.Settings.route) {
-                            navController.popBackStack()
-                        }
-                        when (item.route) {
-                            AppNavigationItem.Profile.route -> {
-                                val profileRoute = AppNavigationItem.Profile.route +
-                                        if (!username.isNullOrBlank()) "/${username}" else ""
-                                navController.navigate(profileRoute) {
-                                    // Avoid building large backstack
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        if (username.isNullOrBlank()) {
-                                            inclusive = true
-                                        }
-                                        saveState = true
-                                    }
-                                    // Avoid copies
-                                    launchSingleTop = true
-                                    // Restore previous state
-                                    restoreState = true
-                                }
-                            }
+                    if (selected) {
+                        scrollToTop()
+                    }
 
-                            else -> navController.navigate(item.route) {
+                    coroutineScope.launch {
+                        // Hide front layer
+                        backdropScaffoldState.reveal()
+                    }
+
+                    val current = navController.currentBackStackEntry?.destination?.route
+                    if (current == AppNavigationItem.Settings.route) {
+                        navController.popBackStack()
+                    }
+
+                    if (searchBarState.isActive) {
+                        searchBarState.deactivate()
+                    }
+
+                    when (item.route) {
+                        AppNavigationItem.Profile.route -> {
+                            val profileRoute = AppNavigationItem.Profile.route +
+                                    if (!username.isNullOrBlank()) "/${username}" else ""
+                            navController.navigate(profileRoute) {
+                                // Avoid building large backstack
                                 popUpTo(navController.graph.findStartDestination().id) {
+                                    if (username.isNullOrBlank()) {
+                                        inclusive = true
+                                    }
                                     saveState = true
                                 }
                                 // Avoid copies
@@ -182,6 +188,16 @@ fun AdaptiveNavigationBar(
                                 // Restore previous state
                                 restoreState = true
                             }
+                        }
+
+                        else -> navController.navigate(item.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            // Avoid copies
+                            launchSingleTop = true
+                            // Restore previous state
+                            restoreState = true
                         }
                     }
                 }
@@ -234,13 +250,13 @@ fun AdaptiveNavigationBar(
 @Composable
 fun AdaptiveNavigationBarPreview() {
     AdaptiveNavigationBar(
-        items = BottomNavItem.entries.map { it.appNav },
-        navController = rememberNavController(),
         scrollToTop = {},
         username = "pranavkonidena",
         isLandscape = true,
+        isAudioPermissionGranted = true,
         currentlyPlayingSong = Song(),
+        listeningNowUIState = ListeningNowUIState(),
         songList = emptyList(),
-        listeningNowUIState = ListeningNowUIState()
+        searchBarState = rememberSearchBarState()
     )
 }
