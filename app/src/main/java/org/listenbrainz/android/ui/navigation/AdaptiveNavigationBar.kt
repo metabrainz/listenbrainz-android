@@ -52,6 +52,7 @@ import org.listenbrainz.android.viewmodel.ListeningNowUIState
 @Composable
 fun AdaptiveNavigationBar(
     modifier: Modifier = Modifier,
+    items: List<BottomNavItem>?,
     navController: NavController = rememberNavController(),
     backgroundColor: Color = ListenBrainzTheme.colorScheme.nav,
     contentColor: Color? = null,
@@ -59,18 +60,11 @@ fun AdaptiveNavigationBar(
     scrollToTop: () -> Unit,
     username: String?,
     isLandscape: Boolean,
-    isAudioPermissionGranted: Boolean,
     currentlyPlayingSong: Song,
     listeningNowUIState: ListeningNowUIState,
     songList: List<Song>,
     searchBarState: SearchBarState,
 ) {
-    val items = listOf(
-        AppNavigationItem.Feed,
-        AppNavigationItem.Explore,
-        AppNavigationItem.BrainzPlayer,
-        AppNavigationItem.Profile
-    ).filter { isAudioPermissionGranted ||  it != AppNavigationItem.BrainzPlayer  }
     val coroutineScope = rememberCoroutineScope()
 
     @Composable
@@ -141,14 +135,14 @@ fun AdaptiveNavigationBar(
     //composable with common navigation logic
     @Composable
     fun CommonNavigationLogic(scope: RowScope? = null) {
-        items.forEach { item ->
+        items?.forEach { item ->
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
-            val selected = currentDestination?.route?.startsWith("${item.route}/") == true ||
-                    currentDestination?.route == item.route
+            val selected = currentDestination?.route?.startsWith("${item.appNav.route}/") == true ||
+                    currentDestination?.route == item.appNav.route
 
             NavigationContent(
-                item = item,
+                item = item.appNav,
                 selected = selected,
                 scope = scope,
                 isLandscape = isLandscape,
@@ -171,7 +165,7 @@ fun AdaptiveNavigationBar(
                         searchBarState.deactivate()
                     }
 
-                    when (item.route) {
+                    when (item.appNav.route) {
                         AppNavigationItem.Profile.route -> {
                             val profileRoute = AppNavigationItem.Profile.route +
                                     if (!username.isNullOrBlank()) "/${username}" else ""
@@ -190,7 +184,7 @@ fun AdaptiveNavigationBar(
                             }
                         }
 
-                        else -> navController.navigate(item.route) {
+                        else -> navController.navigate(item.appNav.route) {
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }
@@ -253,10 +247,10 @@ fun AdaptiveNavigationBarPreview() {
         scrollToTop = {},
         username = "pranavkonidena",
         isLandscape = true,
-        isAudioPermissionGranted = true,
         currentlyPlayingSong = Song(),
         listeningNowUIState = ListeningNowUIState(),
         songList = emptyList(),
-        searchBarState = rememberSearchBarState()
+        searchBarState = rememberSearchBarState(),
+        items = BottomNavItem.entries
     )
 }

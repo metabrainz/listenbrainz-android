@@ -94,7 +94,8 @@ fun SettingsScreen(
                 getPackageLabel = listensViewModel::getPackageLabel,
                 setWhitelist = listensViewModel::setWhitelist,
                 onOnboardingRequest = callbacks.onOnboardingRequest,
-                checkForUpdates = callbacks.checkForUpdates
+                checkForUpdates = callbacks.checkForUpdates,
+                onReorderNav = callbacks.onReorderNav
             )
         },
         isBatteryOptimizationPermissionGranted = isBatteryOptimizationPermissionGranted,
@@ -241,6 +242,16 @@ fun SettingsScreen(
                 }
 
             }
+
+            HorizontalDivider()
+
+            SettingsTextOption(
+                title = "Reorder navigation bar",
+                subtitle = "Change bottom navigation order",
+                modifier = Modifier.clickable {
+                    callbacks.onReorderNav()
+                }
+            )
 
             HorizontalDivider()
 
@@ -501,7 +512,8 @@ fun SettingsScreenPreview() {
                 setWhitelist = {},
                 onLoginRequest = {},
                 onOnboardingRequest = {},
-                checkForUpdates = suspend{false}
+                checkForUpdates = suspend{false},
+                onReorderNav = {}
             ),
             topBarActions = TopBarActions()
         )
