@@ -207,6 +207,7 @@ dependencies {
     implementation(libs.onboarding)
     implementation(libs.share.android)
     implementation(libs.compose.ratingbar)
+    implementation(libs.reorderable)
 
     // Accompanist
     implementation(libs.google.accompanist.permissions)

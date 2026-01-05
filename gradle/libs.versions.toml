@@ -5,6 +5,7 @@ kotlin = "2.0.0"
 navigation = "2.8.5"
 hilt = "2.52"
 compose = "1.7.6"
+reorderable = "3.0.0"
 room = "2.6.1"
 accompanist = "0.36.0"
 threetenabp = "1.4.9"
@@ -112,6 +113,7 @@ google-exoplayer-ui = { module = "com.google.android.exoplayer:exoplayer-ui", ve
 google-exoplayer-mediasession = { module = "com.google.android.exoplayer:extension-mediasession", version.ref = "exoplayer" }
 
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
