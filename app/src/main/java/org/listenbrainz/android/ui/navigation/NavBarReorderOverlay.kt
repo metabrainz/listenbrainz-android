@@ -36,27 +36,38 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import sh.calvin.reorderable.ReorderableLazyListState
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
 @Composable
 fun NavBarReorderOverlay(
-    items: List<BottomNavItem>,
+    items: List<AppNavigationItem>,
     isLandscape: Boolean,
-    onDismiss: (List<BottomNavItem>) -> Unit
+    onDismiss: (List<AppNavigationItem>) -> Unit
 ) {
     val mutableItems = rememberSaveable(
         saver = listSaver(
-            save = { it.toList() },
-            restore = { mutableStateListOf(*it.toTypedArray()) }
+            save = { list -> list.map { it.route } },
+            restore = { routes ->
+                mutableStateListOf<AppNavigationItem>().apply {
+                    addAll(
+                        routes.mapNotNull { route ->
+                            BottomNavDefaults.items()
+                                .firstOrNull { it.route == route }
+                        }
+                    )
+                }
+            }
         )
     ) {
-        mutableStateListOf<BottomNavItem>().apply {
+        mutableStateListOf<AppNavigationItem>().apply {
             addAll(items)
         }
     }
@@ -103,7 +114,7 @@ fun NavBarReorderOverlay(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "Drag icons to rearrange",
+                text = stringResource(R.string.nav_reorder_hint),
                 color = ListenBrainzTheme.colorScheme.text,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
@@ -126,7 +137,7 @@ fun NavBarReorderOverlay(
 
 @Composable
 private fun DummyAdaptiveNavBar(
-    items: SnapshotStateList<BottomNavItem>,
+    items: SnapshotStateList<AppNavigationItem>,
     lazyListState: LazyListState,
     reorderableLazyListState: ReorderableLazyListState,
     isLandscape: Boolean,
