@@ -1,13 +1,15 @@
 package org.listenbrainz.android.model
 
 import androidx.annotation.DrawableRes
+import kotlinx.serialization.Serializable
 import org.listenbrainz.android.R
 import kotlin.random.Random
 
+@Serializable
 data class Playlist(
-    var id: Long = Random.nextLong(),
-    var title: String = "",
-    var items: List<Song> = listOf(),
+    val id: Long = Random.nextLong(),
+    val title: String = "",
+    val items: List<Song> = listOf(),
     @DrawableRes val art: Int = R.drawable.ic_queue_music
 ) {
     companion object {

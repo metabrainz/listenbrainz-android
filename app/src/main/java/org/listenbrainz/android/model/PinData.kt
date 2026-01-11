@@ -1,7 +1,9 @@
 package org.listenbrainz.android.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class PinData(
-    @SerializedName("pinned_recording") val pinnedRecording: PinnedRecording
+    @SerialName("pinned_recording") val pinnedRecording: PinnedRecording = PinnedRecording()
 )

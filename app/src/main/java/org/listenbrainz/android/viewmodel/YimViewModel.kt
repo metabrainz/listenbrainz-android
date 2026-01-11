@@ -10,7 +10,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.caverock.androidsvg.SVG
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import org.listenbrainz.android.model.yimdata.*
@@ -19,12 +18,12 @@ import org.listenbrainz.android.repository.yim.YimRepository
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.saveBitmap
 import java.net.URL
-import javax.inject.Inject
 
-@HiltViewModel
-class YimViewModel @Inject constructor(
+class YimViewModel(
     private val repository: YimRepository,
-    private val appPreferences: AppPreferences
+    private val appPreferences: AppPreferences,
+    private val ioDispatcher: CoroutineDispatcher,
+    private val defaultDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     // Yim data resource
     var yimData:

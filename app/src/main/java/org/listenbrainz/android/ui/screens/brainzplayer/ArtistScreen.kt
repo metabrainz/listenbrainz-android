@@ -39,7 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import coil.compose.AsyncImage
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Artist
@@ -58,7 +58,7 @@ import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ArtistScreen(navigateToArtistScreen: (id: Long) -> Unit) {
-    val BPArtistViewModel = hiltViewModel<BPArtistViewModel>()
+    val BPArtistViewModel = koinViewModel<BPArtistViewModel>()
     val artists = BPArtistViewModel.artists.collectAsState(initial = listOf())
 
     val refreshing by BPArtistViewModel.isRefreshing.collectAsState()
@@ -94,7 +94,7 @@ private fun ArtistsScreen(
     artists: State<List<Artist>>,
     navigateToArtistScreen: (id: Long) -> Unit
 ) {
-    val brainzPlayerViewModel = hiltViewModel<BrainzPlayerViewModel>()
+    val brainzPlayerViewModel = koinViewModel<BrainzPlayerViewModel>()
     val currentlyPlayingSong =
         brainzPlayerViewModel.currentlyPlayingSong.collectAsState().value.toSong
     var artistCardMoreOptionsDropMenuExpanded by rememberSaveable { mutableStateOf(-1) }
@@ -207,9 +207,9 @@ private fun ArtistsScreen(
 
 @Composable
 fun OnArtistClickScreen(artistID: String, navigateToAlbum: (id: Long) -> Unit) {
-    val brainzPlayerViewModel = hiltViewModel<BrainzPlayerViewModel>()
-    val BPArtistViewModel = hiltViewModel<BPArtistViewModel>()
-    val BPAlbumViewModel = hiltViewModel<BPAlbumViewModel>()
+    val brainzPlayerViewModel = koinViewModel<BrainzPlayerViewModel>()
+    val BPArtistViewModel = koinViewModel<BPArtistViewModel>()
+    val BPAlbumViewModel = koinViewModel<BPAlbumViewModel>()
     val artist = BPArtistViewModel.getArtistByID(artistID).collectAsState(initial = Artist()).value
     val artistAlbums =
         BPArtistViewModel.getAllAlbumsOfArtist(artist).collectAsState(initial = listOf()).value.distinctBy { it.albumId }

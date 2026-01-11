@@ -207,7 +207,7 @@ class UserRepositoryTest {
         assertEquals(Resource.Status.FAILED, result.status)
 
         // Verify that the correct error is returned for a non-existent user
-        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
+        assert(result.error is ResponseError.DoesNotExist)
     }
 
     @Test
@@ -262,7 +262,7 @@ class UserRepositoryTest {
         assertEquals(Resource.Status.FAILED, result.status)
 
         // Verify that the correct error is returned for a non-existent user
-        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
+        assert(result.error is ResponseError.DoesNotExist)
     }
 
     @Test
@@ -291,7 +291,7 @@ class UserRepositoryTest {
         assertEquals(Resource.Status.FAILED, result.status)
 
         // Verify that the correct error is returned for a non-existent user
-        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
+        assert(result.error is ResponseError.DoesNotExist)
     }
 
     @Test
@@ -319,7 +319,7 @@ class UserRepositoryTest {
         assertEquals(Resource.Status.FAILED, result.status)
 
         // Verify that the correct error is returned for a non-existent user
-        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
+        assert(result.error is ResponseError.DoesNotExist)
     }
 
     @Test
@@ -350,7 +350,7 @@ class UserRepositoryTest {
         assertEquals(Resource.Status.FAILED, result.status)
 
         // Verify that the correct error is returned for a non-existent user
-        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
+        assert(result.error is ResponseError.DoesNotExist)
     }
 
     @Test
@@ -378,7 +378,7 @@ class UserRepositoryTest {
         assertEquals(Resource.Status.FAILED, result.status)
 
         // Verify that the correct error is returned for a non-existent user
-        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
+        assert(result.error is ResponseError.DoesNotExist)
     }
 
     @Test
@@ -422,7 +422,7 @@ class UserRepositoryTest {
         assertEquals(Resource.Status.FAILED, result.status)
 
         // Verify that the correct error is returned for a non-existent user
-        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
+        assert(result.error is ResponseError.DoesNotExist)
     }
 
     @Test
@@ -450,7 +450,7 @@ class UserRepositoryTest {
         assertEquals(Resource.Status.FAILED, result.status)
 
         // Verify that the correct error is returned for a non-existent user
-        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
+        assert(result.error is ResponseError.DoesNotExist)
     }
 
 

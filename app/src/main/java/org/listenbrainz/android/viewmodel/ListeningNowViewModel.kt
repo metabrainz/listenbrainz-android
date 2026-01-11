@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import coil.imageLoader
 import coil.request.ImageRequest
 import coil.request.SuccessResult
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -21,7 +20,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
@@ -29,7 +27,6 @@ import org.listenbrainz.android.repository.socket.SocketRepository
 import org.listenbrainz.android.util.ImagePalette
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.util.getPaletteFromImage
-import javax.inject.Inject
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
@@ -43,12 +40,11 @@ data class ListeningNowUIState(
         get() = song != null
 }
 
-@HiltViewModel
-class ListeningNowViewModel @Inject constructor(
+class ListeningNowViewModel(
     private val socketRepository: SocketRepository,
     private val appPreferences: AppPreferences,
     private val listensRepository: ListensRepository,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _listeningNowUIState = MutableStateFlow(ListeningNowUIState())
     val listeningNowUIState = _listeningNowUIState.asStateFlow()
@@ -96,8 +92,8 @@ class ListeningNowViewModel @Inject constructor(
         _listeningNowUIState.update {
             ListeningNowUIState(
                 imageURL = getCoverArtUrl(
-                    caaReleaseMbid = listen.trackMetadata.mbidMapping?.caaReleaseMbid,
-                    caaId = listen.trackMetadata.mbidMapping?.caaId,
+                    caaReleaseMbid = listen.trackMetadata?.mbidMapping?.caaReleaseMbid,
+                    caaId = listen.trackMetadata?.mbidMapping?.caaId,
                     size = 500
                 ),
                 song = listen
@@ -144,7 +140,7 @@ class ListeningNowViewModel @Inject constructor(
         val Listen.dismissDurationMs: Long
             get() {
                 val listenDurationMs = trackMetadata
-                    .additionalInfo
+                    ?.additionalInfo
                     ?.durationMs
                     ?.toLong()
                     // Default to 6 minutes for now listening dismiss

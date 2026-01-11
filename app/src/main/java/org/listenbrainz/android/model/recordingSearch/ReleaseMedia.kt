@@ -1,17 +1,18 @@
 package org.listenbrainz.android.model.recordingSearch
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class ReleaseMedia(
-    @SerializedName("format")
+    @SerialName("format")
     val format: String? = null,
-    @SerializedName("position")
+    @SerialName("position")
     val position: Int? = null,
-    @SerializedName("track")
+    @SerialName("track")
     val track: List<ReleaseTrack?> = emptyList(),
-    @SerializedName("track-count")
+    @SerialName("track-count")
     val trackCount: Int? = null,
-    @SerializedName("track-offset")
+    @SerialName("track-offset")
     val trackOffset: Int? = null
 )

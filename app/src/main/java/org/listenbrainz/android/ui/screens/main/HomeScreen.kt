@@ -34,7 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -61,9 +61,9 @@ import org.listenbrainz.android.viewmodel.ListeningNowViewModel
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreen(
-    dashBoardViewModel: DashBoardViewModel = hiltViewModel(),
-    brainzPlayerViewModel: BrainzPlayerViewModel = hiltViewModel(),
-    listeningNowViewModel: ListeningNowViewModel = hiltViewModel(),
+    dashBoardViewModel: DashBoardViewModel = koinViewModel(),
+    brainzPlayerViewModel: BrainzPlayerViewModel = koinViewModel(),
+    listeningNowViewModel: ListeningNowViewModel = koinViewModel(),
     settingsCallbacks: SettingsCallbacksToHomeScreen
 ) {
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()

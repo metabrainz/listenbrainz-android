@@ -53,7 +53,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import androidx.palette.graphics.Palette
 import coil.ImageLoader
 import coil.compose.AsyncImage
@@ -75,7 +75,7 @@ fun SongViewPager(
     backdropScaffoldState: BackdropScaffoldState,
     currentlyPlayingSong: Song,
     songList: List<Song>,
-    viewModel: BrainzPlayerViewModel = hiltViewModel(),
+    viewModel: BrainzPlayerViewModel = koinViewModel(),
     isLandscape: Boolean
 ) {
     if (songList.isEmpty())

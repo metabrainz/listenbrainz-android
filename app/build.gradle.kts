@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -6,8 +7,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.ktorfit)
 }
 
 val keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -38,7 +39,7 @@ android {
         versionCode = versionCode()
         versionName = versionName()
         multiDexEnabled = true
-        testInstrumentationRunner = "org.listenbrainz.android.di.CustomTestRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -115,8 +116,8 @@ android {
         buildConfig = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.get()
+    composeCompiler {
+        version = libs.versions.compose.get()
     }
 
     compileOptions {
@@ -124,8 +125,14 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
+    }
+
+    ktorfit {
+        compilerPluginVersion.set(libs.versions.ktorfit.compiler)
     }
 
     lint {
@@ -162,11 +169,15 @@ dependencies {
     implementation(libs.androidx.room.ktx)
 
     // Networking
-    implementation(libs.gson)
-    implementation(libs.retrofit)
-    implementation(libs.okhttp)
-    implementation(libs.retrofit.converter.gson)
-    implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.kotlinx.serialization.json)
+
+    // Ktor & Ktorfit
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktorfit.lib)
 
     // Image loading and processing
     implementation(libs.glide)
@@ -192,12 +203,12 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.navigation.compose)
 
-    // Dependency Injection
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
-    ksp(libs.androidx.hilt.compiler)
-    implementation(libs.androidx.hilt.work)
-    implementation(libs.androidx.hilt.navigation.compose)
+    // Dependency Injection - Koin
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+    implementation(libs.koin.androidx.workmanager)
     implementation(libs.androidx.startup.runtime)
 
     // UI Components
@@ -255,11 +266,9 @@ dependencies {
     androidTestImplementation(libs.androidx.arch.core.testing)
     androidTestImplementation(libs.androidx.test.espresso.core)
     androidTestImplementation(libs.androidx.test.espresso.intents)
-    androidTestImplementation(libs.hilt.android)
-    androidTestImplementation(libs.hilt.android.testing)
+    androidTestImplementation(libs.koin.test)
+    androidTestImplementation(libs.koin.test.junit4)
     androidTestImplementation(project(":sharedTest"))
-
-    kspAndroidTest(libs.hilt.android.compiler)
 
     debugImplementation(libs.androidx.test.monitor)
     debugImplementation(libs.androidx.compose.ui.test.manifest)

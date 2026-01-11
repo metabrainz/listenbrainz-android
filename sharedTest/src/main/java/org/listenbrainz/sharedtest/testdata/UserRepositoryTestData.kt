@@ -1,6 +1,6 @@
 package org.listenbrainz.sharedtest.testdata
 
-import com.google.gson.Gson
+import kotlinx.serialization.json.Json
 import org.listenbrainz.android.model.CurrentPins
 import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.Payload
@@ -23,6 +23,7 @@ import org.listenbrainz.sharedtest.utils.ResourceString.topAlbums
 import org.listenbrainz.sharedtest.utils.ResourceString.topSongs
 import org.listenbrainz.sharedtest.utils.ResourceString.top_artists
 import org.listenbrainz.sharedtest.utils.ResourceString.userListeningActivity
+import org.listenbrainz.sharedtest.utils.RetrofitUtils.json
 
 object UserRepositoryTestData {
     val listenCountTestData: Listens = Listens(
@@ -52,26 +53,26 @@ object UserRepositoryTestData {
     )
 
     val currentPinsTestData: CurrentPins?
-        get() = Gson().fromJson(current_pins, CurrentPins::class.java)
+        get() = json.decodeFromString<CurrentPins>(current_pins)
 
     val allPinsTestData: AllPinnedRecordings?
-        get() = Gson().fromJson(all_pins, AllPinnedRecordings::class.java)
+        get() = json.decodeFromString<AllPinnedRecordings>(all_pins)
 
     val topArtistsTestData: TopArtists?
-        get() = Gson().fromJson(top_artists, TopArtists::class.java)
+        get() = json.decodeFromString<TopArtists>(top_artists)
 
     val lovedHatedSongsTestData: UserFeedback?
-        get() = Gson().fromJson(loved_hated_songs, UserFeedback::class.java)
+        get() = json.decodeFromString<UserFeedback>(loved_hated_songs)
 
     val listeningActivityTestData: UserListeningActivity?
-        get() = Gson().fromJson(userListeningActivity, UserListeningActivity::class.java)
+        get() = json.decodeFromString<UserListeningActivity>(userListeningActivity)
 
     val globalListeningActivityTestData: UserListeningActivity?
-        get() = Gson().fromJson(globalListeningActivity, UserListeningActivity::class.java)
+        get() = json.decodeFromString<UserListeningActivity>(globalListeningActivity)
 
     val topAlbumsTestData: TopAlbums?
-        get() = Gson().fromJson(topAlbums, TopAlbums::class.java)
+        get() = json.decodeFromString<TopAlbums>(topAlbums)
 
     val topSongsTestData: TopSongs?
-        get() = Gson().fromJson(topSongs, TopSongs::class.java)
+        get() = json.decodeFromString<TopSongs>(topSongs)
 }

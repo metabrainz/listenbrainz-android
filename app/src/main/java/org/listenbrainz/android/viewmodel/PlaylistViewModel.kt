@@ -2,7 +2,7 @@ package org.listenbrainz.android.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,12 +13,12 @@ import org.listenbrainz.android.model.Playlist
 import org.listenbrainz.android.model.Playlist.Companion.currentlyPlaying
 import org.listenbrainz.android.model.Playlist.Companion.favourite
 import org.listenbrainz.android.model.Song
-import javax.inject.Inject
 import kotlin.random.Random
 
-@HiltViewModel
-class PlaylistViewModel @Inject constructor(
-    private val playlistRepository: PlaylistRepository
+class PlaylistViewModel(
+    private val playlistRepository: PlaylistRepository,
+    private val ioDispatcher: CoroutineDispatcher,
+    private val defaultDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     val playlists = playlistRepository.getAllPlaylist()
     val playlistsCollectedFromChecklist = MutableStateFlow(mutableListOf<Playlist>())

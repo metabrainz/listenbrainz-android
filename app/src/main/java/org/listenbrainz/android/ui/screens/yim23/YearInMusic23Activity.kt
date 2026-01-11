@@ -5,11 +5,10 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModelProvider
-import dagger.hilt.android.AndroidEntryPoint
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.listenbrainz.android.ui.screens.yim23.navigation.Yim23Navigation
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
@@ -17,14 +16,13 @@ import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityVie
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModelImpl
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
 
-@AndroidEntryPoint
 class YearInMusic23Activity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        val yim23ViewModel : Yim23ViewModel by viewModels()
+        val yim23ViewModel : Yim23ViewModel by viewModel()
         val networkConnectivityViewModel: NetworkConnectivityViewModel =
             ViewModelProvider(this)[NetworkConnectivityViewModelImpl::class.java]
 

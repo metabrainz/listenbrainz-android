@@ -1,9 +1,11 @@
 package org.listenbrainz.android.model.yimdata
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Track (
-    @SerializedName("creator"    ) var creator    : String    = "",
-    @SerializedName("identifier" ) var identifier : String    = "",
-    @SerializedName("title"      ) var title      : String    = ""
+    @SerialName("creator") var creator: String = "",
+    @SerialName("identifier") var identifier: String = "",
+    @SerialName("title") var title: String = ""
 )

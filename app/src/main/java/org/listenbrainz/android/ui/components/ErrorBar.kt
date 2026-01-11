@@ -63,6 +63,6 @@ fun ErrorBar(
 @Composable
 private fun ErrorBarPreview() {
     ListenBrainzTheme {
-        ErrorBar(error = ResponseError.NETWORK_ERROR) {}
+        ErrorBar(error = ResponseError.NetworkError()) {}
     }
 }

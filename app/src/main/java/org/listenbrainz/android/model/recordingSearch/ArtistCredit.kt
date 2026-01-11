@@ -1,13 +1,14 @@
 package org.listenbrainz.android.model.recordingSearch
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class ArtistCredit(
-    @SerializedName("artist")
+    @SerialName("artist")
     val artist: RecordingArtist? = null,
-    @SerializedName("joinphrase")
+    @SerialName("joinphrase")
     val joinphrase: String? = null,
-    @SerializedName("name")
+    @SerialName("name")
     val name: String? = null
 )

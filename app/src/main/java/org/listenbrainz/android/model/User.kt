@@ -1,8 +1,10 @@
 package org.listenbrainz.android.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class User(
-    @SerializedName("user_name") val username: String,
-    @SerializedName("is_followed") val isFollowed: Boolean = false
+    @SerialName("user_name") val username: String = "",
+    @SerialName("is_followed") val isFollowed: Boolean = false
 )

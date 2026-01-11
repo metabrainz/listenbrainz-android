@@ -64,7 +64,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.gowtham.ratingbar.RatingBar
@@ -108,8 +108,8 @@ import kotlin.math.round
 @Composable
 fun ArtistScreen(
     artistMbid: String,
-    viewModel: ArtistViewModel = hiltViewModel(),
-    socialViewModel: SocialViewModel = hiltViewModel(),
+    viewModel: ArtistViewModel = koinViewModel(),
+    socialViewModel: SocialViewModel = koinViewModel(),
     goToArtistPage: (String) -> Unit,
     goToUserPage: (String) -> Unit,
     goToAlbumPage: (String) -> Unit,
@@ -630,7 +630,7 @@ private fun PopularTracks(
                         additionalInfo = null,
                         artistName = track?.artistName ?: "",
                         mbidMapping = MbidMapping(
-                            artists = track?.artists,
+                            artists = track?.artists.orEmpty(),
                             recordingMbid = track?.recordingMbid,
                             recordingName = track?.recordingName ?: "",
                             caaReleaseMbid = track?.caaReleaseMbid,

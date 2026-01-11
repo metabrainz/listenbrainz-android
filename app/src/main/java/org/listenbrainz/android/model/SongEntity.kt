@@ -2,7 +2,9 @@ package org.listenbrainz.android.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
+@Serializable
 @Entity(tableName = "SONGS")
 data class SongEntity(
     @PrimaryKey

@@ -11,7 +11,6 @@ import android.os.Looper
 import android.service.notification.StatusBarNotification
 import android.text.SpannableString
 import androidx.work.WorkManager
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.MainScope
@@ -27,19 +26,16 @@ import org.listenbrainz.android.util.ListenSessionListener.Companion.isPlaying
 import org.listenbrainz.android.util.ListenSubmissionState
 import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractTitle
 import org.listenbrainz.android.util.Log
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * The sole responsibility of this layer is to maintain mutual exclusion between [onMetadataChanged] and
  * [onNotificationPosted], filter out repetitive submissions and handle changes in settings which concern
  * listening.
  */
-@Singleton
-class ListenServiceManagerImpl @Inject constructor(
+class ListenServiceManagerImpl(
     workManager: WorkManager,
     appPreferences: AppPreferences,
-    @ApplicationContext private val context: Context
+    private val context: Context
 ) : ListenServiceManager {
     private val handler: Handler = Handler(Looper.getMainLooper())
     override val listenSubmissionState = ListenSubmissionState(handler, workManager, context)

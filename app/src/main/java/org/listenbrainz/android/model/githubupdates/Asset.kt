@@ -1,35 +1,37 @@
 package org.listenbrainz.android.model.githubupdates
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class Asset(
-    @SerializedName("browser_download_url")
+    @SerialName("browser_download_url")
     val browserDownloadUrl: String? = null,
-    @SerializedName("content_type")
+    @SerialName("content_type")
     val contentType: String? = null,
-    @SerializedName("created_at")
+    @SerialName("created_at")
     val createdAt: String? = null,
-    @SerializedName("digest")
+    @SerialName("digest")
     val digest: String? = null,
-    @SerializedName("download_count")
+    @SerialName("download_count")
     val downloadCount: Int? = null,
-    @SerializedName("id")
+    @SerialName("id")
     val id: Int? = null,
-    @SerializedName("label")
-    val label: Any? = null,
-    @SerializedName("name")
+    @SerialName("label")
+    val label: JsonElement? = null,
+    @SerialName("name")
     val name: String? = null,
-    @SerializedName("node_id")
+    @SerialName("node_id")
     val nodeId: String? = null,
-    @SerializedName("size")
+    @SerialName("size")
     val size: Int? = null,
-    @SerializedName("state")
+    @SerialName("state")
     val state: String? = null,
-    @SerializedName("updated_at")
+    @SerialName("updated_at")
     val updatedAt: String? = null,
-    @SerializedName("uploader")
+    @SerialName("uploader")
     val uploader: Uploader? = null,
-    @SerializedName("url")
+    @SerialName("url")
     val url: String? = null
 )

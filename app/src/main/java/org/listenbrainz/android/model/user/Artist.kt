@@ -1,9 +1,11 @@
 package org.listenbrainz.android.model.user
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Artist(
-    @SerializedName("artist_mbid")  val artistMbid: String? = null,
-    @SerializedName("artist_name")  val artistName: String? = null,
-    @SerializedName("listen_count") val listenCount: Int? = null,
+    @SerialName("artist_mbid") val artistMbid: String? = null,
+    @SerialName("artist_name") val artistName: String? = null,
+    @SerialName("listen_count") val listenCount: Int? = null,
 )

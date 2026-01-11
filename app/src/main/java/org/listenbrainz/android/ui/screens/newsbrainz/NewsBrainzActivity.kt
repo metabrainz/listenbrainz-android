@@ -8,24 +8,20 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.ViewModelProvider
 import com.aemerse.share.SharableItem
 import com.aemerse.share.Share
-import dagger.hilt.android.AndroidEntryPoint
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.viewmodel.NewsListViewModel
 
-@AndroidEntryPoint
 class NewsBrainzActivity : ComponentActivity() {
 
-    private lateinit var viewModel: NewsListViewModel
+    private val viewModel: NewsListViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        viewModel = ViewModelProvider(this)[NewsListViewModel::class.java]
 
         setContent {
             ListenBrainzTheme {

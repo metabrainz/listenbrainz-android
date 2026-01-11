@@ -1,9 +1,11 @@
 package org.listenbrainz.android.model.yimdata
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class TopGenre(
-    @SerializedName("genre" ) var genre     : String             = "",
-    @SerializedName("genre_count"      ) var genreCount         : Number             = 0,
-    @SerializedName("genre_count_percent"      ) var genreCountPercent      : Float   = 0f
+    @SerialName("genre") var genre: String = "",
+    @SerialName("genre_count") var genreCount: Int = 0,
+    @SerialName("genre_count_percent") var genreCountPercent: Float = 0f
 )

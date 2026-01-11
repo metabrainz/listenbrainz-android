@@ -28,7 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.ResponseError
@@ -44,7 +44,7 @@ import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 @Composable
 fun BrainzPlayerSearchScreen(
     isActive: Boolean,
-    viewModel: BrainzPlayerViewModel = hiltViewModel(),
+    viewModel: BrainzPlayerViewModel = koinViewModel(),
     deactivate: () -> Unit,
 ) {
     val context = LocalContext.current

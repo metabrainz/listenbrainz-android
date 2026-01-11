@@ -11,7 +11,6 @@ import androidx.activity.ComponentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -32,11 +31,8 @@ import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.isNewerVersion
 import java.io.File
-import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
-@HiltViewModel
-class AppUpdatesViewModel @Inject constructor(
+class AppUpdatesViewModel(
     private val appPreferences: AppPreferences,
     private val appUpdatesRepository: AppUpdatesRepository,
     application: Application

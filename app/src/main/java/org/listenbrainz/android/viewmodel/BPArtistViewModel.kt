@@ -2,7 +2,7 @@ package org.listenbrainz.android.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,14 +14,11 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.Artist
 import org.listenbrainz.android.model.Song
-import org.listenbrainz.android.repository.brainzplayer.BPArtistRepositoryImpl
-import org.listenbrainz.android.repository.preferences.AppPreferences
-import javax.inject.Inject
+import org.listenbrainz.android.repository.brainzplayer.BPArtistRepository
 
-@HiltViewModel
-class BPArtistViewModel @Inject constructor(
-    private val bpArtistRepository: BPArtistRepositoryImpl,
-    private val appPreferences: AppPreferences
+class BPArtistViewModel(
+    private val bpArtistRepository: BPArtistRepository,
+    private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     val artists = bpArtistRepository.getArtists()
     
@@ -34,16 +31,16 @@ class BPArtistViewModel @Inject constructor(
     }
     
     fun fetchArtistsFromDevice(userRequestedRefresh: Boolean = false){
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             if (userRequestedRefresh){
                 _isRefreshing.update { true }
-                appPreferences.albumsOnDevice = bpArtistRepository.addArtists(userRequestedRefresh = true)
+                bpArtistRepository.addArtists(userRequestedRefresh = true)
                 _isRefreshing.update { false }
             } else {
                 artists.collectLatest {
                     if (it.isEmpty()) {
                         _isRefreshing.update { true }
-                        appPreferences.albumsOnDevice = bpArtistRepository.addArtists()
+                        bpArtistRepository.addArtists()
                         _isRefreshing.update { false }
                     }
                 }

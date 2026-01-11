@@ -23,7 +23,7 @@ class SimilarListensPagingSource(
         
         val username = username()
         if (username.isEmpty()) {
-            val error = ResponseError.UNAUTHORISED.apply { actualResponse = "Login to access feed." }
+            val error = ResponseError.Unauthorised(actualResponse = "Login to access feed.")
             onError(error)
             return LoadResult.Error(Exception(error.toast))
         }

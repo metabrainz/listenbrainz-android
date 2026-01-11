@@ -67,7 +67,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AppNavigationItem
@@ -100,8 +100,8 @@ import org.listenbrainz.android.viewmodel.SocialViewModel
 @Composable
 fun PlaylistDetailScreen(
     playlistMBID: String,
-    playlistViewModel: PlaylistDataViewModel = hiltViewModel(),
-    socialViewModel: SocialViewModel = hiltViewModel(),
+    playlistViewModel: PlaylistDataViewModel = koinViewModel(),
+    socialViewModel: SocialViewModel = koinViewModel(),
     snackbarState: SnackbarHostState,
     topBarActions: TopBarActions,
     goToArtistPage: (String) -> Unit,

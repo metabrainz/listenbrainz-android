@@ -25,7 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.spotify.protocol.types.PlayerState
@@ -41,7 +41,7 @@ fun ListeningNowOnSpotify(
     playerState: PlayerState?,
     bitmap: ListenBitmap
 ){
-    val socialViewModel = hiltViewModel<SocialViewModel>()
+    val socialViewModel = koinViewModel<SocialViewModel>()
     Card(
         modifier = Modifier
             .fillMaxWidth()
