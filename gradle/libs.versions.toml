@@ -35,7 +35,7 @@ koinAndroidxCompose = "4.0.0"
 startup = "1.2.0"
 jsoup = "1.18.1"
 socketIo = "2.1.1"
-junit = "4.13.2"
+kotlinTest = "2.0.21"
 archCoreTesting = "2.2.0"
 mockito = "5.12.0"
 mockitoKotlin = "5.4.0"
@@ -135,12 +135,12 @@ share-android = { module = "com.github.akshaaatt:Share-Android", version.ref = "
 
 jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 socket-io = { module = "io.socket:socket.io-client", version.ref = "socketIo" }
-junit = { module = "junit:junit", version.ref = "junit" }
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlinTest" }
+kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlinTest" }
 androidx-test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "testExtJunit" }
 androidx-test-ext-junit-ktx = { module = "androidx.test.ext:junit-ktx", version.ref = "testExtJunit" }
 threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabp" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
-mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "okhttp" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version = "1.8.1" }
 androidx-arch-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "archCoreTesting" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }

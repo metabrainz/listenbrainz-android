@@ -248,15 +248,17 @@ dependencies {
     // Charts
     implementation(libs.vico.compose)
 
-    // Testing
-    testImplementation(libs.junit)
-    testImplementation(libs.mockwebserver)
+    // Testing - Kotlin Test
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.androidx.arch.core.testing)
     testImplementation(libs.mockito.core)
     testImplementation(libs.mockito.kotlin)
     testImplementation(project(":sharedTest"))
 
+    androidTestImplementation(libs.kotlin.test)
+    androidTestImplementation(libs.kotlin.test.junit)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.work.testing)
     androidTestImplementation(libs.androidx.test.runner)

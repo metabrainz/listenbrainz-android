@@ -8,6 +8,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import app.cash.turbine.test
+import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
 import org.junit.After
@@ -172,12 +173,12 @@ class DaoTest {
         albumDao.addAlbums(albumEntities)
         albumDao.getAlbumEntity(1).test {
             val album = awaitItem()
-            assert(album.albumId == (1).toLong())
+            assertTrue(album.albumId == (1).toLong())
             cancel()
         }
         albumDao.getAlbumEntities().test {
             val albumItems = awaitItem()
-            assert(albumItems.size == 10)
+            assertTrue(albumItems.size == 10)
             cancel()
         }
     }
@@ -188,14 +189,14 @@ class DaoTest {
         playlistDao.insertPlaylists(playlistEntities)
         playlistDao.getPlaylist((102).toLong()).test {
             val playlist = awaitItem()
-            assert(playlist.id == 102.toLong())
-            assert(playlist.items.isNotEmpty())
+            assertTrue(playlist.id == 102.toLong())
+            assertTrue(playlist.items.isNotEmpty())
             playlistDao.delete(playlist)
 
         }
         playlistDao.getAllPlaylist().test {
             val playlists = awaitItem()
-            assert(playlists.size == playlistSize - 1)
+            assertTrue(playlists.size == playlistSize - 1)
             val playlist = playlists[0]
             val targetPlaylistSize = playlist.items.size
             playlistDao.renamePlaylistName("newName", playlist.id)
@@ -205,8 +206,8 @@ class DaoTest {
             )
             playlistDao.getPlaylist((101).toLong()).test {
                 val thisPlaylist = awaitItem()
-                assert(thisPlaylist.title == "newName")
-                assert(thisPlaylist.items.size == targetPlaylistSize - 1)
+                assertTrue(thisPlaylist.title == "newName")
+                assertTrue(thisPlaylist.items.size == targetPlaylistSize - 1)
             }
         }
     }
@@ -216,12 +217,12 @@ class DaoTest {
         artistDao.addArtists(artistEntities)
         artistDao.getArtistEntity((111).toString()).test {
             val artist = awaitItem()
-            assert(artist.songs.isNotEmpty())
-            assert(artist.albums.isNotEmpty())
+            assertTrue(artist.songs.isNotEmpty())
+            assertTrue(artist.albums.isNotEmpty())
         }
         artistDao.getArtistEntities().test {
             val artists = awaitItem()
-            assert(artists.size == 10)
+            assertTrue(artists.size == 10)
         }
     }
 
@@ -230,11 +231,11 @@ class DaoTest {
         songDao.addSongs(songEntities)
         songDao.getSongEntity((11).toString()).test {
             val song = awaitItem()
-            assert(song.mediaID == (11).toLong())
+            assertTrue(song.mediaID == (11).toLong())
         }
         songDao.getSongEntities().test {
             val songs = awaitItem()
-            assert(songs.size == 10)
+            assertTrue(songs.size == 10)
         }
     }
 

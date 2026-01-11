@@ -58,16 +58,15 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
-    // Networking (OkHttp kept for mockwebserver)
-    implementation(libs.okhttp)
+    // Serialization
     implementation(libs.ktor.serialization.kotlinx.json)
 
-    //Spotify SDK for mocking remotePlaybackHandler
+    // Spotify SDK for mocking remotePlaybackHandler
     api(project(":spotify-app-remote"))
 
-    // Testing
-    implementation(libs.junit)
-    implementation(libs.mockwebserver)
+    // Testing - Kotlin Test
+    implementation(libs.kotlin.test)
+    implementation(libs.kotlin.test.junit)
     implementation(libs.androidx.arch.core.testing)
     implementation(libs.kotlinx.coroutines.test)
     implementation(libs.androidx.test.runner)
