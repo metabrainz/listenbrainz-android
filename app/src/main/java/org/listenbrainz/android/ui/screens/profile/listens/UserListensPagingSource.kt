@@ -25,9 +25,9 @@ class UserListensPagingSource(
 
     override suspend fun load(params: LoadParams<Long>): LoadResult<Long, Listen> {
         if (username.isNullOrEmpty()) {
-            val error = ResponseError.BAD_REQUEST.apply {
+            val error = ResponseError.BadRequest(
                 actualResponse = "Some error occurred! Username not found"
-            }
+            )
             onError(error)
             return LoadResult.Error(Exception(error.toast))
         }

@@ -55,7 +55,7 @@ class SearchViewModelTest : BaseUnitTest() {
         // User tries to follow an already followed user.
         wheneverBlocking {
             mockSocialRepository.followUser(testFamiliarUser)
-        }.doReturn(Resource.failure(error = ResponseError.BAD_REQUEST.apply { actualResponse = alreadyFollowingError }))
+        }.doReturn(Resource.failure(error = ResponseError.BadRequest(actualResponse = alreadyFollowingError)))
         
         viewModel = SearchViewModel(mockSocialRepository, testDispatcher(), testDispatcher())
     }
@@ -87,7 +87,7 @@ class SearchViewModelTest : BaseUnitTest() {
         // User tries to follow self.
         wheneverBlocking {
             mockSocialRepository.followUser(testUsername)
-        }.doReturn(Resource.failure(error = ResponseError.BAD_REQUEST.apply { actualResponse = cannotFollowSelfError }))
+        }.doReturn(Resource.failure(error = ResponseError.BadRequest(actualResponse = cannotFollowSelfError)))
         
         makeQueryAndAssert()
             .toggleFollowStatus(testUsername, this)
@@ -132,7 +132,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
     
     private fun assertErrorFlowChanged() : SearchViewModelTest {
-        assertEquals(viewModel.uiState.value.error, ResponseError.BAD_REQUEST)
+        assert(viewModel.uiState.value.error is ResponseError.BadRequest)
         return this
     }
     

@@ -14,7 +14,7 @@ class Yim23RepositoryImpl @Inject constructor(private val service: Yim23Service)
 
     override suspend fun getYimData(username: String?): Resource<Yim23Payload> {
         return parseResponse {
-            failIf(username == null) { ResponseError.AUTH_HEADER_NOT_FOUND }
+            failIf(username == null) { ResponseError.AuthHeaderNotFound() }
             service.getYimData(username!!)
         }
     }

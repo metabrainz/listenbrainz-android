@@ -1,6 +1,5 @@
 package org.listenbrainz.android.viewmodel
 
-import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.lifecycle.viewModelScope
 import com.spotify.protocol.types.PlayerState
@@ -14,7 +13,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,7 +32,6 @@ import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Resource.Status.FAILED
 import org.listenbrainz.android.util.Resource.Status.SUCCESS
-import org.listenbrainz.android.util.Utils.showToast
 import javax.inject.Inject
 
 @HiltViewModel
@@ -177,8 +174,7 @@ class ListensViewModel @Inject constructor(
             } else {
                 emitError(result.error)
                 Resource.failure(
-                    ResponseError.UNAUTHORISED
-                        .apply { actualResponse = result.data.message }
+                    ResponseError.Unauthorised(actualResponse = result.data.message)
                 )
             }
         } else {

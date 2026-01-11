@@ -66,15 +66,6 @@ import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ApiError
 import org.listenbrainz.android.model.ResponseError
-import org.listenbrainz.android.model.ResponseError.AUTH_HEADER_NOT_FOUND
-import org.listenbrainz.android.model.ResponseError.BAD_GATEWAY
-import org.listenbrainz.android.model.ResponseError.BAD_REQUEST
-import org.listenbrainz.android.model.ResponseError.DOES_NOT_EXIST
-import org.listenbrainz.android.model.ResponseError.INTERNAL_SERVER_ERROR
-import org.listenbrainz.android.model.ResponseError.RATE_LIMIT_EXCEEDED
-import org.listenbrainz.android.model.ResponseError.SERVICE_UNAVAILABLE
-import org.listenbrainz.android.model.ResponseError.UNAUTHORISED
-import org.listenbrainz.android.model.ResponseError.UNKNOWN
 import java.io.*
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
@@ -109,18 +100,17 @@ object Utils {
             return@getOrElse when (error) {
                 is ResponseException -> {
                     val code = error.response.status
+                    val actualResponse = error.response.body<ApiError>().error
                     val responseError = when (code) {
-                        HttpStatusCode.BadRequest -> BAD_REQUEST
-                        HttpStatusCode.Unauthorized -> AUTH_HEADER_NOT_FOUND
-                        HttpStatusCode.Forbidden -> UNAUTHORISED
-                        HttpStatusCode.NotFound -> DOES_NOT_EXIST
-                        HttpStatusCode.TooManyRequests -> RATE_LIMIT_EXCEEDED
-                        HttpStatusCode.InternalServerError -> INTERNAL_SERVER_ERROR
-                        HttpStatusCode.BadGateway -> BAD_GATEWAY
-                        HttpStatusCode.ServiceUnavailable -> SERVICE_UNAVAILABLE
-                        else -> UNKNOWN
-                    }.apply {
-                        actualResponse = error.response.body<ApiError>().error
+                        HttpStatusCode.BadRequest -> ResponseError.BadRequest(actualResponse)
+                        HttpStatusCode.Unauthorized -> ResponseError.AuthHeaderNotFound(actualResponse)
+                        HttpStatusCode.Forbidden -> ResponseError.Unauthorised(actualResponse)
+                        HttpStatusCode.NotFound -> ResponseError.DoesNotExist(actualResponse)
+                        HttpStatusCode.TooManyRequests -> ResponseError.RateLimitExceeded(actualResponse)
+                        HttpStatusCode.InternalServerError -> ResponseError.InternalServerError(actualResponse)
+                        HttpStatusCode.BadGateway -> ResponseError.BadGateway(actualResponse)
+                        HttpStatusCode.ServiceUnavailable -> ResponseError.ServiceUnavailable(actualResponse)
+                        else -> ResponseError.Unknown(actualResponse)
                     }
 
                     Resource.failure(responseError)
@@ -133,9 +123,9 @@ object Utils {
     fun <T> logAndReturn(it: Throwable) : Resource<T> {
         it.printStackTrace()
         return when (it){
-            is FileNotFoundException -> Resource.failure(error = ResponseError.FILE_NOT_FOUND)
-            is IOException -> Resource.failure(error = ResponseError.NETWORK_ERROR)
-            else -> Resource.failure(error = ResponseError.UNKNOWN)
+            is FileNotFoundException -> Resource.failure(error = ResponseError.FileNotFound())
+            is IOException -> Resource.failure(error = ResponseError.NetworkError())
+            else -> Resource.failure(error = ResponseError.Unknown())
         }
     }
     

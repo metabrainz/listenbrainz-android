@@ -21,7 +21,7 @@ class FeedRepositoryImpl @Inject constructor(
         count: Int
     ): Resource<FeedData> = parseResponse {
         failIf(username.isNullOrEmpty()) {
-            ResponseError.AUTH_HEADER_NOT_FOUND
+            ResponseError.AuthHeaderNotFound()
         }
 
         service.getFeedEvents(
@@ -40,7 +40,7 @@ class FeedRepositoryImpl @Inject constructor(
         count: Int
     ): Resource<FeedData> = parseResponse {
         failIf(username.isNullOrEmpty()) {
-            ResponseError.AUTH_HEADER_NOT_FOUND
+            ResponseError.AuthHeaderNotFound()
         }
 
         service.getFeedFollowListens(
@@ -59,7 +59,7 @@ class FeedRepositoryImpl @Inject constructor(
         count: Int
     ): Resource<FeedData> = parseResponse {
         failIf(username.isNullOrEmpty()) {
-            ResponseError.AUTH_HEADER_NOT_FOUND
+            ResponseError.AuthHeaderNotFound()
         }
 
         service.getFeedSimilarListens(
@@ -76,7 +76,7 @@ class FeedRepositoryImpl @Inject constructor(
         data: FeedEventDeletionData
     ): Resource<SocialResponse> = parseResponse {
         failIf(username.isNullOrEmpty()) {
-            ResponseError.AUTH_HEADER_NOT_FOUND
+            ResponseError.AuthHeaderNotFound()
         }
 
         service.deleteEvent(
@@ -90,7 +90,7 @@ class FeedRepositoryImpl @Inject constructor(
         data: FeedEventVisibilityData
     ): Resource<SocialResponse> = parseResponse {
         failIf(username.isNullOrEmpty()) {
-            ResponseError.AUTH_HEADER_NOT_FOUND
+            ResponseError.AuthHeaderNotFound()
         }
 
         service.hideEvent(
@@ -103,7 +103,7 @@ class FeedRepositoryImpl @Inject constructor(
         data: FeedEventVisibilityData
     ): Resource<SocialResponse> = parseResponse {
         failIf(username.isNullOrEmpty()) {
-            ResponseError.AUTH_HEADER_NOT_FOUND
+            ResponseError.AuthHeaderNotFound()
         }
 
         service.unhideEvent(

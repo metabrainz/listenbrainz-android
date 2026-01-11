@@ -22,7 +22,7 @@ class SocialRepositoryImpl @Inject constructor(
 
     /** @return Network Failure, User DNE, Success.*/
     override suspend fun getFollowers(username: String?) : Resource<SocialData> = parseResponse {
-        failIf(username == null) { ResponseError.AUTH_HEADER_NOT_FOUND }
+        failIf(username == null) { ResponseError.AuthHeaderNotFound() }
         service.getFollowersData(username = username!!)
     }
     
@@ -54,9 +54,9 @@ class SocialRepositoryImpl @Inject constructor(
     }
     
     override suspend fun postPersonalRecommendation(username: String?, data: RecommendationData): Resource<FeedEvent> = parseResponse {
-        failIf(username.isNullOrEmpty()) { ResponseError.AUTH_HEADER_NOT_FOUND }
+        failIf(username.isNullOrEmpty()) { ResponseError.AuthHeaderNotFound() }
         failIf(data.metadata.recordingMbid == null && data.metadata.recordingMsid == null) {
-            ResponseError.BAD_REQUEST.apply { actualResponse = "Cannot recommend this track." }
+            ResponseError.BadRequest(actualResponse = "Cannot recommend this track.")
         }
         
         service.postPersonalRecommendation(
@@ -66,9 +66,9 @@ class SocialRepositoryImpl @Inject constructor(
     }
     
     override suspend fun postRecommendationToAll(username: String?, data: RecommendationData): Resource<FeedEvent> = parseResponse {
-        failIf(username.isNullOrEmpty()) { ResponseError.AUTH_HEADER_NOT_FOUND }
+        failIf(username.isNullOrEmpty()) { ResponseError.AuthHeaderNotFound() }
         failIf(data.metadata.recordingMbid == null && data.metadata.recordingMsid == null) {
-            ResponseError.BAD_REQUEST.apply { actualResponse = "Cannot recommend this track." }
+            ResponseError.BadRequest(actualResponse = "Cannot recommend this track.")
         }
         
         service.postRecommendationToAll(
@@ -78,11 +78,11 @@ class SocialRepositoryImpl @Inject constructor(
     }
     
     override suspend fun postReview(username: String?, data: Review): Resource<FeedEvent> = parseResponse {
-        failIf(username.isNullOrEmpty()) { ResponseError.AUTH_HEADER_NOT_FOUND }
+        failIf(username.isNullOrEmpty()) { ResponseError.AuthHeaderNotFound() }
         failIf(data.metadata?.text.orEmpty().length < 25) {
-            ResponseError.BAD_REQUEST.apply { actualResponse = "Review is too short. Please write a review longer than 25 letters." }
+            ResponseError.BadRequest(actualResponse = "Review is too short. Please write a review longer than 25 letters.")
         }
-        failIf(data.metadata?.rating != null && data.metadata.rating !in 1..5) { ResponseError.BAD_REQUEST }
+        failIf(data.metadata?.rating != null && data.metadata.rating !in 1..5) { ResponseError.BadRequest() }
         
         service.postReview(
             username = username!!,
@@ -97,7 +97,7 @@ class SocialRepositoryImpl @Inject constructor(
         pinnedUntil: Int
     ): Resource<PinData> = parseResponse {
         failIf(recordingMsid == null && recordingMbid == null) {
-            ResponseError.BAD_REQUEST.apply { actualResponse = "Cannot pin this particular recording." }
+            ResponseError.BadRequest(actualResponse = "Cannot pin this particular recording.")
         }
         
         service.postPin(

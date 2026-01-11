@@ -22,7 +22,7 @@ abstract class FollowUnfollowModel<UiState>(
     ) {
         /** Determines if user is followed or not.*/
         fun userIsAlreadyFollowed(error: ResponseError?): Boolean {
-            return error == ResponseError.BAD_REQUEST &&
+            return error is ResponseError.BadRequest &&
                     error.actualResponse?.contains("already following") == true
         }
         

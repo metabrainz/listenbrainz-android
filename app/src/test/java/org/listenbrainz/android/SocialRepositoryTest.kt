@@ -188,7 +188,7 @@ class SocialRepositoryTest {
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null, data?.following)
         assertEquals(null, data?.user)
-        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
+        assert(result.error is ResponseError.DoesNotExist)
     }
     
     /* getFollowers() tests */
@@ -211,7 +211,7 @@ class SocialRepositoryTest {
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null, data?.followers)
         assertEquals(null, data?.user)
-        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
+        assert(result.error is ResponseError.DoesNotExist)
         assertEquals(userNotFoundError, result.error?.actualResponse)
     }
     
@@ -232,7 +232,7 @@ class SocialRepositoryTest {
         
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
+        assert(result.error is ResponseError.DoesNotExist)
         assertEquals(userNotFoundError, result.error?.actualResponse)
         
         // Cannot follow self
@@ -240,14 +240,14 @@ class SocialRepositoryTest {
         
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(ResponseError.BAD_REQUEST, result.error)
+        assert(result.error is ResponseError.BadRequest)
         assertEquals(cannotFollowSelfError, result.error?.actualResponse)
         
         // Already following
         result = repository.followUser(testFamiliarUser)
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(ResponseError.BAD_REQUEST, result.error)
+        assert(result.error is ResponseError.BadRequest)
         assertEquals(alreadyFollowingError, result.error?.actualResponse)
     }
     
@@ -268,7 +268,7 @@ class SocialRepositoryTest {
         
         assertEquals(Resource.Status.FAILED, result.status)
         assertEquals(null ,result.data?.status)
-        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
+        assert(result.error is ResponseError.DoesNotExist)
         assertEquals(userNotFoundError, result.error?.actualResponse)
         
         // NOTE: Server does not send error response for when a user tries to unfollow themselves.
@@ -296,7 +296,7 @@ class SocialRepositoryTest {
         val result = repository.getSimilarUsers(testUserDNE)
     
         assertEquals(Resource.Status.FAILED, result.status)
-        assertEquals(ResponseError.DOES_NOT_EXIST, result.error)
+        assert(result.error is ResponseError.DoesNotExist)
         assertEquals(null, result.data?.payload)
         assertEquals(userNotFoundError, result.error?.actualResponse)
     }

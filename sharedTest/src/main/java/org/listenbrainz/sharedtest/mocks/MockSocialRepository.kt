@@ -18,7 +18,7 @@ import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.testSimilar
 class MockSocialRepository : SocialRepository {
     override suspend fun getFollowers(username: String?): Resource<SocialData> {
         return if(username.isNullOrEmpty()){
-            ResponseError.DOES_NOT_EXIST.asResource()
+            ResponseError.DoesNotExist().asResource()
         }
         else{
             Resource(Resource.Status.SUCCESS, testFollowersSuccessData)

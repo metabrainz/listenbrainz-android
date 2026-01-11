@@ -238,7 +238,7 @@ class PlaylistDataViewModel @Inject constructor(
             when (result.status) {
                 Resource.Status.SUCCESS -> {
                     if (mbid == null) return@launch
-                    if (playlist == null) onError(ResponseError.UNKNOWN)
+                    if (playlist == null) onError(ResponseError.Unknown())
                     playlistData.emit(playlistData.value + (mbid to playlist!!))
                     onSuccess(playlist)
                 }
@@ -396,9 +396,9 @@ class PlaylistDataViewModel @Inject constructor(
         viewModelScope.launch {
             //Check whether recording is already added
             if (playlistScreenUIStateFlow.value.playlistData?.track?.any { it.getRecordingMBID() == recordingData.id } == true) {
-                emitError(ResponseError.BAD_REQUEST.apply {
+                emitError(ResponseError.BadRequest(
                     actualResponse = "Recording already added to the playlist"
-                })
+                ))
                 return@launch
             }
 
@@ -421,9 +421,9 @@ class PlaylistDataViewModel @Inject constructor(
                 Resource.Status.SUCCESS -> {
                     //Updating the playlist data in the UI
                     if (result.data?.status != "ok") {
-                        emitError(ResponseError.UNKNOWN.apply {
+                        emitError(ResponseError.Unknown(
                             actualResponse = "Some error occurred while adding the track"
-                        })
+                        ))
                     } else {
                         //Refresh screen (to fetch cover art)
                         emitMsg(R.string.track_added_successfully)
@@ -490,9 +490,9 @@ class PlaylistDataViewModel @Inject constructor(
             when (result.status) {
                 Resource.Status.SUCCESS -> {
                     if (result.data?.status != "ok") {
-                        emitError(ResponseError.UNKNOWN.apply {
+                        emitError(ResponseError.Unknown(
                             actualResponse = "Some error occurred while moving the track"
-                        })
+                        ))
                         refreshPlaylistScreen()
                     } else {
                         emitMsg(R.string.track_moved_successfully)
@@ -527,9 +527,9 @@ class PlaylistDataViewModel @Inject constructor(
             when (result.status) {
                 Resource.Status.SUCCESS -> {
                     if (result.data?.status != "ok") {
-                        emitError(ResponseError.UNKNOWN.apply {
+                        emitError(ResponseError.Unknown(
                             actualResponse = "Some error occurred while deleting the track"
-                        })
+                        ))
                         refreshPlaylistScreen()
                     } else {
                         emitMsg(R.string.track_removed_from_playlist_successfully)
@@ -663,9 +663,9 @@ class PlaylistDataViewModel @Inject constructor(
             when (result.status) {
                 Resource.Status.SUCCESS -> {
                     if (result.data?.status != "ok") {
-                        emitError(ResponseError.UNKNOWN.apply {
+                        emitError(ResponseError.Unknown(
                             actualResponse = "Some error occurred while adding the track"
-                        })
+                        ))
                     } else {
                         emitMsg(R.string.track_added_successfully)
                         onSuccess()

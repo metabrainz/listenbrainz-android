@@ -20,23 +20,23 @@ class UserRepositoryImpl @Inject constructor(
     private val service: UserService
 ) : UserRepository {
     override suspend fun fetchUserListenCount(username: String?): Resource<Listens?> = parseResponse {
-        failIf(username.isNullOrEmpty()) { ResponseError.DOES_NOT_EXIST }
+        failIf(username.isNullOrEmpty()) { ResponseError.DoesNotExist() }
         service.getListenCount(username)
     }
 
 
     override suspend fun fetchUserSimilarity(username: String?, otherUserName: String?): Resource<UserSimilarityPayload?> = parseResponse {
-        failIf(username.isNullOrEmpty() || otherUserName.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+        failIf(username.isNullOrEmpty() || otherUserName.isNullOrEmpty()) { ResponseError.BadRequest() }
         service.getUserSimilarity(username, otherUserName)
     }
 
     override suspend fun fetchUserCurrentPins(username: String?): Resource<CurrentPins?> = parseResponse {
-        failIf(username.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+        failIf(username.isNullOrEmpty()) { ResponseError.BadRequest() }
         service.getUserCurrentPins(username)
     }
 
     override suspend fun fetchUserPins(username: String?): Resource<AllPinnedRecordings?> = parseResponse {
-        failIf(username.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+        failIf(username.isNullOrEmpty()) { ResponseError.BadRequest() }
         service.getUserPins(username)
     }
 
@@ -45,12 +45,12 @@ class UserRepositoryImpl @Inject constructor(
         rangeString: String,
         count: Int
     ): Resource<TopArtists> = parseResponse {
-        failIf(username.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+        failIf(username.isNullOrEmpty()) { ResponseError.BadRequest() }
         service.getTopArtistsOfUser(username, rangeString, count)
     }
 
     override suspend fun getUserFeedback(username: String?, score: Int?): Resource<UserFeedback?> = parseResponse {
-        failIf(username.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+        failIf(username.isNullOrEmpty()) { ResponseError.BadRequest() }
         service.getUserFeedback(username, score)
     }
 
@@ -58,7 +58,7 @@ class UserRepositoryImpl @Inject constructor(
         username: String?,
         rangeString: String
     ): Resource<UserListeningActivity?> = parseResponse {
-        failIf(username.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+        failIf(username.isNullOrEmpty()) { ResponseError.BadRequest() }
         service.getUserListeningActivity(username, rangeString)
     }
 
@@ -71,18 +71,18 @@ class UserRepositoryImpl @Inject constructor(
         rangeString: String,
         count: Int
     ): Resource<TopAlbums> = parseResponse {
-        failIf(username.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+        failIf(username.isNullOrEmpty()) { ResponseError.BadRequest() }
         service.getTopAlbumsOfUser(username, rangeString)
     }
 
     override suspend fun getTopSongs(username: String?, rangeString: String): Resource<TopSongs> = parseResponse {
-        failIf(username.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+        failIf(username.isNullOrEmpty()) { ResponseError.BadRequest() }
         service.getTopSongsOfUser(username, rangeString)
     }
 
     override suspend fun getCreatedForYouPlaylists(username: String?): Resource<UserPlaylistPayload> {
         return parseResponse {
-            failIf(username.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+            failIf(username.isNullOrEmpty()) { ResponseError.BadRequest() }
             service.getCreatedForYouPlaylists(username)
         }
     }

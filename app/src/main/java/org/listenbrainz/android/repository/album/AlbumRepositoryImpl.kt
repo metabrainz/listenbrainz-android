@@ -17,17 +17,17 @@ class AlbumRepositoryImpl @Inject constructor(
     private val mbService: MBService
 ) : AlbumRepository {
     override suspend fun fetchAlbumInfo(albumMbid: String?): Resource<AlbumInfo?> = parseResponse {
-        failIf(albumMbid.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+        failIf(albumMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
         mbService.getAlbumInfo(albumMbid)
     }
 
     override suspend fun fetchAlbum(albumMbid: String?): Resource<Album?> = parseResponse {
-        failIf(albumMbid.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+        failIf(albumMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
         service.getAlbumData(albumMbid)
     }
     
     override suspend fun fetchAlbumReviews(albumMbid: String?): Resource<CBReview?> = parseResponse {
-        failIf(albumMbid.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+        failIf(albumMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
         cbService.getArtistReviews(albumMbid, entityType = "release_group")
     }
 }

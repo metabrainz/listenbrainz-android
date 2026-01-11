@@ -142,7 +142,7 @@ private fun SearchScreenPreview() {
                     ),
                     listOf(false, true, true)
                 ),
-                error = ResponseError.DOES_NOT_EXIST
+                error = ResponseError.DoesNotExist()
             )
         }
 

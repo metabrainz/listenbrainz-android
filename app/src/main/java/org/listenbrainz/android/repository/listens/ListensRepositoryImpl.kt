@@ -25,7 +25,7 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
         maxTs: Long?,
         minTs: Long?
     ): Resource<Listens> = parseResponse {
-        failIf(username.isNullOrEmpty()) { ResponseError.AUTH_HEADER_NOT_FOUND }
+        failIf(username.isNullOrEmpty()) { ResponseError.AuthHeaderNotFound() }
 
         service.getUserListens(
             username = username,
@@ -77,13 +77,13 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
     }
     
     override suspend fun getLinkedServices(token: String?, username: String?): Resource<ListenBrainzExternalServices> = parseResponse {
-        failIf(token.isNullOrEmpty() || username.isNullOrEmpty()) { ResponseError.AUTH_HEADER_NOT_FOUND }
+        failIf(token.isNullOrEmpty() || username.isNullOrEmpty()) { ResponseError.AuthHeaderNotFound() }
         
         service.getServicesLinkedToAccount(username = username)
     }
 
     override suspend fun getNowPlaying(username: String?): Resource<Listens> = parseResponse {
-        failIf(username.isNullOrEmpty()) { ResponseError.AUTH_HEADER_NOT_FOUND }
+        failIf(username.isNullOrEmpty()) { ResponseError.AuthHeaderNotFound() }
 
         service.getNowPlaying(username = username)
     }

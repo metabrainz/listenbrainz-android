@@ -17,17 +17,17 @@ class ArtistRepositoryImpl @Inject constructor(
     private val cbService: CBService,
 ) : ArtistRepository {
     override suspend fun fetchArtistData(artistMbid: String?): Resource<ArtistPayload?> = parseResponse {
-        failIf(artistMbid.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+        failIf(artistMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
         service.getArtistData(artistMbid)
     }
 
     override suspend fun fetchArtistWikiExtract(artistMbid: String?): Resource<ArtistWikiExtract?> = parseResponse {
-        failIf(artistMbid.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+        failIf(artistMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
         mbService.getArtistWikiExtract(artistMbid)
     }
 
     override suspend fun fetchArtistReviews(artistMbid: String?): Resource<CBReview?> = parseResponse {
-        failIf(artistMbid.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+        failIf(artistMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
         cbService.getArtistReviews(artistMbid)
     }
 }

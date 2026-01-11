@@ -287,9 +287,9 @@ class ListenBrainzWebClient(
         super.onPageFinished(view, url)
 
         if (url == null) {
-            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+            callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                 actualResponse = "URL is null, cannot proceed with login"
-            }))
+            )))
             return
         }
         if(view != null) {
@@ -342,9 +342,9 @@ class ListenBrainzWebClient(
                     Logger.e(TAG, "Login failed: $errorMsg")
                     isLoginFailed = true
 
-                    callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                    callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                         actualResponse = errorMsg
-                    }))
+                    )))
                 }
             }
         }
@@ -404,9 +404,9 @@ class ListenBrainzWebClient(
     private fun extractToken(view: WebView?) {
         if (view == null) {
             Logger.e(TAG, "WebView is null, cannot extract token")
-            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+            callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                 actualResponse = "WebView is not available"
-            }))
+            )))
             return
         }
 
@@ -414,9 +414,9 @@ class ListenBrainzWebClient(
             view.evaluateJavascript(SCRIPT_EXTRACT_TOKEN) { value ->
                 if (value == null) {
                     Logger.e(TAG, "Auth token extraction returned null")
-                    callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                    callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                         actualResponse = "Could not retrieve authentication token"
-                    }))
+                    )))
                     return@evaluateJavascript
                 }
 
@@ -426,25 +426,25 @@ class ListenBrainzWebClient(
                     callbacks.onLoad(Resource.success(token))
                 } else {
                     Logger.e(TAG, "Auth token not found or invalid: $token")
-                    callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                    callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                         actualResponse = "Could not retrieve authentication token. Please ensure you're logged in."
-                    }))
+                    )))
                 }
             }
         } catch (e: Exception) {
             Logger.e(TAG, "Exception while extracting token: ${e.message}")
-            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+            callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                 actualResponse = "Failed to extract token: ${e.message}"
-            }))
+            )))
         }
     }
 
     fun submitLoginForm(username: String, password: String) {
         // Validate inputs
         if (username.isEmpty() || password.isEmpty()) {
-            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+            callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                 actualResponse = "Username and password cannot be empty"
-            }))
+            )))
             return
         }
 
@@ -452,9 +452,9 @@ class ListenBrainzWebClient(
         val currentWebView = webView
         if (currentWebView == null) {
             Logger.e(TAG, "WebView is null, cannot submit login form")
-            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+            callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                 actualResponse = "Login form is not ready. Please try again."
-            }))
+            )))
             return
         }
 
@@ -466,18 +466,18 @@ class ListenBrainzWebClient(
                     if (result != "\"Login submitted\"") {
                         val errorMsg = result?.replace("\"", "")?.trim() ?: "Unknown error during form submission"
                         Logger.e(TAG, "Error submitting login form: $errorMsg")
-                        callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
-                            actualResponse = errorMsg
-                        }))
+                        callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
+                        actualResponse = errorMsg
+                    )))
                     } else {
                         Logger.d(TAG, "Login form submitted successfully")
                     }
                 }
             } catch (e: Exception) {
                 Logger.e(TAG, "Exception while submitting login form: ${e.message}")
-                callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                     actualResponse = "Failed to submit login form: ${e.message}"
-                }))
+                )))
             }
         }
     }
@@ -525,9 +525,9 @@ class ListenBrainzWebClient(
     private fun checkForEmailVerificationError(view: WebView?, noErrorLambda: () -> Unit) {
         if (view == null) {
             Logger.e(TAG, "WebView is null, cannot check for email verification error")
-            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+            callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                 actualResponse = "WebView is not available"
-            }))
+            )))
             return
         }
 
@@ -539,9 +539,9 @@ class ListenBrainzWebClient(
                         if (errorMsg.contains("verify the email before proceeding"))
                             errorMsg = "Email is not verified or already in use. Please check your inbox."
                         Logger.e(TAG, "Error in logging in: $errorMsg")
-                        callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
-                            actualResponse = errorMsg
-                        }))
+                        callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
+                        actualResponse = errorMsg
+                    )))
                     } else {
                         noErrorLambda()
                     }

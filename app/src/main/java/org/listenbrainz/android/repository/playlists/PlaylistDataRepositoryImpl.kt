@@ -32,7 +32,7 @@ class PlaylistDataRepositoryImpl @Inject constructor(
     override suspend fun fetchPlaylist(playlistMbid: String?): Resource<PlaylistPayload?> =
         withContext(ioDispatcher) {
             parseResponse {
-                failIf(playlistMbid.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+                failIf(playlistMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
                 playlistService.getPlaylist(playlistMbid!!)
             }
         }
@@ -41,7 +41,7 @@ class PlaylistDataRepositoryImpl @Inject constructor(
     override suspend fun copyPlaylist(playlistMbid: String?): Resource<AddCopyPlaylistResponse?> =
         withContext(ioDispatcher) {
             parseResponse {
-                failIf(playlistMbid.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+                failIf(playlistMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
                 playlistService.copyPlaylist(playlistMbid!!)
             }
         }
@@ -49,7 +49,7 @@ class PlaylistDataRepositoryImpl @Inject constructor(
     override suspend fun deletePlaylist(playlistMbid: String?): Resource<Unit> =
         withContext(ioDispatcher) {
             parseResponse {
-                failIf(playlistMbid.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+                failIf(playlistMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
                 playlistService.deletePlaylist(playlistMbid!!)
             }
         }
@@ -78,7 +78,7 @@ class PlaylistDataRepositoryImpl @Inject constructor(
     override suspend fun addPlaylist(playlistPayload: PlaylistPayload): Resource<AddCopyPlaylistResponse?> =
         withContext(ioDispatcher) {
             parseResponse {
-                failIf(playlistPayload.playlist.title.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+                failIf(playlistPayload.playlist.title.isNullOrEmpty()) { ResponseError.BadRequest() }
                 playlistService.createPlaylist(playlistPayload)
             }
         }
@@ -90,7 +90,7 @@ class PlaylistDataRepositoryImpl @Inject constructor(
     ): Resource<EditPlaylistResponse?> =
         withContext(ioDispatcher) {
             parseResponse {
-                failIf(playlistMbid.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+                failIf(playlistMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
                 playlistService.editPlaylist(playlistPayload, playlistMbid!!)
             }
         }
@@ -106,7 +106,7 @@ class PlaylistDataRepositoryImpl @Inject constructor(
                 else if (!searchQuery.isNullOrEmpty())
                     mbService.searchRecording(searchQuery)
                 else
-                    throw org.listenbrainz.android.util.Utils.PreEmptiveBadRequestException(ResponseError.BAD_REQUEST)
+                    throw org.listenbrainz.android.util.Utils.PreEmptiveBadRequestException(ResponseError.BadRequest())
             }
         }
 
@@ -117,7 +117,7 @@ class PlaylistDataRepositoryImpl @Inject constructor(
     ): Resource<EditPlaylistResponse?> =
         withContext(ioDispatcher) {
             parseResponse {
-                failIf(playlistMbid.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+                failIf(playlistMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
                 playlistService.moveTrack(playlistMbid!!, moveTrack)
             }
         }
@@ -128,7 +128,7 @@ class PlaylistDataRepositoryImpl @Inject constructor(
     ): Resource<EditPlaylistResponse?> =
         withContext(ioDispatcher) {
             parseResponse {
-                failIf(playlistTracks.isEmpty() || playlistMbid.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+                failIf(playlistTracks.isEmpty() || playlistMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
                 playlistService.addTracks(
                     playlistMbid!!,
                     PlaylistPayload(PlaylistData(track = playlistTracks))
@@ -142,21 +142,21 @@ class PlaylistDataRepositoryImpl @Inject constructor(
     ): Resource<EditPlaylistResponse?> =
         withContext(ioDispatcher) {
             parseResponse {
-                failIf(playlistMbid.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+                failIf(playlistMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
                 playlistService.deleteTracks(playlistMbid!!, deleteTracks)
             }
         }
 
     override suspend fun getUserPlaylists(username: String?, offset: Int, count: Int): Resource<UserPlaylistPayload> {
         return parseResponse {
-            failIf(username.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+            failIf(username.isNullOrEmpty()) { ResponseError.BadRequest() }
             userService.getUserPlaylists(username, offset, count)
         }
     }
 
     override suspend fun getUserCollabPlaylists(username: String?, offset: Int, count: Int): Resource<UserPlaylistPayload> {
         return parseResponse {
-            failIf(username.isNullOrEmpty()) { ResponseError.BAD_REQUEST }
+            failIf(username.isNullOrEmpty()) { ResponseError.BadRequest() }
             userService.getUserCollabPlaylists(username, offset, count)
         }
     }

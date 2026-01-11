@@ -1,7 +1,6 @@
 package org.listenbrainz.android.viewmodel
 
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -126,7 +125,7 @@ class SocialViewModel @Inject constructor(
                     withContext(ioDispatcher) {
                         searchYoutubeMusicVideoId(
                             trackMetadata.trackName
-                                ?: return@withContext Resource.failure(ResponseError.DOES_NOT_EXIST),
+                                ?: return@withContext Resource.failure(ResponseError.DoesNotExist()),
                             trackMetadata.artistName.orEmpty()
                         )
                     }
