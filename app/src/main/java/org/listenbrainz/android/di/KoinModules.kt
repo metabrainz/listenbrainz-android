@@ -131,6 +131,7 @@ import org.listenbrainz.android.viewmodel.FeaturesViewModel
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.ListeningNowViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
+import org.listenbrainz.android.viewmodel.LoginViewModel
 import org.listenbrainz.android.viewmodel.NewsListViewModel
 import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
@@ -549,6 +550,7 @@ val viewModelModule = module {
     viewModel { SettingsViewModel(get()) }
     viewModel { FeaturesViewModel(get()) }
     viewModel { AboutViewModel() }
+    viewModel { LoginViewModel() }
 }
 
 val appModules = listOf(
