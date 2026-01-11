@@ -71,6 +71,9 @@
     <string name="loading">Loading...</string>
     <string name="noresult">No Result Found</string>
 
+    <!-- Navigation -->
+    <string name="nav_reorder_hint">Drag icons to rearrange</string>
+
     <!-- Preferences -->
     <string name="preferences_title">Settings</string>
     <string name="settings_search">Search</string>

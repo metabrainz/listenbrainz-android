@@ -1,10 +1,10 @@
 package org.listenbrainz.android.repository.preferences
 
 import kotlinx.coroutines.flow.Flow
+import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.InstallSource
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode
-import org.listenbrainz.android.ui.navigation.BottomNavItem
 import org.listenbrainz.android.util.LinkedService
 
 interface AppPreferences {
@@ -74,5 +74,5 @@ interface AppPreferences {
 
     val downloadId: DataStorePreference<Long>
 
-    val navBarOrder: DataStorePreference<List<BottomNavItem>>
+    val navBarOrder: DataStorePreference<List<AppNavigationItem>>
 }

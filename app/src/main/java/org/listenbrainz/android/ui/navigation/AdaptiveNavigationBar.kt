@@ -52,7 +52,7 @@ import org.listenbrainz.android.viewmodel.ListeningNowUIState
 @Composable
 fun AdaptiveNavigationBar(
     modifier: Modifier = Modifier,
-    items: List<BottomNavItem>?,
+    items: List<AppNavigationItem>?,
     navController: NavController = rememberNavController(),
     backgroundColor: Color = ListenBrainzTheme.colorScheme.nav,
     contentColor: Color? = null,
@@ -138,11 +138,11 @@ fun AdaptiveNavigationBar(
         items?.forEach { item ->
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
-            val selected = currentDestination?.route?.startsWith("${item.appNav.route}/") == true ||
-                    currentDestination?.route == item.appNav.route
+            val selected = currentDestination?.route?.startsWith("${item.route}/") == true ||
+                    currentDestination?.route == item.route
 
             NavigationContent(
-                item = item.appNav,
+                item = item,
                 selected = selected,
                 scope = scope,
                 isLandscape = isLandscape,
@@ -165,7 +165,7 @@ fun AdaptiveNavigationBar(
                         searchBarState.deactivate()
                     }
 
-                    when (item.appNav.route) {
+                    when (item.route) {
                         AppNavigationItem.Profile.route -> {
                             val profileRoute = AppNavigationItem.Profile.route +
                                     if (!username.isNullOrBlank()) "/${username}" else ""
@@ -184,7 +184,7 @@ fun AdaptiveNavigationBar(
                             }
                         }
 
-                        else -> navController.navigate(item.appNav.route) {
+                        else -> navController.navigate(item.route) {
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }
@@ -251,6 +251,6 @@ fun AdaptiveNavigationBarPreview() {
         listeningNowUIState = ListeningNowUIState(),
         songList = emptyList(),
         searchBarState = rememberSearchBarState(),
-        items = BottomNavItem.entries
+        items = BottomNavDefaults.items()
     )
 }

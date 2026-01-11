@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.InstallSource
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode
@@ -31,7 +32,7 @@ import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Compan
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.LISTENING_WHITELIST
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.SHOULD_LISTEN_NEW_PLAYERS
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.THEME
-import org.listenbrainz.android.ui.navigation.BottomNavItem
+import org.listenbrainz.android.ui.navigation.BottomNavDefaults
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Constants.ONBOARDING
 import org.listenbrainz.android.util.Constants.Strings.CURRENT_PLAYABLE
@@ -514,33 +515,33 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
             }
         }
 
-    override val navBarOrder: DataStorePreference<List<BottomNavItem>>
-        get() = object : DataStorePreference<List<BottomNavItem>> {
-            override fun getFlow(): Flow<List<BottomNavItem>> {
+    override val navBarOrder: DataStorePreference<List<AppNavigationItem>>
+        get() = object : DataStorePreference<List<AppNavigationItem>> {
+            override fun getFlow(): Flow<List<AppNavigationItem>> {
                 return datastore.map { prefs ->
                     try {
                         val stored = prefs[PreferenceKeys.BOTTOM_NAV_ORDER] ?: ""
                         if (stored.isBlank()) {
-                            BottomNavItem.entries
+                            BottomNavDefaults.items()
                         } else {
                             val parsed = stored.split(",")
-                                .mapNotNull { id ->
-                                    BottomNavItem.entries.firstOrNull { it.navId == id }
+                                .mapNotNull { route ->
+                                    BottomNavDefaults.items().firstOrNull { it.route == route }
                                 }
                             parsed.ifEmpty {
-                                BottomNavItem.entries
+                                BottomNavDefaults.items()
                             }
                         }
                     } catch (e: Exception) {
-                        BottomNavItem.entries
+                        BottomNavDefaults.items()
                     }
                 }
             }
 
-            override suspend fun set(value: List<BottomNavItem>) {
+            override suspend fun set(value: List<AppNavigationItem>) {
                 context.dataStore.edit { prefs ->
                     prefs[PreferenceKeys.BOTTOM_NAV_ORDER] =
-                        value.joinToString(",") { it.navId }
+                        value.joinToString(",") { it.route }
                 }
             }
 

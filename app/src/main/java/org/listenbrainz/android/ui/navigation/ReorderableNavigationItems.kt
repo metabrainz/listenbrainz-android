@@ -26,34 +26,35 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
-import org.listenbrainz.android.ui.navigation.BottomNavItem
+import org.listenbrainz.android.model.AppNavigationItem
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.ReorderableLazyListState
 
 
-val navIcon: @Composable (BottomNavItem) -> Unit = { item ->
+@Composable
+fun NavIcon(item: AppNavigationItem) {
     Icon(
-        painter = painterResource(
-            id = item.appNav.iconUnselected
-        ),
+        painter = painterResource(item.iconUnselected),
         modifier = Modifier
             .size(24.dp)
             .padding(vertical = 4.dp),
-        contentDescription = item.appNav.title,
+        contentDescription = item.title,
         tint = MaterialTheme.colorScheme.onSurface
     )
 }
-val navLabel: @Composable (BottomNavItem) -> Unit = { item ->
+
+@Composable
+fun NavLabel(item: AppNavigationItem) {
     Text(
-        text = item.appNav.title,
+        text = item.title,
         color = MaterialTheme.colorScheme.onSurface,
-        fontSize = 14.sp
+        fontSize = 12.sp
     )
 }
 
 @Composable
 fun ReorderableNavRail(
-    items: SnapshotStateList<BottomNavItem>,
+    items: SnapshotStateList<AppNavigationItem>,
     lazyListState: LazyListState,
     reorderableLazyListState: ReorderableLazyListState,
     backgroundColor: Color
@@ -63,8 +64,8 @@ fun ReorderableNavRail(
         modifier = Modifier.fillMaxWidth().navigationBarsPadding(),
         state = lazyListState
     ) {
-        items(items, key = { it.navId }) { item ->
-            ReorderableItem(reorderableLazyListState, key = item.navId) { _ ->
+        items(items, key = { it.route }) { item ->
+            ReorderableItem(reorderableLazyListState, key = item.route) { _ ->
                 NavigationRailItem(
                     modifier = Modifier.draggableHandle(),
                     icon = {
@@ -74,8 +75,8 @@ fun ReorderableNavRail(
                                 .safeContentPadding()
                                 .fillMaxWidth()
                         ) {
-                            navIcon(item)
-                            navLabel(item)
+                            NavIcon(item)
+                            NavLabel(item)
                         }
                     },
                     alwaysShowLabel = false,
@@ -92,7 +93,7 @@ fun ReorderableNavRail(
 
 @Composable
 fun ReorderableBottomNavBar(
-    items: SnapshotStateList<BottomNavItem>,
+    items: SnapshotStateList<AppNavigationItem>,
     lazyListState: LazyListState,
     reorderableLazyListState: ReorderableLazyListState,
     scope: RowScope
@@ -103,12 +104,12 @@ fun ReorderableBottomNavBar(
         horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        items(items, key = { it.navId }) { item ->
-            ReorderableItem(reorderableLazyListState, key = item.navId) { _ ->
+        items(items, key = { it.route }) { item ->
+            ReorderableItem(reorderableLazyListState, key = item.route) { _ ->
                 scope.let {
                     it.BottomNavigationItem(
-                        icon = { navIcon(item) },
-                        label = { navLabel(item) },
+                        icon = { NavIcon(item) },
+                        label = { NavLabel(item) },
                         selectedContentColor = MaterialTheme.colorScheme.onSurface,
                         unselectedContentColor = colorResource(id = R.color.gray),
                         alwaysShowLabel = true,
