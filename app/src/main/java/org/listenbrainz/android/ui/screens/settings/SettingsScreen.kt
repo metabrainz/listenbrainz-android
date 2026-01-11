@@ -75,6 +75,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     listensViewModel: ListensViewModel = hiltViewModel(),
     dashBoardViewModel: DashBoardViewModel,
+    topBarActions: TopBarActions,
     callbacks: SettingsCallbacksToHomeScreen
 ) {
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
@@ -99,7 +100,7 @@ fun SettingsScreen(
             )
         },
         isBatteryOptimizationPermissionGranted = isBatteryOptimizationPermissionGranted,
-        topBarActions = callbacks.topBarActions
+        topBarActions = topBarActions
     )
 }
 

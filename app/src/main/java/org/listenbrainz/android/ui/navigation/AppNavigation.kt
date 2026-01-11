@@ -142,9 +142,7 @@ fun AppNavigation(
                 goToArtistPage = ::goToArtistPage,
                 goToPlaylist = ::goToPlaylist,
                 topBarActions = topAppBarActions,
-                navigateToCreateAccount = {
-                    settingsCallbacks.navigateToCreateAccount()
-                }
+                navigateToCreateAccount = settingsCallbacks.navigateToCreateAccount
             )
         }
         appComposable(
@@ -152,7 +150,8 @@ fun AppNavigation(
         ) {
             SettingsScreen(
                 dashBoardViewModel = dashBoardViewModel,
-                callbacks = settingsCallbacks
+                callbacks = settingsCallbacks,
+                topBarActions = topAppBarActions,
             )
         }
         appComposable(

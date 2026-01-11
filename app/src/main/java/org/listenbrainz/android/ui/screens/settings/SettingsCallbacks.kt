@@ -23,7 +23,6 @@ data class SettingsCallbacks(
 @Immutable
 data class SettingsCallbacksToHomeScreen(
     val checkForUpdates: suspend () -> Boolean,
-    val topBarActions: TopBarActions,
     val onLoginRequest: () -> Unit,
     val onOnboardingRequest: () -> Unit,
     val navigateToCreateAccount : () -> Unit,

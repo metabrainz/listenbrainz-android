@@ -245,7 +245,6 @@ fun HomeScreen(
                         dashBoardViewModel = dashBoardViewModel,
                         topAppBarActions = topBarActions,
                         settingsCallbacks = settingsCallbacks.copy(
-                            topBarActions = topBarActions,
                             onReorderNav = {
                                 showNavReorderOverlay = true
                             }
