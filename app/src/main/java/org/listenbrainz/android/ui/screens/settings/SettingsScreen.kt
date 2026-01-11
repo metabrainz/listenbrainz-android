@@ -76,7 +76,8 @@ fun SettingsScreen(
     listensViewModel: ListensViewModel = hiltViewModel(),
     dashBoardViewModel: DashBoardViewModel,
     topBarActions: TopBarActions,
-    callbacks: SettingsCallbacksToHomeScreen
+    callbacks: SettingsCallbacksToHomeScreen,
+    onNavigationReorderClick: () -> Unit
 ) {
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val isBatteryOptimizationPermissionGranted =
@@ -96,7 +97,7 @@ fun SettingsScreen(
                 setWhitelist = listensViewModel::setWhitelist,
                 onOnboardingRequest = callbacks.onOnboardingRequest,
                 checkForUpdates = callbacks.checkForUpdates,
-                onReorderNav = callbacks.onReorderNav
+                onNavigationReorderClick = onNavigationReorderClick
             )
         },
         isBatteryOptimizationPermissionGranted = isBatteryOptimizationPermissionGranted,
@@ -249,9 +250,7 @@ fun SettingsScreen(
             SettingsTextOption(
                 title = "Reorder navigation bar",
                 subtitle = "Change bottom navigation order",
-                modifier = Modifier.clickable {
-                    callbacks.onReorderNav()
-                }
+                modifier = Modifier.clickable(onClick = callbacks.onNavigationReorderClick)
             )
 
             HorizontalDivider()
@@ -514,7 +513,7 @@ fun SettingsScreenPreview() {
                 onLoginRequest = {},
                 onOnboardingRequest = {},
                 checkForUpdates = suspend{false},
-                onReorderNav = {}
+                onNavigationReorderClick = {}
             ),
             topBarActions = TopBarActions()
         )

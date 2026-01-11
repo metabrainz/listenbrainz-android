@@ -151,9 +151,9 @@ fun HomeScreen(
             initialValue = null
         )
     val filteredNavItems = navOrder?.filter {
-        isAudioPermissionGranted || it.appNav != AppNavigationItem.BrainzPlayer
+        isAudioPermissionGranted || it != AppNavigationItem.BrainzPlayer
     }
-    val startRoute = navOrder?.firstOrNull()?.appNav?.route
+    val startRoute = filteredNavItems?.firstOrNull()?.route
 
     Scaffold(
         modifier = Modifier
@@ -244,12 +244,9 @@ fun HomeScreen(
                         snackbarState = snackbarState,
                         dashBoardViewModel = dashBoardViewModel,
                         topAppBarActions = topBarActions,
-                        settingsCallbacks = settingsCallbacks.copy(
-                            onReorderNav = {
-                                showNavReorderOverlay = true
-                            }
-                        ),
-                        startRoute = startRoute
+                        settingsCallbacks = settingsCallbacks,
+                        startRoute = startRoute,
+                        onNavigationReorderClick = { showNavReorderOverlay = true }
                     )
                 }
             }

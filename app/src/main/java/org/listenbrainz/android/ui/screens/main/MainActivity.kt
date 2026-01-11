@@ -200,11 +200,9 @@ class MainActivity : ComponentActivity() {
                                             activity = this@MainActivity
                                         )
                                     },
-                                    topBarActions = TopBarActions(),
                                     navigateToCreateAccount = {
                                         backStack.add(NavigationItem.CreateAccountScreen)
                                     },
-                                    onReorderNav = {}
                                 )
                             )
                         }
