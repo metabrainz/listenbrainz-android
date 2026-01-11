@@ -1,7 +1,11 @@
 package org.listenbrainz.android.ui.screens.profile
 
-import android.content.Context
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.SnackbarHostState
@@ -9,14 +13,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import org.listenbrainz.android.model.AppNavigationItem
+import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
-import org.listenbrainz.android.util.Utils.LaunchedEffectUnit
 import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
@@ -49,23 +53,34 @@ fun ProfileScreen(
             title = AppNavigationItem.Profile.title
         )
 
-        if (loginStatus == STATUS_LOGGED_IN) {
-            BaseProfileScreen(
-                username = username,
-                snackbarState = snackbarState,
-                onScrollToTop = onScrollToTop,
-                scrollRequestState = scrollRequestState,
-                goToUserProfile = goToUserProfile,
-                goToArtistPage = goToArtistPage,
-                goToPlaylist = goToPlaylist
-            )
-        } else {
-            LoginScreen(
-                navigateToCreateAccount = navigateToCreateAccount,
-                navigateToUserProfile = {
-                    goToUserProfile(viewModel.appPreferences.username.get())
-                }
-            )
+        AnimatedContent(
+            targetState = loginStatus,
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+            transitionSpec = {
+                fadeIn() togetherWith fadeOut()
+            }
+        ) { status ->
+            if (status == null) {
+                LoadingAnimation()
+            } else if (status == STATUS_LOGGED_IN) {
+                BaseProfileScreen(
+                    username = username,
+                    snackbarState = snackbarState,
+                    onScrollToTop = onScrollToTop,
+                    scrollRequestState = scrollRequestState,
+                    goToUserProfile = goToUserProfile,
+                    goToArtistPage = goToArtistPage,
+                    goToPlaylist = goToPlaylist
+                )
+            } else {
+                LoginScreen(
+                    navigateToCreateAccount = navigateToCreateAccount,
+                    navigateToUserProfile = {
+                        goToUserProfile(viewModel.appPreferences.username.get())
+                    }
+                )
+            }
         }
     }
 }

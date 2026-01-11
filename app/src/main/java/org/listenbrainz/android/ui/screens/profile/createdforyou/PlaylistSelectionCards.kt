@@ -63,11 +63,11 @@ fun PlaylistSelectionCardRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        itemsIndexed(playlists) { index, playlist->
+
+        itemsIndexed(playlists) { index, playlist ->
             if (index == 0) {
                 Spacer(modifier = Modifier.width(8.dp))
             }
-
             PlaylistTitleCard(
                 modifier = Modifier.size(140.dp),
                 title = remember(playlist) {
@@ -285,7 +285,7 @@ fun PlaylistTitleCardRowPreview() {
             onSaveClick = {},
             onPlaylistSelect = {
                 selectedPlaylist = it
-            }
+            },
         )
     }
 }
