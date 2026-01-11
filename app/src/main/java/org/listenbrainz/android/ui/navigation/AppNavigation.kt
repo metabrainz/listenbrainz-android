@@ -9,7 +9,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -109,7 +109,7 @@ fun AppNavigation(
         appComposable(
             route = AppNavigationItem.Profile.route
         ) {
-            val viewModel = hiltViewModel<DashBoardViewModel>()
+            val viewModel = koinViewModel<DashBoardViewModel>()
             LoginScreen(
                 navigateToCreateAccount = {
                     settingsCallbacks.navigateToCreateAccount()

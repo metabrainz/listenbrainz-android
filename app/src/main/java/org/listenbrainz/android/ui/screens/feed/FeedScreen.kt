@@ -64,7 +64,7 @@ import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -100,8 +100,8 @@ import org.listenbrainz.android.viewmodel.SocialViewModel
 
 @Composable
 fun FeedScreen(
-    viewModel: FeedViewModel = hiltViewModel(),
-    socialViewModel: SocialViewModel = hiltViewModel(),
+    viewModel: FeedViewModel = koinViewModel(),
+    socialViewModel: SocialViewModel = koinViewModel(),
     scrollToTopState: Boolean,
     topAppBarActions: TopBarActions,
     onScrollToTop: (suspend () -> Unit) -> Unit,

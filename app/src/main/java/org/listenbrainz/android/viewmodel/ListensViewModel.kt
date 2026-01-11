@@ -3,7 +3,6 @@ package org.listenbrainz.android.viewmodel
 import android.graphics.drawable.Drawable
 import androidx.lifecycle.viewModelScope
 import com.spotify.protocol.types.PlayerState
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,7 +15,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.model.ResponseError
@@ -32,15 +30,13 @@ import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Resource.Status.FAILED
 import org.listenbrainz.android.util.Resource.Status.SUCCESS
-import javax.inject.Inject
 
-@HiltViewModel
-class ListensViewModel @Inject constructor(
+class ListensViewModel(
     private val repository: ListensRepository,
     private val appPreferences: AppPreferences,
     private val socketRepository: SocketRepository,
     private val remotePlaybackHandler: RemotePlaybackHandler,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val ioDispatcher: CoroutineDispatcher,
 ) : BaseViewModel<ListensUiState>() {
 
     private val isSpotifyLinked = MutableStateFlow(appPreferences.linkedServices.contains(LinkedService.SPOTIFY))

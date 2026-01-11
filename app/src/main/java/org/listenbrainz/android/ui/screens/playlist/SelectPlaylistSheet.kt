@@ -31,7 +31,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.launch
@@ -50,7 +50,7 @@ import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 fun SelectPlaylist(
     modifier: Modifier = Modifier,
     isSheetVisible: Boolean,
-    viewModel: PlaylistDataViewModel = hiltViewModel(),
+    viewModel: PlaylistDataViewModel = koinViewModel(),
     trackMetadata: Metadata,
     onCreateNewPlaylist: () -> Unit,
     onDismiss: () -> Unit

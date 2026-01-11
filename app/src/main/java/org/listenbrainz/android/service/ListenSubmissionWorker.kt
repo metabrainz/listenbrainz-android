@@ -3,16 +3,15 @@ package org.listenbrainz.android.service
 import android.R.attr.duration
 import android.content.Context
 import android.media.MediaMetadata
-import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkerParameters
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.AdditionalInfo
 import org.listenbrainz.android.model.ListenSubmitBody
@@ -27,14 +26,14 @@ import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource
 
-@HiltWorker
-class ListenSubmissionWorker @AssistedInject constructor(
-    @Assisted context: Context,
-    @Assisted workerParams: WorkerParameters,
-    private val appPreferences: AppPreferences,
-    private val repository: ListensRepository,
-    private val pendingListensDao: PendingListensDao
-) : CoroutineWorker(context, workerParams) {
+class ListenSubmissionWorker(
+    context: Context,
+    workerParams: WorkerParameters
+) : CoroutineWorker(context, workerParams), KoinComponent {
+
+    private val appPreferences: AppPreferences by inject()
+    private val repository: ListensRepository by inject()
+    private val pendingListensDao: PendingListensDao by inject()
     
     override suspend fun doWork(): Result {
         val token = appPreferences.lbAccessToken.get()

@@ -43,7 +43,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -62,7 +62,7 @@ import org.listenbrainz.android.viewmodel.ListeningNowViewModel
 @Composable
 fun ListeningNowScreen(
     backdropScaffoldState: BackdropScaffoldState,
-    viewModel: ListeningNowViewModel = hiltViewModel(),
+    viewModel: ListeningNowViewModel = koinViewModel(),
     gradientBox: @Composable () -> Unit
 ) {
     val listeningNowUIState by viewModel.listeningNowUIState.collectAsState()

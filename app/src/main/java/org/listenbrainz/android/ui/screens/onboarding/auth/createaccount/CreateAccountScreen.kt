@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.onboarding.auth.CreateAccountWebViewClient
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -31,7 +31,7 @@ private const val TAG = "CreateAccountScreen"
 
 @Composable
 fun ListenBrainzCreateAccountScreen(onBackPress: () -> Unit) {
-    val vm: CreateAccountViewModel = hiltViewModel()
+    val vm: CreateAccountViewModel = koinViewModel()
     val uiState by vm.uiState.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {

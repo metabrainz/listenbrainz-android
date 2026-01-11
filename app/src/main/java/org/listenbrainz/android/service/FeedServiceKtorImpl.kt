@@ -11,9 +11,9 @@ import org.listenbrainz.android.model.SocialResponse
 import org.listenbrainz.android.model.feed.FeedData
 import org.listenbrainz.android.model.feed.FeedEventDeletionData
 import org.listenbrainz.android.model.feed.FeedEventVisibilityData
-import javax.inject.Inject
 
-class FeedServiceKtorImpl @Inject constructor(
+
+class FeedServiceKtorImpl(
     private val httpClient: HttpClient
 ) : FeedServiceKtor {
 

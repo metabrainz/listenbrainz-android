@@ -31,7 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
@@ -52,7 +52,7 @@ fun PlaylistScreen(
     context: Context = LocalContext.current,
     navigateToPlaylist: (id: Long) -> Unit
 ) {
-    val brainzPlayerViewModel = hiltViewModel<BrainzPlayerViewModel>()
+    val brainzPlayerViewModel = koinViewModel<BrainzPlayerViewModel>()
     val currentlyPlayingSong =
         brainzPlayerViewModel.currentlyPlayingSong.collectAsState().value.toSong
     val currentSongIndex =
@@ -68,7 +68,7 @@ fun PlaylistScreen(
         mutableStateOf(false)
     }
     val coroutineScope = rememberCoroutineScope()
-    val playlistViewModel = hiltViewModel<PlaylistViewModel>()
+    val playlistViewModel = koinViewModel<PlaylistViewModel>()
     val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
     var renamePlaylistDialog by rememberSaveable {
         mutableStateOf(false)
@@ -388,8 +388,8 @@ fun PlaylistScreen(
 @ExperimentalMaterial3Api
 @Composable
 fun OnPlaylistClickScreen(playlistID: Long) {
-    val brainzPlayerViewModel = hiltViewModel<BrainzPlayerViewModel>()
-    val playlistViewModel = hiltViewModel<PlaylistViewModel>()
+    val brainzPlayerViewModel = koinViewModel<BrainzPlayerViewModel>()
+    val playlistViewModel = koinViewModel<PlaylistViewModel>()
     val selectedPlaylist =
         playlistViewModel.getPlaylistByID(playlistID).collectAsState(Playlist()).value
     var selectedPlaylistItemIndex by remember {

@@ -4,9 +4,6 @@ import android.os.Build
 import android.provider.MediaStore
 import org.listenbrainz.android.application.App.Companion.context
 import org.listenbrainz.android.model.Album
-import javax.inject.Singleton
-
-@Singleton
 object AlbumsData {
     
     /** Runtime cache to improve performance

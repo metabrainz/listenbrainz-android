@@ -10,7 +10,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.caverock.androidsvg.SVG
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import org.listenbrainz.android.model.SocialData
@@ -21,13 +20,13 @@ import org.listenbrainz.android.repository.yim23.Yim23Repository
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.saveBitmap
 import java.net.URL
-import javax.inject.Inject
 
-@HiltViewModel
-class Yim23ViewModel @Inject constructor(
+class Yim23ViewModel(
     private val repository: Yim23Repository,
+    private val appPreferences: AppPreferences,
     private val socialRepository: SocialRepository,
-    private val appPreferences: AppPreferences
+    private val ioDispatcher: CoroutineDispatcher,
+    private val defaultDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     // Yim data resource
     var yimData:

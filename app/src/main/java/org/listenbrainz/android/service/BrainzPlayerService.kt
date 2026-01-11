@@ -12,8 +12,8 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector
 import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import org.koin.android.ext.android.inject
 import kotlinx.coroutines.flow.first
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.Playable.Companion.EMPTY_PLAYABLE
@@ -27,28 +27,20 @@ import org.listenbrainz.android.util.BrainzPlayerNotificationManager
 import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID
 import org.listenbrainz.android.util.BrainzPlayerUtils.SERVICE_TAG
 import org.listenbrainz.android.util.LocalMusicSource
-import javax.inject.Inject
 
-@AndroidEntryPoint
 class BrainzPlayerService : MediaBrowserServiceCompat() {
 
-    @Inject
-    lateinit var exoPlayer: ExoPlayer
+    private val exoPlayer: ExoPlayer by inject()
 
-    @Inject
-    lateinit var localMusicSource: LocalMusicSource
+    private val localMusicSource: LocalMusicSource by inject()
 
-    @Inject
-    lateinit var BPAlbumRepository: BPAlbumRepository
+    private val bpAlbumRepository: BPAlbumRepository by inject()
 
-    @Inject
-    lateinit var songRepository: SongRepository
+    private val songRepository: SongRepository by inject()
 
-    @Inject
-    lateinit var playlistRepository: PlaylistRepository
+    private val playlistRepository: PlaylistRepository by inject()
 
-    @Inject
-    lateinit var appPreferences: AppPreferences
+    internal val appPreferences: AppPreferences by inject()
 
     private lateinit var mediaSession: MediaSessionCompat
     private lateinit var mediaSessionConnector : MediaSessionConnector

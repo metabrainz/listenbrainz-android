@@ -5,9 +5,9 @@ import org.listenbrainz.android.model.yimdata.YimPayload
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource
-import javax.inject.Inject
 
-class YimRepositoryImpl @Inject constructor(private val service: YimService) : YimRepository {
+
+class YimRepositoryImpl(private val service: YimService) : YimRepository {
     
     @WorkerThread
     override suspend fun getYimData(username: String): Resource<YimPayload> {

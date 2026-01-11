@@ -11,9 +11,9 @@ import kotlinx.serialization.json.Json
 import org.json.JSONObject
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.util.Log
-import javax.inject.Inject
 
-class SocketRepositoryImpl @Inject constructor(): SocketRepository {
+
+class SocketRepositoryImpl : SocketRepository {
     
     private val json = Json { ignoreUnknownKeys = true }
     

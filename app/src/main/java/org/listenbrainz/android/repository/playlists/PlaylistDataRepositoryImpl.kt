@@ -2,10 +2,8 @@ package org.listenbrainz.android.repository.playlists
 
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
-import jakarta.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.playlist.AddCopyPlaylistResponse
 import org.listenbrainz.android.model.playlist.DeleteTracks
@@ -22,11 +20,11 @@ import org.listenbrainz.android.service.UserService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.parseResponse
 
-class PlaylistDataRepositoryImpl @Inject constructor(
+class PlaylistDataRepositoryImpl(
     private val playlistService: PlaylistService,
     private val userService: UserService,
     private val mbService: MBService,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher
 ) : PlaylistDataRepository {
 
     override suspend fun fetchPlaylist(playlistMbid: String?): Resource<PlaylistPayload?> =

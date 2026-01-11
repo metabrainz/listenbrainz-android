@@ -64,7 +64,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.LoadingAnimation
@@ -78,7 +78,7 @@ import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateEditPlaylistScreen(
-    viewModel: PlaylistDataViewModel = hiltViewModel(),
+    viewModel: PlaylistDataViewModel = koinViewModel(),
     isVisible: Boolean,
     mbid: String?,
     onDismiss: () -> Unit

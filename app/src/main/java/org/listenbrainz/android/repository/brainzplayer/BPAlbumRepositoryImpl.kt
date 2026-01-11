@@ -17,9 +17,9 @@ import org.listenbrainz.android.util.SongsData
 import org.listenbrainz.android.util.Transformer.toAlbum
 import org.listenbrainz.android.util.Transformer.toAlbumEntity
 
-import javax.inject.Inject
 
-class BPAlbumRepositoryImpl @Inject constructor(
+
+class BPAlbumRepositoryImpl(
     private val albumDao: AlbumDao
 ): BPAlbumRepository {
     override fun getAlbums(): Flow<List<Album>> =

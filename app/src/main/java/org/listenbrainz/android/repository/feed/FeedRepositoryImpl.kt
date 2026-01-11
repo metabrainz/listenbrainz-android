@@ -8,9 +8,9 @@ import org.listenbrainz.android.model.feed.FeedEventVisibilityData
 import org.listenbrainz.android.service.FeedServiceKtor
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.parseResponse
-import javax.inject.Inject
 
-class FeedRepositoryImpl @Inject constructor(
+
+class FeedRepositoryImpl(
     private val service: FeedServiceKtor
 ) : FeedRepository {
     

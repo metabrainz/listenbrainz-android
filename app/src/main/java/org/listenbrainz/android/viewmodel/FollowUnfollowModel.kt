@@ -2,7 +2,6 @@ package org.listenbrainz.android.viewmodel
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.repository.social.SocialRepository
@@ -10,7 +9,7 @@ import org.listenbrainz.android.util.Resource
 
 abstract class FollowUnfollowModel<UiState>(
     private val repository: SocialRepository,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher
 ): BaseViewModel<UiState>() {
     
     /**

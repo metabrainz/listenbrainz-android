@@ -12,12 +12,14 @@ import org.listenbrainz.android.model.SocialResponse
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.util.Resource
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.Utils.parseResponse
-import javax.inject.Inject
 
 
-class SocialRepositoryImpl @Inject constructor(
-    private val service: SocialService
+
+class SocialRepositoryImpl(
+    private val service: SocialService,
+    private val appPreferences: AppPreferences
 ) : SocialRepository {
 
     /** @return Network Failure, User DNE, Success.*/

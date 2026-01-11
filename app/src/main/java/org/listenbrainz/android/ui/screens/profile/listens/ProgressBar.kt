@@ -20,14 +20,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.ui.components.SeekBar
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.viewmodel.ListensViewModel
 
 @Composable
 fun ProgressBar() {
-    val listenViewModel = hiltViewModel<ListensViewModel>()
+    val listenViewModel = koinViewModel<ListensViewModel>()
     val uiState by listenViewModel.uiState.collectAsState()
     var duration: String by remember {
         mutableStateOf("")

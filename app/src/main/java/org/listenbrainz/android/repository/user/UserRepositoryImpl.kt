@@ -13,11 +13,13 @@ import org.listenbrainz.android.model.user.UserListeningActivity
 import org.listenbrainz.android.model.user.UserSimilarityPayload
 import org.listenbrainz.android.service.UserService
 import org.listenbrainz.android.util.Resource
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.util.Utils.parseResponse
-import javax.inject.Inject
 
-class UserRepositoryImpl @Inject constructor(
-    private val service: UserService
+
+class UserRepositoryImpl(
+    private val service: UserService,
+    private val appPreferences: AppPreferences
 ) : UserRepository {
     override suspend fun fetchUserListenCount(username: String?): Resource<Listens?> = parseResponse {
         failIf(username.isNullOrEmpty()) { ResponseError.DoesNotExist() }

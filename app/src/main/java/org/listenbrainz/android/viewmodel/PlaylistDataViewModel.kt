@@ -5,7 +5,6 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
@@ -21,7 +20,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
-import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.User
@@ -45,14 +43,13 @@ import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistPagingS
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.util.Utils.isValidMbidFormat
-import javax.inject.Inject
 
-@HiltViewModel
-class PlaylistDataViewModel @Inject constructor(
+class PlaylistDataViewModel(
     val appPreferences: AppPreferences,
     private val repository: PlaylistDataRepository,
     private val socialRepository: SocialRepository,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
+    private val defaultDispatcher: CoroutineDispatcher
 ) : BaseViewModel<PlaylistDataUIState>() {
     private var username: String? = null
     private val userInputQueryFlow = MutableStateFlow("")

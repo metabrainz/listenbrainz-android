@@ -37,7 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.ui.screens.profile.createdforyou.CreatedForYouScreen
 import org.listenbrainz.android.ui.screens.profile.listens.ListensScreen
@@ -60,12 +60,12 @@ fun BaseProfileScreen(
     snackbarState: SnackbarHostState,
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
-    viewModel: UserViewModel = hiltViewModel(),
+    viewModel: UserViewModel = koinViewModel(),
     goToUserProfile: (String) -> Unit,
-    feedViewModel: FeedViewModel = hiltViewModel(),
-    listensViewModel: ListensViewModel = hiltViewModel(),
-    socialViewModel: SocialViewModel = hiltViewModel(),
-    playlistDataViewModel: PlaylistDataViewModel = hiltViewModel(),
+    feedViewModel: FeedViewModel = koinViewModel(),
+    listensViewModel: ListensViewModel = koinViewModel(),
+    socialViewModel: SocialViewModel = koinViewModel(),
+    playlistDataViewModel: PlaylistDataViewModel = koinViewModel(),
     goToPlaylist: (String) -> Unit,
     goToArtistPage: (String) -> Unit
 ) {

@@ -32,7 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
@@ -48,8 +48,8 @@ import org.listenbrainz.android.viewmodel.SongViewModel
 @ExperimentalMaterial3Api
 @Composable
 fun SongScreen() {
-    val brainzPlayerViewModel = hiltViewModel<BrainzPlayerViewModel>()
-    val songViewModel = hiltViewModel<SongViewModel>()
+    val brainzPlayerViewModel = koinViewModel<BrainzPlayerViewModel>()
+    val songViewModel = koinViewModel<SongViewModel>()
     val currentlyPlayingSong =
         brainzPlayerViewModel.currentlyPlayingSong.collectAsState().value.toSong
     val songs = songViewModel.songs.collectAsState(initial = listOf())
@@ -57,7 +57,7 @@ fun SongScreen() {
     var songCardMoreOptionsDropMenuExpanded by rememberSaveable { mutableStateOf(-1) }
     var addToNewPlaylistState by remember { mutableStateOf(false) }
     var addToExistingPlaylistState by rememberSaveable { mutableStateOf(false) }
-    val playlistViewModel = hiltViewModel<PlaylistViewModel>()
+    val playlistViewModel = koinViewModel<PlaylistViewModel>()
     val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
     val playlistsCollectedFromChecklist =
         playlistViewModel.playlistsCollectedFromChecklist.collectAsState().value

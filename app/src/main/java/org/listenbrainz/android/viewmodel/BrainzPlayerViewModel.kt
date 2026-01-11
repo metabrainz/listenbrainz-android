@@ -20,7 +20,7 @@ import androidx.palette.graphics.Palette
 import coil.ImageLoader
 import coil.request.ImageRequest
 import coil.request.SuccessResult
-import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,6 +37,8 @@ import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.Playlist.Companion.currentlyPlaying
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
+import org.listenbrainz.android.repository.brainzplayer.PlaylistRepository
 import org.listenbrainz.android.repository.brainzplayer.SongRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.BrainzPlayerService
@@ -49,13 +51,14 @@ import org.listenbrainz.android.util.BrainzPlayerExtensions.isPrepared
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID
 import org.listenbrainz.android.util.Resource
-import javax.inject.Inject
 
-@HiltViewModel
-class BrainzPlayerViewModel @Inject constructor(
+class BrainzPlayerViewModel(
     private val brainzPlayerServiceConnection: BrainzPlayerServiceConnection,
     private val songRepository: SongRepository,
     val appPreferences: AppPreferences,
+    private val playlistRepository: PlaylistRepository,
+    private val albumRepository: BPAlbumRepository,
+    private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _mediaItems = MutableStateFlow<Resource<List<Song>>>(Resource.loading())
     private val _songDuration = MutableStateFlow(0L)

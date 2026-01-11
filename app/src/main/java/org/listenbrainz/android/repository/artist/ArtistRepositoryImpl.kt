@@ -9,9 +9,9 @@ import org.listenbrainz.android.service.CBService
 import org.listenbrainz.android.service.MBService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.parseResponse
-import javax.inject.Inject
 
-class ArtistRepositoryImpl @Inject constructor(
+
+class ArtistRepositoryImpl(
     private val service: ArtistService,
     private val mbService: MBService,
     private val cbService: CBService,

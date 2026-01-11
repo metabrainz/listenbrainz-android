@@ -23,7 +23,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.CoroutineScope
 import org.listenbrainz.android.model.Metadata
@@ -54,7 +54,7 @@ fun SocialDropdownDefault(
     if (metadata == null || LocalView.current.isInEditMode) return
 
     val context = LocalContext.current
-    val viewModel: SocialViewModel = hiltViewModel(LocalContext.current.getActivity()!!)
+    val viewModel: SocialViewModel = koinViewModel(viewModelStoreOwner = LocalContext.current.getActivity()!!)
     val uriHandler = LocalUriHandler.current
     val dialogsState = rememberDialogsState()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()

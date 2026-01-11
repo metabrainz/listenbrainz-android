@@ -29,7 +29,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.SearchUiState
 import org.listenbrainz.android.model.User
@@ -41,7 +41,7 @@ import org.listenbrainz.android.viewmodel.SearchViewModel
 @Composable
 fun UserSearchScreen(
     isActive: Boolean,
-    viewModel: SearchViewModel = hiltViewModel(),
+    viewModel: SearchViewModel = koinViewModel(),
     goToUserPage: (String) -> Unit,
     deactivate: () -> Unit
 ) {

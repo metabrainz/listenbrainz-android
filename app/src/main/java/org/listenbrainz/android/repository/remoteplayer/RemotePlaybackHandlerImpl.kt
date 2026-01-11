@@ -15,7 +15,6 @@ import com.spotify.protocol.client.Subscription
 import com.spotify.protocol.types.ImageUri
 import com.spotify.protocol.types.PlayerContext
 import com.spotify.protocol.types.PlayerState
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
@@ -36,17 +35,15 @@ import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.parseResponse
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.inject.Inject
-import javax.inject.Singleton
+
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import androidx.core.net.toUri
 
-@Singleton
-class RemotePlaybackHandlerImpl @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+class RemotePlaybackHandlerImpl(
+    private val appContext: Context,
     private val youtubeApiService: YouTubeApiService
 ) : RemotePlaybackHandler {
     
