@@ -1,6 +1,8 @@
 package org.listenbrainz.android.ui.theme
 
 import android.content.Context
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -28,6 +31,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.valentinilk.shimmer.LocalShimmerTheme
+import com.valentinilk.shimmer.ShimmerBounds
+import com.valentinilk.shimmer.ShimmerTheme
+import com.valentinilk.shimmer.rememberShimmer
+import com.valentinilk.shimmer.shimmerSpec
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
@@ -344,10 +352,36 @@ fun ListenBrainzTheme(
         TextStyle(color = localColorScheme.text)
     }
 
+    val localShimmerTheme = remember {
+        ShimmerTheme(
+            animationSpec = infiniteRepeatable(
+                animation = shimmerSpec(
+                    durationMillis = 300,
+                    delayMillis = 800,
+                ),
+                repeatMode = RepeatMode.Restart,
+            ),
+            blendMode = BlendMode.DstIn,
+            rotation = 6.0f,
+            shaderColors = listOf(
+                Color.White.copy(alpha = 0.25f),
+                Color.White.copy(alpha = 1.00f),
+                Color.White.copy(alpha = 0.25f),
+            ),
+            shaderColorStops = listOf(
+                0.0f,
+                0.5f,
+                1.0f,
+            ),
+            shimmerWidth = 350.dp,
+        )
+    }
+
     MaterialTheme(
         colorScheme = colorScheme,
     ) {
         CompositionLocalProvider(
+            LocalShimmerTheme provides localShimmerTheme,
             LocalPaddings provides Paddings(),
             LocalShapes provides Shapes(),
             LocalSizes provides Sizes(),
