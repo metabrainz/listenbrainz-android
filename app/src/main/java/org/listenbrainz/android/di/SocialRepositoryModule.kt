@@ -12,5 +12,5 @@ import org.listenbrainz.android.repository.social.SocialRepositoryImpl
 abstract class SocialRepositoryModule {
     
     @Binds
-    abstract fun bindsSocialRepository(repository: SocialRepositoryImpl?): SocialRepository?
+    abstract fun bindsSocialRepository(repository: SocialRepositoryImpl): SocialRepository
 }

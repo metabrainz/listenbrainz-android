@@ -58,9 +58,7 @@ import androidx.core.view.WindowCompat
 import com.limurse.logger.Logger
 import com.limurse.logger.util.FileIntent
 import io.ktor.client.call.body
-import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.ResponseException
-import io.ktor.client.plugins.ServerResponseException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -71,14 +69,12 @@ import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.ResponseError.AUTH_HEADER_NOT_FOUND
 import org.listenbrainz.android.model.ResponseError.BAD_GATEWAY
 import org.listenbrainz.android.model.ResponseError.BAD_REQUEST
-import org.listenbrainz.android.model.ResponseError.Companion.getError
 import org.listenbrainz.android.model.ResponseError.DOES_NOT_EXIST
 import org.listenbrainz.android.model.ResponseError.INTERNAL_SERVER_ERROR
 import org.listenbrainz.android.model.ResponseError.RATE_LIMIT_EXCEEDED
 import org.listenbrainz.android.model.ResponseError.SERVICE_UNAVAILABLE
 import org.listenbrainz.android.model.ResponseError.UNAUTHORISED
 import org.listenbrainz.android.model.ResponseError.UNKNOWN
-import retrofit2.Response
 import java.io.*
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
@@ -90,21 +86,6 @@ import kotlin.contracts.contract
  */
 object Utils {
     
-    /** General function to parse an API endpoint's response.
-     * @param request Call the API endpoint here. Run any pre-conditional checks to directly return error/success in some cases. */
-    inline fun <T> parseResponse(request: () -> Response<T>): Resource<T> =
-        runCatching<Resource<T>> {
-            val response = request()
-            
-            return@runCatching if (response.isSuccessful) {
-                Resource.success(response.body()!!)
-            } else {
-                val error = getError(response = response)
-                Resource.failure(error = error)
-            }
-        
-        }.getOrElse { logAndReturn(it) }
-
     class PreEmptiveBadRequestException(val responseError: ResponseError) : Exception()
 
     class KtorRequestScope {
@@ -121,7 +102,7 @@ object Utils {
 
     /** General function to parse an API endpoint's response executed by Ktor.
      * @param request Call the API endpoint here. Run any pre-conditional checks to directly return error/success in some cases. */
-    suspend inline fun <T> parseKtorResponse(request: KtorRequestScope.() -> T): Resource<T> =
+    suspend inline fun <T> parseResponse(request: KtorRequestScope.() -> T): Resource<T> =
         runCatching {
             Resource.success(KtorRequestScope().request())
         }.getOrElse { error ->
@@ -195,12 +176,6 @@ object Utils {
         return IntSize(width, height)
     }
 
-    /** Get human readable error.
-     *
-     * **CAUTION:** If this function is called once, calling it further with the same [Response] instance will result in an empty
-     * string. Store this function's result for multiple use cases.*/
-    fun <T> Response<T>.error(): String? = this.errorBody()?.string()
-    
     fun sendFeedback(context: Context) {
         try {
             context.startActivity(emailIntent(Constants.FEEDBACK_EMAIL, Constants.FEEDBACK_SUBJECT))

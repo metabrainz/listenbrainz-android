@@ -11,5 +11,5 @@ import org.listenbrainz.android.repository.listens.ListensRepositoryImpl
 @InstallIn(SingletonComponent::class)
 abstract class ListensRepositoryModule {
     @Binds
-    abstract fun bindsListensRepository(repository: ListensRepositoryImpl?): ListensRepository?
+    abstract fun bindsListensRepository(repository: ListensRepositoryImpl): ListensRepository
 }

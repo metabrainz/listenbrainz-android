@@ -11,5 +11,5 @@ import org.listenbrainz.android.repository.brainzplayer.BPArtistRepositoryImpl
 @InstallIn(SingletonComponent::class)
 abstract class BPArtistRepositoryModule {
     @Binds
-    abstract fun bindsBPArtistRepository(repository: BPArtistRepositoryImpl?) : BPArtistRepository?
+    abstract fun bindsBPArtistRepository(repository: BPArtistRepositoryImpl) : BPArtistRepository
 }

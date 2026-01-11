@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -8,6 +9,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.ktorfit)
 }
 
 val keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -115,8 +117,8 @@ android {
         buildConfig = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.get()
+    composeCompiler {
+        version = libs.versions.compose.get()
     }
 
     compileOptions {
@@ -124,8 +126,14 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
+    }
+
+    ktorfit {
+        compilerPluginVersion.set(libs.versions.ktorfit.compiler)
     }
 
     lint {
@@ -163,17 +171,14 @@ dependencies {
 
     // Networking
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.retrofit)
-    implementation(libs.okhttp)
-    implementation(libs.okhttp.logging.interceptor)
-    implementation(libs.retrofit.converter.kotlin)
 
-    // Ktor
+    // Ktor & Ktorfit
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.client.logging)
+    implementation(libs.ktorfit.lib)
 
     // Image loading and processing
     implementation(libs.glide)

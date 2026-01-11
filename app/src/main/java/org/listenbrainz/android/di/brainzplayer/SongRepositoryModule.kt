@@ -11,5 +11,5 @@ import org.listenbrainz.android.repository.brainzplayer.SongRepositoryImpl
 @InstallIn(SingletonComponent::class)
 abstract class SongRepositoryModule {
     @Binds
-    abstract fun bindsSongRepository(repository: SongRepositoryImpl?) : SongRepository?
+    abstract fun bindsSongRepository(repository: SongRepositoryImpl) : SongRepository
 }

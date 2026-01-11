@@ -12,5 +12,5 @@ import org.listenbrainz.android.repository.yim23.Yim23RepositoryImpl
 @InstallIn(ActivityRetainedComponent::class)
 abstract class Yim23RepositoryModule {
     @Binds
-    abstract fun bindsYim23Repository(repository: Yim23RepositoryImpl?) : Yim23Repository?
+    abstract fun bindsYim23Repository(repository: Yim23RepositoryImpl) : Yim23Repository
 }

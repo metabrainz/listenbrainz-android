@@ -11,5 +11,5 @@ import org.listenbrainz.android.repository.socket.SocketRepositoryImpl
 @InstallIn(SingletonComponent::class)
 abstract class SocketRepositoryModule {
     @Binds
-    abstract fun bindsSocketRepository(repository: SocketRepositoryImpl?) : SocketRepository?
+    abstract fun bindsSocketRepository(repository: SocketRepositoryImpl) : SocketRepository
 }

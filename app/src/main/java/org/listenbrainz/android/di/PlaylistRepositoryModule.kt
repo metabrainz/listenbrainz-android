@@ -12,5 +12,5 @@ import org.listenbrainz.android.repository.playlists.PlaylistDataRepositoryImpl
 abstract class PlaylistRepositoryModule {
 
     @Binds
-    abstract fun bindsPlaylistRepository(repository: PlaylistDataRepositoryImpl?): PlaylistDataRepository?
+    abstract fun bindsPlaylistRepository(repository: PlaylistDataRepositoryImpl): PlaylistDataRepository
 }

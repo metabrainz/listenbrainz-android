@@ -11,5 +11,5 @@ import org.listenbrainz.android.repository.blog.BlogRepositoryImpl
 @InstallIn(ActivityRetainedComponent::class)
 abstract class BlogRepositoryModule {
     @Binds
-    abstract fun bindsBlogRepository(repository: BlogRepositoryImpl?): BlogRepository?
+    abstract fun bindsBlogRepository(repository: BlogRepositoryImpl): BlogRepository
 }

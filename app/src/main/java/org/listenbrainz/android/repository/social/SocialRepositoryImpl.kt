@@ -22,8 +22,8 @@ class SocialRepositoryImpl @Inject constructor(
 
     /** @return Network Failure, User DNE, Success.*/
     override suspend fun getFollowers(username: String?) : Resource<SocialData> = parseResponse {
-        if (username == null) return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
-        service.getFollowersData(username = username)
+        failIf(username == null) { ResponseError.AUTH_HEADER_NOT_FOUND }
+        service.getFollowersData(username = username!!)
     }
     
     /** @return Network Failure, User DNE, Success.*/
@@ -54,39 +54,38 @@ class SocialRepositoryImpl @Inject constructor(
     }
     
     override suspend fun postPersonalRecommendation(username: String?, data: RecommendationData): Resource<FeedEvent> = parseResponse {
-        if (username.isNullOrEmpty())
-            return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
-        if (data.metadata.recordingMbid == null && data.metadata.recordingMsid == null)
-            return ResponseError.BAD_REQUEST.asResource("Cannot recommend this track.")
+        failIf(username.isNullOrEmpty()) { ResponseError.AUTH_HEADER_NOT_FOUND }
+        failIf(data.metadata.recordingMbid == null && data.metadata.recordingMsid == null) {
+            ResponseError.BAD_REQUEST.apply { actualResponse = "Cannot recommend this track." }
+        }
         
         service.postPersonalRecommendation(
-            username = username,
+            username = username!!,
             data = data
         )
     }
     
     override suspend fun postRecommendationToAll(username: String?, data: RecommendationData): Resource<FeedEvent> = parseResponse {
-        if (username.isNullOrEmpty())
-            return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
-        if (data.metadata.recordingMbid == null && data.metadata.recordingMsid == null)
-            return ResponseError.BAD_REQUEST.asResource("Cannot recommend this track.")
+        failIf(username.isNullOrEmpty()) { ResponseError.AUTH_HEADER_NOT_FOUND }
+        failIf(data.metadata.recordingMbid == null && data.metadata.recordingMsid == null) {
+            ResponseError.BAD_REQUEST.apply { actualResponse = "Cannot recommend this track." }
+        }
         
         service.postRecommendationToAll(
-            username = username,
+            username = username!!,
             data = data
         )
     }
     
     override suspend fun postReview(username: String?, data: Review): Resource<FeedEvent> = parseResponse {
-        if (username.isNullOrEmpty())
-            return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
-        if (data.metadata?.text.orEmpty().length < 25)
-            return ResponseError.BAD_REQUEST.asResource("Review is too short. Please write a review longer than 25 letters.")
-        if (data.metadata?.rating != null && data.metadata.rating !in 1..5)
-            return ResponseError.BAD_REQUEST.asResource()
+        failIf(username.isNullOrEmpty()) { ResponseError.AUTH_HEADER_NOT_FOUND }
+        failIf(data.metadata?.text.orEmpty().length < 25) {
+            ResponseError.BAD_REQUEST.apply { actualResponse = "Review is too short. Please write a review longer than 25 letters." }
+        }
+        failIf(data.metadata?.rating != null && data.metadata.rating !in 1..5) { ResponseError.BAD_REQUEST }
         
         service.postReview(
-            username = username,
+            username = username!!,
             data = data
         )
     }
@@ -97,8 +96,9 @@ class SocialRepositoryImpl @Inject constructor(
         blurbContent: String?,
         pinnedUntil: Int
     ): Resource<PinData> = parseResponse {
-        if (recordingMsid == null && recordingMbid == null)
-            return ResponseError.BAD_REQUEST.asResource("Cannot pin this particular recording.")
+        failIf(recordingMsid == null && recordingMbid == null) {
+            ResponseError.BAD_REQUEST.apply { actualResponse = "Cannot pin this particular recording." }
+        }
         
         service.postPin(
             data = PinnedRecording(

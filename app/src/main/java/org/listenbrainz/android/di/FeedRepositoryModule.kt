@@ -12,5 +12,5 @@ import org.listenbrainz.android.repository.feed.FeedRepositoryImpl
 abstract class FeedRepositoryModule {
     
     @Binds
-    abstract fun bindsFeedRepository(repository: FeedRepositoryImpl?): FeedRepository?
+    abstract fun bindsFeedRepository(repository: FeedRepositoryImpl): FeedRepository
 }

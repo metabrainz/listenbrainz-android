@@ -7,7 +7,7 @@ import org.listenbrainz.android.model.feed.FeedEventDeletionData
 import org.listenbrainz.android.model.feed.FeedEventVisibilityData
 import org.listenbrainz.android.service.FeedServiceKtor
 import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.Utils.parseKtorResponse
+import org.listenbrainz.android.util.Utils.parseResponse
 import javax.inject.Inject
 
 class FeedRepositoryImpl @Inject constructor(
@@ -19,7 +19,7 @@ class FeedRepositoryImpl @Inject constructor(
         maxTs: Long?,
         minTs: Long?,
         count: Int
-    ): Resource<FeedData> = parseKtorResponse {
+    ): Resource<FeedData> = parseResponse {
         failIf(username.isNullOrEmpty()) {
             ResponseError.AUTH_HEADER_NOT_FOUND
         }
@@ -38,7 +38,7 @@ class FeedRepositoryImpl @Inject constructor(
         maxTs: Long?,
         minTs: Long?,
         count: Int
-    ): Resource<FeedData> = parseKtorResponse {
+    ): Resource<FeedData> = parseResponse {
         failIf(username.isNullOrEmpty()) {
             ResponseError.AUTH_HEADER_NOT_FOUND
         }
@@ -57,7 +57,7 @@ class FeedRepositoryImpl @Inject constructor(
         maxTs: Long?,
         minTs: Long?,
         count: Int
-    ): Resource<FeedData> = parseKtorResponse {
+    ): Resource<FeedData> = parseResponse {
         failIf(username.isNullOrEmpty()) {
             ResponseError.AUTH_HEADER_NOT_FOUND
         }
@@ -74,7 +74,7 @@ class FeedRepositoryImpl @Inject constructor(
     override suspend fun deleteEvent(
         username: String?,
         data: FeedEventDeletionData
-    ): Resource<SocialResponse> = parseKtorResponse {
+    ): Resource<SocialResponse> = parseResponse {
         failIf(username.isNullOrEmpty()) {
             ResponseError.AUTH_HEADER_NOT_FOUND
         }
@@ -88,7 +88,7 @@ class FeedRepositoryImpl @Inject constructor(
     override suspend fun hideEvent(
         username: String?,
         data: FeedEventVisibilityData
-    ): Resource<SocialResponse> = parseKtorResponse {
+    ): Resource<SocialResponse> = parseResponse {
         failIf(username.isNullOrEmpty()) {
             ResponseError.AUTH_HEADER_NOT_FOUND
         }
@@ -101,7 +101,7 @@ class FeedRepositoryImpl @Inject constructor(
     override suspend fun unhideEvent(
         username: String?,
         data: FeedEventVisibilityData
-    ): Resource<SocialResponse> = parseKtorResponse {
+    ): Resource<SocialResponse> = parseResponse {
         failIf(username.isNullOrEmpty()) {
             ResponseError.AUTH_HEADER_NOT_FOUND
         }

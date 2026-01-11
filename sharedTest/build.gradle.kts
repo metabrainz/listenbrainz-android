@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -40,8 +42,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
     }
 
     lint {
@@ -54,10 +58,8 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
-    // Networking
-    implementation(libs.retrofit)
+    // Networking (OkHttp kept for mockwebserver)
     implementation(libs.okhttp)
-    implementation(libs.retrofit.converter.kotlin)
     implementation(libs.ktor.serialization.kotlinx.json)
 
     //Spotify SDK for mocking remotePlaybackHandler

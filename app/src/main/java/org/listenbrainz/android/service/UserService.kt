@@ -1,5 +1,8 @@
 package org.listenbrainz.android.service
 
+import de.jensklingenberg.ktorfit.http.GET
+import de.jensklingenberg.ktorfit.http.Path
+import de.jensklingenberg.ktorfit.http.Query
 import org.listenbrainz.android.model.CurrentPins
 import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.userPlaylist.UserPlaylistPayload
@@ -10,48 +13,44 @@ import org.listenbrainz.android.model.user.TopSongs
 import org.listenbrainz.android.model.user.UserFeedback
 import org.listenbrainz.android.model.user.UserListeningActivity
 import org.listenbrainz.android.model.user.UserSimilarityPayload
-import retrofit2.Response
-import retrofit2.http.GET
-import retrofit2.http.Path
-import retrofit2.http.Query
 
 interface UserService {
     @GET("user/{user_name}/listen-count")
-    suspend fun getListenCount(@Path("user_name") username : String?) : Response<Listens?>
+    suspend fun getListenCount(@Path("user_name") username: String): Listens
 
     @GET("user/{user_name}/similar-to/{other_user_name}")
-    suspend fun getUserSimilarity(@Path("user_name") username: String? , @Path("other_user_name") otherUserName: String?) : Response<UserSimilarityPayload?>
+    suspend fun getUserSimilarity(@Path("user_name") username: String, @Path("other_user_name") otherUserName: String): UserSimilarityPayload
 
     @GET("{user_name}/pins/current")
-    suspend fun getUserCurrentPins(@Path("user_name") username: String?) : Response<CurrentPins?>
+    suspend fun getUserCurrentPins(@Path("user_name") username: String): CurrentPins
 
     @GET("{user_name}/pins")
-    suspend fun getUserPins(@Path("user_name") username: String?) : Response<AllPinnedRecordings?>
+    suspend fun getUserPins(@Path("user_name") username: String): AllPinnedRecordings
 
     @GET("stats/user/{user_name}/artists")
-    suspend fun getTopArtistsOfUser(@Path("user_name") username: String?, @Query("range") rangeString: String?, @Query("count") count: Int = 25) : Response<TopArtists>
+    suspend fun getTopArtistsOfUser(@Path("user_name") username: String, @Query("range") rangeString: String?, @Query("count") count: Int = 25): TopArtists
 
     @GET("feedback/user/{user_name}/get-feedback?metadata=true")
-    suspend fun getUserFeedback(@Path("user_name") username: String?, @Query("score") score: Int?) : Response<UserFeedback?>
+    suspend fun getUserFeedback(@Path("user_name") username: String, @Query("score") score: Int?): UserFeedback
 
     @GET("stats/user/{user_name}/listening-activity")
-    suspend fun getUserListeningActivity(@Path("user_name") username: String?, @Query("range") rangeString: String?): Response<UserListeningActivity?>
+    suspend fun getUserListeningActivity(@Path("user_name") username: String, @Query("range") rangeString: String?): UserListeningActivity
 
     @GET("stats/sitewide/listening-activity")
-    suspend fun getGlobalListeningActivity(@Query("range") rangeString: String?) : Response<UserListeningActivity?>
+    suspend fun getGlobalListeningActivity(@Query("range") rangeString: String?): UserListeningActivity
 
     @GET("stats/user/{user_name}/releases")
-    suspend fun getTopAlbumsOfUser(@Path("user_name") username: String?, @Query("range") rangeString: String?): Response<TopAlbums>
+    suspend fun getTopAlbumsOfUser(@Path("user_name") username: String, @Query("range") rangeString: String?): TopAlbums
 
     @GET("stats/user/{user_name}/recordings")
-    suspend fun getTopSongsOfUser(@Path("user_name") username: String?, @Query("range") rangeString: String?): Response<TopSongs>
+    suspend fun getTopSongsOfUser(@Path("user_name") username: String, @Query("range") rangeString: String?): TopSongs
 
     @GET("user/{user_name}/playlists/createdfor")
-    suspend fun getCreatedForYouPlaylists(@Path("user_name") username: String?): Response<UserPlaylistPayload>
+    suspend fun getCreatedForYouPlaylists(@Path("user_name") username: String): UserPlaylistPayload
 
     @GET("user/{user_name}/playlists")
-    suspend fun getUserPlaylists(@Path("user_name") username: String?, @Query("offset") offset: Int, @Query("count") count: Int): Response<UserPlaylistPayload>
+    suspend fun getUserPlaylists(@Path("user_name") username: String, @Query("offset") offset: Int, @Query("count") count: Int): UserPlaylistPayload
 
     @GET("user/{user_name}/playlists/collaborator")
-    suspend fun getUserCollabPlaylists(@Path("user_name") username: String?, @Query("offset") offset: Int, @Query("count") count: Int): Response<UserPlaylistPayload>
+    suspend fun getUserCollabPlaylists(@Path("user_name") username: String, @Query("offset") offset: Int, @Query("count") count: Int): UserPlaylistPayload
 }

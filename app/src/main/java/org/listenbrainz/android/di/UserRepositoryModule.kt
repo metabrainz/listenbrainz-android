@@ -12,5 +12,5 @@ import org.listenbrainz.android.repository.user.UserRepositoryImpl
 abstract class UserRepositoryModule {
 
     @Binds
-    abstract fun bindsUserRepository (repository: UserRepositoryImpl?) : UserRepository?
+    abstract fun bindsUserRepository (repository: UserRepositoryImpl) : UserRepository
 }

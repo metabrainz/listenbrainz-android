@@ -2,12 +2,12 @@ package org.listenbrainz.android.di
 
 import android.content.Context
 import com.chuckerteam.chucker.api.ChuckerInterceptor
-import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -16,12 +16,12 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.header
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.repository.preferences.AppPreferences
@@ -39,201 +39,56 @@ import org.listenbrainz.android.service.UserService
 import org.listenbrainz.android.service.Yim23Service
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.service.YouTubeApiService
+import org.listenbrainz.android.service.createAlbumService
+import org.listenbrainz.android.service.createArtistService
+import org.listenbrainz.android.service.createBlogService
+import org.listenbrainz.android.service.createCBService
+import org.listenbrainz.android.service.createListensService
+import org.listenbrainz.android.service.createMBService
+import org.listenbrainz.android.service.createPlaylistService
+import org.listenbrainz.android.service.createSocialService
+import org.listenbrainz.android.service.createUserService
+import org.listenbrainz.android.service.createYim23Service
+import org.listenbrainz.android.service.createYimService
+import org.listenbrainz.android.service.createYouTubeApiService
 import org.listenbrainz.android.util.Constants.CB_BASE_URL
 import org.listenbrainz.android.util.Constants.LB_BASE_URL
 import org.listenbrainz.android.util.Constants.LISTENBRAINZ_API_BASE_URL
 import org.listenbrainz.android.util.Constants.LISTENBRAINZ_BETA_API_BASE_URL
 import org.listenbrainz.android.util.Constants.MB_BASE_URL
-import org.listenbrainz.android.util.HeaderInterceptor
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Utils
-import retrofit2.Retrofit
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 class ServiceModule {
 
-    val json = Json {
+    private val jsonConfig = Json {
         ignoreUnknownKeys = true
         coerceInputValues = true
         isLenient = true
-    }
-    val contentType = "application/json".toMediaType()
-    
-    private val okHttpClient by lazy {
-        OkHttpClient
-            .Builder()
-            .addInterceptor(ChuckerInterceptor(App.context))
-            .build()
+        encodeDefaults = true
     }
 
-    private fun constructRetrofit(appPreferences: AppPreferences): Retrofit =
-        Retrofit.Builder()
-            .client(
-                okHttpClient
-                    .newBuilder()
-                    .addInterceptor(HeaderInterceptor(appPreferences))
-                    //.addInterceptor (HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS))
-                    .build()
-            )
-            .baseUrl(LISTENBRAINZ_API_BASE_URL)
-            .addConverterFactory(json.asConverterFactory(contentType))
-            .build()
-
-    @get:Singleton
-    @get:Provides
-    val blogService: BlogService = Retrofit.Builder()
-        .baseUrl("https://public-api.wordpress.com/rest/v1.1/sites/")
-        .client(okHttpClient)
-        .addConverterFactory(json.asConverterFactory(contentType))
-        .build().create(BlogService::class.java)
-
-    @Singleton
-    @Provides
-    fun providesListensService(appPreferences: AppPreferences): ListensService =
-        constructRetrofit(appPreferences)
-            .create(ListensService::class.java)
-
-
-    @Singleton
-    @Provides
-    fun providesSocialService(appPreferences: AppPreferences): SocialService =
-        constructRetrofit(appPreferences)
-            .create(SocialService::class.java)
-
-    @Singleton
-    @Provides
-    fun providesUserService(appPreferences: AppPreferences) : UserService =
-        constructRetrofit(appPreferences)
-        .create(UserService::class.java)
-
-    @Singleton
-    @Provides
-    fun providesPlaylistService(appPreferences: AppPreferences) : PlaylistService =
-        constructRetrofit(appPreferences)
-            .create(PlaylistService::class.java)
-
-    @Singleton
-    @Provides
-    fun providesArtistService(): ArtistService = Retrofit.Builder()
-        .baseUrl(LB_BASE_URL)
-        .client(okHttpClient)
-        .addConverterFactory(json.asConverterFactory(contentType))
-        .build().create(ArtistService::class.java)
-
-    @Singleton
-    @Provides
-    fun providesMBService(): MBService {
-        val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor { chain ->
-                val original = chain.request()
-                val request = original.newBuilder()
-                    .header("user-agent", "ListenBrainz Android")
-                    .header("accept", "application/json")
-                    .method(original.method, original.body)
-                    .build()
-                chain.proceed(request)
-            }
-            .build()
-
-        return Retrofit.Builder()
-            .baseUrl(MB_BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(json.asConverterFactory(contentType))
-            .build()
-            .create(MBService::class.java)
-    }
-
-    @Singleton
-    @Provides
-    fun providesCBService(): CBService = Retrofit.Builder()
-        .baseUrl(CB_BASE_URL)
-        .client(okHttpClient)
-        .addConverterFactory(json.asConverterFactory(contentType))
-        .build().create(CBService::class.java)
-
-    @Singleton
-    @Provides
-    fun providesAlbumService(): AlbumService = Retrofit.Builder()
-        .baseUrl(LB_BASE_URL)
-        .client(okHttpClient)
-        .addConverterFactory(json.asConverterFactory(contentType))
-        .build().create(AlbumService::class.java)
-
-    @Singleton
-    @Provides
-    fun providesYoutubeApiService(@ApplicationContext context: Context): YouTubeApiService =
-        Retrofit.Builder()
-            .baseUrl("https://www.googleapis.com/")
-            .client(okHttpClient)
-            .addConverterFactory(json.asConverterFactory(contentType))
-            .client( OkHttpClient.Builder()
-                .addInterceptor { chain ->
-                    val request = chain.request().newBuilder()
-                        .addHeader("X-Android-Package", context.packageName)
-                        .addHeader("X-Android-Cert", Utils.getSHA1(context, context.packageName) ?: "")
-                        .build()
-                    chain.proceed(request)
-                }
-                .build()
-            )
-            .build()
-            .create(YouTubeApiService::class.java)
-
-
-    @get:Singleton
-    @get:Provides
-    val yimService: YimService = Retrofit.Builder()
-            .baseUrl(LISTENBRAINZ_API_BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(json.asConverterFactory(contentType))
-            .build()
-            .create(YimService::class.java)
-
-    @get:Singleton
-    @get:Provides
-    val yim23Service: Yim23Service = Retrofit.Builder()
-        //TODO : To be removed when YIM goes live
-        .baseUrl(LISTENBRAINZ_BETA_API_BASE_URL)
-        .client(okHttpClient)
-        .addConverterFactory(json.asConverterFactory(contentType))
-        .build()
-        .create(Yim23Service::class.java)
-
-    @Singleton
-    @Provides
-    fun providesHttpClient(appPreferences: AppPreferences): HttpClient {
+    private fun createBaseHttpClient(
+        appPreferences: AppPreferences? = null,
+        baseUrl: String = LISTENBRAINZ_API_BASE_URL,
+        additionalConfig: (io.ktor.client.HttpClientConfig<io.ktor.client.engine.okhttp.OkHttpConfig>.() -> Unit)? = null
+    ): HttpClient {
         return HttpClient(OkHttp) {
-            /*
-             * RedirectResponseException for 3xx responses.
-             * ClientRequestException for 4xx responses.
-             * ServerResponseException for 5xx responses.
-             */
             expectSuccess = true
 
-            // TODO: Use HttpResponseValidator in future.
-
             install(ContentNegotiation) {
-                json(Json {
-                    ignoreUnknownKeys = true
-                    isLenient = true
-                    coerceInputValues = true
-
-                    /*
-                     Default values aren't encoded by default in kotlinx.serialization
-                     setting this field to true will ensure default encoding
-                     source: https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/json.md#encoding-defaults
-                                            *encodeDefaults = true*
-                     */
-                })
+                json(jsonConfig)
             }
 
             if (BuildConfig.DEBUG) {
                 install(Logging) {
                     logger = object : Logger {
                         override fun log(message: String) {
-                            Log.d("Ktor_Android: $message")
+                            Log.d("Ktor: $message")
                         }
                     }
                     level = LogLevel.ALL
@@ -241,29 +96,229 @@ class ServiceModule {
 
                 engine {
                     config {
-                        //  only helpful for androidMain, expected to not work on other source targets
                         addInterceptor(ChuckerInterceptor(App.context))
                     }
                 }
             }
 
             defaultRequest {
-                url(LISTENBRAINZ_API_BASE_URL)
+                url(baseUrl)
+                contentType(ContentType.Application.Json)
 
-                runBlocking {
-                    runCatching {
-                        withTimeout(3000) {
-                            val accessToken = appPreferences.lbAccessToken.get()
-                            if (accessToken.isNotEmpty()) {
-                                header("Authorization", "Token $accessToken")
+                appPreferences?.let { prefs ->
+                    runBlocking {
+                        runCatching {
+                            withTimeout(3000) {
+                                val accessToken = prefs.lbAccessToken.get()
+                                if (accessToken.isNotEmpty()) {
+                                    header("Authorization", "Token $accessToken")
+                                }
                             }
+                        }.getOrElse {
+                            Log.d("Error loading access token: ${it.message}")
                         }
-                    }.getOrElse {
-                        Log.d("Error loading access token: ${it.message}")
                     }
                 }
             }
+
+            additionalConfig?.invoke(this)
         }
+    }
+
+    @Singleton
+    @Provides
+    fun providesHttpClient(appPreferences: AppPreferences): HttpClient {
+        return createBaseHttpClient(appPreferences)
+    }
+
+    @Singleton
+    @Provides
+    fun providesBlogService(): BlogService {
+        val httpClient = createBaseHttpClient(baseUrl = "https://public-api.wordpress.com/rest/v1.1/sites/")
+        return Ktorfit.Builder()
+            .baseUrl("https://public-api.wordpress.com/rest/v1.1/sites/")
+            .httpClient(httpClient)
+            .build()
+            .createBlogService()
+    }
+
+    @Singleton
+    @Provides
+    fun providesListensService(appPreferences: AppPreferences): ListensService {
+        val httpClient = createBaseHttpClient(appPreferences)
+        return Ktorfit.Builder()
+            .baseUrl(LISTENBRAINZ_API_BASE_URL)
+            .httpClient(httpClient)
+            .build()
+            .createListensService()
+    }
+
+    @Singleton
+    @Provides
+    fun providesSocialService(appPreferences: AppPreferences): SocialService {
+        val httpClient = createBaseHttpClient(appPreferences)
+        return Ktorfit.Builder()
+            .baseUrl(LISTENBRAINZ_API_BASE_URL)
+            .httpClient(httpClient)
+            .build()
+            .createSocialService()
+    }
+
+    @Singleton
+    @Provides
+    fun providesUserService(appPreferences: AppPreferences): UserService {
+        val httpClient = createBaseHttpClient(appPreferences)
+        return Ktorfit.Builder()
+            .baseUrl(LISTENBRAINZ_API_BASE_URL)
+            .httpClient(httpClient)
+            .build()
+            .createUserService()
+    }
+
+    @Singleton
+    @Provides
+    fun providesPlaylistService(appPreferences: AppPreferences): PlaylistService {
+        val httpClient = createBaseHttpClient(appPreferences)
+        return Ktorfit.Builder()
+            .baseUrl(LISTENBRAINZ_API_BASE_URL)
+            .httpClient(httpClient)
+            .build()
+            .createPlaylistService()
+    }
+
+    @Singleton
+    @Provides
+    fun providesArtistService(): ArtistService {
+        val httpClient = createBaseHttpClient(baseUrl = LB_BASE_URL)
+        return Ktorfit.Builder()
+            .baseUrl(LB_BASE_URL)
+            .httpClient(httpClient)
+            .build()
+            .createArtistService()
+    }
+
+    @Singleton
+    @Provides
+    fun providesMBService(): MBService {
+        val httpClient = HttpClient(OkHttp) {
+            expectSuccess = false
+
+            install(ContentNegotiation) {
+                json(jsonConfig)
+            }
+
+            if (BuildConfig.DEBUG) {
+                install(Logging) {
+                    logger = object : Logger {
+                        override fun log(message: String) {
+                            Log.d("Ktor: $message")
+                        }
+                    }
+                    level = LogLevel.ALL
+                }
+
+                engine {
+                    config {
+                        addInterceptor(ChuckerInterceptor(App.context))
+                    }
+                }
+            }
+
+            defaultRequest {
+                url(MB_BASE_URL)
+                header("user-agent", "ListenBrainz Android")
+                header("accept", "application/json")
+            }
+        }
+        return Ktorfit.Builder()
+            .baseUrl(MB_BASE_URL)
+            .httpClient(httpClient)
+            .build()
+            .createMBService()
+    }
+
+    @Singleton
+    @Provides
+    fun providesCBService(): CBService {
+        val httpClient = createBaseHttpClient(baseUrl = CB_BASE_URL)
+        return Ktorfit.Builder()
+            .baseUrl(CB_BASE_URL)
+            .httpClient(httpClient)
+            .build()
+            .createCBService()
+    }
+
+    @Singleton
+    @Provides
+    fun providesAlbumService(): AlbumService {
+        val httpClient = createBaseHttpClient(baseUrl = LB_BASE_URL)
+        return Ktorfit.Builder()
+            .baseUrl(LB_BASE_URL)
+            .httpClient(httpClient)
+            .build()
+            .createAlbumService()
+    }
+
+    @Singleton
+    @Provides
+    fun providesYoutubeApiService(@ApplicationContext context: Context): YouTubeApiService {
+        val httpClient = HttpClient(OkHttp) {
+            expectSuccess = false
+
+            install(ContentNegotiation) {
+                json(jsonConfig)
+            }
+
+            if (BuildConfig.DEBUG) {
+                install(Logging) {
+                    logger = object : Logger {
+                        override fun log(message: String) {
+                            Log.d("Ktor: $message")
+                        }
+                    }
+                    level = LogLevel.ALL
+                }
+
+                engine {
+                    config {
+                        addInterceptor(ChuckerInterceptor(App.context))
+                    }
+                }
+            }
+
+            defaultRequest {
+                url("https://www.googleapis.com/")
+                header("X-Android-Package", context.packageName)
+                header("X-Android-Cert", Utils.getSHA1(context, context.packageName) ?: "")
+            }
+        }
+        return Ktorfit.Builder()
+            .baseUrl("https://www.googleapis.com/")
+            .httpClient(httpClient)
+            .build()
+            .createYouTubeApiService()
+    }
+
+    @Singleton
+    @Provides
+    fun providesYimService(): YimService {
+        val httpClient = createBaseHttpClient(baseUrl = LISTENBRAINZ_API_BASE_URL)
+        return Ktorfit.Builder()
+            .baseUrl(LISTENBRAINZ_API_BASE_URL)
+            .httpClient(httpClient)
+            .build()
+            .createYimService()
+    }
+
+    @Singleton
+    @Provides
+    fun providesYim23Service(): Yim23Service {
+        val httpClient = createBaseHttpClient(baseUrl = LISTENBRAINZ_BETA_API_BASE_URL)
+        return Ktorfit.Builder()
+            .baseUrl(LISTENBRAINZ_BETA_API_BASE_URL)
+            .httpClient(httpClient)
+            .build()
+            .createYim23Service()
     }
 
     @Singleton

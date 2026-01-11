@@ -36,6 +36,7 @@ import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils
+import org.listenbrainz.android.util.Utils.parseResponse
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -43,6 +44,7 @@ import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import androidx.core.net.toUri
 
 @Singleton
 class RemotePlaybackHandlerImpl @Inject constructor(
@@ -66,8 +68,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
     override suspend fun searchYoutubeMusicVideoId(
         trackName: String,
         artist: String
-    ): Resource<String> = runCatching {
-        
+    ): Resource<String> = parseResponse {
         val response = youtubeApiService.searchVideos(
             part = "snippet",
             query = "$trackName $artist",
@@ -75,19 +76,17 @@ class RemotePlaybackHandlerImpl @Inject constructor(
             videoCategoryId = "10",
             apiKey = appContext.getString(R.string.youtubeApiKey)
         )
-    
-        return@runCatching if (response.isSuccessful) {
-            val items = response.body()?.items
-            if (!items.isNullOrEmpty()) {
-                Resource.success(items.first().id.videoId)
-            } else {
-                ResponseError.REMOTE_PLAYER_ERROR.asResource("Could not find this song on youtube." )
+
+        val items = response.items
+
+        failIf(items.isEmpty()) {
+            ResponseError.REMOTE_PLAYER_ERROR.apply {
+                actualResponse = "Could not find this song on youtube."
             }
-        } else {
-            Resource.failure(error = ResponseError.getError(response = response))
         }
-        
-    }.getOrElse { Utils.logAndReturn(it) }
+
+        return@parseResponse items.first().id.videoId
+    }
     
     
     override suspend fun playOnYoutube(getYoutubeMusicVideoId: suspend () -> Resource<String>): Resource<Unit> {
@@ -97,7 +96,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
         return when(result.status) {
             Resource.Status.SUCCESS -> {
                 // Play the track in the YouTube Music app
-                val trackUri = Uri.parse("https://music.youtube.com/watch?v=${result.data}")
+                val trackUri = "https://music.youtube.com/watch?v=${result.data}".toUri()
                 
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.data = trackUri

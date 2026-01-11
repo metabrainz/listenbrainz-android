@@ -12,5 +12,5 @@ import org.listenbrainz.android.repository.album.AlbumRepositoryImpl
 abstract class AlbumRepositoryModule {
 
     @Binds
-    abstract fun bindsAlbumRepository (repository: AlbumRepositoryImpl?) : AlbumRepository?
+    abstract fun bindsAlbumRepository (repository: AlbumRepositoryImpl) : AlbumRepository
 }

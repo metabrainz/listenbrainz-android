@@ -1,6 +1,5 @@
 package org.listenbrainz.android.repository.album
 
-
 import org.listenbrainz.android.model.album.Album
 import org.listenbrainz.android.model.album.AlbumInfo
 import org.listenbrainz.android.model.artist.CBReview

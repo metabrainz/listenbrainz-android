@@ -14,5 +14,5 @@ import org.listenbrainz.android.repository.listenservicemanager.ListenServiceMan
 abstract class RemotePlayerRepositoryModule {
     
     @Binds
-    abstract fun bindsRemotePlayerRepository(repository: RemotePlaybackHandlerImpl?): RemotePlaybackHandler?
+    abstract fun bindsRemotePlayerRepository(repository: RemotePlaybackHandlerImpl): RemotePlaybackHandler
 }

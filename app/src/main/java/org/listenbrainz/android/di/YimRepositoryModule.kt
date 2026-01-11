@@ -11,5 +11,5 @@ import org.listenbrainz.android.repository.yim.YimRepositoryImpl
 @InstallIn(ActivityRetainedComponent::class)
 abstract class YimRepositoryModule {
     @Binds
-    abstract fun bindsYimRepository(repository: YimRepositoryImpl?): YimRepository?
+    abstract fun bindsYimRepository(repository: YimRepositoryImpl): YimRepository
 }

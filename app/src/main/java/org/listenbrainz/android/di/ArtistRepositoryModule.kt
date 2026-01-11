@@ -12,5 +12,5 @@ import org.listenbrainz.android.repository.artist.ArtistRepositoryImpl
 abstract class ArtistRepositoryModule {
 
     @Binds
-    abstract fun bindsArtistRepository (repository: ArtistRepositoryImpl?) : ArtistRepository?
+    abstract fun bindsArtistRepository (repository: ArtistRepositoryImpl) : ArtistRepository
 }
