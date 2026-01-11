@@ -182,7 +182,7 @@ dependencies {
     // Image loading and processing
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
-    implementation(libs.androidsvg)
+    implementation(libs.coil.svg)
 
     // Compose
     val composeBom = platform(libs.androidx.compose.bom)

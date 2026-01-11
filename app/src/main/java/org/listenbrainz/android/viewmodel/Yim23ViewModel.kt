@@ -2,14 +2,17 @@ package org.listenbrainz.android.viewmodel
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.caverock.androidsvg.SVG
+import coil3.ImageLoader
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import coil3.svg.SvgDecoder
+import coil3.toBitmap
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import org.listenbrainz.android.model.SocialData
@@ -19,7 +22,6 @@ import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.repository.yim23.Yim23Repository
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.saveBitmap
-import java.net.URL
 
 class Yim23ViewModel(
     private val repository: Yim23Repository,
@@ -247,35 +249,43 @@ class Yim23ViewModel(
     }
 
     /** Shareable types : "stats", "artists", "albums", "tracks", "discovery-playlist", "missed-playlist".*/
-    fun saveSharableImage(sharableType: String, context: Context)
-    {
+    fun saveSharableImage(sharableType: String, context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
-            val bitmap: Bitmap = Bitmap.createBitmap(924,924,Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(bitmap)
             val imageURL = "https://api.listenbrainz.org/1/art/year-in-music/2023/${getUsername()}?image=$sharableType"
 
             try {
-                // Download Image from URL
-                URL(imageURL).openStream().use {
-                    // Decode Bitmap
-                    SVG.getFromInputStream(it).renderToCanvas(canvas)
+                // Create ImageLoader with SVG decoder
+                val imageLoader = ImageLoader.Builder(context)
+                    .components { add(SvgDecoder.Factory()) }
+                    .build()
+
+                val request = ImageRequest.Builder(context)
+                    .data(imageURL)
+                    .size(924, 924)
+                    .build()
+
+                val result = imageLoader.execute(request)
+                if (result is SuccessResult) {
+                    val bitmap = result.image.toBitmap()
+
+                    saveBitmap(
+                        context = context,
+                        bitmap = bitmap,
+                        format = Bitmap.CompressFormat.PNG,
+                        displayName = "${getUsername()}'s $sharableType",
+                        launchShareIntent = true
+                    )
+                } else {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "Failed to load image.", Toast.LENGTH_SHORT).show()
+                    }
                 }
-
-                saveBitmap(
-                    context = context,
-                    bitmap = bitmap,
-                    format = Bitmap.CompressFormat.PNG,
-                    displayName = "${getUsername()}'s $sharableType",
-                    launchShareIntent = true
-                )
-
-            }catch (e: Exception){
-                withContext(Dispatchers.Main){
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
                     Toast.makeText(context, "Something went wrong.", Toast.LENGTH_SHORT).show()
                 }
                 e.localizedMessage?.let { Log.e("YimShareError", it) }
             }
-
         }
     }
 
