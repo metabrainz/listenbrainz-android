@@ -145,11 +145,9 @@ fun HomeScreen(
             searchBarState.activate()
         }
     )
-    val navOrder by dashBoardViewModel.appPreferences.navBarOrder
-        .getFlow()
-        .collectAsStateWithLifecycle(
-            initialValue = null
-        )
+    val navOrder by dashBoardViewModel.navBarOrderFlow
+        .collectAsStateWithLifecycle()
+
     val filteredNavItems = navOrder?.filter {
         isAudioPermissionGranted || it != AppNavigationItem.BrainzPlayer
     }

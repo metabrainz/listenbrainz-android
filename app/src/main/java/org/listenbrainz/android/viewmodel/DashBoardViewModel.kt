@@ -46,6 +46,14 @@ class DashBoardViewModel @Inject constructor(
     val usernameFlow = appPreferences.username.getFlow()
     val permissionStatusFlow = MutableStateFlow(emptyMap<PermissionEnum, PermissionStatus>())
 
+    val navBarOrderFlow = appPreferences.navBarOrder
+        .getFlow()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = null
+        )
+
     val permissionsRequestedAteastOnce = appPreferences.requestedPermissionsList.getFlow()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
