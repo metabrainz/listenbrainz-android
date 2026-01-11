@@ -1,11 +1,11 @@
 package org.listenbrainz.android
 
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.junit.After
-import org.junit.Before
-import org.junit.Test
 import org.junit.runner.RunWith
 import org.listenbrainz.android.util.JobQueue
 import org.listenbrainz.android.util.Log
@@ -21,12 +21,12 @@ class JobQueueTest: BaseUnitTest() {
     @Mock
     private lateinit var mockLog: Log
     
-    @Before
+    @BeforeTest
     fun setUp() {
         jobQueue = JobQueue(testDispatcher(), mockLog)
     }
     
-    @After
+    @AfterTest
     fun tearDown() {
         jobQueue.cancel()
     }

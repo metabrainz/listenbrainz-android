@@ -23,23 +23,26 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 
 
 @Composable
-@OptIn(ExperimentalGlideComposeApi::class)
 fun YimListenCard(
     releaseName: String,
     artistName: String,
     coverArtUrl: String?,
     onClick: () -> Unit = {}
 ) {
+    val context = LocalContext.current
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -52,21 +55,21 @@ fun YimListenCard(
         color = Color.White
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            
             // Album cover art
-            GlideImage(
-                model = coverArtUrl,
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(coverArtUrl)
+                    .crossfade(true)
+                    .build(),
+                placeholder = painterResource(R.drawable.ic_erroralbumart),
+                error = painterResource(R.drawable.ic_erroralbumart),
                 modifier = Modifier.size(60.dp),
                 contentScale = ContentScale.Fit,
                 contentDescription = "Album Cover Art"
-            ) {
-                it.placeholder(R.drawable.ic_erroralbumart)
-                    .override(75)
-            }
+            )
             
             Spacer(modifier = Modifier.width(16.dp))
             
@@ -100,7 +103,6 @@ fun YimListenCard(
 @Composable
 private fun YimListenCardPreview() {
     ListenBrainzTheme {
-        // Doesn't work due to glide
         YimListenCard(releaseName = "Release name", artistName = "Artist", coverArtUrl = "")
     }
 }

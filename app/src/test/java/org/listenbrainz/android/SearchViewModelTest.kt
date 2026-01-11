@@ -1,11 +1,12 @@
 package org.listenbrainz.android
 
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Test
 import org.junit.runner.RunWith
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.User
@@ -34,7 +35,7 @@ class SearchViewModelTest : BaseUnitTest() {
     @Mock
     private lateinit var mockSocialRepository: SocialRepository
     
-    @Before
+    @BeforeTest
     fun setup(){
         
         // Search response mock
@@ -132,7 +133,7 @@ class SearchViewModelTest : BaseUnitTest() {
     }
     
     private fun assertErrorFlowChanged() : SearchViewModelTest {
-        assert(viewModel.uiState.value.error is ResponseError.BadRequest)
+        assertTrue(viewModel.uiState.value.error is ResponseError.BadRequest)
         return this
     }
     

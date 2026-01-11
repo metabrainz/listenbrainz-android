@@ -1,7 +1,6 @@
 package org.listenbrainz.android.viewmodel
 
 import android.content.Context
-import android.graphics.drawable.BitmapDrawable
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ALL
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_NONE
@@ -17,9 +16,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.palette.graphics.Palette
-import coil.ImageLoader
-import coil.request.ImageRequest
-import coil.request.SuccessResult
+import coil3.ImageLoader
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import coil3.request.allowHardware
+import coil3.toBitmap
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -140,10 +141,8 @@ class BrainzPlayerViewModel(
                 .allowHardware(false)
                 .build()
             val result = loader.execute(request)
-            val bitmap = (result as? SuccessResult)?.drawable?.let { drawable ->
-                (drawable as? BitmapDrawable)?.bitmap
-            }
-            bitmap?.let { bitmap ->
+            if (result is SuccessResult) {
+                val bitmap = result.image.toBitmap()
                 val palette = Palette.from(bitmap).generate()
                 val swatch = run {
                     if (isDarkThemeEnabled) {

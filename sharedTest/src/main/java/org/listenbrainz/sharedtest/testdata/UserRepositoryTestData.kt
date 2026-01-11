@@ -23,15 +23,20 @@ import org.listenbrainz.sharedtest.utils.ResourceString.topAlbums
 import org.listenbrainz.sharedtest.utils.ResourceString.topSongs
 import org.listenbrainz.sharedtest.utils.ResourceString.top_artists
 import org.listenbrainz.sharedtest.utils.ResourceString.userListeningActivity
-import org.listenbrainz.sharedtest.utils.RetrofitUtils.json
+
+private val json = Json { 
+    ignoreUnknownKeys = true 
+    coerceInputValues = true
+    isLenient = true
+}
 
 object UserRepositoryTestData {
     val listenCountTestData: Listens = Listens(
         payload = Payload(
             count = 3252,
-            latest_listen_ts = 0,
+            latestListenTs = 0,
             listens = listOf(),
-            user_id = "Jasjeet"
+            userId = "Jasjeet"
         )
     )
 
@@ -58,21 +63,21 @@ object UserRepositoryTestData {
     val allPinsTestData: AllPinnedRecordings?
         get() = json.decodeFromString<AllPinnedRecordings>(all_pins)
 
-    val topArtistsTestData: TopArtists?
+    val topArtistsTestData: TopArtists
         get() = json.decodeFromString<TopArtists>(top_artists)
 
-    val lovedHatedSongsTestData: UserFeedback?
+    val lovedHatedSongsTestData: UserFeedback
         get() = json.decodeFromString<UserFeedback>(loved_hated_songs)
 
-    val listeningActivityTestData: UserListeningActivity?
+    val listeningActivityTestData: UserListeningActivity
         get() = json.decodeFromString<UserListeningActivity>(userListeningActivity)
 
-    val globalListeningActivityTestData: UserListeningActivity?
+    val globalListeningActivityTestData: UserListeningActivity
         get() = json.decodeFromString<UserListeningActivity>(globalListeningActivity)
 
-    val topAlbumsTestData: TopAlbums?
+    val topAlbumsTestData: TopAlbums
         get() = json.decodeFromString<TopAlbums>(topAlbums)
 
-    val topSongsTestData: TopSongs?
+    val topSongsTestData: TopSongs
         get() = json.decodeFromString<TopSongs>(topSongs)
 }

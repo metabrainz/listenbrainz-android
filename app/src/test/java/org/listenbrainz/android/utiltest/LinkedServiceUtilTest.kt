@@ -1,7 +1,7 @@
 package org.listenbrainz.android.utiltest
 
-import org.junit.Assert.assertEquals
-import org.junit.Test
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.android.util.LinkedService.Companion.toLinkedService
 
