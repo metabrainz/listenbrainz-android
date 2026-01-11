@@ -1,6 +1,7 @@
 package org.listenbrainz.android.ui.screens.search
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
@@ -15,6 +16,7 @@ fun rememberSearchBarState(): SearchBarState {
 }
 
 /** State class which controls the main search bar of the app. */
+@Stable
 class SearchBarState(initialState: Boolean = false) {
     
     private var state by mutableStateOf(initialState)
