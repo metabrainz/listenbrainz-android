@@ -181,7 +181,7 @@ dependencies {
 
     // Image loading and processing
     implementation(libs.coil.compose)
-    implementation(libs.coil.network)
+    implementation(libs.coil.ktor)
     implementation(libs.coil.svg)
 
     // Compose
