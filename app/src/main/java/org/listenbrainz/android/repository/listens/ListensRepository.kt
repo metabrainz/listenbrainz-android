@@ -2,6 +2,7 @@ package org.listenbrainz.android.repository.listens
 
 import android.graphics.drawable.Drawable
 import org.listenbrainz.android.model.CoverArt
+import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.ListenBrainzExternalServices
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.Listens
@@ -32,4 +33,5 @@ interface ListensRepository {
     suspend fun getLinkedServices(token: String?, username: String?) : Resource<ListenBrainzExternalServices>
 
     suspend fun getNowPlaying(username: String?) : Resource<Listens>
+    suspend fun deleteListen(listen: Listen): Resource<Void>
 }
