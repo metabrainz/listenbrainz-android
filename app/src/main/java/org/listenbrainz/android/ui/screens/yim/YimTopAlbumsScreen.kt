@@ -40,10 +40,13 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import kotlinx.coroutines.delay
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.yimdata.YimScreens
@@ -142,13 +145,14 @@ fun YimTopAlbumsScreen(
 }
 
 
-@OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun YimAlbumViewer(list: List<TopRelease>?, listState: LazyListState = rememberLazyListState()) {
+    val context = LocalContext.current
     
     // This prevents image from being blur or crashing the app.
     var renderImage by remember { mutableStateOf(false) }
-    LaunchedEffect(true){
+    LaunchedEffect(true) {
         delay(2000)
         renderImage = true
     }
@@ -166,39 +170,39 @@ private fun YimAlbumViewer(list: List<TopRelease>?, listState: LazyListState = r
             state = listState,
             modifier = Modifier
                 .fillMaxWidth()
-                // Animates the grayish background of this window.
                 .padding(vertical = LocalYimPaddings.current.extraLargePadding)
                 .alpha(alphaAnimation)
                 .animateContentSize(),
-            flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)        // Centre snapping effect
+            flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
         ) {
-            
             itemsIndexed(list!!.toList()) { index, item ->
-                
                 if (index == 0)
                     Spacer(modifier = Modifier.width(LocalYimPaddings.current.defaultPadding))
                 else
                     Spacer(modifier = Modifier.width(LocalYimPaddings.current.tinyPadding))
                 
-                
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    
-                    GlideImage(
-                        model = Utils.getCoverArtUrl(
-                            caaReleaseMbid = item.caaReleaseMbid,
-                            caaId = item.caaId,
-                            size = 500
-                        ),
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(
+                                Utils.getCoverArtUrl(
+                                    caaReleaseMbid = item.caaReleaseMbid,
+                                    caaId = item.caaId,
+                                    size = 500
+                                )
+                            )
+                            .crossfade(true)
+                            .build(),
+                        placeholder = painterResource(R.drawable.yim_album_placeholder),
+                        error = painterResource(R.drawable.yim_album_placeholder),
                         modifier = Modifier
                             .size(300.dp)
                             .clip(RoundedCornerShape(10.dp)),
                         contentDescription = "Album Poster"
-                    ) {
-                        it.override(300).placeholder(R.drawable.yim_album_placeholder)
-                    }
+                    )
                     
                     Spacer(modifier = Modifier.height(5.dp))
                     
@@ -227,7 +231,6 @@ private fun YimAlbumViewer(list: List<TopRelease>?, listState: LazyListState = r
                     Spacer(modifier = Modifier.width(LocalYimPaddings.current.defaultPadding))
                 else
                     Spacer(modifier = Modifier.width(LocalYimPaddings.current.tinyPadding))
-                
             }
         }
     }

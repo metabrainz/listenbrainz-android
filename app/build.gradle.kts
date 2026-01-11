@@ -180,11 +180,9 @@ dependencies {
     implementation(libs.ktorfit.lib)
 
     // Image loading and processing
-    implementation(libs.glide)
-    implementation(libs.glide.compose)
     implementation(libs.coil.compose)
+    implementation(libs.coil.network)
     implementation(libs.androidsvg)
-    ksp(libs.glide.compiler)
 
     // Compose
     val composeBom = platform(libs.androidx.compose.bom)

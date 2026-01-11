@@ -1,14 +1,15 @@
 package org.listenbrainz.android.viewmodel
 
 import android.content.Context
-import android.graphics.drawable.BitmapDrawable
 import android.system.Os.listen
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import coil.imageLoader
-import coil.request.ImageRequest
-import coil.request.SuccessResult
+import coil3.imageLoader
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import coil3.request.allowHardware
+import coil3.toBitmap
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -120,11 +121,9 @@ class ListeningNowViewModel(
 
                 val result = context.imageLoader.execute(request)
                 if (result is SuccessResult) {
-                    val bitmap = (result.drawable as? BitmapDrawable)?.bitmap
-                    bitmap?.let { bitmap ->
-                        _listeningNowUIState.update {
-                            it.copy(palette = getPaletteFromImage(bitmap))
-                        }
+                    val bitmap = result.image.toBitmap()
+                    _listeningNowUIState.update {
+                        it.copy(palette = getPaletteFromImage(bitmap))
                     }
                 }
             } catch (e: Exception) {

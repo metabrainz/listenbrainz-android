@@ -25,9 +25,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import okhttp3.*
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.yimdata.YimScreens
 import org.listenbrainz.android.model.yimdata.Track
@@ -166,8 +166,8 @@ fun YimRecommendedPlaylistsScreen(
 }
 
 @Composable
-@OptIn(ExperimentalGlideComposeApi::class)
 private fun YimAlbumArt(viewModel: YimViewModel, isTopDiscoveriesPlaylist: Boolean) {
+    val context = LocalContext.current
     Box(
         modifier = Modifier.size(310.dp),
         contentAlignment = Alignment.Center
@@ -181,14 +181,16 @@ private fun YimAlbumArt(viewModel: YimViewModel, isTopDiscoveriesPlaylist: Boole
             userScrollEnabled = false
         ) {
             items(list.size) { index ->
-                GlideImage(
-                    model = list[index],
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(list[index])
+                        .crossfade(true)
+                        .build(),
+                    placeholder = painterResource(R.drawable.ic_coverartarchive_logo_no_text),
+                    error = painterResource(R.drawable.ic_coverartarchive_logo_no_text),
                     modifier = Modifier.size(75.dp),
                     contentDescription = "Album Cover Art"
-                ) {
-                    it.placeholder(R.drawable.ic_coverartarchive_logo_no_text)
-                        .override(120)
-                }
+                )
             }
         }
         Image(
@@ -202,7 +204,6 @@ private fun YimAlbumArt(viewModel: YimViewModel, isTopDiscoveriesPlaylist: Boole
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 private fun YimTopDiscoveriesOrMissedList(
     paddings: YimPaddings,

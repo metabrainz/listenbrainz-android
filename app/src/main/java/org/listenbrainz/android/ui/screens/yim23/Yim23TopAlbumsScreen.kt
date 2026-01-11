@@ -24,8 +24,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import androidx.compose.ui.platform.LocalContext
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.yimdata.TopReleaseYim23
 import org.listenbrainz.android.model.yimdata.Yim23Screens
@@ -73,26 +75,29 @@ fun Yim23TopAlbumsScreen (
         }
     }
 }
-@OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class)
 @Composable
-private fun AlbumCoverPic (list: List<TopReleaseYim23>?) {
-    Column  {
+private fun AlbumCoverPic(list: List<TopReleaseYim23>?) {
+    val context = LocalContext.current
+    Column {
         for (j in 1..3)
-            Row () {
-                for(i in 3*j-2..3*j){
-                    GlideImage(
-                        model = Utils.getCoverArtUrl(
-                            caaReleaseMbid = list!![i-1].caaReleaseMbid,
-                            caaId = list[i-1].caaId,
-                            size = 250,
-                        ),
-                        modifier = Modifier
-                            .size(80.dp),
+            Row {
+                for (i in 3 * j - 2..3 * j) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(
+                                Utils.getCoverArtUrl(
+                                    caaReleaseMbid = list!![i - 1].caaReleaseMbid,
+                                    caaId = list[i - 1].caaId,
+                                    size = 250,
+                                )
+                            )
+                            .crossfade(true)
+                            .build(),
+                        placeholder = painterResource(R.drawable.yim_album_placeholder),
+                        error = painterResource(R.drawable.yim_album_placeholder),
+                        modifier = Modifier.size(80.dp),
                         contentDescription = "Album Poster",
                     )
-                    {
-                        it.override(300).placeholder(R.drawable.yim_album_placeholder)
-                    }
                 }
             }
     }

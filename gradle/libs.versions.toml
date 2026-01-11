@@ -25,7 +25,7 @@ retrofit = "2.11.0"
 okhttp = "5.0.0-alpha.14"
 glide = "5.0.5"
 glideCompose = "4.14.0"
-coil = "2.7.0"
+coil = "3.3.0"
 androidsvg = "1.4"
 material = "1.12.0"
 lottie = "6.6.0"
@@ -123,10 +123,8 @@ retrofit-converter-kotlin = { module = "com.jakewharton.retrofit:retrofit2-kotli
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 okhttp-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
 
-glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
-glide-compose = { module = "com.github.bumptech.glide:compose", version.ref = "glideCompose" }
-glide-compiler = { module = "com.github.bumptech.glide:compiler", version.ref = "glide" }
-coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil"}
 androidsvg = { module = "com.caverock:androidsvg-aar", version.ref = "androidsvg" }
 
 material = { module = "com.google.android.material:material", version.ref = "material" }

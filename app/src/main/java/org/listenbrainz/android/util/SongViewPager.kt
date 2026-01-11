@@ -1,6 +1,6 @@
 package org.listenbrainz.android.util
 
-import android.graphics.drawable.BitmapDrawable
+
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -55,10 +55,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.androidx.compose.koinViewModel
 import androidx.palette.graphics.Palette
-import coil.ImageLoader
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import coil.request.SuccessResult
+import coil3.ImageLoader
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import coil3.request.allowHardware
+import coil3.toBitmap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
@@ -310,22 +312,18 @@ fun Modifier.dynamicBackgroundFromAlbumArt(
                 .allowHardware(false)
                 .build()
             val result = loader.execute(request)
-            val bitmap = (result as? SuccessResult)?.drawable?.let { drawable ->
-                (drawable as? BitmapDrawable)?.bitmap
-            }
+            if (result is SuccessResult) {
+                val bitmap = result.image.toBitmap()
+                val palette = Palette.from(bitmap).generate()
+                val dominantColor = palette.getDominantColor(defaultColor.toArgb())
+                val color = Color(dominantColor)
 
-            bitmap?.let {
-                Palette.from(it).generate { palette ->
-                    val dominantColor = palette?.getDominantColor(defaultColor.toArgb())
-                    val color = Color(dominantColor ?: defaultColor.toArgb())
-
-                    backgroundColor = color.copy(
-                        red = color.red * dullnessFactor + (1 - dullnessFactor) * 0.5f,
-                        green = color.green * dullnessFactor + (1 - dullnessFactor) * 0.5f,
-                        blue = color.blue * dullnessFactor + (1 - dullnessFactor) * 0.5f
-                    )
-                }
-            } ?: run {
+                backgroundColor = color.copy(
+                    red = color.red * dullnessFactor + (1 - dullnessFactor) * 0.5f,
+                    green = color.green * dullnessFactor + (1 - dullnessFactor) * 0.5f,
+                    blue = color.blue * dullnessFactor + (1 - dullnessFactor) * 0.5f
+                )
+            } else {
                 backgroundColor = defaultColor
             }
         }
