@@ -231,16 +231,6 @@ fun FeedScreen(
                 .fillMaxSize()
                 .pullRefresh(state = pullRefreshState)
         ) {
-            if (myFeedPagingData.itemCount == 0 && myFeedPagingData.loadState.refresh is LoadState.Error) {
-                RetryButton(
-                    modifier = Modifier.align(Alignment.Center),
-                ) {
-                    myFeedPagingData.retry()
-                    similarListensPagingData.retry()
-                    followListensPagingData.retry()
-                }
-            }
-
             HorizontalPager(
                 state = pagerState,
                 beyondViewportPageCount = 1
@@ -329,6 +319,16 @@ fun FeedScreen(
                         goToArtistPage = callbacks.goToArtistPage,
                         shimmerInstance = shimmerInstance
                     )
+                }
+            }
+
+            if (myFeedPagingData.itemCount == 0 && myFeedPagingData.loadState.refresh is LoadState.Error) {
+                RetryButton(
+                    modifier = Modifier.align(Alignment.Center),
+                ) {
+                    myFeedPagingData.retry()
+                    similarListensPagingData.retry()
+                    followListensPagingData.retry()
                 }
             }
 
