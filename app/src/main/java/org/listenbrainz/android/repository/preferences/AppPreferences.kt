@@ -5,6 +5,7 @@ import org.listenbrainz.android.model.InstallSource
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.util.LinkedService
+import org.listenbrainz.shared.preferences.DataStorePreference
 
 interface AppPreferences {
     
