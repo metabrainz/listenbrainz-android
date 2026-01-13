@@ -1,4 +1,4 @@
-package com.listenbrainz.shared
+package org.listenbrainz.shared
 
 import kotlin.test.Test
 import kotlin.test.assertEquals

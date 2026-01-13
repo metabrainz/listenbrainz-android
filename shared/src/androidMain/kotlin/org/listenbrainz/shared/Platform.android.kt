@@ -1,3 +1,3 @@
-package com.listenbrainz.shared
+package org.listenbrainz.shared
 
 actual fun platform() = "Android"
