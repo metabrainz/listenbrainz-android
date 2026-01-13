@@ -16,3 +16,5 @@ play_config.json
 sentry.properties
 /app/.idea
 /app/github
+
+shared/.idea
