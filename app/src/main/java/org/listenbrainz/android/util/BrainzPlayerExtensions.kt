@@ -10,7 +10,6 @@ import android.os.SystemClock
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
-import androidx.core.graphics.drawable.toBitmap
 import androidx.core.net.toUri
 import coil3.imageLoader
 import coil3.request.ErrorResult
@@ -25,7 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.BuildConfig.APPLICATION_ID
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.Song
+import org.listenbrainz.shared.model.Song
 import java.io.File
 
 object BrainzPlayerExtensions {

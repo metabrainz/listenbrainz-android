@@ -3,7 +3,7 @@ package org.listenbrainz.android.repository.brainzplayer
 import kotlinx.coroutines.flow.Flow
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.Artist
-import org.listenbrainz.android.model.Song
+import org.listenbrainz.shared.model.Song
 
 interface BPArtistRepository {
  fun getArtist(artistID: String) : Flow<Artist>

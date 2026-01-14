@@ -22,8 +22,8 @@ import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.Artist
-import org.listenbrainz.android.model.PlayableType
-import org.listenbrainz.android.model.Song
+import org.listenbrainz.shared.model.PlayableType
+import org.listenbrainz.shared.model.Song
 import org.listenbrainz.android.ui.components.BrainzPlayerActivityCards
 import org.listenbrainz.android.ui.components.BrainzPlayerSeeAllCard
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme

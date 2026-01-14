@@ -15,11 +15,11 @@ import com.google.android.exoplayer2.ext.mediasession.TimelineQueueNavigator
 import kotlinx.coroutines.*
 import org.koin.android.ext.android.inject
 import kotlinx.coroutines.flow.first
-import org.listenbrainz.android.model.Playable
-import org.listenbrainz.android.model.Playable.Companion.EMPTY_PLAYABLE
-import org.listenbrainz.android.model.PlayableType
+import org.listenbrainz.shared.model.Playable
+import org.listenbrainz.shared.model.Playable.Companion.EMPTY_PLAYABLE
+import org.listenbrainz.shared.model.PlayableType
 import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.repository.brainzplayer.PlaylistRepository
 import org.listenbrainz.android.repository.brainzplayer.SongRepository
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toMediaMetadataCompat
@@ -61,13 +61,22 @@ class BrainzPlayerService : MediaBrowserServiceCompat() {
     override fun onCreate() {
         super.onCreate()
         serviceScope.launch {
-            if (appPreferences.currentPlayable == null){
-                appPreferences.currentPlayable = Playable(PlayableType.ALL_SONGS, -1L, songRepository.getSongsStream().first().map {
-                    it
-                }, 0 )
+            val playable = appPreferences.currentPlayable.get()
+            val ensuredPlayable = if (playable == null) {
+                val newPlayable = Playable(
+                    PlayableType.ALL_SONGS,
+                    -1L,
+                    songRepository.getSongsStream().first().map { it },
+                    0
+                )
+                appPreferences.currentPlayable.set(newPlayable)
+                newPlayable
+            } else {
+                playable
             }
-            localMusicSource.setMediaSource(appPreferences.currentPlayable?.songs?.map { song->
-                song.toMediaMetadataCompat }?.toMutableList() ?: mutableListOf() )
+            localMusicSource.setMediaSource(
+                ensuredPlayable.songs.map { song -> song.toMediaMetadataCompat }.toMutableList()
+            )
         }
         val activityIntent = packageManager?.getLaunchIntentForPackage(packageName)?.let {
             PendingIntent.getActivity(
@@ -152,7 +161,7 @@ class BrainzPlayerService : MediaBrowserServiceCompat() {
         playNow: Boolean
     ) {
         serviceScope.launch(Dispatchers.Main) {
-            val playable = appPreferences.currentPlayable ?: EMPTY_PLAYABLE
+            val playable = appPreferences.currentPlayable.get() ?: EMPTY_PLAYABLE
             val songs = playable.songs.map {
                 it.toMediaMetadataCompat
             }.toMutableList()
@@ -165,6 +174,13 @@ class BrainzPlayerService : MediaBrowserServiceCompat() {
             if (playable != EMPTY_PLAYABLE) {
                 brainzPlayerNotificationManager.showNotification(exoPlayer)
             }
+        }
+    }
+
+    fun updateCurrentPlayable(update: (Playable?) -> Playable?) {
+        serviceScope.launch {
+            val updatedPlayable = update(appPreferences.currentPlayable.get())
+            appPreferences.currentPlayable.set(updatedPlayable)
         }
     }
 

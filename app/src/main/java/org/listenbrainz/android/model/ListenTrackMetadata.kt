@@ -3,6 +3,7 @@ package org.listenbrainz.android.model
 import androidx.room.Embedded
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.listenbrainz.shared.model.AdditionalInfo
 
 @Serializable
 class ListenTrackMetadata(

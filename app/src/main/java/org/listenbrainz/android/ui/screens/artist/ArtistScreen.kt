@@ -71,9 +71,9 @@ import com.gowtham.ratingbar.RatingBar
 import com.gowtham.ratingbar.RatingBarStyle
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AppNavigationItem
-import org.listenbrainz.android.model.MbidMapping
-import org.listenbrainz.android.model.Metadata
-import org.listenbrainz.android.model.TrackMetadata
+import org.listenbrainz.shared.model.MbidMapping
+import org.listenbrainz.shared.model.Metadata
+import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.android.model.album.ReleaseGroupData
 import org.listenbrainz.android.model.artist.Artist
 import org.listenbrainz.android.model.artist.ArtistWikiExtract

@@ -1,11 +1,9 @@
-package org.listenbrainz.android.model
+package org.listenbrainz.shared.model
 
-import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 
-@Immutable
 @Serializable
 data class Metadata(
     @SerialName("blurb_content")

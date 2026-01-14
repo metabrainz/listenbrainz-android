@@ -17,7 +17,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.yimdata.*
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.repository.yim23.Yim23Repository
 import org.listenbrainz.android.util.Resource

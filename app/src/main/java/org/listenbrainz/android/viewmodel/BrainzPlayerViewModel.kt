@@ -26,25 +26,26 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.model.Playable
-import org.listenbrainz.android.model.Playable.Companion.EMPTY_PLAYABLE
-import org.listenbrainz.android.model.PlayableType
+import org.listenbrainz.shared.model.Playable
+import org.listenbrainz.shared.model.Playable.Companion.EMPTY_PLAYABLE
+import org.listenbrainz.shared.model.PlayableType
 import org.listenbrainz.android.model.Playlist.Companion.currentlyPlaying
 import org.listenbrainz.android.model.RepeatMode
-import org.listenbrainz.android.model.Song
+import org.listenbrainz.shared.model.Song
 import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
 import org.listenbrainz.android.repository.brainzplayer.PlaylistRepository
 import org.listenbrainz.android.repository.brainzplayer.SongRepository
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.service.BrainzPlayerService
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
-import org.listenbrainz.android.service.NOTHING_PLAYING
 import org.listenbrainz.android.util.BrainzPlayerExtensions.currentPlaybackPosition
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlayEnabled
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlaying
@@ -78,6 +79,9 @@ class BrainzPlayerViewModel(
     val isPlaying = brainzPlayerServiceConnection.isPlaying
     val playButton = brainzPlayerServiceConnection.playButtonState
     val repeatMode = brainzPlayerServiceConnection.repeatModeState
+    val currentPlayable = appPreferences.currentPlayable.getFlow()
+        .map { it ?: EMPTY_PLAYABLE }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, EMPTY_PLAYABLE)
 
     var playerBackGroundColor by mutableStateOf(Color.Transparent)
         private set
@@ -90,7 +94,7 @@ class BrainzPlayerViewModel(
 
     init {
         if (!isPlaying.value) {
-            appPreferences.currentPlayable = EMPTY_PLAYABLE
+            setCurrentPlayable(EMPTY_PLAYABLE)
         }
 
         updatePlayerPosition()
@@ -162,32 +166,35 @@ class BrainzPlayerViewModel(
     }
 
     fun handleSongChangeFromPager(position:Int){
-        Log.d("PAGER", "handleSongChangeFromPager:$position , ${appPreferences.currentPlayable?.currentSongIndex} ")
-        if(position > (appPreferences.currentPlayable?.currentSongIndex ?: 0)){
+        Log.d("PAGER", "handleSongChangeFromPager:$position , ${currentPlayable.value.currentSongIndex} ")
+        if(position > currentPlayable.value.currentSongIndex){
             skipToNextSong()
         }
-        else if(position < (appPreferences.currentPlayable?.currentSongIndex ?: 0)){
+        else if(position < currentPlayable.value.currentSongIndex){
             skipToPreviousSong()
         }
     }
 
     fun skipToNextSong() {
         brainzPlayerServiceConnection.transportControls?.skipToNext() ?: return
-        // Updating currently playing song.
-        appPreferences.currentPlayable = appPreferences.currentPlayable
-            ?.copy(currentSongIndex = ( appPreferences.currentPlayable?.currentSongIndex!! + 1)   // Since BP won't be visible to users with no songs, we don't need to worry.
-                .coerceAtMost(appPreferences.currentPlayable?.songs!!.size)
+        val playable = currentPlayable.value
+        setCurrentPlayable(
+            playable.copy(
+                currentSongIndex = (playable.currentSongIndex + 1)
+                    .coerceAtMost(playable.songs.size)
             )
+        )
     }
 
     fun skipToPreviousSong() {
         brainzPlayerServiceConnection.transportControls?.seekTo(0) ?: return // Always reset to the start since the song won't change if playing time exceeds a certain threshold.
         brainzPlayerServiceConnection.transportControls?.skipToPrevious() ?: return
-        // Updating currently playing song.
-        appPreferences.currentPlayable = appPreferences.currentPlayable
-            ?.copy(currentSongIndex = ( appPreferences.currentPlayable?.currentSongIndex!! - 1)   // Since BP won't be visible to users with no songs, we don't need to worry.
-                .coerceAtLeast(0)
+        val playable = currentPlayable.value
+        setCurrentPlayable(
+            playable.copy(
+                currentSongIndex = (playable.currentSongIndex - 1).coerceAtLeast(0)
             )
+        )
     }
 
 
@@ -276,13 +283,13 @@ class BrainzPlayerViewModel(
     }
 
     fun changePlayable(newPlayableList: List<Song>, playableType: PlayableType, playableId: Long, currentIndex: Int, seekTo: Long = 0L ) {
-        appPreferences.currentPlayable =
-            Playable(playableType, playableId, newPlayableList, currentIndex, seekTo)
+        setCurrentPlayable(Playable(playableType, playableId, newPlayableList, currentIndex, seekTo))
     }
     
     /**Skip to the given song at given [index] in the current playlist.*/
     fun skipToPlayable(index: Int){
-        appPreferences.currentPlayable = appPreferences.currentPlayable?.copy(currentSongIndex = index)
+        val playable = currentPlayable.value
+        setCurrentPlayable(playable.copy(currentSongIndex = index))
     }
 
     override fun onCleared() {
@@ -306,27 +313,35 @@ class BrainzPlayerViewModel(
         }
     }
 
+    private fun setCurrentPlayable(playable: Playable) {
+        viewModelScope.launch(ioDispatcher) {
+            appPreferences.currentPlayable.set(playable)
+        }
+    }
+
     fun playNext(songs: List<Song>) {
         if (songs.isEmpty()) return
 
+        val playable = currentPlayable.value
         val currentSongIndex =
-            appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.value.toSong.mediaID }
+            playable.songs.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.value.toSong.mediaID }
+                .takeIf { it != -1 }
                 ?.plus(1)
         if (isPlaying.value && currentSongIndex != null) {
-            val currentSongs =
-                appPreferences.currentPlayable?.songs?.toMutableList()
-            currentSongs?.addAll(currentSongIndex, songs)
-            appPreferences.currentPlayable =
-                appPreferences.currentPlayable?.copy(
-                    songs = currentSongs ?: emptyList()
-                )
-            appPreferences.currentPlayable?.songs?.let {
+            val currentSongs = playable.songs.toMutableList()
+            currentSongs.addAll(currentSongIndex, songs)
+            val updatedPlayable = playable.copy(
+                songs = currentSongs
+            )
+            setCurrentPlayable(updatedPlayable)
+            updatedPlayable.songs.let {
                 changePlayable(
                     it,
                     PlayableType.ALL_SONGS,
-                    appPreferences.currentPlayable?.id ?: 0,
-                    appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.value.toSong.mediaID }
-                        ?: 0, songCurrentPosition.value
+                    updatedPlayable.id,
+                    updatedPlayable.songs.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.value.toSong.mediaID }
+                        .coerceAtLeast(0),
+                    songCurrentPosition.value
                 )
             }
             queueChanged(
@@ -346,26 +361,52 @@ class BrainzPlayerViewModel(
         }
     }
 
+    fun enqueueNext(songs: List<Song>) {
+        if (songs.isEmpty()) return
+
+        val playable = currentPlayable.value
+        val currentIndex = playable.songs.indexOfFirst {
+            it.mediaID == currentlyPlayingSong.value.toSong.mediaID
+        }
+        val updatedSongs = playable.songs.toMutableList()
+        if (currentIndex != -1) {
+            updatedSongs.addAll(currentIndex + 1, songs)
+        }
+        val updatedPlayable = playable.copy(songs = updatedSongs)
+        setCurrentPlayable(updatedPlayable)
+        changePlayable(
+            updatedSongs,
+            PlayableType.ALL_SONGS,
+            updatedPlayable.id,
+            currentIndex.coerceAtLeast(0),
+            songCurrentPosition.value
+        )
+        queueChanged(
+            currentlyPlayingSong.value.toSong,
+            isPlaying.value
+        )
+    }
+
     fun addToQueue(
         songs: List<Song>
     ) {
-        val currentSongs =
-            appPreferences.currentPlayable?.songs?.toMutableList()
-        currentSongs?.addAll(songs)
-        appPreferences.currentPlayable =
-            appPreferences.currentPlayable?.copy(
-                songs = currentSongs ?: emptyList()
-            )
-        var currentSongIndex = appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.value.toSong.mediaID } ?: 0
+        val playable = currentPlayable.value
+        val currentSongs = playable.songs.toMutableList()
+        currentSongs.addAll(songs)
+        val updatedPlayable = playable.copy(
+            songs = currentSongs
+        )
+        setCurrentPlayable(updatedPlayable)
+        var currentSongIndex = updatedPlayable.songs.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.value.toSong.mediaID }
         if (currentSongIndex == -1) {
             currentSongIndex = 0
         }
 
-        appPreferences.currentPlayable?.songs?.let {
+        updatedPlayable.songs.let {
             changePlayable(
                 it,
                 PlayableType.ALL_SONGS,
-                appPreferences.currentPlayable?.id ?: 0,
+                updatedPlayable.id,
                 currentSongIndex,
                 songCurrentPosition.value
             )

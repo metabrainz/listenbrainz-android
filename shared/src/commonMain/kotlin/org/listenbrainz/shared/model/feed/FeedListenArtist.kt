@@ -1,4 +1,4 @@
-package org.listenbrainz.android.model.feed
+package org.listenbrainz.shared.model.feed
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

@@ -2,8 +2,8 @@ package org.listenbrainz.android.utiltest
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import org.listenbrainz.android.util.LinkedService
-import org.listenbrainz.android.util.LinkedService.Companion.toLinkedService
+import org.listenbrainz.shared.model.LinkedService
+import org.listenbrainz.shared.model.LinkedService.Companion.toLinkedService
 
 class LinkedServiceUtilTest {
     

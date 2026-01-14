@@ -73,11 +73,11 @@ import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.flow.flow
 import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.model.AppNavigationItem
-import org.listenbrainz.android.model.Metadata
+import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.android.model.feed.FeedCallbacks
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventType
-import org.listenbrainz.android.model.feed.FeedListenArtist
+import org.listenbrainz.shared.model.feed.FeedListenArtist
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall

@@ -1,9 +1,7 @@
 package org.listenbrainz.android.ui.screens.brainzplayer
 
 
-import android.os.Build
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
@@ -20,12 +18,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -36,8 +31,8 @@ import org.listenbrainz.android.application.App.Companion.context
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.Artist
-import org.listenbrainz.android.model.PlayableType
-import org.listenbrainz.android.model.Song
+import org.listenbrainz.shared.model.PlayableType
+import org.listenbrainz.shared.model.Song
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.brainzplayer.navigation.Navigation
@@ -47,7 +42,6 @@ import org.listenbrainz.android.ui.screens.brainzplayer.overview.OverviewScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.overview.RecentPlaysScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.overview.SongsOverviewScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.viewmodel.BPAlbumViewModel
 import org.listenbrainz.android.viewmodel.BPArtistViewModel
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel

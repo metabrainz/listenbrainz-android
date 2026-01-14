@@ -13,7 +13,7 @@ import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.listenbrainz.android.BuildConfig
-import org.listenbrainz.android.model.AdditionalInfo
+import org.listenbrainz.shared.model.AdditionalInfo
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.ListenTrackMetadata
 import org.listenbrainz.android.model.ListenType
@@ -21,7 +21,7 @@ import org.listenbrainz.android.model.PlayingTrack
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.dao.PendingListensDao
 import org.listenbrainz.android.repository.listens.ListensRepository
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource

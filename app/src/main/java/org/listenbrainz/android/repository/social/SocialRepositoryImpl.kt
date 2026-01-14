@@ -12,7 +12,7 @@ import org.listenbrainz.android.model.SocialResponse
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.util.Utils.parseResponse
 
 

@@ -11,24 +11,19 @@ import androidx.activity.ComponentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.application
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.InstallSource
+import org.listenbrainz.shared.model.InstallSource
 import org.listenbrainz.android.model.githubupdates.GithubUpdatesList
 import org.listenbrainz.android.model.githubupdates.GithubUpdatesListItem
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.util.Constants
-import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.isNewerVersion
 import java.io.File
 
