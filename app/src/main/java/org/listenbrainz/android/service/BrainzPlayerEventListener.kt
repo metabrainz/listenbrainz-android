@@ -32,8 +32,9 @@ class BrainzPlayerEventListener(
         //updating current playing index when song auto transitions or song change from notification
         when (reason) {
             DISCONTINUITY_REASON_SEEK_ADJUSTMENT, DISCONTINUITY_REASON_AUTO_TRANSITION -> {
-                brainzPlayerService.appPreferences.currentPlayable =
-                    brainzPlayerService.appPreferences.currentPlayable?.copy(currentSongIndex = newPosition.mediaItemIndex)
+                brainzPlayerService.updateCurrentPlayable { playable ->
+                    playable?.copy(currentSongIndex = newPosition.mediaItemIndex)
+                }
             }
 
             else -> {}

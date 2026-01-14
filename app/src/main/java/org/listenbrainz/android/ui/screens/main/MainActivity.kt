@@ -15,7 +15,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
@@ -30,7 +29,7 @@ import kotlinx.coroutines.runBlocking
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.PermissionStatus
-import org.listenbrainz.android.model.UiMode
+import org.listenbrainz.shared.model.UiMode
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.navigation.NavigationItem
 import org.listenbrainz.android.ui.navigation.TopBarActions
@@ -181,7 +180,7 @@ class MainActivity : ComponentActivity() {
                                         backStack.add(NavigationItem.OnboardingScreens.LoginScreen)
                                     },
                                     onOnboardingRequest = {
-                                        dashBoardViewModel.appPreferences.onboardingCompleted = false
+                                        dashBoardViewModel.resetOnboardingCompleted()
                                         onboardingNavigationSetup(dashBoardViewModel)
                                         backStack.add(
                                             if (onboardingScreensQueue.isNotEmpty()) {
@@ -259,7 +258,7 @@ class MainActivity : ComponentActivity() {
     fun onboardingNavigationSetup(dashBoardViewModel: DashBoardViewModel) {
         //Blocking the main thread to ensure that the onboarding screens are set up before the UI is displayed
         runBlocking {
-            if (!dashBoardViewModel.appPreferences.onboardingCompleted) {
+            if (!dashBoardViewModel.appPreferences.onboardingCompleted.get()) {
                 onboardingScreensQueue.addAll(
                     listOf(
                         NavigationItem.OnboardingScreens.IntroductionScreen,
@@ -296,7 +295,7 @@ class MainActivity : ComponentActivity() {
             backStack.add(onboardingScreensQueue.removeAt(0))
         } else {
             // If no more onboarding screens, onboarding is complete
-            dashBoardViewModel.appPreferences.onboardingCompleted = true
+            dashBoardViewModel.markOnboardingCompleted()
             if (backStack.all { it is NavigationItem.OnboardingScreens }) {
                 // If the back stack has only onboarding screens, add home screen to the back stack
                 backStack.add(NavigationItem.HomeScreen)
@@ -310,7 +309,7 @@ class MainActivity : ComponentActivity() {
     }
 
     fun onboardingBackHandler(key: NavKey) {
-        if (!dashBoardViewModel.appPreferences.onboardingCompleted && key is NavigationItem.OnboardingScreens) {
+        if (!dashBoardViewModel.isOnboardingCompleted() && key is NavigationItem.OnboardingScreens) {
             onboardingScreensQueue.add(0, key)
         } else {
             runBlocking {

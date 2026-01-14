@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.screens.settings
 
-import org.listenbrainz.android.model.UiMode
+import org.listenbrainz.shared.model.UiMode
 
 data class PreferencesUiState(
     val isSpotifyLinked: Boolean = false,

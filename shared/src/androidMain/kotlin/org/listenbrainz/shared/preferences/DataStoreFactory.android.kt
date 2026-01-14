@@ -10,10 +10,13 @@ import okio.Path.Companion.toPath
  * Android implementation of DataStore factory.
  */
 actual fun createDataStore(
-    producePath: () -> String,
+    name: String,
     migrations: List<DataMigration<Preferences>>
-): DataStore<Preferences> =
-    PreferenceDataStoreFactory.createWithPath(
-        produceFile = { producePath().toPath() },
+): DataStore<Preferences> {
+    val context = AndroidDataStoreContext.require()
+    val path = context.filesDir.resolve("datastore/$name").absolutePath
+    return PreferenceDataStoreFactory.createWithPath(
+        produceFile = { path.toPath() },
         migrations = migrations
     )
+}

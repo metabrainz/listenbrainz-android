@@ -14,11 +14,11 @@ import platform.Foundation.NSUserDomainMask
  * iOS implementation of DataStore factory.
  */
 actual fun createDataStore(
-    producePath: () -> String,
+    name: String,
     migrations: List<DataMigration<Preferences>>
 ): DataStore<Preferences> =
     PreferenceDataStoreFactory.createWithPath(
-        produceFile = { producePath().toPath() },
+        produceFile = { iosDataStorePath(name).toPath() },
         migrations = migrations
     )
 
@@ -26,7 +26,7 @@ actual fun createDataStore(
  * Helper function to get the iOS documents directory path.
  */
 @OptIn(ExperimentalForeignApi::class)
-fun iosDataStorePath(fileName: String): String {
+private fun iosDataStorePath(fileName: String): String {
     val documentDirectory = NSFileManager.defaultManager.URLForDirectory(
         directory = NSDocumentDirectory,
         inDomain = NSUserDomainMask,

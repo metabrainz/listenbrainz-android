@@ -1,8 +1,7 @@
 package org.listenbrainz.android.repository.brainzplayer
 
 import kotlinx.coroutines.flow.Flow
-import org.listenbrainz.android.model.Song
-import org.listenbrainz.android.model.SongEntity
+import org.listenbrainz.shared.model.Song
 
 interface SongRepository {
     fun getSongsStream() : Flow<List<Song>>

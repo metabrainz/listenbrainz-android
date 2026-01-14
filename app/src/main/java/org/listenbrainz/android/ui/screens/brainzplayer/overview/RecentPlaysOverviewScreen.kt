@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 import org.koin.androidx.compose.koinViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.Song
+import org.listenbrainz.shared.model.Song
 import org.listenbrainz.android.ui.components.BrainzPlayerDropDownMenu
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme

@@ -80,7 +80,7 @@ fun HomeScreen(
         initialValue = null
     )
     val currentlyPlayingSong by brainzPlayerViewModel.currentlyPlayingSong.collectAsStateWithLifecycle()
-    val songList = brainzPlayerViewModel.appPreferences.currentPlayable?.songs
+    val currentPlayableState by brainzPlayerViewModel.currentPlayable.collectAsStateWithLifecycle()
     val isLandScape =
         LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val isBackdropInitialised by remember {
@@ -122,7 +122,7 @@ fun HomeScreen(
     val isNothingPlaying = remember(currentlyPlayingSong) {
         currentlyPlayingSong.toSong.title == "null"
                 && currentlyPlayingSong.toSong.artist == "null"
-                || brainzPlayerViewModel.appPreferences.currentPlayable?.songs.isNullOrEmpty()
+                || currentPlayableState.songs.isEmpty()
     }
 
     val isListeningNowOpenedInConcealedState = backdropScaffoldState.targetValue != BackdropValue.Revealed && isNothingPlaying && listeningNowUIState.isListeningNow
@@ -167,7 +167,7 @@ fun HomeScreen(
                         username = username,
                         isLandscape = false,
                         currentlyPlayingSong = currentlyPlayingSong.toSong,
-                        songList = songList ?: emptyList(),
+                        songList = currentPlayableState.songs,
                         isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable(),
                         listeningNowUIState = listeningNowUIState,
                         searchBarState = searchBarState,
@@ -203,7 +203,7 @@ fun HomeScreen(
                     isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable(),
                     currentlyPlayingSong = currentlyPlayingSong.toSong,
                     listeningNowUIState = listeningNowUIState,
-                    songList = songList ?: emptyList(),
+                    songList = currentPlayableState.songs,
                     searchBarState = searchBarState
                 )
             }

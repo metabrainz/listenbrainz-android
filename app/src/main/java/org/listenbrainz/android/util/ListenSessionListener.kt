@@ -11,8 +11,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
-import org.listenbrainz.android.repository.preferences.AppPreferences
-import org.listenbrainz.android.util.ListenSessionListener.Companion.isPlaying
+import org.listenbrainz.shared.repository.AppPreferences
 import java.util.concurrent.ConcurrentHashMap
 
 class ListenSessionListener(

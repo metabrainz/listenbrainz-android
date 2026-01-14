@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.Artist
-import org.listenbrainz.android.model.Song
+import org.listenbrainz.shared.model.Song
 import org.listenbrainz.android.model.dao.ArtistDao
 import org.listenbrainz.android.util.AlbumsData
 import org.listenbrainz.android.util.SongsData

@@ -19,7 +19,7 @@ import kotlinx.coroutines.runBlocking
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.PlayingTrack.Companion.toPlayingTrack
 import org.listenbrainz.android.model.RepeatMode
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlaying
 import org.listenbrainz.android.util.ListenSubmissionState
 import org.listenbrainz.android.util.Resource

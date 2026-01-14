@@ -1,8 +1,5 @@
 package org.listenbrainz.android.util
 
-import kotlinx.serialization.Serializable
-import org.listenbrainz.android.util.Constants.SPOTIFY_PACKAGE_NAME
-
 object Constants {
     
 
@@ -38,27 +35,6 @@ object Constants {
         const val PACKAGE_PIXEL_NP_R = "com.google.android.as"
         const val PACKAGE_PIXEL_NP_AMM = "com.kieronquinn.app.pixelambientmusic"
         const val PACKAGE_SHAZAM = "com.shazam.android"
-    }
-    
-}
-
-@Serializable
-enum class LinkedService(val code: String, val packageName: String? = null) {
-    
-    SPOTIFY("spotify", SPOTIFY_PACKAGE_NAME),
-    CRITIQUEBRAINZ("critiquebrainz"),
-    MUSICBRAINZ("musicbrainz"),
-    UNKNOWN("");
-    
-    companion object {
-        fun String.toLinkedService(): LinkedService {
-            return when (this[0]) {
-                's' -> SPOTIFY
-                'c' -> CRITIQUEBRAINZ
-                'm' -> MUSICBRAINZ
-                else -> UNKNOWN
-            }
-        }
     }
     
 }

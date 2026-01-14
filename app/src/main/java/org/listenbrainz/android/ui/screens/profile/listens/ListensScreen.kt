@@ -90,10 +90,8 @@ import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
-import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.SocialUiState
-import org.listenbrainz.android.model.TrackMetadata
-import org.listenbrainz.android.model.feed.ReviewEntityType
+import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.android.model.user.Artist
 import org.listenbrainz.android.ui.components.ButtonLB
 import org.listenbrainz.android.ui.components.ErrorBar
@@ -102,11 +100,6 @@ import org.listenbrainz.android.ui.components.ListenCardSmallDefault
 import org.listenbrainz.android.ui.components.MusicBrainzButton
 import org.listenbrainz.android.ui.components.SimilarUserCard
 import org.listenbrainz.android.ui.components.SuccessBar
-import org.listenbrainz.android.ui.components.dialogs.Dialog
-import org.listenbrainz.android.ui.components.dialogs.PersonalRecommendationDialog
-import org.listenbrainz.android.ui.components.dialogs.PinDialog
-import org.listenbrainz.android.ui.components.dialogs.ReviewDialog
-import org.listenbrainz.android.ui.screens.feed.FeedUiState
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -115,7 +108,6 @@ import org.listenbrainz.android.ui.theme.compatibilityMeterColor
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.PreviewSurface
-import org.listenbrainz.android.util.Utils.LaunchedEffectUnit
 import org.listenbrainz.android.util.Utils.Spacer
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.util.consumeHorizontalDrag

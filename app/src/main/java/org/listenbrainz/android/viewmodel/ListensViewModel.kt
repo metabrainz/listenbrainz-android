@@ -18,15 +18,15 @@ import kotlinx.coroutines.withContext
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.model.ResponseError
-import org.listenbrainz.android.model.UiMode
+import org.listenbrainz.shared.model.UiMode
 import org.listenbrainz.android.repository.listens.ListensRepository
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.socket.SocketRepository
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningNowUiState
 import org.listenbrainz.android.ui.screens.profile.listens.ListensUiState
 import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
-import org.listenbrainz.android.util.LinkedService
+import org.listenbrainz.shared.model.LinkedService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Resource.Status.FAILED
 import org.listenbrainz.android.util.Resource.Status.SUCCESS
@@ -39,7 +39,6 @@ class ListensViewModel(
     private val ioDispatcher: CoroutineDispatcher,
 ) : BaseViewModel<ListensUiState>() {
 
-    private val isSpotifyLinked = MutableStateFlow(appPreferences.linkedServices.contains(LinkedService.SPOTIFY))
     private val isNotificationServiceAllowed = MutableStateFlow(appPreferences.isNotificationServiceAllowed)
     private val isLoading = MutableStateFlow(true)
     private val playerState = remotePlaybackHandler.getPlayerState().onEach { updateTrackCoverArt(it) }
@@ -116,7 +115,7 @@ class ListensViewModel(
     @Suppress("UNCHECKED_CAST")
     private fun createPreferencesUiStateFlow(): StateFlow<PreferencesUiState> =
         combine(
-            isSpotifyLinked,
+            appPreferences.linkedServices.getFlow().map { it.contains(LinkedService.SPOTIFY) },
             appPreferences.username.getFlow(),
             appPreferences.lbAccessToken.getFlow(),
             isNotificationServiceAllowed,
@@ -189,8 +188,7 @@ class ListensViewModel(
             }
             if (result.status.isSuccessful()) {
                 result.data!!.toLinkedServicesList().also { services ->
-                    isSpotifyLinked.emit(services.contains(LinkedService.SPOTIFY))
-                    appPreferences.linkedServices = services
+                    appPreferences.linkedServices.set(services)
                 }
             }
         }

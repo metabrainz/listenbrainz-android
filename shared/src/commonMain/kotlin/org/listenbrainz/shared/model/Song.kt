@@ -1,7 +1,7 @@
-package org.listenbrainz.android.model
+package org.listenbrainz.shared.model
 
 import kotlinx.serialization.Serializable
-import org.listenbrainz.android.model.feed.FeedListenArtist
+import org.listenbrainz.shared.model.feed.FeedListenArtist
 
 @Serializable
 data class Song (

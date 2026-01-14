@@ -10,7 +10,7 @@ import kotlinx.coroutines.withContext
 
 
 import org.listenbrainz.android.model.Album
-import org.listenbrainz.android.model.Song
+import org.listenbrainz.shared.model.Song
 import org.listenbrainz.android.model.dao.AlbumDao
 import org.listenbrainz.android.util.AlbumsData
 import org.listenbrainz.android.util.SongsData

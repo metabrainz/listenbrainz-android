@@ -1,4 +1,4 @@
-package org.listenbrainz.android.model
+package org.listenbrainz.shared.model
 
 enum class UiMode {
     FOLLOW_SYSTEM,

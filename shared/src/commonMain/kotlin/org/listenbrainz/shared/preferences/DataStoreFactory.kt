@@ -5,14 +5,12 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 
 /**
- * Creates a DataStore instance.
- * 
- * @param producePath A function that returns the file path where the DataStore should be stored.
- *                    On Android this would be context.filesDir.resolve("datastore/$fileName").absolutePath
- *                    On iOS this would be NSHomeDirectory() + "/Documents/$fileName"
+ * Creates a DataStore instance with a platform-resolved file path.
+ *
+ * @param name File name for the DataStore on disk.
  */
 expect fun createDataStore(
-    producePath: () -> String,
+    name: String,
     migrations: List<DataMigration<Preferences>> = emptyList()
 ): DataStore<Preferences>
 

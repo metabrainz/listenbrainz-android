@@ -2,7 +2,7 @@ package org.listenbrainz.android.repository.brainzplayer
 
 import kotlinx.coroutines.flow.Flow
 import org.listenbrainz.android.model.Album
-import org.listenbrainz.android.model.Song
+import org.listenbrainz.shared.model.Song
 
 interface BPAlbumRepository {
     fun getAlbums() : Flow<List<Album>>

@@ -2,13 +2,12 @@ package org.listenbrainz.sharedtest.mocks
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import org.listenbrainz.android.model.InstallSource
-import org.listenbrainz.android.model.PermissionStatus
-import org.listenbrainz.android.model.Playable
-import org.listenbrainz.android.model.UiMode
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.shared.model.InstallSource
+import org.listenbrainz.shared.model.Playable
+import org.listenbrainz.shared.model.UiMode
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
-import org.listenbrainz.android.util.LinkedService
+import org.listenbrainz.shared.util.LinkedService
 import org.listenbrainz.shared.preferences.DataStorePreference
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testAccessToken
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername

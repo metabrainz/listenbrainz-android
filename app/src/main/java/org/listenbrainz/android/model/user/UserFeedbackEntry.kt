@@ -2,8 +2,8 @@ package org.listenbrainz.android.model.user
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.listenbrainz.android.model.Metadata
-import org.listenbrainz.android.model.TrackMetadata
+import org.listenbrainz.shared.model.Metadata
+import org.listenbrainz.shared.model.TrackMetadata
 
 @Serializable
 data class UserFeedbackEntry(
