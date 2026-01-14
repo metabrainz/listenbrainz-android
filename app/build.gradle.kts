@@ -215,7 +215,7 @@ dependencies {
     implementation(libs.lottie.compose)
     implementation(libs.onboarding)
     implementation(libs.share.android)
-    implementation(libs.compose.ratingbar)
+
 
     // Accompanist
     implementation(libs.google.accompanist.permissions)
