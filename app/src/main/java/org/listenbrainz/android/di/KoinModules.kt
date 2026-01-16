@@ -298,9 +298,9 @@ val networkModule = module {
     }
 
     single<ArtistService> {
-        val httpClient = createBaseHttpClient(androidContext(), baseUrl = LB_BASE_URL)
+        val httpClient = createBaseHttpClient(androidContext(), baseUrl = LISTENBRAINZ_API_BASE_URL)
         Ktorfit.Builder()
-            .baseUrl(LB_BASE_URL)
+            .baseUrl(LISTENBRAINZ_API_BASE_URL)
             .httpClient(httpClient)
             .build()
             .createArtistService()
