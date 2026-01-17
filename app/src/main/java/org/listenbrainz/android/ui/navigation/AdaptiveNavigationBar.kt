@@ -138,7 +138,7 @@ fun AdaptiveNavigationBar(
         items?.forEach { item ->
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
-            val selected = currentDestination?.route?.startsWith("${item.route}/") == true ||
+            val selected = currentDestination?.route?.startsWith(item.route) == true ||
                     currentDestination?.route == item.route
 
             NavigationContent(
