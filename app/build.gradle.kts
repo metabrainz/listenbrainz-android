@@ -233,6 +233,8 @@ dependencies {
 
     // Spotify SDK
     api(project(":spotify-app-remote"))
+    // TODO: Remove when we've migrated spotify-app-remote to androidMain of shared module.
+    implementation(libs.gson)
 
     // Networking and parsing
     implementation(libs.jsoup)
