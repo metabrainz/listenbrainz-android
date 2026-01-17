@@ -5,6 +5,7 @@ kotlin = "2.3.0"
 navigation = "2.8.5"
 koin = "4.0.0"
 compose = "1.10.0"
+reorderable = "3.0.0"
 room = "2.7.2"
 accompanist = "0.36.0"
 work = "2.10.0"
@@ -97,6 +98,7 @@ androidx-compose-foundation = { group = "androidx.compose.foundation", name = "f
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose" }
 
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }
+reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
