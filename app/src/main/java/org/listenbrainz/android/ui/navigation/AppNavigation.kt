@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
@@ -102,8 +104,10 @@ fun AppNavigation(
             )
         }
         appComposable(route = AppNavigationItem.Explore.route) {
+            val username by dashBoardViewModel.usernameFlow.collectAsStateWithLifecycle(null)
             ExploreScreen(
-                topAppBarActions
+                topAppBarActions,
+                username = username,
             )
         }
         appComposable(

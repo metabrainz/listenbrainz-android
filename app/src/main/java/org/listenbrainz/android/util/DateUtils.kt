@@ -1,13 +1,13 @@
 package org.listenbrainz.android.util
 
-import org.threeten.bp.Instant
-import org.threeten.bp.ZoneId
-import org.threeten.bp.ZoneOffset
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.YearMonth
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
 
-fun defaultZoneOffset(): ZoneOffset =
-    ZoneOffset.of(
-        ZoneId.systemDefault()
-            .rules
-            .getOffset(Instant.now())
-            .id,
-    )
+fun YearMonth.Companion.now(timeZone: TimeZone = TimeZone.currentSystemDefault()): YearMonth {
+    val now = Clock.System
+        .now()
+        .toLocalDateTime(timeZone)
+    return YearMonth(now.year, now.month)
+}

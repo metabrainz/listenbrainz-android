@@ -240,7 +240,7 @@ dependencies {
     }
 
     // Date time
-    implementation(libs.threetenabp)
+    implementation(libs.kotlinx.datetime)
 
     // Logging
     implementation(libs.logger.android)
