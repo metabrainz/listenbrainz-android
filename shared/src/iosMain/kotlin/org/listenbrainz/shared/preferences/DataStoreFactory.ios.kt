@@ -34,5 +34,5 @@ private fun iosDataStorePath(fileName: String): String {
         create = false,
         error = null
     )
-    return "${documentDirectory?.path}/$fileName"
+    return "${documentDirectory?.path}/$fileName.preferences_pb"
 }

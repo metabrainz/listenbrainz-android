@@ -7,7 +7,7 @@ import androidx.datastore.preferences.core.Preferences
 /**
  * Creates a DataStore instance with a platform-resolved file path.
  *
- * @param name File name for the DataStore on disk.
+ * @param name File name for the DataStore on disk (without `.preferences_pb` extension)
  */
 expect fun createDataStore(
     name: String,
@@ -17,4 +17,4 @@ expect fun createDataStore(
 /**
  * Default filename for preferences DataStore.
  */
-const val DATA_STORE_FILE_NAME = "settings.preferences_pb"
+const val DATA_STORE_FILE_NAME = "settings"
