@@ -23,6 +23,7 @@ import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
 import org.listenbrainz.android.ui.screens.profile.stats.DataScope
 
 data class ProfileUiState(
+    val loggedInUser: String? = null,
     val isSelf: Boolean = false,
     val listensTabUiState: ListensTabUiState = ListensTabUiState(),
     val statsTabUIState: StatsTabUIState = StatsTabUIState(),

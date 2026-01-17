@@ -11,7 +11,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.koin.androidx.compose.koinViewModel
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -23,15 +22,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import kotlinx.coroutines.flow.first
 import org.listenbrainz.android.model.AppNavigationItem
+import org.listenbrainz.android.model.AppNavigationItem.Profile.ARG_USERNAME
 import org.listenbrainz.android.ui.screens.album.AlbumScreen
 import org.listenbrainz.android.ui.screens.artist.ArtistScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen
 import org.listenbrainz.android.ui.screens.explore.ExploreScreen
 import org.listenbrainz.android.ui.screens.feed.FeedScreen
 import org.listenbrainz.android.ui.screens.playlist.PlaylistDetailScreen
-import org.listenbrainz.android.ui.screens.profile.LoginScreen
 import org.listenbrainz.android.ui.screens.profile.ProfileScreen
 import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScreen
 import org.listenbrainz.android.ui.screens.settings.SettingsScreen
@@ -61,7 +59,7 @@ fun AppNavigation(
     }
 
     fun goToUserProfile(username: String) {
-        navController.navigate("${AppNavigationItem.Profile.route}/${username}")
+        navController.navigate(AppNavigationItem.Profile.withUserArg(username))
     }
 
     fun goToArtistPage(mbid: String) {
@@ -113,31 +111,16 @@ fun AppNavigation(
             )
         }
         appComposable(
-            route = AppNavigationItem.Profile.route
-        ) {
-            val viewModel = koinViewModel<DashBoardViewModel>()
-            LoginScreen(
-                navigateToCreateAccount = {
-                    settingsCallbacks.navigateToCreateAccount()
-                },
-                navigateToUserProfile =
-                    {
-                        val username = viewModel.usernameFlow.first()
-                        if (username.isNotBlank()) {
-                            goToUserProfile(username)
-                        }
-                    })
-        }
-        appComposable(
-            route = "${AppNavigationItem.Profile.route}/{username}",
+            route = "${AppNavigationItem.Profile.route}?${ARG_USERNAME}={$ARG_USERNAME}",
             arguments = listOf(
-                navArgument("username") {
+                navArgument(ARG_USERNAME) {
                     type = NavType.StringType
                     nullable = true
+                    defaultValue = null
                 }
             )
         ) {
-            val username = it.arguments?.getString("username")
+            val username = it.arguments?.getString(ARG_USERNAME)
             ProfileScreen(
                 onScrollToTop = onScrollToTop,
                 scrollRequestState = scrollRequestState,

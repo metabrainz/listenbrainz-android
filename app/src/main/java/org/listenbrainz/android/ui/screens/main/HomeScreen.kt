@@ -261,7 +261,7 @@ fun HomeScreen(
                 deactivate = searchBarState::deactivate,
                 goToUserPage = { username ->
                     searchBarState.deactivate()
-                    navController.navigate("${AppNavigationItem.Profile.route}/$username")
+                    navController.navigate(AppNavigationItem.Profile.withUserArg(username))
                 }
             )
         }

@@ -167,8 +167,7 @@ fun AdaptiveNavigationBar(
 
                     when (item.route) {
                         AppNavigationItem.Profile.route -> {
-                            val profileRoute = AppNavigationItem.Profile.route +
-                                    if (!username.isNullOrBlank()) "/${username}" else ""
+                            val profileRoute = AppNavigationItem.Profile.withUserArg(username.orEmpty())
                             navController.navigate(profileRoute) {
                                 // Avoid building large backstack
                                 popUpTo(navController.graph.findStartDestination().id) {
