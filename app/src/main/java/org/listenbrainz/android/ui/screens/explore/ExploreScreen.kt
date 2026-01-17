@@ -5,8 +5,10 @@ import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,16 +21,21 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.datetime.YearMonth
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.navigation.TopBar
@@ -37,26 +44,49 @@ import org.listenbrainz.android.ui.screens.newsbrainz.NewsBrainzActivity
 import org.listenbrainz.android.ui.screens.yim.YearInMusicActivity
 import org.listenbrainz.android.ui.screens.yim23.YearInMusic23Activity
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.ui.theme.lb_purple
+import org.listenbrainz.android.util.PreviewSurface
+import org.listenbrainz.android.util.now
 
 @Composable
 fun ExploreScreen(
-    topBarActions: TopBarActions
+    topBarActions: TopBarActions,
+    username: String?
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = ListenBrainzTheme.colorScheme.background
     ) {
-        Column() {
+        Column {
             TopBar(
                 modifier = Modifier.statusBarsPadding(),
                 topBarActions = topBarActions,
                 title = AppNavigationItem.Explore.title
             )
+            val currentYear = remember {
+                YearMonth.now().year
+            }
+
+            val uriHandler = LocalUriHandler.current
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(300.dp),
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
+                repeat(currentYear - 2024) {
+                    val year = currentYear - it - 1
+                    item {
+                        ExploreScreenCard(
+                            iconId = R.drawable.yim_title,
+                            title = "Your Year in Music $year",
+                            subTitle = "Review",
+                            iconTint = lb_purple
+                        ) {
+                            uriHandler.openUri("https://listenbrainz.org/user/$username/year-in-music/$year/")
+                        }
+                    }
+                }
+
                 item {
                     ExploreScreenCard(
                         nextActivity = YearInMusic23Activity::class.java,
@@ -65,6 +95,7 @@ fun ExploreScreen(
                         subTitle = "Review"
                     )
                 }
+
                 item {
                     ExploreScreenCard(
                         nextActivity = YearInMusicActivity::class.java,
@@ -73,8 +104,8 @@ fun ExploreScreen(
                         subTitle = "Review"
                     )
                 }
-                // Yim Card
 
+                // NewsBrainz Card
                 item {
                     ExploreScreenCard(
                         nextActivity = NewsBrainzActivity::class.java,
@@ -83,9 +114,6 @@ fun ExploreScreen(
                         subTitle = stringResource(id = R.string.news_card)
                     )
                 }
-                // NewsBrainz Card
-
-
             }
         }
     }
@@ -97,7 +125,32 @@ private fun ExploreScreenCard(
     iconId: Int,
     title: String,
     subTitle: String,
-    context: Context = LocalContext.current
+    iconTint: Color? = null,
+) {
+    val context = LocalContext.current
+    ExploreScreenCard(
+        iconId = iconId,
+        title = title,
+        subTitle = subTitle,
+        iconTint = iconTint,
+    ) {
+        context.startActivity(
+            Intent(
+                context,
+                nextActivity
+            )
+        )
+    }
+}
+
+
+@Composable
+private fun ExploreScreenCard(
+    iconId: Int,
+    title: String,
+    subTitle: String,
+    iconTint: Color? = null,
+    onClick: () -> Unit,
 ) {
     Surface(
         modifier = Modifier
@@ -106,14 +159,7 @@ private fun ExploreScreenCard(
                 horizontal = ListenBrainzTheme.paddings.horizontal,
                 vertical = 10.dp
             )
-            .clickable {
-                context.startActivity(
-                    Intent(
-                        context,
-                        nextActivity
-                    )
-                )
-            },
+            .clickable(onClick = onClick),
         color = ListenBrainzTheme.colorScheme.level1,
         elevation = 6.dp,
         shape = RoundedCornerShape(12.dp)
@@ -121,14 +167,28 @@ private fun ExploreScreenCard(
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            Image(
-                painter = painterResource(id = iconId),
-                alignment = Alignment.Center,
-                contentDescription = "",
-                contentScale = ContentScale.FillWidth,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-            )
+                    .aspectRatio(1.5f)
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.playlist_card_bg2),
+                    alignment = Alignment.Center,
+                    contentDescription = "",
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier.fillMaxSize()
+                )
+
+                Image(
+                    painter = painterResource(id = iconId),
+                    alignment = Alignment.Center,
+                    contentDescription = "",
+                    colorFilter = iconTint?.let { ColorFilter.tint(it) },
+                    contentScale = ContentScale.FillWidth,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -162,9 +222,10 @@ private fun ExploreScreenCard(
 @Preview
 @Composable
 fun ExplorePreview() {
-    ListenBrainzTheme {
+    PreviewSurface {
         ExploreScreen(
-            topBarActions = TopBarActions()
+            topBarActions = TopBarActions(),
+            username = "Jasjeet"
         )
     }
 }

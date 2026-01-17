@@ -11,6 +11,7 @@ import com.google.android.exoplayer2.audio.AudioAttributes
 import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.HttpRedirect
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
@@ -166,6 +167,11 @@ private fun createBaseHttpClient(
 
         install(ContentNegotiation) {
             json(jsonConfig)
+        }
+
+        install(HttpRedirect) {
+            // Allows redirection for POST method requests
+            checkHttpMethod = false
         }
 
         if (BuildConfig.DEBUG) {
