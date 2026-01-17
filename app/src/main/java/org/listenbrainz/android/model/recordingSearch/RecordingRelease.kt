@@ -1,31 +1,32 @@
 package org.listenbrainz.android.model.recordingSearch
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class RecordingRelease(
-    @SerializedName("artist-credit")
+    @SerialName("artist-credit")
     val artistCredit: List<ArtistCreditX> = emptyList(),
-    @SerializedName("count")
+    @SerialName("count")
     val count: Int? = null,
-    @SerializedName("country")
+    @SerialName("country")
     val country: String? = null,
-    @SerializedName("date")
+    @SerialName("date")
     val date: String? = null,
-    @SerializedName("id")
+    @SerialName("id")
     val id: String? = null,
-    @SerializedName("media")
+    @SerialName("media")
     val media: List<ReleaseMedia> = emptyList(),
-    @SerializedName("release-events")
+    @SerialName("release-events")
     val releaseEvents: List<ReleaseEvent> = emptyList(),
-    @SerializedName("release-group")
+    @SerialName("release-group")
     val releaseGroup: RecordingReleaseGroup? = null,
-    @SerializedName("status")
+    @SerialName("status")
     val status: String? = null,
-    @SerializedName("status-id")
+    @SerialName("status-id")
     val statusId: String? = null,
-    @SerializedName("title")
+    @SerialName("title")
     val title: String? = null,
-    @SerializedName("track-count")
+    @SerialName("track-count")
     val trackCount: Int? = null
 )

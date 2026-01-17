@@ -43,11 +43,9 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,7 +62,6 @@ import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -74,6 +71,7 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.flow.flow
+import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.feed.FeedCallbacks
@@ -100,8 +98,8 @@ import org.listenbrainz.android.viewmodel.SocialViewModel
 
 @Composable
 fun FeedScreen(
-    viewModel: FeedViewModel = hiltViewModel(),
-    socialViewModel: SocialViewModel = hiltViewModel(),
+    viewModel: FeedViewModel = koinViewModel(),
+    socialViewModel: SocialViewModel = koinViewModel(),
     scrollToTopState: Boolean,
     topAppBarActions: TopBarActions,
     onScrollToTop: (suspend () -> Unit) -> Unit,
@@ -231,16 +229,6 @@ fun FeedScreen(
                 .fillMaxSize()
                 .pullRefresh(state = pullRefreshState)
         ) {
-            if (myFeedPagingData.itemCount == 0 && myFeedPagingData.loadState.refresh is LoadState.Error) {
-                RetryButton(
-                    modifier = Modifier.align(Alignment.Center),
-                ) {
-                    myFeedPagingData.retry()
-                    similarListensPagingData.retry()
-                    followListensPagingData.retry()
-                }
-            }
-
             HorizontalPager(
                 state = pagerState,
                 beyondViewportPageCount = 1
@@ -329,6 +317,16 @@ fun FeedScreen(
                         goToArtistPage = callbacks.goToArtistPage,
                         shimmerInstance = shimmerInstance
                     )
+                }
+            }
+
+            if (myFeedPagingData.itemCount == 0 && myFeedPagingData.loadState.refresh is LoadState.Error) {
+                RetryButton(
+                    modifier = Modifier.align(Alignment.Center),
+                ) {
+                    myFeedPagingData.retry()
+                    similarListensPagingData.retry()
+                    followListensPagingData.retry()
                 }
             }
 

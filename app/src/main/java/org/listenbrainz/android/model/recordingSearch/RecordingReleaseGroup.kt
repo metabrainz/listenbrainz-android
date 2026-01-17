@@ -1,21 +1,22 @@
 package org.listenbrainz.android.model.recordingSearch
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class RecordingReleaseGroup(
-    @SerializedName("id")
+    @SerialName("id")
     val id: String? = null,
-    @SerializedName("primary-type")
+    @SerialName("primary-type")
     val primaryType: String? = null,
-    @SerializedName("primary-type-id")
+    @SerialName("primary-type-id")
     val primaryTypeId: String? = null,
-    @SerializedName("secondary-type-ids")
+    @SerialName("secondary-type-ids")
     val secondaryTypeIds: List<String?> = emptyList(),
-    @SerializedName("secondary-types")
+    @SerialName("secondary-types")
     val secondaryTypes: List<String?> = emptyList(),
-    @SerializedName("title")
+    @SerialName("title")
     val title: String? = null,
-    @SerializedName("type-id")
+    @SerialName("type-id")
     val typeId: String? = null
 )

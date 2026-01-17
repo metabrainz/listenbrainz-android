@@ -8,7 +8,6 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -24,7 +23,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.playlist.PlaylistData
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
@@ -47,16 +45,14 @@ import org.listenbrainz.android.ui.screens.profile.stats.DataScope
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
 import org.listenbrainz.android.util.Resource
-import javax.inject.Inject
 
-@HiltViewModel
-class UserViewModel @Inject constructor(
+class UserViewModel(
     val appPreferences: AppPreferences,
     private val userRepository: UserRepository,
     private val listensRepository: ListensRepository,
     private val socialRepository: SocialRepository,
     private val playlistDataRepository: PlaylistDataRepository,
-    @IoDispatcher val ioDispatcher: CoroutineDispatcher,
+    val ioDispatcher: CoroutineDispatcher,
 ) : BaseViewModel<ProfileUiState>() {
 
     private val currentUser = MutableStateFlow<String?>(null)

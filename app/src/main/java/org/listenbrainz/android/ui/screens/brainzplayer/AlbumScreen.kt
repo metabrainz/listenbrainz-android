@@ -35,8 +35,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
+import org.koin.androidx.compose.koinViewModel
+import coil3.compose.AsyncImage
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.PlayableType
@@ -53,7 +53,7 @@ import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AlbumScreen(navigateToAlbum: (id: Long) -> Unit) {
-    val BPAlbumViewModel = hiltViewModel<BPAlbumViewModel>()
+    val BPAlbumViewModel = koinViewModel<BPAlbumViewModel>()
     val albums = BPAlbumViewModel.albums.collectAsState(listOf())
     val refreshing by BPAlbumViewModel.isRefreshing.collectAsState()
     val pullRefreshState = rememberPullRefreshState(
@@ -85,14 +85,14 @@ private fun AlbumsList(
     albums: State<List<Album>>,
     navigateToAlbum: (id: Long) -> Unit
 ) {
-    val brainzPlayerViewModel = hiltViewModel<BrainzPlayerViewModel>()
+    val brainzPlayerViewModel = koinViewModel<BrainzPlayerViewModel>()
     var albumCardMoreOptionsDropMenuExpanded by rememberSaveable { mutableStateOf(-1) }
     val currentlyPlayingSong =
         brainzPlayerViewModel.currentlyPlayingSong.collectAsState().value.toSong
-    val BPAlbumViewModel = hiltViewModel<BPAlbumViewModel>()
+    val BPAlbumViewModel = koinViewModel<BPAlbumViewModel>()
 
     val currentSongIndex =
-        BPAlbumViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
             ?.plus(1)
     LazyVerticalGrid(columns = GridCells.Fixed(2)) {
         items(albums.value) {
@@ -115,13 +115,13 @@ private fun AlbumsList(
                         text = { Text(text = "Play Next") },
                         onClick = {
                             if (currentSongIndex != null) {
-                                BPAlbumViewModel.appPreferences.currentPlayable?.songs?.toMutableList()?.addAll(currentSongIndex, albumSongs)
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()?.addAll(currentSongIndex, albumSongs)
                             }
                             brainzPlayerViewModel.changePlayable(
-                                BPAlbumViewModel.appPreferences.currentPlayable?.songs?.toMutableList() ?: mutableListOf(),
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList() ?: mutableListOf(),
                                 PlayableType.ALL_SONGS,
-                                BPAlbumViewModel.appPreferences.currentPlayable?.id ?: 0,
-                                BPAlbumViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0,
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
                                     ?: 0, brainzPlayerViewModel.songCurrentPosition.value
                             )
                             brainzPlayerViewModel.queueChanged(
@@ -133,18 +133,18 @@ private fun AlbumsList(
                     DropdownMenuItem(
                         text = { Text(text = "Add to queue") },
                         onClick = {
-                            BPAlbumViewModel.appPreferences.currentPlayable?.songs?.size?.let { it1 ->
-                                BPAlbumViewModel.appPreferences.currentPlayable?.songs?.toMutableList()?.addAll(
+                            brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.size?.let { it1 ->
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()?.addAll(
                                     it1,
                                     albumSongs
                                 )
                             }
-                            BPAlbumViewModel.appPreferences.currentPlayable?.songs?.let { it1 ->
+                            brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let { it1 ->
                                 brainzPlayerViewModel.changePlayable(
                                     it1,
                                     PlayableType.ALL_SONGS,
-                                    BPAlbumViewModel.appPreferences.currentPlayable?.id ?: 0,
-                                    BPAlbumViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+                                    brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0,
+                                    brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
                                         ?: 0, brainzPlayerViewModel.songCurrentPosition.value
                                 )
                             }
@@ -220,8 +220,8 @@ private fun AlbumsList(
 
 @Composable
 fun OnAlbumClickScreen(albumID: Long) {
-    val BPAlbumViewModel = hiltViewModel<BPAlbumViewModel>()
-    val brainzPlayerViewModel = hiltViewModel<BrainzPlayerViewModel>()
+    val BPAlbumViewModel = koinViewModel<BPAlbumViewModel>()
+    val brainzPlayerViewModel = koinViewModel<BrainzPlayerViewModel>()
     val selectedAlbum =
         BPAlbumViewModel.getAlbumFromID(albumID).collectAsState(initial = Album()).value
     val albumSongs = BPAlbumViewModel.getAllSongsOfAlbum(albumID).collectAsState(listOf()).value
@@ -229,7 +229,7 @@ fun OnAlbumClickScreen(albumID: Long) {
     val currentlyPlayingSong =
         brainzPlayerViewModel.currentlyPlayingSong.collectAsState().value.toSong
     val currentSongIndex =
-        BPAlbumViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
             ?.plus(1)
     LazyColumn {
         item {
@@ -319,15 +319,15 @@ fun OnAlbumClickScreen(albumID: Long) {
                             text = { Text(text = "Play Next") },
                             onClick = {
                                 if (currentSongIndex != null) {
-                                    BPAlbumViewModel.appPreferences.currentPlayable?.songs?.toMutableList()
+                                    brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()
                                         ?.add(currentSongIndex, it)
                                 }
-                                BPAlbumViewModel.appPreferences.currentPlayable?.songs?.let { it1 ->
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let { it1 ->
                                     brainzPlayerViewModel.changePlayable(
                                         it1,
                                         PlayableType.ALL_SONGS,
-                                        BPAlbumViewModel.appPreferences.currentPlayable?.id ?: 0,
-                                        BPAlbumViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+                                        brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0,
+                                        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
                                             ?: 0, brainzPlayerViewModel.songCurrentPosition.value
                                     )
                                 }
@@ -340,20 +340,20 @@ fun OnAlbumClickScreen(albumID: Long) {
                         DropdownMenuItem(
                             text = { Text(text = "Add to queue") },
                             onClick = {
-                                BPAlbumViewModel.appPreferences.currentPlayable?.songs?.size?.let { it1 ->
-                                    BPAlbumViewModel.appPreferences.currentPlayable?.songs?.toMutableList()
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.size?.let { it1 ->
+                                    brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()
                                         ?.add(
                                             it1,
                                             it
                                         )
                                 }
-                                BPAlbumViewModel.appPreferences.currentPlayable?.songs?.toMutableList()
+                                brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.toMutableList()
                                     ?.let { it1 ->
                                         brainzPlayerViewModel.changePlayable(
                                             it1,
                                             PlayableType.ALL_SONGS,
-                                            BPAlbumViewModel.appPreferences.currentPlayable?.id ?: 0,
-                                            BPAlbumViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+                                            brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0,
+                                            brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
                                                 ?: 0,
                                             brainzPlayerViewModel.songCurrentPosition.value
                                         )

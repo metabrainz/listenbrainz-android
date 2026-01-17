@@ -285,34 +285,34 @@ fun ListensScreen(
                         listen.toMetadata()
                     }
 
-                    ListenCardSmallDefault(
-                        modifier = modifier
-                            .zIndex(0f)
-                            .padding(
-                                horizontal = ListenBrainzTheme.paddings.horizontal,
-                                vertical = ListenBrainzTheme.paddings.lazyListAdjacent
-                            )
-                            .optionalSharedElement(
-                                sharedTransitionScope = this@SharedTransitionScope,
-                                animatedVisibilityScope = this,
-                                key = listen.sharedTransitionId
-                            ),
-                        metadata = metadata,
-                        coverArtUrl = getCoverArtUrl(
-                            caaReleaseMbid = listen.trackMetadata.mbidMapping?.caaReleaseMbid,
-                            caaId = listen.trackMetadata.mbidMapping?.caaId
+                ListenCardSmallDefault(
+                    modifier = modifier
+                        .zIndex(0f)
+                        .padding(
+                            horizontal = ListenBrainzTheme.paddings.horizontal,
+                            vertical = ListenBrainzTheme.paddings.lazyListAdjacent
+                        )
+                        .optionalSharedElement(
+                            sharedTransitionScope = this@SharedTransitionScope,
+                            animatedVisibilityScope = this,
+                            key = listen.sharedTransitionId
                         ),
-                        onDropdownError = { error ->
-                            snackbarState.showSnackbar(error.toast)
-                        },
-                        onDropdownSuccess = { message ->
-                            snackbarState.showSnackbar(message)
-                        },
-                        goToArtistPage = goToArtistPage,
-                    ) {
-                        playListen(listen.trackMetadata)
-                    }
+                    metadata = metadata,
+                    coverArtUrl = getCoverArtUrl(
+                        caaReleaseMbid = listen.trackMetadata?.mbidMapping?.caaReleaseMbid,
+                        caaId = listen.trackMetadata?.mbidMapping?.caaId
+                    ),
+                    onDropdownError = { error ->
+                        snackbarState.showSnackbar(error.toast)
+                    },
+                    onDropdownSuccess = { message ->
+                        snackbarState.showSnackbar(message)
+                    },
+                    goToArtistPage = goToArtistPage,
+                ) {
+                    listen.trackMetadata?.let { playListen(it) }
                 }
+            }
 
                 @Composable
                 fun RecentListensText(modifier: Modifier = Modifier) {

@@ -15,7 +15,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.navigation.TopBar
@@ -25,7 +25,7 @@ import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
 fun ProfileScreen(
-    viewModel: UserViewModel = hiltViewModel(),
+    viewModel: UserViewModel = koinViewModel(),
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
     username: String?,

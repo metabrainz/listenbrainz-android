@@ -20,7 +20,7 @@ class MockListensRepository : ListensRepository {
         minTs: Long?
     ): Resource<Listens> {
         return if(username.isNullOrEmpty()){
-            ResponseError.DOES_NOT_EXIST.asResource()
+            ResponseError.DoesNotExist().asResource()
         } else{
             Resource(Resource.Status.SUCCESS, listensTestData)
         }

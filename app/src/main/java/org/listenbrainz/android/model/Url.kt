@@ -1,9 +1,11 @@
 package org.listenbrainz.android.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-class Url {
-    @SerializedName("id")
-    var mbid: String? = null
-    var resource: String? = null
-}
+@Serializable
+data class Url(
+    @SerialName("id")
+    val mbid: String? = null,
+    val resource: String? = null
+)

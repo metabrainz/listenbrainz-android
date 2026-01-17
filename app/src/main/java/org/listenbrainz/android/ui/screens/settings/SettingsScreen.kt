@@ -47,7 +47,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
@@ -72,8 +72,8 @@ import org.listenbrainz.android.viewmodel.SettingsViewModel
 
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel = hiltViewModel(),
-    listensViewModel: ListensViewModel = hiltViewModel(),
+    viewModel: SettingsViewModel = koinViewModel(),
+    listensViewModel: ListensViewModel = koinViewModel(),
     dashBoardViewModel: DashBoardViewModel,
     topBarActions: TopBarActions,
     callbacks: SettingsCallbacksToHomeScreen

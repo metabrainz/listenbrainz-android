@@ -1,12 +1,13 @@
 package org.listenbrainz.android.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-class UserInfo {
-    @SerializedName("metabrainz_user_id")
-    var userId: String? = null
-    var profile: String? = null
-
-    @SerializedName("sub")
-    var username: String? = null
-}
+@Serializable
+data class UserInfo(
+    @SerialName("metabrainz_user_id")
+    val userId: String? = null,
+    val profile: String? = null,
+    @SerialName("sub")
+    val username: String? = null
+)

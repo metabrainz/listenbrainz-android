@@ -23,11 +23,11 @@ import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.UiMode
@@ -51,14 +51,11 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private lateinit var _dashBoardViewModel: DashBoardViewModel
-    private val dashBoardViewModel get() = _dashBoardViewModel
+    private val dashBoardViewModel: DashBoardViewModel by viewModel()
 
-    private lateinit var _appUpdatesViewModel: AppUpdatesViewModel
-    private val appUpdatesViewModel get() = _appUpdatesViewModel
+    private val appUpdatesViewModel: AppUpdatesViewModel by viewModel()
 
     private val onboardingScreensQueue: MutableList<NavKey> =
         mutableListOf()
@@ -68,9 +65,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         enableEdgeToEdge()
-
-        _dashBoardViewModel = ViewModelProvider(this)[DashBoardViewModel::class.java]
-        _appUpdatesViewModel = ViewModelProvider(this)[AppUpdatesViewModel::class.java]
 
         dashBoardViewModel.setUiMode()
         dashBoardViewModel.updatePermissionStatus(this)

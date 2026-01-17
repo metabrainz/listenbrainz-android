@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.fragment.app.Fragment
@@ -15,21 +14,19 @@ import androidx.lifecycle.lifecycleScope
 import com.limurse.onboard.OnboardAdvanced
 import com.limurse.onboard.OnboardFragment
 import com.limurse.onboard.OnboardPageTransformerType
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.ui.screens.main.MainActivity
 import org.listenbrainz.android.ui.screens.profile.LoginActivity
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.viewmodel.FeaturesViewModel
-import javax.inject.Inject
 
-@AndroidEntryPoint
 class FeaturesActivity : OnboardAdvanced() {
-    @Inject
-    lateinit var appPreferences: AppPreferences
-    private val featuresViewModel: FeaturesViewModel by viewModels()
+    private val appPreferences: AppPreferences by inject()
+    private val featuresViewModel: FeaturesViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Disable for android 15

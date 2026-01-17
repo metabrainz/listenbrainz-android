@@ -9,8 +9,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import dagger.hilt.android.testing.HiltAndroidRule
-import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -23,14 +23,9 @@ import org.listenbrainz.sharedtest.mocks.MockNetworkConnectivityViewModel
 import org.listenbrainz.sharedtest.mocks.MockYimRepository
 
 @RunWith(AndroidJUnit4::class)
-//@LargeTest
-@HiltAndroidTest
 class YearInMusicActivityTest {
     
-    @get:Rule(order = 0)
-    var hiltRule = HiltAndroidRule(this)
-    
-    @get:Rule(order = 1)
+    @get:Rule
     val rule = createAndroidComposeRule<ComponentActivity>()
 
     private lateinit var activity : ComponentActivity
@@ -38,9 +33,12 @@ class YearInMusicActivityTest {
     @Before
     fun setup(){
         activity = rule.activity
+        val testDispatcher = StandardTestDispatcher()
         val yimViewModel = YimViewModel(
             MockYimRepository(),
-            MockAppPreferences()
+            MockAppPreferences(),
+            testDispatcher,
+            testDispatcher
         )
         val networkViewModel = MockNetworkConnectivityViewModel(ConnectivityObserver.NetworkStatus.AVAILABLE)
 

@@ -2,6 +2,7 @@ package org.listenbrainz.android.repository.listens
 
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
+import kotlinx.coroutines.CoroutineDispatcher
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.CoverArt
 import org.listenbrainz.android.model.ListenBrainzExternalServices
@@ -10,14 +11,20 @@ import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.PostResponse
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.TokenValidation
+import org.listenbrainz.android.model.dao.PendingListensDao
+import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.ListensService
+import org.listenbrainz.android.service.UserService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.parseResponse
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class ListensRepositoryImpl @Inject constructor(val service: ListensService) : ListensRepository {
+class ListensRepositoryImpl(
+    private val service: ListensService,
+    private val appPreferences: AppPreferences,
+    private val userService: UserService,
+    private val pendingListensDao: PendingListensDao,
+    private val ioDispatcher: CoroutineDispatcher
+) : ListensRepository {
 
     override suspend fun fetchUserListens(
         username: String?,
@@ -25,8 +32,7 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
         maxTs: Long?,
         minTs: Long?
     ): Resource<Listens> = parseResponse {
-        if (username.isNullOrEmpty())
-            return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
+        failIf(username.isNullOrEmpty()) { ResponseError.AuthHeaderNotFound() }
 
         service.getUserListens(
             username = username,
@@ -78,15 +84,13 @@ class ListensRepositoryImpl @Inject constructor(val service: ListensService) : L
     }
     
     override suspend fun getLinkedServices(token: String?, username: String?): Resource<ListenBrainzExternalServices> = parseResponse {
-        if (token.isNullOrEmpty() || username.isNullOrEmpty())
-            return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
+        failIf(token.isNullOrEmpty() || username.isNullOrEmpty()) { ResponseError.AuthHeaderNotFound() }
         
         service.getServicesLinkedToAccount(username = username)
     }
 
     override suspend fun getNowPlaying(username: String?): Resource<Listens> = parseResponse {
-        if (username.isNullOrEmpty())
-            return ResponseError.AUTH_HEADER_NOT_FOUND.asResource()
+        failIf(username.isNullOrEmpty()) { ResponseError.AuthHeaderNotFound() }
 
         service.getNowPlaying(username = username)
     }

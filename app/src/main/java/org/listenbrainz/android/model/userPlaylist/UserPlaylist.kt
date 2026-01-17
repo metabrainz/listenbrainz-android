@@ -1,23 +1,25 @@
 package org.listenbrainz.android.model.userPlaylist
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class UserPlaylist(
-    @SerializedName("annotation")
+    @SerialName("annotation")
     val annotation: String? = null,
-    @SerializedName("creator")
+    @SerialName("creator")
     val creator: String? = null,
-    @SerializedName("date")
+    @SerialName("date")
     val date: String? = null,
-    @SerializedName("extension")
+    @SerialName("extension")
     val extension: Extension = Extension(),
-    @SerializedName("identifier")
+    @SerialName("identifier")
     val identifier: String? = null,
-    @SerializedName("title")
+    @SerialName("title")
     val title: String? = null,
-    @SerializedName("track")
-    val track: List<Any> = listOf(),
+    @SerialName("track")
+    val track: List<JsonElement> = listOf(),
     val coverArt: String? = null
 ){
     // Get the MBID of the playlist

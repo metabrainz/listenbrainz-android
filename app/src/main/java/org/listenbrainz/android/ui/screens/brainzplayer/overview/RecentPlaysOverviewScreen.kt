@@ -19,7 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Song
@@ -88,7 +88,7 @@ private fun PlayedThisWeek(
     onAddToExistingPlaylist: (Song) -> Unit,
     onAddToNewPlaylist: (Song) -> Unit
 ){
-    val viewModel: BrainzPlayerViewModel = hiltViewModel()
+    val viewModel: BrainzPlayerViewModel = koinViewModel()
     val currentlyPlayingSong = viewModel.currentlyPlayingSong.collectAsStateWithLifecycle().value.toSong
     var heightConstraint = ListenBrainzTheme.sizes.listenCardHeight * songsPlayed.size + 20.dp
     if (songsPlayed.size > 4)

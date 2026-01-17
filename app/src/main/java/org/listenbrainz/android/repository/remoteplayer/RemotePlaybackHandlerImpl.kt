@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Build
 import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.Connector
@@ -16,7 +15,6 @@ import com.spotify.protocol.client.Subscription
 import com.spotify.protocol.types.ImageUri
 import com.spotify.protocol.types.PlayerContext
 import com.spotify.protocol.types.PlayerState
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
@@ -35,18 +33,17 @@ import org.listenbrainz.android.service.YouTubeApiService
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.Utils
+import org.listenbrainz.android.util.Utils.parseResponse
 import java.util.concurrent.atomic.AtomicBoolean
-import javax.inject.Inject
-import javax.inject.Singleton
+
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import androidx.core.net.toUri
 
-@Singleton
-class RemotePlaybackHandlerImpl @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+class RemotePlaybackHandlerImpl(
+    private val appContext: Context,
     private val youtubeApiService: YouTubeApiService
 ) : RemotePlaybackHandler {
     
@@ -66,8 +63,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
     override suspend fun searchYoutubeMusicVideoId(
         trackName: String,
         artist: String
-    ): Resource<String> = runCatching {
-        
+    ): Resource<String> = parseResponse {
         val response = youtubeApiService.searchVideos(
             part = "snippet",
             query = "$trackName $artist",
@@ -75,19 +71,17 @@ class RemotePlaybackHandlerImpl @Inject constructor(
             videoCategoryId = "10",
             apiKey = appContext.getString(R.string.youtubeApiKey)
         )
-    
-        return@runCatching if (response.isSuccessful) {
-            val items = response.body()?.items
-            if (!items.isNullOrEmpty()) {
-                Resource.success(items.first().id.videoId)
-            } else {
-                ResponseError.REMOTE_PLAYER_ERROR.asResource("Could not find this song on youtube." )
-            }
-        } else {
-            Resource.failure(error = ResponseError.getError(response = response))
+
+        val items = response.items
+
+        failIf(items.isEmpty()) {
+            ResponseError.RemotePlayerError(
+                actualResponse = "Could not find this song on youtube."
+            )
         }
-        
-    }.getOrElse { Utils.logAndReturn(it) }
+
+        return@parseResponse items.first().id.videoId
+    }
     
     
     override suspend fun playOnYoutube(getYoutubeMusicVideoId: suspend () -> Resource<String>): Resource<Unit> {
@@ -97,7 +91,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
         return when(result.status) {
             Resource.Status.SUCCESS -> {
                 // Play the track in the YouTube Music app
-                val trackUri = Uri.parse("https://music.youtube.com/watch?v=${result.data}")
+                val trackUri = "https://music.youtube.com/watch?v=${result.data}".toUri()
                 
                 val intent = Intent(Intent.ACTION_VIEW)
                 intent.data = trackUri
@@ -117,7 +111,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
                     }
                     else -> {
                         // Display an error message
-                        ResponseError.DOES_NOT_EXIST.asResource("YouTube Music is not installed to play the track.")
+                        ResponseError.DoesNotExist("YouTube Music is not installed to play the track.").asResource()
                     }
                 }
             }
@@ -136,7 +130,7 @@ class RemotePlaybackHandlerImpl @Inject constructor(
                     intent.putExtra(MediaStore.EXTRA_MEDIA_TITLE, query)
                     context.startActivity(intent)
                 */
-                ResponseError.DOES_NOT_EXIST.asResource()
+                ResponseError.DoesNotExist().asResource()
             }
         }
     }
@@ -186,18 +180,18 @@ class RemotePlaybackHandlerImpl @Inject constructor(
                         if (error is CouldNotFindSpotifyApp) {
                             // Tell user that they need to install the spotify app on the phone.
                             onError(
-                                ResponseError.REMOTE_PLAYER_ERROR.apply {
+                                ResponseError.RemotePlayerError(
                                     actualResponse = "Install the Spotify app in order to play songs seamlessly."
-                                }
+                                )
                             )
                         }
                         
                         if (error is NotLoggedInException) {
                             // Tell user that they need to login in the spotify app.
                             onError(
-                                ResponseError.REMOTE_PLAYER_ERROR.apply {
+                                ResponseError.RemotePlayerError(
                                     actualResponse = "Login into Spotify app in order to play songs from your account."
-                                }
+                                )
                             )
                         }
                         
@@ -205,9 +199,9 @@ class RemotePlaybackHandlerImpl @Inject constructor(
                             // Explicit user authorization is required to use Spotify.
                             // The user has to complete the auth-flow to allow the app to use Spotify on their behalf.
                             onError(
-                                ResponseError.REMOTE_PLAYER_ERROR.apply {
+                                ResponseError.RemotePlayerError(
                                     actualResponse = "Authorize ListenBrainz Android in order to play songs from Spotify."
-                                }
+                                )
                             )
                         }
                         

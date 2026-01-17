@@ -31,7 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.ListenBrainzWebClient
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -48,8 +48,8 @@ fun ListenBrainzLogin(
     onCreateAccountClicked: () -> Unit,
     onLoginFinished: () -> Unit
 ) {
-    val listensViewModel = hiltViewModel<ListensViewModel>()
-    val vm = hiltViewModel<LoginViewModel>()
+    val listensViewModel = koinViewModel<ListensViewModel>()
+    val vm = koinViewModel<LoginViewModel>()
     val uiState by vm.uiState.collectAsState()
 
     Box(

@@ -1,17 +1,18 @@
 package org.listenbrainz.android.model.recordingSearch
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class RecordingArtist(
-    @SerializedName("aliases")
+    @SerialName("aliases")
     val aliases: List<Aliase?> = emptyList(),
-    @SerializedName("disambiguation")
+    @SerialName("disambiguation")
     val disambiguation: String? = null,
-    @SerializedName("id")
+    @SerialName("id")
     val id: String? = null,
-    @SerializedName("name")
+    @SerialName("name")
     val name: String? = null,
-    @SerializedName("sort-name")
+    @SerialName("sort-name")
     val sortName: String? = null
 )

@@ -1,6 +1,5 @@
 package org.listenbrainz.android.repository.artist
 
-
 import org.listenbrainz.android.model.artist.ArtistPayload
 import org.listenbrainz.android.model.artist.ArtistWikiExtract
 import org.listenbrainz.android.model.artist.CBReview

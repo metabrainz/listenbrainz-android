@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,12 +31,11 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
 import kotlinx.coroutines.CoroutineScope
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AdditionalInfo
@@ -259,9 +257,9 @@ fun ListenCardSmallDefault(
 
         ListenCardSmall(
             modifier = modifier,
-            trackName = metadata.trackMetadata.trackName,
+            trackName = metadata.trackMetadata.trackName ?: "--",
             artists = metadata.trackMetadata.mbidMapping?.artists ?: listOf(
-                FeedListenArtist(metadata.trackMetadata.artistName , null, "")
+                FeedListenArtist(metadata.trackMetadata.artistName ?: "--", null, "")
             ),
             coverArtUrl = coverArtUrl,
             errorAlbumArt = errorAlbumArt,

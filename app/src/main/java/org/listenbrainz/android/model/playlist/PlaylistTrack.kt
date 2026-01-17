@@ -1,25 +1,26 @@
 package org.listenbrainz.android.model.playlist
 
-
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import org.listenbrainz.android.model.AdditionalInfo
 import org.listenbrainz.android.model.MbidMapping
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.TrackMetadata
 import org.listenbrainz.android.model.feed.FeedListenArtist
 
+@Serializable
 data class PlaylistTrack(
-    @SerializedName("album")
+    @SerialName("album")
     val album: String? = null,
-    @SerializedName("creator")
+    @SerialName("creator")
     val creator: String? = null,
-    @SerializedName("duration")
+    @SerialName("duration")
     val duration: Int? = null,
-    @SerializedName("extension")
+    @SerialName("extension")
     val extension: TrackExtension = TrackExtension(),
-    @SerializedName("identifier")
+    @SerialName("identifier")
     val identifier: List<String> = listOf(),
-    @SerializedName("title")
+    @SerialName("title")
     val title: String? = null
 ){
     fun toMetadata(): Metadata{

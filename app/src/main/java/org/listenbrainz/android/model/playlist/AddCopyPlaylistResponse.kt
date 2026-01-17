@@ -1,16 +1,18 @@
 package org.listenbrainz.android.model.playlist
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class AddCopyPlaylistResponse(
-    @SerializedName("playlist_mbid")
-    val playlistMbid: String,
-    @SerializedName("status")
-    val status: String
+    @SerialName("playlist_mbid")
+    val playlistMbid: String = "",
+    @SerialName("status")
+    val status: String = ""
 )
 
+@Serializable
 data class EditPlaylistResponse(
-    @SerializedName("status")
-    val status: String
+    @SerialName("status")
+    val status: String = ""
 )

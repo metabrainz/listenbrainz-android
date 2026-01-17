@@ -17,8 +17,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.MainScope
+import org.koin.android.ext.android.inject
 import kotlinx.coroutines.cancel
 import org.listenbrainz.android.R
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
@@ -28,16 +28,12 @@ import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.util.ListenSessionListener
 import org.listenbrainz.android.util.ListenSubmissionState.Companion.getListeningNotification
 import org.listenbrainz.android.util.Log
-import javax.inject.Inject
 
-@AndroidEntryPoint
 class ListenSubmissionService : NotificationListenerService() {
 
-    @Inject
-    lateinit var appPreferences: AppPreferences
+    private val appPreferences: AppPreferences by inject()
     
-    @Inject
-    lateinit var serviceManager: ListenServiceManager
+    private val serviceManager: ListenServiceManager by inject()
     
     private val scope = MainScope()
 

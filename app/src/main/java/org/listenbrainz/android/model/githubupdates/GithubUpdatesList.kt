@@ -1,6 +1,6 @@
 package org.listenbrainz.android.model.githubupdates
 
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 class GithubUpdatesList : ArrayList<GithubUpdatesListItem>()

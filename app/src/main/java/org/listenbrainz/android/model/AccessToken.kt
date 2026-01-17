@@ -1,17 +1,19 @@
 package org.listenbrainz.android.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-class AccessToken {
-    @SerializedName("access_token")
-    var accessToken: String? = null
+@Serializable
+data class AccessToken(
+    @SerialName("access_token")
+    val accessToken: String? = null,
 
-    @SerializedName("expires_in")
-    var expiresIn: Long = 0
+    @SerialName("expires_in")
+    val expiresIn: Long = 0,
 
-    @SerializedName("refresh_token")
-    var refreshToken: String? = null
+    @SerialName("refresh_token")
+    val refreshToken: String? = null,
 
-    @SerializedName("token_type")
-    var tokenType: String? = null
-}
+    @SerialName("token_type")
+    val tokenType: String? = null
+)

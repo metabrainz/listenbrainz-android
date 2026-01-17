@@ -39,7 +39,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.components.ListenCardSmall
@@ -62,8 +62,8 @@ import org.listenbrainz.android.viewmodel.SocialViewModel
 @Composable
 fun AlbumScreen(
     albumMbid: String,
-    viewModel: AlbumViewModel = hiltViewModel(),
-    socialViewModel: SocialViewModel = hiltViewModel(),
+    viewModel: AlbumViewModel = koinViewModel(),
+    socialViewModel: SocialViewModel = koinViewModel(),
     snackBarState: SnackbarHostState,
     topBarActions: TopBarActions
 ) {

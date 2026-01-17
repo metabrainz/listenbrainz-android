@@ -1,15 +1,16 @@
 package org.listenbrainz.android.model.playlist
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class TrackExtensionData(
-    @SerializedName("added_at")
+    @SerialName("added_at")
     val addedAt: String? = null,
-    @SerializedName("added_by")
+    @SerialName("added_by")
     val addedBy: String? = null,
-    @SerializedName("additional_metadata")
+    @SerialName("additional_metadata")
     val additionalMetadata: AdditionalMetadataTrack = AdditionalMetadataTrack(),
-    @SerializedName("artist_identifiers")
+    @SerialName("artist_identifiers")
     val artistIdentifiers: List<String> = listOf()
 )

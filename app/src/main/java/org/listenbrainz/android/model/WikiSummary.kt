@@ -1,19 +1,21 @@
 package org.listenbrainz.android.model
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-class WikiSummary {
-    @SerializedName("displaytitle")
-    var displayTitle: String? = null
-    var pageId: Long = 0
-
-    @SerializedName("originalimage")
-    var originalImage: OriginalImage? = null
-    var extract: String? = null
-
-    class OriginalImage {
-        var source: String? = null
-        var width = 0
-        var height = 0
-    }
+@Serializable
+data class WikiSummary(
+    @SerialName("displaytitle")
+    val displayTitle: String? = null,
+    val pageId: Long = 0,
+    @SerialName("originalimage")
+    val originalImage: OriginalImage? = null,
+    val extract: String? = null
+) {
+    @Serializable
+    data class OriginalImage(
+        val source: String? = null,
+        val width: Int = 0,
+        val height: Int = 0
+    )
 }

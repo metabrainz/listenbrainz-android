@@ -1,5 +1,8 @@
 package org.listenbrainz.android.model.artist
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class ArtistPayload(
     val artist: Artist? = null,
     val coverArt: String? = null,

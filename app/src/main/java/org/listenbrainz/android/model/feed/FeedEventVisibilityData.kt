@@ -1,12 +1,10 @@
 package org.listenbrainz.android.model.feed
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-/** Users can only hide pins/recommendations of users they're following from their feed. */
+@Serializable
 data class FeedEventVisibilityData (
-    
-    @SerializedName("event_type" ) var eventType : String? = null,
-    @SerializedName("event_id"   ) var eventId   : String? = null
-
+    @SerialName("event_type") val eventType : String? = null,
+    @SerialName("event_id") val eventId   : String? = null
 )
-
