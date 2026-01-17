@@ -21,6 +21,7 @@ import androidx.compose.material.BottomNavigation
 import androidx.compose.material.NavigationRail
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -86,27 +87,28 @@ fun NavBarReorderOverlay(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.55f))
+            .background(Color.Black.copy(alpha = 0.65f))
             .pointerInput(Unit) {}
     ) {
         Column(
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val color = Color.White
             Box(
                 modifier = Modifier
                     .size(75.dp)
                     .clip(CircleShape)
-                    .border(3.dp, ListenBrainzTheme.colorScheme.text, CircleShape)
+                    .border(3.dp, color, CircleShape)
                     .clickable {
                         onDismiss(mutableItems.toList())
                     },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Close,
+                    imageVector = Icons.Rounded.Close,
                     contentDescription = "Close",
-                    tint = ListenBrainzTheme.colorScheme.text,
+                    tint = color,
                     modifier = Modifier.size(36.dp)
                 )
             }
@@ -115,7 +117,7 @@ fun NavBarReorderOverlay(
 
             Text(
                 text = stringResource(R.string.nav_reorder_hint),
-                color = ListenBrainzTheme.colorScheme.text,
+                color = color,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
