@@ -17,7 +17,7 @@ data class SettingsCallbacks(
     val getPackageLabel: (String) -> String,
     val setWhitelist: (List<String>) -> Unit,
     val checkForUpdates: suspend () -> Boolean,
-    val onReorderNav: () -> Unit
+    val onNavigationReorderClick: () -> Unit
 )
 
 @Immutable
@@ -25,6 +25,5 @@ data class SettingsCallbacksToHomeScreen(
     val checkForUpdates: suspend () -> Boolean,
     val onLoginRequest: () -> Unit,
     val onOnboardingRequest: () -> Unit,
-    val navigateToCreateAccount : () -> Unit,
-    val onReorderNav: () -> Unit
+    val navigateToCreateAccount : () -> Unit
 )

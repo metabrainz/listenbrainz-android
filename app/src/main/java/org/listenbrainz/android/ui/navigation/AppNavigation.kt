@@ -46,7 +46,8 @@ fun AppNavigation(
     dashBoardViewModel: DashBoardViewModel,
     snackbarState: SnackbarHostState,
     settingsCallbacks: SettingsCallbacksToHomeScreen,
-    topAppBarActions: TopBarActions
+    topAppBarActions: TopBarActions,
+    onNavigationReorderClick: () -> Unit
 ) {
     fun NavOptionsBuilder.defaultNavOptions() {
         // Avoid building large backstack
@@ -156,6 +157,7 @@ fun AppNavigation(
                 dashBoardViewModel = dashBoardViewModel,
                 callbacks = settingsCallbacks,
                 topBarActions = topAppBarActions,
+                onNavigationReorderClick = onNavigationReorderClick
             )
         }
         appComposable(
