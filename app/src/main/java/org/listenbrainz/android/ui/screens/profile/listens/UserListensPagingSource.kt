@@ -17,10 +17,7 @@ class UserListensPagingSource(
 ) : PagingSource<Long, Listen>() {
 
     override fun getRefreshKey(state: PagingState<Long, Listen>): Long? {
-        return state.anchorPosition?.let { anchorPosition ->
-            val anchorPage = state.closestPageToPosition(anchorPosition)
-            anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)
-        }
+        return System.currentTimeMillis() / 1000
     }
 
     override suspend fun load(params: LoadParams<Long>): LoadResult<Long, Listen> {
@@ -54,7 +51,6 @@ class UserListensPagingSource(
                     null
                 }
 
-                println(listens.size)
                 LoadResult.Page(
                     data = listens,
                     prevKey = null, // We only support forward pagination
