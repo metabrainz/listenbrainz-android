@@ -1,3 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="title_tracks">Takeliai</string>
+    <string name="releases">Leidiniai</string>
+    <string name="recording_releases">Pasirodo leidiniuose</string>
+    <string name="app_name">„ListenBrainz“</string>
+    <string name="search_hint">Ieškokite „ListenBrainz“</string>
+    <string name="search_card">Naršykite „ListenBrainz“ duomenis</string>
+    <string name="tagger_card">Pasirinkite garsą, ištaisykite žymę</string>
+    <string name="news_card">„ListenBrainz“ naujienų naujinimai</string>
+    <string name="dash_scan">Skenuoti</string>
+    <string name="dash_collections">Kolekcijos</string>
+    <string name="dash_donate">Aukoti</string>
+    <string name="dash_about">Apie</string>
+    <string name="welcome">Sveiki atvykę į „ListenBrainz“!</string>
+    <string name="welcome_loggedin">Prisijungta kaip</string>
+    <string name="search_type_artist">Atlikėjas</string>
+    <string name="search_type_release">Leidinys</string>
+    <string name="search_type_label">Leidykla</string>
+    <string name="search_type_recording">Įrašas</string>
+    <string name="search_type_release_group">Leidinių grupė</string>
+    <string name="search_type_instrument">Instrumentas</string>
+    <string name="search_type_event">Renginys</string>
+    <string name="search_name">„ListenBrainz“</string>
+    <string name="auth_title">Tapatumo nustatymas</string>
+    <string name="no_results">Nerasta rezultatų.</string>
+    <string name="release_title">Leidinys</string>
+    <string name="cover_art_front">PRIEKINIS</string>
+    <string name="artist_title">Atlikėjas</string>
+    <string name="bio_powered_by">BIOGRAFIJA TEIKIAMA IŠ</string>
+    <string name="tab_links">DAUGIAU</string>
+    <string name="tab_releases">LEIDINYS</string>
+    <string name="tab_mediums">LAIKMENOS</string>
+    <string name="tab_info">INFORM.</string>
+    <string name="tab_edits">ŽYMĖTI IR VERTINTI</string>
+    <string name="donate_title">Aukojimas</string>
+    <string name="about_title">Apie</string>
+    <string name="app_name_official">„ListenBrainz Android“</string>
+    <string name="version_text">Versija</string>
+    <string name="action_search">Ieškoti</string>
+    <string name="action_feedback">Atsiliepimai</string>
+    <string name="action_settings">Nustatymai</string>
+    <string name="action_authentication">Nustatyti tapatumą</string>
+    <string name="action_login">Prisijungti</string>
+    <string name="action_logout">Atsijungti</string>
+    <string name="loading">Įkeliama...</string>
+    <string name="icon_button">Piktogramos mygtukas</string>
+    <string name="s_top_scrobbles" formatted="true" comment="%1= the word weekly or monthly">%1$s geriausi skroblai</string>
+    <string name="state_scrobbled">Nuskrobolinta</string>
+    <string name="unscrobble">Neskrobolinti</string>
+    <string name="state_unscrobbled">Nenuskrobolinta</string>
+    <string name="state_unrecognised_artist">Neatpažintas atlikėjas</string>
+    <string name="state_scrobbling">Dabar skrobolinama…</string>
+    <string name="tap_to_edit">(Palieskite, kad redaguotumėte)</string>
+    <string name="recently_scrobbled">Naujausiai nuskrobolinta</string>
+    <string name="new_player" formatted="true" comment="(%1 = App name) detected (shown in notification, when a new music player is detected)">„%1$s“ aptikta</string>
+    <string name="new_player_prompt">Toliau skrobolinti šią programą?</string>
+    <string name="no_scrobbles">Čia dar nėra dainų…</string>
+    <string name="channel_err" comment="Its a noun">Skroblo klaidos</string>
+    <string name="new_app">Nauja programa</string>
+    <string name="no_apps_enabled">Nėra įjungta jokių programų</string>
+    <string name="n_more" formatted="true" comment="n more( pending scrobbles)">%1$d daugiau</string>
+    <string name="pending_scrobbles">Laukiami skroblai</string>
+    <string name="pending_scrobble">Laukiamas skroblas</string>
+    <string name="pending_scrobbles_noti">Apdorojami laukiantys skroblai</string>
+    <string name="cb_review_tc">Jūs pripažįstate ir sutinkate, kad jūsų į „CritiqueBrainz“ įkelti atsiliepimai yra licencijuojami pagal „Creative Commons“ Priskyrimą – Analogišką platinimą 3.0 nepritaikytą jurisdikcijai (CC BY-SA 3.0) licenciją. Sutinkate licencijuoti savo darbą pagal šią licenciją. Pareiškate ir garantuojate, kad turite ar valdote visas teises į darbą, kad jame nėra nieko, kas pažeistų trečiųjų šalių teises, ir kad turite leidimą naudoti ir licencijuoti darbą pagal pasirinktą „Creative Commons“ licenciją. Galiausiai, suteikiate „MetaBrainz“ fondui leidimą licencijuoti šį turinį komerciniam naudojimui už „Creative Commons“ licencijų ribų, siekiant paremti organizacijos veiklą.</string>
 </resources>
