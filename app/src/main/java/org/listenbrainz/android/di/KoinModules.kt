@@ -12,6 +12,7 @@ import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpRedirect
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
@@ -295,7 +296,16 @@ val networkModule = module {
     }
 
     single<PlaylistService> {
-        val httpClient = createBaseHttpClient(androidContext(), get<AppPreferences>())
+        val httpClient = createBaseHttpClient(
+            context = androidContext(),
+            appPreferences = get<AppPreferences>(),
+            baseUrl = LISTENBRAINZ_API_BASE_URL
+        ).config {
+            install(HttpTimeout) {
+                requestTimeoutMillis = 30_000
+                socketTimeoutMillis = 30_000
+            }
+        }
         Ktorfit.Builder()
             .baseUrl(LISTENBRAINZ_API_BASE_URL)
             .httpClient(httpClient)
@@ -545,7 +555,7 @@ val viewModelModule = module {
     viewModel { YimViewModel(get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { Yim23ViewModel(get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { NewsListViewModel(get(), get(named(IO_DISPATCHER))) }
-    viewModel { SearchViewModel(get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
+    viewModel { SearchViewModel(get(),get(),get(),get(),get(), get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER))) }
     viewModel { BrainzPlayerViewModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
     viewModel { PlaylistViewModel(get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { BPAlbumViewModel(get(), get(named(IO_DISPATCHER))) }
