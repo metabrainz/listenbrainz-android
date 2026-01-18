@@ -146,6 +146,9 @@ android {
 }
 
 dependencies {
+    // Shared KMP module
+    implementation(project(":shared"))
+
     // AndroidX libraries
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -216,6 +219,7 @@ dependencies {
     implementation(libs.onboarding)
     implementation(libs.share.android)
     implementation(libs.compose.ratingbar)
+    implementation(libs.reorderable)
 
     // Accompanist
     implementation(libs.google.accompanist.permissions)
@@ -240,7 +244,7 @@ dependencies {
     }
 
     // Date time
-    implementation(libs.threetenabp)
+    implementation(libs.kotlinx.datetime)
 
     // Logging
     implementation(libs.logger.android)

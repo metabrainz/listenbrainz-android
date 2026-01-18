@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.application.App.Companion.context
 import org.listenbrainz.android.model.Album
-import org.listenbrainz.android.model.AppNavigationItem
+import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.android.model.Artist
 import org.listenbrainz.shared.model.PlayableType
 import org.listenbrainz.shared.model.Song

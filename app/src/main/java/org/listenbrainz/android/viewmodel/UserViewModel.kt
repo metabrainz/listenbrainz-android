@@ -50,6 +50,14 @@ class UserViewModel(
     val ioDispatcher: CoroutineDispatcher,
 ) : BaseViewModel<ProfileUiState>() {
 
+    private val loggedInUser = appPreferences
+        .username
+        .getFlow()
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            null
+        )
     private val currentUser = MutableStateFlow<String?>(null)
     private val isLoggedInUser = currentUser
         .map { it == appPreferences.username.get() }
@@ -625,6 +633,7 @@ class UserViewModel(
 
     override fun createUiStateFlow(): StateFlow<ProfileUiState> {
         return combine(
+            loggedInUser,
             isLoggedInUser,
             listenStateFlow,
             statsStateFlow,
@@ -634,6 +643,7 @@ class UserViewModel(
         ) { data ->
             var index = 0
             ProfileUiState(
+                loggedInUser = data[index++] as String?,
                 isSelf = data[index++] as Boolean,
                 listensTabUiState = data[index++] as ListensTabUiState,
                 statsTabUIState = data[index++] as StatsTabUIState,

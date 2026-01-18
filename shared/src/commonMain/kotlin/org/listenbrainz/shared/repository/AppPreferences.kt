@@ -1,6 +1,7 @@
 package org.listenbrainz.shared.repository
 
 import kotlinx.coroutines.flow.Flow
+import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.shared.model.InstallSource
 import org.listenbrainz.shared.model.Playable
 import org.listenbrainz.shared.model.UiMode
@@ -73,4 +74,6 @@ interface AppPreferences {
     val lastUpdatePromptLaunchCount: DataStorePreference<Int>
 
     val downloadId: DataStorePreference<Long>
+
+    val navBarOrder: DataStorePreference<List<AppNavigationItem>>
 }

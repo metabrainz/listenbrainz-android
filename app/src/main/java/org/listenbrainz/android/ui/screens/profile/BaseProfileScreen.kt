@@ -56,7 +56,7 @@ import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
 fun BaseProfileScreen(
-    username: String?,
+    username: String,
     snackbarState: SnackbarHostState,
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
@@ -80,7 +80,7 @@ fun BaseProfileScreen(
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(username) {
-        if (!username.isNullOrEmpty())
+        if (username.isNotEmpty())
             viewModel.updateUser(username)
     }
 
@@ -137,14 +137,12 @@ fun BaseProfileScreen(
                                 contentDescription = "",
                                 tint = new_app_bg_light,
                                 modifier = Modifier.clickable {
-                                    if (username != null) {
-                                        goToUserProfile(username)
-                                    }
+                                    goToUserProfile(username)
                                 })
                         }
                     }
                     Text(
-                        username ?: "", color = when (uiState.isSelf) {
+                        username, color = when (uiState.isSelf) {
                             true -> Color.White
                             false -> Color.Black
                         }, modifier = Modifier.padding(start = 8.dp)

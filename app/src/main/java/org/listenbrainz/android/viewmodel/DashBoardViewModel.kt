@@ -42,6 +42,14 @@ class DashBoardViewModel(
     val usernameFlow = appPreferences.username.getFlow()
     val permissionStatusFlow = MutableStateFlow(emptyMap<PermissionEnum, PermissionStatus>())
 
+    val navBarOrderFlow = appPreferences.navBarOrder
+        .getFlow()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = null
+        )
+
     val permissionsRequestedAteastOnce = appPreferences.requestedPermissionsList.getFlow()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     private val _onboardingCompletedState = appPreferences.onboardingCompleted.getFlow()
