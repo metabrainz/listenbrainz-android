@@ -1,7 +1,7 @@
 package org.listenbrainz.android.repository.preferences
 
 import kotlinx.coroutines.flow.Flow
-import org.listenbrainz.android.model.AppNavigationItem
+import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.android.model.InstallSource
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode

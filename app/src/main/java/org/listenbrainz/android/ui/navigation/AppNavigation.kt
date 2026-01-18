@@ -22,8 +22,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import org.listenbrainz.android.model.AppNavigationItem
-import org.listenbrainz.android.model.AppNavigationItem.Profile.ARG_USERNAME
+import org.listenbrainz.shared.model.AppNavigationItem
+import org.listenbrainz.shared.model.AppNavigationItem.Profile.ARG_USERNAME
 import org.listenbrainz.android.ui.screens.album.AlbumScreen
 import org.listenbrainz.android.ui.screens.artist.ArtistScreen
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerScreen

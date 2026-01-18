@@ -72,7 +72,7 @@ import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.flow.flow
 import org.koin.androidx.compose.koinViewModel
-import org.listenbrainz.android.model.AppNavigationItem
+import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.feed.FeedCallbacks
 import org.listenbrainz.android.model.feed.FeedEvent

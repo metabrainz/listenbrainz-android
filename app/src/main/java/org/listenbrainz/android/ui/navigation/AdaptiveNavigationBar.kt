@@ -40,7 +40,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.AppNavigationItem
+import org.listenbrainz.android.util.iconSelected
+import org.listenbrainz.android.util.iconUnselected
+import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.ui.screens.brainzplayer.ListeningNowCard
 import org.listenbrainz.android.ui.screens.search.SearchBarState
