@@ -6,9 +6,13 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.internal.SynchronizedObject
+import kotlinx.coroutines.internal.synchronized
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -21,9 +25,11 @@ import org.listenbrainz.shared.preferences.DataStorePreference
 import org.listenbrainz.shared.preferences.DATA_STORE_FILE_NAME
 import org.listenbrainz.shared.preferences.PreferenceKeys
 import org.listenbrainz.shared.preferences.createDataStore
+import kotlin.concurrent.Volatile
 
 class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences {
-    companion object {
+    @OptIn(InternalCoroutinesApi::class)
+    companion object: SynchronizedObject() {
         private const val STATUS_LOGGED_IN = 1
         private const val STATUS_LOGGED_OUT = 0
         private const val LEGACY_PERMS_KEY = "perms_code"
@@ -80,6 +86,7 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
         @Volatile
         private var sharedDataStore: DataStore<Preferences>? = null
 
+        @OptIn(InternalCoroutinesApi::class)
         private fun getSharedDataStore(context: PlatformContext): DataStore<Preferences> {
             val existing = sharedDataStore
             if (existing != null) return existing
