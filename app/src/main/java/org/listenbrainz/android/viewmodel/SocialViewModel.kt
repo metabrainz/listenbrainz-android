@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.Metadata
+import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.android.model.RecommendationData
 import org.listenbrainz.android.model.RecommendationMetadata
 import org.listenbrainz.android.model.ResponseError
@@ -24,13 +24,13 @@ import org.listenbrainz.android.model.Review
 import org.listenbrainz.android.model.ReviewMetadata
 import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.SocialUiState
-import org.listenbrainz.android.model.TrackMetadata
+import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.repository.listens.ListensRepository
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
-import org.listenbrainz.android.util.LinkedService
+import org.listenbrainz.shared.model.LinkedService
 import org.listenbrainz.android.util.Resource
 
 class SocialViewModel(
@@ -139,15 +139,16 @@ class SocialViewModel(
 
     fun recommend(metadata: Metadata) {
         viewModelScope.launch(ioDispatcher) {
+            val trackMetadata = metadata.trackMetadata ?: return@launch
             val result = repository.postRecommendationToAll(
                 username = appPreferences.username.get(),
                 data = RecommendationData(
                     metadata = RecommendationMetadata(
-                        trackName = metadata.trackMetadata?.trackName ?: return@launch,
-                        artistName = metadata.trackMetadata.artistName.orEmpty(),
-                        releaseName = metadata.trackMetadata.releaseName,
-                        recordingMbid = metadata.trackMetadata.mbidMapping?.recordingMbid,
-                        recordingMsid = metadata.trackMetadata.additionalInfo?.recordingMsid
+                        trackName = trackMetadata.trackName ?: return@launch,
+                        artistName = trackMetadata.artistName.orEmpty(),
+                        releaseName = trackMetadata.releaseName,
+                        recordingMbid = trackMetadata.mbidMapping?.recordingMbid,
+                        recordingMsid = trackMetadata.additionalInfo?.recordingMsid
                     )
                 )
             )
@@ -163,15 +164,16 @@ class SocialViewModel(
 
     fun personallyRecommend(metadata: Metadata, users: List<String>, blurbContent: String) {
         viewModelScope.launch(ioDispatcher) {
+            val trackMetadata = metadata.trackMetadata ?: return@launch
             val result = repository.postPersonalRecommendation(
                 username = appPreferences.username.get(),
                 data = RecommendationData(
                     metadata = RecommendationMetadata(
-                        trackName = metadata.trackMetadata?.trackName ?: return@launch,
-                        artistName = metadata.trackMetadata.artistName.orEmpty(),
-                        releaseName = metadata.trackMetadata.releaseName,
-                        recordingMbid = metadata.trackMetadata.mbidMapping?.recordingMbid,
-                        recordingMsid = metadata.trackMetadata.additionalInfo?.recordingMsid,
+                        trackName = trackMetadata.trackName ?: return@launch,
+                        artistName = trackMetadata.artistName.orEmpty(),
+                        releaseName = trackMetadata.releaseName,
+                        recordingMbid = trackMetadata.mbidMapping?.recordingMbid,
+                        recordingMsid = trackMetadata.additionalInfo?.recordingMsid,
                         users = users,
                         blurbContent = blurbContent
                     )
@@ -189,18 +191,20 @@ class SocialViewModel(
 
     fun review(metadata: Metadata, entityType: ReviewEntityType, blurbContent: String, rating: Int?, locale: String){
         viewModelScope.launch(ioDispatcher) {
+            val trackMetadata = metadata.trackMetadata ?: return@launch
+            val mbidMapping = trackMetadata.mbidMapping ?: return@launch
             val result = repository.postReview(
                 username = appPreferences.username.get(),
                 data = Review(
                     metadata = ReviewMetadata(
-                        entityName = metadata.trackMetadata?.trackName ?: return@launch,
+                        entityName = trackMetadata.trackName ?: return@launch,
                         entityId = when(entityType) {
-                            ReviewEntityType.RECORDING -> (metadata.trackMetadata.mbidMapping?.recordingMbid ?: return@launch).toString()
-                            ReviewEntityType.ARTIST -> (when(metadata.trackMetadata.mbidMapping?.artistMbids?.size){
-                                1 -> metadata.trackMetadata.mbidMapping.artistMbids[0]
+                            ReviewEntityType.RECORDING -> (mbidMapping.recordingMbid ?: return@launch).toString()
+                            ReviewEntityType.ARTIST -> (when(mbidMapping.artistMbids.size){
+                                1 -> mbidMapping.artistMbids[0]
                                 else -> return@launch
                             })
-                            ReviewEntityType.RELEASE_GROUP -> (metadata.trackMetadata.mbidMapping?.recordingMbid ?: return@launch).toString() },
+                            ReviewEntityType.RELEASE_GROUP -> (mbidMapping.recordingMbid ?: return@launch).toString() },
                         entityType = entityType.code,
                         text = blurbContent,
                         rating = rating,

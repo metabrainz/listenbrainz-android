@@ -2,11 +2,11 @@ package org.listenbrainz.android.model.playlist
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.listenbrainz.android.model.AdditionalInfo
-import org.listenbrainz.android.model.MbidMapping
-import org.listenbrainz.android.model.Metadata
-import org.listenbrainz.android.model.TrackMetadata
-import org.listenbrainz.android.model.feed.FeedListenArtist
+import org.listenbrainz.shared.model.AdditionalInfo
+import org.listenbrainz.shared.model.MbidMapping
+import org.listenbrainz.shared.model.Metadata
+import org.listenbrainz.shared.model.TrackMetadata
+import org.listenbrainz.shared.model.feed.FeedListenArtist
 
 @Serializable
 data class PlaylistTrack(

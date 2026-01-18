@@ -5,6 +5,7 @@
 .idea/*
 .DS_Store
 /build
+shared/build
 /captures
 .externalNativeBuild
 play_config.json

@@ -86,10 +86,11 @@ fun ListeningNowCard(listen: Listen?, coverArtUrl: String?, onItemClicked: () ->
     
                         Spacer(modifier = Modifier.height(8.dp))
                         
-                        if (!listen.trackMetadata?.releaseName.isNullOrEmpty()) {
+                        val releaseName = listen.trackMetadata?.releaseName
+                        if (!releaseName.isNullOrEmpty()) {
                             Row(verticalAlignment = Alignment.Bottom) {
                                 Text(
-                                    text = listen.trackMetadata.releaseName,
+                                    text = releaseName,
                                     color = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),
                                     style = MaterialTheme.typography.caption
                                 )

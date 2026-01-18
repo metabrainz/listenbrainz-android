@@ -2,9 +2,9 @@ package org.listenbrainz.android.model.user
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.listenbrainz.android.model.MbidMapping
-import org.listenbrainz.android.model.TrackMetadata
-import org.listenbrainz.android.model.feed.FeedListenArtist
+import org.listenbrainz.shared.model.MbidMapping
+import org.listenbrainz.shared.model.TrackMetadata
+import org.listenbrainz.shared.model.feed.FeedListenArtist
 
 @Serializable
 data class Recording(

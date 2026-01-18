@@ -3,11 +3,10 @@ package org.listenbrainz.android.util
 import com.google.common.net.HttpHeaders.AUTHORIZATION
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
-import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferences
 import java.io.IOException
 
 class HeaderInterceptor (

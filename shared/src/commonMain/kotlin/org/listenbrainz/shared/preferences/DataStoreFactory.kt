@@ -1,0 +1,15 @@
+package org.listenbrainz.shared.preferences
+
+import androidx.datastore.core.DataMigration
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+
+/**
+ * Creates a DataStore instance with a platform-resolved file path.
+ *
+ * @param name File name for the DataStore on disk (without `.preferences_pb` extension)
+ */
+expect fun createDataStore(
+    name: String,
+    migrations: List<DataMigration<Preferences>> = emptyList()
+): DataStore<Preferences>

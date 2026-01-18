@@ -83,7 +83,7 @@ fun HomeScreen(
     )
     var showNavReorderOverlay by rememberSaveable { mutableStateOf(false) }
     val currentlyPlayingSong by brainzPlayerViewModel.currentlyPlayingSong.collectAsStateWithLifecycle()
-    val songList = brainzPlayerViewModel.appPreferences.currentPlayable?.songs
+    val currentPlayableState by brainzPlayerViewModel.currentPlayable.collectAsStateWithLifecycle()
     val isLandScape =
         LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val isBackdropInitialised by remember {
@@ -125,7 +125,7 @@ fun HomeScreen(
     val isNothingPlaying = remember(currentlyPlayingSong) {
         currentlyPlayingSong.toSong.title == "null"
                 && currentlyPlayingSong.toSong.artist == "null"
-                || brainzPlayerViewModel.appPreferences.currentPlayable?.songs.isNullOrEmpty()
+                || currentPlayableState.songs.isEmpty()
     }
 
     val isListeningNowOpenedInConcealedState = backdropScaffoldState.targetValue != BackdropValue.Revealed && isNothingPlaying && listeningNowUIState.isListeningNow
@@ -179,7 +179,7 @@ fun HomeScreen(
                         username = username,
                         isLandscape = false,
                         currentlyPlayingSong = currentlyPlayingSong.toSong,
-                        songList = songList ?: emptyList(),
+                        songList = currentPlayableState.songs,
                         listeningNowUIState = listeningNowUIState,
                         searchBarState = searchBarState,
                     )
@@ -214,7 +214,7 @@ fun HomeScreen(
                     isLandscape = true,
                     currentlyPlayingSong = currentlyPlayingSong.toSong,
                     listeningNowUIState = listeningNowUIState,
-                    songList = songList ?: emptyList(),
+                    songList = currentPlayableState.songs,
                     searchBarState = searchBarState
                 )
             }

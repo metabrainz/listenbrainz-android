@@ -1,10 +1,8 @@
-package org.listenbrainz.android.model
+package org.listenbrainz.shared.model
 
-import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Immutable
 @Serializable
 data class TrackMetadata(
     @SerialName("additional_info")

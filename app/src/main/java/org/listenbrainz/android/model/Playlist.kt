@@ -3,6 +3,7 @@ package org.listenbrainz.android.model
 import androidx.annotation.DrawableRes
 import kotlinx.serialization.Serializable
 import org.listenbrainz.android.R
+import org.listenbrainz.shared.model.Song
 import kotlin.random.Random
 
 @Serializable

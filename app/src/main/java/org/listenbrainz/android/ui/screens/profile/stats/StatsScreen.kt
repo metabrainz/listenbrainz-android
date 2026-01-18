@@ -69,9 +69,9 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.Metadata
+import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.android.model.SocialUiState
-import org.listenbrainz.android.model.TrackMetadata
+import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.android.model.user.Artist
 import org.listenbrainz.android.model.user.ListeningActivity
 import org.listenbrainz.android.model.user.TopArtists

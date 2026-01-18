@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.navigation
+package org.listenbrainz.shared
 
 import org.listenbrainz.shared.model.AppNavigationItem
 

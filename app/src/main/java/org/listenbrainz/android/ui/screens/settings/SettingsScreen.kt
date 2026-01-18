@@ -55,9 +55,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.android.model.PermissionStatus
-import org.listenbrainz.android.model.UiMode
-import org.listenbrainz.android.repository.preferences.AppPreferences
-import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
+import org.listenbrainz.shared.model.UiMode
+import org.listenbrainz.shared.repository.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferencesImpl
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.main.DonateActivity

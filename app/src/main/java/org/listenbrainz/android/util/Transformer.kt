@@ -6,7 +6,7 @@ import org.listenbrainz.android.model.Artist
 import org.listenbrainz.android.model.ArtistEntity
 import org.listenbrainz.android.model.Playlist
 import org.listenbrainz.android.model.PlaylistEntity
-import org.listenbrainz.android.model.Song
+import org.listenbrainz.shared.model.Song
 import org.listenbrainz.android.model.SongEntity
 
 object Transformer {

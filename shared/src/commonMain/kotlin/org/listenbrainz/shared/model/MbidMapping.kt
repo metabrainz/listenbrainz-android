@@ -1,11 +1,9 @@
-package org.listenbrainz.android.model
+package org.listenbrainz.shared.model
 
-import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.listenbrainz.android.model.feed.FeedListenArtist
+import org.listenbrainz.shared.model.feed.FeedListenArtist
 
-@Immutable
 @Serializable
 data class MbidMapping(
     @SerialName("artist_mbids")

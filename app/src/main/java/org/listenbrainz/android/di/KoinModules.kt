@@ -27,13 +27,10 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.module.dsl.bind
-import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.listenbrainz.android.BuildConfig
-import org.listenbrainz.android.application.App
 import org.listenbrainz.android.di.brainzplayer.BrainzPlayerDatabase
 import org.listenbrainz.android.di.brainzplayer.ListensSubmissionDatabase
 import org.listenbrainz.android.di.brainzplayer.Migrations
@@ -66,8 +63,8 @@ import org.listenbrainz.android.repository.listenservicemanager.ListenServiceMan
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManagerImpl
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepositoryImpl
-import org.listenbrainz.android.repository.preferences.AppPreferences
-import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
+import org.listenbrainz.shared.repository.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferencesImpl
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandlerImpl
 import org.listenbrainz.android.repository.social.SocialRepository

@@ -19,7 +19,8 @@ lifecycle = "2.8.7"
 browser = "1.8.0"
 preference = "1.2.1"
 coreSplashscreen = "1.0.1"
-datastorePreferences = "1.1.2"
+datastorePreferences = "1.1.4"
+kotlinxCoroutines = "1.9.0"
 gson = "2.11.0"
 kotlinxSerializationJson = "1.7.3"
 retrofit = "2.11.0"
@@ -82,6 +83,8 @@ androidx-browser = { module = "androidx.browser:browser", version.ref = "browser
 androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version.ref = "preference" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastorePreferences" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
 
 androidx-startup-runtime = { module = "androidx.startup:startup-runtime", version.ref = "startup" }
@@ -123,7 +126,7 @@ gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
-coil-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil"}
+coil-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
 coil-svg = { module = "io.coil-kt.coil3:coil-svg", version.ref = "coil" }
 
 material = { module = "com.google.android.material:material", version.ref = "material" }
