@@ -11,7 +11,7 @@ accompanist = "0.36.0"
 work = "2.10.0"
 exoplayer = "2.19.1"
 paging = "3.3.5"
-androidGradlePlugin = "8.10.0"
+androidGradlePlugin = "8.13.2"
 ksp = "2.3.0"
 composeBom = "2025.01.00"
 appcompat = "1.7.0"
@@ -21,6 +21,7 @@ preference = "1.2.1"
 coreSplashscreen = "1.0.1"
 datastorePreferences = "1.1.4"
 kotlinxCoroutines = "1.9.0"
+gson = "2.11.0"
 kotlinxSerializationJson = "1.7.3"
 retrofit = "2.11.0"
 okhttp = "5.0.0-alpha.14"
@@ -121,6 +122,7 @@ google-exoplayer-core = { module = "com.google.android.exoplayer:exoplayer-core"
 google-exoplayer-ui = { module = "com.google.android.exoplayer:exoplayer-ui", version.ref = "exoplayer" }
 google-exoplayer-mediasession = { module = "com.google.android.exoplayer:extension-mediasession", version.ref = "exoplayer" }
 
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
