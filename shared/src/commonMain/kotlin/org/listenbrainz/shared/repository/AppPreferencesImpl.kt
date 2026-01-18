@@ -17,6 +17,8 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.listenbrainz.shared.BottomNavDefaults
+import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.shared.model.InstallSource
 import org.listenbrainz.shared.model.LinkedService
 import org.listenbrainz.shared.model.Playable
@@ -452,5 +454,35 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
                     prefs[PreferenceKeys.GITHUB_DOWNLOAD_ID] = value
                 }
             }
+        }
+
+    override val navBarOrder: DataStorePreference<List<AppNavigationItem>>
+        get() = object : DataStorePreference<List<AppNavigationItem>> {
+            override fun getFlow(): Flow<List<AppNavigationItem>> = mapData { prefs ->
+                try {
+                    val stored = prefs[PreferenceKeys.PREFERENCE_NAV_ORDER] ?: ""
+                    if (stored.isBlank()) {
+                        BottomNavDefaults.items()
+                    } else {
+                        val parsed = stored.split(",")
+                            .mapNotNull { route ->
+                                BottomNavDefaults.items().firstOrNull { it.route == route }
+                            }
+                        parsed.ifEmpty {
+                            BottomNavDefaults.items()
+                        }
+                    }
+                } catch (e: Exception) {
+                    BottomNavDefaults.items()
+                }
+            }
+
+            override suspend fun set(value: List<AppNavigationItem>) {
+                dataStore().edit { prefs ->
+                    prefs[PreferenceKeys.PREFERENCE_NAV_ORDER] =
+                        value.joinToString(",") { it.route }
+                }
+            }
+
         }
 }

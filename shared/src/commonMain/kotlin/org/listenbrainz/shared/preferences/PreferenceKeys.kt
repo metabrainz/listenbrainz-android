@@ -51,4 +51,6 @@ object PreferenceKeys {
     // Services
     val REFESH_TOKEN = stringPreferencesKey("refresh_token")
     val LINKED_SERVICES = stringPreferencesKey("LINKED_SERVICES")
+
+    val PREFERENCE_NAV_ORDER = stringPreferencesKey("bottom_nav_order")
 }

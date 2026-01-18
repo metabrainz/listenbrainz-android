@@ -50,6 +50,7 @@ import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.SongViewPager
 import org.listenbrainz.android.viewmodel.ListeningNowUIState
+import org.listenbrainz.shared.BottomNavDefaults
 
 @Composable
 fun AdaptiveNavigationBar(
