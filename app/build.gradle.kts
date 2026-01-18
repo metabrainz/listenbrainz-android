@@ -22,7 +22,7 @@ android {
 
     val versionMap = mapOf(
         major to 2,
-        minor to 12,
+        minor to 13,
         patch to 0,
         build to 0
     )
@@ -236,6 +236,8 @@ dependencies {
 
     // Spotify SDK
     api(project(":spotify-app-remote"))
+    // TODO: Remove when we've migrated spotify-app-remote to androidMain of shared module.
+    implementation(libs.gson)
 
     // Networking and parsing
     implementation(libs.jsoup)
