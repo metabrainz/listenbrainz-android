@@ -20,4 +20,12 @@ data class PlaylistData(
     @SerialName("track")
     val track: List<PlaylistTrack> = listOf(),
     val coverArt: String? = null
-)
+){
+    // Get the MBID of the playlist
+    fun getPlaylistMBID(): String? {
+        // Regex to extract the MBID from the identifier
+        val regex = """playlist/([a-f0-9\-]+)""".toRegex()
+        val matchResult = identifier?.let { regex.find(it) }
+        return matchResult?.groupValues?.get(1)
+    }
+}

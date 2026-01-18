@@ -5,6 +5,7 @@ import org.listenbrainz.android.model.playlist.DeleteTracks
 import org.listenbrainz.android.model.playlist.EditPlaylistResponse
 import org.listenbrainz.android.model.playlist.MoveTrack
 import org.listenbrainz.android.model.playlist.PlaylistPayload
+import org.listenbrainz.android.model.playlist.PlaylistSearchResult
 import org.listenbrainz.android.model.playlist.PlaylistTrack
 import org.listenbrainz.android.model.recordingSearch.RecordingSearchPayload
 import org.listenbrainz.android.model.userPlaylist.UserPlaylistPayload
@@ -71,6 +72,10 @@ interface PlaylistDataRepository {
         offset: Int,
         count: Int
     ): Resource<UserPlaylistPayload>
+
+    suspend fun searchPlaylists(
+        query:String?
+    ): Resource<PlaylistSearchResult>
 
     companion object {
         const val DEFAULT_PLAYLIST_GRID_SIZE = 3
