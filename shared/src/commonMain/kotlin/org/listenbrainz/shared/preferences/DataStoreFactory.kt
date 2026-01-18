@@ -13,8 +13,3 @@ expect fun createDataStore(
     name: String,
     migrations: List<DataMigration<Preferences>> = emptyList()
 ): DataStore<Preferences>
-
-/**
- * Default filename for preferences DataStore.
- */
-const val DATA_STORE_FILE_NAME = "settings"

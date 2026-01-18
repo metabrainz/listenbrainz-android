@@ -4,10 +4,7 @@ import androidx.datastore.core.DataMigration
 import androidx.datastore.preferences.core.Preferences
 actual class PlatformContext
 
-actual fun platformDataMigrations(
-    context: PlatformContext,
-    baseMigrations: List<DataMigration<Preferences>>
-): List<DataMigration<Preferences>> = baseMigrations
+actual fun settingsPlatformDataMigrations(context: PlatformContext): List<DataMigration<Preferences>> = emptyList()
 
 actual fun platformInitDataStoreContext(context: PlatformContext) = Unit
 

@@ -7,33 +7,34 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.internal.SynchronizedObject
-import kotlinx.coroutines.internal.synchronized
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.listenbrainz.shared.model.InstallSource
+import org.listenbrainz.shared.model.LinkedService
 import org.listenbrainz.shared.model.Playable
 import org.listenbrainz.shared.model.UiMode
 import org.listenbrainz.shared.model.UiMode.Companion.asUiMode
-import org.listenbrainz.shared.model.LinkedService
 import org.listenbrainz.shared.preferences.DataStorePreference
-import org.listenbrainz.shared.preferences.DATA_STORE_FILE_NAME
 import org.listenbrainz.shared.preferences.PreferenceKeys
 import org.listenbrainz.shared.preferences.createDataStore
 import kotlin.concurrent.Volatile
 
 class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences {
-    @OptIn(InternalCoroutinesApi::class)
-    companion object: SynchronizedObject() {
+    companion object {
         private const val STATUS_LOGGED_IN = 1
         private const val STATUS_LOGGED_OUT = 0
+        private const val DATA_STORE_FILE_NAME = "settings"
         private const val LEGACY_PERMS_KEY = "perms_code"
         private val json = Json { ignoreUnknownKeys = true }
+        private val mutex = Mutex()
 
         private val permsMigration: DataMigration<Preferences> =
             object : DataMigration<Preferences> {
@@ -80,17 +81,14 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
                 }
             }
 
-        private fun baseMigrations(): List<DataMigration<Preferences>> =
+        private fun commonMigrations(): List<DataMigration<Preferences>> =
             listOf(blacklistMigration, permsMigration)
 
         @Volatile
         private var sharedDataStore: DataStore<Preferences>? = null
 
-        @OptIn(InternalCoroutinesApi::class)
-        private fun getSharedDataStore(context: PlatformContext): DataStore<Preferences> {
-            val existing = sharedDataStore
-            if (existing != null) return existing
-            return synchronized(this) {
+        private suspend fun getSharedDataStore(context: PlatformContext): DataStore<Preferences> {
+            return sharedDataStore ?: mutex.withLock {
                 val cached = sharedDataStore
                 if (cached != null) {
                     cached
@@ -98,7 +96,7 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
                     platformInitDataStoreContext(context)
                     val created = createDataStore(
                         name = DATA_STORE_FILE_NAME,
-                        migrations = platformDataMigrations(context, baseMigrations())
+                        migrations = settingsPlatformDataMigrations(context) + commonMigrations()
                     )
                     sharedDataStore = created
                     created
@@ -107,50 +105,38 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
         }
 
         fun String?.asStringList(): List<String> {
-            return try {
-                if (this.isNullOrEmpty()) emptyList()
-                else json.decodeFromString(this)
-            } catch (e: Exception) {
-                emptyList()
-            }
+            if (this.isNullOrEmpty()) return emptyList()
+            return runCatching { json.decodeFromString<List<String>>(this) }.getOrDefault(emptyList())
         }
 
         fun String?.asLinkedServiceList(): List<LinkedService> {
-            return try {
-                if (this.isNullOrEmpty()) emptyList()
-                else json.decodeFromString(this)
-            } catch (e: Exception) {
-                emptyList()
-            }
+            if (this.isNullOrEmpty()) return emptyList()
+            return runCatching { json.decodeFromString<List<LinkedService>>(this) }.getOrDefault(emptyList())
         }
 
         fun String?.asPlayable(): Playable? {
-            return try {
-                if (this.isNullOrBlank()) null
-                else json.decodeFromString(this)
-            } catch (e: Exception) {
-                null
-            }
+            if (this.isNullOrBlank()) return null
+            return runCatching { json.decodeFromString<Playable>(this) }.getOrNull()
         }
     }
 
-    private val dataStore: DataStore<Preferences> = getSharedDataStore(context)
+    private suspend fun dataStore() = getSharedDataStore(context)
 
-    private val datastore: Flow<Preferences>
-        get() = dataStore.data
+    private suspend fun datastore(): Flow<Preferences> = dataStore().data
 
     // Preferences Implementation
+    private fun <T> mapData(transform: suspend (Preferences) -> T) = flow {
+        emitAll(datastore().map(transform))
+    }
 
     override val requestedPermissionsList: DataStorePreference<List<String>>
         get() = object : DataStorePreference<List<String>> {
-            override fun getFlow(): Flow<List<String>> {
-                return datastore.map { prefs ->
-                    prefs[PreferenceKeys.PERMISSIONS_REQUESTED].asStringList()
-                }
+            override fun getFlow(): Flow<List<String>> = mapData { prefs ->
+                prefs[PreferenceKeys.PERMISSIONS_REQUESTED].asStringList()
             }
 
             override suspend fun set(value: List<String>) {
-                dataStore.edit { prefs ->
+                dataStore().edit { prefs ->
                     prefs[PreferenceKeys.PERMISSIONS_REQUESTED] = json.encodeToString(value)
                 }
             }
@@ -158,29 +144,29 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
 
     override val themePreference: DataStorePreference<UiMode>
         get() = object : DataStorePreference<UiMode> {
-            override fun getFlow(): Flow<UiMode> =
-                datastore.map { it[PreferenceKeys.THEME].asUiMode() }
+            override fun getFlow(): Flow<UiMode> = mapData { prefs ->
+                prefs[PreferenceKeys.THEME].asUiMode()
+            }
 
             override suspend fun set(value: UiMode) {
-                dataStore.edit { it[PreferenceKeys.THEME] = value.name }
+                dataStore().edit { it[PreferenceKeys.THEME] = value.name }
             }
         }
 
     override val listeningWhitelist: DataStorePreference<List<String>>
         get() = object : DataStorePreference<List<String>> {
-            override fun getFlow(): Flow<List<String>> =
-                datastore.map { prefs ->
-                    prefs[PreferenceKeys.LISTENING_WHITELIST].asStringList()
-                }
+            override fun getFlow(): Flow<List<String>> = mapData { prefs ->
+                prefs[PreferenceKeys.LISTENING_WHITELIST].asStringList()
+            }
 
             override suspend fun set(value: List<String>) {
-                dataStore.edit { prefs ->
+                dataStore().edit { prefs ->
                     prefs[PreferenceKeys.LISTENING_WHITELIST] = json.encodeToString(value)
                 }
             }
 
             override suspend fun getAndUpdate(update: (List<String>) -> List<String>) {
-                dataStore.updateData {
+                dataStore().updateData {
                     val updatedValue = update(it[PreferenceKeys.LISTENING_WHITELIST].asStringList())
                     val mutablePrefs = it.toMutablePreferences()
                     mutablePrefs[PreferenceKeys.LISTENING_WHITELIST] = json.encodeToString(updatedValue)
@@ -194,13 +180,12 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
 
     override val isListeningAllowed: DataStorePreference<Boolean>
         get() = object : DataStorePreference<Boolean> {
-            override fun getFlow(): Flow<Boolean> =
-                datastore.map { prefs ->
-                    prefs[PreferenceKeys.IS_LISTENING_ALLOWED] ?: true
-                }
+            override fun getFlow(): Flow<Boolean> = mapData { prefs ->
+                prefs[PreferenceKeys.IS_LISTENING_ALLOWED] ?: true
+            }
 
             override suspend fun set(value: Boolean) {
-                dataStore.edit { prefs ->
+                dataStore().edit { prefs ->
                     prefs[PreferenceKeys.IS_LISTENING_ALLOWED] = value
                 }
             }
@@ -208,13 +193,12 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
 
     override val shouldListenNewPlayers: DataStorePreference<Boolean>
         get() = object : DataStorePreference<Boolean> {
-            override fun getFlow(): Flow<Boolean> =
-                datastore.map { prefs ->
-                    prefs[PreferenceKeys.SHOULD_LISTEN_NEW_PLAYERS] ?: false
-                }
+            override fun getFlow(): Flow<Boolean> = mapData { prefs ->
+                prefs[PreferenceKeys.SHOULD_LISTEN_NEW_PLAYERS] ?: false
+            }
 
             override suspend fun set(value: Boolean) {
-                dataStore.edit { prefs ->
+                dataStore().edit { prefs ->
                     prefs[PreferenceKeys.SHOULD_LISTEN_NEW_PLAYERS] = value
                 }
             }
@@ -222,19 +206,18 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
 
     override val listeningApps: DataStorePreference<List<String>>
         get() = object : DataStorePreference<List<String>> {
-            override fun getFlow(): Flow<List<String>> =
-                datastore.map { prefs ->
-                    prefs[PreferenceKeys.LISTENING_APPS].asStringList()
-                }
+            override fun getFlow(): Flow<List<String>> = mapData { prefs ->
+                prefs[PreferenceKeys.LISTENING_APPS].asStringList()
+            }
 
             override suspend fun set(value: List<String>) {
-                dataStore.edit { prefs ->
+                dataStore().edit { prefs ->
                     prefs[PreferenceKeys.LISTENING_APPS] = json.encodeToString(value)
                 }
             }
 
             override suspend fun getAndUpdate(update: (List<String>) -> List<String>) {
-                dataStore.updateData {
+                dataStore().updateData {
                     val updatedValue = update(it[PreferenceKeys.LISTENING_APPS].asStringList())
                     val mutablePrefs = it.toMutablePreferences()
                     mutablePrefs[PreferenceKeys.LISTENING_APPS] = json.encodeToString(updatedValue)
@@ -248,20 +231,19 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
 
     override val onboardingCompleted: DataStorePreference<Boolean>
         get() = object : DataStorePreference<Boolean> {
-            override fun getFlow(): Flow<Boolean> =
-                datastore.map { prefs ->
-                    prefs[PreferenceKeys.ONBOARDING] ?: false
-                }
+            override fun getFlow(): Flow<Boolean> = mapData { prefs ->
+                prefs[PreferenceKeys.ONBOARDING] ?: false
+            }
 
             override suspend fun set(value: Boolean) {
-                dataStore.edit { prefs ->
+                dataStore().edit { prefs ->
                     prefs[PreferenceKeys.ONBOARDING] = value
                 }
             }
         }
 
     override suspend fun logoutUser(): Boolean = withContext(Dispatchers.IO) {
-        dataStore.edit { prefs ->
+        dataStore().edit { prefs ->
             prefs.remove(PreferenceKeys.REFESH_TOKEN)
             prefs.remove(PreferenceKeys.USERNAME)
         }
@@ -271,13 +253,12 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
 
     override val currentPlayable: DataStorePreference<Playable?>
         get() = object : DataStorePreference<Playable?> {
-            override fun getFlow(): Flow<Playable?> =
-                datastore.map { prefs ->
-                    prefs[PreferenceKeys.CURRENT_PLAYABLE].asPlayable()
-                }
+            override fun getFlow(): Flow<Playable?> = mapData { prefs ->
+                prefs[PreferenceKeys.CURRENT_PLAYABLE].asPlayable()
+            }
 
             override suspend fun set(value: Playable?) {
-                dataStore.edit { prefs ->
+                dataStore().edit { prefs ->
                     if (value == null) {
                         prefs.remove(PreferenceKeys.CURRENT_PLAYABLE)
                     } else {
@@ -302,13 +283,12 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
 
     override val lbAccessToken: DataStorePreference<String>
         get() = object : DataStorePreference<String> {
-            override fun getFlow(): Flow<String> =
-                datastore.map { prefs ->
-                    prefs[PreferenceKeys.LB_ACCESS_TOKEN] ?: ""
-                }
+            override fun getFlow(): Flow<String> = mapData { prefs ->
+                prefs[PreferenceKeys.LB_ACCESS_TOKEN] ?: ""
+            }
 
             override suspend fun set(value: String) {
-                dataStore.edit { prefs ->
+                dataStore().edit { prefs ->
                     prefs[PreferenceKeys.LB_ACCESS_TOKEN] = value
                 }
             }
@@ -316,13 +296,12 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
 
     override val username: DataStorePreference<String>
         get() = object : DataStorePreference<String> {
-            override fun getFlow(): Flow<String> =
-                datastore.map { prefs ->
-                    prefs[PreferenceKeys.USERNAME] ?: ""
-                }
+            override fun getFlow(): Flow<String> = mapData { prefs ->
+                prefs[PreferenceKeys.USERNAME] ?: ""
+            }
 
             override suspend fun set(value: String) {
-                dataStore.edit { prefs ->
+                dataStore().edit { prefs ->
                     prefs[PreferenceKeys.USERNAME] = value
                 }
             }
@@ -330,14 +309,12 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
 
     override val consentScreenDataCache: DataStorePreference<String>
         get() = object : DataStorePreference<String> {
-            override fun getFlow(): Flow<String> {
-                return datastore.map { prefs ->
-                    prefs[PreferenceKeys.CONSENT_SCREEN_CACHE] ?: ""
-                }
+            override fun getFlow(): Flow<String> = mapData { prefs ->
+                prefs[PreferenceKeys.CONSENT_SCREEN_CACHE] ?: ""
             }
 
             override suspend fun set(value: String) {
-                dataStore.edit { prefs ->
+                dataStore().edit { prefs ->
                     prefs[PreferenceKeys.CONSENT_SCREEN_CACHE] = value
                 }
             }
@@ -345,14 +322,13 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
 
     override val linkedServices: DataStorePreference<List<LinkedService>>
         get() = object : DataStorePreference<List<LinkedService>> {
-            override fun getFlow(): Flow<List<LinkedService>> =
-                datastore.map { prefs ->
-                    prefs[PreferenceKeys.LINKED_SERVICES].asLinkedServiceList()
-                }
+            override fun getFlow(): Flow<List<LinkedService>> = mapData { prefs ->
+                prefs[PreferenceKeys.LINKED_SERVICES].asLinkedServiceList()
+            }
 
             override suspend fun set(value: List<LinkedService>) {
                 val jsonString = json.encodeToString(value)
-                dataStore.edit { prefs ->
+                dataStore().edit { prefs ->
                     prefs[PreferenceKeys.LINKED_SERVICES] = jsonString
                 }
             }
@@ -360,13 +336,12 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
 
     override val refreshToken: DataStorePreference<String?>
         get() = object : DataStorePreference<String?> {
-            override fun getFlow(): Flow<String?> =
-                datastore.map { prefs ->
-                    prefs[PreferenceKeys.REFESH_TOKEN] ?: ""
-                }
+            override fun getFlow(): Flow<String?> = mapData { prefs ->
+                prefs[PreferenceKeys.REFESH_TOKEN] ?: ""
+            }
 
             override suspend fun set(value: String?) {
-                dataStore.edit { prefs ->
+                dataStore().edit { prefs ->
                     if (value == null) {
                         prefs.remove(PreferenceKeys.REFESH_TOKEN)
                     } else {
@@ -379,13 +354,12 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
     /* BrainzPlayer Preferences */
     override val albumsOnDevice: DataStorePreference<Boolean>
         get() = object : DataStorePreference<Boolean> {
-            override fun getFlow(): Flow<Boolean> =
-                datastore.map { prefs ->
-                    prefs[PreferenceKeys.ALBUMS_ON_DEVICE] ?: true
-                }
+            override fun getFlow(): Flow<Boolean> = mapData { prefs ->
+                prefs[PreferenceKeys.ALBUMS_ON_DEVICE] ?: true
+            }
 
             override suspend fun set(value: Boolean) {
-                dataStore.edit { prefs ->
+                dataStore().edit { prefs ->
                     prefs[PreferenceKeys.ALBUMS_ON_DEVICE] = value
                 }
             }
@@ -393,13 +367,12 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
 
     override val songsOnDevice: DataStorePreference<Boolean>
         get() = object : DataStorePreference<Boolean> {
-            override fun getFlow(): Flow<Boolean> =
-                datastore.map { prefs ->
-                    prefs[PreferenceKeys.SONGS_ON_DEVICE] ?: true
-                }
+            override fun getFlow(): Flow<Boolean> = mapData { prefs ->
+                prefs[PreferenceKeys.SONGS_ON_DEVICE] ?: true
+            }
 
             override suspend fun set(value: Boolean) {
-                dataStore.edit { prefs ->
+                dataStore().edit { prefs ->
                     prefs[PreferenceKeys.SONGS_ON_DEVICE] = value
                 }
             }
@@ -407,22 +380,13 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
 
     override val installSource: DataStorePreference<InstallSource>
         get() = object : DataStorePreference<InstallSource> {
-            override fun getFlow(): Flow<InstallSource> =
-                datastore.map { prefs ->
-                    val sourceString = prefs[PreferenceKeys.INSTALL_SOURCE]?.toString() ?: ""
-                    try {
-                        if (sourceString.isNotEmpty()) {
-                            InstallSource.valueOf(sourceString)
-                        } else {
-                            InstallSource.NOT_CHECKED
-                        }
-                    } catch (e: Exception) {
-                        InstallSource.NOT_CHECKED
-                    }
-                }
+            override fun getFlow(): Flow<InstallSource> = mapData { prefs ->
+                val sourceString = prefs[PreferenceKeys.INSTALL_SOURCE]?.toString().orEmpty()
+                InstallSource.entries.find { it.name == sourceString } ?: InstallSource.NOT_CHECKED
+            }
 
             override suspend fun set(value: InstallSource) {
-                dataStore.edit { prefs ->
+                dataStore().edit { prefs ->
                     prefs[PreferenceKeys.INSTALL_SOURCE] = value.name
                 }
             }
@@ -430,28 +394,19 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
 
     override val appLaunchCount: DataStorePreference<Int>
         get() = object : DataStorePreference<Int> {
-            override fun getFlow(): Flow<Int> =
-                datastore.map { prefs ->
-                    try {
-                        prefs[PreferenceKeys.APP_LAUNCH_COUNT]?.toInt() ?: 0
-                    } catch (e: Exception) {
-                        0
-                    }
-                }
+            override fun getFlow(): Flow<Int> = mapData { prefs ->
+                prefs[PreferenceKeys.APP_LAUNCH_COUNT]?.toIntOrNull() ?: 0
+            }
 
             override suspend fun set(value: Int) {
-                dataStore.edit { prefs ->
+                dataStore().edit { prefs ->
                     prefs[PreferenceKeys.APP_LAUNCH_COUNT] = value.toString()
                 }
             }
 
             override suspend fun getAndUpdate(update: (Int) -> Int) {
-                dataStore.updateData {
-                    val currentValue = try {
-                        it[PreferenceKeys.APP_LAUNCH_COUNT]?.toInt() ?: 0
-                    } catch (e: Exception) {
-                        0
-                    }
+                dataStore().updateData {
+                    val currentValue = it[PreferenceKeys.APP_LAUNCH_COUNT]?.toIntOrNull() ?: 0
                     val updatedValue = update(currentValue)
                     val mutablePrefs = it.toMutablePreferences()
                     mutablePrefs[PreferenceKeys.APP_LAUNCH_COUNT] = updatedValue.toString()
@@ -462,17 +417,12 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
 
     override val lastVersionCheckLaunchCount: DataStorePreference<Int>
         get() = object : DataStorePreference<Int> {
-            override fun getFlow(): Flow<Int> =
-                datastore.map { prefs ->
-                    try {
-                        prefs[PreferenceKeys.LAST_VERSION_CHECK_LAUNCH_COUNT]?.toInt() ?: 0
-                    } catch (e: Exception) {
-                        0
-                    }
-                }
+            override fun getFlow(): Flow<Int> = mapData { prefs ->
+                prefs[PreferenceKeys.LAST_VERSION_CHECK_LAUNCH_COUNT]?.toIntOrNull() ?: 0
+            }
 
             override suspend fun set(value: Int) {
-                dataStore.edit { prefs ->
+                dataStore().edit { prefs ->
                     prefs[PreferenceKeys.LAST_VERSION_CHECK_LAUNCH_COUNT] = value.toString()
                 }
             }
@@ -480,17 +430,12 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
 
     override val lastUpdatePromptLaunchCount: DataStorePreference<Int>
         get() = object : DataStorePreference<Int> {
-            override fun getFlow(): Flow<Int> =
-                datastore.map { prefs ->
-                    try {
-                        prefs[PreferenceKeys.LAST_UPDATE_PROMPT_LAUNCH_COUNT]?.toInt() ?: 0
-                    } catch (e: Exception) {
-                        0
-                    }
-                }
+            override fun getFlow(): Flow<Int> = mapData { prefs ->
+                prefs[PreferenceKeys.LAST_UPDATE_PROMPT_LAUNCH_COUNT]?.toIntOrNull() ?: 0
+            }
 
             override suspend fun set(value: Int) {
-                dataStore.edit { prefs ->
+                dataStore().edit { prefs ->
                     prefs[PreferenceKeys.LAST_UPDATE_PROMPT_LAUNCH_COUNT] = value.toString()
                 }
             }
@@ -498,18 +443,12 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
 
     override val downloadId: DataStorePreference<Long>
         get() = object : DataStorePreference<Long> {
-            override fun getFlow(): Flow<Long> {
-                return datastore.map { prefs ->
-                    try {
-                        prefs[PreferenceKeys.GITHUB_DOWNLOAD_ID]?.toLong() ?: 0L
-                    } catch (e: Exception) {
-                        0L
-                    }
-                }
+            override fun getFlow(): Flow<Long> = mapData { prefs ->
+                prefs[PreferenceKeys.GITHUB_DOWNLOAD_ID] ?: 0L
             }
 
             override suspend fun set(value: Long) {
-                dataStore.edit { prefs ->
+                dataStore().edit { prefs ->
                     prefs[PreferenceKeys.GITHUB_DOWNLOAD_ID] = value
                 }
             }

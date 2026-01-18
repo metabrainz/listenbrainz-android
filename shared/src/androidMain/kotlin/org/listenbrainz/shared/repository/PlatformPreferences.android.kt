@@ -8,11 +8,11 @@ import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.Preferences
 import org.listenbrainz.shared.preferences.AndroidDataStoreContext
 import org.listenbrainz.shared.preferences.PreferenceKeys
+
 actual typealias PlatformContext = Context
 
-actual fun platformDataMigrations(
+actual fun settingsPlatformDataMigrations(
     context: PlatformContext,
-    baseMigrations: List<DataMigration<Preferences>>
 ): List<DataMigration<Preferences>> =
     listOf(
         SharedPreferencesMigration(
@@ -42,7 +42,7 @@ actual fun platformDataMigrations(
                 PreferenceKeys.ONBOARDING.name
             )
         )
-    ) + baseMigrations
+    )
 
 actual fun platformInitDataStoreContext(context: PlatformContext) {
     AndroidDataStoreContext.set(context)
