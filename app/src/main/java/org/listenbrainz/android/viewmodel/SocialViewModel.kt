@@ -40,12 +40,13 @@ class SocialViewModel(
     private val remotePlaybackHandler: RemotePlaybackHandler,
     private val ioDispatcher: CoroutineDispatcher,
     private val defaultDispatcher: CoroutineDispatcher,
-): FollowUnfollowModel<SocialUiState>(repository, ioDispatcher) {
+) : FollowUnfollowModel<SocialUiState>(repository, ioDispatcher) {
 
     private val inputSearchFollowerQuery = MutableStateFlow("")
 
     @OptIn(FlowPreview::class)
-    private val searchFollowerQuery = inputSearchFollowerQuery.asStateFlow().debounce(500).distinctUntilChanged()
+    private val searchFollowerQuery =
+        inputSearchFollowerQuery.asStateFlow().debounce(500).distinctUntilChanged()
     private val searchFollowerResult = MutableStateFlow<List<String>>(emptyList())
 
     override val uiState: StateFlow<SocialUiState> = createUiStateFlow()
@@ -56,10 +57,13 @@ class SocialViewModel(
                 if (query.isEmpty()) return@collectLatest
 
                 val result = repository.getFollowers(appPreferences.username.get())
-                if (result.status == Resource.Status.SUCCESS){
+                if (result.status == Resource.Status.SUCCESS) {
                     searchFollowerResult.emit(
                         result.data?.followers?.filter {
-                            it.startsWith(query, ignoreCase = true) || it.contains(query, ignoreCase = true)
+                            it.startsWith(query, ignoreCase = true) || it.contains(
+                                query,
+                                ignoreCase = true
+                            )
                         } ?: emptyList()
                     )
                 } else {
@@ -74,7 +78,7 @@ class SocialViewModel(
             searchFollowerResult,
             errorFlow,
             successMsgFlow
-        ){ searchResult, error, message ->
+        ) { searchResult, error, message ->
             SocialUiState(searchResult, error, message)
         }.stateIn(
             viewModelScope,
@@ -82,7 +86,7 @@ class SocialViewModel(
             SocialUiState()
         )
 
-    fun searchUser(query: String){
+    fun searchUser(query: String) {
         viewModelScope.launch {
             inputSearchFollowerQuery.emit(query)
         }
@@ -101,7 +105,7 @@ class SocialViewModel(
 
     fun playListen(trackMetadata: TrackMetadata) {
         val spotifyId = trackMetadata.additionalInfo?.spotifyId
-        if (spotifyId != null){
+        if (spotifyId != null) {
             Uri.parse(spotifyId).lastPathSegment?.let { trackId ->
                 remotePlaybackHandler.playUri(
                     trackId = trackId,
@@ -129,11 +133,11 @@ class SocialViewModel(
         }
     }
 
-    fun play(){
+    fun play() {
         remotePlaybackHandler.play()
     }
 
-    fun pause(){
+    fun pause() {
         remotePlaybackHandler.pause()
     }
 
@@ -152,10 +156,9 @@ class SocialViewModel(
                 )
             )
 
-            if (result.status == Resource.Status.FAILED){
+            if (result.status == Resource.Status.FAILED) {
                 emitError(result.error)
-            }
-            else if(result.status == Resource.Status.SUCCESS){
+            } else if (result.status == Resource.Status.SUCCESS) {
                 emitMsg(R.string.recommendation_greeting)
             }
         }
@@ -178,29 +181,39 @@ class SocialViewModel(
                 )
             )
 
-            if (result.status == Resource.Status.FAILED){
+            if (result.status == Resource.Status.FAILED) {
                 emitError(result.error)
-            }
-            else if(result.status == Resource.Status.SUCCESS){
+            } else if (result.status == Resource.Status.SUCCESS) {
                 emitMsg(R.string.personal_recommendation_greeting)
             }
         }
     }
 
-    fun review(metadata: Metadata, entityType: ReviewEntityType, blurbContent: String, rating: Int?, locale: String){
+    fun review(
+        metadata: Metadata,
+        entityType: ReviewEntityType,
+        blurbContent: String,
+        rating: Int?,
+        locale: String
+    ) {
         viewModelScope.launch(ioDispatcher) {
             val result = repository.postReview(
                 username = appPreferences.username.get(),
                 data = Review(
                     metadata = ReviewMetadata(
                         entityName = metadata.trackMetadata?.trackName ?: return@launch,
-                        entityId = when(entityType) {
-                            ReviewEntityType.RECORDING -> (metadata.trackMetadata.mbidMapping?.recordingMbid ?: return@launch).toString()
-                            ReviewEntityType.ARTIST -> (when(metadata.trackMetadata.mbidMapping?.artistMbids?.size){
+                        entityId = when (entityType) {
+                            ReviewEntityType.RECORDING -> (metadata.trackMetadata.mbidMapping?.recordingMbid
+                                ?: return@launch).toString()
+
+                            ReviewEntityType.ARTIST -> (when (metadata.trackMetadata.mbidMapping?.artistMbids?.size) {
                                 1 -> metadata.trackMetadata.mbidMapping.artistMbids[0]
                                 else -> return@launch
                             })
-                            ReviewEntityType.RELEASE_GROUP -> (metadata.trackMetadata.mbidMapping?.recordingMbid ?: return@launch).toString() },
+
+                            ReviewEntityType.RELEASE_GROUP -> (metadata.trackMetadata.mbidMapping?.recordingMbid
+                                ?: return@launch).toString()
+                        },
                         entityType = entityType.code,
                         text = blurbContent,
                         rating = rating,
@@ -209,16 +222,15 @@ class SocialViewModel(
                 )
             )
 
-            if (result.status == Resource.Status.FAILED){
+            if (result.status == Resource.Status.FAILED) {
                 emitError(result.error)
-            }
-            else if(result.status == Resource.Status.SUCCESS){
+            } else if (result.status == Resource.Status.SUCCESS) {
                 emitMsg(R.string.review_greeting)
             }
         }
     }
 
-    fun pin(metadata: Metadata, blurbContent: String? ) {
+    fun pin(metadata: Metadata, blurbContent: String?) {
         viewModelScope.launch(ioDispatcher) {
             val result = repository.pin(
                 recordingMsid = metadata.trackMetadata?.additionalInfo?.recordingMsid,
@@ -226,10 +238,9 @@ class SocialViewModel(
                 blurbContent = blurbContent
             )
 
-            if (result.status == Resource.Status.FAILED){
+            if (result.status == Resource.Status.FAILED) {
                 emitError(result.error)
-            }
-            else if(result.status == Resource.Status.SUCCESS){
+            } else if (result.status == Resource.Status.SUCCESS) {
                 emitMsg(R.string.pin_greeting)
             }
         }
@@ -238,9 +249,31 @@ class SocialViewModel(
     suspend fun getFollowers(): Resource<SocialData> {
         val username = appPreferences.username.get()
         return repository.getFollowers(username).also {
-            if(it.status == Resource.Status.FAILED){
+            if (it.status == Resource.Status.FAILED) {
                 emitError(it.error)
             }
+        }
+    }
+
+    fun deleteListen(metadata: Metadata) {
+        viewModelScope.launch(ioDispatcher) {
+            val token = appPreferences.lbAccessToken.get()
+            if (token.isNullOrEmpty()) {
+                emitError(ResponseError.Unauthorised())
+                return@launch
+            }
+            val listenedAt = metadata.listenedAt
+            val msid = metadata.trackMetadata?.additionalInfo?.recordingMsid
+            if (listenedAt == null || msid == null) {
+                emitError(ResponseError.BadRequest())
+                return@launch
+            }
+            val result = listensRepository.deleteListen(token, listenedAt, msid)
+            if (result.status == Resource.Status.FAILED) {
+                emitError(result.error)
+            } else if (result.status == Resource.Status.SUCCESS) {
+            }
+
         }
     }
 }
