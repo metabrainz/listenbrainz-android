@@ -106,7 +106,10 @@ fun SocialDropdownDefault(
                 onDropdownDismiss()
             }
         } else null,
-        onDelete = onDelete
+        onDelete = {
+            viewModel.deleteListen(metadata)
+            onDropdownDismiss()
+        }
     )
 
     LaunchedEffect(key1 = dialogsState.currentDialog) {

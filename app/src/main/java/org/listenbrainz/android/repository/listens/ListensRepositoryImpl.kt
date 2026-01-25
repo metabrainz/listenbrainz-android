@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable
 import kotlinx.coroutines.CoroutineDispatcher
 import org.listenbrainz.android.application.App
 import org.listenbrainz.android.model.CoverArt
+import org.listenbrainz.android.model.DeleteListen
 import org.listenbrainz.android.model.ListenBrainzExternalServices
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.Listens
@@ -77,8 +78,21 @@ class ListensRepositoryImpl(
             packageName
         }
     }
-    
-    
+    override suspend fun deleteListen(
+        token: String,
+        listenedAt: Long,
+        recordingMsid: String
+    ): Resource<PostResponse> = parseResponse {
+        service.deleteListen(
+            token = "Token $token",
+            payload = DeleteListen(
+                listenedAt = listenedAt,
+                recordingMsid = recordingMsid
+            )
+        )
+    }
+
+
     override suspend fun submitListen(token: String, body: ListenSubmitBody): Resource<PostResponse> = parseResponse {
         service.submitListen(body)
     }
