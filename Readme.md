@@ -64,8 +64,8 @@ Got **something interesting** you'd like to **ask or share**? Start a discussion
 	    
 ## Issues
 	  
-If you think you have found a bug, please report it on [GitHub issues](https://github.com/metabrainz/listenbrainz-android/issues).
-The app is under active development and some new features are planned. You can suggest and vote for new features on [GitHub issues](https://github.com/metabrainz/listenbrainz-android/issues).
+If you think you have found a bug or want to suggest a new feature, please report it on [GitHub issues](https://github.com/metabrainz/listenbrainz-android/issues).
+The app is under active development and some new features are planned.
 	    
 ## Support
 
