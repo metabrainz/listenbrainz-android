@@ -212,7 +212,7 @@ class FeedViewModel(
         
         viewModelScope.launch(defaultDispatcher) {
             if (isActionDelete(event, eventType, parentUser)){
-                deleteEvent(event)
+                deleteEvent(event.id!!, event.type)
             } else if (isHiddenMap[event.id] == true){
                 unhideEvent(data = FeedEventVisibilityData(event.type, event.id.toString()))
             } else {
@@ -223,48 +223,29 @@ class FeedViewModel(
         }
     }
 
-    private suspend fun deleteEvent(event: FeedEvent) {
+    private suspend fun deleteEvent(id: Int, type: String) {
+
         // Optimistically inverting state
-        val id = event.id!!
         isDeletedMap[id] = true
 
         val result = withContext(ioDispatcher) {
-            when (event.type) {
-
-                FeedEventType.RECORDING_PIN.type -> {
-                    socialRepository.deletePin(id)
-                }
-
-                FeedEventType.LISTEN.type -> {
-                    val token = appPreferences.lbAccessToken.get()
-                    val listenedAt = event.metadata.listenedAt
-                    val msid = event.metadata.trackMetadata
-                        ?.additionalInfo
-                        ?.recordingMsid
-
-                    if (token == null || listenedAt == null || msid == null) {
-                        Resource.failure(ResponseError.BadRequest())
-                    } else {
-                        listensRepository.deleteListen(token, listenedAt, msid)
-                    }
-                }
-
-                else -> {
-                    feedRepository.deleteEvent(
-                        appPreferences.username.get(),
-                        FeedEventDeletionData(
-                            eventId = id.toString(),
-                            eventType = event.type
-                        )
-                    )
-                }
+            if (type == FeedEventType.RECORDING_PIN.type) {
+                socialRepository.deletePin(id)
+            } else {
+                feedRepository.deleteEvent(
+                    appPreferences.username.get(),
+                    FeedEventDeletionData(eventId = id.toString(), eventType = type)
+                )
             }
         }
 
-        if (result.status == Resource.Status.FAILED) {
-            // Toggle back on failure.
-            isDeletedMap[id] = false
-            errorFlow.emit(result.error)
+        when (result.status) {
+            Resource.Status.FAILED -> {
+                // Toggle back on failure.
+                isDeletedMap[id] = false
+                errorFlow.emit(result.error)
+            }
+            else -> Unit
         }
     }
 

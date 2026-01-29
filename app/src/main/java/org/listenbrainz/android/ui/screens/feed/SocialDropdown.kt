@@ -50,13 +50,11 @@ fun SocialDropdownDefault(
     onSuccess: suspend CoroutineScope.(message: String) -> Unit,
     onRemoveFromPlaylist: (() -> Unit)? = null,
     onDropdownDismiss: () -> Unit,
-    onDelete: (() -> Unit)? = null
 ) {
     if (metadata == null || LocalView.current.isInEditMode) return
 
     val context = LocalContext.current
-    val viewModel: SocialViewModel =
-        koinViewModel(viewModelStoreOwner = LocalContext.current.getActivity()!!)
+    val viewModel: SocialViewModel = koinViewModel(viewModelStoreOwner = LocalContext.current.getActivity()!!)
     val uriHandler = LocalUriHandler.current
     val dialogsState = rememberDialogsState()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -208,7 +206,7 @@ fun SocialDropdown(
     onDelete: (() -> Unit)? = null,
     onInspect: (() -> Unit)? = null
 ) {
-    val list = remember(onDelete,metadata) {
+    val list = remember(onDelete) {
         val trackName = metadata.trackMetadata?.trackName
             ?: if (metadata.entityType == ReviewEntityType.RECORDING.code) metadata.entityName else null
         val artistName = metadata.trackMetadata?.artistName

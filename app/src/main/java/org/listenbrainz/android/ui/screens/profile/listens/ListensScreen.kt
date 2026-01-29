@@ -88,6 +88,7 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.Metadata
@@ -134,11 +135,12 @@ fun ListensScreen(
     snackbarState: SnackbarHostState,
     username: String?,
     goToArtistPage: (String) -> Unit,
-    goToUserProfile: (String) -> Unit
+    goToUserProfile: (String) -> Unit,
 ) {
     val uiState by userViewModel.uiState.collectAsState()
     val preferencesUiState by viewModel.preferencesUiState.collectAsState()
     val socialUiState by socialViewModel.uiState.collectAsState()
+    val deleted = viewModel.deletedListen
     ListensScreen(
         scrollRequestState = scrollRequestState,
         onScrollToTop = onScrollToTop,
@@ -169,7 +171,8 @@ fun ListensScreen(
             }
         },
         goToArtistPage = goToArtistPage,
-        goToUserProfile = goToUserProfile
+        goToUserProfile = goToUserProfile,
+        deleted = deleted
     )
 }
 
@@ -208,6 +211,8 @@ fun ListensScreen(
     onFollowButtonClick: (username: String?, status: Boolean) -> Unit,
     goToArtistPage: (String) -> Unit,
     goToUserProfile: (String) -> Unit,
+    deleted: Map<Pair<Long, String>, Boolean>,
+    viewModel: ListensViewModel = koinViewModel()
 ) {
     val listState = rememberLazyListState()
 
@@ -284,6 +289,11 @@ fun ListensScreen(
                     val metadata = remember(listen) {
                         listen.toMetadata()
                     }
+                    val listenedAt = metadata.listenedAt
+                    val msid = metadata.trackMetadata?.additionalInfo?.recordingMsid
+                    if(listenedAt != null && msid != null && deleted[listenedAt to msid]==true){
+                        return
+                    }
 
                 ListenCardSmallDefault(
                     modifier = modifier
@@ -309,9 +319,8 @@ fun ListensScreen(
                         snackbarState.showSnackbar(message)
                     },
                     goToArtistPage = goToArtistPage,
-                ) {
-                    listen.trackMetadata?.let { playListen(it) }
-                }
+                    onClick = {},
+                )
             }
 
                 @Composable
@@ -1424,7 +1433,8 @@ fun ListensScreenPreview() {
             getListensData = {},
             onFollowButtonClick = { _, _ -> },
             goToArtistPage = {},
-            goToUserProfile = {}
+            goToUserProfile = {},
+            deleted = {} as Map<Pair<Long, String>, Boolean>
         )
     }
 }
@@ -1447,7 +1457,8 @@ fun ListensScreenSelfPreview() {
             username = "pranavkonidena",
             onFollowButtonClick = { _, _ -> },
             goToArtistPage = {},
-            goToUserProfile = {}
+            goToUserProfile = {},
+            deleted = {} as Map<Pair<Long, String>, Boolean>
         )
     }
 }
@@ -1470,7 +1481,8 @@ fun ListensScreenFollowingPreview() {
             getListensData = {},
             onFollowButtonClick = { _, _ -> },
             goToArtistPage = {},
-            goToUserProfile = {}
+            goToUserProfile = {},
+            deleted = {} as Map<Pair<Long, String>, Boolean>
         )
     }
 }
@@ -1493,7 +1505,8 @@ fun ListensScreenMinimalPreview() {
             getListensData = {},
             onFollowButtonClick = { _, _ -> },
             goToArtistPage = {},
-            goToUserProfile = {}
+            goToUserProfile = {},
+            deleted = {} as Map<Pair<Long, String>, Boolean>
         )
     }
 }
@@ -1516,7 +1529,8 @@ fun ListensScreenNoDataPreview() {
             getListensData = {},
             onFollowButtonClick = { _, _ -> },
             goToArtistPage = {},
-            goToUserProfile = {}
+            goToUserProfile = {},
+            deleted = {} as Map<Pair<Long, String>, Boolean>
         )
     }
 }
