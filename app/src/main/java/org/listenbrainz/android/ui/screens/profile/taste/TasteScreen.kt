@@ -223,7 +223,8 @@ fun TasteScreen(
                         onDropdownSuccess = { message ->
                             snackbarState.showSnackbar(message)
                         },
-                        goToArtistPage = goToArtistPage
+                        goToArtistPage = goToArtistPage,
+                        onClick = {}
                     ) {
                         if (feedback.trackMetadata != null) {
                             playListen(feedback.trackMetadata)
@@ -300,7 +301,8 @@ fun TasteScreen(
                                 onDropdownSuccess = { message ->
                                     snackbarState.showSnackbar(message)
                                 },
-                                goToArtistPage = goToArtistPage
+                                goToArtistPage = goToArtistPage,
+                                onClick = {}
                             ) {
                                 if (recording.trackMetadata != null) {
                                     playListen(recording.trackMetadata)

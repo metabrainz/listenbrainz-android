@@ -24,6 +24,7 @@ import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.Utils.toSp
 import org.listenbrainz.android.viewmodel.ListensViewModel
+import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
@@ -38,7 +39,7 @@ fun ProfileScreen(
     goToArtistPage: (String) -> Unit,
     goToPlaylist: (String) -> Unit,
     navigateToCreateAccount: () -> Unit,
-    listensViewModel: ListensViewModel = koinViewModel()
+    socialViewModel: SocialViewModel = koinViewModel(),
 ) {
     val scrollState = rememberScrollState()
     // Scroll to the top when shouldScrollToTop becomes true
@@ -77,7 +78,9 @@ fun ProfileScreen(
                     scrollRequestState = scrollRequestState,
                     goToUserProfile = goToUserProfile,
                     goToArtistPage = goToArtistPage,
-                    goToPlaylist = goToPlaylist
+                    goToPlaylist = goToPlaylist,
+                    socialViewModel = socialViewModel,
+                    deleted = socialViewModel.deletedListens
                 )
             } else {
                 LoginScreen(

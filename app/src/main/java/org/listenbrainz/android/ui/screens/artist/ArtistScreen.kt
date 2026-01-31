@@ -645,13 +645,14 @@ private fun PopularTracks(
                 ListenCardSmallDefault(
                     metadata = metadata,
                     coverArtUrl = Utils.getCoverArtUrl(track?.caaReleaseMbid, track?.caaId),
-                    goToArtistPage = goToArtistPage,
                     onDropdownError = { error ->
                         snackbarState.showSnackbar(error.toast)
                     },
                     onDropdownSuccess = { message ->
                         snackbarState.showSnackbar(message)
-                    }
+                    },
+                    goToArtistPage = goToArtistPage,
+                    onClick = { },
                 ) {
                     // No playback action for now
                 }

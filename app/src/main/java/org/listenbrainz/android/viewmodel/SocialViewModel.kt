@@ -1,6 +1,7 @@
 package org.listenbrainz.android.viewmodel
 
 import android.net.Uri
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.FlowPreview
@@ -42,6 +43,7 @@ class SocialViewModel(
     private val defaultDispatcher: CoroutineDispatcher,
 ) : FollowUnfollowModel<SocialUiState>(repository, ioDispatcher) {
 
+    val deletedListens = mutableStateMapOf<Pair<Long, String>, Boolean>()
     private val inputSearchFollowerQuery = MutableStateFlow("")
 
     @OptIn(FlowPreview::class)
@@ -254,7 +256,6 @@ class SocialViewModel(
             }
         }
     }
-
     fun deleteListen(metadata: Metadata) {
         viewModelScope.launch(ioDispatcher) {
             val token = appPreferences.lbAccessToken.get()
@@ -263,8 +264,11 @@ class SocialViewModel(
                 return@launch
             }
             val listenedAt = metadata.listenedAt
+            if(listenedAt == null){
+                return@launch
+            }
             val msid = metadata.trackMetadata?.additionalInfo?.recordingMsid
-            if (listenedAt == null || msid == null) {
+            if(msid ==null){
                 emitError(ResponseError.BadRequest())
                 return@launch
             }
@@ -272,6 +276,7 @@ class SocialViewModel(
             if (result.status == Resource.Status.FAILED) {
                 emitError(result.error)
             } else if (result.status == Resource.Status.SUCCESS) {
+                deletedListens[listenedAt to msid] = true
             }
 
         }

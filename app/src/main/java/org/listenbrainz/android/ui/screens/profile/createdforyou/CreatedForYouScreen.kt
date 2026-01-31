@@ -359,21 +359,10 @@ private fun CreatedForYouScreen(
                                         horizontal = ListenBrainzTheme.paddings.horizontal,
                                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                                     ),
-                                    metadata = (playlist.toMetadata()),
                                     coverArtUrl = getCoverArtUrl(
                                         caaReleaseMbid = playlist.extension.trackExtensionData.additionalMetadata.caaReleaseMbid,
                                         caaId = playlist.extension.trackExtensionData.additionalMetadata.caaId
                                     ),
-                                    onDropdownSuccess = { messsage ->
-                                        snackbarState.showSnackbar(messsage)
-                                    },
-                                    onDropdownError = { error ->
-                                        snackbarState.showSnackbar(error.toast)
-                                    },
-                                    goToArtistPage = goToArtistPage,
-                                    onClick = {
-                                        onTrackClick(playlist)
-                                    },
                                     trailingContent = {
                                         Text(
                                             modifier = Modifier
@@ -391,8 +380,19 @@ private fun CreatedForYouScreen(
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
-                                    }
-                                )
+                                    },
+                                    onDropdownError = { error ->
+                                        snackbarState.showSnackbar(error.toast)
+                                    },
+                                    onDropdownSuccess = { messsage ->
+                                        snackbarState.showSnackbar(messsage)
+                                    },
+                                    goToArtistPage = goToArtistPage,
+                                    onClick = {},
+                                    metadata = playlist.toMetadata()
+                                ) {
+                                    onTrackClick(playlist)
+                                }
                             }
                         }
                     }

@@ -50,6 +50,7 @@ fun SocialDropdownDefault(
     onSuccess: suspend CoroutineScope.(message: String) -> Unit,
     onRemoveFromPlaylist: (() -> Unit)? = null,
     onDropdownDismiss: () -> Unit,
+    onDelete: (() -> Unit)? = null,
 ) {
     if (metadata == null || LocalView.current.isInEditMode) return
 
@@ -104,10 +105,12 @@ fun SocialDropdownDefault(
                 onDropdownDismiss()
             }
         } else null,
-        onDelete = {
-            viewModel.deleteListen(metadata)
-            onDropdownDismiss()
-        }
+        onDelete = if (onDelete != null) {
+            {
+                onDelete()
+                onDropdownDismiss()
+            }
+        } else null
     )
 
     LaunchedEffect(key1 = dialogsState.currentDialog) {

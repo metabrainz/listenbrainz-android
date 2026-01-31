@@ -235,31 +235,6 @@ class ListensViewModel(
         )
     }
 
-    fun deleteListen(listenedAt: Long, recordingMsid: String) {
-        viewModelScope.launch {
-            val token = appPreferences.lbAccessToken.get()
-
-            if (token.isNullOrEmpty()) {
-                errorFlow.emit(ResponseError.Unauthorised())
-                return@launch
-            }
-
-            val result = withContext(ioDispatcher) {
-                repository.deleteListen(token, listenedAt, recordingMsid)
-            }
-
-            when (result.status) {
-                SUCCESS -> {
-                    deletedListen[listenedAt to recordingMsid] = true
-                }
-                FAILED -> {
-                    errorFlow.emit(result.error)
-                }
-                else -> Unit
-            }
-        }
-    }
-
     
     /*fun trackProgress() {
         var state: PlayerState?
