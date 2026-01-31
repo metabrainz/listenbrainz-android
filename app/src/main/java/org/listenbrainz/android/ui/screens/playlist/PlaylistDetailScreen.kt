@@ -523,26 +523,10 @@ private fun PlaylistDetailContent(
                         horizontal = ListenBrainzTheme.paddings.horizontal,
                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
-                    metadata = (playlistTrack.toMetadata()),
                     coverArtUrl = getCoverArtUrl(
                         caaReleaseMbid = playlistTrack.extension.trackExtensionData.additionalMetadata.caaReleaseMbid,
                         caaId = playlistTrack.extension.trackExtensionData.additionalMetadata.caaId
                     ),
-                    onDropdownSuccess = { messsage ->
-                        showsnackbar(messsage)
-                    },
-                    onDropdownError = { error ->
-                        showsnackbar(error.toast)
-                    },
-                    goToArtistPage = goToArtistPage,
-                    onClick = {
-                        onTrackClick(playlistTrack)
-                    },
-                    onRemoveFromPlaylist = if(playlistDetailUIState.isUserPlaylistOwner) {
-                        {
-                            onRemoveTrackFromPlaylist(index)
-                        }
-                    } else null,
                     trailingContent = {
                         Text(
                             modifier = Modifier
@@ -564,8 +548,24 @@ private fun PlaylistDetailContent(
                             tint = ListenBrainzTheme.colorScheme.listenText,
                             contentDescription = "Reorder Icon"
                         )
-                    } else null
-                )
+                    } else null,
+                    onDropdownError = { error ->
+                        showsnackbar(error.toast)
+                    },
+                    onDropdownSuccess = { messsage ->
+                        showsnackbar(messsage)
+                    },
+                    onRemoveFromPlaylist = if (playlistDetailUIState.isUserPlaylistOwner) {
+                        {
+                            onRemoveTrackFromPlaylist(index)
+                        }
+                    } else null,
+                    goToArtistPage = goToArtistPage,
+                    onClick = {},
+                    metadata = playlistTrack.toMetadata()
+                ) {
+                    onTrackClick(playlistTrack)
+                }
             }
             item {
                 if (playlistDetailUIState.playlistData?.track?.size == 0) {

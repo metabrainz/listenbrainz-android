@@ -17,19 +17,24 @@ interface ListensRepository {
         maxTs: Long? = null,
         minTs: Long? = null
     ): Resource<Listens>
-    
+
     suspend fun fetchCoverArt(mbid: String): Resource<CoverArt>
 
     /** Inputs token from Auth header.*/
     suspend fun validateToken(token: String): Resource<TokenValidation>
-    
-    fun getPackageIcon(packageName: String): Drawable?
-    
-    fun getPackageLabel(packageName: String): String
-    
-    suspend fun submitListen(token: String, body: ListenSubmitBody): Resource<PostResponse>
-    
-    suspend fun getLinkedServices(token: String?, username: String?) : Resource<ListenBrainzExternalServices>
 
-    suspend fun getNowPlaying(username: String?) : Resource<Listens>
+    fun getPackageIcon(packageName: String): Drawable?
+
+    fun getPackageLabel(packageName: String): String
+    suspend fun deleteListen(
+        token: String,
+        listenedAt: Long,
+        recordingMsid: String
+    ): Resource<PostResponse>
+
+    suspend fun submitListen(token: String, body: ListenSubmitBody): Resource<PostResponse>
+
+    suspend fun getLinkedServices(token: String?, username: String?): Resource<ListenBrainzExternalServices>
+
+    suspend fun getNowPlaying(username: String?): Resource<Listens>
 }

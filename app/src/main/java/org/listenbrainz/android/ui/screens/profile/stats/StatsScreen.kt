@@ -513,36 +513,36 @@ fun StatsScreen(
                                     topAlbums.mapIndexed { index, topAlbum ->
                                         val metadata = topAlbum.toMetadata()
                                         ListenCardSmallDefault(
-                                            metadata = metadata,
-                                            coverArtUrl = getCoverArtUrl(
-                                                topAlbum.caaReleaseMbid,
-                                                topAlbum.caaId
-                                            ),
                                             modifier = Modifier
                                                 .padding(
                                                     vertical = ListenBrainzTheme.paddings.lazyListAdjacent,
                                                     horizontal = ListenBrainzTheme.paddings.horizontal
                                                 ),
-                                            titleColor = ListenBrainzTheme.colorScheme.followerChipSelected,
-                                            subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(
-                                                alpha = 0.7f
+                                            metadata = metadata,
+                                            coverArtUrl = getCoverArtUrl(
+                                                topAlbum.caaReleaseMbid,
+                                                topAlbum.caaId
                                             ),
                                             trailingContent = {
                                                 if (topAlbum.listenCount != null) {
                                                     ListenCountChip(formatNumber(topAlbum.listenCount))
                                                 }
                                             },
-                                            goToArtistPage = goToArtistPage,
+                                            titleColor = ListenBrainzTheme.colorScheme.followerChipSelected,
+                                            subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(
+                                                alpha = 0.7f
+                                            ),
                                             onDropdownError = {
                                                 snackbarState.showSnackbar(it.toast)
                                             },
                                             onDropdownSuccess = {
                                                 snackbarState.showSnackbar(it)
                                             },
-                                            onClick = {
-                                                metadata.trackMetadata?.let { playListen(it) }
-                                            }
-                                        )
+                                            goToArtistPage = goToArtistPage,
+                                            onClick = {}
+                                        ) {
+                                            metadata.trackMetadata?.let { playListen(it) }
+                                        }
                                     }
 
                                     if ((uiState.statsTabUIState.topAlbums?.size ?: 0) > 5) {
@@ -594,13 +594,14 @@ fun StatsScreen(
                                                     ListenCountChip(formatNumber(topSong.listenCount))
                                                 }
                                             },
-                                            goToArtistPage = goToArtistPage,
                                             onDropdownError = {
                                                 snackbarState.showSnackbar(it.toast)
                                             },
                                             onDropdownSuccess = {
                                                 snackbarState.showSnackbar(it)
-                                            }
+                                            },
+                                            goToArtistPage = goToArtistPage,
+                                            onClick = {}
                                         ) {
                                             val trackMetadata = metadata.trackMetadata
                                             if (trackMetadata != null) {

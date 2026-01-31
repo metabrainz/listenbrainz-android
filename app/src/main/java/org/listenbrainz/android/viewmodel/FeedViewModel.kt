@@ -222,12 +222,12 @@ class FeedViewModel(
             
         }
     }
-    
+
     private suspend fun deleteEvent(id: Int, type: String) {
-    
+
         // Optimistically inverting state
         isDeletedMap[id] = true
-    
+
         val result = withContext(ioDispatcher) {
             if (type == FeedEventType.RECORDING_PIN.type) {
                 socialRepository.deletePin(id)
@@ -238,7 +238,7 @@ class FeedViewModel(
                 )
             }
         }
-    
+
         when (result.status) {
             Resource.Status.FAILED -> {
                 // Toggle back on failure.
@@ -247,10 +247,12 @@ class FeedViewModel(
             }
             else -> Unit
         }
-        
     }
-    
-    
+
+
+
+
+
     private suspend fun hideEvent(data: FeedEventVisibilityData) {
         
         // Optimistically toggle

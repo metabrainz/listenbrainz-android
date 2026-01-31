@@ -124,7 +124,7 @@ fun ListenCardSmall(
                     }
 
                     coverArt(Modifier.size(ListenBrainzTheme.sizes.listenCardHeight))
-            
+
                     Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.coverArtAndTextGap))
 
                     titleAndSubtitle(Modifier.weight(1f))
@@ -181,7 +181,7 @@ fun ListenCardSmall(
                     }
                 }
             }
-            
+
             blurbContent?.let {
                 HorizontalDivider(color = ListenBrainzTheme.colorScheme.hint)
 
@@ -251,6 +251,7 @@ fun ListenCardSmallDefault(
     onRemoveFromPlaylist: (() -> Unit)? = null,
     goToArtistPage: (String) -> Unit,
     onClick: () -> Unit,
+    onDelete: (() -> Unit)? = null
 ) {
     metadata.trackMetadata?.let {
         var isDropdownExpanded by remember { mutableStateOf(false) }
@@ -275,6 +276,7 @@ fun ListenCardSmallDefault(
                     onSuccess = onDropdownSuccess,
                     onRemoveFromPlaylist = onRemoveFromPlaylist,
                     onDropdownDismiss = { isDropdownExpanded = !isDropdownExpanded },
+                    onDelete = onDelete
                 )
             },
             preCoverArtContent = preCoverArtContent,
@@ -396,15 +398,17 @@ private fun ListenCardSmallPreview() {
                     TitleAndSubtitle(title = "Userrrrrrrrrrrrrr", goToArtistPage = {}, artists = listOf(FeedListenArtist("Artist", "", "")),)
                 }
             },
-            goToArtistPage = {},
             blurbContent = {
                 Column(modifier = it) {
                     Text(text = "Blurb Content", color = ListenBrainzTheme.colorScheme.text)
                 }
             },
-            onDropdownSuccess = {},
             onDropdownError = {},
-        ) {}
+            onDropdownSuccess = {},
+            goToArtistPage = {},
+            onDelete ={},
+            onClick = {}
+        )
     }
 }
 
@@ -424,14 +428,16 @@ private fun ListenCardSmallNoTrailingContentPreview() {
                 ),
             ),
             coverArtUrl = "",
-            goToArtistPage = {},
             blurbContent = {
                 Column(modifier = it) {
                     Text(text = "Blurb Content", color = ListenBrainzTheme.colorScheme.text)
                 }
             },
-            onDropdownSuccess = {},
             onDropdownError = {},
-        ) {}
+            onDropdownSuccess = {},
+            goToArtistPage = {},
+            onClick = {},
+            onDelete = {}
+        )
     }
 }
