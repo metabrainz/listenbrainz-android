@@ -22,8 +22,8 @@ import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.gowtham.ratingbar.RatingBar
-import com.gowtham.ratingbar.RatingBarStyle
+import org.listenbrainz.android.ui.components.ratingbar.RatingBar
+import org.listenbrainz.android.ui.components.ratingbar.RatingBarStyle
 import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.android.model.feed.FeedEvent

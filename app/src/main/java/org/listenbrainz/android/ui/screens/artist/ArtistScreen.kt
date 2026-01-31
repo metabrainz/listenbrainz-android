@@ -67,8 +67,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import org.koin.androidx.compose.koinViewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
-import com.gowtham.ratingbar.RatingBar
-import com.gowtham.ratingbar.RatingBarStyle
+import org.listenbrainz.android.ui.components.ratingbar.RatingBar
+import org.listenbrainz.android.ui.components.ratingbar.RatingBarStyle
 import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.shared.model.MbidMapping
