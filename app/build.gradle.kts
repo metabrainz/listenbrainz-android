@@ -22,7 +22,7 @@ android {
 
     val versionMap = mapOf(
         major to 2,
-        minor to 12,
+        minor to 13,
         patch to 0,
         build to 0
     )
@@ -146,6 +146,9 @@ android {
 }
 
 dependencies {
+    // Shared KMP module
+    implementation(project(":shared"))
+
     // AndroidX libraries
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -215,7 +218,7 @@ dependencies {
     implementation(libs.lottie.compose)
     implementation(libs.onboarding)
     implementation(libs.share.android)
-
+    implementation(libs.reorderable)
 
     // Accompanist
     implementation(libs.google.accompanist.permissions)
@@ -232,6 +235,8 @@ dependencies {
 
     // Spotify SDK
     api(project(":spotify-app-remote"))
+    // TODO: Remove when we've migrated spotify-app-remote to androidMain of shared module.
+    implementation(libs.gson)
 
     // Networking and parsing
     implementation(libs.jsoup)
@@ -240,7 +245,7 @@ dependencies {
     }
 
     // Date time
-    implementation(libs.threetenabp)
+    implementation(libs.kotlinx.datetime)
 
     // Logging
     implementation(libs.logger.android)
@@ -285,4 +290,7 @@ dependencies {
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
     implementation(libs.compose.shimmer)
+
+    // `Shared module
+    implementation(project(":shared"))
 }

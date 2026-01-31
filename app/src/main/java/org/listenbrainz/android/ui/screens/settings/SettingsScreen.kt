@@ -53,11 +53,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.model.AppNavigationItem
+import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.android.model.PermissionStatus
-import org.listenbrainz.android.model.UiMode
-import org.listenbrainz.android.repository.preferences.AppPreferences
-import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
+import org.listenbrainz.shared.model.UiMode
+import org.listenbrainz.shared.repository.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferencesImpl
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.main.DonateActivity
@@ -75,7 +75,9 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = koinViewModel(),
     listensViewModel: ListensViewModel = koinViewModel(),
     dashBoardViewModel: DashBoardViewModel,
-    callbacks: SettingsCallbacksToHomeScreen
+    topBarActions: TopBarActions,
+    callbacks: SettingsCallbacksToHomeScreen,
+    onNavigationReorderClick: () -> Unit
 ) {
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val isBatteryOptimizationPermissionGranted =
@@ -94,11 +96,12 @@ fun SettingsScreen(
                 getPackageLabel = listensViewModel::getPackageLabel,
                 setWhitelist = listensViewModel::setWhitelist,
                 onOnboardingRequest = callbacks.onOnboardingRequest,
-                checkForUpdates = callbacks.checkForUpdates
+                checkForUpdates = callbacks.checkForUpdates,
+                onNavigationReorderClick = onNavigationReorderClick
             )
         },
         isBatteryOptimizationPermissionGranted = isBatteryOptimizationPermissionGranted,
-        topBarActions = callbacks.topBarActions
+        topBarActions = topBarActions
     )
 }
 
@@ -241,6 +244,14 @@ fun SettingsScreen(
                 }
 
             }
+
+            HorizontalDivider()
+
+            SettingsTextOption(
+                title = "Reorder navigation bar",
+                subtitle = "Change bottom navigation order",
+                modifier = Modifier.clickable(onClick = callbacks.onNavigationReorderClick)
+            )
 
             HorizontalDivider()
 
@@ -501,7 +512,8 @@ fun SettingsScreenPreview() {
                 setWhitelist = {},
                 onLoginRequest = {},
                 onOnboardingRequest = {},
-                checkForUpdates = suspend{false}
+                checkForUpdates = suspend{false},
+                onNavigationReorderClick = {}
             ),
             topBarActions = TopBarActions()
         )

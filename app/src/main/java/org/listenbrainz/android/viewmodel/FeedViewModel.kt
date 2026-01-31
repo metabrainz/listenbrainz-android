@@ -33,7 +33,7 @@ import org.listenbrainz.android.repository.feed.FeedRepository
 import org.listenbrainz.android.repository.feed.FeedRepository.Companion.FeedEventCount
 import org.listenbrainz.android.repository.feed.FeedRepository.Companion.FeedListensCount
 import org.listenbrainz.android.repository.listens.ListensRepository
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.ui.screens.feed.FeedUiEventData
@@ -42,7 +42,7 @@ import org.listenbrainz.android.ui.screens.feed.FeedUiState
 import org.listenbrainz.android.ui.screens.feed.FollowListensPagingSource
 import org.listenbrainz.android.ui.screens.feed.MyFeedPagingSource
 import org.listenbrainz.android.ui.screens.feed.SimilarListensPagingSource
-import org.listenbrainz.android.util.LinkedService
+import org.listenbrainz.shared.model.LinkedService
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource
 
@@ -165,15 +165,15 @@ class FeedViewModel(
     
     private fun playFromYoutubeMusic(event: FeedEvent) {
         viewModelScope.launch {
-            if (event.metadata.trackMetadata != null
-                && event.metadata.trackMetadata.trackName != null
-            ){
+            val trackMetadata = event.metadata.trackMetadata
+            val trackName = trackMetadata?.trackName
+            if (trackName != null) {
                 remotePlaybackHandler.apply {
                     val result = playOnYoutube {
                         withContext(ioDispatcher) {
                             searchYoutubeMusicVideoId(
-                                event.metadata.trackMetadata.trackName,
-                                event.metadata.trackMetadata.artistName.orEmpty()
+                                trackName,
+                                trackMetadata.artistName.orEmpty()
                             )
                         }
                     }

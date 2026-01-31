@@ -1,10 +1,12 @@
-package org.listenbrainz.android.repository.preferences
+package org.listenbrainz.shared.repository
 
 import kotlinx.coroutines.flow.Flow
-import org.listenbrainz.android.model.InstallSource
-import org.listenbrainz.android.model.Playable
-import org.listenbrainz.android.model.UiMode
-import org.listenbrainz.android.util.LinkedService
+import org.listenbrainz.shared.model.AppNavigationItem
+import org.listenbrainz.shared.model.InstallSource
+import org.listenbrainz.shared.model.Playable
+import org.listenbrainz.shared.model.UiMode
+import org.listenbrainz.shared.model.LinkedService
+import org.listenbrainz.shared.preferences.DataStorePreference
 
 interface AppPreferences {
     
@@ -19,13 +21,13 @@ interface AppPreferences {
     /** Music Apps in users device registered by listenService.*/
     val listeningApps: DataStorePreference<List<String>>
 
-    var onboardingCompleted: Boolean
+    val onboardingCompleted: DataStorePreference<Boolean>
     
     suspend fun logoutUser(): Boolean
 
     val version: String
     
-    var currentPlayable : Playable?
+    val currentPlayable: DataStorePreference<Playable?>
     
     /* Login related preferences */
     fun getLoginStatusFlow(): Flow<Int>
@@ -37,9 +39,9 @@ interface AppPreferences {
     
     val username: DataStorePreference<String>
     
-    val refreshToken: String?
+    val refreshToken: DataStorePreference<String?>
     
-    var linkedServices: List<LinkedService>
+    val linkedServices: DataStorePreference<List<LinkedService>>
     
     /** Default is true. */
     val isListeningAllowed: DataStorePreference<Boolean>
@@ -52,10 +54,10 @@ interface AppPreferences {
     /* BrainzPlayer Preferences */
     
     /** Used to tell the user that they don't have any albums on their device. */
-    var albumsOnDevice: Boolean
+    val albumsOnDevice: DataStorePreference<Boolean>
     
     /** Used to tell the user that they don't have any songs on their device. */
-    var songsOnDevice: Boolean
+    val songsOnDevice: DataStorePreference<Boolean>
 
     /** Cache for Login Consent Screen Data */
     val consentScreenDataCache: DataStorePreference<String>
@@ -72,4 +74,6 @@ interface AppPreferences {
     val lastUpdatePromptLaunchCount: DataStorePreference<Int>
 
     val downloadId: DataStorePreference<Long>
+
+    val navBarOrder: DataStorePreference<List<AppNavigationItem>>
 }

@@ -19,7 +19,7 @@ import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.context.startKoin
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.di.appModules
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.service.ListenSubmissionService
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log

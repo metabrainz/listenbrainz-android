@@ -22,8 +22,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.model.PermissionStatus
-import org.listenbrainz.android.model.UiMode
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.shared.model.UiMode
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginConsentScreenUIState
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.AppInfo
@@ -42,8 +42,18 @@ class DashBoardViewModel(
     val usernameFlow = appPreferences.username.getFlow()
     val permissionStatusFlow = MutableStateFlow(emptyMap<PermissionEnum, PermissionStatus>())
 
+    val navBarOrderFlow = appPreferences.navBarOrder
+        .getFlow()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = null
+        )
+
     val permissionsRequestedAteastOnce = appPreferences.requestedPermissionsList.getFlow()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+    private val _onboardingCompletedState = appPreferences.onboardingCompleted.getFlow()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     private val _listeningAppsFlow = MutableStateFlow<List<AppInfo>>(emptyList())
     val listeningAppsFlow = _listeningAppsFlow.asStateFlow()
@@ -288,6 +298,22 @@ class DashBoardViewModel(
             }
         }
     }
+
+    private fun setOnboardingCompleted(completed: Boolean) {
+        viewModelScope.launch(ioDispatcher) {
+            appPreferences.onboardingCompleted.set(completed)
+        }
+    }
+
+    fun markOnboardingCompleted() {
+        setOnboardingCompleted(true)
+    }
+
+    fun resetOnboardingCompleted() {
+        setOnboardingCompleted(false)
+    }
+
+    fun isOnboardingCompleted(): Boolean = _onboardingCompletedState.value
 
     fun onLoadConsentScreen() {
         _consentScreenUIState.update { it ->

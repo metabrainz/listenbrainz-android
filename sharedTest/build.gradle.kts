@@ -74,6 +74,9 @@ dependencies {
     implementation(libs.androidx.test.espresso.core)
     implementation(libs.androidx.test.espresso.intents)
 
+    // Shared module dependency for DataStorePreference
+    implementation(project(":shared"))
+
     // App module dependency
     implementation(project(":app"))
 }
