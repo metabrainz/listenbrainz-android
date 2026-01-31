@@ -1,6 +1,8 @@
 package org.listenbrainz.android.ui.screens.main
 
 import android.content.res.Configuration
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.tween
@@ -48,8 +50,8 @@ import org.listenbrainz.android.ui.navigation.NavBarReorderOverlay
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
+import org.listenbrainz.android.ui.screens.search.BaseSearchScreen
 import org.listenbrainz.android.ui.screens.search.BrainzPlayerSearchScreen
-import org.listenbrainz.android.ui.screens.search.UserSearchScreen
 import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -60,6 +62,7 @@ import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.ListeningNowViewModel
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreen(
@@ -256,12 +259,24 @@ fun HomeScreen(
                 deactivate = searchBarState::deactivate,
             )
 
-            else -> UserSearchScreen(
+            else -> BaseSearchScreen(
                 isActive = searchBarState.isActive,
                 deactivate = searchBarState::deactivate,
                 goToUserPage = { username ->
                     searchBarState.deactivate()
                     navController.navigate(AppNavigationItem.Profile.withUserArg(username))
+                },
+                goToPlaylist = { playlistMbid ->
+                    searchBarState.deactivate()
+                    navController.navigate("${AppNavigationItem.PlaylistScreen.route}/$playlistMbid")
+                },
+                goToArtist = { mbid->
+                    searchBarState.deactivate()
+                    navController.navigate("${AppNavigationItem.Artist.route}/$mbid")
+                },
+                goToAlbum = { mbid->
+                    searchBarState.deactivate()
+                    navController.navigate("${AppNavigationItem.Album.route}/$mbid")
                 }
             )
         }
