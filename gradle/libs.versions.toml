@@ -7,6 +7,7 @@ koin = "4.0.0"
 compose = "1.10.0"
 reorderable = "3.0.0"
 room = "2.7.2"
+sqlite = "2.6.2"
 accompanist = "0.36.0"
 work = "2.10.0"
 exoplayer = "2.19.1"
@@ -109,7 +110,7 @@ reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reo
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
-androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "room" }
+androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 
 androidx-paging-runtime = { module = "androidx.paging:paging-runtime-ktx", version.ref = "paging" }
 androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "paging" }
