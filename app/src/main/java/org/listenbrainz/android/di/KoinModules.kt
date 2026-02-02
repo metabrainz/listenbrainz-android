@@ -127,6 +127,7 @@ import org.listenbrainz.android.viewmodel.ArtistViewModel
 import org.listenbrainz.android.viewmodel.BPAlbumViewModel
 import org.listenbrainz.android.viewmodel.BPArtistViewModel
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
+import org.listenbrainz.android.viewmodel.CreateAccountViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.FeaturesViewModel
 import org.listenbrainz.android.viewmodel.FeedViewModel
@@ -557,6 +558,7 @@ val viewModelModule = module {
     viewModel { FeaturesViewModel(get()) }
     viewModel { AboutViewModel() }
     viewModel { LoginViewModel() }
+    viewModel { CreateAccountViewModel() }
 }
 
 val appModules = listOf(
