@@ -75,22 +75,64 @@ class SearchViewModel(
     private val combinedUserFlow = combine(userListFlow, followStateFlow) { users, followList ->
         UserListUiState(users, followList)
     }
-    private val resultFlow: StateFlow<SearchData?> = combine(
-        combinedUserFlow,
-        playlistFlow,
-        artistFlow,
-        albumFlow,
-        trackFlow
-    ) { userState, playlists, artists, albums, tracks ->
-        when {
-            userState.userList.isNotEmpty() -> SearchData.Users(userState)
-            playlists.isNotEmpty() -> SearchData.Playlists(PlayListSearchUiState(playlists))
-            artists.isNotEmpty() -> SearchData.Artists(ArtistSearchUiState(artists))
-            albums.isNotEmpty() -> SearchData.Albums(AlbumSearchUiState(albums))
-            tracks.isNotEmpty() -> SearchData.Tracks(TrackSearchUiState(tracks))
-            else -> null
-        }
-    }.stateIn(
+    val searchOption = MutableStateFlow(SearchType.USER)
+    private val resultFlow: StateFlow<SearchData?> =
+        combine(
+            combinedUserFlow,
+            playlistFlow,
+            artistFlow,
+            albumFlow,
+            trackFlow,
+            searchOption
+        ) { values ->
+
+            val userState = values[0] as UserListUiState
+            val playlists = values[1] as List<PlaylistUiModel>
+            val artists = values[2] as List<ArtistUiModel>
+            val albums = values[3] as List<AlbumUiModel>
+            val tracks = values[4] as List<PlaylistTrack>
+            val type = values[5] as SearchType
+
+            when (type) {
+                SearchType.USER ->
+                    if (userState.userList.isNotEmpty()) {
+                        SearchData.Users(userState)
+                    }
+                    else null
+
+                SearchType.PLAYLIST ->
+                    if (playlists.isNotEmpty()){
+                        SearchData.Playlists(
+                            PlayListSearchUiState(playlists)
+                        )
+                    }
+                    else null
+
+                SearchType.ARTIST ->
+                    if (artists.isNotEmpty()) {
+                        SearchData.Artists(
+                            ArtistSearchUiState(artists)
+                        )
+                    }
+                    else null
+
+                SearchType.ALBUM ->
+                    if (albums.isNotEmpty()){
+                        SearchData.Albums(
+                            AlbumSearchUiState(albums)
+                        )
+                    }
+                    else null
+
+                SearchType.TRACK ->
+                    if (tracks.isNotEmpty()) {
+                        SearchData.Tracks(
+                            TrackSearchUiState(tracks)
+                        )
+                    }
+                    else null
+            }
+        }.stateIn(
             viewModelScope,
             SharingStarted.Eagerly,
             null
@@ -99,9 +141,15 @@ class SearchViewModel(
     override val uiState: StateFlow<SearchUiState> by lazy {
         createUiStateFlow()
     }
-    val searchOption = MutableStateFlow(SearchType.USER)
+    private val searchCache = mutableMapOf<Pair<String, SearchType>, List<Any>>()
 
     init {
+        viewModelScope.launch {
+            queryFlow
+                .collectLatest {
+                    searchCache.clear()
+                }
+        }
         // Engage query flow
         viewModelScope.launch(ioDispatcher) {
             combine(queryFlow, searchOption) { query, type ->
@@ -112,7 +160,6 @@ class SearchViewModel(
                     clearUi()
                     return@collectLatest
                 }
-                resetUi()
                 when (type) {
                     SearchType.USER -> {
                         searchUsers(query)
@@ -141,6 +188,12 @@ class SearchViewModel(
     }
 
     private suspend fun searchUsers(query: String) {
+        val key = query to SearchType.USER
+
+        searchCache[key]?.let { cached ->
+            userListFlow.emit(cached as List<User>)
+            return
+        }
         isLoadingFlow.emit(true)
         try {
             val result = userRepository.searchUser(query)
@@ -152,6 +205,7 @@ class SearchViewModel(
                         userListFlow.emit(emptyList())
                         return
                     }
+                    searchCache[key] = users
                     userListFlow.emit(users)
                 }
 
@@ -167,6 +221,12 @@ class SearchViewModel(
     }
 
     private suspend fun searchPlaylists(query: String) {
+        val key = query to SearchType.PLAYLIST
+
+        searchCache[key]?.let { cached ->
+            playlistFlow.emit(cached as List<PlaylistUiModel>)
+            return
+        }
         isLoadingFlow.emit(true)
         try {
             val result = playlistRepository.searchPlaylists(query)
@@ -179,6 +239,7 @@ class SearchViewModel(
                         playlistFlow.emit(emptyList())
                         return
                     }
+                    searchCache[key] = mappedPlaylists
                     playlistFlow.emit(mappedPlaylists)
                 }
 
@@ -194,6 +255,12 @@ class SearchViewModel(
     }
 
     private suspend fun searchArtists(query: String) {
+        val key = query to SearchType.ARTIST
+
+        searchCache[key]?.let { cached ->
+            artistFlow.emit(cached as List<ArtistUiModel>)
+            return
+        }
         isLoadingFlow.emit(true)
         try {
             val result = artistRepository.searchArtist(query)
@@ -206,6 +273,7 @@ class SearchViewModel(
                         artistFlow.emit(emptyList())
                         return
                     }
+                    searchCache[key] = mappedArtists
                     artistFlow.emit(mappedArtists)
                 }
 
@@ -221,6 +289,12 @@ class SearchViewModel(
     }
 
     private suspend fun searchAlbum(query: String) {
+        val key = query to SearchType.ALBUM
+
+        searchCache[key]?.let { cached ->
+            albumFlow.emit(cached as List<AlbumUiModel>)
+            return
+        }
         isLoadingFlow.emit(true)
         try {
             val result = albumRepository.searchAlbums(query)
@@ -233,6 +307,7 @@ class SearchViewModel(
                         albumFlow.emit(emptyList())
                         return
                     }
+                    searchCache[key] = mappedAlbums
                     albumFlow.emit(mappedAlbums)
                 }
 
@@ -250,6 +325,12 @@ class SearchViewModel(
     }
 
     private suspend fun searchTracks(query: String) {
+        val key = query to SearchType.TRACK
+
+        searchCache[key]?.let { cached ->
+            trackFlow.emit(cached as List<PlaylistTrack>)
+            return
+        }
         isLoadingFlow.emit(true)
         try {
             val result = playlistRepository.searchRecording(query)
@@ -262,7 +343,7 @@ class SearchViewModel(
                         trackFlow.emit(emptyList())
                         return
                     }
-
+                    searchCache[key] = mappedTracks
                     trackFlow.emit(mappedTracks)
                 }
 
@@ -374,17 +455,6 @@ class SearchViewModel(
                 }
                 return@getAndUpdate mutableList
             }
-        }
-    }
-
-    fun resetUi() {
-        viewModelScope.launch {
-            userListFlow.emit(emptyList())
-            followStateFlow.emit(emptyList())
-            artistFlow.emit(emptyList())
-            playlistFlow.emit(emptyList())
-            albumFlow.emit(emptyList())
-            trackFlow.emit(emptyList())
         }
     }
 

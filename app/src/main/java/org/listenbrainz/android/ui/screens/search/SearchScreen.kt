@@ -57,8 +57,6 @@ fun SearchScreen(
     },
     placeholderText: String,
     onErrorShown: () -> Unit,
-    onChangeSearchOption: (SearchType) -> Unit = {},
-    isBrainzPlayerSearch: Boolean = false,
     focusRequester: FocusRequester = remember { FocusRequester() },
     focusManager: FocusManager = LocalFocusManager.current,
     window: WindowInfo = LocalWindowInfo.current,
@@ -74,13 +72,6 @@ fun SearchScreen(
         }
     }
 
-    val searchOptions = listOf(
-        SearchType.USER,
-        SearchType.PLAYLIST,
-        SearchType.ARTIST,
-        SearchType.ALBUM,
-        SearchType.TRACK
-    )
 
     SearchBar(
         modifier = Modifier.focusRequester(focusRequester),
@@ -145,51 +136,6 @@ fun SearchScreen(
 
             // Error bar for showing errors
             ErrorBar(uiState.error, onErrorShown)
-
-            if (!isBrainzPlayerSearch) {
-                Spacer(modifier = Modifier.padding(3.dp))
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    items(searchOptions) { option ->
-                        val isSelected = option == uiState.selectedSearchType
-                        Card(
-                            modifier = Modifier
-                                .clickable {
-                                    onChangeSearchOption(option)
-                                },
-                            shape = ListenBrainzTheme.shapes.chips,
-                            backgroundColor = if (isSelected){
-                                ListenBrainzTheme.colorScheme.lbSignatureInverse
-                            }
-                            else{
-                                ListenBrainzTheme.colorScheme.level1
-                            },
-                            elevation = 4.dp
-                        ) {
-                            Text(
-                                text = option.title,
-                                modifier = Modifier
-                                    .padding(horizontal = 20.dp, vertical = 10.dp),
-                                color = if (isSelected){
-                                    ListenBrainzTheme.colorScheme.listenText
-                                }
-                                else{
-                                    ListenBrainzTheme.colorScheme.text
-                                }
-                            )
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.padding(3.dp))
-                HorizontalDivider(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = ListenBrainzTheme.colorScheme.text
-                )
-                Spacer(modifier = Modifier.padding(3.dp))
-            }
 
             // Main Content
             content()

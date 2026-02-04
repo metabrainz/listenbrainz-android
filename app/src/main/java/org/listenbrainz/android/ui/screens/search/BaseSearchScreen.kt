@@ -12,11 +12,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -46,6 +49,7 @@ import org.listenbrainz.android.model.search.userSearch.UserListUiState
 import org.listenbrainz.android.ui.components.FollowButton
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
+import org.listenbrainz.android.ui.components.NavigationChips
 import org.listenbrainz.android.ui.components.TitleAndSubtitle
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils.formatDurationSeconds
@@ -58,7 +62,6 @@ import java.util.Locale
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun BaseSearchScreen(
-    isActive: Boolean,
     viewModel: SearchViewModel = koinViewModel(),
     goToUserPage: (String) -> Unit,
     goToPlaylist: (String) -> Unit,
@@ -66,125 +69,164 @@ fun BaseSearchScreen(
     goToAlbum: (String) -> Unit,
     deactivate: () -> Unit
 ) {
-    AnimatedVisibility(
-        visible = isActive,
-        enter = fadeIn(),
-        exit = fadeOut()
+    val uiState by viewModel.uiState.collectAsState()
+    val isLoading by viewModel.isLoadingFlow.collectAsState()
+    val searchOptions = remember {
+        listOf(
+            SearchType.USER,
+            SearchType.PLAYLIST,
+            SearchType.ARTIST,
+            SearchType.ALBUM,
+            SearchType.TRACK
+        )
+    }
+    val pagerState = rememberPagerState(initialPage = 0) { searchOptions.size }
+
+    LaunchedEffect(pagerState.currentPage) {
+        val selectedType = searchOptions[pagerState.currentPage]
+        if (uiState.selectedSearchType != selectedType) {
+            viewModel.updateSearchOption(selectedType)
+        }
+    }
+
+    LaunchedEffect(uiState.selectedSearchType) {
+        val index = searchOptions.indexOf(uiState.selectedSearchType)
+        if (index != pagerState.currentPage) {
+            pagerState.scrollToPage(index)
+        }
+    }
+
+    SearchScreen(
+        uiState = uiState,
+        onDismiss = {
+            deactivate()
+            viewModel.clearUi()
+        },
+        onQueryChange = viewModel::updateQueryFlow,
+        onClear = viewModel::clearUi,
+        onErrorShown = viewModel::clearErrorFlow,
+        placeholderText = uiState.selectedSearchType.placeholder,
+        onChangeSearchOption = viewModel::updateSearchOption,
+        isBrainzPlayerSearch = false,
     ) {
-        val uiState by viewModel.uiState.collectAsState()
-        val isLoading by viewModel.isLoadingFlow.collectAsState()
-
-        SearchScreen(
-            uiState = uiState,
-            onDismiss = {
-                deactivate()
-                viewModel.clearUi()
-            },
-            onQueryChange = viewModel::updateQueryFlow,
-            onClear = viewModel::clearUi,
-            onErrorShown = viewModel::clearErrorFlow,
-            placeholderText = uiState.selectedSearchType.placeholder,
-            onChangeSearchOption = viewModel::updateSearchOption,
-            isBrainzPlayerSearch = false,
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
-            val result = uiState.result
-            val searchType = uiState.selectedSearchType
-
-            if (isLoading) {
-                when (searchType) {
-                    SearchType.USER -> {
-                        UserList(
-                            uiState = UserListUiState(emptyList(), emptyList()),
-                            onFollowClick = {_,_->},
-                            goToUserPage = {},
-                            isLoading = true
-                        )
-                    }
-
-                    SearchType.PLAYLIST -> {
-                        Playlists(
-                            uiState = PlayListSearchUiState(emptyList()),
-                            goToPlaylist = {},
-                            isLoading = true
-                        )
-                    }
-
-                    SearchType.ALBUM -> {
-                        Albums(
-                            uiState = AlbumSearchUiState(emptyList()),
-                            goToAlbum = {},
-                            isLoading = true
-                        )
-                    }
-
-                    SearchType.TRACK -> {
-                        Tracks(
-                            uiState = TrackSearchUiState(emptyList()),
-                            goToTrack = {},
-                            goToArtistPage = {},
-                            isLoading = true
-                        )
-                    }
-
-                    SearchType.ARTIST -> {
-                        Artists(
-                            uiState = ArtistSearchUiState(emptyList()),
-                            goToArtist = {},
-                            isLoading  = true
-                        )
-                    }
+            NavigationChips(
+                chips = remember { searchOptions.map { it.title } },
+                currentPageStateProvider = {
+                    pagerState.currentPage
                 }
-            } else {
-                when (result) {
-                    is SearchData.Users -> {
-                        UserList(
-                            uiState = result.data,
-                            onFollowClick = viewModel::toggleFollowStatus,
-                            goToUserPage = goToUserPage,
-                            isLoading = false
-                        )
-                    }
+            ) { position ->
+                viewModel.updateSearchOption(searchOptions[position])
+            }
+            HorizontalDivider(
+                modifier = Modifier.fillMaxWidth(),
+                color = ListenBrainzTheme.colorScheme.text
+            )
+            Spacer(modifier = Modifier.padding(3.dp))
+            HorizontalPager(
+                state = pagerState,
+            ) { position ->
+                val searchType = searchOptions[position]
+                val result = uiState.result
 
-                    is SearchData.Playlists -> {
-                        Playlists(
-                            uiState = result.data,
-                            goToPlaylist = goToPlaylist,
-                            isLoading = false
-                        )
-                    }
+                if (isLoading) {
+                    when (searchType) {
+                        SearchType.USER -> {
+                            UserList(
+                                uiState = UserListUiState(emptyList(), emptyList()),
+                                onFollowClick = { _, _ -> },
+                                goToUserPage = {},
+                                isLoading = true
+                            )
+                        }
 
-                    is SearchData.Artists -> {
-                        Artists(
-                            uiState = result.data,
-                            goToArtist = goToArtist,
-                            isLoading = false
-                        )
-                    }
+                        SearchType.PLAYLIST -> {
+                            Playlists(
+                                uiState = PlayListSearchUiState(emptyList()),
+                                goToPlaylist = {},
+                                isLoading = true
+                            )
+                        }
 
-                    is SearchData.Tracks -> {
-                        Tracks(
-                            uiState = result.data,
-                            goToTrack = {
-                                it.toMetadata().trackMetadata?.let { it1 ->
-                                    viewModel.playListen(
-                                        it1
-                                    )
-                                }
-                            },
-                            goToArtistPage = goToArtist,
-                            isLoading = false
-                        )
-                    }
+                        SearchType.ALBUM -> {
+                            Albums(
+                                uiState = AlbumSearchUiState(emptyList()),
+                                goToAlbum = {},
+                                isLoading = true
+                            )
+                        }
 
-                    is SearchData.Albums -> {
-                        Albums(
-                            uiState = result.data,
-                            goToAlbum = goToAlbum,
-                            isLoading = false
-                        )
-                    }
+                        SearchType.TRACK -> {
+                            Tracks(
+                                uiState = TrackSearchUiState(emptyList()),
+                                goToTrack = {},
+                                goToArtistPage = {},
+                                isLoading = true
+                            )
+                        }
 
-                    else -> {}
+                        SearchType.ARTIST -> {
+                            Artists(
+                                uiState = ArtistSearchUiState(emptyList()),
+                                goToArtist = {},
+                                isLoading = true
+                            )
+                        }
+                    }
+                } else {
+                    when (result) {
+                        is SearchData.Users -> {
+                            UserList(
+                                uiState = result.data,
+                                onFollowClick = viewModel::toggleFollowStatus,
+                                goToUserPage = goToUserPage,
+                                isLoading = false
+                            )
+                        }
+
+                        is SearchData.Playlists -> {
+                            Playlists(
+                                uiState = result.data,
+                                goToPlaylist = goToPlaylist,
+                                isLoading = false
+                            )
+                        }
+
+                        is SearchData.Artists -> {
+                            Artists(
+                                uiState = result.data,
+                                goToArtist = goToArtist,
+                                isLoading = false
+                            )
+                        }
+
+                        is SearchData.Tracks -> {
+                            Tracks(
+                                uiState = result.data,
+                                goToTrack = {
+                                    it.toMetadata().trackMetadata?.let { it1 ->
+                                        viewModel.playListen(
+                                            it1
+                                        )
+                                    }
+                                },
+                                goToArtistPage = goToArtist,
+                                isLoading = false
+                            )
+                        }
+
+                        is SearchData.Albums -> {
+                            Albums(
+                                uiState = result.data,
+                                goToAlbum = goToAlbum,
+                                isLoading = false
+                            )
+                        }
+
+                        else -> {}
+                    }
                 }
             }
         }

@@ -44,7 +44,6 @@ import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
 @Composable
 fun BrainzPlayerSearchScreen(
-    isActive: Boolean,
     viewModel: BrainzPlayerViewModel = koinViewModel(),
     deactivate: () -> Unit,
 ) {
@@ -62,54 +61,49 @@ fun BrainzPlayerSearchScreen(
         deactivate()
     }
 
-    AnimatedVisibility(
-        visible = isActive,
-        enter = fadeIn(),
-        exit = fadeOut()
+    SearchScreen(
+        uiState = remember(searchItems, brainzplayerQueryState.text, error) {
+            SearchUiState(
+                query = brainzplayerQueryState.text,
+                result = SearchData.Songs(searchItems),
+                error = error
+            )
+        },
+        onDismiss = ::onDismiss,
+        onQueryChange = { newValue: String ->
+            val updatedQuery =
+                TextFieldValue(newValue, selection = brainzplayerQueryState.selection)
+            viewModel.updateSearchQuery(updatedQuery)
+        },
+        onClear = {
+            viewModel.clearSearchResults()
+        },
+        onErrorShown = { error = null },
+        placeholderText = "Search your music library",
+        isBrainzPlayerSearch = true
     ) {
-        SearchScreen(
-            uiState = remember(searchItems, brainzplayerQueryState.text, error) {
-                SearchUiState(
-                    query = brainzplayerQueryState.text,
-                    result = SearchData.Songs(searchItems),
-                    error = error
-                )
-            },
-            onDismiss = ::onDismiss,
-            onQueryChange = { newValue: String ->
-                val updatedQuery = TextFieldValue(newValue, selection = brainzplayerQueryState.selection)
-                viewModel.updateSearchQuery(updatedQuery)
-            },
-            onClear = {
-                viewModel.clearSearchResults()
-            },
-            onErrorShown = { error = null },
-            placeholderText = "Search your music library",
-            isBrainzPlayerSearch = true
-        ) {
-            LazyColumn {
-                itemsIndexed(searchItems) { _, song ->
-                    ListenCardSmallDefault(
-                        modifier = Modifier.padding(
-                            horizontal = ListenBrainzTheme.paddings.horizontal,
-                            vertical = ListenBrainzTheme.paddings.lazyListAdjacent
-                        ),
-                        metadata = song.toMetadata(),
-                        coverArtUrl = song.albumArt,
-                        errorAlbumArt = R.drawable.ic_erroralbumart,
-                        goToArtistPage = {},
-                        onDropdownSuccess = { context.showToast(it) },
-                        onDropdownError = { error = it }
-                    ) {
-                        viewModel.changePlayable(
-                            listOf(song),
-                            PlayableType.SONG,
-                            song.mediaID,
-                            0
-                        )
-                        viewModel.playOrToggleSong(song, true)
-                        onDismiss()
-                    }
+        LazyColumn {
+            itemsIndexed(searchItems) { _, song ->
+                ListenCardSmallDefault(
+                    modifier = Modifier.padding(
+                        horizontal = ListenBrainzTheme.paddings.horizontal,
+                        vertical = ListenBrainzTheme.paddings.lazyListAdjacent
+                    ),
+                    metadata = song.toMetadata(),
+                    coverArtUrl = song.albumArt,
+                    errorAlbumArt = R.drawable.ic_erroralbumart,
+                    goToArtistPage = {},
+                    onDropdownSuccess = { context.showToast(it) },
+                    onDropdownError = { error = it }
+                ) {
+                    viewModel.changePlayable(
+                        listOf(song),
+                        PlayableType.SONG,
+                        song.mediaID,
+                        0
+                    )
+                    viewModel.playOrToggleSong(song, true)
+                    onDismiss()
                 }
             }
         }

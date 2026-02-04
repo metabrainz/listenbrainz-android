@@ -44,7 +44,7 @@ fun NavigationChips(
         Spacer(
             modifier = Modifier.Companion.width(ListenBrainzTheme.paddings.chipsHorizontal / 2)
         )
-        repeat(3) { position ->
+        repeat(chips.size) { position ->
             ElevatedSuggestionChip(
                 modifier = Modifier.Companion.padding(ListenBrainzTheme.paddings.chipsHorizontal),
                 colors = SuggestionChipDefaults.elevatedSuggestionChipColors(

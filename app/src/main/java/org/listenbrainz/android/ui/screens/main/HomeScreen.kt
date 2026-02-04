@@ -35,6 +35,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import org.koin.androidx.compose.koinViewModel
@@ -145,7 +146,22 @@ fun HomeScreen(
             }
         },
         activateSearch = {
-            searchBarState.activate()
+            when (currentDestination?.route) {
+
+                AppNavigationItem.BrainzPlayer.route -> {
+                    navController.navigate(AppNavigationItem.BrainzPlayerSearchScreen.route) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+
+                else -> {
+                    navController.navigate(AppNavigationItem.SearchScreen.route) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            }
         }
     )
     val navOrder by dashBoardViewModel.navBarOrderFlow
@@ -253,35 +269,8 @@ fun HomeScreen(
             }
         }
 
-        when (currentDestination?.route) {
-            AppNavigationItem.BrainzPlayer.route -> BrainzPlayerSearchScreen(
-                isActive = searchBarState.isActive,
-                deactivate = searchBarState::deactivate,
-            )
-
-            else -> BaseSearchScreen(
-                isActive = searchBarState.isActive,
-                deactivate = searchBarState::deactivate,
-                goToUserPage = { username ->
-                    searchBarState.deactivate()
-                    navController.navigate(AppNavigationItem.Profile.withUserArg(username))
-                },
-                goToPlaylist = { playlistMbid ->
-                    searchBarState.deactivate()
-                    navController.navigate("${AppNavigationItem.PlaylistScreen.route}/$playlistMbid")
-                },
-                goToArtist = { mbid->
-                    searchBarState.deactivate()
-                    navController.navigate("${AppNavigationItem.Artist.route}/$mbid")
-                },
-                goToAlbum = { mbid->
-                    searchBarState.deactivate()
-                    navController.navigate("${AppNavigationItem.Album.route}/$mbid")
-                }
-            )
-        }
     }
-    if (showNavReorderOverlay && navOrder!=null) {
+    if (showNavReorderOverlay && navOrder != null) {
         navOrder?.let { items ->
             NavBarReorderOverlay(
                 items = items,
