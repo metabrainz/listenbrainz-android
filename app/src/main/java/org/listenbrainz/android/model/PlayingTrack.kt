@@ -26,6 +26,8 @@ data class PlayingTrack(
 
     val id: String
         get() = "$title - $artist - $pkgName"
+
+    val isValid get() = title == null || artist == null || timestamp == 0L
     
     /** This means there's no track playing.*/
     fun isNothing(): Boolean = artist == null && title == null
