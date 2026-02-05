@@ -1,6 +1,8 @@
 package org.listenbrainz.android.ui.screens.main
 
 import android.content.res.Configuration
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.tween
@@ -33,6 +35,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import org.koin.androidx.compose.koinViewModel
@@ -48,8 +51,8 @@ import org.listenbrainz.android.ui.navigation.NavBarReorderOverlay
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
+import org.listenbrainz.android.ui.screens.search.BaseSearchScreen
 import org.listenbrainz.android.ui.screens.search.BrainzPlayerSearchScreen
-import org.listenbrainz.android.ui.screens.search.UserSearchScreen
 import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -60,6 +63,7 @@ import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.ListeningNowViewModel
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreen(
@@ -142,7 +146,22 @@ fun HomeScreen(
             }
         },
         activateSearch = {
-            searchBarState.activate()
+            when (currentDestination?.route) {
+
+                AppNavigationItem.BrainzPlayer.route -> {
+                    navController.navigate(AppNavigationItem.BrainzPlayerSearchScreen.route) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+
+                else -> {
+                    navController.navigate(AppNavigationItem.SearchScreen.route) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            }
         }
     )
     val navOrder by dashBoardViewModel.navBarOrderFlow
@@ -250,23 +269,8 @@ fun HomeScreen(
             }
         }
 
-        when (currentDestination?.route) {
-            AppNavigationItem.BrainzPlayer.route -> BrainzPlayerSearchScreen(
-                isActive = searchBarState.isActive,
-                deactivate = searchBarState::deactivate,
-            )
-
-            else -> UserSearchScreen(
-                isActive = searchBarState.isActive,
-                deactivate = searchBarState::deactivate,
-                goToUserPage = { username ->
-                    searchBarState.deactivate()
-                    navController.navigate(AppNavigationItem.Profile.withUserArg(username))
-                }
-            )
-        }
     }
-    if (showNavReorderOverlay && navOrder!=null) {
+    if (showNavReorderOverlay && navOrder != null) {
         navOrder?.let { items ->
             NavBarReorderOverlay(
                 items = items,

@@ -2,14 +2,23 @@ package org.listenbrainz.android.ui.screens.search
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
@@ -29,14 +38,16 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.WindowInfo
-import org.listenbrainz.android.model.SearchUiState
+import androidx.compose.ui.unit.dp
+import org.listenbrainz.android.model.search.SearchType
+import org.listenbrainz.android.model.search.SearchUiState
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun <T> SearchScreen(
-    uiState: SearchUiState<T>,
+fun SearchScreen(
+    uiState: SearchUiState,
     onDismiss: () -> Unit,
     onQueryChange: (String) -> Unit,
     onClear: () -> Unit,
@@ -60,6 +71,7 @@ fun <T> SearchScreen(
             }
         }
     }
+
 
     SearchBar(
         modifier = Modifier.focusRequester(focusRequester),

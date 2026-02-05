@@ -4,6 +4,7 @@ import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.artist.ArtistPayload
 import org.listenbrainz.android.model.artist.ArtistWikiExtract
 import org.listenbrainz.android.model.artist.CBReview
+import org.listenbrainz.android.model.artistSearch.ArtistSearchPayload
 import org.listenbrainz.android.service.ArtistService
 import org.listenbrainz.android.service.CBService
 import org.listenbrainz.android.service.MBService
@@ -29,5 +30,10 @@ class ArtistRepositoryImpl(
     override suspend fun fetchArtistReviews(artistMbid: String?): Resource<CBReview?> = parseResponse {
         failIf(artistMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
         cbService.getArtistReviews(artistMbid)
+    }
+
+    override suspend fun searchArtist(query: String?): Resource<ArtistSearchPayload?> = parseResponse {
+        failIf(query.isNullOrEmpty()) { ResponseError.BadRequest() }
+        mbService.searchArtist(query)
     }
 }
