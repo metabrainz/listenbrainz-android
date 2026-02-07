@@ -87,6 +87,12 @@ enum class FeedEventType (
         type = "critiquebrainz_review",
         icon = R.drawable.feed_review,
     ),
+    THANKS(
+    type = "thanks",
+    icon = R.drawable.feed_love, // reusing existing icon for now
+    isPlayable = false
+),
+
     
     /** In case a new event is added in future that had not been published to the app. */
     UNKNOWN(
@@ -217,6 +223,7 @@ enum class FeedEventType (
                 goToUserPage = goToUserPage,
                 goToArtistPage = goToArtistPage
             )
+            THANKS -> UnknownFeedLayout(event = event)
             UNKNOWN -> UnknownFeedLayout(event = event)
         }
     }
@@ -306,6 +313,8 @@ enum class FeedEventType (
                     }
                 }
             }
+            
+
         
             UNKNOWN -> {
                 Pair(
@@ -483,6 +492,7 @@ enum class FeedEventType (
                 FOLLOW.type -> FOLLOW
                 NOTIFICATION.type -> NOTIFICATION
                 REVIEW.type -> REVIEW
+                THANKS.type -> THANKS
                 else -> UNKNOWN
             }
         
