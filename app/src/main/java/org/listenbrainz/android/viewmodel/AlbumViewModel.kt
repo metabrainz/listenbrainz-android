@@ -1,7 +1,7 @@
 package org.listenbrainz.android.viewmodel
 
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -10,11 +10,10 @@ import kotlinx.coroutines.flow.stateIn
 import org.listenbrainz.android.repository.album.AlbumRepository
 import org.listenbrainz.android.ui.screens.album.AlbumUiState
 import org.listenbrainz.android.util.Utils
-import javax.inject.Inject
 
-@HiltViewModel
-class AlbumViewModel @Inject constructor(
-    private val repository: AlbumRepository
+class AlbumViewModel(
+    private val repository: AlbumRepository,
+    private val ioDispatcher: CoroutineDispatcher
 ) : BaseViewModel<AlbumUiState>() {
     private val albumUIStateFlow: MutableStateFlow<AlbumUiState> = MutableStateFlow(AlbumUiState())
 

@@ -2,25 +2,44 @@ package org.listenbrainz.android.ui.screens.profile.createdforyou
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -28,6 +47,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.valentinilk.shimmer.Shimmer
+import com.valentinilk.shimmer.ShimmerBounds
+import com.valentinilk.shimmer.rememberShimmer
+import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
@@ -44,6 +67,7 @@ import org.listenbrainz.android.ui.screens.feed.RetryButton
 import org.listenbrainz.android.ui.screens.profile.CreatedForTabUIState
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Utils.VerticalSpacer
 import org.listenbrainz.android.util.Utils.formatDurationSeconds
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
@@ -62,14 +86,19 @@ fun CreatedForYouScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val socialUiState by socialViewModel.uiState.collectAsState()
-    CreatedForYouScreen(uiState = uiState,
+    CreatedForYouScreen(
+        uiState = uiState,
         onPlaylistSaveClick = { playlist ->
             userViewModel.saveCreatedForPlaylist(playlist?.getPlaylistMBID()) {
                 scope.launch {
                     snackbarState.showSnackbar(it)
                 }
             }
-        }, onPlayAllClick = {
+        },
+        fetchCreatedForYouPlaylists = {
+            userViewModel.getCreatedForYouPlaylists(refresh = it)
+        },
+        onPlayAllClick = {
             //TODO: Implement this
         }, onShareClick = {
             if (it?.identifier != null) {
@@ -96,11 +125,13 @@ fun CreatedForYouScreen(
     )
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun CreatedForYouScreen(
     uiState: ProfileUiState,
     snackbarState: SnackbarHostState,
     socialUiState: SocialUiState,
+    fetchCreatedForYouPlaylists: suspend (Boolean) -> Unit,
     onPlaylistSaveClick: (UserPlaylist?) -> Unit,
     onPlayAllClick: () -> Unit,
     onShareClick: (UserPlaylist?) -> Unit,
@@ -119,148 +150,262 @@ private fun CreatedForYouScreen(
     val playlistData =
         uiState.createdForTabUIState.createdForYouPlaylistData?.get(selectedPlaylist?.getPlaylistMBID())
 
-    if (uiState.createdForTabUIState.createdForYouPlaylists.isNullOrEmpty()) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(ListenBrainzTheme.paddings.horizontal),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "No playlists found",
-                fontWeight = FontWeight.Medium,
-                color = ListenBrainzTheme.colorScheme.onBackground
-            )
+    val isLoading = uiState.createdForTabUIState.isLoading
+
+    val scope = rememberCoroutineScope()
+
+    val isRefreshing = isLoading
+
+    LaunchedEffect(isRefreshing) {
+        if (selectedPlaylist == null) {
+            selectedPlaylist =
+                if (uiState.createdForTabUIState.createdForYouPlaylists.isNullOrEmpty()) null
+                else uiState.createdForTabUIState.createdForYouPlaylists[0].playlist
         }
-    } else {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            LazyColumn {
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(ListenBrainzTheme.colorScheme.background)
-                            .padding(bottom = 12.dp)
-                    ) {
-                        Spacer(modifier = Modifier.height(32.dp))
-                        PlaylistSelectionCardRow(
-                            modifier = Modifier.padding(vertical = 8.dp),
-                            playlists = uiState.createdForTabUIState.createdForYouPlaylists.map { it.playlist },
-                            selectedPlaylist = selectedPlaylist,
-                            onPlaylistSelect = {
-                                selectedPlaylist = it
-                            },
-                            onSaveClick = onPlaylistSaveClick
-                        )
-                    }
-                }
+    }
 
-                item {
-                    AnimatedContent(
-                        selectedPlaylist,
-                        modifier = Modifier
-                        .background(brush = ListenBrainzTheme.colorScheme.userPageGradient)
-                    ) { playlist ->
-                        if (playlist == null) {
-                            Box(
-                                modifier = Modifier
-                                    .fillParentMaxWidth()
-                                    .padding(
-                                        horizontal = ListenBrainzTheme.paddings.horizontal,
-                                        vertical = 40.dp
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "No playlist selected",
-                                    fontWeight = FontWeight.Medium,
-                                    color = ListenBrainzTheme.colorScheme.onBackground
-                                )
-                            }
-                        } else if (playlistData == null) {
-                            Column(
-                                modifier = Modifier
-                                    .fillParentMaxWidth()
-                                    .padding(
-                                        horizontal = ListenBrainzTheme.paddings.horizontal,
-                                        vertical = 40.dp
-                                    ),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    text = "Playlist data could not be loaded :(",
-                                    fontWeight = FontWeight.Medium,
-                                    color = ListenBrainzTheme.colorScheme.onBackground
-                                )
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isRefreshing,
+        onRefresh = {
+            scope.launch {
+                fetchCreatedForYouPlaylists(true)
+            }
+        }
+    )
 
-                                VerticalSpacer(8.dp)
 
-                                RetryButton {
-                                    onRetryDataFetch(playlist)
+    val shimmerInstance = rememberShimmer(
+        shimmerBounds = ShimmerBounds.View
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pullRefresh(pullRefreshState)
+    ) {
+        if (isRefreshing) {
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                LazyColumn {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(ListenBrainzTheme.colorScheme.background)
+                                .padding(bottom = 12.dp)
+                        ) {
+                            Spacer(modifier = Modifier.height(32.dp))
+                            val listState = rememberLazyListState()
+                            var width by remember { mutableIntStateOf(0) }
+                            val count by remember {
+                                derivedStateOf {
+                                    if (width == 0) {
+                                        return@derivedStateOf 0
+                                    }
+                                    listState.layoutInfo.viewportSize.width / width
                                 }
                             }
-                        } else {
-                            PlaylistHeadingAndDescription(
-                                title = playlistData.title ?: "No title",
-                                tracksCount = playlistData.track.size,
-                                lastUpdatedDate = playlistData.date ?: "No date",
-                                description = playlistData.annotation ?: "No description",
-                                onPlayAllClick = {
-                                    onPlayAllClick()
-                                },
-                                onShareClick = {
-                                    onShareClick(playlist)
+                            LazyRow(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                state = listState
+                            ) {
+                                item(contentType = "shimmer") {
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    ShimmerPlaylistTitleCardItem(
+                                        shimmerInstance,
+                                        modifier = Modifier
+                                            .onSizeChanged {
+                                                width = it.width
+                                            }
+                                    )
                                 }
-                            )
+                                items(count, contentType = { "shimmer" }) { index ->
+                                    ShimmerPlaylistTitleCardItem(shimmerInstance)
+                                    if (index == count - 1) {
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                    }
+                                }
+                            }
                         }
                     }
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(brush = ListenBrainzTheme.colorScheme.userPageGradient)
+                        ) {
+                            ShimmerPlaylistDescriptionItem(shimmerInstance)
+                        }
+                    }
+                    items(5) {
+                        ShimmerPlaylistDataItem(shimmerInstance)
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
                 }
-
-                items(playlistData?.track?.size ?: 0) { trackIndex ->
-                    if (playlistData != null) {
-                        val playlist = playlistData.track[trackIndex]
-                        ListenCardSmallDefault(
-                            modifier = Modifier.padding(
-                                horizontal = ListenBrainzTheme.paddings.horizontal,
-                                vertical = ListenBrainzTheme.paddings.lazyListAdjacent
-                            ),
-                            metadata = (playlist.toMetadata()),
-                            coverArtUrl = getCoverArtUrl(
-                                caaReleaseMbid = playlist.extension.trackExtensionData.additionalMetadata.caaReleaseMbid,
-                                caaId = playlist.extension.trackExtensionData.additionalMetadata.caaId
-                            ),
-                            onDropdownSuccess = { messsage ->
-                                snackbarState.showSnackbar(messsage)
-                            },
-                            onDropdownError = { error ->
-                                snackbarState.showSnackbar(error.toast)
-                            },
-                            goToArtistPage = goToArtistPage,
-                            onClick = {
-                                onTrackClick(playlist)
-                            },
-                            trailingContent = {
-                                Text(
-                                    modifier = Modifier
-                                        .padding(bottom = 4.dp),
-                                    text = formatDurationSeconds(playlist.duration?.div(1000) ?: 0),
-                                    style = TextStyle(
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Medium
-                                    ),
-                                    color = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.8f),
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
+            }
+        } else {
+            if (uiState.createdForTabUIState.createdForYouPlaylists.isNullOrEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(ListenBrainzTheme.paddings.horizontal),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No playlists found",
+                        fontWeight = FontWeight.Medium,
+                        color = ListenBrainzTheme.colorScheme.onBackground
+                    )
+                }
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+                    LazyColumn {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(ListenBrainzTheme.colorScheme.background)
+                                    .padding(bottom = 12.dp)
+                            ) {
+                                Spacer(modifier = Modifier.height(32.dp))
+                                PlaylistSelectionCardRow(
+                                    modifier = Modifier.padding(vertical = 8.dp),
+                                    playlists = uiState.createdForTabUIState.createdForYouPlaylists.map { it.playlist },
+                                    selectedPlaylist = selectedPlaylist,
+                                    onPlaylistSelect = {
+                                        selectedPlaylist = it
+                                    },
+                                    onSaveClick = onPlaylistSaveClick
                                 )
                             }
-                        )
+                        }
+
+                        item {
+                            Log.e(selectedPlaylist,"initial playlist selected")
+                            AnimatedContent(
+                                selectedPlaylist,
+                                modifier = Modifier
+                                    .background(brush = ListenBrainzTheme.colorScheme.userPageGradient)
+                            ) { playlist ->
+                                if (playlist == null) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillParentMaxWidth()
+                                            .padding(
+                                                horizontal = ListenBrainzTheme.paddings.horizontal,
+                                                vertical = 40.dp
+                                            ),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "No playlist selected",
+                                            fontWeight = FontWeight.Medium,
+                                            color = ListenBrainzTheme.colorScheme.onBackground
+                                        )
+                                    }
+                                } else if (playlistData == null) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillParentMaxWidth()
+                                            .padding(
+                                                horizontal = ListenBrainzTheme.paddings.horizontal,
+                                                vertical = 40.dp
+                                            ),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        Text(
+                                            text = "Playlist data could not be loaded :(",
+                                            fontWeight = FontWeight.Medium,
+                                            color = ListenBrainzTheme.colorScheme.onBackground
+                                        )
+
+                                        VerticalSpacer(8.dp)
+
+                                        RetryButton {
+                                            onRetryDataFetch(playlist)
+                                        }
+                                    }
+                                } else {
+                                    PlaylistHeadingAndDescription(
+                                        title = playlistData.title ?: "No title",
+                                        tracksCount = playlistData.track.size,
+                                        lastUpdatedDate = playlistData.date ?: "No date",
+                                        description = playlistData.annotation
+                                            ?: "No description",
+                                        onPlayAllClick = {
+                                            onPlayAllClick()
+                                        },
+                                        onShareClick = {
+                                            onShareClick(playlist)
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        items(playlistData?.track?.size ?: 0) { trackIndex ->
+                            if (playlistData != null) {
+                                val playlist = playlistData.track[trackIndex]
+                                ListenCardSmallDefault(
+                                    modifier = Modifier.padding(
+                                        horizontal = ListenBrainzTheme.paddings.horizontal,
+                                        vertical = ListenBrainzTheme.paddings.lazyListAdjacent
+                                    ),
+                                    metadata = (playlist.toMetadata()),
+                                    coverArtUrl = getCoverArtUrl(
+                                        caaReleaseMbid = playlist.extension.trackExtensionData.additionalMetadata.caaReleaseMbid,
+                                        caaId = playlist.extension.trackExtensionData.additionalMetadata.caaId
+                                    ),
+                                    onDropdownSuccess = { messsage ->
+                                        snackbarState.showSnackbar(messsage)
+                                    },
+                                    onDropdownError = { error ->
+                                        snackbarState.showSnackbar(error.toast)
+                                    },
+                                    goToArtistPage = goToArtistPage,
+                                    onClick = {
+                                        onTrackClick(playlist)
+                                    },
+                                    trailingContent = {
+                                        Text(
+                                            modifier = Modifier
+                                                .padding(bottom = 4.dp),
+                                            text = formatDurationSeconds(
+                                                playlist.duration?.div(1000) ?: 0
+                                            ),
+                                            style = TextStyle(
+                                                fontSize = 12.sp,
+                                                fontWeight = FontWeight.Medium
+                                            ),
+                                            color = ListenBrainzTheme.colorScheme.listenText.copy(
+                                                alpha = 0.8f
+                                            ),
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
+        PullRefreshIndicator(
+            modifier = Modifier.align(Alignment.TopCenter),
+            refreshing = isRefreshing,
+            contentColor = ListenBrainzTheme.colorScheme.lbSignatureInverse,
+            backgroundColor = ListenBrainzTheme.colorScheme.level1,
+            state = pullRefreshState
+        )
     }
 
     ErrorBar(error = socialUiState.error, onErrorShown = onErrorShown)
@@ -272,6 +417,144 @@ private fun CreatedForYouScreen(
     )
 }
 
+@Composable
+fun ShimmerPlaylistTitleCardItem(
+    shimmer: Shimmer,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .size(140.dp)
+            .clip(shape = ListenBrainzTheme.shapes.listenCardSmall)
+            .shimmer(shimmer)
+            .background(
+                color = Color.Gray.copy(alpha = 0.8f),
+                shape = ListenBrainzTheme.shapes.listenCardSmall
+            )
+    )
+}
+
+@Composable
+fun ShimmerPlaylistDescriptionItem(shimmer: Shimmer) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(30.dp)
+                .shimmer(shimmer)
+                .background(
+                    color = Color.Gray.copy(alpha = 0.8f),
+                    RoundedCornerShape(4.dp)
+                )
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(
+            modifier = Modifier
+                .width(300.dp)
+                .height(16.dp)
+                .shimmer(shimmer)
+                .background(
+                    color = Color.Gray.copy(alpha = 0.8f),
+                    RoundedCornerShape(4.dp)
+                )
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .shimmer(shimmer)
+                .background(
+                    color = Color.Gray.copy(alpha = 0.8f),
+                    RoundedCornerShape(4.dp)
+                )
+        )
+        Spacer(modifier = Modifier.height(20.dp))
+        Box(
+            modifier = Modifier
+                .shimmer(shimmer)
+                .background(
+                    color = Color.Gray.copy(alpha = 0.8f),
+                    CircleShape
+                )
+                .padding(vertical = 18.dp, horizontal = 50.dp)
+                .align(alignment = Alignment.End)
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+    }
+}
+
+@Composable
+fun ShimmerPlaylistDataItem(shimmer: Shimmer) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(ListenBrainzTheme.sizes.listenCardHeight)
+            .padding(horizontal = 7.dp)
+            .background(
+                Color.Gray.copy(alpha = 0.1f),
+                RoundedCornerShape(6.dp)
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .height(72.dp)
+                .width(60.dp)
+                .shimmer(shimmer)
+                .background(
+                    Color.Gray.copy(alpha = 0.8f),
+                    RoundedCornerShape(
+                        topStart = 6.dp,
+                        bottomStart = 6.dp
+                    )
+                )
+        )
+        Spacer(modifier = Modifier.padding(6.dp))
+        Column(
+            modifier = Modifier.fillMaxHeight(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(10.dp)
+                    .shimmer(shimmer)
+                    .background(
+                        Color.Gray.copy(alpha = 0.8f),
+                        RoundedCornerShape(2.dp)
+                    )
+            )
+            Spacer(modifier = Modifier.height(5.dp))
+            Box(
+                modifier = Modifier
+                    .width(80.dp)
+                    .height(8.dp)
+                    .shimmer(shimmer)
+                    .background(
+                        Color.Gray.copy(alpha = 0.8f),
+                        RoundedCornerShape(2.dp)
+                    )
+            )
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Box(
+            modifier = Modifier
+                .padding(end = 26.dp)
+                .width(80.dp)
+                .height(10.dp)
+                .shimmer(shimmer)
+                .background(
+                    Color.Gray.copy(alpha = 0.8f),
+                    RoundedCornerShape(2.dp)
+                )
+        )
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
@@ -327,6 +610,7 @@ fun CreatedForScreenPreview() {
                     )
                 )
             ),
+            fetchCreatedForYouPlaylists = {},
             snackbarState = SnackbarHostState(),
             socialUiState = SocialUiState(),
             onPlaylistSaveClick = {},

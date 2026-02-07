@@ -108,36 +108,38 @@ open class ListenSubmissionState {
         newTrack: PlayingTrack,
         isMediaPlaying: Boolean
     ) {
-        if (playingTrack.isOutdated(newTrack)) {
-            submissionTimer.stop()
-            trackCompletionTimer.stop()
-            
-            if (playingTrack.isSimilarTo(newTrack) && newTrack.isDurationAbsent()) {
-                playingTrack = newTrack.apply {
-                    duration = playingTrack.duration
-                }
-            } else {
-                playingTrack = newTrack
-            }
-            
-            afterMetadataSet()
-        } else if (playingTrack.isSimilarTo(newTrack)
-            && playingTrack.isDurationAbsent()
-            && newTrack.isDurationPresent()
-        ) {
-            // Update duration as it was absent before
-            playingTrack.duration = newTrack.duration
-            submissionTimer.extendDuration { secondsPassed ->
-                newTrack.duration / 2 - secondsPassed
-            }
-            trackCompletionTimer.extendDuration { secondsPassed ->
-                newTrack.duration - secondsPassed
-            }
+        if (newTrack.isValid) {
+            if (playingTrack.isOutdated(newTrack)) {
+                submissionTimer.stop()
+                trackCompletionTimer.stop()
 
-            // Force submit a playing now because have updated metadata now.
-            Log.d("Force submitting playing now: ${playingTrack.id}")
-            playingTrack.playingNowSubmitted = false
-            submitPlayingNow()
+                if (playingTrack.isSimilarTo(newTrack) && newTrack.isDurationAbsent()) {
+                    playingTrack = newTrack.apply {
+                        duration = playingTrack.duration
+                    }
+                } else {
+                    playingTrack = newTrack
+                }
+
+                afterMetadataSet()
+            } else if (playingTrack.isSimilarTo(newTrack)
+                && playingTrack.isDurationAbsent()
+                && newTrack.isDurationPresent()
+            ) {
+                // Update duration as it was absent before
+                playingTrack.duration = newTrack.duration
+                submissionTimer.extendDuration { secondsPassed ->
+                    newTrack.duration / 2 - secondsPassed
+                }
+                trackCompletionTimer.extendDuration { secondsPassed ->
+                    newTrack.duration - secondsPassed
+                }
+
+                // Force submit a playing now because have updated metadata now.
+                Log.d("Force submitting playing now: ${playingTrack.id}")
+                playingTrack.playingNowSubmitted = false
+                submitPlayingNow()
+            }
         }
 
         alertPlaybackStateChanged(isMediaPlaying)

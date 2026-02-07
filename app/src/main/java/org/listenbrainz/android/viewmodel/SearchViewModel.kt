@@ -1,7 +1,6 @@
 package org.listenbrainz.android.viewmodel
 
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.FlowPreview
@@ -17,21 +16,17 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.di.DefaultDispatcher
-import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.SearchUiState
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.model.UserListUiState
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.util.Resource
-import javax.inject.Inject
 
-@HiltViewModel
-class SearchViewModel @Inject constructor(
+class SearchViewModel(
     private val repository: SocialRepository,
-    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val ioDispatcher: CoroutineDispatcher,
+    private val defaultDispatcher: CoroutineDispatcher,
 ) : FollowUnfollowModel<SearchUiState<UserListUiState>>(repository, ioDispatcher) {
     
     private val inputQueryFlow = MutableStateFlow("")

@@ -11,5 +11,8 @@ play_config.json
 .kotlin
 /spotify-app-remote/build
 /app/release
+
+# Sentry Config File
+sentry.properties
 /app/.idea
 /app/github

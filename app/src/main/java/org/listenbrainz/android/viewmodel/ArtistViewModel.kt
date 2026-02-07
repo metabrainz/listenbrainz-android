@@ -1,7 +1,7 @@
 package org.listenbrainz.android.viewmodel
 
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -10,11 +10,10 @@ import kotlinx.coroutines.flow.stateIn
 import org.listenbrainz.android.repository.artist.ArtistRepository
 import org.listenbrainz.android.ui.screens.artist.ArtistUIState
 import org.listenbrainz.android.util.LinkUtils.parseLinks
-import javax.inject.Inject
 
-@HiltViewModel
-class ArtistViewModel @Inject constructor(
-    private val repository: ArtistRepository
+class ArtistViewModel(
+    private val repository: ArtistRepository,
+    private val ioDispatcher: CoroutineDispatcher
 ) : BaseViewModel<ArtistUIState>() {
     private val artistUIStateFlow: MutableStateFlow<ArtistUIState> = MutableStateFlow(ArtistUIState())
 

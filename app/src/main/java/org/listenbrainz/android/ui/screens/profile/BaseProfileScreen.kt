@@ -1,11 +1,5 @@
 package org.listenbrainz.android.ui.screens.profile
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -37,17 +31,14 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.flow.collectLatest
+import org.koin.androidx.compose.koinViewModel
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.createdforyou.CreatedForYouScreen
 import org.listenbrainz.android.ui.screens.profile.listens.ListensScreen
 import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistScreen
@@ -57,7 +48,6 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_orange
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.new_app_bg_light
-import org.listenbrainz.android.util.Utils.LaunchedEffectUnit
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
 import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
@@ -66,16 +56,16 @@ import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
 fun BaseProfileScreen(
-    username: String?,
+    username: String,
     snackbarState: SnackbarHostState,
     scrollRequestState: Boolean,
     onScrollToTop: (suspend () -> Unit) -> Unit,
-    viewModel: UserViewModel = hiltViewModel(),
+    viewModel: UserViewModel = koinViewModel(),
     goToUserProfile: (String) -> Unit,
-    feedViewModel: FeedViewModel = hiltViewModel(),
-    listensViewModel: ListensViewModel = hiltViewModel(),
-    socialViewModel: SocialViewModel = hiltViewModel(),
-    playlistDataViewModel: PlaylistDataViewModel = hiltViewModel(),
+    feedViewModel: FeedViewModel = koinViewModel(),
+    listensViewModel: ListensViewModel = koinViewModel(),
+    socialViewModel: SocialViewModel = koinViewModel(),
+    playlistDataViewModel: PlaylistDataViewModel = koinViewModel(),
     goToPlaylist: (String) -> Unit,
     goToArtistPage: (String) -> Unit
 ) {
@@ -87,20 +77,10 @@ fun BaseProfileScreen(
         }
     }
 
-    fun ProfileScreenTab.isLoading(): Boolean {
-        return when (this) {
-            ProfileScreenTab.LISTENS -> uiState.listensTabUiState.isLoading
-            ProfileScreenTab.STATS -> uiState.statsTabUIState.isLoading
-            ProfileScreenTab.TASTE -> uiState.tasteTabUIState.isLoading
-            ProfileScreenTab.PLAYLISTS -> uiState.playlistTabUIState.isLoading
-            ProfileScreenTab.CREATED_FOR_YOU -> uiState.createdForTabUIState.isLoading
-        }
-    }
-
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(username) {
-        if (!username.isNullOrEmpty())
+        if (username.isNotEmpty())
             viewModel.updateUser(username)
     }
 
@@ -157,14 +137,12 @@ fun BaseProfileScreen(
                                 contentDescription = "",
                                 tint = new_app_bg_light,
                                 modifier = Modifier.clickable {
-                                    if (username != null) {
-                                        goToUserProfile(username)
-                                    }
+                                    goToUserProfile(username)
                                 })
                         }
                     }
                     Text(
-                        username ?: "", color = when (uiState.isSelf) {
+                        username, color = when (uiState.isSelf) {
                             true -> Color.White
                             false -> Color.Black
                         }, modifier = Modifier.padding(start = 8.dp)
@@ -227,23 +205,6 @@ fun BaseProfileScreen(
             }
         }
 
-        @Composable
-        fun WithLoader(tab: ProfileScreenTab, content: @Composable () -> Unit) {
-            AnimatedContent(
-                targetState = tab.isLoading(),
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-                transitionSpec = {
-                    fadeIn() togetherWith fadeOut()
-                }
-            ) { isLoading ->
-                if (isLoading) {
-                    LoadingAnimation()
-                } else {
-                    content()
-                }
-            }
-        }
 
         HorizontalPager(
             modifier = Modifier.fillMaxSize(),
@@ -253,7 +214,7 @@ fun BaseProfileScreen(
             key = { ProfileScreenTab.entries[it] }
         ) { index ->
             when (index) {
-                ProfileScreenTab.LISTENS.index -> WithLoader(ProfileScreenTab.LISTENS) {
+                ProfileScreenTab.LISTENS.index ->
                     ListensScreen(
                         scrollRequestState = false,
                         userViewModel = viewModel,
@@ -265,9 +226,9 @@ fun BaseProfileScreen(
                         goToArtistPage = goToArtistPage,
                         goToUserProfile = goToUserProfile
                     )
-                }
 
-                ProfileScreenTab.STATS.index -> WithLoader(ProfileScreenTab.STATS) {
+
+                ProfileScreenTab.STATS.index ->
                     StatsScreen(
                         username = username,
                         snackbarState = snackbarState,
@@ -275,9 +236,9 @@ fun BaseProfileScreen(
                         viewModel = viewModel,
                         goToArtistPage = goToArtistPage
                     )
-                }
 
-                ProfileScreenTab.TASTE.index -> WithLoader(ProfileScreenTab.TASTE) {
+
+                ProfileScreenTab.TASTE.index ->
                     TasteScreen(
                         snackbarState = snackbarState,
                         socialViewModel = socialViewModel,
@@ -285,25 +246,25 @@ fun BaseProfileScreen(
                         viewModel = viewModel,
                         goToArtistPage = goToArtistPage
                     )
-                }
 
-                ProfileScreenTab.PLAYLISTS.index -> WithLoader(ProfileScreenTab.PLAYLISTS) {
+
+                ProfileScreenTab.PLAYLISTS.index ->
                     UserPlaylistScreen(
                         snackbarState = snackbarState,
                         userViewModel = viewModel,
                         playlistViewModel = playlistDataViewModel,
                         goToPlaylist
                     )
-                }
 
-                ProfileScreenTab.CREATED_FOR_YOU.index -> WithLoader(ProfileScreenTab.CREATED_FOR_YOU) {
+
+                ProfileScreenTab.CREATED_FOR_YOU.index ->
                     CreatedForYouScreen(
                         snackbarState = snackbarState,
                         userViewModel = viewModel,
                         goToArtistPage = goToArtistPage,
                         socialViewModel = socialViewModel
                     )
-                }
+
             }
         }
     }

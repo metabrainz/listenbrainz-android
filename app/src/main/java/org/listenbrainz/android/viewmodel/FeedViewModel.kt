@@ -8,7 +8,6 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -24,8 +23,6 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.di.DefaultDispatcher
-import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventDeletionData
@@ -48,17 +45,15 @@ import org.listenbrainz.android.ui.screens.feed.SimilarListensPagingSource
 import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource
-import javax.inject.Inject
 
-@HiltViewModel
-class FeedViewModel @Inject constructor(
+class FeedViewModel(
     private val feedRepository: FeedRepository,
     private val socialRepository: SocialRepository,
     private val listensRepository: ListensRepository,
     private val appPreferences: AppPreferences,
     private val remotePlaybackHandler: RemotePlaybackHandler,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
+    private val defaultDispatcher: CoroutineDispatcher
 ): BaseViewModel<FeedUiState>() {
     
     // Search follower flow
@@ -170,13 +165,15 @@ class FeedViewModel @Inject constructor(
     
     private fun playFromYoutubeMusic(event: FeedEvent) {
         viewModelScope.launch {
-            if (event.metadata.trackMetadata != null){
+            if (event.metadata.trackMetadata != null
+                && event.metadata.trackMetadata.trackName != null
+            ){
                 remotePlaybackHandler.apply {
                     val result = playOnYoutube {
                         withContext(ioDispatcher) {
                             searchYoutubeMusicVideoId(
                                 event.metadata.trackMetadata.trackName,
-                                event.metadata.trackMetadata.artistName
+                                event.metadata.trackMetadata.artistName.orEmpty()
                             )
                         }
                     }
@@ -184,12 +181,12 @@ class FeedViewModel @Inject constructor(
                     if (result.status == Resource.Status.SUCCESS){
                         Log.d("Play on youtube music successful")
                     } else {
-                        emitError(ResponseError.REMOTE_PLAYER_ERROR.apply { actualResponse = "Could not play the requested track." })
+                        emitError(ResponseError.RemotePlayerError(actualResponse = "Could not play the requested track."))
                     }
                 }
             } else {
                 // Could not play song.
-                emitError(ResponseError.REMOTE_PLAYER_ERROR.apply { actualResponse = "Could not play the requested track." })
+                emitError(ResponseError.RemotePlayerError(actualResponse = "Could not play the requested track."))
             }
         }
     }
@@ -299,7 +296,7 @@ class FeedViewModel @Inject constructor(
             val currentState = isHiddenMap[data.eventId!!.toInt()]
             isHiddenMap[data.eventId!!.toInt()] = currentState == null || currentState == false
         } catch (e: Exception) {
-            errorFlow.emit(ResponseError.UNKNOWN)
+            errorFlow.emit(ResponseError.Unknown())
             e.printStackTrace()
         }
     }

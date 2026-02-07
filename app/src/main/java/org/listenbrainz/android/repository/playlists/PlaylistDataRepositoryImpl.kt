@@ -1,9 +1,9 @@
 package org.listenbrainz.android.repository.playlists
 
-import jakarta.inject.Inject
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.isSuccess
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.playlist.AddCopyPlaylistResponse
 import org.listenbrainz.android.model.playlist.DeleteTracks
@@ -19,20 +19,19 @@ import org.listenbrainz.android.service.PlaylistService
 import org.listenbrainz.android.service.UserService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.parseResponse
-import retrofit2.awaitResponse
 
-class PlaylistDataRepositoryImpl @Inject constructor(
+class PlaylistDataRepositoryImpl(
     private val playlistService: PlaylistService,
     private val userService: UserService,
     private val mbService: MBService,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher
 ) : PlaylistDataRepository {
 
     override suspend fun fetchPlaylist(playlistMbid: String?): Resource<PlaylistPayload?> =
         withContext(ioDispatcher) {
             parseResponse {
-                if (playlistMbid.isNullOrEmpty()) return@withContext ResponseError.BAD_REQUEST.asResource()
-                playlistService.getPlaylist(playlistMbid)
+                failIf(playlistMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
+                playlistService.getPlaylist(playlistMbid!!)
             }
         }
 
@@ -40,35 +39,33 @@ class PlaylistDataRepositoryImpl @Inject constructor(
     override suspend fun copyPlaylist(playlistMbid: String?): Resource<AddCopyPlaylistResponse?> =
         withContext(ioDispatcher) {
             parseResponse {
-                if (playlistMbid.isNullOrEmpty()) return@withContext ResponseError.BAD_REQUEST.asResource()
-                playlistService.copyPlaylist(playlistMbid)
+                failIf(playlistMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
+                playlistService.copyPlaylist(playlistMbid!!)
             }
         }
 
     override suspend fun deletePlaylist(playlistMbid: String?): Resource<Unit> =
         withContext(ioDispatcher) {
             parseResponse {
-                if (playlistMbid.isNullOrEmpty()) return@withContext ResponseError.BAD_REQUEST.asResource()
-                playlistService.deletePlaylist(playlistMbid)
+                failIf(playlistMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
+                playlistService.deletePlaylist(playlistMbid!!)
             }
         }
 
     override suspend fun getPlaylistCoverArt(
         playlistMBID: String,
         layout: Int
-    ): Resource<String?>  = withContext(ioDispatcher) {
-        //First try if cover art of dimension 3 is available, then 2 and then 1
+    ): Resource<String?> = withContext(ioDispatcher) {
+        // First try if cover art of dimension 3 is available, then 2 and then 1
         val dimensions = listOf(3, 2, 1)
         return@withContext try {
-                for (dimension in dimensions) {
-                        val response =
-                            playlistService.getPlaylistCoverArt(playlistMBID, dimension, layout)
-                                .awaitResponse()
-                        if (response.isSuccessful) {
-                            val svgData = response.body()?.string()
-                            return@withContext Resource(Resource.Status.SUCCESS, svgData, null)
-                        }
-                    }
+            for (dimension in dimensions) {
+                val response = playlistService.getPlaylistCoverArt(playlistMBID, dimension, layout)
+                if (response.status.isSuccess()) {
+                    val svgData = response.bodyAsText()
+                    return@withContext Resource(Resource.Status.SUCCESS, svgData, null)
+                }
+            }
             Resource(Resource.Status.FAILED, null)
         } catch (e: Exception) {
             Resource(Resource.Status.FAILED, null)
@@ -79,8 +76,7 @@ class PlaylistDataRepositoryImpl @Inject constructor(
     override suspend fun addPlaylist(playlistPayload: PlaylistPayload): Resource<AddCopyPlaylistResponse?> =
         withContext(ioDispatcher) {
             parseResponse {
-                if (playlistPayload.playlist.title.isNullOrEmpty())
-                    return@withContext ResponseError.BAD_REQUEST.asResource()
+                failIf(playlistPayload.playlist.title.isNullOrEmpty()) { ResponseError.BadRequest() }
                 playlistService.createPlaylist(playlistPayload)
             }
         }
@@ -90,13 +86,10 @@ class PlaylistDataRepositoryImpl @Inject constructor(
         playlistPayload: PlaylistPayload,
         playlistMbid: String?
     ): Resource<EditPlaylistResponse?> =
-        withContext(
-            ioDispatcher
-        ) {
+        withContext(ioDispatcher) {
             parseResponse {
-                if (playlistMbid.isNullOrEmpty())
-                    return@withContext ResponseError.BAD_REQUEST.asResource()
-                playlistService.editPlaylist(playlistPayload, playlistMbid)
+                failIf(playlistMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
+                playlistService.editPlaylist(playlistPayload, playlistMbid!!)
             }
         }
 
@@ -111,7 +104,7 @@ class PlaylistDataRepositoryImpl @Inject constructor(
                 else if (!searchQuery.isNullOrEmpty())
                     mbService.searchRecording(searchQuery)
                 else
-                    return@withContext ResponseError.BAD_REQUEST.asResource()
+                    throw org.listenbrainz.android.util.Utils.PreEmptiveBadRequestException(ResponseError.BadRequest())
             }
         }
 
@@ -122,9 +115,8 @@ class PlaylistDataRepositoryImpl @Inject constructor(
     ): Resource<EditPlaylistResponse?> =
         withContext(ioDispatcher) {
             parseResponse {
-                if (playlistMbid.isNullOrEmpty())
-                    return@withContext ResponseError.BAD_REQUEST.asResource()
-                playlistService.moveTrack(playlistMbid, moveTrack)
+                failIf(playlistMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
+                playlistService.moveTrack(playlistMbid!!, moveTrack)
             }
         }
 
@@ -134,10 +126,9 @@ class PlaylistDataRepositoryImpl @Inject constructor(
     ): Resource<EditPlaylistResponse?> =
         withContext(ioDispatcher) {
             parseResponse {
-                if (playlistTracks.isEmpty() || playlistMbid.isNullOrEmpty())
-                    return@withContext ResponseError.BAD_REQUEST.asResource()
+                failIf(playlistTracks.isEmpty() || playlistMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
                 playlistService.addTracks(
-                    playlistMbid,
+                    playlistMbid!!,
                     PlaylistPayload(PlaylistData(track = playlistTracks))
                 )
             }
@@ -149,22 +140,21 @@ class PlaylistDataRepositoryImpl @Inject constructor(
     ): Resource<EditPlaylistResponse?> =
         withContext(ioDispatcher) {
             parseResponse {
-                if (playlistMbid.isNullOrEmpty())
-                    return@withContext ResponseError.BAD_REQUEST.asResource()
-                playlistService.deleteTracks(playlistMbid, deleteTracks)
+                failIf(playlistMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
+                playlistService.deleteTracks(playlistMbid!!, deleteTracks)
             }
         }
 
     override suspend fun getUserPlaylists(username: String?, offset: Int, count: Int): Resource<UserPlaylistPayload> {
         return parseResponse {
-            if(username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
+            failIf(username.isNullOrEmpty()) { ResponseError.BadRequest() }
             userService.getUserPlaylists(username, offset, count)
         }
     }
 
     override suspend fun getUserCollabPlaylists(username: String?, offset: Int, count: Int): Resource<UserPlaylistPayload> {
         return parseResponse {
-            if (username.isNullOrEmpty()) return ResponseError.BAD_REQUEST.asResource()
+            failIf(username.isNullOrEmpty()) { ResponseError.BadRequest() }
             userService.getUserCollabPlaylists(username, offset, count)
         }
     }

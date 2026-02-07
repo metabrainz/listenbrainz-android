@@ -1,6 +1,6 @@
 package org.listenbrainz.sharedtest.utils
 
-import org.junit.Assert.fail
+import kotlin.test.fail
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -21,7 +21,7 @@ object EntityTestUtils {
             }
         } catch (e: IOException) {
             e.printStackTrace()
-            fail()
+            fail("Failed to load resource: $resource")
         }
         return builder.toString()
     }

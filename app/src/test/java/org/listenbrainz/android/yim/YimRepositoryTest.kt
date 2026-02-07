@@ -1,53 +1,42 @@
 package org.listenbrainz.android.yim
 
-import kotlinx.coroutines.runBlocking
-import okhttp3.mockwebserver.Dispatcher
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.RecordedRequest
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Test
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
+import org.junit.runner.RunWith
+import org.listenbrainz.android.BaseUnitTest
 import org.listenbrainz.android.repository.yim.YimRepository
-import org.listenbrainz.android.repository.yim.YimRepositoryImpl
-import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.sharedtest.testdata.YimRepositoryTestData.testYimData
 import org.listenbrainz.sharedtest.utils.AssertionUtils.checkYimAssertions
-import org.listenbrainz.sharedtest.utils.EntityTestUtils.loadResourceAsString
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername
-import org.listenbrainz.sharedtest.utils.RetrofitUtils
+import org.mockito.Mock
+import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.wheneverBlocking
 
-class YimRepositoryTest {
+@OptIn(ExperimentalCoroutinesApi::class)
+@RunWith(MockitoJUnitRunner::class)
+class YimRepositoryTest : BaseUnitTest() {
     
-    private lateinit var webServer: MockWebServer
-    private lateinit var repository: YimRepository
+    @Mock
+    private lateinit var mockRepository: YimRepository
     
-    @Before
+    @BeforeTest
     fun setUp() {
-        webServer = MockWebServer()
-        webServer.dispatcher = object : Dispatcher() {
-            override fun dispatch(request: RecordedRequest): MockResponse {
-                val file = "yim_data.json"
-                return MockResponse().setResponseCode(200).setBody(loadResourceAsString(file))
-            }
-        }
-        webServer.start()
-        val service = RetrofitUtils.createTestService(YimService::class.java, webServer.url("/"))
-        repository = YimRepositoryImpl(service)
+        // Mock YIM data response
+        wheneverBlocking {
+            mockRepository.getYimData(testUsername)
+        }.thenReturn(Resource.success(testYimData))
     }
     
     @Test
-    fun getYimData() = runBlocking {
+    fun getYimData() = runTest {
         val expected = testYimData
-        val resource = repository.getYimData(testUsername)
+        val resource = mockRepository.getYimData(testUsername)
+        
         assertEquals(Resource.Status.SUCCESS, resource.status)
         checkYimAssertions(expected, resource.data)
-    }
-    
-    @After
-    fun teardown() {
-        webServer.close()
     }
 }

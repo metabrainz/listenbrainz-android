@@ -1,5 +1,6 @@
 package org.listenbrainz.android.util
 
+import kotlinx.serialization.Serializable
 import org.listenbrainz.android.util.Constants.SPOTIFY_PACKAGE_NAME
 
 object Constants {
@@ -19,7 +20,7 @@ object Constants {
     const val MB_BASE_URL = "https://musicbrainz.org/"
     const val CB_BASE_URL = "https://critiquebrainz.org/"
 
-    const val GITHUB_API_BASE_URL = " https://api.github.com/repos/metabrainz/listenbrainz-android/"
+    const val GITHUB_API_BASE_URL = "https://api.github.com/repos/metabrainz/listenbrainz-android/"
 
     // App update constants
     const val VERSION_CHECK_DURATION = 1
@@ -43,6 +44,7 @@ object Constants {
         const val PREFERENCE_LAST_VERSION_CHECK_LAUNCH_COUNT = "last_version_check_launch_count"
         const val PREFERENCE_LAST_UPDATE_PROMPT_LAUNCH_COUNT = "last_update_prompt_launch_count"
         const val PREFERENCE_DOWNLOAD_ID = "download_id"
+        const val PREFERENCE_NAV_ORDER = "bottom_nav_order"
         const val LINKED_SERVICES = "LINKED_SERVICES"
         const val USERNAME = "username"
         const val CURRENT_PLAYABLE = "CURRENT_PLAYABLE"
@@ -60,6 +62,7 @@ object Constants {
     
 }
 
+@Serializable
 enum class LinkedService(val code: String, val packageName: String? = null) {
     
     SPOTIFY("spotify", SPOTIFY_PACKAGE_NAME),

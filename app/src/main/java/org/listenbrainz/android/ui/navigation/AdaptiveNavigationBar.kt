@@ -52,6 +52,7 @@ import org.listenbrainz.android.viewmodel.ListeningNowUIState
 @Composable
 fun AdaptiveNavigationBar(
     modifier: Modifier = Modifier,
+    items: List<AppNavigationItem>?,
     navController: NavController = rememberNavController(),
     backgroundColor: Color = ListenBrainzTheme.colorScheme.nav,
     contentColor: Color? = null,
@@ -59,18 +60,11 @@ fun AdaptiveNavigationBar(
     scrollToTop: () -> Unit,
     username: String?,
     isLandscape: Boolean,
-    isAudioPermissionGranted: Boolean,
     currentlyPlayingSong: Song,
     listeningNowUIState: ListeningNowUIState,
     songList: List<Song>,
     searchBarState: SearchBarState,
 ) {
-    val items = listOf(
-        AppNavigationItem.Feed,
-        AppNavigationItem.Explore,
-        AppNavigationItem.BrainzPlayer,
-        AppNavigationItem.Profile
-    ).filter { isAudioPermissionGranted ||  it != AppNavigationItem.BrainzPlayer  }
     val coroutineScope = rememberCoroutineScope()
 
     @Composable
@@ -141,10 +135,10 @@ fun AdaptiveNavigationBar(
     //composable with common navigation logic
     @Composable
     fun CommonNavigationLogic(scope: RowScope? = null) {
-        items.forEach { item ->
+        items?.forEach { item ->
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
-            val selected = currentDestination?.route?.startsWith("${item.route}/") == true ||
+            val selected = currentDestination?.route?.startsWith(item.route) == true ||
                     currentDestination?.route == item.route
 
             NavigationContent(
@@ -173,8 +167,7 @@ fun AdaptiveNavigationBar(
 
                     when (item.route) {
                         AppNavigationItem.Profile.route -> {
-                            val profileRoute = AppNavigationItem.Profile.route +
-                                    if (!username.isNullOrBlank()) "/${username}" else ""
+                            val profileRoute = AppNavigationItem.Profile.withUserArg(username.orEmpty())
                             navController.navigate(profileRoute) {
                                 // Avoid building large backstack
                                 popUpTo(navController.graph.findStartDestination().id) {
@@ -253,10 +246,10 @@ fun AdaptiveNavigationBarPreview() {
         scrollToTop = {},
         username = "pranavkonidena",
         isLandscape = true,
-        isAudioPermissionGranted = true,
         currentlyPlayingSong = Song(),
         listeningNowUIState = ListeningNowUIState(),
         songList = emptyList(),
-        searchBarState = rememberSearchBarState()
+        searchBarState = rememberSearchBarState(),
+        items = BottomNavDefaults.items()
     )
 }

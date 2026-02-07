@@ -1,12 +1,14 @@
 package org.listenbrainz.android.model.artist
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class SimilarArtists (
-    @SerializedName("artists")
+    @SerialName("artists")
     val artists: List<SimilarArtist> = listOf(),
-    @SerializedName("topRecordingColor")
+    @SerialName("topRecordingColor")
     val topRecordingColor : ReleaseColor? = null,
-    @SerializedName("topReleaseGroupColor")
+    @SerialName("topReleaseGroupColor")
     val topReleaseGroupColor : ReleaseColor? = null
 )

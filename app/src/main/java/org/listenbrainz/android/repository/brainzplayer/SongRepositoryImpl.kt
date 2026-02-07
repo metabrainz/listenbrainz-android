@@ -7,11 +7,8 @@ import org.listenbrainz.android.model.dao.SongDao
 import org.listenbrainz.android.util.SongsData
 import org.listenbrainz.android.util.Transformer.toSong
 import org.listenbrainz.android.util.Transformer.toSongEntity
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class SongRepositoryImpl @Inject constructor(
+class SongRepositoryImpl(
     private val songDao: SongDao
 ) : SongRepository {
     override fun getSongsStream(): Flow<List<Song>> =

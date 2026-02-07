@@ -12,11 +12,13 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.net.toUri
-import coil.imageLoader
-import coil.request.ErrorResult
-import coil.request.ImageRequest
-import coil.request.SuccessResult
-import coil.size.Scale
+import coil3.imageLoader
+import coil3.request.ErrorResult
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import coil3.request.allowHardware
+import coil3.size.Scale
+import coil3.toBitmap
 import com.google.android.exoplayer2.MediaMetadata
 import com.google.android.exoplayer2.util.MimeTypes
 import kotlinx.coroutines.Dispatchers
@@ -139,7 +141,7 @@ object BrainzPlayerExtensions {
             .build()
 
         when (val result = imageRequest.context.imageLoader.execute(imageRequest)) {
-            is SuccessResult -> result.drawable.toBitmap()
+            is SuccessResult -> result.image.toBitmap()
             is ErrorResult -> R.drawable.ic_listenbrainz_logo_no_text.bitmap(context)
         }
     }
@@ -152,7 +154,7 @@ object BrainzPlayerExtensions {
             .build()
 
         when (val result = imageRequest.context.imageLoader.execute(imageRequest)) {
-            is SuccessResult -> result.drawable.toBitmap()
+            is SuccessResult -> result.image.toBitmap()
             is ErrorResult -> BitmapFactory.decodeResource(context.resources, R.drawable.ic_listenbrainz_logo_no_text)
         }
     }

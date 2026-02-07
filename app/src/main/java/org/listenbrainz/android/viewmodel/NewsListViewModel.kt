@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -14,10 +14,11 @@ import org.listenbrainz.android.model.BlogPost
 import org.listenbrainz.android.repository.blog.BlogRepository
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Resource.Status.SUCCESS
-import javax.inject.Inject
 
-@HiltViewModel
-class NewsListViewModel @Inject constructor(val repository: BlogRepository) : ViewModel() {
+class NewsListViewModel(
+    private val repository: BlogRepository,
+    private val ioDispatcher: CoroutineDispatcher
+) : ViewModel() {
     var isLoading: Boolean  by mutableStateOf(true)
     private val _blogPostsFlow = MutableStateFlow(emptyList<BlogPost>())
     val blogPostsFlow = _blogPostsFlow.asStateFlow()

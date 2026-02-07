@@ -1,16 +1,18 @@
 package org.listenbrainz.android.model.user
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.TrackMetadata
 
+@Serializable
 data class UserFeedbackEntry(
-    @SerializedName("created") val created: Long? = 0,
-    @SerializedName("recording_mbid") val recordingMBID: String? = null,
-    @SerializedName("recording_msid") val recordingMSID: String? = null,
-    @SerializedName("score") val score: Int? = null,
-    @SerializedName("track_metadata") val trackMetadata: TrackMetadata? = null,
-    @SerializedName("user_id")        val userId: String? = null
+    @SerialName("created") val created: Long? = 0,
+    @SerialName("recording_mbid") val recordingMBID: String? = null,
+    @SerialName("recording_msid") val recordingMSID: String? = null,
+    @SerialName("score") val score: Int? = null,
+    @SerialName("track_metadata") val trackMetadata: TrackMetadata? = null,
+    @SerialName("user_id") val userId: String? = null
 ) {
     fun toMetadata() = Metadata(
         created = created,

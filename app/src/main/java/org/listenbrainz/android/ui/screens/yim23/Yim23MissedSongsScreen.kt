@@ -18,10 +18,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.yimdata.Yim23Screens
 import org.listenbrainz.android.model.yimdata.Yim23Track
@@ -57,33 +59,40 @@ fun Yim23MissedSongsScreen (
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class, ExperimentalFoundationApi::class)
 @Composable
-private fun Yim23MissedSongsArt (viewModel: Yim23ViewModel) {
-    val tracks : List<Yim23Track>? = remember {viewModel.getMissedSongs()?.tracks?.toList()}
-    if(!tracks.isNullOrEmpty()){
-        Column  {
+private fun Yim23MissedSongsArt(viewModel: Yim23ViewModel) {
+    val context = LocalContext.current
+    val tracks: List<Yim23Track>? = remember { viewModel.getMissedSongs()?.tracks?.toList() }
+    if (!tracks.isNullOrEmpty()) {
+        Column {
             for (j in 1..3)
-                Row () {
-                    for(i in 3*j-2..3*j){
-                        if(tracks[i-1].extension.extensionData.additionalMetadata.caaReleaseMbid != ""
-                            && tracks[i-1].extension.extensionData.additionalMetadata.caaId != 0L)
-                            GlideImage(
-                                model = Utils.getCoverArtUrl(
-                                    caaReleaseMbid = tracks[i-1].extension.extensionData.additionalMetadata.caaReleaseMbid,
-                                    caaId = tracks[i-1].extension.extensionData.additionalMetadata.caaId.toLong(),
-                                    size = 250,
-                                ),
-                                modifier = Modifier
-                                    .size(80.dp),
+                Row {
+                    for (i in 3 * j - 2..3 * j) {
+                        if (tracks[i - 1].extension.extensionData.additionalMetadata.caaReleaseMbid != ""
+                            && tracks[i - 1].extension.extensionData.additionalMetadata.caaId != 0L
+                        )
+                            AsyncImage(
+                                model = ImageRequest.Builder(context)
+                                    .data(
+                                        Utils.getCoverArtUrl(
+                                            caaReleaseMbid = tracks[i - 1].extension.extensionData.additionalMetadata.caaReleaseMbid,
+                                            caaId = tracks[i - 1].extension.extensionData.additionalMetadata.caaId.toLong(),
+                                            size = 250,
+                                        )
+                                    )
+                                    .crossfade(true)
+                                    .build(),
+                                placeholder = painterResource(R.drawable.yim_album_placeholder),
+                                error = painterResource(R.drawable.yim_album_placeholder),
+                                modifier = Modifier.size(80.dp),
                                 contentDescription = "Album Poster",
                             )
-                            {
-                                it.override(300).placeholder(R.drawable.yim_album_placeholder)
-                            }
-                        else{
-                            Image(painter = painterResource(id = R.drawable.yim_album_placeholder) ,
-                                contentDescription = "LB logo placeholder" ,  modifier = Modifier.size(80.dp))
+                        else {
+                            Image(
+                                painter = painterResource(id = R.drawable.yim_album_placeholder),
+                                contentDescription = "LB logo placeholder",
+                                modifier = Modifier.size(80.dp)
+                            )
                         }
                     }
                 }

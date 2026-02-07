@@ -1,7 +1,6 @@
 package org.listenbrainz.android.viewmodel
 
 import android.content.Context
-import android.graphics.drawable.BitmapDrawable
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_ALL
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_NONE
@@ -17,10 +16,12 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.palette.graphics.Palette
-import coil.ImageLoader
-import coil.request.ImageRequest
-import coil.request.SuccessResult
-import dagger.hilt.android.lifecycle.HiltViewModel
+import coil3.ImageLoader
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import coil3.request.allowHardware
+import coil3.toBitmap
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,6 +38,8 @@ import org.listenbrainz.android.model.PlayableType
 import org.listenbrainz.android.model.Playlist.Companion.currentlyPlaying
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
+import org.listenbrainz.android.repository.brainzplayer.PlaylistRepository
 import org.listenbrainz.android.repository.brainzplayer.SongRepository
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.BrainzPlayerService
@@ -49,13 +52,14 @@ import org.listenbrainz.android.util.BrainzPlayerExtensions.isPrepared
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID
 import org.listenbrainz.android.util.Resource
-import javax.inject.Inject
 
-@HiltViewModel
-class BrainzPlayerViewModel @Inject constructor(
+class BrainzPlayerViewModel(
     private val brainzPlayerServiceConnection: BrainzPlayerServiceConnection,
     private val songRepository: SongRepository,
     val appPreferences: AppPreferences,
+    private val playlistRepository: PlaylistRepository,
+    private val albumRepository: BPAlbumRepository,
+    private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _mediaItems = MutableStateFlow<Resource<List<Song>>>(Resource.loading())
     private val _songDuration = MutableStateFlow(0L)
@@ -137,10 +141,8 @@ class BrainzPlayerViewModel @Inject constructor(
                 .allowHardware(false)
                 .build()
             val result = loader.execute(request)
-            val bitmap = (result as? SuccessResult)?.drawable?.let { drawable ->
-                (drawable as? BitmapDrawable)?.bitmap
-            }
-            bitmap?.let { bitmap ->
+            if (result is SuccessResult) {
+                val bitmap = result.image.toBitmap()
                 val palette = Palette.from(bitmap).generate()
                 val swatch = run {
                     if (isDarkThemeEnabled) {

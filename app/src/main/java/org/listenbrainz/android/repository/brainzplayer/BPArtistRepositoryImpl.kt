@@ -16,11 +16,8 @@ import org.listenbrainz.android.util.Transformer.toAlbumEntity
 import org.listenbrainz.android.util.Transformer.toArtist
 import org.listenbrainz.android.util.Transformer.toArtistEntity
 import org.listenbrainz.android.util.Transformer.toSongEntity
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class BPArtistRepositoryImpl @Inject constructor(
+class BPArtistRepositoryImpl(
     private val artistDao: ArtistDao
 ) : BPArtistRepository {
     override fun getArtist(artistID: String): Flow<Artist> {

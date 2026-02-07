@@ -18,7 +18,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.Artist
@@ -36,7 +36,7 @@ fun OverviewScreen(
     goToArtistScreen: () -> Unit,
     goToAlbumScreen: () -> Unit,
     recentlyPlayedSongs: List<Song>,
-    brainzPlayerViewModel: BrainzPlayerViewModel = hiltViewModel(),
+    brainzPlayerViewModel: BrainzPlayerViewModel = koinViewModel(),
     artists: List<Artist>,
     albums: List<Album>,
     albumSongsMap: Map<Album, List<Song>>

@@ -14,7 +14,6 @@ import com.google.android.play.core.install.model.UpdateAvailability
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.InstallSource
 import org.listenbrainz.android.model.githubupdates.GithubUpdatesList
 import org.listenbrainz.android.model.githubupdates.GithubUpdatesListItem
@@ -22,15 +21,15 @@ import org.listenbrainz.android.service.GithubAppUpdatesService
 import org.listenbrainz.android.service.GithubUpdatesDownloadService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.parseResponse
-import javax.inject.Inject
+
 import kotlin.coroutines.resume
 
 const val TAG = "AppUpdatesRepository"
 
-class AppUpdatesRepositoryImpl @Inject constructor(
+class AppUpdatesRepositoryImpl(
     private val githubAppUpdatesService: GithubAppUpdatesService,
     private val downloadService: GithubUpdatesDownloadService,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher
 ) : AppUpdatesRepository {
 
     override suspend fun getAppReleasesFromGithub(): Resource<GithubUpdatesList> =

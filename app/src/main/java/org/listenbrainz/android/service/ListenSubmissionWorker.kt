@@ -3,16 +3,15 @@ package org.listenbrainz.android.service
 import android.R.attr.duration
 import android.content.Context
 import android.media.MediaMetadata
-import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkerParameters
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.model.AdditionalInfo
 import org.listenbrainz.android.model.ListenSubmitBody
@@ -27,14 +26,14 @@ import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Resource
 
-@HiltWorker
-class ListenSubmissionWorker @AssistedInject constructor(
-    @Assisted context: Context,
-    @Assisted workerParams: WorkerParameters,
-    private val appPreferences: AppPreferences,
-    private val repository: ListensRepository,
-    private val pendingListensDao: PendingListensDao
-) : CoroutineWorker(context, workerParams) {
+class ListenSubmissionWorker(
+    context: Context,
+    workerParams: WorkerParameters
+) : CoroutineWorker(context, workerParams), KoinComponent {
+
+    private val appPreferences: AppPreferences by inject()
+    private val repository: ListensRepository by inject()
+    private val pendingListensDao: PendingListensDao by inject()
     
     override suspend fun doWork(): Result {
         val token = appPreferences.lbAccessToken.get()
@@ -73,10 +72,7 @@ class ListenSubmissionWorker @AssistedInject constructor(
         
         // Our listen to submit
         val listen = ListenSubmitBody.Payload(
-            timestamp = when (ListenType.SINGLE.code) {
-                inputData.getString(LISTEN_TYPE) -> inputData.getLong(Constants.Strings.TIMESTAMP, 0)
-                else -> null
-            },
+            timestamp = inputData.getLong(Constants.Strings.TIMESTAMP, 0).takeIf { it != 0L },
             metadata = metadata
         )
     
@@ -130,7 +126,7 @@ class ListenSubmissionWorker @AssistedInject constructor(
                 // In case of failure, we add this listen to pending list.
                 if (inputData.getString("TYPE") == "single") {
                     // We don't want to submit playing nows later.
-                    if (response.error?.ordinal == ResponseError.BAD_REQUEST.ordinal) {
+                    if (response.error is ResponseError.BadRequest) {
                         Log.e(
                             "Submission failed, not saving listen because metadata is faulty."
                             + "\n Server response: ${response.error.toast}" + "\n POST Request Body: $body"

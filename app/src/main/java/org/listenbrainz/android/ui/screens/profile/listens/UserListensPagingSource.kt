@@ -17,17 +17,14 @@ class UserListensPagingSource(
 ) : PagingSource<Long, Listen>() {
 
     override fun getRefreshKey(state: PagingState<Long, Listen>): Long? {
-        return state.anchorPosition?.let { anchorPosition ->
-            val anchorPage = state.closestPageToPosition(anchorPosition)
-            anchorPage?.prevKey?.plus(1) ?: anchorPage?.nextKey?.minus(1)
-        }
+        return System.currentTimeMillis() / 1000
     }
 
     override suspend fun load(params: LoadParams<Long>): LoadResult<Long, Listen> {
         if (username.isNullOrEmpty()) {
-            val error = ResponseError.BAD_REQUEST.apply {
+            val error = ResponseError.BadRequest(
                 actualResponse = "Some error occurred! Username not found"
-            }
+            )
             onError(error)
             return LoadResult.Error(Exception(error.toast))
         }
@@ -47,7 +44,9 @@ class UserListensPagingSource(
                 // Get the minimum listened_at timestamp from the current batch
                 // This will be used as maxTs for the next page
                 val nextKey = if (listens.isNotEmpty()) {
-                    listens.minOfOrNull { it.listenedAt ?: it.insertedAt }
+                    listens
+                        .minOfOrNull { it.listenedAt ?: it.insertedAt ?: Long.MAX_VALUE }
+                        .takeIf { it != Long.MAX_VALUE }
                 } else {
                     null
                 }

@@ -1,45 +1,46 @@
 package org.listenbrainz.android.application
 
 import android.app.Application
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Intent
 import android.os.Build
 import android.os.StrictMode
-import androidx.core.content.ContextCompat
-import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.limurse.logger.Logger
 import com.limurse.logger.config.Config
-import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.koin.android.ext.android.inject
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.androidx.workmanager.koin.workManagerFactory
+import org.koin.core.context.startKoin
 import org.listenbrainz.android.BuildConfig
-import org.listenbrainz.android.R
+import org.listenbrainz.android.di.appModules
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.ListenSubmissionService
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Utils.isServiceRunning
-import javax.inject.Inject
 
-@HiltAndroidApp
 class App : Application(), Configuration.Provider {
 
-    @Inject
-    lateinit var appPreferences: AppPreferences
-
-    @Inject
-    lateinit var workerFactory: HiltWorkerFactory
+    private val appPreferences: AppPreferences by inject()
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun onCreate() {
         context = this
         super.onCreate()
+
+        // Initialize Koin
+        startKoin {
+            androidLogger()
+            androidContext(this@App)
+            workManagerFactory()
+            modules(appModules)
+        }
 
         val logDirectory = applicationContext.getExternalFilesDir(null)?.path.orEmpty()
         val config = Config.Builder(logDirectory)
@@ -93,7 +94,6 @@ class App : Application(), Configuration.Provider {
     
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
-            .setWorkerFactory(workerFactory)
             .build()
     
     companion object {

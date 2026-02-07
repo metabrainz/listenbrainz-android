@@ -16,13 +16,13 @@ data class SettingsCallbacks(
     val getPackageIcon: (String) -> Drawable?,
     val getPackageLabel: (String) -> String,
     val setWhitelist: (List<String>) -> Unit,
-    val checkForUpdates: suspend () -> Boolean
+    val checkForUpdates: suspend () -> Boolean,
+    val onNavigationReorderClick: () -> Unit
 )
 
 @Immutable
 data class SettingsCallbacksToHomeScreen(
     val checkForUpdates: suspend () -> Boolean,
-    val topBarActions: TopBarActions,
     val onLoginRequest: () -> Unit,
     val onOnboardingRequest: () -> Unit,
     val navigateToCreateAccount : () -> Unit

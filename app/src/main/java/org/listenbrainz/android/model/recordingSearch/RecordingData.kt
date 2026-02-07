@@ -1,32 +1,34 @@
 package org.listenbrainz.android.model.recordingSearch
 
-
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 import org.listenbrainz.android.model.playlist.AdditionalMetadataTrack
 import org.listenbrainz.android.model.playlist.PlaylistArtist
 import org.listenbrainz.android.model.playlist.PlaylistTrack
 import org.listenbrainz.android.model.playlist.TrackExtension
 import org.listenbrainz.android.model.playlist.TrackExtensionData
 
+@Serializable
 data class RecordingData(
-    @SerializedName("artist-credit")
+    @SerialName("artist-credit")
     val artistCredit: List<ArtistCredit> = emptyList(),
-    @SerializedName("first-release-date")
+    @SerialName("first-release-date")
     val firstReleaseDate: String? = null,
-    @SerializedName("id")
+    @SerialName("id")
     val id: String? = null,
-    @SerializedName("length")
+    @SerialName("length")
     val length: Int? = null,
-    @SerializedName("releases")
+    @SerialName("releases")
     val releases: List<RecordingRelease> = emptyList(),
-    @SerializedName("score")
+    @SerialName("score")
     val score: Int? = null,
-    @SerializedName("tags")
+    @SerialName("tags")
     val tags: List<RecordingTag> = emptyList(),
-    @SerializedName("title")
+    @SerialName("title")
     val title: String? = null,
-    @SerializedName("video")
-    val video: Any? = null
+    @SerialName("video")
+    val video: JsonElement? = null
 ){
     fun toPlaylistTrack(): PlaylistTrack{
         val artistIdentifier: MutableList<String> = mutableListOf()

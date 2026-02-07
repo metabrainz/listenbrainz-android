@@ -1,5 +1,9 @@
 package org.listenbrainz.android.yim
 
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -7,10 +11,6 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Test
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.viewmodel.YimViewModel
 import org.listenbrainz.sharedtest.mocks.MockAppPreferences
@@ -23,10 +23,16 @@ class YimViewModelTest{
     private lateinit var viewModel : YimViewModel
     
     @OptIn(ExperimentalCoroutinesApi::class)
-    @Before
+    @BeforeTest
     fun setup(){
-        Dispatchers.setMain(StandardTestDispatcher())
-        viewModel = YimViewModel(MockYimRepository(), MockAppPreferences())
+        val testDispatcher = StandardTestDispatcher()
+        Dispatchers.setMain(testDispatcher)
+        viewModel = YimViewModel(
+            MockYimRepository(),
+            MockAppPreferences(),
+            testDispatcher,
+            testDispatcher
+        )
     }
     
     @Test
@@ -40,7 +46,7 @@ class YimViewModelTest{
     }
     
     @ExperimentalCoroutinesApi
-    @After
+    @AfterTest
     fun teardown() {
         Dispatchers.resetMain()
     }

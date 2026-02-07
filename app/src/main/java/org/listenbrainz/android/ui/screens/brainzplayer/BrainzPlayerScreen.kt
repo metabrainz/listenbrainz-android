@@ -31,7 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.application.App.Companion.context
 import org.listenbrainz.android.model.Album
 import org.listenbrainz.android.model.AppNavigationItem
@@ -60,11 +60,11 @@ fun BrainzPlayerScreen(
     topBarActions : TopBarActions
 ) {
     // View models
-    val BPAlbumViewModel = hiltViewModel<BPAlbumViewModel>()
-    val songsViewModel = hiltViewModel<SongViewModel>()
-    val BPArtistViewModel = hiltViewModel<BPArtistViewModel>()
-    val playlistViewModel = hiltViewModel<PlaylistViewModel>()
-    val brainzPlayerViewModel = hiltViewModel<BrainzPlayerViewModel>()
+    val BPAlbumViewModel = koinViewModel<BPAlbumViewModel>()
+    val songsViewModel = koinViewModel<SongViewModel>()
+    val BPArtistViewModel = koinViewModel<BPArtistViewModel>()
+    val playlistViewModel = koinViewModel<PlaylistViewModel>()
+    val brainzPlayerViewModel = koinViewModel<BrainzPlayerViewModel>()
 
     // Data streams
     val albums =
@@ -123,7 +123,7 @@ fun BrainzPlayerHomeScreen(
     songsPlayedThisWeek: List<Song>,
     recentlyPlayedSongs: List<Song>,
     albumSongsMap: MutableMap<Album, List<Song>>,
-    brainzPlayerViewModel: BrainzPlayerViewModel = hiltViewModel(),
+    brainzPlayerViewModel: BrainzPlayerViewModel = koinViewModel(),
 ) {
     val currentTab = rememberSaveable { mutableIntStateOf(0) }
     Surface(modifier = Modifier.fillMaxSize(), color = ListenBrainzTheme.colorScheme.background) {

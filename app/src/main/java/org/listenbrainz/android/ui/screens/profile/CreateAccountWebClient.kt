@@ -58,9 +58,9 @@ class CreateAccountWebClient(
         }
 
         Logger.e(TAG, errorMsg)
-        callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+        callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
             actualResponse = errorMsg
-        }))
+        )))
     }
 
     override fun onPageFinished(view: WebView?, url: String?) {
@@ -70,9 +70,9 @@ class CreateAccountWebClient(
 
         if (url == null) {
             Logger.e(TAG, "URL is null on page finished")
-            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+            callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                 actualResponse = "URL is null, cannot proceed with account creation"
-            }))
+            )))
             return
         }
 
@@ -109,9 +109,9 @@ class CreateAccountWebClient(
 
     fun submitRegistrationForm(credentials: CreateAccountCredentials) {
         if (webView == null) {
-            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+            callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                 actualResponse = "WebView is null, cannot submit registration form"
-            }))
+            )))
             return
         }
         val username = JSONObject.quote(credentials.username)
@@ -119,9 +119,9 @@ class CreateAccountWebClient(
         val password = JSONObject.quote(credentials.password)
         val confirmPassword = JSONObject.quote(credentials.confirmPassword)
         if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-            callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+            callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                 actualResponse = "All fields are required"
-            }))
+            )))
             return
         }
 
@@ -163,9 +163,9 @@ class CreateAccountWebClient(
                 view.evaluateJavascript(registrationScript) { result ->
                     if (result != "\"Registration submitted\"") {
                         Logger.e(TAG, "Error submitting registration form: $result")
-                        callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
+                        callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                             actualResponse = result
-                        }))
+                        )))
                     }
                 }
             }, 2000)
@@ -253,9 +253,9 @@ class CreateAccountWebClient(
                 val errorMsg = errorResult.replace("\"", "").trim()
                 Logger.e(TAG, "Registration failed: $errorMsg")
 
-                callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
-                    actualResponse = errorMsg
-                }))
+                callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
+            actualResponse = errorMsg
+        )))
             } else {
                 // Check for .errors element if .error is not found
                 view.evaluateJavascript(
@@ -265,9 +265,9 @@ class CreateAccountWebClient(
                         val errorMsg = errorsResult.replace("\"", "").trim()
                         Logger.e(TAG, "Registration failed: $errorMsg")
 
-                        callbacks.onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
-                            actualResponse = errorMsg
-                        }))
+                        callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
+            actualResponse = errorMsg
+        )))
                     }
                 }
             }

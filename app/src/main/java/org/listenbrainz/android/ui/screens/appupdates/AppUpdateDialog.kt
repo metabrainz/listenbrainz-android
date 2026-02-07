@@ -43,7 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.githubupdates.GithubUpdatesListItem
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -55,7 +55,7 @@ import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 
 @Composable
 fun AppUpdateDialog(
-    viewModel: AppUpdatesViewModel = hiltViewModel()
+    viewModel: AppUpdatesViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val onDismiss = { viewModel.dismissUpdateDialog() }

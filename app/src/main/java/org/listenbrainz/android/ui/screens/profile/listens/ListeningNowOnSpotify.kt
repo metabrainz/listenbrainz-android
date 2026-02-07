@@ -24,10 +24,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
+import org.koin.androidx.compose.koinViewModel
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.spotify.protocol.types.PlayerState
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ListenBitmap
@@ -41,7 +43,7 @@ fun ListeningNowOnSpotify(
     playerState: PlayerState?,
     bitmap: ListenBitmap
 ){
-    val socialViewModel = hiltViewModel<SocialViewModel>()
+    val socialViewModel = koinViewModel<SocialViewModel>()
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -79,19 +81,16 @@ fun ListeningNowOnSpotify(
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                val painter = rememberAsyncImagePainter(
-                    ImageRequest.Builder(LocalContext.current)
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
                         .data(data = bitmap.bitmap)
-                        .placeholder(R.drawable.ic_coverartarchive_logo_no_text)
-                        .error(R.drawable.ic_coverartarchive_logo_no_text)
-                        .build()
-                )
-    
-                Image(
+                        .crossfade(true)
+                        .build(),
+                    placeholder = painterResource(R.drawable.ic_coverartarchive_logo_no_text),
+                    error = painterResource(R.drawable.ic_coverartarchive_logo_no_text),
                     modifier = Modifier
                         .size(80.dp)
                         .clip(RoundedCornerShape(16.dp)),
-                    painter = painter,
                     alignment = Alignment.CenterStart,
                     contentDescription = "",
                     contentScale = ContentScale.Crop

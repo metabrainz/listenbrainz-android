@@ -1,67 +1,44 @@
 package org.listenbrainz.android.di
 
 import android.content.Context
-
 import android.util.Log
 import androidx.work.Configuration
 import androidx.work.WorkManager
 import androidx.work.testing.SynchronousExecutor
 import androidx.work.testing.WorkManagerTestInitHelper
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.components.SingletonComponent
-import dagger.hilt.testing.TestInstallIn
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import org.koin.core.qualifier.named
+import org.koin.dsl.module
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManagerImpl
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
 import org.listenbrainz.sharedtest.mocks.MockAppPreferences
-import javax.inject.Singleton
 
-@Module
-@TestInstallIn(
-    components = [SingletonComponent::class],
-    replaces = [AppModule::class]
-)
-class TestAppModule {
-
-    @Singleton
-    @Provides
-    fun providesServiceConnection(@ApplicationContext context: Context, appPreferences: AppPreferences, workManager: WorkManager): BrainzPlayerServiceConnection {
-        return BrainzPlayerServiceConnection(context, appPreferences, workManager)
-    }
+val testAppModule = module {
+    single<AppPreferences> { MockAppPreferences() }
     
-    @Provides
-    @Singleton
-    fun providesWorkManager(@ApplicationContext context: Context): WorkManager {
+    single<WorkManager> {
+        val context: Context = get()
         val config = Configuration.Builder()
             .setMinimumLoggingLevel(Log.DEBUG)
             .setExecutor(SynchronousExecutor())
             .build()
-    
-        // Initialize WorkManager for instrumentation tests.
+        
         WorkManagerTestInitHelper.initializeTestWorkManager(context, config)
-        return WorkManager.getInstance(context)
+        WorkManager.getInstance(context)
     }
-
-    @Singleton
-    @Provides
-    fun providesContext(@ApplicationContext context: Context): Context = context
-
-    @Singleton
-    @Provides
-    fun providesAppPreferences() : AppPreferences = MockAppPreferences()
-
-    @Singleton
-    @Provides
-    fun providesListenServiceManager(
-        workManager: WorkManager,
-        appPreferences: AppPreferences,
-        @DefaultDispatcher defaultDispatcher: CoroutineDispatcher,
-        @ApplicationContext context: Context
-    ): ListenServiceManager =
-        ListenServiceManagerImpl(workManager, appPreferences, defaultDispatcher, context)
     
+    single<BrainzPlayerServiceConnection> {
+        BrainzPlayerServiceConnection(get(), get(), get())
+    }
+    
+    single<ListenServiceManager> {
+        ListenServiceManagerImpl(get(), get(), get())
+    }
+    
+    single<CoroutineDispatcher>(named(DEFAULT_DISPATCHER)) { Dispatchers.Default }
+    single<CoroutineDispatcher>(named(IO_DISPATCHER)) { Dispatchers.IO }
+    single<CoroutineDispatcher>(named(MAIN_DISPATCHER)) { Dispatchers.Main }
 }

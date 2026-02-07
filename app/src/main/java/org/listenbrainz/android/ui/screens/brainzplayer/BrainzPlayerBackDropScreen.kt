@@ -84,10 +84,10 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.PlayableType
@@ -285,7 +285,7 @@ fun PlayerScreen(
     dynamicBackground: Color = MaterialTheme.colorScheme.background
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val playlistViewModel = hiltViewModel<PlaylistViewModel>()
+    val playlistViewModel = koinViewModel<PlaylistViewModel>()
     val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
     val playlist = playlists.filter { it.id == (1).toLong() }
     val songList = brainzPlayerViewModel.appPreferences.currentPlayable?.songs

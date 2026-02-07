@@ -1,60 +1,59 @@
 package org.listenbrainz.android.service
 
-import okhttp3.ResponseBody
+import de.jensklingenberg.ktorfit.http.Body
+import de.jensklingenberg.ktorfit.http.GET
+import de.jensklingenberg.ktorfit.http.POST
+import de.jensklingenberg.ktorfit.http.Path
+import io.ktor.client.statement.HttpResponse
 import org.listenbrainz.android.model.playlist.AddCopyPlaylistResponse
 import org.listenbrainz.android.model.playlist.DeleteTracks
 import org.listenbrainz.android.model.playlist.EditPlaylistResponse
 import org.listenbrainz.android.model.playlist.MoveTrack
 import org.listenbrainz.android.model.playlist.PlaylistPayload
-import retrofit2.Call
-import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
 
 interface PlaylistService {
 
     @GET("playlist/{playlist_mbid}")
-    suspend fun getPlaylist(@Path("playlist_mbid") playlistMbid: String): Response<PlaylistPayload?>
+    suspend fun getPlaylist(@Path("playlist_mbid") playlistMbid: String): PlaylistPayload
 
     @POST("playlist/{playlist_mbid}/copy")
-    suspend fun copyPlaylist(@Path("playlist_mbid") playlistMbid: String): Response<AddCopyPlaylistResponse?>
+    suspend fun copyPlaylist(@Path("playlist_mbid") playlistMbid: String): AddCopyPlaylistResponse
 
+    // Returns SVG data, keep as HttpResponse for raw body access
     @POST("art/playlist/{playlist_mbid}/{dimension}/{layout}")
-    fun getPlaylistCoverArt(
+    suspend fun getPlaylistCoverArt(
         @Path("playlist_mbid") playlistMbid: String,
         @Path("dimension") dimension: Int,
         @Path("layout") layout: Int
-    ): Call<ResponseBody>
+    ): HttpResponse
 
     @POST("playlist/{playlist_mbid}/delete")
-    suspend fun deletePlaylist(@Path("playlist_mbid") playlistMbid: String): Response<Unit>
+    suspend fun deletePlaylist(@Path("playlist_mbid") playlistMbid: String): Unit
 
     @POST("playlist/create")
-    suspend fun createPlaylist(@Body playlistPayload: PlaylistPayload): Response<AddCopyPlaylistResponse?>
+    suspend fun createPlaylist(@Body playlistPayload: PlaylistPayload): AddCopyPlaylistResponse
 
     @POST("playlist/edit/{playlist_mbid}")
     suspend fun editPlaylist(
         @Body playlistPayload: PlaylistPayload,
         @Path("playlist_mbid") playlistMbid: String
-    ): Response<EditPlaylistResponse?>
+    ): EditPlaylistResponse
 
     @POST("playlist/{playlist_mbid}/item/move")
     suspend fun moveTrack(
         @Path("playlist_mbid") playlistMbid: String,
         @Body moveTrack: MoveTrack
-    ): Response<EditPlaylistResponse?>
+    ): EditPlaylistResponse
 
     @POST("playlist/{playlist_mbid}/item/add")
     suspend fun addTracks(
         @Path("playlist_mbid") playlistMbid: String,
         @Body playlistPayload: PlaylistPayload
-    ): Response<EditPlaylistResponse?>
+    ): EditPlaylistResponse
 
     @POST("playlist/{playlist_mbid}/item/delete")
     suspend fun deleteTracks(
         @Path("playlist_mbid") playlistMbid: String,
         @Body deleteTracks: DeleteTracks
-    ): Response<EditPlaylistResponse?>
+    ): EditPlaylistResponse
 }

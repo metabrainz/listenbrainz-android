@@ -1,11 +1,12 @@
 package org.listenbrainz.android.model.recordingSearch
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-import com.google.gson.annotations.SerializedName
-
+@Serializable
 data class ReleaseEvent(
-    @SerializedName("area")
+    @SerialName("area")
     val area: Area? = null,
-    @SerializedName("date")
+    @SerialName("date")
     val date: String? = null
 )

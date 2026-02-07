@@ -10,7 +10,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.graphics.createBitmap
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +21,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.preferences.AppPreferences
@@ -33,18 +31,24 @@ import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Utils.getAllInstalledApps
 import org.listenbrainz.android.util.Utils.getListeningApps
-import javax.inject.Inject
 
-@HiltViewModel
-class DashBoardViewModel @Inject constructor(
+class DashBoardViewModel(
     val appPreferences: AppPreferences,
-    private val application: Application,
+    application: Application,
     private val remotePlaybackHandler: RemotePlaybackHandler,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher
 ) : AndroidViewModel(application) {
 
     val usernameFlow = appPreferences.username.getFlow()
     val permissionStatusFlow = MutableStateFlow(emptyMap<PermissionEnum, PermissionStatus>())
+
+    val navBarOrderFlow = appPreferences.navBarOrder
+        .getFlow()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = null
+        )
 
     val permissionsRequestedAteastOnce = appPreferences.requestedPermissionsList.getFlow()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())

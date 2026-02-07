@@ -51,7 +51,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import androidx.navigation3.runtime.rememberNavBackStack
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
@@ -72,7 +72,7 @@ import org.listenbrainz.android.viewmodel.DashBoardViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListeningAppSelectionScreen(
-    dashBoardViewModel: DashBoardViewModel = hiltViewModel(),
+    dashBoardViewModel: DashBoardViewModel = koinViewModel(),
     onClickNext: () -> Unit
 ) {
     val listeningApps by dashBoardViewModel.listeningAppsFlow.collectAsState()

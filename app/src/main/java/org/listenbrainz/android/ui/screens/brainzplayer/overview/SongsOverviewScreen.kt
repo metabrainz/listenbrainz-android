@@ -31,7 +31,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import org.koin.androidx.compose.koinViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -71,7 +71,7 @@ fun SongsOverviewScreen(
         }
     }
 
-    val viewModel: BrainzPlayerViewModel = hiltViewModel()
+    val viewModel: BrainzPlayerViewModel = koinViewModel()
     val currentlyPlayingSong =
         viewModel.currentlyPlayingSong.collectAsStateWithLifecycle().value.toSong
 

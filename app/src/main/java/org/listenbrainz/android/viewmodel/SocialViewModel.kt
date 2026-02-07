@@ -1,9 +1,7 @@
 package org.listenbrainz.android.viewmodel
 
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,11 +16,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.R
-import org.listenbrainz.android.di.DefaultDispatcher
-import org.listenbrainz.android.di.IoDispatcher
 import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.RecommendationData
 import org.listenbrainz.android.model.RecommendationMetadata
+import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.Review
 import org.listenbrainz.android.model.ReviewMetadata
 import org.listenbrainz.android.model.SocialData
@@ -35,16 +32,14 @@ import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.android.util.Resource
-import javax.inject.Inject
 
-@HiltViewModel
-class SocialViewModel @Inject constructor(
+class SocialViewModel(
     private val repository: SocialRepository,
     private val listensRepository: ListensRepository,
     private val appPreferences: AppPreferences,
     private val remotePlaybackHandler: RemotePlaybackHandler,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher,
+    private val ioDispatcher: CoroutineDispatcher,
+    private val defaultDispatcher: CoroutineDispatcher,
 ): FollowUnfollowModel<SocialUiState>(repository, ioDispatcher) {
 
     private val inputSearchFollowerQuery = MutableStateFlow("")
@@ -124,8 +119,9 @@ class SocialViewModel @Inject constructor(
                 playOnYoutube {
                     withContext(ioDispatcher) {
                         searchYoutubeMusicVideoId(
-                            trackMetadata.trackName,
-                            trackMetadata.artistName
+                            trackMetadata.trackName
+                                ?: return@withContext Resource.failure(ResponseError.DoesNotExist()),
+                            trackMetadata.artistName.orEmpty()
                         )
                     }
                 }
@@ -148,7 +144,7 @@ class SocialViewModel @Inject constructor(
                 data = RecommendationData(
                     metadata = RecommendationMetadata(
                         trackName = metadata.trackMetadata?.trackName ?: return@launch,
-                        artistName = metadata.trackMetadata.artistName,
+                        artistName = metadata.trackMetadata.artistName.orEmpty(),
                         releaseName = metadata.trackMetadata.releaseName,
                         recordingMbid = metadata.trackMetadata.mbidMapping?.recordingMbid,
                         recordingMsid = metadata.trackMetadata.additionalInfo?.recordingMsid
@@ -172,7 +168,7 @@ class SocialViewModel @Inject constructor(
                 data = RecommendationData(
                     metadata = RecommendationMetadata(
                         trackName = metadata.trackMetadata?.trackName ?: return@launch,
-                        artistName = metadata.trackMetadata.artistName,
+                        artistName = metadata.trackMetadata.artistName.orEmpty(),
                         releaseName = metadata.trackMetadata.releaseName,
                         recordingMbid = metadata.trackMetadata.mbidMapping?.recordingMbid,
                         recordingMsid = metadata.trackMetadata.additionalInfo?.recordingMsid,
@@ -203,7 +199,7 @@ class SocialViewModel @Inject constructor(
                             ReviewEntityType.ARTIST -> (when(metadata.trackMetadata.mbidMapping?.artistMbids?.size){
                                 1 -> metadata.trackMetadata.mbidMapping.artistMbids[0]
                                 else -> return@launch
-                            }).toString()
+                            })
                             ReviewEntityType.RELEASE_GROUP -> (metadata.trackMetadata.mbidMapping?.recordingMbid ?: return@launch).toString() },
                         entityType = entityType.code,
                         text = blurbContent,

@@ -11,15 +11,13 @@ import org.listenbrainz.android.model.State
 import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
 import org.listenbrainz.android.repository.brainzplayer.PlaylistRepository
 import org.listenbrainz.android.repository.brainzplayer.SongRepository
-import javax.inject.Inject
 
-class LocalMusicSource @Inject constructor(
+class LocalMusicSource(
     private val songRepository: SongRepository,
-    private val BPAlbumRepository: BPAlbumRepository,
+    private val bpAlbumRepository: BPAlbumRepository,
     private val artistRepository: BPAlbumRepository,
     private val playlistRepository: PlaylistRepository
-) :
-    MusicSource<MediaMetadataCompat> {
+) : MusicSource<MediaMetadataCompat> {
 
     override var songs = emptyList<MediaMetadataCompat>()
 

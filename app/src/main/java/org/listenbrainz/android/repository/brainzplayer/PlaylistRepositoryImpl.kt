@@ -8,11 +8,8 @@ import org.listenbrainz.android.util.Transformer.toPlaylistEntity
 import org.listenbrainz.android.util.Transformer.toSongEntity
 import org.listenbrainz.android.model.Playlist
 import org.listenbrainz.android.model.Song
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class PlaylistRepositoryImpl @Inject constructor(
+class PlaylistRepositoryImpl(
    private val playlistDao: PlaylistDao
 ): PlaylistRepository {
     override fun getAllPlaylist(): Flow<List<Playlist>> = playlistDao.getAllPlaylist().map {
