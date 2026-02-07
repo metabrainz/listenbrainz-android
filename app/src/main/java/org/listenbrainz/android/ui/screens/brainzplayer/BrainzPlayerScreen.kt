@@ -265,7 +265,19 @@ fun BrainzPlayerHomeScreen(
                                 ).show()
                             }
                         }
-                    }
+                    },
+                    onAddToNewPlaylist = { album ->
+
+                    },
+                    onPlayNext = { album ->
+                        brainzPlayerViewModel.playNext(songs)
+                    },
+                    onAddToQueue = { album ->
+                        brainzPlayerViewModel.addToQueue(songs)
+                    },
+                    onAddToExistingPlaylist = { album ->
+
+                    },
                 )
 
                 4 -> SongsOverviewScreen(
