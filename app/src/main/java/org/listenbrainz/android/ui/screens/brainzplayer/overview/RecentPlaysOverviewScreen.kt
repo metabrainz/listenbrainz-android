@@ -83,10 +83,10 @@ private fun PlayedThisWeek(
     onPlayIconClick: (Song) -> Unit,
     sectionChosen:Int,
     dropDownState : MutableState<Pair<Int,Int>>,
-    onAddToQueue: (Song) -> Unit,
-    onPlayNext: (Song) -> Unit,
-    onAddToExistingPlaylist: (Song) -> Unit,
-    onAddToNewPlaylist: (Song) -> Unit
+    onAddToQueue: ((Song) -> Unit)?,
+    onPlayNext: ((Song) -> Unit)?,
+    onAddToExistingPlaylist: ((Song) -> Unit)?,
+    onAddToNewPlaylist: ((Song) -> Unit)?
 ){
     val viewModel: BrainzPlayerViewModel = koinViewModel()
     val currentlyPlayingSong = viewModel.currentlyPlayingSong.collectAsStateWithLifecycle().value.toSong
@@ -110,10 +110,18 @@ private fun PlayedThisWeek(
                     BrainzPlayerDropDownMenu(
                         expanded = dropDownState.value == Pair(sectionChosen,index),
                         onDismiss = {dropDownState.value = Pair(-1,-1)},
-                        onAddToQueue = {onAddToQueue(it)},
-                        onPlayNext =  {onPlayNext(it)},
-                        onAddToExistingPlaylist = {onAddToExistingPlaylist(it)},
-                        onAddToNewPlaylist = {onAddToNewPlaylist(it)},
+                        onAddToQueue = onAddToQueue?.let { action->
+                            {action(it)}
+                        },
+                        onPlayNext =  onPlayNext?.let { action->
+                             {action(it)}
+                        },
+                        onAddToExistingPlaylist = onAddToExistingPlaylist?.let {action->
+                             {action(it)}
+                        },
+                        onAddToNewPlaylist = onAddToNewPlaylist?.let {action->
+                             {action(it)}
+                        },
                         showShareOption = false
                     )
                 },

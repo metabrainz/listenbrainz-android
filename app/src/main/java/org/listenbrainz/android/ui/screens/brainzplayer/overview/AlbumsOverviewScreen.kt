@@ -28,10 +28,10 @@ import org.listenbrainz.android.ui.components.BrainzPlayerDropDownMenu
 fun AlbumsOverViewScreen(
     albums: List<Album>,
     onPlayIconClick: (Album) -> Unit,
-    onAddToNewPlaylist: (Album) -> Unit,
-    onPlayNext: (Album) -> Unit,
-    onAddToQueue: (Album) -> Unit,
-    onAddToExistingPlaylist: (Album) -> Unit,
+    onAddToNewPlaylist: ((Album) -> Unit)?,
+    onPlayNext: ((Album) -> Unit)?,
+    onAddToQueue: ((Album) -> Unit)?,
+    onAddToExistingPlaylist: ((Album) -> Unit)?,
 ) {
 
     val albumSections = remember(albums) {
@@ -86,10 +86,18 @@ fun AlbumsOverViewScreen(
                         BrainzPlayerDropDownMenu(
                             expanded = dropdownState.value == Pair(sectionChosen, index),
                             onDismiss = { dropdownState.value = Pair(-1, -1) },
-                            onAddToNewPlaylist = { onAddToNewPlaylist(album) },
-                            onAddToExistingPlaylist = { onAddToExistingPlaylist(album) },
-                            onPlayNext = { onPlayNext(album) },
-                            onAddToQueue = { onAddToQueue(album) },
+                            onAddToNewPlaylist =  onAddToNewPlaylist?.let { action->
+                                { action(album) }
+                            },
+                            onAddToExistingPlaylist = onAddToExistingPlaylist?.let { action->
+                                 {action(album)}
+                            },
+                            onPlayNext = onPlayNext?.let { action->
+                                {action(album)}
+                            },
+                            onAddToQueue = onAddToQueue?.let {action->
+                                {action(album)}
+                            } ,
                             showShareOption = false
                         )
                     }

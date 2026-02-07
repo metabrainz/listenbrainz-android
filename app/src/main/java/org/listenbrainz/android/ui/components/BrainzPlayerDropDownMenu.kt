@@ -10,38 +10,48 @@ import androidx.compose.runtime.Composable
 fun BrainzPlayerDropDownMenu(
     expanded: Boolean,
     onDismiss: () -> Unit = {},
-    onAddToNewPlaylist: () -> Unit = {},
-    onAddToExistingPlaylist: () -> Unit = {},
-    onPlayNext: () -> Unit = {},
-    onAddToQueue: () -> Unit = {},
-    onShareAudio: () -> Unit = {},
+    onAddToNewPlaylist: (() -> Unit)? = null,
+    onAddToExistingPlaylist: (() -> Unit)?  = null,
+    onPlayNext: (() -> Unit )?= null,
+    onAddToQueue: (() -> Unit)? = null,
+    onShareAudio: (() -> Unit)? = null,
     showShareOption: Boolean = false
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismiss) {
-        DropdownMenuItem(onClick = {
-            onAddToNewPlaylist()
-            onDismiss()
-        }, text = { Text(text = "Add to new playlist") })
-
-        DropdownMenuItem(onClick = {
-            onAddToExistingPlaylist()
-            onDismiss()
-        }, text = { Text(text = "Add to existing playlist") })
-
-        DropdownMenuItem(onClick = {
-            onPlayNext()
-            onDismiss()
-        }, text = { Text(text = "Play next") })
-
-        DropdownMenuItem(onClick = {
-            onAddToQueue()
-            onDismiss()
-        }, text = { Text(text = "Add to queue") })
-        if (showShareOption) {
+        if(onAddToNewPlaylist!=null){
             DropdownMenuItem(onClick = {
-                onShareAudio()
+                onAddToNewPlaylist()
                 onDismiss()
-            }, text = { Text(text = "Share") })
+            }, text = { Text(text = "Add to new playlist") })
+        }
+
+        if(onAddToExistingPlaylist!=null){
+            DropdownMenuItem(onClick = {
+                onAddToExistingPlaylist()
+                onDismiss()
+            }, text = { Text(text = "Add to existing playlist") })
+        }
+
+        if(onPlayNext!=null){
+            DropdownMenuItem(onClick = {
+                onPlayNext()
+                onDismiss()
+            }, text = { Text(text = "Play next") })
+        }
+
+        if(onAddToQueue!=null){
+            DropdownMenuItem(onClick = {
+                onAddToQueue()
+                onDismiss()
+            }, text = { Text(text = "Add to queue") })
+        }
+        if (showShareOption) {
+            if(onShareAudio!=null){
+                DropdownMenuItem(onClick = {
+                    onShareAudio()
+                    onDismiss()
+                }, text = { Text(text = "Share") })
+            }
         }
     }
 }

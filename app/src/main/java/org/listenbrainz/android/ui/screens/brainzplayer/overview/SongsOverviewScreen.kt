@@ -48,10 +48,10 @@ import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 fun SongsOverviewScreen(
     songs: List<Song>,
     onPlayIconClick: (Song, List<Song>) -> Unit,
-    onPlayNext: (Song) -> Unit,
-    onAddToQueue: (Song) -> Unit,
-    onAddToExistingPlaylist: (Song) -> Unit,
-    onAddToNewPlaylist: (Song) -> Unit,
+    onPlayNext: ((Song) -> Unit)?,
+    onAddToQueue: ((Song) -> Unit)?,
+    onAddToExistingPlaylist: ((Song) -> Unit)?,
+    onAddToNewPlaylist: ((Song) -> Unit)?,
 ) {
     val songsStarting = remember { mutableStateOf<Map<Char, List<Song>>>(emptyMap()) }
 
@@ -129,18 +129,25 @@ fun SongsOverviewScreen(
                                 isPlaying = song.mediaID == currentlyPlayingSong.mediaID,
                                 dropDown = {
                                     BrainzPlayerDropDownMenu(
-                                        onAddToNewPlaylist = {
-                                            onAddToNewPlaylist(song)
-                                        },
-                                        onAddToExistingPlaylist = {
-                                            onAddToExistingPlaylist(song)
-                                        },
-                                        onAddToQueue = {
-                                            onAddToQueue(song)
-                                        },
-                                        onPlayNext = {
-                                            onPlayNext(song)
-                                        },
+                                        onAddToNewPlaylist =
+                                            onAddToNewPlaylist?.let { action->
+                                                {action(song)}
+                                            }
+                                        ,
+                                        onAddToExistingPlaylist =
+                                            onAddToExistingPlaylist?.let { action->
+                                                 { action(song) }
+                                            } ,
+                                        onAddToQueue =
+                                            onAddToQueue?.let {action->
+                                                 {action(song)}
+                                            }
+                                        ,
+                                        onPlayNext =
+                                            onPlayNext?.let {action->
+                                                {action(song)}
+                                            }
+                                        ,
                                         onShareAudio = {
                                             val uri = Uri.parse(song.uri)
                                             shareAudio(context,uri)
