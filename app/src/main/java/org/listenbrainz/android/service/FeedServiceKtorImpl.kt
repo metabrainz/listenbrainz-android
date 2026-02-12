@@ -11,6 +11,9 @@ import org.listenbrainz.android.model.SocialResponse
 import org.listenbrainz.android.model.feed.FeedData
 import org.listenbrainz.android.model.feed.FeedEventDeletionData
 import org.listenbrainz.android.model.feed.FeedEventVisibilityData
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import org.listenbrainz.android.model.feed.FeedEvent
 
 
 class FeedServiceKtorImpl(
@@ -91,4 +94,11 @@ class FeedServiceKtorImpl(
             setBody(body)
         }.body()
     }
+override suspend fun getFeedEventById(id: Long): FeedEvent {
+    return httpClient.get("1/feed/event/$id").body()
+}
+override suspend fun getPinById(id: Long): FeedEvent {
+    return httpClient.get("1/pin/$id").body()
+}
+
 }
