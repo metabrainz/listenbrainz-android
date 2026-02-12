@@ -27,6 +27,8 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.TypeConverter
 import org.listenbrainz.android.util.Utils.getArticle
+import org.listenbrainz.android.ui.screens.feed.events.ThanksFeedLayout
+
 
 /**
  * @param icon Feed icon for the event, **must** be of width 19 dp.
@@ -223,7 +225,13 @@ enum class FeedEventType (
                 goToUserPage = goToUserPage,
                 goToArtistPage = goToArtistPage
             )
-            THANKS -> UnknownFeedLayout(event = event)
+   THANKS -> ThanksFeedLayout(
+    event = event,
+    parentUser = parentUser,
+    goToUserPage = goToUserPage
+)
+
+
             UNKNOWN -> UnknownFeedLayout(event = event)
         }
     }
@@ -447,7 +455,23 @@ enum class FeedEventType (
                     }
                 }
             }
+                
+THANKS -> {
+    buildAnnotatedString {
+
+        val thanker = feedEvent.metadata.thankerUsername ?: "Someone"
+        val thankee = feedEvent.metadata.thankeeUsername ?: "someone"
+
+        withStyle(linkStyle) { append(thanker) }
+        withStyle(normalStyle) { append(" thanked ") }
+        withStyle(linkStyle) { append(thankee) }
+        withStyle(normalStyle) { append(".") }
+    }
+}
+
+
             else -> return emptyString
+
         }
         
         return firstAnnotatedString.plus(secondAnnotatedString)
@@ -482,19 +506,24 @@ enum class FeedEventType (
             }
         }
         
-        fun resolveEvent(event: FeedEvent?): FeedEventType =
-            when (event?.type) {
-                RECORDING_RECOMMENDATION.type -> RECORDING_RECOMMENDATION
-                PERSONAL_RECORDING_RECOMMENDATION.type -> PERSONAL_RECORDING_RECOMMENDATION
-                RECORDING_PIN.type -> RECORDING_PIN
-                LISTEN.type -> LISTEN
-                LIKE.type -> LIKE
-                FOLLOW.type -> FOLLOW
-                NOTIFICATION.type -> NOTIFICATION
-                REVIEW.type -> REVIEW
-                THANKS.type -> THANKS
-                else -> UNKNOWN
-            }
+        fun resolveEvent(event: FeedEvent?): FeedEventType {
+
+    android.util.Log.d("THANKS_DEBUG", "Incoming event type -> ${event?.type}")
+
+    return when (event?.type) {
+        RECORDING_RECOMMENDATION.type -> RECORDING_RECOMMENDATION
+        PERSONAL_RECORDING_RECOMMENDATION.type -> PERSONAL_RECORDING_RECOMMENDATION
+        RECORDING_PIN.type -> RECORDING_PIN
+        LISTEN.type -> LISTEN
+        LIKE.type -> LIKE
+        FOLLOW.type -> FOLLOW
+        NOTIFICATION.type -> NOTIFICATION
+        REVIEW.type -> REVIEW
+        THANKS.type -> THANKS
+        else -> UNKNOWN
+    }
+}
+
         
         /** This function can be used to determine if an action is delete or hide.*/
         fun isActionDelete(event: FeedEvent, eventType: FeedEventType, parentUser: String): Boolean =
