@@ -237,7 +237,7 @@ dependencies {
     implementation(libs.gson)
 
     // Networking and parsing
-    implementation(libs.jsoup)
+    implementation(libs.ksoup)
     implementation(libs.socket.io) {
         exclude(group = "org.json", module = "json")
     }
