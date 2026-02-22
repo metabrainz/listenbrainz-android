@@ -105,9 +105,7 @@ fun BaseSearchScreen(
         onQueryChange = viewModel::updateQueryFlow,
         onClear = viewModel::clearUi,
         onErrorShown = viewModel::clearErrorFlow,
-        placeholderText = uiState.selectedSearchType.placeholder,
-        onChangeSearchOption = viewModel::updateSearchOption,
-        isBrainzPlayerSearch = false,
+        placeholderText = uiState.selectedSearchType.placeholder
     ) {
         Column(
             modifier = Modifier.fillMaxSize()

@@ -79,8 +79,7 @@ fun BrainzPlayerSearchScreen(
             viewModel.clearSearchResults()
         },
         onErrorShown = { error = null },
-        placeholderText = "Search your music library",
-        isBrainzPlayerSearch = true
+        placeholderText = "Search your music library"
     ) {
         LazyColumn {
             itemsIndexed(searchItems) { _, song ->
