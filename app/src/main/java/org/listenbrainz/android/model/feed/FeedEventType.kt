@@ -109,6 +109,7 @@ enum class FeedEventType (
     @Composable
     fun Content(
         event: FeedEvent,
+        referencedEvent: FeedEvent? = null,
         parentUser: String,
         isHidden: Boolean,
         onDeleteOrHide: () -> Unit,
@@ -228,7 +229,8 @@ enum class FeedEventType (
    THANKS -> ThanksFeedLayout(
     event = event,
     parentUser = parentUser,
-    goToUserPage = goToUserPage
+    goToUserPage = goToUserPage,
+    referencedEvent=referencedEvent
 )
 
 
@@ -455,17 +457,20 @@ enum class FeedEventType (
                     }
                 }
             }
-                
-THANKS -> {
+ THANKS -> {
     buildAnnotatedString {
 
-        val thanker = feedEvent.metadata.thankerUsername ?: "Someone"
-        val thankee = feedEvent.metadata.thankeeUsername ?: "someone"
+        val thanker = feedEvent.metadata.thankerUsername ?: feedEvent.username ?: "Someone"
+        val isSelf = thanker == parentUser
+        val displayName = if (isSelf) "You" else thanker
 
-        withStyle(linkStyle) { append(thanker) }
-        withStyle(normalStyle) { append(" thanked ") }
-        withStyle(linkStyle) { append(thankee) }
-        withStyle(normalStyle) { append(".") }
+        withStyle(linkStyle) {
+            append(displayName)
+        }
+
+        withStyle(normalStyle) {
+            append(" thanked you for recommending a track.")
+        }
     }
 }
 
@@ -507,8 +512,6 @@ THANKS -> {
         }
         
         fun resolveEvent(event: FeedEvent?): FeedEventType {
-
-    android.util.Log.d("THANKS_DEBUG", "Incoming event type -> ${event?.type}")
 
     return when (event?.type) {
         RECORDING_RECOMMENDATION.type -> RECORDING_RECOMMENDATION
