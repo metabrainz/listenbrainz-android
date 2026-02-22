@@ -1,6 +1,7 @@
 package org.listenbrainz.android.viewmodel
 
 import android.net.Uri
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.combineTransform
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.getAndUpdate
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -54,10 +56,11 @@ class SearchViewModel(
     private val ioDispatcher: CoroutineDispatcher,
     private val defaultDispatcher: CoroutineDispatcher,
 ) : FollowUnfollowModel<SearchUiState>(userRepository, ioDispatcher) {
-    private val inputQueryFlow = MutableStateFlow("")
-    
+    private val _inputQueryFlow = MutableStateFlow(TextFieldValue(""))
+    val inputQueryFlow = _inputQueryFlow.asStateFlow()
+
     @OptIn(FlowPreview::class)
-    private val queryFlow = inputQueryFlow.asStateFlow().debounce(500).distinctUntilChanged()
+    private val queryFlow = _inputQueryFlow.asStateFlow().map { it.text }.debounce(500).distinctUntilChanged()
     
     // Result flows
     private val userListFlow = MutableStateFlow<List<User>>(emptyList())
@@ -412,10 +415,10 @@ class SearchViewModel(
             resultFlow,
             errorFlow,
             searchOption
-        ) { query: String, result: SearchData?, error: ResponseError?, selectedType ->
+        ) { query: TextFieldValue, result: SearchData?, error: ResponseError?, selectedType ->
             return@combine SearchUiState(
                 selectedSearchType = selectedType,
-                query = query,
+                query = query.text,
                 result = result,
                 error = error
             )
@@ -432,9 +435,9 @@ class SearchViewModel(
     }
 
 
-    fun updateQueryFlow(query: String) {
+    fun updateQueryFlow(query: TextFieldValue) {
         viewModelScope.launch {
-            inputQueryFlow.emit(query)
+            _inputQueryFlow.emit(query)
         }
     }
 
@@ -465,7 +468,7 @@ class SearchViewModel(
             artistFlow.emit(emptyList())
             albumFlow.emit(emptyList())
             trackFlow.emit(emptyList())
-            inputQueryFlow.emit("")
+            _inputQueryFlow.emit(TextFieldValue(""))
         }
     }
 }

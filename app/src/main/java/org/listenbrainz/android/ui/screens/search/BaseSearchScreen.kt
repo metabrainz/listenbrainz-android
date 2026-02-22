@@ -70,6 +70,7 @@ fun BaseSearchScreen(
     deactivate: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val baseQueryFlow by viewModel.inputQueryFlow.collectAsState()
     val isLoading by viewModel.isLoadingFlow.collectAsState()
     val searchOptions = remember {
         listOf(
@@ -98,11 +99,14 @@ fun BaseSearchScreen(
 
     SearchScreen(
         uiState = uiState,
+        queryValue = baseQueryFlow,
         onDismiss = {
             deactivate()
             viewModel.clearUi()
         },
-        onQueryChange = viewModel::updateQueryFlow,
+        onQueryChange = {
+            viewModel.updateQueryFlow(it)
+        },
         onClear = viewModel::clearUi,
         onErrorShown = viewModel::clearErrorFlow,
         placeholderText = uiState.selectedSearchType.placeholder
@@ -728,7 +732,8 @@ fun ShimmerPlaylistAndArtistItem(
     ) {
 
         Column(
-            modifier = Modifier.fillMaxHeight()
+            modifier = Modifier
+                .fillMaxHeight()
                 .padding(start = 15.dp),
             verticalArrangement = Arrangement.Center
         ) {

@@ -78,7 +78,6 @@ fun HomeScreen(
         rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
     var scrollToTopState by remember { mutableStateOf(false) }
     val snackbarState = remember { SnackbarHostState() }
-    val searchBarState = rememberSearchBarState()
     val scope = rememberCoroutineScope()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -200,7 +199,6 @@ fun HomeScreen(
                         currentlyPlayingSong = currentlyPlayingSong.toSong,
                         songList = songList ?: emptyList(),
                         listeningNowUIState = listeningNowUIState,
-                        searchBarState = searchBarState,
                     )
                 }
             }
@@ -234,7 +232,6 @@ fun HomeScreen(
                     currentlyPlayingSong = currentlyPlayingSong.toSong,
                     listeningNowUIState = listeningNowUIState,
                     songList = songList ?: emptyList(),
-                    searchBarState = searchBarState
                 )
             }
 //            if (isGrantedPerms == PermissionStatus.GRANTED.name) {

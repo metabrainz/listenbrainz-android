@@ -70,10 +70,9 @@ fun BrainzPlayerSearchScreen(
             )
         },
         onDismiss = ::onDismiss,
-        onQueryChange = { newValue: String ->
-            val updatedQuery =
-                TextFieldValue(newValue, selection = brainzplayerQueryState.selection)
-            viewModel.updateSearchQuery(updatedQuery)
+        queryValue = brainzplayerQueryState,
+        onQueryChange = {
+            viewModel.updateSearchQuery(it)
         },
         onClear = {
             viewModel.clearSearchResults()
