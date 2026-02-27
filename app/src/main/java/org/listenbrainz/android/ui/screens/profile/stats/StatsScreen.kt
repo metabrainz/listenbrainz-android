@@ -22,6 +22,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -311,22 +312,32 @@ fun StatsScreen(
                             statsRangeState
                         )] ?: listOf()
 
+                        val isStatsChartSuccess = data.isNotEmpty()
+                        val isStatsChartError = !isStatsChartSuccess && !isLoading
 
-                        if (isRefreshing) {
-                            Box(
-                                modifier = Modifier
-                                    .padding(horizontal = 11.dp)
-                                    .fillMaxWidth()
-                                    .height(250.dp)
-                                    .shimmer(shimmerInstance)
-                                    .background(
-                                        Color.Gray.copy(alpha = 0.8f),
-                                        RoundedCornerShape(12.dp)
+                        when {
+                            isLoading -> {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(horizontal = 11.dp)
+                                        .fillMaxWidth()
+                                        .height(250.dp)
+                                        .background(
+                                            Color.Gray.copy(alpha = 0.8f), RoundedCornerShape(12.dp)
+                                        )
+                                ){
+                                    CircularProgressIndicator(
+                                        modifier = Modifier
+                                            .size(24.dp)
+                                            .align(Alignment.Center),
+                                        color = ListenBrainzTheme.colorScheme.lbSignature,
+                                        strokeWidth = 2.dp
                                     )
-                            )
+                                }
 
-                        } else {
-                            if (data.isNotEmpty()) {
+                            }
+
+                             isStatsChartSuccess -> {
                                 val modelProducer = remember {
                                     CartesianChartModelProducer()
                                 }
@@ -416,12 +427,26 @@ fun StatsScreen(
                                     modelProducer = modelProducer,
                                 )
 
-                            } else {
-                                Text(
-                                    "There are no statistics available for this user for this period",
-                                    color = ListenBrainzTheme.colorScheme.text,
-                                    modifier = Modifier.padding(start = 10.dp)
-                                )
+                            }
+
+                            isStatsChartError -> {
+                                Box(
+                                    modifier = Modifier
+                                        .padding(horizontal = 11.dp)
+                                        .fillMaxWidth()
+                                        .height(250.dp)
+                                        .background(
+                                            Color.Gray.copy(alpha = 0.5f), RoundedCornerShape(12.dp)
+                                        )
+                                ) {
+                                    Text(
+                                        "There are no statistics available for this user for this period",
+                                        color = ListenBrainzTheme.colorScheme.text,
+                                        modifier = Modifier
+                                            .padding(start = 10.dp)
+                                            .align(Alignment.Center)
+                                    )
+                                }
                             }
 
                         }
