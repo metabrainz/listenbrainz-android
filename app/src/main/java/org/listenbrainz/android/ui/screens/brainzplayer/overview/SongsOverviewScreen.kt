@@ -50,8 +50,8 @@ fun SongsOverviewScreen(
     onPlayIconClick: (Song, List<Song>) -> Unit,
     onPlayNext: ((Song) -> Unit)?,
     onAddToQueue: ((Song) -> Unit)?,
-    onAddToExistingPlaylist: ((Song) -> Unit)?,
-    onAddToNewPlaylist: ((Song) -> Unit)?,
+    onAddToExistingPlaylist: ((Song) -> Unit)? = null,
+    onAddToNewPlaylist: ((Song) -> Unit)? = null,
 ) {
     val songsStarting = remember { mutableStateOf<Map<Char, List<Song>>>(emptyMap()) }
 

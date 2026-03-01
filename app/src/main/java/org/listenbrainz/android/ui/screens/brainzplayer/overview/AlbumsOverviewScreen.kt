@@ -28,10 +28,10 @@ import org.listenbrainz.android.ui.components.BrainzPlayerDropDownMenu
 fun AlbumsOverViewScreen(
     albums: List<Album>,
     onPlayIconClick: (Album) -> Unit,
-    onAddToNewPlaylist: ((Album) -> Unit)?,
-    onPlayNext: ((Album) -> Unit)?,
-    onAddToQueue: ((Album) -> Unit)?,
-    onAddToExistingPlaylist: ((Album) -> Unit)?,
+    onAddToNewPlaylist: ((Album) -> Unit)? = null,
+    onPlayNext: ((Album) -> Unit)? = null,
+    onAddToQueue: ((Album) -> Unit)? = null,
+    onAddToExistingPlaylist: ((Album) -> Unit)? = null,
 ) {
 
     val albumSections = remember(albums) {

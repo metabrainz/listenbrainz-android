@@ -36,8 +36,6 @@ fun RecentPlaysScreen(
     onPlayIconClick: (Song) -> Unit,
     onAddToQueue : (Song) -> Unit,
     onPlayNext : (Song) -> Unit,
-    onAddToNewPlaylist : (Song) -> Unit,
-    onAddToExistingPlaylist : (Song) -> Unit
 ) {
     val dropdownState : MutableState<Pair<Int,Int>> = remember {mutableStateOf(Pair(-1,-1))}
     Column (modifier = Modifier
@@ -55,7 +53,14 @@ fun RecentPlaysScreen(
                     fontSize = 25.sp
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-                PlayedThisWeek(songsPlayed = songsPlayedToday, sectionChosen = 0, onPlayIconClick = onPlayIconClick, dropDownState = dropdownState,  onAddToQueue = onAddToQueue, onAddToNewPlaylist = onAddToNewPlaylist, onAddToExistingPlaylist = onAddToExistingPlaylist, onPlayNext = onPlayNext)
+                PlayedThisWeek(
+                    songsPlayed = songsPlayedToday,
+                    sectionChosen = 0,
+                    onPlayIconClick = onPlayIconClick,
+                    dropDownState = dropdownState,
+                    onAddToQueue = onAddToQueue,
+                    onPlayNext = onPlayNext
+                )
             }
         }
         if(songsPlayedThisWeek.isNotEmpty()) {
@@ -70,7 +75,14 @@ fun RecentPlaysScreen(
                     fontSize = 25.sp
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-                PlayedThisWeek(songsPlayed = songsPlayedThisWeek, sectionChosen = 1, onPlayIconClick = onPlayIconClick, dropDownState = dropdownState, onAddToQueue = onAddToQueue, onAddToNewPlaylist = onAddToNewPlaylist, onAddToExistingPlaylist = onAddToExistingPlaylist, onPlayNext = onPlayNext)
+                PlayedThisWeek(
+                    songsPlayed = songsPlayedThisWeek,
+                    sectionChosen = 1,
+                    onPlayIconClick = onPlayIconClick,
+                    dropDownState = dropdownState,
+                    onAddToQueue = onAddToQueue,
+                    onPlayNext = onPlayNext
+                )
             }
         }
     }
@@ -83,10 +95,10 @@ private fun PlayedThisWeek(
     onPlayIconClick: (Song) -> Unit,
     sectionChosen:Int,
     dropDownState : MutableState<Pair<Int,Int>>,
-    onAddToQueue: ((Song) -> Unit)?,
-    onPlayNext: ((Song) -> Unit)?,
-    onAddToExistingPlaylist: ((Song) -> Unit)?,
-    onAddToNewPlaylist: ((Song) -> Unit)?
+    onAddToQueue: ((Song) -> Unit)? = null,
+    onPlayNext: ((Song) -> Unit)? = null,
+    onAddToExistingPlaylist: ((Song) -> Unit)? = null,
+    onAddToNewPlaylist: ((Song) -> Unit)? = null,
 ){
     val viewModel: BrainzPlayerViewModel = koinViewModel()
     val currentlyPlayingSong = viewModel.currentlyPlayingSong.collectAsStateWithLifecycle().value.toSong
