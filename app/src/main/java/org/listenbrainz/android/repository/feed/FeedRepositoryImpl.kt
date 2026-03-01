@@ -8,6 +8,9 @@ import org.listenbrainz.android.model.feed.FeedEventVisibilityData
 import org.listenbrainz.android.service.FeedServiceKtor
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.parseResponse
+import org.listenbrainz.android.model.feed.FeedEvent
+
+
 
 
 class FeedRepositoryImpl(
@@ -111,4 +114,12 @@ class FeedRepositoryImpl(
             body = data
         )
     }
+override suspend fun getFeedEventById(id: Long): Resource<FeedEvent> =
+    parseResponse {
+        service.getFeedEventById(id)
+    }
+    override suspend fun getPinById(id: Long): Resource<FeedEvent> = parseResponse {
+    service.getPinById(id)
+}
+
 }

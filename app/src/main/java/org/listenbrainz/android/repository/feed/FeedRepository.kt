@@ -5,6 +5,7 @@ import org.listenbrainz.android.model.feed.FeedData
 import org.listenbrainz.android.model.feed.FeedEventDeletionData
 import org.listenbrainz.android.model.feed.FeedEventVisibilityData
 import org.listenbrainz.android.util.Resource
+import org.listenbrainz.android.model.feed.FeedEvent
 
 interface FeedRepository {
 
@@ -43,7 +44,10 @@ interface FeedRepository {
         username: String?,
         data: FeedEventVisibilityData
     ): Resource<SocialResponse>
-    
+   suspend fun getFeedEventById(id: Long): Resource<FeedEvent>
+
+    suspend fun getPinById(id: Long): Resource<FeedEvent>
+
     companion object {
         const val FeedEventCount = 25
         const val FeedListensCount = 40

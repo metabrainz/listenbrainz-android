@@ -42,4 +42,8 @@ interface FeedServiceKtor {
         username: String,
         body: FeedEventVisibilityData
     ): SocialResponse
+    suspend fun getFeedEventById(
+    id: Long
+): org.listenbrainz.android.model.feed.FeedEvent
+suspend fun getPinById(id: Long): org.listenbrainz.android.model.feed.FeedEvent
 }

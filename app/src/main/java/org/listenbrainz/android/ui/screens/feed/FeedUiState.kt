@@ -31,5 +31,6 @@ data class FeedUiEventData(
 data class FeedUiEventItem(
     val eventType: FeedEventType,
     val event: FeedEvent,
-    val parentUser: String = ""
+    val parentUser: String = "",
+    val referencedEvent: FeedEvent? = null
 )

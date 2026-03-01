@@ -38,7 +38,9 @@ class MyFeedPagingSource (
         return when (result.status) {
             Resource.Status.SUCCESS -> {
                 
-                val processedEvents = processFeedEvents(result.data)
+              val processedEvents = withContext(ioDispatcher) {
+    processFeedEvents(result.data)
+}
 
                 val nextKey = processedEvents.lastOrNull()?.event?.created?.let { newKey ->
                     // Termination condition.
@@ -68,26 +70,55 @@ class MyFeedPagingSource (
         
     }
     
-    private fun processFeedEvents(feedData: FeedData?): List<FeedUiEventItem> {
-        
-        return mutableListOf<FeedUiEventItem>().apply {
-            
-            feedData?.payload?.events?.forEach { event ->
-                
-                // Add the entry to map.
-                if (event.hidden == true) {
-                    event.id?.let { addEntryToMap(it, true) }
-                }
-                
-                add(
-                    FeedUiEventItem(
-                        event = event,
-                        eventType = FeedEventType.resolveEvent(event),
-                        parentUser = feedData.payload.userId
-                    )
-                )
-            }
+  private suspend fun processFeedEvents(feedData: FeedData?): List<FeedUiEventItem> {
+
+    val items = mutableListOf<FeedUiEventItem>()
+   
+
+
+    feedData?.payload?.events?.forEach { event ->
+
+        if (event.hidden == true) {
+            event.id?.let { addEntryToMap(it, true) }
         }
+
+        val eventType = FeedEventType.resolveEvent(event)
+
+   var referenced: org.listenbrainz.android.model.feed.FeedEvent? = null
+
+if (eventType == FeedEventType.THANKS) {
+
+    val originalId = event.metadata.originalEventId
+    val originalType = event.metadata.originalEventType
+
+    if (originalId != null) {
+        try {
+
+            val response = if (originalType == "recording_pin") {
+                feedRepository.getPinById(originalId)
+            } else {
+                feedRepository.getFeedEventById(originalId)
+            }
+
+            if (response.status == Resource.Status.SUCCESS) {
+                referenced = response.data
+            }
+
+        } catch (_: Exception) {}
     }
-    
+}
+
+
+        items.add(
+            FeedUiEventItem(
+                event = event,
+                eventType = eventType,
+                parentUser = feedData.payload.userId,
+                referencedEvent = referenced
+            )
+        )
+    }
+
+    return items
+}
 }
