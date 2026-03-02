@@ -79,6 +79,8 @@ kotlin {
                 // Room Multiplatform
                 implementation(libs.androidx.room.runtime)
                 implementation(libs.androidx.sqlite.bundled)
+                // Kermit Logger
+                implementation(libs.kermit)
             }
         }
 

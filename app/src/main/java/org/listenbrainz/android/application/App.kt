@@ -22,7 +22,7 @@ import org.listenbrainz.android.di.appModules
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.service.ListenSubmissionService
 import org.listenbrainz.android.util.Constants
-import org.listenbrainz.android.util.Log
+import org.listenbrainz.shared.util.Log
 import org.listenbrainz.android.util.Utils.isServiceRunning
 
 class App : Application(), Configuration.Provider {

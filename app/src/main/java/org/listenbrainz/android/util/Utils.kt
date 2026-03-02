@@ -66,6 +66,7 @@ import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ApiError
 import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.util.Log
 import java.io.*
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
 import org.listenbrainz.android.model.Listen
-import org.listenbrainz.android.util.Log
+import org.listenbrainz.shared.util.Log
 
 
 class SocketRepositoryImpl : SocketRepository {

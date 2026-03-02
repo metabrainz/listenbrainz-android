@@ -21,7 +21,7 @@ import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.util.ListenSessionListener.Companion.isPlaying
 import org.listenbrainz.android.util.ListenSubmissionState
 import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractTitle
-import org.listenbrainz.android.util.Log
+import org.listenbrainz.shared.util.Log
 
 /**
  * The sole responsibility of this layer is to maintain mutual exclusion between [onMetadataChanged] and

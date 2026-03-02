@@ -31,7 +31,7 @@ import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.service.YouTubeApiService
 import org.listenbrainz.android.util.Constants
-import org.listenbrainz.android.util.Log
+import org.listenbrainz.shared.util.Log
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.parseResponse
 import java.util.concurrent.atomic.AtomicBoolean

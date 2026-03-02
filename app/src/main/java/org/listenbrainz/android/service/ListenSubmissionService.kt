@@ -19,7 +19,7 @@ import org.listenbrainz.android.repository.listenservicemanager.ListenServiceMan
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.util.ListenSessionListener
 import org.listenbrainz.android.util.ListenSubmissionState.Companion.getListeningNotification
-import org.listenbrainz.android.util.Log
+import org.listenbrainz.shared.util.Log
 
 class ListenSubmissionService : NotificationListenerService() {
 

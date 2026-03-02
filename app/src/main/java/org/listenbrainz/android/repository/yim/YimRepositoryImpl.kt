@@ -3,7 +3,7 @@ package org.listenbrainz.android.repository.yim
 import androidx.annotation.WorkerThread
 import org.listenbrainz.android.model.yimdata.YimPayload
 import org.listenbrainz.android.service.YimService
-import org.listenbrainz.android.util.Log
+import org.listenbrainz.shared.util.Log
 import org.listenbrainz.android.util.Resource
 
 

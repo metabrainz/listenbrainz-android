@@ -6,7 +6,7 @@ import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_AUTO_TRANSITION
 import com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT
-import org.listenbrainz.android.util.Log
+import org.listenbrainz.shared.util.Log
 
 class BrainzPlayerEventListener(
     private val brainzPlayerService: BrainzPlayerService
