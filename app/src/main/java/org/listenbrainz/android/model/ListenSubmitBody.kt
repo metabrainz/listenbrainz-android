@@ -12,8 +12,8 @@ import java.util.*
 class ListenSubmitBody {
     @SerialName("listen_type")
     var listenType: String? = "single"
-    @JvmField
     var payload: MutableList<Payload> = ArrayList()
+        private set
     
     fun addListens(vararg listens: Payload, listensList: List<Payload> = emptyList()): ListenSubmitBody {
         listensList.forEach { payload.add(it) }

@@ -151,7 +151,7 @@ fun BrainzPlayerHomeScreen(
                     ElevatedSuggestionChip(
                         modifier = Modifier.padding(ListenBrainzTheme.paddings.chipsHorizontal),
                         colors = SuggestionChipDefaults.elevatedSuggestionChipColors(
-                            if (position == currentTab.value) {
+                            if (position == currentTab.intValue) {
                                 ListenBrainzTheme.colorScheme.chipSelected
                             } else {
                                 ListenBrainzTheme.colorScheme.chipUnselected
@@ -173,18 +173,18 @@ fun BrainzPlayerHomeScreen(
                                 color = ListenBrainzTheme.colorScheme.text,
                             )
                         },
-                        onClick = { currentTab.value = position }
+                        onClick = { currentTab.intValue = position }
                     )
                 }
             }
 
-            when (currentTab.value) {
+            when (currentTab.intValue) {
                 0 -> OverviewScreen(
                     songsPlayedToday = songsPlayedToday,
                     recentlyPlayedSongs = recentlyPlayedSongs,
-                    goToRecentScreen = { currentTab.value = 1 },
-                    goToArtistScreen = { currentTab.value = 2 },
-                    goToAlbumScreen = { currentTab.value = 3 },
+                    goToRecentScreen = { currentTab.intValue = 1 },
+                    goToArtistScreen = { currentTab.intValue = 2 },
+                    goToAlbumScreen = { currentTab.intValue = 3 },
                     brainzPlayerViewModel = brainzPlayerViewModel,
                     artists = previewArtists,
                     albums = previewAlbums,
@@ -210,10 +210,6 @@ fun BrainzPlayerHomeScreen(
                     onPlayNext = { song ->
                         brainzPlayerViewModel.playNext(listOf(song))
                     },
-                    onAddToExistingPlaylist = { song ->
-                    },
-                    onAddToNewPlaylist = { song ->
-                    }
                 )
 
                 2 -> ArtistsOverviewScreen(
@@ -234,10 +230,6 @@ fun BrainzPlayerHomeScreen(
                     onAddToQueue = { artist ->
                         brainzPlayerViewModel.addToQueue(artist.songs)
                     },
-                    onAddToNewPlaylist = { artist ->
-                    },
-                    onAddToExistingPlaylist = { artist ->
-                    }
                 )
 
                 3 -> AlbumsOverViewScreen(
@@ -265,7 +257,13 @@ fun BrainzPlayerHomeScreen(
                                 ).show()
                             }
                         }
-                    }
+                    },
+                    onPlayNext = { album ->
+                        brainzPlayerViewModel.playNext(songs)
+                    },
+                    onAddToQueue = { album ->
+                        brainzPlayerViewModel.addToQueue(songs)
+                    },
                 )
 
                 4 -> SongsOverviewScreen(
@@ -286,13 +284,8 @@ fun BrainzPlayerHomeScreen(
                     onPlayNext = { song ->
                         brainzPlayerViewModel.playNext(listOf(song))
                     },
-                    onAddToExistingPlaylist = { song ->
-                    },
-                    onAddToNewPlaylist = { song ->
-                    }
                 )
             }
         }
     }
-
 }

@@ -4,12 +4,14 @@ import de.jensklingenberg.ktorfit.http.Body
 import de.jensklingenberg.ktorfit.http.GET
 import de.jensklingenberg.ktorfit.http.POST
 import de.jensklingenberg.ktorfit.http.Path
+import de.jensklingenberg.ktorfit.http.Query
 import io.ktor.client.statement.HttpResponse
 import org.listenbrainz.android.model.playlist.AddCopyPlaylistResponse
 import org.listenbrainz.android.model.playlist.DeleteTracks
 import org.listenbrainz.android.model.playlist.EditPlaylistResponse
 import org.listenbrainz.android.model.playlist.MoveTrack
 import org.listenbrainz.android.model.playlist.PlaylistPayload
+import org.listenbrainz.android.model.playlist.PlaylistSearchResult
 
 interface PlaylistService {
 
@@ -56,4 +58,9 @@ interface PlaylistService {
         @Path("playlist_mbid") playlistMbid: String,
         @Body deleteTracks: DeleteTracks
     ): EditPlaylistResponse
+
+    @GET("playlist/search")
+    suspend fun searchPlaylist(
+        @Query("query") query : String
+    ): PlaylistSearchResult
 }

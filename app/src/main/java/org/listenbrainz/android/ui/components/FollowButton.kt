@@ -23,7 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.listenbrainz.android.model.UserListUiState
+import org.listenbrainz.android.model.search.userSearch.UserListUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 /** State of this button changes optimistically and will revert back if something goes wrong. This inversion of state is determined by

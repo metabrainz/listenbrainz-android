@@ -11,6 +11,7 @@ import org.listenbrainz.android.model.playlist.EditPlaylistResponse
 import org.listenbrainz.android.model.playlist.MoveTrack
 import org.listenbrainz.android.model.playlist.PlaylistData
 import org.listenbrainz.android.model.playlist.PlaylistPayload
+import org.listenbrainz.android.model.playlist.PlaylistSearchResult
 import org.listenbrainz.android.model.playlist.PlaylistTrack
 import org.listenbrainz.android.model.recordingSearch.RecordingSearchPayload
 import org.listenbrainz.android.model.userPlaylist.UserPlaylistPayload
@@ -157,5 +158,10 @@ class PlaylistDataRepositoryImpl(
             failIf(username.isNullOrEmpty()) { ResponseError.BadRequest() }
             userService.getUserCollabPlaylists(username, offset, count)
         }
+    }
+
+    override suspend fun searchPlaylists(query: String?): Resource<PlaylistSearchResult> = parseResponse{
+        failIf(query.isNullOrEmpty() || query.length < 3) { ResponseError.BadRequest() }
+        playlistService.searchPlaylist(query)
     }
 }
