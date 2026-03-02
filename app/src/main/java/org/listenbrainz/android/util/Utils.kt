@@ -64,6 +64,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
+import org.listenbrainz.shared.util.Log
 import org.listenbrainz.shared.model.ApiError
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.util.Constants

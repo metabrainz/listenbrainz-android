@@ -23,6 +23,7 @@ import org.listenbrainz.android.service.ListenSubmissionService.Companion.NOTIFI
 import org.listenbrainz.android.service.ListenSubmissionWorker.Companion.buildWorkRequest
 import org.listenbrainz.android.ui.screens.main.MainActivity
 import org.listenbrainz.android.util.Utils.canShowNotifications
+import org.listenbrainz.shared.util.Log
 
 open class ListenSubmissionState {
     var playingTrack: PlayingTrack = PlayingTrack()

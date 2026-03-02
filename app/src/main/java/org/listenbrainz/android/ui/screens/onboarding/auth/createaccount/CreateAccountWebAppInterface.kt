@@ -1,7 +1,7 @@
 package org.listenbrainz.android.ui.screens.onboarding.auth.createaccount
 
 import android.webkit.JavascriptInterface
-import com.limurse.logger.Logger
+import org.listenbrainz.shared.util.Log
 
 class CreateAccountWebAppInterface(
     private val onCaptchaVerificationCompleted: () -> Unit
@@ -9,6 +9,6 @@ class CreateAccountWebAppInterface(
     @JavascriptInterface
     fun onCaptchaVerified() {
         onCaptchaVerificationCompleted()
-        Logger.d("CreateAccountWebAppInterface", "Captcha verified callback received from WebView")
+        Log.d("Captcha verified callback received from WebView", tag = "CreateAccountWebAppInterface")
     }
 }

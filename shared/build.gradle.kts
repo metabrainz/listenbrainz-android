@@ -91,6 +91,8 @@ kotlin {
                 // Room Multiplatform
                 implementation(libs.androidx.room.runtime)
                 implementation(libs.androidx.sqlite.bundled)
+                // Kermit Logger
+                implementation(libs.kermit)
                 // Ktor & Ktorfit
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.content.negotiation)

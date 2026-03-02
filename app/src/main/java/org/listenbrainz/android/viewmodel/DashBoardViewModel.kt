@@ -28,7 +28,7 @@ import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginConsentScreenUIState
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.AppInfo
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
-import org.listenbrainz.android.util.Log
+import org.listenbrainz.shared.util.Log
 import org.listenbrainz.android.util.Utils.getAllInstalledApps
 import org.listenbrainz.android.util.Utils.getListeningApps
 
