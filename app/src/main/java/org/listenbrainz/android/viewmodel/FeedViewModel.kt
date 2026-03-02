@@ -249,10 +249,6 @@ class FeedViewModel(
         }
     }
 
-
-
-
-
     private suspend fun hideEvent(data: FeedEventVisibilityData) {
         
         // Optimistically toggle

@@ -513,32 +513,32 @@ fun StatsScreen(
                                     topAlbums.mapIndexed { index, topAlbum ->
                                         val metadata = topAlbum.toMetadata()
                                         ListenCardSmallDefault(
+                                            metadata = metadata,
+                                            coverArtUrl = getCoverArtUrl(
+                                                topAlbum.caaReleaseMbid,
+                                                topAlbum.caaId
+                                            ),
                                             modifier = Modifier
                                                 .padding(
                                                     vertical = ListenBrainzTheme.paddings.lazyListAdjacent,
                                                     horizontal = ListenBrainzTheme.paddings.horizontal
                                                 ),
-                                            metadata = metadata,
-                                            coverArtUrl = getCoverArtUrl(
-                                                topAlbum.caaReleaseMbid,
-                                                topAlbum.caaId
+                                            titleColor = ListenBrainzTheme.colorScheme.followerChipSelected,
+                                            subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(
+                                                alpha = 0.7f
                                             ),
                                             trailingContent = {
                                                 if (topAlbum.listenCount != null) {
                                                     ListenCountChip(formatNumber(topAlbum.listenCount))
                                                 }
                                             },
-                                            titleColor = ListenBrainzTheme.colorScheme.followerChipSelected,
-                                            subtitleColor = ListenBrainzTheme.colorScheme.listenText.copy(
-                                                alpha = 0.7f
-                                            ),
+                                            goToArtistPage = goToArtistPage,
                                             onDropdownError = {
                                                 snackbarState.showSnackbar(it.toast)
                                             },
                                             onDropdownSuccess = {
                                                 snackbarState.showSnackbar(it)
                                             },
-                                            goToArtistPage = goToArtistPage,
                                             onClick = {}
                                         ) {
                                             metadata.trackMetadata?.let { playListen(it) }

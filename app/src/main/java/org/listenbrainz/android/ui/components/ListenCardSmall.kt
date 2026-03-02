@@ -398,14 +398,14 @@ private fun ListenCardSmallPreview() {
                     TitleAndSubtitle(title = "Userrrrrrrrrrrrrr", goToArtistPage = {}, artists = listOf(FeedListenArtist("Artist", "", "")),)
                 }
             },
+            goToArtistPage = {},
             blurbContent = {
                 Column(modifier = it) {
                     Text(text = "Blurb Content", color = ListenBrainzTheme.colorScheme.text)
                 }
             },
-            onDropdownError = {},
             onDropdownSuccess = {},
-            goToArtistPage = {},
+            onDropdownError = {},
             onDelete ={},
             onClick = {}
         )
