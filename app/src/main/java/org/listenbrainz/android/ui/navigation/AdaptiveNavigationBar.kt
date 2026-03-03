@@ -66,7 +66,6 @@ fun AdaptiveNavigationBar(
     currentlyPlayingSong: Song,
     listeningNowUIState: ListeningNowUIState,
     songList: List<Song>,
-    searchBarState: SearchBarState,
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -164,9 +163,6 @@ fun AdaptiveNavigationBar(
                         navController.popBackStack()
                     }
 
-                    if (searchBarState.isActive) {
-                        searchBarState.deactivate()
-                    }
 
                     when (item.route) {
                         AppNavigationItem.Profile.route -> {
@@ -252,7 +248,6 @@ fun AdaptiveNavigationBarPreview() {
         currentlyPlayingSong = Song(),
         listeningNowUIState = ListeningNowUIState(),
         songList = emptyList(),
-        searchBarState = rememberSearchBarState(),
         items = BottomNavDefaults.items()
     )
 }

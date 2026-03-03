@@ -15,12 +15,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.TextFieldValue
 import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.PlayableType
 import org.listenbrainz.android.model.ResponseError
-import org.listenbrainz.android.model.SearchUiState
+import org.listenbrainz.android.model.Song
+import org.listenbrainz.android.model.feed.FeedListenArtist
+import org.listenbrainz.android.model.search.SearchData
+import org.listenbrainz.android.model.search.SearchUiState
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils.showToast
@@ -28,7 +30,6 @@ import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
 @Composable
 fun BrainzPlayerSearchScreen(
-    isActive: Boolean,
     viewModel: BrainzPlayerViewModel = koinViewModel(),
     deactivate: () -> Unit,
 ) {
@@ -46,53 +47,47 @@ fun BrainzPlayerSearchScreen(
         deactivate()
     }
 
-    AnimatedVisibility(
-        visible = isActive,
-        enter = fadeIn(),
-        exit = fadeOut()
+    SearchScreen(
+        uiState = remember(searchItems, brainzplayerQueryState.text, error) {
+            SearchUiState(
+                query = brainzplayerQueryState.text,
+                result = SearchData.Songs(searchItems),
+                error = error
+            )
+        },
+        onDismiss = ::onDismiss,
+        queryValue = brainzplayerQueryState,
+        onQueryChange = {
+            viewModel.updateSearchQuery(it)
+        },
+        onClear = {
+            viewModel.clearSearchResults()
+        },
+        onErrorShown = { error = null },
+        placeholderText = "Search your music library"
     ) {
-        SearchScreen(
-            uiState = remember(searchItems, brainzplayerQueryState.text, error) {
-                SearchUiState(
-                    query = brainzplayerQueryState.text,
-                    result = searchItems,
-                    error = error
-                )
-            },
-            onDismiss = ::onDismiss,
-            onQueryChange = { newValue: String ->
-                val updatedQuery = TextFieldValue(newValue, selection = brainzplayerQueryState.selection)
-                viewModel.updateSearchQuery(updatedQuery)
-            },
-            onClear = {
-                viewModel.clearSearchResults()
-            },
-            onErrorShown = { error = null },
-            placeholderText = "Search your music library"
-        ) {
-            LazyColumn {
-                itemsIndexed(searchItems) { _, song ->
-                    ListenCardSmallDefault(
-                        modifier = Modifier.padding(
-                            horizontal = ListenBrainzTheme.paddings.horizontal,
-                            vertical = ListenBrainzTheme.paddings.lazyListAdjacent
-                        ),
-                        metadata = song.toMetadata(),
-                        coverArtUrl = song.albumArt,
-                        errorAlbumArt = R.drawable.ic_erroralbumart,
-                        goToArtistPage = {},
-                        onDropdownSuccess = { context.showToast(it) },
-                        onDropdownError = { error = it }
-                    ) {
-                        viewModel.changePlayable(
-                            listOf(song),
-                            PlayableType.SONG,
-                            song.mediaID,
-                            0
-                        )
-                        viewModel.playOrToggleSong(song, true)
-                        onDismiss()
-                    }
+        LazyColumn {
+            itemsIndexed(searchItems) { _, song ->
+                ListenCardSmallDefault(
+                    modifier = Modifier.padding(
+                        horizontal = ListenBrainzTheme.paddings.horizontal,
+                        vertical = ListenBrainzTheme.paddings.lazyListAdjacent
+                    ),
+                    metadata = song.toMetadata(),
+                    coverArtUrl = song.albumArt,
+                    errorAlbumArt = R.drawable.ic_erroralbumart,
+                    goToArtistPage = {},
+                    onDropdownSuccess = { context.showToast(it) },
+                    onDropdownError = { error = it }
+                ) {
+                    viewModel.changePlayable(
+                        listOf(song),
+                        PlayableType.SONG,
+                        song.mediaID,
+                        0
+                    )
+                    viewModel.playOrToggleSong(song, true)
+                    onDismiss()
                 }
             }
         }

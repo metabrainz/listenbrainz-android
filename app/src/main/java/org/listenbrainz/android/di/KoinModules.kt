@@ -12,6 +12,7 @@ import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpRedirect
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
@@ -124,6 +125,7 @@ import org.listenbrainz.android.viewmodel.ArtistViewModel
 import org.listenbrainz.android.viewmodel.BPAlbumViewModel
 import org.listenbrainz.android.viewmodel.BPArtistViewModel
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
+import org.listenbrainz.android.viewmodel.CreateAccountViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.FeaturesViewModel
 import org.listenbrainz.android.viewmodel.FeedViewModel
@@ -151,6 +153,7 @@ private val jsonConfig = Json {
     coerceInputValues = true
     isLenient = true
     encodeDefaults = true
+    explicitNulls = false
 }
 
 private fun createBaseHttpClient(
@@ -292,7 +295,16 @@ val networkModule = module {
     }
 
     single<PlaylistService> {
-        val httpClient = createBaseHttpClient(androidContext(), get<AppPreferences>())
+        val httpClient = createBaseHttpClient(
+            context = androidContext(),
+            appPreferences = get<AppPreferences>(),
+            baseUrl = LISTENBRAINZ_API_BASE_URL
+        ).config {
+            install(HttpTimeout) {
+                requestTimeoutMillis = 30_000
+                socketTimeoutMillis = 30_000
+            }
+        }
         Ktorfit.Builder()
             .baseUrl(LISTENBRAINZ_API_BASE_URL)
             .httpClient(httpClient)
@@ -542,7 +554,7 @@ val viewModelModule = module {
     viewModel { YimViewModel(get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { Yim23ViewModel(get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { NewsListViewModel(get(), get(named(IO_DISPATCHER))) }
-    viewModel { SearchViewModel(get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
+    viewModel { SearchViewModel(get(),get(),get(),get(),get(), get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER))) }
     viewModel { BrainzPlayerViewModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
     viewModel { PlaylistViewModel(get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { BPAlbumViewModel(get(), get(named(IO_DISPATCHER))) }
@@ -554,6 +566,7 @@ val viewModelModule = module {
     viewModel { FeaturesViewModel(get()) }
     viewModel { AboutViewModel() }
     viewModel { LoginViewModel() }
+    viewModel { CreateAccountViewModel() }
 }
 
 val appModules = listOf(

@@ -3,6 +3,7 @@ package org.listenbrainz.android.repository.album
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.album.AlbumInfo
 import org.listenbrainz.android.model.album.Album
+import org.listenbrainz.android.model.albumSearch.AlbumSearchPayload
 import org.listenbrainz.android.model.artist.CBReview
 import org.listenbrainz.android.service.AlbumService
 import org.listenbrainz.android.service.CBService
@@ -29,5 +30,10 @@ class AlbumRepositoryImpl(
     override suspend fun fetchAlbumReviews(albumMbid: String?): Resource<CBReview?> = parseResponse {
         failIf(albumMbid.isNullOrEmpty()) { ResponseError.BadRequest() }
         cbService.getArtistReviews(albumMbid, entityType = "release_group")
+    }
+
+    override suspend fun searchAlbums(query: String?): Resource<AlbumSearchPayload?> = parseResponse{
+        failIf(query.isNullOrEmpty()) { ResponseError.BadRequest() }
+        mbService.searchAlbum(query)
     }
 }

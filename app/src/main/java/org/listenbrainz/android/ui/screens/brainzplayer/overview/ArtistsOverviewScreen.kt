@@ -29,10 +29,8 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 fun ArtistsOverviewScreen(
     artists: List<Artist>,
     onPlayClick : (Artist) -> Unit,
-    onPlayNext : (Artist) -> Unit,
-    onAddToQueue : (Artist) -> Unit,
-    onAddToExistingPlaylist : (Artist) -> Unit,
-    onAddToNewPlaylist : (Artist) -> Unit,
+    onPlayNext : ((Artist) -> Unit)?,
+    onAddToQueue : ((Artist) -> Unit)?,
 ) {
     val artistsStarting: MutableMap<Char, MutableList<Artist>> = mutableMapOf()
     var dropdownState by remember {
@@ -49,7 +47,7 @@ fun ArtistsOverviewScreen(
     Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
         for (i in 0..25) {
             val startingLetter: Char = ('A' + i)
-            if (artistsStarting[startingLetter]!!.size > 0) {
+            if (artistsStarting[startingLetter].isNullOrEmpty().not()) {
                 Column(
                     modifier = Modifier
                         .background(
@@ -82,10 +80,12 @@ fun ArtistsOverviewScreen(
                             modifier = Modifier.padding(start = 10.dp, end = 10.dp),
                             dropDown = {
                                 BrainzPlayerDropDownMenu(
-                                    onAddToNewPlaylist = {onAddToNewPlaylist(artist)},
-                                    onAddToExistingPlaylist = {onAddToExistingPlaylist(artist)},
-                                    onAddToQueue = {onAddToQueue(artist)},
-                                    onPlayNext = {onPlayNext(artist)},
+                                    onAddToQueue = onAddToQueue?.let { action->
+                                         {action(artist)}
+                                    },
+                                    onPlayNext = onPlayNext?.let { action->
+                                        {action(artist)}
+                                    },
                                     expanded = dropdownState == Pair(i,j-1),
                                     onDismiss = {dropdownState = Pair(-1,-1)},
                                     showShareOption = false

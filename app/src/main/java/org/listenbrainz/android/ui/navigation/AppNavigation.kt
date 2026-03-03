@@ -1,9 +1,12 @@
 package org.listenbrainz.android.ui.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -31,10 +34,13 @@ import org.listenbrainz.android.ui.screens.explore.ExploreScreen
 import org.listenbrainz.android.ui.screens.feed.FeedScreen
 import org.listenbrainz.android.ui.screens.playlist.PlaylistDetailScreen
 import org.listenbrainz.android.ui.screens.profile.ProfileScreen
+import org.listenbrainz.android.ui.screens.search.BaseSearchScreen
+import org.listenbrainz.android.ui.screens.search.BrainzPlayerSearchScreen
 import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScreen
 import org.listenbrainz.android.ui.screens.settings.SettingsScreen
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavigation(
     navController: NavController = rememberNavController(),
@@ -208,6 +214,34 @@ fun AppNavigation(
                     goToArtistPage = ::goToArtistPage,
                     goToUserPage = ::goToUserProfile,
                     topBarActions = topAppBarActions
+                )
+            }
+        }
+        appComposable(
+            route  = AppNavigationItem.SearchScreen.route
+        ){
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                BaseSearchScreen(
+                    deactivate = {
+                        navController.navigateUp()
+                    },
+                    goToUserPage = ::goToUserProfile,
+                    goToPlaylist = ::goToPlaylist,
+                    goToArtist = ::goToArtistPage,
+                    goToAlbum = ::goToAlbumPage
+                )
+            }
+        }
+        appComposable(
+            route = AppNavigationItem.BrainzPlayerSearchScreen.route
+        ){
+            Box(modifier = Modifier.fillMaxSize()){
+                BrainzPlayerSearchScreen(
+                    deactivate = {
+                        navController.navigateUp()
+                    }
                 )
             }
         }
