@@ -21,9 +21,7 @@ class ListenTrackMetadata(
 ) {
 
     fun isValid(): Boolean {
-        return artist != null
-                && track != null
-                && additionalInfo.durationMs != null
+        return artist != null && track != null
     }
     
     override fun toString(): String {
