@@ -72,7 +72,13 @@ class ListenSubmissionWorker(
         
         // Our listen to submit
         val listen = ListenSubmitBody.Payload(
-            timestamp = inputData.getLong(Constants.Strings.TIMESTAMP, 0).takeIf { it != 0L },
+            listenedAt = when (inputData.getString(LISTEN_TYPE)) {
+                ListenType.SINGLE.code -> inputData.getLong(
+                    Constants.Strings.TIMESTAMP,
+                    System.currentTimeMillis() / 1000
+                )
+                else -> null
+            },
             metadata = metadata
         )
     

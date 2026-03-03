@@ -32,19 +32,18 @@ class ListenSubmitBody {
     @Serializable
     @Entity(tableName = "PENDING_LISTENS")
     class Payload(
-        
         @SerialName("listened_at")
         @ColumnInfo(name = "listened_at")
         @PrimaryKey
-        var timestamp: Long? = null,
-        
+        val listenedAt: Long? = null,
+
         @SerialName("track_metadata")
         @Embedded
-        var metadata: ListenTrackMetadata = ListenTrackMetadata()
+        val metadata: ListenTrackMetadata = ListenTrackMetadata()
     ) {
         override fun toString(): String {
             return "Payload{" +
-                    "timestamp=" + timestamp +
+                    "listenedAt=" + listenedAt +
                     ", metadata=" + metadata +
                     '}'
         }
