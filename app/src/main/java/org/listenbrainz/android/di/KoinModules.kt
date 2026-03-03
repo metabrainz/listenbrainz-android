@@ -28,13 +28,10 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.module.dsl.bind
-import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.listenbrainz.android.BuildConfig
-import org.listenbrainz.android.application.App
 import org.listenbrainz.android.di.brainzplayer.BrainzPlayerDatabase
 import org.listenbrainz.android.di.brainzplayer.ListensSubmissionDatabase
 import org.listenbrainz.android.di.brainzplayer.Migrations
