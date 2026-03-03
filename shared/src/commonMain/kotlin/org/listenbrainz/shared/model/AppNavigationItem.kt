@@ -25,4 +25,6 @@ sealed class AppNavigationItem(
     data object Artist : AppNavigationItem("artist", "ic_artist", "ic_artist", "Artist")
     data object Album : AppNavigationItem("album", "ic_album", "ic_album", "Artist > Album")
     data object PlaylistScreen : AppNavigationItem("playlist", "ic_queue_music", "ic_queue_music", "Playlist")
+    data object SearchScreen: AppNavigationItem("search","ic_search","ic_search","Search")
+    data object BrainzPlayerSearchScreen: AppNavigationItem("brainzplayersearch", "ic_search","ic_search","Player Search")
 }

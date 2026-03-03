@@ -28,5 +28,6 @@ private val iconMap = mapOf(
     "ic_info" to R.drawable.ic_info,
     "ic_artist" to R.drawable.ic_artist,
     "ic_album" to R.drawable.ic_album,
-    "ic_queue_music" to R.drawable.ic_queue_music
+    "ic_queue_music" to R.drawable.ic_queue_music,
+    "ic_search" to R.drawable.ic_search,
 )
