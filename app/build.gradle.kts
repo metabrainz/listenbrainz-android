@@ -137,6 +137,7 @@ android {
 
     lint {
         abortOnError = false
+        ignoreTestSources = true
     }
 
     dependenciesInfo {
