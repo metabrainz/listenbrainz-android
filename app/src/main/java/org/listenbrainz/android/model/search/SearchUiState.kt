@@ -1,12 +1,12 @@
 package org.listenbrainz.android.model.search
 
 import org.listenbrainz.android.model.ResponseError
-import org.listenbrainz.android.model.Song
 import org.listenbrainz.android.model.search.userSearch.UserListUiState
 import org.listenbrainz.android.model.search.albumSearch.AlbumSearchUiState
 import org.listenbrainz.android.model.search.artistSearch.ArtistSearchUiState
 import org.listenbrainz.android.model.search.playlistSearch.PlayListSearchUiState
 import org.listenbrainz.android.model.search.trackSearch.TrackSearchUiState
+import org.listenbrainz.shared.model.Song
 
 data class SearchUiState(
     val selectedSearchType: SearchType = SearchType.USER,

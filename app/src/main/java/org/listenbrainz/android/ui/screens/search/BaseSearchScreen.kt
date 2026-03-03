@@ -2,12 +2,19 @@ package org.listenbrainz.android.ui.screens.search
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -21,7 +28,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,7 +51,6 @@ import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.model.User
-import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.model.playlist.PlaylistTrack
 import org.listenbrainz.android.model.search.SearchData
 import org.listenbrainz.android.model.search.SearchType
@@ -48,7 +61,6 @@ import org.listenbrainz.android.model.search.trackSearch.TrackSearchUiState
 import org.listenbrainz.android.model.search.userSearch.UserListUiState
 import org.listenbrainz.android.ui.components.FollowButton
 import org.listenbrainz.android.ui.components.ListenCardSmall
-import org.listenbrainz.android.ui.components.ListenCardSmallDefault
 import org.listenbrainz.android.ui.components.NavigationChips
 import org.listenbrainz.android.ui.components.TitleAndSubtitle
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -56,6 +68,7 @@ import org.listenbrainz.android.util.Utils.formatDurationSeconds
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.util.Utils.removeHtmlTags
 import org.listenbrainz.android.viewmodel.SearchViewModel
+import org.listenbrainz.shared.model.feed.FeedListenArtist
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 

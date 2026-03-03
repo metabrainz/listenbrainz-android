@@ -19,8 +19,6 @@ import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.PlayableType
 import org.listenbrainz.android.model.ResponseError
-import org.listenbrainz.android.model.Song
-import org.listenbrainz.android.model.feed.FeedListenArtist
 import org.listenbrainz.android.model.search.SearchData
 import org.listenbrainz.android.model.search.SearchUiState
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
