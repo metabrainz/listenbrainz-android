@@ -7,17 +7,17 @@ import kotlinx.serialization.Serializable
 @Serializable
 class ListenTrackMetadata(
     @SerialName("artist_name")
-    var artist: String? = null,
+    val artist: String? = null,
     
     @SerialName("track_name")
-    var track: String? = null,
+    val track: String? = null,
 
     @SerialName("release_name")
-    var release: String? = null,
+    val release: String? = null,
     
     @SerialName("additional_info")
     @Embedded
-    var additionalInfo: AdditionalInfo = AdditionalInfo()
+    val additionalInfo: AdditionalInfo = AdditionalInfo()
 ) {
 
     fun isValid(): Boolean {

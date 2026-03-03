@@ -156,6 +156,7 @@ private val jsonConfig = Json {
     coerceInputValues = true
     isLenient = true
     encodeDefaults = true
+    explicitNulls = false
 }
 
 private fun createBaseHttpClient(
