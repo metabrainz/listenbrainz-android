@@ -1,7 +1,7 @@
 package org.listenbrainz.android.ui.screens.onboarding.auth.createaccount
 
 import android.webkit.JavascriptInterface
-import org.listenbrainz.shared.util.Log
+import org.listenbrainz.android.util.Log
 
 class CreateAccountWebAppInterface(
     private val onCaptchaVerificationCompleted: () -> Unit

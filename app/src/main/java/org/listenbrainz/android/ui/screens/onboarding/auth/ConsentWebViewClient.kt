@@ -3,7 +3,7 @@ package org.listenbrainz.android.ui.screens.onboarding.auth
 import android.graphics.Bitmap
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import org.listenbrainz.shared.util.Log
+import org.listenbrainz.android.util.Log
 
 class ConsentWebViewClient(
     private val onLoadData: (String) -> Unit,

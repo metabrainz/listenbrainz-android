@@ -48,6 +48,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -66,7 +67,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.DiagonalCutShape
 import org.listenbrainz.android.ui.components.OnboardingBlobs
@@ -334,11 +337,14 @@ fun OnboardingBackButton(modifier: Modifier = Modifier, onBackPress: (() -> Unit
 fun OnboardingSupportButton(modifier: Modifier){
     val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     IconButton(
         modifier = modifier,
         onClick = {
             haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-            submitLogs(context)
+            scope.launch {
+                submitLogs(context)
+            }
         },
         colors = IconButtonDefaults.iconButtonColors(
             containerColor = Color.White

@@ -43,7 +43,6 @@ import org.listenbrainz.android.ui.screens.feed.FollowListensPagingSource
 import org.listenbrainz.android.ui.screens.feed.MyFeedPagingSource
 import org.listenbrainz.android.ui.screens.feed.SimilarListensPagingSource
 import org.listenbrainz.shared.model.LinkedService
-import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.viewmodel.BaseViewModel
 import org.listenbrainz.shared.util.Log
 
