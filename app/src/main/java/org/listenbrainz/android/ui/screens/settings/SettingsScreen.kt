@@ -314,7 +314,9 @@ fun SettingsScreen(
 
             SettingsTextOption(
                 modifier = Modifier.clickable {
-                    submitLogs(context)
+                    scope.launch {
+                        submitLogs(context)
+                    }
                 },
                 title = "Report an issue",
                 subtitle = "Submit app logs for further investigation",

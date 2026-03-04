@@ -16,14 +16,14 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.listenbrainz.shared.util.Log
+import org.listenbrainz.android.util.Log
 import java.util.LinkedList
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
 
 class JobQueue(
     private val dispatcher: CoroutineDispatcher,
-    private val log: Log = Log.Companion
+    private val log: Log = Log
 ) {
     private val exceptionHandler = CoroutineExceptionHandler { _, e ->
         log.e("JobQueue Exception: ${e.message}")

@@ -7,7 +7,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.net.toUri
-import org.listenbrainz.shared.util.Log
+import org.listenbrainz.android.util.Log
 import org.json.JSONObject
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.ui.screens.onboarding.auth.createaccount.CreateAccountClientCallbacks

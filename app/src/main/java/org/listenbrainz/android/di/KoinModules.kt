@@ -114,7 +114,7 @@ import org.listenbrainz.android.util.Constants.LISTENBRAINZ_API_BASE_URL
 import org.listenbrainz.android.util.Constants.LISTENBRAINZ_BETA_API_BASE_URL
 import org.listenbrainz.android.util.Constants.MB_BASE_URL
 import org.listenbrainz.android.util.LocalMusicSource
-import org.listenbrainz.shared.util.Log
+import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.MusicSource
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.AboutViewModel

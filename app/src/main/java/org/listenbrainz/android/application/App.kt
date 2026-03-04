@@ -5,8 +5,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.StrictMode
 import androidx.work.Configuration
-import com.limurse.logger.Logger
-import com.limurse.logger.config.Config
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -21,9 +19,8 @@ import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.di.appModules
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.service.ListenSubmissionService
-import org.listenbrainz.android.util.Constants
-import org.listenbrainz.shared.util.Log
 import org.listenbrainz.android.util.Utils.isServiceRunning
+import org.listenbrainz.android.util.Log
 
 class App : Application(), Configuration.Provider {
 
@@ -43,14 +40,8 @@ class App : Application(), Configuration.Provider {
         }
 
         val logDirectory = applicationContext.getExternalFilesDir(null)?.path.orEmpty()
-        val config = Config.Builder(logDirectory)
-            .setDefaultTag(Constants.TAG)
-            .setLogcatEnable(true)
-            .setDataFormatterPattern("dd-MM-yyyy-HH:mm:ss")
-            .setStartupData(collectStartupData())
-            .build()
 
-        Logger.init(config)
+        Log.init(this, logDirectory)
 
         if (BuildConfig.DEBUG) {
             enableStrictMode()
@@ -61,16 +52,7 @@ class App : Application(), Configuration.Provider {
         }
     }
 
-    private fun collectStartupData(): Map<String, String> = mapOf(
-        "App Version" to System.currentTimeMillis().toString(),
-        "Device Application Id" to BuildConfig.APPLICATION_ID,
-        "Device Version Code" to BuildConfig.VERSION_CODE.toString(),
-        "Device Version Name" to BuildConfig.VERSION_NAME,
-        "Device Build Type" to BuildConfig.BUILD_TYPE,
-        "Device" to Build.DEVICE,
-        "Device SDK" to Build.VERSION.SDK_INT.toString(),
-        "Device Manufacturer" to Build.MANUFACTURER
-    )
+
 
     private fun enableStrictMode() {
         StrictMode.setThreadPolicy(
@@ -91,11 +73,11 @@ class App : Application(), Configuration.Provider {
                 .build()
         )
     }
-    
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .build()
-    
+
     companion object {
         lateinit var context: App
             private set

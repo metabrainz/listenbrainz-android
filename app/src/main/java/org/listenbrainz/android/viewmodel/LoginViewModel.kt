@@ -1,7 +1,7 @@
 package org.listenbrainz.android.viewmodel
 
 import androidx.lifecycle.viewModelScope
-import org.listenbrainz.shared.util.Log
+import org.listenbrainz.android.util.Log
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow

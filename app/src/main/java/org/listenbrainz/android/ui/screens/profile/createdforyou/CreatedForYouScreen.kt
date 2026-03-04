@@ -67,7 +67,7 @@ import org.listenbrainz.android.ui.screens.feed.RetryButton
 import org.listenbrainz.android.ui.screens.profile.CreatedForTabUIState
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.shared.util.Log
+import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.util.Utils.VerticalSpacer
 import org.listenbrainz.android.util.Utils.formatDurationSeconds
 import org.listenbrainz.android.util.Utils.getCoverArtUrl

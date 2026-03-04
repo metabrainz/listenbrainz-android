@@ -247,9 +247,6 @@ dependencies {
     // Date time
     implementation(libs.kotlinx.datetime)
 
-    // Logging
-    implementation(libs.logger.android)
-
     // Charts
     implementation(libs.vico.compose)
 

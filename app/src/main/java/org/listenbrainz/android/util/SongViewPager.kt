@@ -69,7 +69,7 @@ import org.listenbrainz.android.ui.components.PlayPauseIcon
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
-import org.listenbrainz.shared.util.Log
+import org.listenbrainz.android.util.Log
 
 @Composable
 fun SongViewPager(

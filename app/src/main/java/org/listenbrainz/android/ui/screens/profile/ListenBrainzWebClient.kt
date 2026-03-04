@@ -8,7 +8,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import org.json.JSONObject
-import org.listenbrainz.shared.util.Log
+import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.util.Resource
 import androidx.core.net.toUri
