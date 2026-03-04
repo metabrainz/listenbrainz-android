@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
 import org.listenbrainz.shared.repository.AppPreferences
+import org.listenbrainz.android.util.Log
 import java.util.concurrent.ConcurrentHashMap
 
 class ListenSessionListener(

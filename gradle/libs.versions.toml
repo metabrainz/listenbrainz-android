@@ -1,6 +1,7 @@
 [versions]
 appUpdate = "2.1.0"
 appUpdateKtx = "2.1.0"
+kermit = "2.0.8"
 kotlin = "2.3.0"
 navigation = "2.8.5"
 koin = "4.0.0"
@@ -67,6 +68,7 @@ core = "1.7.0"
 
 [libraries]
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
 koin-core = { module = "io.insert-koin:koin-core" }
 koin-android = { module = "io.insert-koin:koin-android" }

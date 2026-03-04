@@ -3,7 +3,7 @@ package org.listenbrainz.android.ui.screens.onboarding.auth
 import android.graphics.Bitmap
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import com.limurse.logger.Logger
+import org.listenbrainz.android.util.Log
 
 class ConsentWebViewClient(
     private val onLoadData: (String) -> Unit,
@@ -15,14 +15,14 @@ class ConsentWebViewClient(
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
         hadError = false
-        Logger.d(TAG, "Page started loading: $url")
+        Log.d("Page started loading: $url", tag = TAG)
     }
 
 
     override fun onPageFinished(view: WebView?, url: String?) {
         super.onPageFinished(view, url)
         if (hadError) return
-        Logger.d(TAG, "Page finished loading: $url")
+        Log.d("Page finished loading: $url", tag = TAG)
 
         if (url?.contains("listenbrainz.org/login") == true) {
             view?.postDelayed(
@@ -45,11 +45,11 @@ class ConsentWebViewClient(
                     
                 """.trimIndent()
                     ) { value ->
-                        Logger.d(TAG, "Consent Screen Data: $value")
+                        Log.d("Consent Screen Data: $value", tag = TAG)
                         if (value != null && value != "null" && !value.startsWith("Error:")) {
                             onLoadData(value)
                         } else {
-                            Logger.d(
+                            Log.d(
                                 TAG,
                                 "Failed to retrieve consent screen data or no consent text found."
                             )
