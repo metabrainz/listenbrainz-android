@@ -523,7 +523,7 @@ private fun PlaylistDetailContent(
                         horizontal = ListenBrainzTheme.paddings.horizontal,
                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                     ),
-                    metadata = (playlistTrack.toMetadata()),
+                    metadata = playlistTrack.toMetadata(),
                     coverArtUrl = getCoverArtUrl(
                         caaReleaseMbid = playlistTrack.extension.trackExtensionData.additionalMetadata.caaReleaseMbid,
                         caaId = playlistTrack.extension.trackExtensionData.additionalMetadata.caaId
@@ -535,10 +535,8 @@ private fun PlaylistDetailContent(
                         showsnackbar(error.toast)
                     },
                     goToArtistPage = goToArtistPage,
-                    onClick = {
-                        onTrackClick(playlistTrack)
-                    },
-                    onRemoveFromPlaylist = if(playlistDetailUIState.isUserPlaylistOwner) {
+                    onClick = {},
+                    onRemoveFromPlaylist = if (playlistDetailUIState.isUserPlaylistOwner) {
                         {
                             onRemoveTrackFromPlaylist(index)
                         }
@@ -564,8 +562,10 @@ private fun PlaylistDetailContent(
                             tint = ListenBrainzTheme.colorScheme.listenText,
                             contentDescription = "Reorder Icon"
                         )
-                    } else null
-                )
+                    } else null,
+                ) {
+                    onTrackClick(playlistTrack)
+                }
             }
             item {
                 if (playlistDetailUIState.playlistData?.track?.size == 0) {

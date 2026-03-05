@@ -92,7 +92,8 @@ fun BrainzPlayerSearchScreen(
                     errorAlbumArt = R.drawable.ic_erroralbumart,
                     goToArtistPage = {},
                     onDropdownSuccess = { context.showToast(it) },
-                    onDropdownError = { error = it }
+                    onDropdownError = { error = it },
+                    onClick = {}
                 ) {
                     viewModel.changePlayable(
                         listOf(song),

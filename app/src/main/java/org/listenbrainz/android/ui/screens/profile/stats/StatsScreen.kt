@@ -539,10 +539,10 @@ fun StatsScreen(
                                             onDropdownSuccess = {
                                                 snackbarState.showSnackbar(it)
                                             },
-                                            onClick = {
-                                                metadata.trackMetadata?.let { playListen(it) }
-                                            }
-                                        )
+                                            onClick = {}
+                                        ) {
+                                            metadata.trackMetadata?.let { playListen(it) }
+                                        }
                                     }
 
                                     if ((uiState.statsTabUIState.topAlbums?.size ?: 0) > 5) {
@@ -594,13 +594,14 @@ fun StatsScreen(
                                                     ListenCountChip(formatNumber(topSong.listenCount))
                                                 }
                                             },
-                                            goToArtistPage = goToArtistPage,
                                             onDropdownError = {
                                                 snackbarState.showSnackbar(it.toast)
                                             },
                                             onDropdownSuccess = {
                                                 snackbarState.showSnackbar(it)
-                                            }
+                                            },
+                                            goToArtistPage = goToArtistPage,
+                                            onClick = {}
                                         ) {
                                             val trackMetadata = metadata.trackMetadata
                                             if (trackMetadata != null) {

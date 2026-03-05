@@ -88,12 +88,11 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
-import org.listenbrainz.android.model.Metadata
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.TrackMetadata
-import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.model.user.Artist
 import org.listenbrainz.android.ui.components.ButtonLB
 import org.listenbrainz.android.ui.components.ErrorBar
@@ -102,11 +101,6 @@ import org.listenbrainz.android.ui.components.ListenCardSmallDefault
 import org.listenbrainz.android.ui.components.MusicBrainzButton
 import org.listenbrainz.android.ui.components.SimilarUserCard
 import org.listenbrainz.android.ui.components.SuccessBar
-import org.listenbrainz.android.ui.components.dialogs.Dialog
-import org.listenbrainz.android.ui.components.dialogs.PersonalRecommendationDialog
-import org.listenbrainz.android.ui.components.dialogs.PinDialog
-import org.listenbrainz.android.ui.components.dialogs.ReviewDialog
-import org.listenbrainz.android.ui.screens.feed.FeedUiState
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -115,7 +109,6 @@ import org.listenbrainz.android.ui.theme.compatibilityMeterColor
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.PreviewSurface
-import org.listenbrainz.android.util.Utils.LaunchedEffectUnit
 import org.listenbrainz.android.util.Utils.Spacer
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.util.consumeHorizontalDrag
@@ -134,11 +127,13 @@ fun ListensScreen(
     snackbarState: SnackbarHostState,
     username: String?,
     goToArtistPage: (String) -> Unit,
-    goToUserProfile: (String) -> Unit
+    goToUserProfile: (String) -> Unit,
+    deleted: Map<Pair<Long, String>, Boolean>
 ) {
     val uiState by userViewModel.uiState.collectAsState()
     val preferencesUiState by viewModel.preferencesUiState.collectAsState()
     val socialUiState by socialViewModel.uiState.collectAsState()
+    val deleted = socialViewModel.deletedListens
     ListensScreen(
         scrollRequestState = scrollRequestState,
         onScrollToTop = onScrollToTop,
@@ -169,7 +164,9 @@ fun ListensScreen(
             }
         },
         goToArtistPage = goToArtistPage,
-        goToUserProfile = goToUserProfile
+        goToUserProfile = goToUserProfile,
+        deleted = deleted,
+        viewModel = socialViewModel
     )
 }
 
@@ -208,6 +205,8 @@ fun ListensScreen(
     onFollowButtonClick: (username: String?, status: Boolean) -> Unit,
     goToArtistPage: (String) -> Unit,
     goToUserProfile: (String) -> Unit,
+    deleted: Map<Pair<Long, String>, Boolean>,
+    viewModel: SocialViewModel = koinViewModel()
 ) {
     val listState = rememberLazyListState()
 
@@ -284,6 +283,11 @@ fun ListensScreen(
                     val metadata = remember(listen) {
                         listen.toMetadata()
                     }
+                    val listenedAt = metadata.listenedAt
+                    val msid = metadata.trackMetadata?.additionalInfo?.recordingMsid
+                    if(listenedAt != null && msid != null && deleted[listenedAt to msid] == true){
+                        return
+                    }
 
                 ListenCardSmallDefault(
                     modifier = modifier
@@ -302,16 +306,36 @@ fun ListensScreen(
                         caaReleaseMbid = listen.trackMetadata?.mbidMapping?.caaReleaseMbid,
                         caaId = listen.trackMetadata?.mbidMapping?.caaId
                     ),
+                    onDelete = {
+                        if (listenedAt != null && msid != null) {
+                            viewModel.deleteListen(metadata)
+                            scope.launch {
+                                snackbarState.showSnackbar("Listen deleted.")
+                            }
+                        } else {
+                            scope.launch {
+                                snackbarState.showSnackbar("Cannot delete Listen.")
+                            }
+                        }
+                    },
                     onDropdownError = { error ->
-                        snackbarState.showSnackbar(error.toast)
+                        scope.launch { snackbarState.showSnackbar(error.toast) }
                     },
                     onDropdownSuccess = { message ->
-                        snackbarState.showSnackbar(message)
+                        if (listenedAt != null && msid != null) {
+                            viewModel.deleteListen(metadata)
+                            scope.launch {
+                                snackbarState.showSnackbar(message)
+                            }
+                        }else{
+                            scope.launch {
+                                snackbarState.showSnackbar("Cannot Delete")
+                            }
+                        }
                     },
                     goToArtistPage = goToArtistPage,
-                ) {
-                    listen.trackMetadata?.let { playListen(it) }
-                }
+                    onClick = {},
+                )
             }
 
                 @Composable
@@ -1424,7 +1448,8 @@ fun ListensScreenPreview() {
             getListensData = {},
             onFollowButtonClick = { _, _ -> },
             goToArtistPage = {},
-            goToUserProfile = {}
+            goToUserProfile = {},
+            deleted = {} as Map<Pair<Long, String>, Boolean>
         )
     }
 }
@@ -1447,7 +1472,8 @@ fun ListensScreenSelfPreview() {
             username = "pranavkonidena",
             onFollowButtonClick = { _, _ -> },
             goToArtistPage = {},
-            goToUserProfile = {}
+            goToUserProfile = {},
+            deleted = {} as Map<Pair<Long, String>, Boolean>
         )
     }
 }
@@ -1470,7 +1496,8 @@ fun ListensScreenFollowingPreview() {
             getListensData = {},
             onFollowButtonClick = { _, _ -> },
             goToArtistPage = {},
-            goToUserProfile = {}
+            goToUserProfile = {},
+            deleted = {} as Map<Pair<Long, String>, Boolean>
         )
     }
 }
@@ -1493,7 +1520,8 @@ fun ListensScreenMinimalPreview() {
             getListensData = {},
             onFollowButtonClick = { _, _ -> },
             goToArtistPage = {},
-            goToUserProfile = {}
+            goToUserProfile = {},
+            deleted = {} as Map<Pair<Long, String>, Boolean>
         )
     }
 }
@@ -1516,7 +1544,8 @@ fun ListensScreenNoDataPreview() {
             getListensData = {},
             onFollowButtonClick = { _, _ -> },
             goToArtistPage = {},
-            goToUserProfile = {}
+            goToUserProfile = {},
+            deleted = {} as Map<Pair<Long, String>, Boolean>
         )
     }
 }
