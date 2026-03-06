@@ -4,7 +4,7 @@ import android.content.ContentUris
 import android.os.Build
 import android.provider.MediaStore
 import org.listenbrainz.android.application.App.Companion.context
-import org.listenbrainz.android.model.Song
+import org.listenbrainz.shared.model.Song
 object SongsData {
     // Temporary cache
     private var songsListCache = listOf<Song>()

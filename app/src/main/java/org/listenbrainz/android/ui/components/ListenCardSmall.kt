@@ -38,12 +38,12 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import kotlinx.coroutines.CoroutineScope
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.AdditionalInfo
-import org.listenbrainz.android.model.Metadata
+import org.listenbrainz.shared.model.AdditionalInfo
+import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.android.model.ResponseError
-import org.listenbrainz.android.model.TrackMetadata
+import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.android.model.feed.FeedEventType
-import org.listenbrainz.android.model.feed.FeedListenArtist
+import org.listenbrainz.shared.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.screens.feed.SocialDropdownDefault
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.thenIf
@@ -257,9 +257,9 @@ fun ListenCardSmallDefault(
 
         ListenCardSmall(
             modifier = modifier,
-            trackName = metadata.trackMetadata.trackName ?: "--",
-            artists = metadata.trackMetadata.mbidMapping?.artists ?: listOf(
-                FeedListenArtist(metadata.trackMetadata.artistName ?: "--", null, "")
+            trackName = metadata.trackMetadata?.trackName ?: "--",
+            artists = metadata.trackMetadata?.mbidMapping?.artists ?: listOf(
+                FeedListenArtist(metadata.trackMetadata?.artistName ?: "--", null, "")
             ),
             coverArtUrl = coverArtUrl,
             errorAlbumArt = errorAlbumArt,
@@ -353,10 +353,11 @@ fun TitleAndSubtitle(
         Row {
             artists.forEach { artist ->
                 artist?.artistCreditName?.let {
+                    val artistMbid = artist.artistMbid
                     fun Modifier.goToArtistPage() =
-                        if(artist.artistMbid != null){
+                        if(artistMbid != null){
                             this.clickable {
-                                goToArtistPage(artist.artistMbid)
+                                goToArtistPage(artistMbid)
                             }
                         } else
                             this

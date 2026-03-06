@@ -7,7 +7,7 @@ import org.listenbrainz.android.util.Transformer.toPlaylist
 import org.listenbrainz.android.util.Transformer.toPlaylistEntity
 import org.listenbrainz.android.util.Transformer.toSongEntity
 import org.listenbrainz.android.model.Playlist
-import org.listenbrainz.android.model.Song
+import org.listenbrainz.shared.model.Song
 
 class PlaylistRepositoryImpl(
    private val playlistDao: PlaylistDao

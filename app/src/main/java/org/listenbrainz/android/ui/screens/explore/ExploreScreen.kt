@@ -1,6 +1,5 @@
 package org.listenbrainz.android.ui.screens.explore
 
-import android.content.Context
 import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
@@ -37,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.datetime.YearMonth
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.newsbrainz.NewsBrainzActivity
@@ -47,6 +45,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.now
+import org.listenbrainz.shared.model.AppNavigationItem
 
 @Composable
 fun ExploreScreen(

@@ -5,6 +5,7 @@
 .idea/*
 .DS_Store
 /build
+shared/build
 /captures
 .externalNativeBuild
 play_config.json
@@ -16,3 +17,5 @@ play_config.json
 sentry.properties
 /app/.idea
 /app/github
+
+shared/.idea

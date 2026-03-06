@@ -1,10 +1,9 @@
 package org.listenbrainz.android.util
 
 import androidx.room.TypeConverter
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.listenbrainz.android.model.AlbumEntity
-import org.listenbrainz.android.model.Playable
+import org.listenbrainz.shared.model.Playable
 import org.listenbrainz.android.model.SongEntity
 import java.text.SimpleDateFormat
 import java.util.Calendar

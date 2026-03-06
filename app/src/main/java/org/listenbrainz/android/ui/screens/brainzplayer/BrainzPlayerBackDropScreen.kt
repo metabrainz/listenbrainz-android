@@ -55,6 +55,7 @@ import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -90,10 +91,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.PlayableType
+import org.listenbrainz.shared.model.Playable
+import org.listenbrainz.shared.model.PlayableType
 import org.listenbrainz.android.model.RepeatMode
-import org.listenbrainz.android.model.Song
-import org.listenbrainz.android.model.feed.FeedListenArtist
+import org.listenbrainz.shared.model.Song
+import org.listenbrainz.shared.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.CustomSeekBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.PlayPauseIcon
@@ -123,6 +125,8 @@ fun BrainzPlayerBackDropScreen(
     val isShuffled by brainzPlayerViewModel.isShuffled.collectAsStateWithLifecycle()
     val currentlyPlayingSong =
         brainzPlayerViewModel.currentlyPlayingSong.collectAsStateWithLifecycle().value.toSong
+    val currentPlayableState =
+        brainzPlayerViewModel.currentPlayable.collectAsStateWithLifecycle()
     var maxDelta by rememberSaveable {
         mutableFloatStateOf(0F)
     }
@@ -135,7 +139,7 @@ fun BrainzPlayerBackDropScreen(
     val isNothingPlaying = remember(currentlyPlayingSong) {
         currentlyPlayingSong.title == "null"
                 && currentlyPlayingSong.artist == "null"
-                || brainzPlayerViewModel.appPreferences.currentPlayable?.songs.isNullOrEmpty()
+                || currentPlayableState.value.songs.isEmpty()
     }
 
     val isListeningNow = remember(listeningNowUIState) {
@@ -195,11 +199,10 @@ fun BrainzPlayerBackDropScreen(
                             defaultBackgroundColor
                         )
                     ),
-                    dynamicBackground = brainzPlayerViewModel.playerBackGroundColor
+                    dynamicBackground = brainzPlayerViewModel.playerBackGroundColor,
+                    currentPlayableState = currentPlayableState
                 )
-                val songList =
-                    brainzPlayerViewModel.appPreferences.currentPlayable?.songs ?: listOf()
-
+             
                 if (!isLandscape) {
                     SongViewPager(
                         modifier = Modifier
@@ -208,7 +211,7 @@ fun BrainzPlayerBackDropScreen(
                                 alpha =
                                     (backdropScaffoldState.requireOffset() / (maxDelta - headerHeight.toPx()))
                             },
-                        songList = songList,
+                        songList = currentPlayableState.value.songs,
                         backdropScaffoldState = backdropScaffoldState,
                         currentlyPlayingSong = currentlyPlayingSong,
                         isLandscape = false
@@ -282,14 +285,14 @@ fun PlayerScreen(
     repeatMode: RepeatMode,
     backdropScaffoldState: BackdropScaffoldState,
     backgroundBrush: Brush,
-    dynamicBackground: Color = MaterialTheme.colorScheme.background
+    dynamicBackground: Color = MaterialTheme.colorScheme.background,
+    currentPlayableState: State<Playable>
 ) {
     val coroutineScope = rememberCoroutineScope()
     val playlistViewModel = koinViewModel<PlaylistViewModel>()
     val playlists by playlistViewModel.playlists.collectAsState(initial = listOf())
     val playlist = playlists.filter { it.id == (1).toLong() }
-    val songList = brainzPlayerViewModel.appPreferences.currentPlayable?.songs
-    val pagerState = rememberPagerState { songList?.size ?: 0 }
+    val pagerState = rememberPagerState { currentPlayableState.value.songs.size }
     var listenLiked = false
     if (playlist.isNotEmpty()) {
         playlist[0].items.forEach {
@@ -298,9 +301,9 @@ fun PlayerScreen(
         }
     }
     //For handling song change by list or buttons
-    LaunchedEffect(brainzPlayerViewModel.appPreferences.currentPlayable?.currentSongIndex) {
+    LaunchedEffect(currentPlayableState.value.currentSongIndex) {
         pagerState.scrollToPage(
-            brainzPlayerViewModel.appPreferences.currentPlayable?.currentSongIndex ?: 0
+            currentPlayableState.value.currentSongIndex
         )
     }
     //For handling song change by pager
@@ -333,9 +336,7 @@ fun PlayerScreen(
             Spacer(Modifier.height(60.dp))
         }
         item {
-            songList?.let {
-                AlbumArtViewPager(currentlyPlayingSong, pagerState, dynamicBackground)
-            }
+            AlbumArtViewPager(currentlyPlayingSong, pagerState, dynamicBackground)
         }
         item {
             Row(
@@ -568,20 +569,17 @@ fun PlayerScreen(
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
                     onClick = {
-                        val currentPlayable = brainzPlayerViewModel.appPreferences.currentPlayable
-                        val updatedSongs = currentPlayable?.songs?.toMutableList()?.apply {
+                        val updatedSongs = currentPlayableState.value.songs.toMutableList().apply {
                             removeAll(checkedSongs)
                         }
-                        updatedSongs?.let {
-                            brainzPlayerViewModel.changePlayable(
-                                it,
-                                PlayableType.ALL_SONGS,
-                                currentPlayable.id,
-                                it.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
-                                    .coerceAtLeast(0),
-                                brainzPlayerViewModel.songCurrentPosition.value
-                            )
-                        }
+                        brainzPlayerViewModel.changePlayable(
+                            updatedSongs,
+                            PlayableType.ALL_SONGS,
+                            currentPlayableState.value.id,
+                            updatedSongs.indexOfFirst { song -> song.mediaID == currentlyPlayingSong.mediaID }
+                                .coerceAtLeast(0),
+                            brainzPlayerViewModel.songCurrentPosition.value
+                        )
                         brainzPlayerViewModel.queueChanged(
                             currentlyPlayingSong,
                             brainzPlayerViewModel.isPlaying.value
@@ -607,7 +605,7 @@ fun PlayerScreen(
         }
         // Playlist
         itemsIndexed(
-            items = brainzPlayerViewModel.appPreferences.currentPlayable?.songs ?: mutableListOf()
+            items = currentPlayableState.value.songs
         ) { index, song ->
             val isChecked = checkedSongs.contains(song)
             BoxWithConstraints {
@@ -640,15 +638,13 @@ fun PlayerScreen(
                         goToArtistPage = {}
                     ) {
                         brainzPlayerViewModel.skipToPlayable(index)
-                        brainzPlayerViewModel.appPreferences.currentPlayable?.songs?.let {
-                            brainzPlayerViewModel.changePlayable(
-                                it,
-                                PlayableType.ALL_SONGS,
-                                brainzPlayerViewModel.appPreferences.currentPlayable?.id ?: 0,
-                                index,
-                                0L
-                            )
-                        }
+                        brainzPlayerViewModel.changePlayable(
+                            currentPlayableState.value.songs,
+                            PlayableType.ALL_SONGS,
+                            currentPlayableState.value.id,
+                            index,
+                            0L
+                        )
                         brainzPlayerViewModel.playOrToggleSong(song, true)
                     }
                     if (currentlyPlayingSong.mediaID != song.mediaID) {
@@ -780,5 +776,3 @@ fun BrainzPlayerBackDropScreenPreview() {
         paddingValues = PaddingValues(0.dp)
     ) {}
 }
-
-

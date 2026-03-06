@@ -12,7 +12,7 @@ import org.listenbrainz.android.repository.brainzplayer.PlaylistRepository
 import org.listenbrainz.android.model.Playlist
 import org.listenbrainz.android.model.Playlist.Companion.currentlyPlaying
 import org.listenbrainz.android.model.Playlist.Companion.favourite
-import org.listenbrainz.android.model.Song
+import org.listenbrainz.shared.model.Song
 import kotlin.random.Random
 
 class PlaylistViewModel(

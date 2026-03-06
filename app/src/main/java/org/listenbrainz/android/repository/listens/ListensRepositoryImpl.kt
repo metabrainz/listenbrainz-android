@@ -12,7 +12,7 @@ import org.listenbrainz.android.model.PostResponse
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.TokenValidation
 import org.listenbrainz.android.model.dao.PendingListensDao
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.service.UserService
 import org.listenbrainz.android.util.Resource

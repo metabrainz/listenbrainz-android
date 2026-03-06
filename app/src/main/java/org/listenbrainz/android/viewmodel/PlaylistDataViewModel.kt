@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.Metadata
+import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.model.playlist.DeleteTracks
@@ -33,7 +33,7 @@ import org.listenbrainz.android.model.playlist.PlaylistTrack
 import org.listenbrainz.android.model.recordingSearch.RecordingData
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.ui.screens.playlist.CreateEditScreenUIState
 import org.listenbrainz.android.ui.screens.playlist.PlaylistDataUIState

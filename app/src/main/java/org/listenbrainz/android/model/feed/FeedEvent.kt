@@ -3,7 +3,7 @@ package org.listenbrainz.android.model.feed
 import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.listenbrainz.android.model.Metadata
+import org.listenbrainz.shared.model.Metadata
 
 @Immutable
 @Serializable

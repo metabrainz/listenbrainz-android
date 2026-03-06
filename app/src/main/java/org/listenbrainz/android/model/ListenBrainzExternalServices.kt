@@ -2,8 +2,8 @@ package org.listenbrainz.android.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.listenbrainz.android.util.LinkedService
-import org.listenbrainz.android.util.LinkedService.Companion.toLinkedService
+import org.listenbrainz.shared.model.LinkedService
+import org.listenbrainz.shared.model.LinkedService.Companion.toLinkedService
 
 @Serializable
 data class ListenBrainzExternalServices(

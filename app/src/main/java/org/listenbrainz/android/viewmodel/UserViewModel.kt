@@ -1,8 +1,5 @@
 package org.listenbrainz.android.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -28,7 +25,7 @@ import org.listenbrainz.android.model.playlist.PlaylistData
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.repository.user.UserRepository
 import org.listenbrainz.android.ui.screens.profile.CreatedForTabUIState
@@ -42,8 +39,6 @@ import org.listenbrainz.android.ui.screens.profile.playlists.CollabPlaylistPagin
 import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistPagingSource
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
 import org.listenbrainz.android.ui.screens.profile.stats.DataScope
-import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
-import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
 import org.listenbrainz.android.util.Resource
 
 class UserViewModel(
