@@ -278,44 +278,6 @@ val networkModule = module {
             .createPlaylistService()
     }
 
-    single<YouTubeApiService> {
-        val context = androidContext()
-        val httpClient = HttpClient(OkHttp) {
-            expectSuccess = false
-
-            install(ContentNegotiation) {
-                json(jsonConfig)
-            }
-
-            if (BuildConfig.DEBUG) {
-                install(Logging) {
-                    logger = object : Logger {
-                        override fun log(message: String) {
-                            Log.d("Ktor: $message")
-                        }
-                    }
-                    level = LogLevel.ALL
-                }
-
-                engine {
-                    config {
-                        addInterceptor(ChuckerInterceptor(context))
-                    }
-                }
-            }
-
-            defaultRequest {
-                url("https://www.googleapis.com/")
-                header("X-Android-Package", context.packageName)
-                header("X-Android-Cert", Utils.getSHA1(context, context.packageName) ?: "")
-            }
-        }
-        Ktorfit.Builder()
-            .baseUrl("https://www.googleapis.com/")
-            .httpClient(httpClient)
-            .build()
-            .createYouTubeApiService()
-    }
 
     single<YimService> {
         val httpClient = createBaseHttpClient(androidContext(), baseUrl = LISTENBRAINZ_API_BASE_URL)
