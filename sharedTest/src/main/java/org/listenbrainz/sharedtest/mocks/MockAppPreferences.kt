@@ -2,12 +2,15 @@ package org.listenbrainz.sharedtest.mocks
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.InstallSource
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode
 import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.repository.preferences.DataStorePreference
+import org.listenbrainz.android.ui.navigation.BottomNavDefaults
 import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.android.util.LinkedService
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testAccessToken
@@ -27,7 +30,7 @@ class MockAppPreferences(
     override val isNotificationServiceAllowed: Boolean = true,
     override var linkedServices: List<LinkedService> = listOf(),
 ) : AppPreferences {
-    
+
     override val themePreference: DataStorePreference<UiMode> =
         object : DataStorePreference<UiMode> {
             override fun getFlow(): Flow<UiMode> = flow { emit(UiMode.FOLLOW_SYSTEM) }
@@ -141,4 +144,13 @@ class MockAppPreferences(
     override suspend fun isUserLoggedIn(): Boolean {
         TODO("Not yet implemented")
     }
+
+    override val navBarOrder: DataStorePreference<List<AppNavigationItem>>
+        get() = object: DataStorePreference<List<AppNavigationItem>> {
+            override fun getFlow(): Flow<List<AppNavigationItem>> = flowOf(BottomNavDefaults.items())
+
+            override suspend fun set(value: List<AppNavigationItem>) {
+                TODO("Not yet implemented")
+            }
+        }
 }

@@ -12,8 +12,8 @@ import java.util.*
 class ListenSubmitBody {
     @SerialName("listen_type")
     var listenType: String? = "single"
-    @JvmField
     var payload: MutableList<Payload> = ArrayList()
+        private set
     
     fun addListens(vararg listens: Payload, listensList: List<Payload> = emptyList()): ListenSubmitBody {
         listensList.forEach { payload.add(it) }
@@ -32,19 +32,18 @@ class ListenSubmitBody {
     @Serializable
     @Entity(tableName = "PENDING_LISTENS")
     class Payload(
-        
         @SerialName("listened_at")
         @ColumnInfo(name = "listened_at")
         @PrimaryKey
-        var timestamp: Long? = null,
-        
+        val listenedAt: Long? = null,
+
         @SerialName("track_metadata")
         @Embedded
-        var metadata: ListenTrackMetadata = ListenTrackMetadata()
+        val metadata: ListenTrackMetadata = ListenTrackMetadata()
     ) {
         override fun toString(): String {
             return "Payload{" +
-                    "timestamp=" + timestamp +
+                    "listenedAt=" + listenedAt +
                     ", metadata=" + metadata +
                     '}'
         }

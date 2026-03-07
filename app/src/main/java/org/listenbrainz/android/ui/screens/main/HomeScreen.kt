@@ -1,6 +1,8 @@
 package org.listenbrainz.android.ui.screens.main
 
 import android.content.res.Configuration
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.tween
@@ -30,8 +32,10 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import org.koin.androidx.compose.koinViewModel
@@ -43,11 +47,12 @@ import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.navigation.AdaptiveNavigationBar
 import org.listenbrainz.android.ui.navigation.AppNavigation
+import org.listenbrainz.android.ui.navigation.NavBarReorderOverlay
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.brainzplayer.BrainzPlayerBackDropScreen
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
+import org.listenbrainz.android.ui.screens.search.BaseSearchScreen
 import org.listenbrainz.android.ui.screens.search.BrainzPlayerSearchScreen
-import org.listenbrainz.android.ui.screens.search.UserSearchScreen
 import org.listenbrainz.android.ui.screens.search.rememberSearchBarState
 import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
@@ -58,6 +63,7 @@ import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.ListeningNowViewModel
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreen(
@@ -72,13 +78,13 @@ fun HomeScreen(
         rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
     var scrollToTopState by remember { mutableStateOf(false) }
     val snackbarState = remember { SnackbarHostState() }
-    val searchBarState = rememberSearchBarState()
     val scope = rememberCoroutineScope()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     val username by dashBoardViewModel.usernameFlow.collectAsStateWithLifecycle(
         initialValue = null
     )
+    var showNavReorderOverlay by rememberSaveable { mutableStateOf(false) }
     val currentlyPlayingSong by brainzPlayerViewModel.currentlyPlayingSong.collectAsStateWithLifecycle()
     val songList = brainzPlayerViewModel.appPreferences.currentPlayable?.songs
     val isLandScape =
@@ -126,6 +132,7 @@ fun HomeScreen(
     }
 
     val isListeningNowOpenedInConcealedState = backdropScaffoldState.targetValue != BackdropValue.Revealed && isNothingPlaying && listeningNowUIState.isListeningNow
+    val isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable()
 
     val topBarActions = TopBarActions(
         popBackStackInSettingsScreen = {
@@ -138,9 +145,31 @@ fun HomeScreen(
             }
         },
         activateSearch = {
-            searchBarState.activate()
+            when (currentDestination?.route) {
+
+                AppNavigationItem.BrainzPlayer.route -> {
+                    navController.navigate(AppNavigationItem.BrainzPlayerSearchScreen.route) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+
+                else -> {
+                    navController.navigate(AppNavigationItem.SearchScreen.route) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            }
         }
     )
+    val navOrder by dashBoardViewModel.navBarOrderFlow
+        .collectAsStateWithLifecycle()
+
+    val filteredNavItems = navOrder?.filter {
+        isAudioPermissionGranted || it != AppNavigationItem.BrainzPlayer
+    }
+    val startRoute = filteredNavItems?.firstOrNull()?.route
 
     Scaffold(
         modifier = Modifier
@@ -162,15 +191,14 @@ fun HomeScreen(
                 if (!isLandScape) {
                     AdaptiveNavigationBar(
                         navController = navController,
+                        items = filteredNavItems,
                         backdropScaffoldState = backdropScaffoldState,
                         scrollToTop = { scrollToTopState = true },
                         username = username,
                         isLandscape = false,
                         currentlyPlayingSong = currentlyPlayingSong.toSong,
                         songList = songList ?: emptyList(),
-                        isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable(),
                         listeningNowUIState = listeningNowUIState,
-                        searchBarState = searchBarState,
                     )
                 }
             }
@@ -196,63 +224,61 @@ fun HomeScreen(
             if (isLandScape) {
                 AdaptiveNavigationBar(
                     navController = navController,
+                    items = filteredNavItems,
                     backdropScaffoldState = backdropScaffoldState,
                     scrollToTop = { scrollToTopState = true },
                     username = username,
                     isLandscape = true,
-                    isAudioPermissionGranted = permissions[PermissionEnum.ACCESS_MUSIC_AUDIO] == PermissionStatus.GRANTED || !PermissionEnum.ACCESS_MUSIC_AUDIO.isPermissionApplicable(),
                     currentlyPlayingSong = currentlyPlayingSong.toSong,
                     listeningNowUIState = listeningNowUIState,
                     songList = songList ?: emptyList(),
-                    searchBarState = searchBarState
                 )
             }
 //            if (isGrantedPerms == PermissionStatus.GRANTED.name) {
-            BrainzPlayerBackDropScreen(
-                modifier = Modifier.then(if (!isLandScape && !isListeningNowOpenedInConcealedState) Modifier.navigationBarsPadding() else Modifier),
-                backdropScaffoldState = backdropScaffoldState,
-                paddingValues = it,
-                brainzPlayerViewModel = brainzPlayerViewModel,
-                isLandscape = isLandScape,
-                listeningNowViewModel = listeningNowViewModel
-            ) {
-                AppNavigation(
-                    navController = navController,
-                    scrollRequestState = scrollToTopState,
-                    onScrollToTop = { scrollToTop ->
-                        scope.launch {
-                            if (scrollToTopState) {
-                                scrollToTop()
-                                scrollToTopState = false
+            if (startRoute != null && filteredNavItems != null) {
+                BrainzPlayerBackDropScreen(
+                    modifier = Modifier.then(if (!isLandScape && !isListeningNowOpenedInConcealedState) Modifier.navigationBarsPadding() else Modifier),
+                    backdropScaffoldState = backdropScaffoldState,
+                    paddingValues = it,
+                    brainzPlayerViewModel = brainzPlayerViewModel,
+                    isLandscape = isLandScape,
+                    listeningNowViewModel = listeningNowViewModel
+                ) {
+                    AppNavigation(
+                        navController = navController,
+                        scrollRequestState = scrollToTopState,
+                        onScrollToTop = { scrollToTop ->
+                            scope.launch {
+                                if (scrollToTopState) {
+                                    scrollToTop()
+                                    scrollToTopState = false
+                                }
                             }
-                        }
-                    },
-                    snackbarState = snackbarState,
-                    dashBoardViewModel = dashBoardViewModel,
-                    topAppBarActions = topBarActions,
-                    settingsCallbacks = settingsCallbacks.copy(
-                        topBarActions = topBarActions
+                        },
+                        snackbarState = snackbarState,
+                        dashBoardViewModel = dashBoardViewModel,
+                        topAppBarActions = topBarActions,
+                        settingsCallbacks = settingsCallbacks,
+                        startRoute = startRoute,
+                        onNavigationReorderClick = { showNavReorderOverlay = true }
                     )
-                )
+                }
             }
-//            }
         }
 
-        when (currentDestination?.route) {
-            AppNavigationItem.BrainzPlayer.route -> BrainzPlayerSearchScreen(
-                isActive = searchBarState.isActive,
-                deactivate = searchBarState::deactivate,
-            )
-
-            else -> UserSearchScreen(
-                isActive = searchBarState.isActive,
-                deactivate = searchBarState::deactivate,
-                goToUserPage = { username ->
-                    searchBarState.deactivate()
-                    navController.navigate("${AppNavigationItem.Profile.route}/$username")
+    }
+    if (showNavReorderOverlay && navOrder != null) {
+        navOrder?.let { items ->
+            NavBarReorderOverlay(
+                items = items,
+                isLandscape = isLandScape,
+                onDismiss = { newOrder ->
+                    scope.launch {
+                        dashBoardViewModel.appPreferences.navBarOrder.set(newOrder)
+                        showNavReorderOverlay = false
+                    }
                 }
             )
         }
     }
-
 }

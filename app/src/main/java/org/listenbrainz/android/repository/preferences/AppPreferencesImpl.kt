@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import org.listenbrainz.android.model.AppNavigationItem
 import org.listenbrainz.android.model.InstallSource
 import org.listenbrainz.android.model.Playable
 import org.listenbrainz.android.model.UiMode
@@ -31,6 +32,7 @@ import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Compan
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.LISTENING_WHITELIST
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.SHOULD_LISTEN_NEW_PLAYERS
 import org.listenbrainz.android.repository.preferences.AppPreferencesImpl.Companion.PreferenceKeys.THEME
+import org.listenbrainz.android.ui.navigation.BottomNavDefaults
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Constants.ONBOARDING
 import org.listenbrainz.android.util.Constants.Strings.CURRENT_PLAYABLE
@@ -139,6 +141,7 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
             val LAST_UPDATE_PROMPT_LAUNCH_COUNT =
                 stringPreferencesKey(Constants.Strings.PREFERENCE_LAST_UPDATE_PROMPT_LAUNCH_COUNT)
             val GITHUB_DOWNLOAD_ID = longPreferencesKey(Constants.Strings.PREFERENCE_DOWNLOAD_ID)
+            val BOTTOM_NAV_ORDER = stringPreferencesKey(Constants.Strings.PREFERENCE_NAV_ORDER)
         }
 
         fun String?.asStringList(): List<String> {
@@ -516,5 +519,37 @@ class AppPreferencesImpl(private val context: Context): AppPreferences {
                     prefs[PreferenceKeys.GITHUB_DOWNLOAD_ID] = value
                 }
             }
+        }
+
+    override val navBarOrder: DataStorePreference<List<AppNavigationItem>>
+        get() = object : DataStorePreference<List<AppNavigationItem>> {
+            override fun getFlow(): Flow<List<AppNavigationItem>> {
+                return datastore.map { prefs ->
+                    try {
+                        val stored = prefs[PreferenceKeys.BOTTOM_NAV_ORDER] ?: ""
+                        if (stored.isBlank()) {
+                            BottomNavDefaults.items()
+                        } else {
+                            val parsed = stored.split(",")
+                                .mapNotNull { route ->
+                                    BottomNavDefaults.items().firstOrNull { it.route == route }
+                                }
+                            parsed.ifEmpty {
+                                BottomNavDefaults.items()
+                            }
+                        }
+                    } catch (e: Exception) {
+                        BottomNavDefaults.items()
+                    }
+                }
+            }
+
+            override suspend fun set(value: List<AppNavigationItem>) {
+                context.dataStore.edit { prefs ->
+                    prefs[PreferenceKeys.BOTTOM_NAV_ORDER] =
+                        value.joinToString(",") { it.route }
+                }
+            }
+
         }
 }

@@ -22,7 +22,7 @@ android {
 
     val versionMap = mapOf(
         major to 2,
-        minor to 12,
+        minor to 14,
         patch to 0,
         build to 0
     )
@@ -137,6 +137,7 @@ android {
 
     lint {
         abortOnError = false
+        ignoreTestSources = true
     }
 
     dependenciesInfo {
@@ -216,6 +217,7 @@ dependencies {
     implementation(libs.onboarding)
     implementation(libs.share.android)
     implementation(libs.compose.ratingbar)
+    implementation(libs.reorderable)
 
     // Accompanist
     implementation(libs.google.accompanist.permissions)
@@ -232,6 +234,8 @@ dependencies {
 
     // Spotify SDK
     api(project(":spotify-app-remote"))
+    // TODO: Remove when we've migrated spotify-app-remote to androidMain of shared module.
+    implementation(libs.gson)
 
     // Networking and parsing
     implementation(libs.jsoup)
@@ -240,7 +244,7 @@ dependencies {
     }
 
     // Date time
-    implementation(libs.threetenabp)
+    implementation(libs.kotlinx.datetime)
 
     // Logging
     implementation(libs.logger.android)
