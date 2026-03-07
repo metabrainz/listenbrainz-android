@@ -18,10 +18,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.model.Listen
+import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.android.repository.socket.SocketRepository
+import org.listenbrainz.shared.repository.socket.SocketRepository
 import org.listenbrainz.android.util.ImagePalette
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.util.getPaletteFromImage
@@ -142,6 +142,7 @@ class ListeningNowViewModel(
                     // Default to 6 minutes for now listening dismiss
                     ?: 6.minutes.inWholeMilliseconds
 
+                val listenedAt = listenedAt
                 val delayToDismiss = if (listenedAt != null) {
                     val durationCompleted = System.currentTimeMillis() - listenedAt.seconds.inWholeMilliseconds
                     (listenDurationMs - durationCompleted).coerceAtLeast(0)

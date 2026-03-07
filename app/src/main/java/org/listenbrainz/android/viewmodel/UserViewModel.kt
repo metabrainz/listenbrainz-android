@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.model.Listen
+import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.android.model.playlist.PlaylistData
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.repository.listens.ListensRepository

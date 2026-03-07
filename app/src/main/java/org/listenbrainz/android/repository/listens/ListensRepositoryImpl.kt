@@ -4,7 +4,6 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import kotlinx.coroutines.CoroutineDispatcher
 import org.listenbrainz.android.application.App
-import org.listenbrainz.android.model.CoverArt
 import org.listenbrainz.android.model.ListenBrainzExternalServices
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.Listens
@@ -17,6 +16,7 @@ import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.service.UserService
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.parseResponse
+import org.listenbrainz.shared.model.CoverArt
 
 class ListensRepositoryImpl(
     private val service: ListensService,

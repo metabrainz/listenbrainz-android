@@ -4,7 +4,7 @@ import androidx.paging.PagingData
 import com.spotify.protocol.types.PlayerState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
-import org.listenbrainz.android.model.Listen
+import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.SimilarUser
