@@ -898,7 +898,7 @@ private fun SongsListened(
             Spacer(modifier = Modifier.height(12.dp))
         } else {
             Text(
-                listenCount.toString(),
+                (listenCount ?:0).toString(),
                 color = ListenBrainzTheme.colorScheme.text,
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Medium,
