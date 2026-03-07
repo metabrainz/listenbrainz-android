@@ -15,14 +15,14 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.model.Listen
+import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.shared.model.UiMode
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
-import org.listenbrainz.android.repository.socket.SocketRepository
+import org.listenbrainz.shared.repository.socket.SocketRepository
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningNowUiState
 import org.listenbrainz.android.ui.screens.profile.listens.ListensUiState
 import org.listenbrainz.android.ui.screens.settings.PreferencesUiState

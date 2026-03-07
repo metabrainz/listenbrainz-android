@@ -1,7 +1,7 @@
 package org.listenbrainz.android.ui.screens.profile.listens
 
 import com.spotify.protocol.types.PlayerState
-import org.listenbrainz.android.model.Listen
+import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.android.model.ResponseError
 

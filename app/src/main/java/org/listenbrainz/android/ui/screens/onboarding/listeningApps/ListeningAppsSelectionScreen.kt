@@ -55,7 +55,7 @@ import org.koin.androidx.compose.koinViewModel
 import androidx.navigation3.runtime.rememberNavBackStack
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.Listen
+import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.components.OnboardingScreenBackground
 import org.listenbrainz.android.ui.components.OnboardingYellowButton

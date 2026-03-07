@@ -1,7 +1,7 @@
-package org.listenbrainz.android.repository.socket
+package org.listenbrainz.shared.repository.socket
 
 import kotlinx.coroutines.flow.Flow
-import org.listenbrainz.android.model.Listen
+import org.listenbrainz.shared.model.Listen
 
 interface SocketRepository {
 

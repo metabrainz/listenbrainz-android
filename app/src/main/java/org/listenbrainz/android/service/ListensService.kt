@@ -6,12 +6,12 @@ import de.jensklingenberg.ktorfit.http.Header
 import de.jensklingenberg.ktorfit.http.POST
 import de.jensklingenberg.ktorfit.http.Path
 import de.jensklingenberg.ktorfit.http.Query
-import org.listenbrainz.android.model.CoverArt
 import org.listenbrainz.android.model.ListenBrainzExternalServices
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.PostResponse
 import org.listenbrainz.android.model.TokenValidation
+import org.listenbrainz.shared.model.CoverArt
 
 interface ListensService {
     

@@ -1,13 +1,13 @@
 package org.listenbrainz.android.repository.listens
 
 import android.graphics.drawable.Drawable
-import org.listenbrainz.android.model.CoverArt
 import org.listenbrainz.android.model.ListenBrainzExternalServices
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.PostResponse
 import org.listenbrainz.android.model.TokenValidation
 import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.model.CoverArt
 
 interface ListensRepository {
 
