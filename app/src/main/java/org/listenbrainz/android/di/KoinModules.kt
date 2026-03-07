@@ -412,7 +412,6 @@ val viewModelModule = module {
     viewModel { DashBoardViewModel(get(), get(), get(), get(named(IO_DISPATCHER)),get()) }
     viewModel { AppUpdatesViewModel(get(), get(), get()) }
     viewModel { FeedViewModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
-    viewModel { ListensViewModel(get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
     viewModel { SocialViewModel(get(), get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { UserViewModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
     viewModel { PlaylistDataViewModel(get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
