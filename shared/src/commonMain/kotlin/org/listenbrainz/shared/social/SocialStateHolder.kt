@@ -7,6 +7,9 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.listenbrainz.shared.model.LinkedService
 import org.listenbrainz.shared.model.Metadata
+import org.listenbrainz.shared.model.Review
+import org.listenbrainz.shared.model.ReviewEntityType
+import org.listenbrainz.shared.model.ReviewMetadata
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.ListensRepository
 import org.listenbrainz.shared.repository.SocialRepository
@@ -98,8 +101,8 @@ class SocialStateHolder(
     suspend fun getFollowers(): Resource<SocialData> {
         val username = appPreferences.username.get()
         return repository.getFollowers(username).also {
-            if(it.status== Resource.Status.FAILED){
-//                Handle error based on BaseViewModel
+            if (it.status == Resource.Status.FAILED) {
+                emitError(it.error)
             }
         }
     }
@@ -120,16 +123,27 @@ class SocialStateHolder(
                 )
             )
 
-            if (result.status == Resource.Status.FAILED){
-
-            }
-            else if(result.status == Resource.Status.SUCCESS){
-
+            if (result.status == Resource.Status.FAILED) {
+                emitError(result.error)
+            } else if (result.status == Resource.Status.SUCCESS) {
+                emitMsg(SocialMsg.RECOMMEND_SUCCESS)
             }
         }
     }
     fun pin(metadata: Metadata,blurbContent: String?){
-//        will be implemented later after full SocialRepository migration
+        scope.launch(ioDispatcher){
+            val result = repository.pin(
+                recordingMbid = metadata.trackMetadata?.mbidMapping?.recordingMbid,
+                recordingMsid = metadata.trackMetadata?.additionalInfo?.recordingMsid,
+                blurbContent = blurbContent
+            )
+            if (result.status == Resource.Status.FAILED) {
+                emitError(result.error)
+            } else if (result.status == Resource.Status.SUCCESS) {
+                emitMsg(SocialMsg.PIN_SUCCESS)
+            }
+        }
+
     }
 
     fun personallyRecommend(metadata: Metadata, users: List<String>, blurbContent: String) {
@@ -149,21 +163,50 @@ class SocialStateHolder(
                     )
                 )
             )
-
-            if (result.status == Resource.Status.FAILED){
-
-            }
-            else if(result.status == Resource.Status.SUCCESS){
-
+            if (result.status == Resource.Status.FAILED) {
+                emitError(result.error)
+            } else if (result.status == Resource.Status.SUCCESS) {
+                emitMsg(SocialMsg.PERSONAL_RECOMMEND_SUCCESS)
             }
         }
     }
-    fun review(metadata: Metadata, blurbContent: String, rating: Int?, locale: String){
+    fun review(metadata: Metadata, blurbContent: String, rating: Int?, locale: String,entityType: ReviewEntityType){
         scope.launch(ioDispatcher) {
             val trackMetadata = metadata.trackMetadata ?: return@launch
             val mbidMapping = trackMetadata.mbidMapping ?: return@launch
+            val result = repository.postReview(
+                username = appPreferences.username.get(),
+                data = Review(
+                        metadata = ReviewMetadata(
+                            entityName = trackMetadata.trackName?:return@launch,
+                            entityId = when(entityType){
+                                ReviewEntityType.RECORDING -> (mbidMapping.recordingMbid ?: return@launch).toString()
+                                ReviewEntityType.ARTIST -> (when(mbidMapping.artistMbids.size){
+                                    1 -> mbidMapping.artistMbids[0]
+                                    else -> return@launch
+                                })
+                                ReviewEntityType.RELEASE_GROUP -> (mbidMapping.recordingMbid ?: return@launch).toString()
+                            },
+                            entityType = entityType.code,
+                            text = blurbContent,
+                            rating = rating,
+                            language = locale
+                        )
+                )
+            )
+            if (result.status == Resource.Status.FAILED) {
+                emitError(result.error)
+            } else if (result.status == Resource.Status.SUCCESS) {
+                emitMsg(SocialMsg.REVIEW_SUCCESS)
+            }
         }
-//       will be implemented later after full SocialRepository migration
+    }
+    private fun emitError(error: ResponseError?) {
+        errorFlow.value = error
+    }
+
+    private fun emitMsg(messageId: Int?) {
+        successMsgFlow.value = messageId
     }
 
 }
