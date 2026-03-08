@@ -238,6 +238,7 @@ fun FeedScreen(
                         listState = myFeedListState,
                         pagingData = myFeedPagingData,
                         uiState = uiState.myFeedState,
+                        errorDialogVisible = uiState.error != null,
                         onDeleteOrHide = callbacks.onDeleteOrHide,
                         recommendTrack = callbacks.onRecommend,
                         personallyRecommendTrack = { index ->
@@ -266,6 +267,7 @@ fun FeedScreen(
 
                     1 -> FollowListens(
                         listState = followListensListState,
+                        errorDialogVisible = uiState.error != null,
                         pagingData = followListensPagingData,
                         recommendTrack = callbacks.onRecommend,
                         personallyRecommendTrack = { index ->
@@ -293,6 +295,7 @@ fun FeedScreen(
 
                     2 -> SimilarListens(
                         listState = similarListensListState,
+                        errorDialogVisible = uiState.error != null,
                         pagingData = similarListensPagingData,
                         recommendTrack = callbacks.onRecommend,
                         personallyRecommendTrack = { index ->
@@ -448,6 +451,7 @@ private fun MyFeed(
     listState: LazyListState,
     pagingData: LazyPagingItems<FeedUiEventItem>,
     uiState: FeedUiEventData,
+    errorDialogVisible: Boolean,
     onDeleteOrHide: (event: FeedEvent, eventType: FeedEventType, parentUser: String) -> Unit,
     recommendTrack: (event: FeedEvent) -> Unit,
     personallyRecommendTrack: (index: Int) -> Unit,
@@ -478,7 +482,7 @@ private fun MyFeed(
             .widthIn(max = LocalConfiguration.current.screenWidthDp.dp),
         state = listState
     ) {
-        item { StartingSpacer() }
+        item { StartingSpacer(errorDialogVisible) }
 
         if (inRefreshingState) {
             item(contentType = "shimmer") {
@@ -560,6 +564,7 @@ private fun MyFeed(
 @Composable
 fun FollowListens(
     listState: LazyListState,
+    errorDialogVisible: Boolean,
     pagingData: LazyPagingItems<FeedUiEventItem>,
     recommendTrack: (event: FeedEvent) -> Unit,
     personallyRecommendTrack: (index: Int) -> Unit,
@@ -590,7 +595,7 @@ fun FollowListens(
         state = listState,
     ) {
 
-        item { StartingSpacer() }
+        item { StartingSpacer(errorDialogVisible) }
 
         if (inRefreshingState) {
             item(contentType = "shimmer") {
@@ -695,6 +700,7 @@ fun FollowListens(
 @Composable
 fun SimilarListens(
     listState: LazyListState,
+    errorDialogVisible: Boolean,
     pagingData: LazyPagingItems<FeedUiEventItem>,
     recommendTrack: (event: FeedEvent) -> Unit,
     personallyRecommendTrack: (index: Int) -> Unit,
@@ -725,7 +731,7 @@ fun SimilarListens(
         modifier = Modifier.fillMaxSize(),
         state = listState
     ) {
-        item { StartingSpacer() }
+        item { StartingSpacer(errorDialogVisible) }
 
         if (inRefreshingState) {
             item(contentType = "shimmer") {
@@ -1035,8 +1041,12 @@ fun ShimmerListensItem(
 }
 
 @Composable
-fun StartingSpacer() {
-    Spacer(modifier = Modifier.height(60.dp))   // 6 + 6 + 48
+fun StartingSpacer(errorDialogVisible: Boolean) {
+    Spacer(
+        modifier = Modifier.height(
+            if (errorDialogVisible) 85.dp else 60.dp
+        )
+    )
 }
 
 @Composable
