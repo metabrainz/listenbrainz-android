@@ -46,7 +46,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
 import org.koin.androidx.compose.koinViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -123,7 +122,6 @@ fun SettingsScreen(
     val scope = rememberCoroutineScope()
     var isCheckingForUpdates by remember { mutableStateOf(false) }
     var darkThemeCheckedState by remember { mutableStateOf(darkTheme) }
-    var areSystemNotificationsEnabled by remember { mutableStateOf(true) }
 
     /** This preference state can only be changed when the user exits the app, and we always update
      * this state when the user exits the app, this will always be true.*/
@@ -141,16 +139,12 @@ fun SettingsScreen(
             isNotificationServiceAllowed = withContext(Dispatchers.IO) {
                 appPreferences.isNotificationServiceAllowed
             }
-            areSystemNotificationsEnabled = NotificationManagerCompat.from(context).areNotificationsEnabled()
-
         }
         onPauseOrDispose {}
     }
 
     val isLoggedOut by appPreferences.getLoginStatusFlow()
         .map { it == Constants.Strings.STATUS_LOGGED_OUT }.collectAsState(initial = false)
-
-    val notificationsEnabled = isNotificationServiceAllowed && areSystemNotificationsEnabled
 
     Column {
         TopBar(
@@ -192,17 +186,10 @@ fun SettingsScreen(
                 SettingsSwitchOption(
                     title = "Notifications",
                     subtitle = "Required to send listens",
-                    isChecked = notificationsEnabled
+                    isChecked = isNotificationServiceAllowed
                 ) {
-                    if (!areSystemNotificationsEnabled) {
-                        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                            putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-                        }
-                        context.startActivity(intent)
-                    } else {
-                        val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
-                        context.startActivity(intent)
-                    }
+                    val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+                    context.startActivity(intent)
                 }
 
 
