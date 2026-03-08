@@ -503,6 +503,7 @@ private fun MyFeed(
                     ) {
                         eventType.Content(
                             event = event,
+                            referencedEvent = referencedEvent,
                             parentUser = parentUser,
                             isHidden = uiState.isHiddenMap[event.id] == true,
                             onDeleteOrHide = {

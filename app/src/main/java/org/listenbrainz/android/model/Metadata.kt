@@ -49,7 +49,27 @@ data class Metadata(
     val user0: String? = null,
     /** Used for follow following taglines. This is the one who was followed. */
     @SerialName("user_name_1")
-    val user1: String? = null
+    val user1: String? = null,
+    // ---- THANKS EVENT FIELDS ----
+
+    @SerialName("thanker_username")
+    val thankerUsername: String? = null,
+
+    @SerialName("thankee_username")
+    val thankeeUsername: String? = null,
+
+    @SerialName("thanker_id")
+    val thankerId: Long? = null,
+
+    @SerialName("thankee_id")
+    val thankeeId: Long? = null,
+
+    @SerialName("original_event_id")
+    val originalEventId: Long? = null,
+
+    @SerialName("original_event_type")
+    val originalEventType: String? = null
+
 ) {
     val sharedTransitionId
         get() = trackMetadata?.sharedTransitionId +
