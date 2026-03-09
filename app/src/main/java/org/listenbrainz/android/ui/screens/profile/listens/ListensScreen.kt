@@ -508,13 +508,16 @@ fun ListensScreen(
                                         vertical = ListenBrainzTheme.paddings.insideCard * 2
                                     )
                             ) {
-                                SongsListened(
-                                    username = username,
-                                    listenCount = uiState.listensTabUiState.listenCount,
-                                    isSelf = uiState.isSelf,
-                                    isRefreshing = isRefreshing,
-                                    shimmer = shimmerInstance
-                                )
+                                if (uiState.listensTabUiState.listenCount != null) {
+                                    SongsListened(
+                                        username = username,
+                                        listenCount = uiState.listensTabUiState.listenCount,
+                                        isSelf = uiState.isSelf,
+                                        isRefreshing = isRefreshing,
+                                        shimmer = shimmerInstance
+                                    )
+                                }
+
                             }
                         }
 
@@ -898,7 +901,7 @@ private fun SongsListened(
             Spacer(modifier = Modifier.height(12.dp))
         } else {
             Text(
-                (listenCount ?:0).toString(),
+                listenCount.toString(),
                 color = ListenBrainzTheme.colorScheme.text,
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Medium,
