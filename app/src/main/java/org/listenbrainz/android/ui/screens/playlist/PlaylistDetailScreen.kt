@@ -535,7 +535,6 @@ private fun PlaylistDetailContent(
                         showsnackbar(error.toast)
                     },
                     goToArtistPage = goToArtistPage,
-                    onClick = {},
                     onRemoveFromPlaylist = if (playlistDetailUIState.isUserPlaylistOwner) {
                         {
                             onRemoveTrackFromPlaylist(index)

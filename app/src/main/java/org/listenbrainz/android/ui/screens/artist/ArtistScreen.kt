@@ -652,7 +652,6 @@ private fun PopularTracks(
                         snackbarState.showSnackbar(message)
                     },
                     goToArtistPage = goToArtistPage,
-                    onClick = { },
                 ) {
                     // No playback action for now
                 }

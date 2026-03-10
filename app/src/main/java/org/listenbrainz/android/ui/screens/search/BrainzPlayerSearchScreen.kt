@@ -93,7 +93,7 @@ fun BrainzPlayerSearchScreen(
                     goToArtistPage = {},
                     onDropdownSuccess = { context.showToast(it) },
                     onDropdownError = { error = it },
-                    onClick = {}
+
                 ) {
                     viewModel.changePlayable(
                         listOf(song),

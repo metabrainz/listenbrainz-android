@@ -224,7 +224,6 @@ fun TasteScreen(
                             snackbarState.showSnackbar(message)
                         },
                         goToArtistPage = goToArtistPage,
-                        onClick = {}
                     ) {
                         if (feedback.trackMetadata != null) {
                             playListen(feedback.trackMetadata)
@@ -302,7 +301,6 @@ fun TasteScreen(
                                     snackbarState.showSnackbar(message)
                                 },
                                 goToArtistPage = goToArtistPage,
-                                onClick = {}
                             ) {
                                 if (recording.trackMetadata != null) {
                                     playListen(recording.trackMetadata)

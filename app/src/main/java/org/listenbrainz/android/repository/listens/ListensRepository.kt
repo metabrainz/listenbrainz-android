@@ -27,7 +27,6 @@ interface ListensRepository {
 
     fun getPackageLabel(packageName: String): String
     suspend fun deleteListen(
-        token: String,
         listenedAt: Long,
         recordingMsid: String
     ): Resource<PostResponse>

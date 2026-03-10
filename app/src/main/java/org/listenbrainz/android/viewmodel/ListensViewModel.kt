@@ -76,7 +76,6 @@ class ListensViewModel(
             fetchUserListens(username = username)
         }
     }
-    val deletedListen = mutableStateMapOf<Pair<Long, String>, Boolean>()
     override fun createUiStateFlow(): StateFlow<ListensUiState> =
         combine(
             listensFlow,

@@ -250,8 +250,8 @@ fun ListenCardSmallDefault(
     onDropdownSuccess: suspend CoroutineScope.(message: String) -> Unit,
     onRemoveFromPlaylist: (() -> Unit)? = null,
     goToArtistPage: (String) -> Unit,
+    onDelete: (() -> Unit)? = null,
     onClick: () -> Unit,
-    onDelete: (() -> Unit)? = null
 ) {
     metadata.trackMetadata?.let {
         var isDropdownExpanded by remember { mutableStateOf(false) }

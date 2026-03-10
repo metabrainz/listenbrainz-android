@@ -49,7 +49,6 @@ interface ListensService {
 
     @POST("delete-listen")
     suspend fun deleteListen(
-        @Header("Authorization") token: String,
         @Body payload: DeleteListen
     ): PostResponse
 }

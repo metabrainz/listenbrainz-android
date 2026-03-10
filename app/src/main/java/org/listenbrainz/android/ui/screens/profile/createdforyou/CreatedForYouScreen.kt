@@ -371,7 +371,6 @@ private fun CreatedForYouScreen(
                                         snackbarState.showSnackbar(error.toast)
                                     },
                                     goToArtistPage = goToArtistPage,
-                                    onClick = {},
                                     trailingContent = {
                                         Text(
                                             modifier = Modifier

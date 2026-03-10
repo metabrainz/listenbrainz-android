@@ -79,19 +79,16 @@ class ListensRepositoryImpl(
         }
     }
     override suspend fun deleteListen(
-        token: String,
         listenedAt: Long,
         recordingMsid: String
     ): Resource<PostResponse> = parseResponse {
         service.deleteListen(
-            token = "Token $token",
             payload = DeleteListen(
                 listenedAt = listenedAt,
                 recordingMsid = recordingMsid
             )
         )
     }
-
     override suspend fun submitListen(token: String, body: ListenSubmitBody): Resource<PostResponse> = parseResponse {
         service.submitListen(body)
     }

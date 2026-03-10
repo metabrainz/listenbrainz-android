@@ -80,7 +80,6 @@ fun ProfileScreen(
                     goToArtistPage = goToArtistPage,
                     goToPlaylist = goToPlaylist,
                     socialViewModel = socialViewModel,
-                    deleted = socialViewModel.deletedListens
                 )
             } else {
                 LoginScreen(

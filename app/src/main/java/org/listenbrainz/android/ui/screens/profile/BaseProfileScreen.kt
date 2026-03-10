@@ -68,7 +68,6 @@ fun BaseProfileScreen(
     playlistDataViewModel: PlaylistDataViewModel = koinViewModel(),
     goToPlaylist: (String) -> Unit,
     goToArtistPage: (String) -> Unit,
-    deleted: Map<Pair<Long, String>, Boolean>
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val pagerState = rememberPagerState { ProfileScreenTab.entries.size }
@@ -226,7 +225,6 @@ fun BaseProfileScreen(
                         viewModel = listensViewModel,
                         goToArtistPage = goToArtistPage,
                         goToUserProfile = goToUserProfile,
-                        deleted = deleted
                     )
 
 

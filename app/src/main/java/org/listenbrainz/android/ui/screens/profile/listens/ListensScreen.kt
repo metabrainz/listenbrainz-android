@@ -128,12 +128,10 @@ fun ListensScreen(
     username: String?,
     goToArtistPage: (String) -> Unit,
     goToUserProfile: (String) -> Unit,
-    deleted: Map<Pair<Long, String>, Boolean>
 ) {
     val uiState by userViewModel.uiState.collectAsState()
     val preferencesUiState by viewModel.preferencesUiState.collectAsState()
     val socialUiState by socialViewModel.uiState.collectAsState()
-    val deleted = socialViewModel.deletedListens
     ListensScreen(
         scrollRequestState = scrollRequestState,
         onScrollToTop = onScrollToTop,
@@ -165,7 +163,6 @@ fun ListensScreen(
         },
         goToArtistPage = goToArtistPage,
         goToUserProfile = goToUserProfile,
-        deleted = deleted,
         viewModel = socialViewModel
     )
 }
@@ -205,7 +202,6 @@ fun ListensScreen(
     onFollowButtonClick: (username: String?, status: Boolean) -> Unit,
     goToArtistPage: (String) -> Unit,
     goToUserProfile: (String) -> Unit,
-    deleted: Map<Pair<Long, String>, Boolean>,
     viewModel: SocialViewModel = koinViewModel()
 ) {
     val listState = rememberLazyListState()
@@ -280,14 +276,12 @@ fun ListensScreen(
                     listen: Listen,
                     modifier: Modifier = Modifier
                 ) {
+                    val cannotDeleteMsg = stringResource(id = R.string.cannot_delete)
                     val metadata = remember(listen) {
                         listen.toMetadata()
                     }
                     val listenedAt = metadata.listenedAt
                     val msid = metadata.trackMetadata?.additionalInfo?.recordingMsid
-                    if(listenedAt != null && msid != null && deleted[listenedAt to msid] == true){
-                        return
-                    }
 
                 ListenCardSmallDefault(
                     modifier = modifier
@@ -309,12 +303,9 @@ fun ListensScreen(
                     onDelete = {
                         if (listenedAt != null && msid != null) {
                             viewModel.deleteListen(metadata)
-                            scope.launch {
-                                snackbarState.showSnackbar("Listen deleted.")
-                            }
                         } else {
                             scope.launch {
-                                snackbarState.showSnackbar("Cannot delete Listen.")
+                                snackbarState.showSnackbar(cannotDeleteMsg)
                             }
                         }
                     },
@@ -322,15 +313,8 @@ fun ListensScreen(
                         scope.launch { snackbarState.showSnackbar(error.toast) }
                     },
                     onDropdownSuccess = { message ->
-                        if (listenedAt != null && msid != null) {
-                            viewModel.deleteListen(metadata)
-                            scope.launch {
-                                snackbarState.showSnackbar(message)
-                            }
-                        }else{
-                            scope.launch {
-                                snackbarState.showSnackbar("Cannot Delete")
-                            }
+                        scope.launch {
+                            snackbarState.showSnackbar(message)
                         }
                     },
                     goToArtistPage = goToArtistPage,
@@ -1449,7 +1433,6 @@ fun ListensScreenPreview() {
             onFollowButtonClick = { _, _ -> },
             goToArtistPage = {},
             goToUserProfile = {},
-            deleted = {} as Map<Pair<Long, String>, Boolean>
         )
     }
 }
@@ -1473,7 +1456,6 @@ fun ListensScreenSelfPreview() {
             onFollowButtonClick = { _, _ -> },
             goToArtistPage = {},
             goToUserProfile = {},
-            deleted = {} as Map<Pair<Long, String>, Boolean>
         )
     }
 }
@@ -1497,7 +1479,6 @@ fun ListensScreenFollowingPreview() {
             onFollowButtonClick = { _, _ -> },
             goToArtistPage = {},
             goToUserProfile = {},
-            deleted = {} as Map<Pair<Long, String>, Boolean>
         )
     }
 }
@@ -1521,7 +1502,6 @@ fun ListensScreenMinimalPreview() {
             onFollowButtonClick = { _, _ -> },
             goToArtistPage = {},
             goToUserProfile = {},
-            deleted = {} as Map<Pair<Long, String>, Boolean>
         )
     }
 }
@@ -1545,7 +1525,6 @@ fun ListensScreenNoDataPreview() {
             onFollowButtonClick = { _, _ -> },
             goToArtistPage = {},
             goToUserProfile = {},
-            deleted = {} as Map<Pair<Long, String>, Boolean>
         )
     }
 }

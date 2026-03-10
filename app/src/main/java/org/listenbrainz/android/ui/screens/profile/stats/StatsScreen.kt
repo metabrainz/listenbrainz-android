@@ -538,8 +538,7 @@ fun StatsScreen(
                                             },
                                             onDropdownSuccess = {
                                                 snackbarState.showSnackbar(it)
-                                            },
-                                            onClick = {}
+                                            }
                                         ) {
                                             metadata.trackMetadata?.let { playListen(it) }
                                         }
@@ -601,7 +600,6 @@ fun StatsScreen(
                                                 snackbarState.showSnackbar(it)
                                             },
                                             goToArtistPage = goToArtistPage,
-                                            onClick = {}
                                         ) {
                                             val trackMetadata = metadata.trackMetadata
                                             if (trackMetadata != null) {

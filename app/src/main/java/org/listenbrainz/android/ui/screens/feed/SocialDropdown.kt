@@ -209,7 +209,7 @@ fun SocialDropdown(
     onDelete: (() -> Unit)? = null,
     onInspect: (() -> Unit)? = null
 ) {
-    val list = remember(onDelete) {
+    val list = remember(onDelete,onOpenInMusicBrainz,onPin,onRecommend,onPersonallyRecommend,onReview,onAddToPlaylist,onRemoveFromPlaylist,onLink,onInspect) {
         val trackName = metadata.trackMetadata?.trackName
             ?: if (metadata.entityType == ReviewEntityType.RECORDING.code) metadata.entityName else null
         val artistName = metadata.trackMetadata?.artistName
