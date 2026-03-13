@@ -123,6 +123,7 @@ import org.listenbrainz.android.util.optionalSharedElement
 import org.listenbrainz.android.viewmodel.ListensViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
+import java.util.UUID
 
 @Composable
 fun ListensScreen(
@@ -528,7 +529,9 @@ fun ListensScreen(
                         } else {
                             items(
                                 count = listensPagingItems.itemCount.coerceAtMost(previewListenCount),
-                                key = listensPagingItems.itemKey { it.sharedTransitionId },
+                                key = listensPagingItems.itemKey { listen ->
+                                    listen.sharedTransitionId.takeIf { it.isNotEmpty() } ?: UUID.randomUUID()
+                                },
                                 contentType = { "listen" }
                             ) { index ->
                                 listensPagingItems[index]?.let {
