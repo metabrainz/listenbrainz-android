@@ -1,7 +1,5 @@
 package org.listenbrainz.android.ui.screens.search
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -56,10 +54,14 @@ import org.listenbrainz.android.util.Utils.formatDurationSeconds
 import org.listenbrainz.android.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.util.Utils.removeHtmlTags
 import org.listenbrainz.android.viewmodel.SearchViewModel
-import java.time.format.DateTimeFormatter
-import java.util.Locale
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.Padding
+import kotlinx.datetime.format.char
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Instant
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun BaseSearchScreen(
     viewModel: SearchViewModel = koinViewModel(),
@@ -321,7 +323,6 @@ private fun UserList(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun Playlists(
     uiState: PlayListSearchUiState,
@@ -945,13 +946,19 @@ fun ShimmerTrackItem(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
+private val searchDateFormat get() = LocalDate.Format {
+    day(padding = Padding.ZERO)
+    char(' ')
+    monthName(MonthNames.ENGLISH_ABBREVIATED)
+    char(' ')
+    year()
+}
+
 fun formatSearchDate(date: String): String {
     return try {
-        val inputFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
-        val parsedDate = java.time.OffsetDateTime.parse(date, inputFormatter)
-        val outputFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.getDefault())
-        parsedDate.format(outputFormatter)
+        val instant = Instant.parse(date)
+        val localDate = instant.toLocalDateTime(TimeZone.currentSystemDefault()).date
+        searchDateFormat.format(localDate)
     } catch (e: Exception) {
         date
     }
