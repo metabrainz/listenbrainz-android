@@ -2,7 +2,7 @@ package org.listenbrainz.android.model.artist
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.listenbrainz.android.model.feed.FeedListenArtist
+import org.listenbrainz.shared.model.feed.FeedListenArtist
 
 @Serializable
 data class ReleaseGroup(

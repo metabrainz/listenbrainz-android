@@ -25,7 +25,7 @@ import org.listenbrainz.android.model.search.artistSearch.ArtistUiModel
 import org.listenbrainz.android.model.search.playlistSearch.PlayListSearchUiState
 import org.listenbrainz.android.model.search.playlistSearch.PlaylistUiModel
 import org.listenbrainz.android.model.ResponseError
-import org.listenbrainz.android.model.TrackMetadata
+import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.android.model.search.SearchData
 import org.listenbrainz.android.model.search.SearchType
 import org.listenbrainz.android.model.search.SearchUiState

@@ -17,7 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import org.koin.androidx.compose.koinViewModel
-import org.listenbrainz.android.model.AppNavigationItem
+import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions

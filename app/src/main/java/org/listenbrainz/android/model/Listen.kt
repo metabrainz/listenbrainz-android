@@ -2,6 +2,8 @@ package org.listenbrainz.android.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.listenbrainz.shared.model.Metadata
+import org.listenbrainz.shared.model.TrackMetadata
 
 @Serializable
 data class Listen(
@@ -22,5 +24,5 @@ data class Listen(
     }
 
     val sharedTransitionId
-        get() = trackMetadata?.sharedTransitionId.orEmpty() + (listenedAt ?: insertedAt).toString()
+        get() = trackMetadata?.sharedTransitionId.orEmpty() + recordingMsid.orEmpty() + (listenedAt ?: insertedAt).toString()
 }

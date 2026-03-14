@@ -92,7 +92,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.SocialUiState
-import org.listenbrainz.android.model.TrackMetadata
+import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.android.model.user.Artist
 import org.listenbrainz.android.ui.components.ButtonLB
 import org.listenbrainz.android.ui.components.ErrorBar
@@ -116,6 +116,7 @@ import org.listenbrainz.android.util.optionalSharedElement
 import org.listenbrainz.android.viewmodel.ListensViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
+import java.util.UUID
 
 @Composable
 fun ListensScreen(
@@ -516,13 +517,16 @@ fun ListensScreen(
                                         vertical = ListenBrainzTheme.paddings.insideCard * 2
                                     )
                             ) {
-                                SongsListened(
-                                    username = username,
-                                    listenCount = uiState.listensTabUiState.listenCount,
-                                    isSelf = uiState.isSelf,
-                                    isRefreshing = isRefreshing,
-                                    shimmer = shimmerInstance
-                                )
+                                if (uiState.listensTabUiState.listenCount != null) {
+                                    SongsListened(
+                                        username = username,
+                                        listenCount = uiState.listensTabUiState.listenCount,
+                                        isSelf = uiState.isSelf,
+                                        isRefreshing = isRefreshing,
+                                        shimmer = shimmerInstance
+                                    )
+                                }
+
                             }
                         }
 
@@ -536,7 +540,9 @@ fun ListensScreen(
                         } else {
                             items(
                                 count = listensPagingItems.itemCount.coerceAtMost(previewListenCount),
-                                key = listensPagingItems.itemKey { it.sharedTransitionId },
+                                key = listensPagingItems.itemKey { listen ->
+                                    listen.sharedTransitionId.takeIf { it.isNotEmpty() } ?: UUID.randomUUID()
+                                },
                                 contentType = { "listen" }
                             ) { index ->
                                 listensPagingItems[index]?.let {

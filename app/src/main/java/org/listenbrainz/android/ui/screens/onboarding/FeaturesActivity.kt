@@ -15,17 +15,14 @@ import com.limurse.onboard.OnboardAdvanced
 import com.limurse.onboard.OnboardFragment
 import com.limurse.onboard.OnboardPageTransformerType
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.listenbrainz.android.R
-import org.listenbrainz.android.repository.preferences.AppPreferences
 import org.listenbrainz.android.ui.screens.main.MainActivity
 import org.listenbrainz.android.ui.screens.profile.LoginActivity
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.android.viewmodel.FeaturesViewModel
 
 class FeaturesActivity : OnboardAdvanced() {
-    private val appPreferences: AppPreferences by inject()
     private val featuresViewModel: FeaturesViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -92,13 +89,13 @@ class FeaturesActivity : OnboardAdvanced() {
     override fun onDonePressed(currentFragment: Fragment?) {
         super.onDonePressed(currentFragment)
         Log.d("Onboarding completed")
-        appPreferences.onboardingCompleted = true
+        featuresViewModel.markOnboardingCompleted()
         startActivity(Intent(this, MainActivity::class.java))
         finish()
     }
 
     override fun onNextPressed(currentFragment: Fragment?) {
-        if (!appPreferences.isNotificationServiceAllowed) {
+        if (!featuresViewModel.isNotificationServiceAllowed()) {
             Toast.makeText(this, "Allow notification access to submit listens", Toast.LENGTH_SHORT).show()
             val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
             startActivity(intent)
@@ -109,14 +106,15 @@ class FeaturesActivity : OnboardAdvanced() {
 
     override fun onSignInPressed(currentFragment: Fragment?) {
         super.onSignInPressed(currentFragment)
-        featuresViewModel.appPreferences.onboardingCompleted = true
+        featuresViewModel.markOnboardingCompleted()
         startActivity(Intent(this, LoginActivity::class.java))
     }
 
     override fun onResume() {
         super.onResume()
         lifecycleScope.launch {
-            if (featuresViewModel.appPreferences.onboardingCompleted && featuresViewModel.appPreferences.isUserLoggedIn()) {
+            val onboardingCompleted = featuresViewModel.isOnboardingCompleted()
+            if (onboardingCompleted && featuresViewModel.isUserLoggedIn()) {
                 startActivity(Intent(this@FeaturesActivity, MainActivity::class.java))
                 finish()
             }

@@ -1,6 +1,7 @@
 package org.listenbrainz.android.application
 
 import android.app.Application
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.StrictMode
@@ -16,10 +17,11 @@ import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.workmanager.koin.workManagerFactory
+import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.di.appModules
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.service.ListenSubmissionService
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log
@@ -35,12 +37,7 @@ class App : Application(), Configuration.Provider {
         super.onCreate()
 
         // Initialize Koin
-        startKoin {
-            androidLogger()
-            androidContext(this@App)
-            workManagerFactory()
-            modules(appModules)
-        }
+        ensureKoinStarted(this)
 
         val logDirectory = applicationContext.getExternalFilesDir(null)?.path.orEmpty()
         val config = Config.Builder(logDirectory)
@@ -99,6 +96,18 @@ class App : Application(), Configuration.Provider {
     companion object {
         lateinit var context: App
             private set
+
+        @Synchronized
+        fun ensureKoinStarted(context: Context) {
+            if (GlobalContext.getOrNull() == null) {
+                startKoin {
+                    androidLogger()
+                    androidContext(context.applicationContext)
+                    workManagerFactory()
+                    modules(appModules)
+                }
+            }
+        }
 
         suspend fun startListenService(appPreferences: AppPreferences) = withContext(Dispatchers.Main) {
             if (

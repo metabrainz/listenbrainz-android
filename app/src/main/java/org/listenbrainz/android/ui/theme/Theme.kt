@@ -32,13 +32,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.valentinilk.shimmer.LocalShimmerTheme
-import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.ShimmerTheme
-import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmerSpec
-import org.listenbrainz.android.model.UiMode
-import org.listenbrainz.android.repository.preferences.AppPreferences
-import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
+import org.listenbrainz.shared.model.UiMode
+import org.listenbrainz.shared.repository.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferencesImpl
 
 /** ColorScheme for the whole app. */
 data class ColorScheme(
@@ -112,7 +110,7 @@ private val colorSchemeDark = ColorScheme(
     nav = bp_bottom_song_viewpager_dark,
     level1 = app_bottom_nav_dark,
     level2 = Color(0xFF363636),
-    lbSignature = Color(0xFF9AABD1),
+    lbSignature = lb_purple_night,
     lbSignatureSecondary = lb_yellow,
     lbSignatureInverse = lb_orange,
     onLbSignature = Color.Black,

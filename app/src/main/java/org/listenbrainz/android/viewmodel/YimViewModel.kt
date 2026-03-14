@@ -16,7 +16,7 @@ import coil3.toBitmap
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import org.listenbrainz.android.model.yimdata.*
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.repository.yim.YimRepository
 import org.listenbrainz.android.util.Resource
 import org.listenbrainz.android.util.Utils.saveBitmap

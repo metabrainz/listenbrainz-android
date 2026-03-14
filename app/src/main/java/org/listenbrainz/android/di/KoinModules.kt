@@ -64,8 +64,8 @@ import org.listenbrainz.android.repository.listenservicemanager.ListenServiceMan
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManagerImpl
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepositoryImpl
-import org.listenbrainz.android.repository.preferences.AppPreferences
-import org.listenbrainz.android.repository.preferences.AppPreferencesImpl
+import org.listenbrainz.shared.repository.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferencesImpl
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandlerImpl
 import org.listenbrainz.android.repository.social.SocialRepository

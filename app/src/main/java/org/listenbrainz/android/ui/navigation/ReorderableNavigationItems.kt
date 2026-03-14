@@ -26,7 +26,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.AppNavigationItem
+import org.listenbrainz.android.util.iconUnselected
+import org.listenbrainz.shared.model.AppNavigationItem
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.ReorderableLazyListState
 
@@ -34,7 +35,7 @@ import sh.calvin.reorderable.ReorderableLazyListState
 @Composable
 fun NavIcon(item: AppNavigationItem) {
     Icon(
-        painter = painterResource(item.iconUnselected),
+        painter = painterResource(id = item.iconUnselected),
         modifier = Modifier
             .size(24.dp)
             .padding(vertical = 4.dp),

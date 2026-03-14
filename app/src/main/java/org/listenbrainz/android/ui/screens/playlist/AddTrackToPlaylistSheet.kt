@@ -43,7 +43,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.listenbrainz.android.model.feed.FeedListenArtist
+import org.listenbrainz.shared.model.feed.FeedListenArtist
 import org.listenbrainz.android.model.recordingSearch.RecordingData
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme

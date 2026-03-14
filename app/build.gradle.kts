@@ -147,6 +147,9 @@ android {
 }
 
 dependencies {
+    // Shared KMP module
+    implementation(project(":shared"))
+
     // AndroidX libraries
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -216,7 +219,6 @@ dependencies {
     implementation(libs.lottie.compose)
     implementation(libs.onboarding)
     implementation(libs.share.android)
-    implementation(libs.compose.ratingbar)
     implementation(libs.reorderable)
 
     // Accompanist
@@ -289,4 +291,7 @@ dependencies {
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
     implementation(libs.compose.shimmer)
+
+    // `Shared module
+    implementation(project(":shared"))
 }

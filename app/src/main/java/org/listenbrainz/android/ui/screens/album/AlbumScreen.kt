@@ -41,7 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.AppNavigationItem
+import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.navigation.TopBar
@@ -56,7 +56,6 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.new_app_bg_light
 import org.listenbrainz.android.util.LinkUtils.parseLinks
 import org.listenbrainz.android.viewmodel.AlbumViewModel
-import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 
 @Composable

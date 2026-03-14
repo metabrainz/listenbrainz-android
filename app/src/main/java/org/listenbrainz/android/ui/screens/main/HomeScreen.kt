@@ -43,7 +43,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.model.AppNavigationItem
+import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.android.ui.navigation.AdaptiveNavigationBar
 import org.listenbrainz.android.ui.navigation.AppNavigation
@@ -63,7 +63,6 @@ import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.ListeningNowViewModel
 
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreen(
@@ -86,7 +85,7 @@ fun HomeScreen(
     )
     var showNavReorderOverlay by rememberSaveable { mutableStateOf(false) }
     val currentlyPlayingSong by brainzPlayerViewModel.currentlyPlayingSong.collectAsStateWithLifecycle()
-    val songList = brainzPlayerViewModel.appPreferences.currentPlayable?.songs
+    val currentPlayableState by brainzPlayerViewModel.currentPlayable.collectAsStateWithLifecycle()
     val isLandScape =
         LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val isBackdropInitialised by remember {
@@ -128,7 +127,7 @@ fun HomeScreen(
     val isNothingPlaying = remember(currentlyPlayingSong) {
         currentlyPlayingSong.toSong.title == "null"
                 && currentlyPlayingSong.toSong.artist == "null"
-                || brainzPlayerViewModel.appPreferences.currentPlayable?.songs.isNullOrEmpty()
+                || currentPlayableState.songs.isEmpty()
     }
 
     val isListeningNowOpenedInConcealedState = backdropScaffoldState.targetValue != BackdropValue.Revealed && isNothingPlaying && listeningNowUIState.isListeningNow
@@ -197,7 +196,7 @@ fun HomeScreen(
                         username = username,
                         isLandscape = false,
                         currentlyPlayingSong = currentlyPlayingSong.toSong,
-                        songList = songList ?: emptyList(),
+                        songList = currentPlayableState.songs,
                         listeningNowUIState = listeningNowUIState,
                     )
                 }
@@ -231,7 +230,7 @@ fun HomeScreen(
                     isLandscape = true,
                     currentlyPlayingSong = currentlyPlayingSong.toSong,
                     listeningNowUIState = listeningNowUIState,
-                    songList = songList ?: emptyList(),
+                    songList = currentPlayableState.songs,
                 )
             }
 //            if (isGrantedPerms == PermissionStatus.GRANTED.name) {

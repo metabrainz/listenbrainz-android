@@ -1,17 +1,15 @@
 package org.listenbrainz.android.ui.screens.profile.listens
 
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
-import org.jetbrains.annotations.TestOnly
-import org.listenbrainz.android.model.AdditionalInfo
+import org.listenbrainz.shared.model.AdditionalInfo
 import org.listenbrainz.android.model.Listen
-import org.listenbrainz.android.model.MbidMapping
+import org.listenbrainz.shared.model.MbidMapping
 import org.listenbrainz.android.model.SimilarUser
 import org.listenbrainz.android.model.SocialUiState
-import org.listenbrainz.android.model.TrackMetadata
-import org.listenbrainz.android.model.feed.FeedListenArtist
+import org.listenbrainz.shared.model.TrackMetadata
+import org.listenbrainz.shared.model.feed.FeedListenArtist
 import org.listenbrainz.android.model.user.Artist
 import org.listenbrainz.android.ui.screens.profile.ListensTabUiState
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState

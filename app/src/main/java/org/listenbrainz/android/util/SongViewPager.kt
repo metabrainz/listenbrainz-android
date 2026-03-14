@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -64,7 +63,7 @@ import coil3.toBitmap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.Song
+import org.listenbrainz.shared.model.Song
 import org.listenbrainz.android.ui.components.CustomSeekBar
 import org.listenbrainz.android.ui.components.PlayPauseIcon
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
@@ -84,6 +83,7 @@ fun SongViewPager(
         return
 
     val coroutineScope = rememberCoroutineScope()
+    val currentPlayable by viewModel.currentPlayable.collectAsState()
     val pagerState: PagerState = rememberPagerState(
         initialPage = songList
             .indexOfFirst { it.mediaID == currentlyPlayingSong.mediaID }
@@ -105,9 +105,9 @@ fun SongViewPager(
             }
         }
 
-        LaunchedEffect(viewModel.appPreferences.currentPlayable?.currentSongIndex) {
+        LaunchedEffect(currentPlayable.currentSongIndex) {
             pagerState.scrollToPage(
-                viewModel.appPreferences.currentPlayable?.currentSongIndex ?: 0
+                currentPlayable.currentSongIndex
             )
         }
         LaunchedEffect(pagerState.currentPage) {

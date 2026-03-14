@@ -8,10 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -36,8 +33,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.Metadata
-import org.listenbrainz.android.model.playlist.PlaylistTrack
+import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.LoadingAnimation

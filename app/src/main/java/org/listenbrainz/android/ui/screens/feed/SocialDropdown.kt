@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -26,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.koinViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.CoroutineScope
-import org.listenbrainz.android.model.Metadata
+import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.android.model.ResponseError
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.dialogs.Dialog

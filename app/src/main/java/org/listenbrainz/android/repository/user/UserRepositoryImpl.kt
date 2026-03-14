@@ -13,7 +13,7 @@ import org.listenbrainz.android.model.user.UserListeningActivity
 import org.listenbrainz.android.model.user.UserSimilarityPayload
 import org.listenbrainz.android.service.UserService
 import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.repository.preferences.AppPreferences
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.util.Utils.parseResponse
 
 
