@@ -535,6 +535,7 @@ private fun PlaylistDetailContent(
                         showsnackbar(error.toast)
                     },
                     goToArtistPage = goToArtistPage,
+                    onClick = { onTrackClick(playlistTrack) },
                     onRemoveFromPlaylist = if (playlistDetailUIState.isUserPlaylistOwner) {
                         {
                             onRemoveTrackFromPlaylist(index)
@@ -562,9 +563,7 @@ private fun PlaylistDetailContent(
                             contentDescription = "Reorder Icon"
                         )
                     } else null,
-                ) {
-                    onTrackClick(playlistTrack)
-                }
+                )
             }
             item {
                 if (playlistDetailUIState.playlistData?.track?.size == 0) {

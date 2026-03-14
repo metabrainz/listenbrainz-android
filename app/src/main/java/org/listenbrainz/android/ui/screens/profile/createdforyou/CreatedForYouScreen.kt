@@ -371,6 +371,9 @@ private fun CreatedForYouScreen(
                                         snackbarState.showSnackbar(error.toast)
                                     },
                                     goToArtistPage = goToArtistPage,
+                                    onClick =  {
+                                        onTrackClick(playlist)
+                                    },
                                     trailingContent = {
                                         Text(
                                             modifier = Modifier
@@ -389,9 +392,7 @@ private fun CreatedForYouScreen(
                                             overflow = TextOverflow.Ellipsis
                                         )
                                     },
-                                ) {
-                                    onTrackClick(playlist)
-                                }
+                                )
                             }
                         }
                     }

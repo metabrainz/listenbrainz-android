@@ -538,10 +538,11 @@ fun StatsScreen(
                                             },
                                             onDropdownSuccess = {
                                                 snackbarState.showSnackbar(it)
+                                            },
+                                            onClick =  {
+                                                metadata.trackMetadata?.let { playListen(it) }
                                             }
-                                        ) {
-                                            metadata.trackMetadata?.let { playListen(it) }
-                                        }
+                                        )
                                     }
 
                                     if ((uiState.statsTabUIState.topAlbums?.size ?: 0) > 5) {

@@ -49,8 +49,8 @@ fun SocialDropdownDefault(
     onError: suspend CoroutineScope.(ResponseError) -> Unit,
     onSuccess: suspend CoroutineScope.(message: String) -> Unit,
     onRemoveFromPlaylist: (() -> Unit)? = null,
-    onDropdownDismiss: () -> Unit,
     onDelete: (() -> Unit)? = null,
+    onDropdownDismiss: () -> Unit,
 ) {
     if (metadata == null || LocalView.current.isInEditMode) return
 
