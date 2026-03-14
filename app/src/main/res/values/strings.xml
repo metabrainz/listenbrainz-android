@@ -286,4 +286,7 @@ For added safety, you can continue updating through your preferred app store ins
 
     <string name="album_title">Album</string>
     <string name="songs_title">Songs</string>
+
+    <string name="cannot_delete">Cannot Delete</string>
+    <string name="listen_deleted">Listen scheduled for deletion</string>
 </resources>

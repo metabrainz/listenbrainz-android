@@ -124,7 +124,7 @@ fun ListenCardSmall(
                     }
 
                     coverArt(Modifier.size(ListenBrainzTheme.sizes.listenCardHeight))
-            
+
                     Spacer(modifier = Modifier.width(ListenBrainzTheme.paddings.coverArtAndTextGap))
 
                     titleAndSubtitle(Modifier.weight(1f))
@@ -181,7 +181,7 @@ fun ListenCardSmall(
                     }
                 }
             }
-            
+
             blurbContent?.let {
                 HorizontalDivider(color = ListenBrainzTheme.colorScheme.hint)
 
@@ -250,6 +250,7 @@ fun ListenCardSmallDefault(
     onDropdownSuccess: suspend CoroutineScope.(message: String) -> Unit,
     onRemoveFromPlaylist: (() -> Unit)? = null,
     goToArtistPage: (String) -> Unit,
+    onDelete: (() -> Unit)? = null,
     onClick: () -> Unit,
 ) {
     metadata.trackMetadata?.let {
@@ -275,6 +276,7 @@ fun ListenCardSmallDefault(
                     onSuccess = onDropdownSuccess,
                     onRemoveFromPlaylist = onRemoveFromPlaylist,
                     onDropdownDismiss = { isDropdownExpanded = !isDropdownExpanded },
+                    onDelete = onDelete
                 )
             },
             preCoverArtContent = preCoverArtContent,
@@ -405,7 +407,9 @@ private fun ListenCardSmallPreview() {
             },
             onDropdownSuccess = {},
             onDropdownError = {},
-        ) {}
+            onDelete ={},
+            onClick = {}
+        )
     }
 }
 
@@ -425,14 +429,16 @@ private fun ListenCardSmallNoTrailingContentPreview() {
                 ),
             ),
             coverArtUrl = "",
-            goToArtistPage = {},
             blurbContent = {
                 Column(modifier = it) {
                     Text(text = "Blurb Content", color = ListenBrainzTheme.colorScheme.text)
                 }
             },
-            onDropdownSuccess = {},
             onDropdownError = {},
-        ) {}
+            onDropdownSuccess = {},
+            goToArtistPage = {},
+            onClick = {},
+            onDelete = {}
+        )
     }
 }

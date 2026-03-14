@@ -88,6 +88,7 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Listen
 import org.listenbrainz.android.model.SocialUiState
@@ -127,7 +128,7 @@ fun ListensScreen(
     snackbarState: SnackbarHostState,
     username: String?,
     goToArtistPage: (String) -> Unit,
-    goToUserProfile: (String) -> Unit
+    goToUserProfile: (String) -> Unit,
 ) {
     val uiState by userViewModel.uiState.collectAsState()
     val preferencesUiState by viewModel.preferencesUiState.collectAsState()
@@ -162,7 +163,8 @@ fun ListensScreen(
             }
         },
         goToArtistPage = goToArtistPage,
-        goToUserProfile = goToUserProfile
+        goToUserProfile = goToUserProfile,
+        viewModel = socialViewModel
     )
 }
 
@@ -201,6 +203,7 @@ fun ListensScreen(
     onFollowButtonClick: (username: String?, status: Boolean) -> Unit,
     goToArtistPage: (String) -> Unit,
     goToUserProfile: (String) -> Unit,
+    viewModel: SocialViewModel = koinViewModel()
 ) {
     val listState = rememberLazyListState()
 
@@ -274,9 +277,12 @@ fun ListensScreen(
                     listen: Listen,
                     modifier: Modifier = Modifier
                 ) {
+                    val cannotDeleteMsg = stringResource(id = R.string.cannot_delete)
                     val metadata = remember(listen) {
                         listen.toMetadata()
                     }
+                    val listenedAt = metadata.listenedAt
+                    val msid = metadata.trackMetadata?.additionalInfo?.recordingMsid
 
                 ListenCardSmallDefault(
                     modifier = modifier
@@ -295,16 +301,26 @@ fun ListensScreen(
                         caaReleaseMbid = listen.trackMetadata?.mbidMapping?.caaReleaseMbid,
                         caaId = listen.trackMetadata?.mbidMapping?.caaId
                     ),
+                    onDelete = {
+                        if (listenedAt != null && msid != null) {
+                            viewModel.deleteListen(metadata)
+                        } else {
+                            scope.launch {
+                                snackbarState.showSnackbar(cannotDeleteMsg)
+                            }
+                        }
+                    },
                     onDropdownError = { error ->
-                        snackbarState.showSnackbar(error.toast)
+                        scope.launch { snackbarState.showSnackbar(error.toast) }
                     },
                     onDropdownSuccess = { message ->
-                        snackbarState.showSnackbar(message)
+                        scope.launch {
+                            snackbarState.showSnackbar(message)
+                        }
                     },
                     goToArtistPage = goToArtistPage,
-                ) {
-                    listen.trackMetadata?.let { playListen(it) }
-                }
+                    onClick = {},
+                )
             }
 
                 @Composable
@@ -1422,7 +1438,7 @@ fun ListensScreenPreview() {
             getListensData = {},
             onFollowButtonClick = { _, _ -> },
             goToArtistPage = {},
-            goToUserProfile = {}
+            goToUserProfile = {},
         )
     }
 }
@@ -1445,7 +1461,7 @@ fun ListensScreenSelfPreview() {
             username = "pranavkonidena",
             onFollowButtonClick = { _, _ -> },
             goToArtistPage = {},
-            goToUserProfile = {}
+            goToUserProfile = {},
         )
     }
 }
@@ -1468,7 +1484,7 @@ fun ListensScreenFollowingPreview() {
             getListensData = {},
             onFollowButtonClick = { _, _ -> },
             goToArtistPage = {},
-            goToUserProfile = {}
+            goToUserProfile = {},
         )
     }
 }
@@ -1491,7 +1507,7 @@ fun ListensScreenMinimalPreview() {
             getListensData = {},
             onFollowButtonClick = { _, _ -> },
             goToArtistPage = {},
-            goToUserProfile = {}
+            goToUserProfile = {},
         )
     }
 }
@@ -1514,7 +1530,7 @@ fun ListensScreenNoDataPreview() {
             getListensData = {},
             onFollowButtonClick = { _, _ -> },
             goToArtistPage = {},
-            goToUserProfile = {}
+            goToUserProfile = {},
         )
     }
 }
