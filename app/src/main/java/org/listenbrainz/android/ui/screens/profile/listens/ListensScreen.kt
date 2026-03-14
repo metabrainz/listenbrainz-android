@@ -501,13 +501,16 @@ fun ListensScreen(
                                         vertical = ListenBrainzTheme.paddings.insideCard * 2
                                     )
                             ) {
-                                SongsListened(
-                                    username = username,
-                                    listenCount = uiState.listensTabUiState.listenCount,
-                                    isSelf = uiState.isSelf,
-                                    isRefreshing = isRefreshing,
-                                    shimmer = shimmerInstance
-                                )
+                                if (uiState.listensTabUiState.listenCount != null) {
+                                    SongsListened(
+                                        username = username,
+                                        listenCount = uiState.listensTabUiState.listenCount,
+                                        isSelf = uiState.isSelf,
+                                        isRefreshing = isRefreshing,
+                                        shimmer = shimmerInstance
+                                    )
+                                }
+
                             }
                         }
 
