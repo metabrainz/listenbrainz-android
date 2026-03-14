@@ -13,8 +13,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.MainScope
-import org.koin.android.ext.android.inject
 import kotlinx.coroutines.cancel
+import org.koin.android.ext.android.inject
+import org.listenbrainz.android.application.App
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.util.ListenSessionListener
@@ -50,6 +51,9 @@ class ListenSubmissionService : NotificationListenerService() {
     }
 
     override fun onCreate() {
+        // Koin may not be started if the system binds this NotificationListenerService
+        // before App.onCreate() runs (e.g. after a reboot).
+        App.ensureKoinStarted(this)
         super.onCreate()
         createNotificationChannel()
         startForeground()

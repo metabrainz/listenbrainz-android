@@ -24,5 +24,5 @@ data class Listen(
     }
 
     val sharedTransitionId
-        get() = trackMetadata?.sharedTransitionId.orEmpty() + (listenedAt ?: insertedAt).toString()
+        get() = trackMetadata?.sharedTransitionId.orEmpty() + recordingMsid.orEmpty() + (listenedAt ?: insertedAt).toString()
 }
