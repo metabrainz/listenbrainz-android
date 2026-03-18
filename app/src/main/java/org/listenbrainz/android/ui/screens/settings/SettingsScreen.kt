@@ -184,7 +184,7 @@ fun SettingsScreen(
                 HorizontalDivider(modifier = indentedModifier)
 
                 SettingsSwitchOption(
-                    title = "Notifications",
+                    title = "Notification Access",
                     subtitle = "Required to send listens",
                     isChecked = isNotificationServiceAllowed
                 ) {
