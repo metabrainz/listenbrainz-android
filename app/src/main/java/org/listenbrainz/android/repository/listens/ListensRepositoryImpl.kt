@@ -4,6 +4,7 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import kotlinx.coroutines.CoroutineDispatcher
 import org.listenbrainz.android.application.App
+import org.listenbrainz.android.model.DeleteListen
 import org.listenbrainz.android.model.ListenBrainzExternalServices
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.Listens
@@ -76,6 +77,17 @@ class ListensRepositoryImpl(
         } catch (e: PackageManager.NameNotFoundException) {
             packageName
         }
+    }
+    override suspend fun deleteListen(
+        listenedAt: Long,
+        recordingMsid: String
+    ): Resource<PostResponse> = parseResponse {
+        service.deleteListen(
+            payload = DeleteListen(
+                listenedAt = listenedAt,
+                recordingMsid = recordingMsid
+            )
+        )
     }
     
     
