@@ -40,7 +40,6 @@ import org.listenbrainz.android.ui.screens.settings.SettingsCallbacksToHomeScree
 import org.listenbrainz.android.ui.screens.settings.SettingsScreen
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavigation(
     navController: NavController = rememberNavController(),

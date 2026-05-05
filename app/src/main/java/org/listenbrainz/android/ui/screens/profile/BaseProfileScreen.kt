@@ -67,7 +67,7 @@ fun BaseProfileScreen(
     socialViewModel: SocialViewModel = koinViewModel(),
     playlistDataViewModel: PlaylistDataViewModel = koinViewModel(),
     goToPlaylist: (String) -> Unit,
-    goToArtistPage: (String) -> Unit
+    goToArtistPage: (String) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val pagerState = rememberPagerState { ProfileScreenTab.entries.size }
@@ -224,7 +224,7 @@ fun BaseProfileScreen(
                         socialViewModel = socialViewModel,
                         viewModel = listensViewModel,
                         goToArtistPage = goToArtistPage,
-                        goToUserProfile = goToUserProfile
+                        goToUserProfile = goToUserProfile,
                     )
 
 

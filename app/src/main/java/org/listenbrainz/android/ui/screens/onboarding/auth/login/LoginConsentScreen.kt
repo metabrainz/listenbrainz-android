@@ -10,7 +10,6 @@ import android.webkit.CookieSyncManager
 import android.webkit.WebView
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -35,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,7 +50,6 @@ import org.listenbrainz.android.ui.screens.onboarding.auth.ConsentWebViewClient
 import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingBackButton
 import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingSupportButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 
@@ -223,7 +222,7 @@ private fun LoginConsentScreenLayout(
                                     Text(
                                         text = htmlToAnnotatedString(
                                             html = paragraph,
-                                            linkColor = if (isSystemInDarkTheme()) lb_purple_night else lb_purple
+                                            linkColor = ListenBrainzTheme.colorScheme.lbSignature
                                         ),
                                         color = ListenBrainzTheme.colorScheme.text,
                                         fontSize = 14.sp,
@@ -304,13 +303,12 @@ private fun htmlToAnnotatedString(html: String, linkColor: Color): AnnotatedStri
             if (!url.startsWith("http")) {
                 url = "https://listenbrainz.org$url"
             }
-            addStyle(
-                style = SpanStyle(color = linkColor, fontWeight = FontWeight.Bold),
-                start = start,
-                end = end
-            )
+            val linkStyle = SpanStyle(color = linkColor, fontWeight = FontWeight.Bold)
             addLink(
-                url = LinkAnnotation.Url(url),
+                url = LinkAnnotation.Url(
+                    url = url,
+                    styles = TextLinkStyles(style = linkStyle)
+                ),
                 start = start,
                 end = end
             )

@@ -26,7 +26,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.onboardingGradient
 
 @Composable
-fun OnboardingScreenBackground(backStack: NavBackStack){
+fun OnboardingScreenBackground(backStack: NavBackStack<NavKey>){
         AnimatedContent(targetState = backStack.last() in listOf(
             NavigationItem.OnboardingScreens.LoginScreen,
             NavigationItem.OnboardingScreens.LoginConsentScreen,

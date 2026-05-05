@@ -1,6 +1,7 @@
 package org.listenbrainz.android.viewmodel
 
 import android.graphics.drawable.Drawable
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.viewModelScope
 import com.spotify.protocol.types.PlayerState
 import kotlinx.coroutines.CoroutineDispatcher
@@ -74,7 +75,6 @@ class ListensViewModel(
             fetchUserListens(username = username)
         }
     }
-    
     override fun createUiStateFlow(): StateFlow<ListensUiState> =
         combine(
             listensFlow,
@@ -231,6 +231,7 @@ class ListensViewModel(
             remotePlaybackHandler.fetchSpotifyTrackCoverArt(playerState)
         )
     }
+
     
     /*fun trackProgress() {
         var state: PlayerState?

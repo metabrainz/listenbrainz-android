@@ -359,7 +359,7 @@ private fun CreatedForYouScreen(
                                         horizontal = ListenBrainzTheme.paddings.horizontal,
                                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
                                     ),
-                                    metadata = (playlist.toMetadata()),
+                                    metadata = playlist.toMetadata(),
                                     coverArtUrl = getCoverArtUrl(
                                         caaReleaseMbid = playlist.extension.trackExtensionData.additionalMetadata.caaReleaseMbid,
                                         caaId = playlist.extension.trackExtensionData.additionalMetadata.caaId
@@ -371,7 +371,7 @@ private fun CreatedForYouScreen(
                                         snackbarState.showSnackbar(error.toast)
                                     },
                                     goToArtistPage = goToArtistPage,
-                                    onClick = {
+                                    onClick =  {
                                         onTrackClick(playlist)
                                     },
                                     trailingContent = {
@@ -391,7 +391,7 @@ private fun CreatedForYouScreen(
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis
                                         )
-                                    }
+                                    },
                                 )
                             }
                         }

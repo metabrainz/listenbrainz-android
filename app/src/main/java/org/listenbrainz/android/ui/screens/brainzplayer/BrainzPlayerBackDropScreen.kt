@@ -112,6 +112,10 @@ import kotlin.math.absoluteValue
 import kotlin.math.max
 
 @ExperimentalMaterialApi
+private fun BackdropScaffoldState.offsetOrZero(): Float =
+    try { requireOffset() } catch (_: IllegalStateException) { 0f }
+
+@ExperimentalMaterialApi
 @Composable
 fun BrainzPlayerBackDropScreen(
     modifier: Modifier = Modifier,
@@ -177,7 +181,7 @@ fun BrainzPlayerBackDropScreen(
         persistentAppBar = false,
         frontLayerContent = {
             LaunchedEffect(Unit) {
-                val delta = backdropScaffoldState.requireOffset()
+                val delta = backdropScaffoldState.offsetOrZero()
                 maxDelta = max(delta, maxDelta)
             }
 
@@ -209,7 +213,7 @@ fun BrainzPlayerBackDropScreen(
                             .height(ListenBrainzTheme.sizes.brainzPlayerPeekHeight)
                             .graphicsLayer {
                                 alpha =
-                                    (backdropScaffoldState.requireOffset() / (maxDelta - headerHeight.toPx()))
+                                    (backdropScaffoldState.offsetOrZero() / (maxDelta - headerHeight.toPx()))
                             },
                         songList = currentPlayableState.value.songs,
                         backdropScaffoldState = backdropScaffoldState,
@@ -235,7 +239,7 @@ fun BrainzPlayerBackDropScreen(
                                 .fillMaxSize()
                                 .graphicsLayer {
                                     val value =
-                                        (backdropScaffoldState.requireOffset() / (maxDelta - headerHeight.toPx()))
+                                        (backdropScaffoldState.offsetOrZero() / (maxDelta - headerHeight.toPx()))
                                     alpha =
                                         if (value < 0.8f)
                                             (1f - value) * 0.25f else 0f
@@ -267,7 +271,7 @@ fun BrainzPlayerBackDropScreen(
                             .height(ListenBrainzTheme.sizes.brainzPlayerPeekHeight)
                             .graphicsLayer {
                                 alpha =
-                                    (backdropScaffoldState.requireOffset() / (maxDelta - headerHeight.toPx()))
+                                    (backdropScaffoldState.offsetOrZero() / (maxDelta - headerHeight.toPx()))
                             }
                     )
                 }

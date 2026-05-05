@@ -18,7 +18,6 @@ import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
@@ -93,10 +92,8 @@ class MainActivity : ComponentActivity() {
                 NavDisplay(
                     backStack = backStack,
                     onBack = {
-                        repeat(it) {
-                            val screen = backStack.removeAt(backStack.lastIndex)
-                            onboardingBackHandler(screen)
-                        }
+                        val screen = backStack.removeAt(backStack.lastIndex)
+                        onboardingBackHandler(screen)
                     },
                     entryProvider = entryProvider {
                         entry<NavigationItem.OnboardingScreens.IntroductionScreen> {
@@ -230,7 +227,7 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun SetStatusAndNavigationBarTheme(backStack: NavBackStack) {
+    fun SetStatusAndNavigationBarTheme(backStack: NavBackStack<NavKey>) {
         val isDarkTheme = isSystemInDarkTheme()
         val uiMode by dashBoardViewModel.appPreferences.themePreference.getFlow()
             .collectAsState(initial = UiMode.FOLLOW_SYSTEM)
@@ -286,7 +283,7 @@ class MainActivity : ComponentActivity() {
 
 
     fun onNavigateInOnboarding(
-        backStack: NavBackStack,
+        backStack: NavBackStack<NavKey>,
         dashBoardViewModel: DashBoardViewModel
     ) {
         if (onboardingScreensQueue.isNotEmpty()) {

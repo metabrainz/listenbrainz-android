@@ -1,6 +1,7 @@
 package org.listenbrainz.android.viewmodel
 
 import android.net.Uri
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.FlowPreview
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.ListensType
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.android.model.RecommendationData
 import org.listenbrainz.android.model.RecommendationMetadata
@@ -40,12 +42,13 @@ class SocialViewModel(
     private val remotePlaybackHandler: RemotePlaybackHandler,
     private val ioDispatcher: CoroutineDispatcher,
     private val defaultDispatcher: CoroutineDispatcher,
-): FollowUnfollowModel<SocialUiState>(repository, ioDispatcher) {
+) : FollowUnfollowModel<SocialUiState>(repository, ioDispatcher) {
 
     private val inputSearchFollowerQuery = MutableStateFlow("")
 
     @OptIn(FlowPreview::class)
-    private val searchFollowerQuery = inputSearchFollowerQuery.asStateFlow().debounce(500).distinctUntilChanged()
+    private val searchFollowerQuery =
+        inputSearchFollowerQuery.asStateFlow().debounce(500).distinctUntilChanged()
     private val searchFollowerResult = MutableStateFlow<List<String>>(emptyList())
 
     override val uiState: StateFlow<SocialUiState> = createUiStateFlow()
@@ -56,10 +59,13 @@ class SocialViewModel(
                 if (query.isEmpty()) return@collectLatest
 
                 val result = repository.getFollowers(appPreferences.username.get())
-                if (result.status == Resource.Status.SUCCESS){
+                if (result.status == Resource.Status.SUCCESS) {
                     searchFollowerResult.emit(
                         result.data?.followers?.filter {
-                            it.startsWith(query, ignoreCase = true) || it.contains(query, ignoreCase = true)
+                            it.startsWith(query, ignoreCase = true) || it.contains(
+                                query,
+                                ignoreCase = true
+                            )
                         } ?: emptyList()
                     )
                 } else {
@@ -74,7 +80,7 @@ class SocialViewModel(
             searchFollowerResult,
             errorFlow,
             successMsgFlow
-        ){ searchResult, error, message ->
+        ) { searchResult, error, message ->
             SocialUiState(searchResult, error, message)
         }.stateIn(
             viewModelScope,
@@ -82,7 +88,7 @@ class SocialViewModel(
             SocialUiState()
         )
 
-    fun searchUser(query: String){
+    fun searchUser(query: String) {
         viewModelScope.launch {
             inputSearchFollowerQuery.emit(query)
         }
@@ -101,7 +107,7 @@ class SocialViewModel(
 
     fun playListen(trackMetadata: TrackMetadata) {
         val spotifyId = trackMetadata.additionalInfo?.spotifyId
-        if (spotifyId != null){
+        if (spotifyId != null) {
             Uri.parse(spotifyId).lastPathSegment?.let { trackId ->
                 remotePlaybackHandler.playUri(
                     trackId = trackId,
@@ -129,11 +135,11 @@ class SocialViewModel(
         }
     }
 
-    fun play(){
+    fun play() {
         remotePlaybackHandler.play()
     }
 
-    fun pause(){
+    fun pause() {
         remotePlaybackHandler.pause()
     }
 
@@ -153,10 +159,9 @@ class SocialViewModel(
                 )
             )
 
-            if (result.status == Resource.Status.FAILED){
+            if (result.status == Resource.Status.FAILED) {
                 emitError(result.error)
-            }
-            else if(result.status == Resource.Status.SUCCESS){
+            } else if (result.status == Resource.Status.SUCCESS) {
                 emitMsg(R.string.recommendation_greeting)
             }
         }
@@ -180,16 +185,21 @@ class SocialViewModel(
                 )
             )
 
-            if (result.status == Resource.Status.FAILED){
+            if (result.status == Resource.Status.FAILED) {
                 emitError(result.error)
-            }
-            else if(result.status == Resource.Status.SUCCESS){
+            } else if (result.status == Resource.Status.SUCCESS) {
                 emitMsg(R.string.personal_recommendation_greeting)
             }
         }
     }
 
-    fun review(metadata: Metadata, entityType: ReviewEntityType, blurbContent: String, rating: Int?, locale: String){
+    fun review(
+        metadata: Metadata,
+        entityType: ReviewEntityType,
+        blurbContent: String,
+        rating: Int?,
+        locale: String
+    ) {
         viewModelScope.launch(ioDispatcher) {
             val trackMetadata = metadata.trackMetadata ?: return@launch
             val mbidMapping = trackMetadata.mbidMapping ?: return@launch
@@ -213,16 +223,15 @@ class SocialViewModel(
                 )
             )
 
-            if (result.status == Resource.Status.FAILED){
+            if (result.status == Resource.Status.FAILED) {
                 emitError(result.error)
-            }
-            else if(result.status == Resource.Status.SUCCESS){
+            } else if (result.status == Resource.Status.SUCCESS) {
                 emitMsg(R.string.review_greeting)
             }
         }
     }
 
-    fun pin(metadata: Metadata, blurbContent: String? ) {
+    fun pin(metadata: Metadata, blurbContent: String?) {
         viewModelScope.launch(ioDispatcher) {
             val result = repository.pin(
                 recordingMsid = metadata.trackMetadata?.additionalInfo?.recordingMsid,
@@ -230,10 +239,9 @@ class SocialViewModel(
                 blurbContent = blurbContent
             )
 
-            if (result.status == Resource.Status.FAILED){
+            if (result.status == Resource.Status.FAILED) {
                 emitError(result.error)
-            }
-            else if(result.status == Resource.Status.SUCCESS){
+            } else if (result.status == Resource.Status.SUCCESS) {
                 emitMsg(R.string.pin_greeting)
             }
         }
@@ -242,9 +250,29 @@ class SocialViewModel(
     suspend fun getFollowers(): Resource<SocialData> {
         val username = appPreferences.username.get()
         return repository.getFollowers(username).also {
-            if(it.status == Resource.Status.FAILED){
+            if (it.status == Resource.Status.FAILED) {
                 emitError(it.error)
             }
+        }
+    }
+    fun deleteListen(metadata: Metadata) {
+        viewModelScope.launch(ioDispatcher) {
+            val listenedAt = metadata.listenedAt
+            if(listenedAt == null){
+                return@launch
+            }
+            val msid = metadata.trackMetadata?.additionalInfo?.recordingMsid
+            if(msid ==null){
+                emitError(ResponseError.BadRequest())
+                return@launch
+            }
+            val result = listensRepository.deleteListen(listenedAt, msid)
+            if (result.status == Resource.Status.FAILED) {
+                emitError(result.error)
+            } else if (result.status == Resource.Status.SUCCESS) {
+                emitMsg(R.string.listen_deleted)
+            }
+
         }
     }
 }

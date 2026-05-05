@@ -48,6 +48,7 @@ fun SocialDropdownDefault(
     onError: suspend CoroutineScope.(ResponseError) -> Unit,
     onSuccess: suspend CoroutineScope.(message: String) -> Unit,
     onRemoveFromPlaylist: (() -> Unit)? = null,
+    onDelete: (() -> Unit)? = null,
     onDropdownDismiss: () -> Unit,
 ) {
     if (metadata == null || LocalView.current.isInEditMode) return
@@ -97,12 +98,18 @@ fun SocialDropdownDefault(
             currentSheet = SocialDropdownSheets.SELECT_PLAYLIST_TO_ADD_TRACK
             onDropdownDismiss()
         },
-        onRemoveFromPlaylist = if(onRemoveFromPlaylist != null) {
+        onRemoveFromPlaylist = if (onRemoveFromPlaylist != null) {
             {
                 onRemoveFromPlaylist()
                 onDropdownDismiss()
             }
         } else null,
+        onDelete = if (onDelete != null) {
+            {
+                onDelete()
+                onDropdownDismiss()
+            }
+        } else null
     )
 
     LaunchedEffect(key1 = dialogsState.currentDialog) {
@@ -173,7 +180,7 @@ fun SocialDropdownDefault(
     )
     CreateEditPlaylistScreen(
         onDismiss = {
-                    currentSheet = SocialDropdownSheets.SELECT_PLAYLIST_TO_ADD_TRACK
+            currentSheet = SocialDropdownSheets.SELECT_PLAYLIST_TO_ADD_TRACK
         },
         isVisible = currentSheet == SocialDropdownSheets.CREATE_NEW_PLAYLIST,
         mbid = null
@@ -201,7 +208,7 @@ fun SocialDropdown(
     onDelete: (() -> Unit)? = null,
     onInspect: (() -> Unit)? = null
 ) {
-    val list = remember {
+    val list = remember(onDelete,onOpenInMusicBrainz,onPin,onRecommend,onPersonallyRecommend,onReview,onAddToPlaylist,onRemoveFromPlaylist,onLink,onInspect) {
         val trackName = metadata.trackMetadata?.trackName
             ?: if (metadata.entityType == ReviewEntityType.RECORDING.code) metadata.entityName else null
         val artistName = metadata.trackMetadata?.artistName
@@ -233,12 +240,14 @@ fun SocialDropdown(
             if (recordingMbid != null && trackName != null)
                 add(SocialDropdownItem.ADD_TO_PLAYLIST(onAddToPlaylist))
 
-            if(onRemoveFromPlaylist != null)
+            if (onRemoveFromPlaylist != null)
                 add(SocialDropdownItem.REMOVE_FROM_PLAYLIST(onRemoveFromPlaylist))
 
             // TODO: Add these in future once we have its metadata conditions.
             //add(SocialDropdownItem.LINK(onLink))
-            //add(SocialDropdownItem.DELETE(onDelete)),
+            if (onDelete != null) {
+                add(SocialDropdownItem.DELETE(onDelete))
+            }
             //add(SocialDropdownItem.INSPECT(onInspect))
         }
     }
