@@ -81,7 +81,7 @@ kotlin {
                 implementation(libs.androidx.sqlite.bundled)
                 // Ktor
                 implementation(libs.ktor.client.core)
-                implementation(libs.ktor.client.websockets)
+                implementation(libs.kmp.socketio)
             }
         }
 
