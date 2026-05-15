@@ -1,3 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="title_tracks">트랙</string>
+    <string name="releases">릴리스</string>
+    <string name="recording_releases">수록 릴리스</string>
+    <string name="app_name">ListenBrainz</string>
+    <string name="search_hint">ListenBrainz 검색</string>
+    <string name="search_card">ListenBrainz 데이터 탐색</string>
+    <string name="tagger_card">오디오를 선택 후 태그 수정</string>
 </resources>
