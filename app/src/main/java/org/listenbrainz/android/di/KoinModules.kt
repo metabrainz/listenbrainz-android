@@ -170,8 +170,6 @@ private fun createBaseHttpClient(
             json(jsonConfig)
         }
 
-        install(WebSockets)
-
         install(HttpRedirect) {
             // Allows redirection for POST method requests
             checkHttpMethod = false

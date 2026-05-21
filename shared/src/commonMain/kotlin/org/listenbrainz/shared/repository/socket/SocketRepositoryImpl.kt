@@ -3,9 +3,6 @@ package org.listenbrainz.shared.repository.socket
 import com.piasy.kmp.socketio.socketio.IO
 import com.piasy.kmp.socketio.socketio.Socket
 import io.ktor.client.HttpClient
-import io.ktor.client.plugins.websocket.webSocket
-import io.ktor.websocket.Frame
-import io.ktor.websocket.readText
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.channels.trySendBlocking
@@ -19,7 +16,7 @@ import org.listenbrainz.shared.model.Listen
 
 
 class SocketRepositoryImpl(
-    val httpClient: HttpClient
+    private val httpClient: HttpClient
 ) : SocketRepository {
 
     private val json = Json { ignoreUnknownKeys = true }
