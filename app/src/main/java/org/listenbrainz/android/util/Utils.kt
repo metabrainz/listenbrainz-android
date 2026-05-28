@@ -650,7 +650,7 @@ object Utils {
                 }
             }
 
-            withContext(Dispatchers.IO) {
+            withContext(Dispatchers.Main) {
                 val intent = Intent(Intent.ACTION_SEND).apply {
                     type = "application/zip"
                     putExtra(Intent.EXTRA_SUBJECT, "Log Files")

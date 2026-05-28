@@ -5,6 +5,7 @@ import co.touchlab.kermit.NoTagFormatter
 import co.touchlab.kermit.Severity
 import co.touchlab.kermit.loggerConfigInit
 import co.touchlab.kermit.platformLogWriter
+import org.listenbrainz.shared.provideLogger
 
 interface Log {
 
@@ -24,10 +25,7 @@ interface Log {
 
     companion object : Log {
 
-        private val logger = Logger(
-            loggerConfigInit(platformLogWriter(NoTagFormatter)),
-            "Kermit"
-        )
+        private val logger = provideLogger()
 
         override fun e(message: Any?, tag: String?, throwable: Throwable?) {
             val logTag = tag ?: "ListenBrainz"

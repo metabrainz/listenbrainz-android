@@ -50,8 +50,8 @@ class ConsentWebViewClient(
                             onLoadData(value)
                         } else {
                             Log.d(
-                                TAG,
-                                "Failed to retrieve consent screen data or no consent text found."
+                                "Failed to retrieve consent screen data or no consent text found.",
+                                tag = TAG
                             )
                             onError("Could not retrieve consent information. Please try again.")
                         }

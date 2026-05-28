@@ -16,7 +16,7 @@ actual fun provideLogger(): Logger {
 
     return Logger(
         config = StaticConfig(
-            minSeverity = Severity.Info,
+            minSeverity = Severity.Debug,
             logWriterList = writers
         ),
         tag = "ListenBrainz"
