@@ -68,7 +68,7 @@ import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Utils.submitLogs
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
-import org.listenbrainz.android.viewmodel.SettingsViewModel
+import org.listenbrainz.shared.viewmodel.SettingsViewModel
 
 @Composable
 fun SettingsScreen(

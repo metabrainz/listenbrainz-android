@@ -136,12 +136,13 @@ import org.listenbrainz.android.viewmodel.NewsListViewModel
 import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import org.listenbrainz.android.viewmodel.SearchViewModel
-import org.listenbrainz.android.viewmodel.SettingsViewModel
+import org.listenbrainz.shared.viewmodel.SettingsViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.SongViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
 import org.listenbrainz.android.viewmodel.YimViewModel
+import org.listenbrainz.shared.di.sharedViewModelModule
 
 // Qualifier names for dispatchers
 const val DEFAULT_DISPATCHER = "DefaultDispatcher"
@@ -562,7 +563,6 @@ val viewModelModule = module {
     viewModel { SongViewModel(get(), get(named(IO_DISPATCHER))) }
     viewModel { ArtistViewModel(get(), get(named(IO_DISPATCHER))) }
     viewModel { AlbumViewModel(get(), get(named(IO_DISPATCHER))) }
-    viewModel { SettingsViewModel(get()) }
     viewModel { FeaturesViewModel(get()) }
     viewModel { AboutViewModel() }
     viewModel { LoginViewModel() }
@@ -577,5 +577,6 @@ val appModules = listOf(
     appModule,
     repositoryModule,
     playerModule,
-    viewModelModule
+    viewModelModule,
+    sharedViewModelModule
 )
