@@ -20,7 +20,7 @@ import org.listenbrainz.android.model.yimdata.*
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.repository.yim23.Yim23Repository
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.android.util.Utils.saveBitmap
 
 class Yim23ViewModel(

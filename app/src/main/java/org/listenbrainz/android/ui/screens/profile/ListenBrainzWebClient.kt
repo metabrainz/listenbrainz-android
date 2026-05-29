@@ -9,8 +9,8 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import org.json.JSONObject
 import com.limurse.logger.Logger
-import org.listenbrainz.android.model.ResponseError
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.model.ResponseError
+import org.listenbrainz.shared.util.Resource
 import androidx.core.net.toUri
 import androidx.core.view.postDelayed
 import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginCallbacks

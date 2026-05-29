@@ -18,13 +18,13 @@ import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.ListenTrackMetadata
 import org.listenbrainz.android.model.ListenType
 import org.listenbrainz.android.model.PlayingTrack
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.model.dao.PendingListensDao
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.util.Constants
 import org.listenbrainz.android.util.Log
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 class ListenSubmissionWorker(
     context: Context,
@@ -135,7 +135,7 @@ class ListenSubmissionWorker(
                     if (response.error is ResponseError.BadRequest) {
                         Log.e(
                             "Submission failed, not saving listen because metadata is faulty."
-                            + "\n Server response: ${response.error.toast}" + "\n POST Request Body: $body"
+                            + "\n Server response: ${response?.error?.toast}" + "\n POST Request Body: $body"
                         )
                     } else {
                         Log.e("Submission failed, listen saved.")

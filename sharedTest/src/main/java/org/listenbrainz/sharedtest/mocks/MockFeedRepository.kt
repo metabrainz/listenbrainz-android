@@ -5,7 +5,7 @@ import org.listenbrainz.android.model.feed.FeedData
 import org.listenbrainz.android.model.feed.FeedEventDeletionData
 import org.listenbrainz.android.model.feed.FeedEventVisibilityData
 import org.listenbrainz.android.repository.feed.FeedRepository
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 class MockFeedRepository : FeedRepository {
     override suspend fun getFeedEvents(

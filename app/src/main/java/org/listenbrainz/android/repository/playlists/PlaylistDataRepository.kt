@@ -9,7 +9,7 @@ import org.listenbrainz.android.model.playlist.PlaylistSearchResult
 import org.listenbrainz.android.model.playlist.PlaylistTrack
 import org.listenbrainz.android.model.recordingSearch.RecordingSearchPayload
 import org.listenbrainz.android.model.userPlaylist.UserPlaylistPayload
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 interface PlaylistDataRepository {
 

@@ -10,7 +10,7 @@ import org.listenbrainz.android.model.playlist.PlaylistTrack
 import org.listenbrainz.android.model.recordingSearch.RecordingSearchPayload
 import org.listenbrainz.android.model.userPlaylist.UserPlaylistPayload
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.sharedtest.testdata.PlaylistDataRepositoryTestData.playlistDetailsTestData
 import org.listenbrainz.sharedtest.testdata.PlaylistDataRepositoryTestData.samplePlaylistAddCopyResponse
 import org.listenbrainz.sharedtest.testdata.PlaylistDataRepositoryTestData.samplePlaylistCoverArt

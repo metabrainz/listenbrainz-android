@@ -5,9 +5,9 @@ import androidx.paging.PagingState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.model.Listen
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.repository.listens.ListensRepository
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 class UserListensPagingSource(
     private val username: String?,

@@ -7,7 +7,7 @@ import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.PostResponse
 import org.listenbrainz.android.model.TokenValidation
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 interface ListensRepository {
 

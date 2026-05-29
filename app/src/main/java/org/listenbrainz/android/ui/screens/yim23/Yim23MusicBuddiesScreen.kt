@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.listenbrainz.android.model.yimdata.Yim23Screens
 import org.listenbrainz.android.ui.components.SimilarUserCard
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
 
 @Composable

@@ -1,6 +1,6 @@
 package org.listenbrainz.android.model.search
 
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.model.search.userSearch.UserListUiState
 import org.listenbrainz.android.model.search.albumSearch.AlbumSearchUiState
 import org.listenbrainz.android.model.search.artistSearch.ArtistSearchUiState

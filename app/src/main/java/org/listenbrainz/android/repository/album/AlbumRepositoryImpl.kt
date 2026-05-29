@@ -1,6 +1,6 @@
 package org.listenbrainz.android.repository.album
 
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.model.album.AlbumInfo
 import org.listenbrainz.android.model.album.Album
 import org.listenbrainz.android.model.albumSearch.AlbumSearchPayload
@@ -8,8 +8,8 @@ import org.listenbrainz.android.model.artist.CBReview
 import org.listenbrainz.android.service.AlbumService
 import org.listenbrainz.android.service.CBService
 import org.listenbrainz.android.service.MBService
-import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.Utils.parseResponse
+import org.listenbrainz.shared.util.Resource
+import org.listenbrainz.shared.util.Utils.parseResponse
 
 
 class AlbumRepositoryImpl(

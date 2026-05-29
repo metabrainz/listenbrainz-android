@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.screens.onboarding.auth.createaccount
 
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 data class CreateAccountClientCallbacks(
     val onCaptchaSetupComplete: () -> Unit,

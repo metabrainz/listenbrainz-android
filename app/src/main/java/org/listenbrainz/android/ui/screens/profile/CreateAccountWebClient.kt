@@ -9,9 +9,9 @@ import android.webkit.WebViewClient
 import androidx.core.net.toUri
 import com.limurse.logger.Logger
 import org.json.JSONObject
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.ui.screens.onboarding.auth.createaccount.CreateAccountClientCallbacks
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.android.viewmodel.CreateAccountCredentials
 
 private const val TAG = "CreateAccountWebClient"

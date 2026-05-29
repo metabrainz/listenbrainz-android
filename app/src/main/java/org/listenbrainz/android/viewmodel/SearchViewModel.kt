@@ -24,7 +24,7 @@ import org.listenbrainz.android.model.search.artistSearch.ArtistSearchUiState
 import org.listenbrainz.android.model.search.artistSearch.ArtistUiModel
 import org.listenbrainz.android.model.search.playlistSearch.PlayListSearchUiState
 import org.listenbrainz.android.model.search.playlistSearch.PlaylistUiModel
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.android.model.search.SearchData
 import org.listenbrainz.android.model.search.SearchType
@@ -44,7 +44,7 @@ import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.util.Log
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 
 class SearchViewModel(

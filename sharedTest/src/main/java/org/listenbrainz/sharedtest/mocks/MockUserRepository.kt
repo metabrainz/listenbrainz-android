@@ -11,7 +11,7 @@ import org.listenbrainz.android.model.user.UserFeedback
 import org.listenbrainz.android.model.user.UserListeningActivity
 import org.listenbrainz.android.model.user.UserSimilarityPayload
 import org.listenbrainz.android.repository.user.UserRepository
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.sharedtest.testdata.UserRepositoryTestData.allPinsTestData
 import org.listenbrainz.sharedtest.testdata.UserRepositoryTestData.createdForYouPlaylistsTestData
 import org.listenbrainz.sharedtest.testdata.UserRepositoryTestData.currentPinsTestData

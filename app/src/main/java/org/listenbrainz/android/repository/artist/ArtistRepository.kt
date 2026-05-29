@@ -4,7 +4,7 @@ import org.listenbrainz.android.model.artist.ArtistPayload
 import org.listenbrainz.android.model.artist.ArtistWikiExtract
 import org.listenbrainz.android.model.artist.CBReview
 import org.listenbrainz.android.model.artistSearch.ArtistSearchPayload
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 interface ArtistRepository {
     suspend fun fetchArtistData(artistMbid: String?): Resource<ArtistPayload?>

@@ -1,12 +1,10 @@
-package org.listenbrainz.android.model
+package org.listenbrainz.shared.model
 
-import androidx.compose.runtime.Stable
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 /** These exceptions need to be handled in view-model, shown via UI and not just thrown.
  * @param genericToast Generic message for the error.
  * @param actualResponse Actual response given by the server.*/
-@Stable
 sealed class ResponseError(open val genericToast: String, open val actualResponse: String? = null) {
 
     // "User Some_User_That_Does_Not_Exist not found"

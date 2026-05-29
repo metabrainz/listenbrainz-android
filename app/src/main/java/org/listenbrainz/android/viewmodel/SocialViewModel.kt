@@ -21,7 +21,7 @@ import org.listenbrainz.android.model.ListensType
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.android.model.RecommendationData
 import org.listenbrainz.android.model.RecommendationMetadata
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.model.Review
 import org.listenbrainz.android.model.ReviewMetadata
 import org.listenbrainz.android.model.SocialData
@@ -33,7 +33,7 @@ import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.shared.model.LinkedService
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 class SocialViewModel(
     private val repository: SocialRepository,

@@ -1,6 +1,6 @@
 package org.listenbrainz.android.repository.artist
 
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.model.artist.ArtistPayload
 import org.listenbrainz.android.model.artist.ArtistWikiExtract
 import org.listenbrainz.android.model.artist.CBReview
@@ -8,8 +8,8 @@ import org.listenbrainz.android.model.artistSearch.ArtistSearchPayload
 import org.listenbrainz.android.service.ArtistService
 import org.listenbrainz.android.service.CBService
 import org.listenbrainz.android.service.MBService
-import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.Utils.parseResponse
+import org.listenbrainz.shared.util.Resource
+import org.listenbrainz.shared.util.Utils.parseResponse
 
 
 class ArtistRepositoryImpl(

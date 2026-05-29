@@ -22,7 +22,7 @@ import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlaying
 import org.listenbrainz.android.util.ListenSubmissionState
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 class BrainzPlayerServiceConnection(
     context: Context,

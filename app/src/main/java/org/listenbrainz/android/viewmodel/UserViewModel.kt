@@ -39,7 +39,7 @@ import org.listenbrainz.android.ui.screens.profile.playlists.CollabPlaylistPagin
 import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistPagingSource
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
 import org.listenbrainz.android.ui.screens.profile.stats.DataScope
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 class UserViewModel(
     val appPreferences: AppPreferences,
@@ -562,8 +562,8 @@ class UserViewModel(
                 if (playlistData.status == Resource.Status.FAILED) {
                     emitError(playlistData.error)
                 }
-                if (playlistData.data != null) {
-                    createdForYouPlaylistData[playlistMbid] = playlistData.data.playlist
+                playlistData.data?.let { data->
+                    createdForYouPlaylistData[playlistMbid] = data.playlist
                 }
             }
 
@@ -588,7 +588,9 @@ class UserViewModel(
             }
             if (playlistMbid != null && playlistData.data != null) {
                 val currentData = createdForFlow.value.createdForYouPlaylistData?.toMutableMap()
-                currentData?.set(playlistMbid, playlistData.data.playlist)
+                playlistData.data?.let { data ->
+                    currentData?.set(playlistMbid, data.playlist)
+                }
                 createdForFlow.emit(
                     createdForFlow.value.copy(
                         isLoading = false, createdForYouPlaylistData = currentData

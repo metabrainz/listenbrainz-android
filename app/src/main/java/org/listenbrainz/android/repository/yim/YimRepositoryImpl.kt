@@ -4,7 +4,7 @@ import androidx.annotation.WorkerThread
 import org.listenbrainz.android.model.yimdata.YimPayload
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.util.Log
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 
 class YimRepositoryImpl(private val service: YimService) : YimRepository {

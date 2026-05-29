@@ -1,6 +1,6 @@
-package org.listenbrainz.android.util
+package org.listenbrainz.shared.util
 
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 
 /**Use this class to pass [data] and [status] to view-model.
  * @param error Whenever an error is occurred, the error must be passed to view-model through this parameter. *null* means no error.*/
