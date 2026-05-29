@@ -75,11 +75,11 @@ import org.listenbrainz.shared.model.MbidMapping
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.android.model.album.ReleaseGroupData
-import org.listenbrainz.android.model.artist.Artist
-import org.listenbrainz.android.model.artist.ArtistWikiExtract
-import org.listenbrainz.android.model.artist.CBReview
-import org.listenbrainz.android.model.artist.ReleaseGroup
-import org.listenbrainz.android.model.artist.Tag
+import org.listenbrainz.shared.model.artist.Artist
+import org.listenbrainz.shared.model.artist.ArtistWikiExtract
+import org.listenbrainz.shared.model.artist.CBReview
+import org.listenbrainz.shared.model.artist.ReleaseGroup
+import org.listenbrainz.shared.model.artist.Tag
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.ButtonLB
 import org.listenbrainz.android.ui.components.CoverArtComposable

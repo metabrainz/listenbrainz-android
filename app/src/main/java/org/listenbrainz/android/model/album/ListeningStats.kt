@@ -2,7 +2,7 @@ package org.listenbrainz.android.model.album
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.listenbrainz.android.model.artist.Listeners
+import org.listenbrainz.shared.model.artist.Listeners
 
 @Serializable
 data class ListeningStats(

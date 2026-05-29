@@ -1,8 +1,8 @@
 package org.listenbrainz.android.repository.artist
 
-import org.listenbrainz.android.model.artist.ArtistPayload
-import org.listenbrainz.android.model.artist.ArtistWikiExtract
-import org.listenbrainz.android.model.artist.CBReview
+import org.listenbrainz.shared.model.artist.ArtistPayload
+import org.listenbrainz.shared.model.artist.ArtistWikiExtract
+import org.listenbrainz.shared.model.artist.CBReview
 import org.listenbrainz.android.model.artistSearch.ArtistSearchPayload
 import org.listenbrainz.shared.util.Resource
 

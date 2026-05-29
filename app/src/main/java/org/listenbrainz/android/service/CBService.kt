@@ -2,7 +2,7 @@ package org.listenbrainz.android.service
 
 import de.jensklingenberg.ktorfit.http.GET
 import de.jensklingenberg.ktorfit.http.Query
-import org.listenbrainz.android.model.artist.CBReview
+import org.listenbrainz.shared.model.artist.CBReview
 
 interface CBService {
     @GET("ws/1/review/")

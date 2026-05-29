@@ -3,7 +3,7 @@ package org.listenbrainz.android.util
 
 import ArtistLinksEnum
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.artist.Rels
+import org.listenbrainz.shared.model.artist.Rels
 import org.listenbrainz.android.ui.screens.artist.LinkCardData
 import org.listenbrainz.android.util.Constants.MB_BASE_URL
 

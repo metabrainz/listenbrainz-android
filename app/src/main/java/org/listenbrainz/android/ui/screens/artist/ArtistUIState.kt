@@ -1,14 +1,14 @@
 package org.listenbrainz.android.ui.screens.artist
 
 import ArtistLinksEnum
-import org.listenbrainz.android.model.artist.CBReview
-import org.listenbrainz.android.model.artist.ArtistWikiExtract
-import org.listenbrainz.android.model.artist.Listeners
-import org.listenbrainz.android.model.artist.PopularRecording
-import org.listenbrainz.android.model.artist.ReleaseGroup
-import org.listenbrainz.android.model.artist.Rels
-import org.listenbrainz.android.model.artist.SimilarArtist
-import org.listenbrainz.android.model.artist.Tag
+import org.listenbrainz.shared.model.artist.CBReview
+import org.listenbrainz.shared.model.artist.ArtistWikiExtract
+import org.listenbrainz.shared.model.artist.Listeners
+import org.listenbrainz.shared.model.artist.PopularRecording
+import org.listenbrainz.shared.model.artist.ReleaseGroup
+import org.listenbrainz.shared.model.artist.Rels
+import org.listenbrainz.shared.model.artist.SimilarArtist
+import org.listenbrainz.shared.model.artist.Tag
 
 data class ArtistUIState(
     val isLoading: Boolean = true,

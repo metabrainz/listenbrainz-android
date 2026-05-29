@@ -1,4 +1,4 @@
-package org.listenbrainz.android.model.artist
+package org.listenbrainz.shared.model.artist
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
