@@ -76,6 +76,11 @@ kotlin {
                 implementation(libs.datastore.preferences.core)
                 implementation(libs.kotlinx.serialization.json)
                 api(libs.kotlinx.coroutines.core)
+                // lifecycle
+                api(libs.androidx.lifecycle.viewmodel)
+                implementation(libs.androidx.lifecycle.runtime)
+                // koin
+                implementation(libs.koin.core)
                 // Room Multiplatform
                 implementation(libs.androidx.room.runtime)
                 implementation(libs.androidx.sqlite.bundled)
