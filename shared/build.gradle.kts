@@ -81,6 +81,8 @@ kotlin {
                 implementation(libs.androidx.lifecycle.runtime)
                 // koin
                 implementation(libs.koin.core)
+                implementation(libs.koin.compose)
+                implementation(libs.koin.compose.viewmodel)
                 // Room Multiplatform
                 implementation(libs.androidx.room.runtime)
                 implementation(libs.androidx.sqlite.bundled)
