@@ -18,6 +18,7 @@ import org.listenbrainz.android.service.UserService
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.util.Utils.parseResponse
 import org.listenbrainz.shared.model.CoverArt
+import org.listenbrainz.shared.util.Utils.parseResponse
 
 class ListensRepositoryImpl(
     private val service: ListensService,
