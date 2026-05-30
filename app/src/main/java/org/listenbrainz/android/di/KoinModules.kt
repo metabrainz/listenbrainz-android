@@ -79,10 +79,10 @@ import org.listenbrainz.android.repository.yim.YimRepositoryImpl
 import org.listenbrainz.android.repository.yim23.Yim23Repository
 import org.listenbrainz.android.repository.yim23.Yim23RepositoryImpl
 import org.listenbrainz.android.service.AlbumService
-import org.listenbrainz.android.service.ArtistService
+import org.listenbrainz.shared.service.ArtistService
 import org.listenbrainz.android.service.BlogService
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
-import org.listenbrainz.android.service.CBService
+import org.listenbrainz.shared.service.CBService
 import org.listenbrainz.android.service.FeedServiceKtor
 import org.listenbrainz.android.service.FeedServiceKtorImpl
 import org.listenbrainz.android.service.GithubAppUpdatesService

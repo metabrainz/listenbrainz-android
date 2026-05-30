@@ -1,4 +1,4 @@
-package org.listenbrainz.android.service
+package org.listenbrainz.shared.service
 
 import de.jensklingenberg.ktorfit.http.Headers
 import de.jensklingenberg.ktorfit.http.POST
