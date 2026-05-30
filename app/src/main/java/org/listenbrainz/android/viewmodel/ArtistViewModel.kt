@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import org.listenbrainz.android.repository.artist.ArtistRepository
+import org.listenbrainz.shared.repository.artist.ArtistRepository
 import org.listenbrainz.android.ui.screens.artist.ArtistUIState
 import org.listenbrainz.android.util.LinkUtils.parseLinks
 

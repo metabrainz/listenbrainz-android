@@ -44,8 +44,8 @@ import org.listenbrainz.android.repository.album.AlbumRepository
 import org.listenbrainz.android.repository.album.AlbumRepositoryImpl
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepositoryImpl
-import org.listenbrainz.android.repository.artist.ArtistRepository
-import org.listenbrainz.android.repository.artist.ArtistRepositoryImpl
+import org.listenbrainz.shared.repository.artist.ArtistRepository
+import org.listenbrainz.shared.repository.artist.ArtistRepositoryImpl
 import org.listenbrainz.android.repository.blog.BlogRepository
 import org.listenbrainz.android.repository.blog.BlogRepositoryImpl
 import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
@@ -136,7 +136,6 @@ import org.listenbrainz.android.viewmodel.NewsListViewModel
 import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import org.listenbrainz.android.viewmodel.SearchViewModel
-import org.listenbrainz.shared.viewmodel.SettingsViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.SongViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel

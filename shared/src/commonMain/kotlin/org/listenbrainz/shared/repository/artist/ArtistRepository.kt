@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository.artist
+package org.listenbrainz.shared.repository.artist
 
 import org.listenbrainz.shared.model.artist.ArtistPayload
 import org.listenbrainz.shared.model.artist.ArtistWikiExtract
