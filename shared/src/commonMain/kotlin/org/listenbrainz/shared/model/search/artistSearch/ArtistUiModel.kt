@@ -1,4 +1,4 @@
-package org.listenbrainz.android.model.search.artistSearch
+package org.listenbrainz.shared.model.search.artistSearch
 
 data class ArtistUiModel(
     val id: String,

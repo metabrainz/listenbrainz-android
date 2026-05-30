@@ -6,7 +6,7 @@ import de.jensklingenberg.ktorfit.http.Query
 import org.listenbrainz.shared.model.album.AlbumInfo
 import org.listenbrainz.android.model.albumSearch.AlbumSearchPayload
 import org.listenbrainz.shared.model.artist.ArtistWikiExtract
-import org.listenbrainz.android.model.artistSearch.ArtistSearchPayload
+import org.listenbrainz.shared.model.artistSearch.ArtistSearchPayload
 import org.listenbrainz.android.model.recordingSearch.RecordingSearchPayload
 
 interface MBService {

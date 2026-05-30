@@ -1,8 +1,8 @@
 package org.listenbrainz.android.repository.album
 
-import org.listenbrainz.android.model.album.Album
 import org.listenbrainz.shared.model.album.AlbumInfo
 import org.listenbrainz.android.model.albumSearch.AlbumSearchPayload
+import org.listenbrainz.shared.model.album.Album
 import org.listenbrainz.shared.model.artist.CBReview
 import org.listenbrainz.shared.util.Resource
 

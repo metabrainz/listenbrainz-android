@@ -1,6 +1,6 @@
-package org.listenbrainz.android.model.artistSearch
+package org.listenbrainz.shared.model.artistSearch
 
-import org.listenbrainz.android.model.search.artistSearch.ArtistUiModel
+import org.listenbrainz.shared.model.search.artistSearch.ArtistUiModel
 
 fun ArtistData.toUiModel(): ArtistUiModel {
     return ArtistUiModel(

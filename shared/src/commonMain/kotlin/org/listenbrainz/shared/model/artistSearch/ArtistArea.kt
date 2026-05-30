@@ -1,4 +1,4 @@
-package org.listenbrainz.android.model.artistSearch
+package org.listenbrainz.shared.model.artistSearch
 
 
 import kotlinx.serialization.SerialName

@@ -1,8 +1,5 @@
 package org.listenbrainz.android.ui.screens.search
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -56,7 +53,7 @@ import org.listenbrainz.android.model.playlist.PlaylistTrack
 import org.listenbrainz.android.model.search.SearchData
 import org.listenbrainz.android.model.search.SearchType
 import org.listenbrainz.android.model.search.albumSearch.AlbumSearchUiState
-import org.listenbrainz.android.model.search.artistSearch.ArtistSearchUiState
+import org.listenbrainz.shared.model.search.artistSearch.ArtistSearchUiState
 import org.listenbrainz.android.model.search.playlistSearch.PlayListSearchUiState
 import org.listenbrainz.android.model.search.trackSearch.TrackSearchUiState
 import org.listenbrainz.android.model.search.userSearch.UserListUiState
