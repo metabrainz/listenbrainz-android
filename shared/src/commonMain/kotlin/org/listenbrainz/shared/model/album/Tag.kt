@@ -1,4 +1,4 @@
-package org.listenbrainz.android.model.album
+package org.listenbrainz.shared.model.album
 
 import kotlinx.serialization.Serializable
 

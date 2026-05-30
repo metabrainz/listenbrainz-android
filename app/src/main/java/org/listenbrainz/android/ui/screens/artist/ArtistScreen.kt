@@ -74,7 +74,7 @@ import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.shared.model.MbidMapping
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.shared.model.TrackMetadata
-import org.listenbrainz.android.model.album.ReleaseGroupData
+import org.listenbrainz.shared.model.album.ReleaseGroupData
 import org.listenbrainz.shared.model.artist.Artist
 import org.listenbrainz.shared.model.artist.ArtistWikiExtract
 import org.listenbrainz.shared.model.artist.CBReview
