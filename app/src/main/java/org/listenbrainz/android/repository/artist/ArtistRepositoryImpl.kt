@@ -7,7 +7,7 @@ import org.listenbrainz.shared.model.artist.CBReview
 import org.listenbrainz.shared.model.artistSearch.ArtistSearchPayload
 import org.listenbrainz.shared.service.ArtistService
 import org.listenbrainz.shared.service.CBService
-import org.listenbrainz.android.service.MBService
+import org.listenbrainz.shared.service.MBService
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.util.Utils.parseResponse
 

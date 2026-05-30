@@ -15,7 +15,7 @@ import org.listenbrainz.shared.model.playlist.PlaylistSearchResult
 import org.listenbrainz.shared.model.playlist.PlaylistTrack
 import org.listenbrainz.shared.model.recordingSearch.RecordingSearchPayload
 import org.listenbrainz.android.model.userPlaylist.UserPlaylistPayload
-import org.listenbrainz.android.service.MBService
+import org.listenbrainz.shared.service.MBService
 import org.listenbrainz.android.service.PlaylistService
 import org.listenbrainz.android.service.UserService
 import org.listenbrainz.shared.util.Resource

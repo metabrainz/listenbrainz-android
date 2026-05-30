@@ -88,7 +88,7 @@ import org.listenbrainz.android.service.FeedServiceKtorImpl
 import org.listenbrainz.android.service.GithubAppUpdatesService
 import org.listenbrainz.android.service.GithubUpdatesDownloadService
 import org.listenbrainz.android.service.ListensService
-import org.listenbrainz.android.service.MBService
+import org.listenbrainz.shared.service.MBService
 import org.listenbrainz.android.service.PlaylistService
 import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.service.UserService

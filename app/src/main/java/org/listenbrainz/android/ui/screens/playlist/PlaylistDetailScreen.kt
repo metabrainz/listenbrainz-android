@@ -419,8 +419,9 @@ private fun PlaylistDetailContent(
                         ?: false,
                     creatorName = playlistDetailUIState.playlistData?.creator ?: "",
                     onCreatorClick = {
-                        if (playlistDetailUIState.playlistData?.creator != null)
-                            goToUserPage(playlistDetailUIState.playlistData.creator)
+                        playlistDetailUIState.playlistData?.creator?.let {
+                            goToUserPage(it)
+                        }
                     },
                     trackCount = playlistDetailUIState.playlistData?.track?.size ?: 0,
                     totalLengthSeconds = playlistDetailUIState.playlistData?.track?.sumOf {

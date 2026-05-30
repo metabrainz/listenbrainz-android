@@ -1,4 +1,4 @@
-package org.listenbrainz.android.service
+package org.listenbrainz.shared.service
 
 import de.jensklingenberg.ktorfit.http.GET
 import de.jensklingenberg.ktorfit.http.Path
@@ -20,7 +20,7 @@ interface MBService {
     suspend fun searchRecording(@Query("query") query: String): RecordingSearchPayload
 
     @GET("ws/2/artist/")
-    suspend fun searchArtist(@Query("query") query:String, @Query("fmt") format: String = "json") :ArtistSearchPayload
+    suspend fun searchArtist(@Query("query") query:String, @Query("fmt") format: String = "json") : ArtistSearchPayload
 
     @GET("ws/2/release-group/")
     suspend fun searchAlbum(@Query("query") query:String, @Query("fmt") format: String = "json") : AlbumSearchPayload
