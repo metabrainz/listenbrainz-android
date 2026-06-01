@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.stateIn
 import org.listenbrainz.android.repository.album.AlbumRepository
 import org.listenbrainz.android.ui.screens.album.AlbumUiState
 import org.listenbrainz.android.util.Utils
+import org.listenbrainz.shared.viewmodel.BaseViewModel
 
 class AlbumViewModel(
     private val repository: AlbumRepository,

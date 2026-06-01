@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginState
 import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginUIState
 import org.listenbrainz.shared.util.Resource
+import org.listenbrainz.shared.viewmodel.BaseViewModel
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 

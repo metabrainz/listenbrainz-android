@@ -31,6 +31,7 @@ import org.listenbrainz.shared.model.LinkedService
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.util.Resource.Status.FAILED
 import org.listenbrainz.shared.util.Resource.Status.SUCCESS
+import org.listenbrainz.shared.viewmodel.BaseViewModel
 
 class ListensViewModel(
     private val repository: ListensRepository,

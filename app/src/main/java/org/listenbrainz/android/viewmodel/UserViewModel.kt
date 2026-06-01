@@ -40,6 +40,7 @@ import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistPagingS
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
 import org.listenbrainz.android.ui.screens.profile.stats.DataScope
 import org.listenbrainz.shared.util.Resource
+import org.listenbrainz.shared.viewmodel.BaseViewModel
 
 class UserViewModel(
     val appPreferences: AppPreferences,

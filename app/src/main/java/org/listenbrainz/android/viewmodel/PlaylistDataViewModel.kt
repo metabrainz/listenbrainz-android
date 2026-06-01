@@ -43,6 +43,7 @@ import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistPagingS
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.util.Utils.isValidMbidFormat
+import org.listenbrainz.shared.viewmodel.BaseViewModel
 
 class PlaylistDataViewModel(
     val appPreferences: AppPreferences,
