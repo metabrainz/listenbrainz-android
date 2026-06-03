@@ -5,4 +5,5 @@ object SocialMsg {
     const val PERSONAL_RECOMMEND_SUCCESS = 2
     const val REVIEW_SUCCESS = 3
     const val PIN_SUCCESS = 4
+    const val DELETE_LISTEN_SUCCESS = 5
 }
