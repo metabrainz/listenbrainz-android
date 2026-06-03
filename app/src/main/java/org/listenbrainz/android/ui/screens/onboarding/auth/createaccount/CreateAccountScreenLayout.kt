@@ -69,6 +69,7 @@ import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.viewmodel.CreateAccountUIState
 import org.listenbrainz.android.viewmodel.CreateAccountScreenState
+import org.listenbrainz.shared.repository.PlatformContext
 
 @Composable
 fun CreateAccountScreenLayout(
@@ -89,13 +90,15 @@ fun CreateAccountScreenLayout(
     onVerificationCompleteClick: () -> Unit = {},
     onPressBackInVerificationState: () -> Unit = {},
     onRefreshClick: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    submitLogs:(PlatformContext)->Unit
 ) {
     if (screenState == CreateAccountScreenState.EMAIL_VERIFICATION) {
         BackHandler {
             onPressBackInVerificationState()
         }
     }
+    val context = LocalContext.current
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -211,7 +214,11 @@ fun CreateAccountScreenLayout(
             modifier = Modifier
                 .statusBarsPadding()
                 .align(Alignment.TopEnd)
-                .padding(top = 8.dp, end = 8.dp)
+                .padding(top = 8.dp, end = 8.dp),
+            isSubmitting = uiState.isLogSubmitting,
+            submitLogs = {
+                submitLogs(context)
+            }
         )
     }
 }
@@ -611,7 +618,8 @@ private fun CreateAccountScreenLayoutPreview() {
             onConfirmPasswordChange = {},
             onEmailChange = {},
             onCreateAccountClick = {},
-            uiState = CreateAccountUIState()
+            uiState = CreateAccountUIState(),
+            submitLogs = {}
         )
     }
 }
@@ -636,7 +644,8 @@ private fun EmailVerificationScreenLayoutPreview() {
             onEmailChange = {},
             onCreateAccountClick = {},
             onVerificationCompleteClick = {},
-            uiState = CreateAccountUIState()
+            uiState = CreateAccountUIState(),
+            submitLogs = {}
         )
     }
 }

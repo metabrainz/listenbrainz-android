@@ -25,31 +25,31 @@ interface Log {
 
     companion object : Log {
 
-        private val logger = provideLogger()
+        var sharedLogger : Logger = provideLogger(logFileDirectory = null, buildInfo = null)
 
         override fun e(message: Any?, tag: String?, throwable: Throwable?) {
             val logTag = tag ?: "ListenBrainz"
-            logger.withTag(logTag).e(throwable) { message.toString() }
+            sharedLogger.withTag(logTag).e(throwable) { message.toString() }
         }
 
         override fun d(message: Any?, tag: String?) {
             val logTag = tag ?: "ListenBrainz"
-            logger.withTag(logTag).d { message.toString() }
+            sharedLogger.withTag(logTag).d { message.toString() }
         }
 
         override fun w(message: Any?, tag: String?) {
             val logTag = tag ?: "ListenBrainz"
-            logger.withTag(logTag).w { message?.toString() ?: "null" }
+            sharedLogger.withTag(logTag).w { message?.toString() ?: "null" }
         }
 
         override fun i(message: Any?, tag: String?) {
             val logTag = tag ?: "ListenBrainz"
-            logger.withTag(logTag).i { message?.toString() ?: "null" }
+            sharedLogger.withTag(logTag).i { message?.toString() ?: "null" }
         }
 
         override fun v(message: Any?, tag: String?) {
             val logTag = tag ?: "ListenBrainz"
-            logger.withTag(logTag).v { message?.toString() ?: "null" }
+            sharedLogger.withTag(logTag).v { message?.toString() ?: "null" }
         }
 
         override fun log(
@@ -58,9 +58,9 @@ interface Log {
             tag: String,
             throwable: Throwable?,
         ) {
-            logger.withTag(tag).log(severity, tag, throwable, message)
+            sharedLogger.withTag(tag).log(severity, tag, throwable, message)
         }
 
-        override fun getLogger(): Logger = logger
+        override fun getLogger(): Logger = sharedLogger
     }
 }

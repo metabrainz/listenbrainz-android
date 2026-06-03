@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.StrictMode
 import androidx.work.Configuration
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -22,8 +23,8 @@ import org.listenbrainz.android.di.appModules
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.service.ListenSubmissionService
 import org.listenbrainz.shared.util.Constants
-import org.listenbrainz.shared.util.Log
 import org.listenbrainz.android.util.Utils.isServiceRunning
+import org.listenbrainz.shared.util.Log
 
 class App : Application(), Configuration.Provider {
 
@@ -37,9 +38,7 @@ class App : Application(), Configuration.Provider {
         // Initialize Koin
         ensureKoinStarted(this)
 
-        val logDirectory = applicationContext.getExternalFilesDir(null)?.path.orEmpty()
-
-        Log.init(this, logDirectory)
+        val platformLogger: Logger by inject()
 
         if (BuildConfig.DEBUG) {
             enableStrictMode()

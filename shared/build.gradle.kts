@@ -117,6 +117,7 @@ kotlin {
                 // commonMain by default and will correctly pull the Android artifacts of any KMP
                 // dependencies declared in commonMain.
                 implementation(libs.androidx.datastore.preferences)
+                implementation(libs.core)
                 implementation(libs.ktor.client.okhttp)
             }
         }

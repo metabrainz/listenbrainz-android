@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.listenbrainz.shared.repository.PlatformContext
+import org.listenbrainz.shared.util.Log
+import org.listenbrainz.shared.util.LogSubmitter
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -35,7 +38,8 @@ data class CreateAccountUIState(
     val submitFormTrigger: Boolean = false,
     val screenState: CreateAccountScreenState = CreateAccountScreenState.IDLE,
     val createAccountState: CreateAccountState = CreateAccountState.Idle,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val isLogSubmitting :Boolean = false
 )
 
 data class CreateAccountCredentials(
@@ -45,7 +49,10 @@ data class CreateAccountCredentials(
     val confirmPassword: String = ""
 )
 
-class CreateAccountViewModel : ViewModel() {
+class CreateAccountViewModel(
+    private val logSubmitter: LogSubmitter,
+    private val logger:Log = Log
+) : ViewModel() {
     private companion object {
         const val TIMEOUT_SECONDS = 60
     }
@@ -54,6 +61,26 @@ class CreateAccountViewModel : ViewModel() {
     val uiState = _uiState.asStateFlow()
 
     private var createAccountTimeoutJob: Job? = null
+
+    fun logSubmit(context: PlatformContext){
+        if(_uiState.value.isLogSubmitting) {
+            return
+        }
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    isLogSubmitting = true
+                )
+            }
+            try {
+                logSubmitter.submitLogs(context)
+            }catch (e: Exception){
+                logger.e("Unable to submit logs: $e")
+            } finally {
+                _uiState.update { it.copy(isLogSubmitting = false) }
+            }
+        }
+    }
 
     fun setUsername(username: String) {
         _uiState.update {

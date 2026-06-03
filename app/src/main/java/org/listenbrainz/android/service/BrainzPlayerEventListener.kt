@@ -6,10 +6,11 @@ import com.google.android.exoplayer2.PlaybackException
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_AUTO_TRANSITION
 import com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT
-import org.listenbrainz.android.util.Log
+import org.listenbrainz.shared.util.Log
 
 class BrainzPlayerEventListener(
-    private val brainzPlayerService: BrainzPlayerService
+    private val brainzPlayerService: BrainzPlayerService,
+    private val logger: Log = Log
 ) : Player.Listener {
     override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
         if (reason == Player.STATE_IDLE && !playWhenReady) {
@@ -43,6 +44,6 @@ class BrainzPlayerEventListener(
 
     override fun onPlayerError(error: PlaybackException) {
         super.onPlayerError(error)
-        Log.e("BrainzPlayer error")
+        logger.e("BrainzPlayer error")
     }
 }

@@ -8,6 +8,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import org.json.JSONObject
+import org.listenbrainz.shared.util.Log
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.util.Resource
 import androidx.core.net.toUri
@@ -17,7 +18,8 @@ import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginCallbacks
 private const val TAG = "ListenBrainzWebClient"
 
 class ListenBrainzWebClient(
-    private val callbacks: LoginCallbacks
+    private val callbacks: LoginCallbacks,
+    private val logger:Log = Log
 ) : WebViewClient() {
 
     companion object {
@@ -260,7 +262,7 @@ class ListenBrainzWebClient(
 
         // Update UI with current page info
         url?.let {
-            Log.d("Loading: $url", tag = TAG)
+            logger.d("Loading: $url", tag = TAG)
         }
     }
 
@@ -274,7 +276,7 @@ class ListenBrainzWebClient(
         val errorMsg = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             "Error loading page: ${error?.description}"
         else "Error loading page"
-        Log.e(errorMsg, tag = TAG)
+        logger.e(errorMsg, tag = TAG)
 
         //Not responding to these errors as they are not critical to the auth flow just logging them
 //        onLoad(Resource.failure(error = ResponseError.BAD_REQUEST.apply {
@@ -296,7 +298,7 @@ class ListenBrainzWebClient(
         }
 
         val uri = url.toUri()
-        Log.d("Page loaded: ${uri.host}${uri.path}", tag = TAG)
+        logger.d("Page loaded: ${uri.host}${uri.path}", tag = TAG)
 
         when {
             // Check for login errors on MusicBrainz login page
@@ -308,12 +310,12 @@ class ListenBrainzWebClient(
             !hasTriedFormSubmission && uri.host == "musicbrainz.org" && uri.path == "/login" && !hasLoginFormReadyCallbackBeenMade -> {
                 hasLoginFormReadyCallbackBeenMade = true
                 callbacks.onMusicBrainzLoginFormLoaded()
-                Log.d("Login form is ready", tag = TAG)
+                logger.d("Login form is ready", tag = TAG)
             }
 
             //Edge case 1: User's account is not linked with ListenBrainz
             uri.path?.contains("new-oauth2/authorize") == true && !hasTriedOAuthAuthentication && !hasTriedSettingsNavigation -> {
-                Log.e("Account not linked with ListenBrainz, running script to accept", tag = TAG)
+                logger.e("Account not linked with ListenBrainz, running script to accept", tag = TAG)
                 hasTriedOAuthAuthentication = true
                 view?.postDelayed({
                     showOAuthPrompt(view)
@@ -330,7 +332,7 @@ class ListenBrainzWebClient(
 
     private fun checkForLoginErrors(view: WebView?) {
         if (view == null) {
-            Log.e("WebView is null, cannot check for login errors", tag = TAG)
+            logger.e("WebView is null, cannot check for login errors", tag = TAG)
             return
         }
 
@@ -338,7 +340,7 @@ class ListenBrainzWebClient(
             if (result != null && result != "null" && result.isNotEmpty()) {
                 val errorMsg = result.replace("\"", "").trim()
                 if (errorMsg.isNotEmpty()) {
-                    Log.e("Login failed: $errorMsg", tag = TAG)
+                    logger.e("Login failed: $errorMsg", tag = TAG)
                     isLoginFailed = true
 
                     callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
@@ -353,7 +355,7 @@ class ListenBrainzWebClient(
          when {
             // Step 1: Redirect to login endpoint
             uri.path?.endsWith("login/") == true && !hasTriedRedirectToLoginEndpoint-> {
-                Log.d("Redirecting to login endpoint from $uri", tag = TAG)
+                logger.d("Redirecting to login endpoint from $uri", tag = TAG)
                 hasTriedRedirectToLoginEndpoint = true
                 view?.postDelayed(1000) {
                     view.loadUrl("https://listenbrainz.org/login/musicbrainz")
@@ -369,14 +371,14 @@ class ListenBrainzWebClient(
 
             // Step 2: Navigate to settings to get token with edge case 2
             !hasTriedSettingsNavigation -> {
-                Log.d("Navigating to settings page to extract token", tag = TAG)
+                logger.d("Navigating to settings page to extract token", tag = TAG)
                 navigateToSettings(view)
             }
 
             // Step 3: Extract token from settings page
             uri.path?.contains("/settings") == true -> {
                 callbacks.onLoad(Resource.loading())
-                Log.d("Extracting token from settings page", tag = TAG)
+                logger.d("Extracting token from settings page", tag = TAG)
 
                 view?.postDelayed({
                     extractToken(view)
@@ -388,7 +390,7 @@ class ListenBrainzWebClient(
     fun navigateToSettings(view: WebView?) {
         val view = view?: webView
         if (view == null) {
-            Log.e("WebView is null, cannot navigate to settings", tag = TAG)
+            logger.e("WebView is null, cannot navigate to settings", tag = TAG)
             return
         }
 
@@ -402,7 +404,7 @@ class ListenBrainzWebClient(
 
     private fun extractToken(view: WebView?) {
         if (view == null) {
-            Log.e("WebView is null, cannot extract token", tag = TAG)
+            logger.e("WebView is null, cannot extract token", tag = TAG)
             callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                 actualResponse = "WebView is not available"
             )))
@@ -412,7 +414,7 @@ class ListenBrainzWebClient(
         try {
             view.evaluateJavascript(SCRIPT_EXTRACT_TOKEN) { value ->
                 if (value == null) {
-                    Log.e("Auth token extraction returned null", tag = TAG)
+                    logger.e("Auth token extraction returned null", tag = TAG)
                     callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                         actualResponse = "Could not retrieve authentication token"
                     )))
@@ -421,17 +423,17 @@ class ListenBrainzWebClient(
 
                 val token = value.removePrefix("\"").removeSuffix("\"").trim()
                 if (token.isNotEmpty() && token != "not found" && token != "null") {
-                    Log.d("Auth token found", tag = TAG)
+                    logger.d("Auth token found", tag = TAG)
                     callbacks.onLoad(Resource.success(token))
                 } else {
-                    Log.e("Auth token not found or invalid: $token", tag = TAG)
+                    logger.e("Auth token not found or invalid: $token", tag = TAG)
                     callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                         actualResponse = "Could not retrieve authentication token. Please ensure you're logged in."
                     )))
                 }
             }
         } catch (e: Exception) {
-            Log.e("Exception while extracting token: ${e.message}", tag = TAG, throwable = e)
+            logger.e("Exception while extracting token: ${e.message}", tag = TAG, throwable = e)
             callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                 actualResponse = "Failed to extract token: ${e.message}"
             )))
@@ -450,7 +452,7 @@ class ListenBrainzWebClient(
         // Check if webView is available
         val currentWebView = webView
         if (currentWebView == null) {
-            Log.e("WebView is null, cannot submit login form", tag = TAG)
+            logger.e("WebView is null, cannot submit login form", tag = TAG)
             callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                 actualResponse = "Login form is not ready. Please try again."
             )))
@@ -464,16 +466,16 @@ class ListenBrainzWebClient(
                     hasTriedFormSubmission = true
                     if (result != "\"Login submitted\"") {
                         val errorMsg = result?.replace("\"", "")?.trim() ?: "Unknown error during form submission"
-                        Log.e("Error submitting login form: $errorMsg", tag = TAG)
+                        logger.e("Error submitting login form: $errorMsg", tag = TAG)
                         callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                         actualResponse = errorMsg
                     )))
                     } else {
-                        Log.d("Login form submitted successfully", tag = TAG)
+                        logger.d("Login form submitted successfully", tag = TAG)
                     }
                 }
             } catch (e: Exception) {
-                Log.e("Exception while submitting login form: ${e.message}", tag = TAG, throwable = e)
+                logger.e("Exception while submitting login form: ${e.message}", tag = TAG, throwable = e)
                 callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                     actualResponse = "Failed to submit login form: ${e.message}"
                 )))
@@ -483,20 +485,20 @@ class ListenBrainzWebClient(
 
     private fun showOAuthPrompt(view: WebView?) {
         if (view == null) {
-            Log.e("WebView is null, cannot show OAuth prompt", tag = TAG)
+            logger.e("WebView is null, cannot show OAuth prompt", tag = TAG)
             return
         }
 
         try {
             view.evaluateJavascript(SCRIPT_OAUTH_PROMPT_FORMATTING) {
-                Log.d("Formatted OAuth prompt", tag = TAG)
+                logger.d("Formatted OAuth prompt", tag = TAG)
                 callbacks.showOAuthAuthorizationPrompt()
                 //Changing variable as this redirects to login page again
                 hasTriedRedirectToLoginEndpoint = false
                 hasTriedSettingsNavigation = false
             }
         } catch (e: Exception) {
-            Log.e("Exception while showing OAuth prompt: ${e.message}", tag = TAG, throwable = e)
+            logger.e("Exception while showing OAuth prompt: ${e.message}", tag = TAG, throwable = e)
         }
 
         setupOAuthListener(view)
@@ -504,26 +506,26 @@ class ListenBrainzWebClient(
 
     private fun showGDPRPrompt(view: WebView?) {
         if (view == null) {
-            Log.e("WebView is null, cannot show GDPR prompt", tag = TAG)
+            logger.e("WebView is null, cannot show GDPR prompt", tag = TAG)
             return
         }
 
         try {
             view.evaluateJavascript(SCRIPT_GDPR_PROMPT_FORMATTING) {
                 setupGDPRListener(view)
-                Log.d("Formatted GDPR prompt", tag = TAG)
+                logger.d("Formatted GDPR prompt", tag = TAG)
                 callbacks.showGDPRConsentPrompt()
                 //Setting up listener
             }
         } catch (e: Exception) {
-            Log.e("Exception while showing GDPR prompt: ${e.message}", tag = TAG, throwable = e)
+            logger.e("Exception while showing GDPR prompt: ${e.message}", tag = TAG, throwable = e)
         }
     }
 
 
     private fun checkForEmailVerificationError(view: WebView?, noErrorLambda: () -> Unit) {
         if (view == null) {
-            Log.e("WebView is null, cannot check for email verification error", tag = TAG)
+            logger.e("WebView is null, cannot check for email verification error", tag = TAG)
             callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                 actualResponse = "WebView is not available"
             )))
@@ -537,7 +539,7 @@ class ListenBrainzWebClient(
                     if (errorMsg.isNotEmpty()) {
                         if (errorMsg.contains("verify the email before proceeding"))
                             errorMsg = "Email is not verified or already in use. Please check your inbox."
-                        Log.e("Error in logging in: $errorMsg", tag = TAG)
+                        logger.e("Error in logging in: $errorMsg", tag = TAG)
                         callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                         actualResponse = errorMsg
                     )))
@@ -549,7 +551,7 @@ class ListenBrainzWebClient(
                 }
             }
         } catch (e: Exception) {
-            Log.e("Exception while checking email verification error: ${e.message}", tag = TAG, throwable = e)
+            logger.e("Exception while checking email verification error: ${e.message}", tag = TAG, throwable = e)
             noErrorLambda()
         }
     }

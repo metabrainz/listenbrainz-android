@@ -1,7 +1,7 @@
 package org.listenbrainz.android.viewmodel
 
 import androidx.lifecycle.viewModelScope
-import org.listenbrainz.android.util.Log
+import org.listenbrainz.shared.util.Log
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,13 +13,18 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginState
 import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginUIState
+import org.listenbrainz.shared.repository.PlatformContext
+import org.listenbrainz.shared.util.LogSubmitter
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.viewmodel.BaseViewModel
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 
-class LoginViewModel() : BaseViewModel<LoginUIState>() {
+class LoginViewModel(
+    private val logSubmitter: LogSubmitter,
+    private val logger: Log = Log
+) : BaseViewModel<LoginUIState>() {
     private companion object {
         const val TIMEOUT_SECONDS = 60
     }
@@ -37,6 +42,22 @@ class LoginViewModel() : BaseViewModel<LoginUIState>() {
         ) {
             it[0]
         }.stateIn(viewModelScope, initialValue = LoginUIState(), started = SharingStarted.Lazily)
+    }
+
+    fun logSubmit(context: PlatformContext){
+        if(uiState.value.isLogSubmitting){
+            return
+        }
+        uiState.value.copy(isLogSubmitting = true)
+        viewModelScope.launch {
+            try {
+                logSubmitter.submitLogs(context)
+            } catch (e: Exception){
+                logger.e("Unable to submit logs: $e")
+            } finally {
+                uiState.value.copy(isLogSubmitting = false)
+            }
+        }
     }
 
     fun setUsername(username: String) {
@@ -122,12 +143,12 @@ class LoginViewModel() : BaseViewModel<LoginUIState>() {
     }
 
     fun onLoad(resource: Resource<String>, validateAndSaveUserDetails: suspend (Resource<String>)-> Resource<Unit>, onLoginFinished: ()-> Unit) {
-        Log.d("Load state: ${uiState.value.loginInState}, data: ${resource.data?.take(20)}, error: ${resource.error?.actualResponse}", tag = TAG)
+        logger.d("Load state: ${uiState.value.loginInState}, data: ${resource.data?.take(20)}, error: ${resource.error?.actualResponse}", tag = TAG)
         val state = loginUIState.value.loginInState
 
         // Ignore if already in error state to prevent multiple error dialogs
         if (state is LoginState.Error){
-            Log.d("Already in error state, ignoring new load event", tag = TAG)
+            logger.d("Already in error state, ignoring new load event", tag = TAG)
             return
         }
 
@@ -135,7 +156,7 @@ class LoginViewModel() : BaseViewModel<LoginUIState>() {
             resource.isSuccess -> {
                 val token = resource.data
                 if (token.isNullOrBlank()) {
-                    Log.e("Token is null or blank", tag = TAG)
+                    logger.e("Token is null or blank", tag = TAG)
                     clearTimeout()
                     loginUIState.update {
                         it.copy(loginInState = LoginState.Error("Authentication token is empty"))
@@ -158,7 +179,7 @@ class LoginViewModel() : BaseViewModel<LoginUIState>() {
                                 val errorMsg = validationResult.error?.actualResponse?.takeIf { res->
                                     res != "null" && res.isNotBlank()
                                 } ?: "Login failed during validation"
-                                Log.e("Validation failed: $errorMsg", tag = TAG)
+                                logger.e("Validation failed: $errorMsg", tag = TAG)
                                 LoginState.Error(errorMsg)
                             })
                         }
@@ -168,7 +189,7 @@ class LoginViewModel() : BaseViewModel<LoginUIState>() {
                             onLoginFinished()
                         }
                     } catch (e: Exception) {
-                        Log.e("Exception during validation: ${e.message}", tag = TAG, throwable = e)
+                        logger.e("Exception during validation: ${e.message}", tag = TAG, throwable = e)
                         clearTimeout()
                         loginUIState.update {
                             it.copy(loginInState = LoginState.Error("Login failed: ${e.message}"))
@@ -182,7 +203,7 @@ class LoginViewModel() : BaseViewModel<LoginUIState>() {
                 val errorMsg = resource.error?.actualResponse?.takeIf { res->
                     res != "null" && res.isNotBlank()
                 } ?: "Login failed"
-                Log.e("Login failed: $errorMsg", tag = TAG)
+                logger.e("Login failed: $errorMsg", tag = TAG)
                 loginUIState.update {
                     it.copy(
                         loginInState = LoginState.Error(errorMsg)

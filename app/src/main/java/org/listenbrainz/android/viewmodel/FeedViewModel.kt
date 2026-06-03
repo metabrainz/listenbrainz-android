@@ -53,7 +53,8 @@ class FeedViewModel(
     private val appPreferences: AppPreferences,
     private val remotePlaybackHandler: RemotePlaybackHandler,
     private val ioDispatcher: CoroutineDispatcher,
-    private val defaultDispatcher: CoroutineDispatcher
+    private val defaultDispatcher: CoroutineDispatcher,
+    private val logger:Log = Log
 ): BaseViewModel<FeedUiState>() {
     
     // Search follower flow
@@ -179,7 +180,7 @@ class FeedViewModel(
                     }
                     
                     if (result.status == Resource.Status.SUCCESS){
-                        Log.d("Play on youtube music successful")
+                        logger.d("Play on youtube music successful")
                     } else {
                         emitError(ResponseError.RemotePlayerError(actualResponse = "Could not play the requested track."))
                     }

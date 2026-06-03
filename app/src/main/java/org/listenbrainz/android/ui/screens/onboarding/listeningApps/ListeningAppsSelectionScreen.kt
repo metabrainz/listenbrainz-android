@@ -68,6 +68,7 @@ import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionCard
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
+import org.listenbrainz.shared.repository.PlatformContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,6 +93,7 @@ fun ListeningAppSelectionScreen(
     var isBottomSheetVisible by remember {
         mutableStateOf(false)
     }
+    val isLogSubmitting by dashBoardViewModel.submittingLogs.collectAsState()
     val scope = rememberCoroutineScope()
 
     ListeningAppScreenLayout(
@@ -113,6 +115,10 @@ fun ListeningAppSelectionScreen(
         onClickNext = onClickNext,
         onAddMoreAppsButtonClick = {
             isBottomSheetVisible = true
+        },
+        isSubmitting = isLogSubmitting,
+        submitLogs = {
+            dashBoardViewModel.logSubmit(it)
         }
     )
     if (isBottomSheetVisible) {
@@ -158,6 +164,8 @@ fun ListeningAppScreenLayout(
     permissionStatus: Map<PermissionEnum, PermissionStatus>,
     onGrantPermissionClick: (PermissionEnum) -> Unit,
     onClickNext: () -> Unit,
+    isSubmitting: Boolean,
+    submitLogs:(PlatformContext) -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
@@ -272,7 +280,11 @@ fun ListeningAppScreenLayout(
         OnboardingSupportButton(modifier = Modifier
             .statusBarsPadding()
             .align(Alignment.TopEnd)
-            .padding(top = 8.dp , end = 8.dp)
+            .padding(top = 8.dp , end = 8.dp),
+            isSubmitting = isSubmitting,
+            submitLogs = {
+                submitLogs(context)
+            }
         )
     }
 }
@@ -444,7 +456,9 @@ fun ListeningAppLayoutPreview() {
             isInPermissionState = true,
             permissionStatus = emptyMap(),
             onGrantPermissionClick = {},
-            onAddMoreAppsButtonClick = {}
+            onAddMoreAppsButtonClick = {},
+            submitLogs = {},
+            isSubmitting = false
         )
     }
 }

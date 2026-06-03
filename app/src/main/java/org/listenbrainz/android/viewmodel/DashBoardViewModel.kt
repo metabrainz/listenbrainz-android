@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -28,15 +29,19 @@ import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginConsentScreenUIState
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.AppInfo
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
-import org.listenbrainz.android.util.Log
+import org.listenbrainz.shared.util.Log
 import org.listenbrainz.android.util.Utils.getAllInstalledApps
 import org.listenbrainz.android.util.Utils.getListeningApps
+import org.listenbrainz.shared.repository.PlatformContext
+import org.listenbrainz.shared.util.LogSubmitter
 
 class DashBoardViewModel(
     val appPreferences: AppPreferences,
     application: Application,
     private val remotePlaybackHandler: RemotePlaybackHandler,
-    private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
+    private val logSubmitter: LogSubmitter,
+    private val logger:Log = Log
 ) : AndroidViewModel(application) {
 
     val usernameFlow = appPreferences.username.getFlow()
@@ -63,6 +68,9 @@ class DashBoardViewModel(
     private val _consentScreenUIState = MutableStateFlow(LoginConsentScreenUIState())
     val consentScreenUIState = _consentScreenUIState.asStateFlow()
 
+    private val _submittingLogs = MutableStateFlow(false)
+    val submittingLogs: StateFlow<Boolean> = _submittingLogs.asStateFlow()
+
     init {
         viewModelScope.launch {
             val cacheData = appPreferences.consentScreenDataCache.getFlow().first()
@@ -73,6 +81,22 @@ class DashBoardViewModel(
                         isLoading = false
                     )
                 }
+            }
+        }
+    }
+
+    fun logSubmit(context: PlatformContext){
+        if(_submittingLogs.value){
+            return
+        }
+        viewModelScope.launch {
+            _submittingLogs.value = true
+            try {
+                logSubmitter.submitLogs(context)
+            } catch (e: Exception){
+                logger.e("Unable to submit logs: $e")
+            } finally {
+                _submittingLogs.value = false
             }
         }
     }
@@ -238,7 +262,7 @@ class DashBoardViewModel(
                         }
                     }
                 } catch (e: Exception) {
-                    Log.w("Couldn't get icon for $packageName " + e.toString())
+                    logger.w("Couldn't get icon for $packageName " + e.toString())
                     createBitmap(48, 48).apply {
                         eraseColor(Color.GRAY)
                     }
@@ -253,7 +277,7 @@ class DashBoardViewModel(
                     )
                 )
             } catch (e: Exception) {
-                Log.d("Couldn't get info for package $packageName")
+                logger.d("Couldn't get info for package $packageName")
             }
         }
         return fetchedApps

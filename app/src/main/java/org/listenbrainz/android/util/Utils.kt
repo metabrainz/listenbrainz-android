@@ -632,48 +632,6 @@ object Utils {
         }
     }
 
-    suspend fun submitLogs(context: Context) = withContext(Dispatchers.IO) {
-        val logDir = context.getExternalFilesDir(null) ?: return@withContext
-        val downloadDir = File(context.getExternalFilesDir(null), "Download")
-        downloadDir.mkdirs()
-        val zipFile = File(downloadDir, "Log.zip")
-
-        try {
-            ZipOutputStream(BufferedOutputStream(FileOutputStream(zipFile))).use { zos ->
-                logDir.listFiles()?.forEach { file ->
-                    if (file.isFile && file.extension == "txt") {
-                        val entry = ZipEntry(file.name)
-                        zos.putNextEntry(entry)
-                        file.inputStream().use { it.copyTo(zos) }
-                        zos.closeEntry()
-                    }
-                }
-            }
-
-            withContext(Dispatchers.Main) {
-                val intent = Intent(Intent.ACTION_SEND).apply {
-                    type = "application/zip"
-                    putExtra(Intent.EXTRA_SUBJECT, "Log Files")
-                    putExtra(Intent.EXTRA_EMAIL, arrayOf("mobile@metabrainz.org"))
-                    putExtra(Intent.EXTRA_TEXT, "Please find the attached log files.")
-
-                    putExtra(
-                        Intent.EXTRA_STREAM,
-                        FileProvider.getUriForFile(
-                            context,
-                            "${BuildConfig.APPLICATION_ID}.provider",
-                            zipFile
-                        )
-                    )
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                }
-                context.startActivity(Intent.createChooser(intent, "Email logs..."))
-            }
-        } catch (e: Exception) {
-            Log.e("Error submitting logs", "Utils", e)
-        }
-    }
-
     val Context.canShowNotifications get() =
         ActivityCompat.checkSelfPermission(
         this,

@@ -98,7 +98,10 @@ fun ListenBrainzCreateAccountScreen(onBackPress: () -> Unit) {
             onPressBackInVerificationState = vm::onBackInVerificationState,
             onRefreshClick = vm::reloadWebView,
             modifier = Modifier,
-            uiState = uiState
+            uiState = uiState,
+            submitLogs = {
+                vm.logSubmit(it)
+            }
         )
 
         if (uiState.createAccountState !is CreateAccountState.Idle) {

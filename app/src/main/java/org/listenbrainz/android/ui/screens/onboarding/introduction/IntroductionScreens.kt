@@ -72,13 +72,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.DiagonalCutShape
+import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.components.OnboardingBlobs
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_orange
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_yellow
 import org.listenbrainz.android.ui.theme.onboardingGradient
-import org.listenbrainz.android.util.Utils.submitLogs
+import org.listenbrainz.shared.repository.PlatformContext
 
 fun createSlideTransition(
     enterAnimDurationMs: Int = 300,
@@ -334,7 +335,7 @@ fun OnboardingBackButton(modifier: Modifier = Modifier, onBackPress: (() -> Unit
 }
 
 @Composable
-fun OnboardingSupportButton(modifier: Modifier){
+fun OnboardingSupportButton(modifier: Modifier,isSubmitting:Boolean,submitLogs:(PlatformContext)->Unit){
     val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -342,12 +343,12 @@ fun OnboardingSupportButton(modifier: Modifier){
         modifier = modifier,
         onClick = {
             haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-            scope.launch {
-                submitLogs(context)
-            }
+            submitLogs(context)
         },
+        enabled = !isSubmitting,
         colors = IconButtonDefaults.iconButtonColors(
-            containerColor = Color.White
+            containerColor = Color.White,
+            disabledContainerColor = Color.White.copy(alpha = 0.5f)
         )
     ) {
         Icon(
