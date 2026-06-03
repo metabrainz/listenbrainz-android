@@ -140,6 +140,7 @@ import org.listenbrainz.android.viewmodel.Yim23ViewModel
 import org.listenbrainz.android.viewmodel.YimViewModel
 import org.listenbrainz.shared.di.sharedDispatcherModule
 import org.listenbrainz.shared.di.sharedNetworkServiceModule
+import org.listenbrainz.shared.di.sharedRepositoryModule
 import org.listenbrainz.shared.di.sharedViewModelModule
 
 // Qualifier names for dispatchers
@@ -214,11 +215,6 @@ private fun createBaseHttpClient(
     }
 }
 
-val dispatcherModule = module {
-    single<CoroutineDispatcher>(named(DEFAULT_DISPATCHER)) { Dispatchers.Default }
-    single<CoroutineDispatcher>(named(IO_DISPATCHER)) { Dispatchers.IO }
-    single<CoroutineDispatcher>(named(MAIN_DISPATCHER)) { Dispatchers.Main }
-}
 
 val databaseModule = module {
     single<BrainzPlayerDatabase> {
@@ -449,7 +445,6 @@ val repositoryModule = module {
     single<UserRepository> { UserRepositoryImpl(get(), get()) }
     single<ListensRepository> { ListensRepositoryImpl(get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
     single<PlaylistDataRepository> { PlaylistDataRepositoryImpl(get(), get(), get(), get(named(IO_DISPATCHER))) }
-    single<ArtistRepository> { ArtistRepositoryImpl(get(), get(), get()) }
     single<AlbumRepository> { AlbumRepositoryImpl(get(), get(), get()) }
     single<BlogRepository> { BlogRepositoryImpl(get()) }
     single<YimRepository> { YimRepositoryImpl(get()) }
@@ -511,7 +506,6 @@ val viewModelModule = module {
 }
 
 val appModules = listOf(
-    dispatcherModule,
     databaseModule,
     daoModule,
     networkModule,
@@ -521,5 +515,6 @@ val appModules = listOf(
     viewModelModule,
     sharedViewModelModule,
     sharedNetworkServiceModule,
-    sharedDispatcherModule
+    sharedDispatcherModule,
+    sharedRepositoryModule
 )
