@@ -7,7 +7,7 @@ import org.listenbrainz.shared.model.InstallSource
 import org.listenbrainz.shared.model.Playable
 import org.listenbrainz.shared.model.UiMode
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
+import org.listenbrainz.shared.util.Constants.Strings.STATUS_LOGGED_IN
 import org.listenbrainz.shared.BottomNavDefaults
 import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.shared.model.LinkedService

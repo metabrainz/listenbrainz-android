@@ -46,7 +46,7 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.yimdata.Yim23Screens
-import org.listenbrainz.android.util.Constants
+import org.listenbrainz.shared.util.Constants
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel

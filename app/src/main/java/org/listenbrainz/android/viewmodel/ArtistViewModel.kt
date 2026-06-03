@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import org.listenbrainz.shared.repository.artist.ArtistRepository
 import org.listenbrainz.android.ui.screens.artist.ArtistUIState
-import org.listenbrainz.android.util.LinkUtils.parseLinks
+import org.listenbrainz.shared.util.LinkUtils.parseLinks
 import org.listenbrainz.shared.viewmodel.BaseViewModel
 
 class ArtistViewModel(

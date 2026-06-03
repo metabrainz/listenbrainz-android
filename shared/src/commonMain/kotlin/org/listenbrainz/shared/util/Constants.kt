@@ -1,7 +1,7 @@
-package org.listenbrainz.android.util
+package org.listenbrainz.shared.util
 
 object Constants {
-    
+
 
     const val SPOTIFY_PACKAGE_NAME = "com.spotify.music"
     const val YOUTUBE_MUSIC_PACKAGE_NAME = "com.google.android.apps.youtube.music"
@@ -36,5 +36,5 @@ object Constants {
         const val PACKAGE_PIXEL_NP_AMM = "com.kieronquinn.app.pixelambientmusic"
         const val PACKAGE_SHAZAM = "com.shazam.android"
     }
-    
+
 }

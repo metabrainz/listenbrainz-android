@@ -30,7 +30,7 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ListenBitmap
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.service.YouTubeApiService
-import org.listenbrainz.android.util.Constants
+import org.listenbrainz.shared.util.Constants
 import org.listenbrainz.android.util.Log
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.util.Utils.parseResponse

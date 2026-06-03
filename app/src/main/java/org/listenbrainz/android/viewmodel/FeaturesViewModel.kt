@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.android.util.Constants
+import org.listenbrainz.shared.util.Constants
 
 class FeaturesViewModel(
     private val appPreferences: AppPreferences

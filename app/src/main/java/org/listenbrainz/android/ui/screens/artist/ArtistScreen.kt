@@ -1,6 +1,5 @@
 package org.listenbrainz.android.ui.screens.artist
 
-import ArtistLinksEnum
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
@@ -102,6 +101,9 @@ import org.listenbrainz.android.util.Utils.removeHtmlTags
 import org.listenbrainz.android.util.Utils.showToast
 import org.listenbrainz.android.viewmodel.ArtistViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.shared.util.ArtistLinksEnum
+import org.listenbrainz.shared.util.LinkCardData
+import org.listenbrainz.android.util.getLinkCardRes
 import kotlin.math.max
 import kotlin.math.round
 
@@ -498,8 +500,6 @@ private fun BioTag(tag: String, count: Int) {
     }
 }
 
-class LinkCardData(val iconResId: Int, val label: String, val url: String) {}
-
 @Composable
 fun Links(
     linksMap: Map<ArtistLinksEnum, List<LinkCardData>>
@@ -587,7 +587,7 @@ fun Links(
                     ) {
                         rowItems.forEach { item ->
                             LinkCard(
-                                icon = ImageVector.vectorResource(item.iconResId),
+                                icon = ImageVector.vectorResource(getLinkCardRes(item.iconKey)),
                                 label = item.label,
                                 url = item.url,
                             )
