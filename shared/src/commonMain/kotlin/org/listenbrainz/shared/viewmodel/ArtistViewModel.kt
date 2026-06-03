@@ -1,4 +1,4 @@
-package org.listenbrainz.android.viewmodel
+package org.listenbrainz.shared.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
@@ -8,9 +8,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import org.listenbrainz.shared.repository.artist.ArtistRepository
-import org.listenbrainz.android.ui.screens.artist.ArtistUIState
-import org.listenbrainz.shared.util.LinkUtils.parseLinks
-import org.listenbrainz.shared.viewmodel.BaseViewModel
+import org.listenbrainz.shared.ui.screens.artist.ArtistUIState
+import org.listenbrainz.shared.util.LinkUtils
 
 class ArtistViewModel(
     private val repository: ArtistRepository,
@@ -25,7 +24,7 @@ class ArtistViewModel(
         val appearsOn = artistData?.releaseGroups?.filter { releaseGroup ->
             releaseGroup?.artists?.get(0)?.artistMbid != artistMbid
         }
-        val linksMap = parseLinks(artistMbid, artistData?.artist?.rels)
+        val linksMap = LinkUtils.parseLinks(artistMbid, artistData?.artist?.rels)
         val artistUiState = ArtistUIState(
             isLoading = false,
             name = artistData?.artist?.name,

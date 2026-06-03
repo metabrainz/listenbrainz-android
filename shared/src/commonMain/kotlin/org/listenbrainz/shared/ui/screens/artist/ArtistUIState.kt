@@ -1,7 +1,7 @@
-package org.listenbrainz.android.ui.screens.artist
+package org.listenbrainz.shared.ui.screens.artist
 
-import org.listenbrainz.shared.model.artist.CBReview
 import org.listenbrainz.shared.model.artist.ArtistWikiExtract
+import org.listenbrainz.shared.model.artist.CBReview
 import org.listenbrainz.shared.model.artist.Listeners
 import org.listenbrainz.shared.model.artist.PopularRecording
 import org.listenbrainz.shared.model.artist.ReleaseGroup

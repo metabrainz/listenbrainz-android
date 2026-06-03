@@ -99,11 +99,12 @@ import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.util.Utils.measureSize
 import org.listenbrainz.android.util.Utils.removeHtmlTags
 import org.listenbrainz.android.util.Utils.showToast
-import org.listenbrainz.android.viewmodel.ArtistViewModel
+import org.listenbrainz.shared.viewmodel.ArtistViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.shared.util.ArtistLinksEnum
 import org.listenbrainz.shared.util.LinkCardData
 import org.listenbrainz.android.util.getLinkCardRes
+import org.listenbrainz.shared.ui.screens.artist.ArtistUIState
 import kotlin.math.max
 import kotlin.math.round
 
