@@ -96,12 +96,9 @@ import org.listenbrainz.android.service.Yim23Service
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.service.YouTubeApiService
 import org.listenbrainz.android.service.createAlbumService
-import org.listenbrainz.android.service.createArtistService
 import org.listenbrainz.android.service.createBlogService
-import org.listenbrainz.android.service.createCBService
 import org.listenbrainz.android.service.createGithubAppUpdatesService
 import org.listenbrainz.android.service.createListensService
-import org.listenbrainz.android.service.createMBService
 import org.listenbrainz.android.service.createPlaylistService
 import org.listenbrainz.android.service.createSocialService
 import org.listenbrainz.android.service.createUserService
@@ -141,6 +138,8 @@ import org.listenbrainz.android.viewmodel.SongViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
 import org.listenbrainz.android.viewmodel.YimViewModel
+import org.listenbrainz.shared.di.sharedDispatcherModule
+import org.listenbrainz.shared.di.sharedNetworkServiceModule
 import org.listenbrainz.shared.di.sharedViewModelModule
 
 // Qualifier names for dispatchers
@@ -310,62 +309,6 @@ val networkModule = module {
             .httpClient(httpClient)
             .build()
             .createPlaylistService()
-    }
-
-    single<ArtistService> {
-        val httpClient = createBaseHttpClient(androidContext(), baseUrl = LB_BASE_URL)
-        Ktorfit.Builder()
-            .baseUrl(LB_BASE_URL)
-            .httpClient(httpClient)
-            .build()
-            .createArtistService()
-    }
-
-    single<MBService> {
-        val httpClient = HttpClient(OkHttp) {
-            expectSuccess = false
-
-            install(ContentNegotiation) {
-                json(jsonConfig)
-            }
-
-            if (BuildConfig.DEBUG) {
-                install(Logging) {
-                    logger = object : Logger {
-                        override fun log(message: String) {
-                            Log.d("Ktor: $message")
-                        }
-                    }
-                    level = LogLevel.ALL
-                }
-
-                engine {
-                    config {
-                        addInterceptor(ChuckerInterceptor(androidContext()))
-                    }
-                }
-            }
-
-            defaultRequest {
-                url(MB_BASE_URL)
-                header("user-agent", "ListenBrainz Android")
-                header("accept", "application/json")
-            }
-        }
-        Ktorfit.Builder()
-            .baseUrl(MB_BASE_URL)
-            .httpClient(httpClient)
-            .build()
-            .createMBService()
-    }
-
-    single<CBService> {
-        val httpClient = createBaseHttpClient(androidContext(), baseUrl = CB_BASE_URL)
-        Ktorfit.Builder()
-            .baseUrl(CB_BASE_URL)
-            .httpClient(httpClient)
-            .build()
-            .createCBService()
     }
 
     single<AlbumService> {
@@ -560,7 +503,6 @@ val viewModelModule = module {
     viewModel { BPAlbumViewModel(get(), get(named(IO_DISPATCHER))) }
     viewModel { BPArtistViewModel(get(), get(named(IO_DISPATCHER))) }
     viewModel { SongViewModel(get(), get(named(IO_DISPATCHER))) }
-    viewModel { ArtistViewModel(get(), get(named(IO_DISPATCHER))) }
     viewModel { AlbumViewModel(get(), get(named(IO_DISPATCHER))) }
     viewModel { FeaturesViewModel(get()) }
     viewModel { AboutViewModel() }
@@ -577,5 +519,7 @@ val appModules = listOf(
     repositoryModule,
     playerModule,
     viewModelModule,
-    sharedViewModelModule
+    sharedViewModelModule,
+    sharedNetworkServiceModule,
+    sharedDispatcherModule
 )

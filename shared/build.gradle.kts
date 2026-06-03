@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.android.lint)
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
+    alias(libs.plugins.ktorfit)
 }
 
 kotlin {
@@ -32,7 +33,7 @@ kotlin {
     // Set JVM target for Android
     targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget> {
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
+            jvmTarget.set(JvmTarget.JVM_21)
         }
     }
 
@@ -61,6 +62,10 @@ kotlin {
         binaries.framework {
             baseName = xcfName
         }
+    }
+
+    ktorfit {
+        compilerPluginVersion.set(libs.versions.ktorfit.compiler)
     }
 
     // Source set declarations.
