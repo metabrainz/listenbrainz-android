@@ -1,14 +1,12 @@
-package org.listenbrainz.android.repository.blog
+package org.listenbrainz.shared.repository.blog
 
-import androidx.annotation.WorkerThread
-import org.listenbrainz.android.service.BlogService
-import org.listenbrainz.android.model.Blog
+import org.listenbrainz.shared.service.BlogService
+import org.listenbrainz.shared.model.Blog
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.util.Resource.Status.SUCCESS
 
 class BlogRepositoryImpl(private val service: BlogService) : BlogRepository {
 
-    @WorkerThread
     override suspend fun fetchBlogs(): Resource<Blog> {
         return try {
             val result = service.getBlogs()
