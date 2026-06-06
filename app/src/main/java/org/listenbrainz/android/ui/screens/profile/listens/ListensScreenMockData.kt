@@ -4,7 +4,7 @@ import androidx.paging.PagingData
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 import org.listenbrainz.shared.model.AdditionalInfo
-import org.listenbrainz.android.model.Listen
+import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.shared.model.MbidMapping
 import org.listenbrainz.android.model.SimilarUser
 import org.listenbrainz.android.model.SocialUiState

@@ -1,9 +1,7 @@
-package org.listenbrainz.android.model
+package org.listenbrainz.shared.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.listenbrainz.shared.model.Metadata
-import org.listenbrainz.shared.model.TrackMetadata
 
 @Serializable
 data class Listen(

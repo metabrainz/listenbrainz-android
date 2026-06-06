@@ -64,6 +64,7 @@ ktorfit = "2.7.2"
 ktorfit-compiler = "2.3.3"
 kotlinStdlib = "2.3.0"
 core = "1.7.0"
+kmp-socketio = "1.4.4"
 
 [libraries]
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
@@ -183,6 +184,7 @@ ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negoti
 ktorfit-lib = { module = "de.jensklingenberg.ktorfit:ktorfit-lib", version.ref = "ktorfit" }
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlinStdlib" }
 androidx-core = { group = "androidx.test", name = "core", version.ref = "core" }
+kmp-socketio =  { module  = "com.piasy:kmp-socketio", version.ref = "kmp-socketio"}
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
