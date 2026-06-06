@@ -16,10 +16,9 @@ import org.listenbrainz.shared.model.Listen
 
 
 class SocketRepositoryImpl(
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
+    private val json: Json
 ) : SocketRepository {
-
-    private val json = Json { ignoreUnknownKeys = true }
 
     override fun listen(usernameProvider: suspend () -> String) = callbackFlow {
         val username = usernameProvider()

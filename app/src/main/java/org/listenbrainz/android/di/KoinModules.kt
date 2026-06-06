@@ -482,6 +482,8 @@ val networkModule = module {
 }
 
 val appModule = module {
+    single { jsonConfig }
+
     single<AppPreferences> { AppPreferencesImpl(androidContext()) }
 
     single<WorkManager> { WorkManager.getInstance(androidContext()) }
@@ -501,7 +503,7 @@ val repositoryModule = module {
     single<BPAlbumRepository> { BPAlbumRepositoryImpl(get()) }
     single<BPArtistRepository> { BPArtistRepositoryImpl(get()) }
     single<PlaylistRepository> { PlaylistRepositoryImpl(get()) }
-    single<SocketRepository> { SocketRepositoryImpl(get()) }
+    single<SocketRepository> { SocketRepositoryImpl(get(),get()) }
 
     // API Repositories
     single<FeedRepository> { FeedRepositoryImpl(get()) }
