@@ -1,4 +1,4 @@
-package org.listenbrainz.android.viewmodel
+package org.listenbrainz.shared.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -23,7 +23,7 @@ class SettingsViewModel(
             _logoutStatus.emit(result)
         }
     }
-    
+
     fun version(): String {
         return appPreferences.version
     }
