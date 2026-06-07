@@ -28,10 +28,10 @@ import org.listenbrainz.shared.util.Resource
 
 class ListenSubmissionWorker(
     context: Context,
-    workerParams: WorkerParameters,
-    private val logger:Log = Log
+    workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams), KoinComponent {
 
+    private var logger:Log = Log
     private val appPreferences: AppPreferences by inject()
     private val repository: ListensRepository by inject()
     private val pendingListensDao: PendingListensDao by inject()

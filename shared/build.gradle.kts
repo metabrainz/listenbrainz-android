@@ -102,6 +102,10 @@ kotlin {
                 // Ktor
                 implementation(libs.ktor.client.core)
                 implementation(libs.kmp.socketio)
+                api(libs.kermit)
+                // Ktor
+                implementation(libs.ktor.client.core)
+                implementation(libs.kmp.socketio)
             }
         }
 

@@ -7,6 +7,6 @@ import org.listenbrainz.shared.viewmodel.ArtistViewModel
 import org.listenbrainz.shared.viewmodel.SettingsViewModel
 
 val sharedViewModelModule = module {
-    viewModel { SettingsViewModel(get()) }
+    viewModel { SettingsViewModel(get(),get()) }
     viewModel { ArtistViewModel(get(),get(named(IO_DISPATCHER))) }
 }

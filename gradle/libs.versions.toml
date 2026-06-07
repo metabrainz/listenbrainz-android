@@ -65,6 +65,7 @@ ktorfit = "2.7.2"
 ktorfit-compiler = "2.3.3"
 kotlinStdlib = "2.3.0"
 core = "1.7.0"
+kmp-socketio = "1.4.4"
 coreVersion = "1.18.0"
 kmp-socketio = "1.4.4"
 

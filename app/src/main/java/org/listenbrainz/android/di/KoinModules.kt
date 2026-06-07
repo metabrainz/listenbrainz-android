@@ -134,6 +134,7 @@ import org.listenbrainz.android.viewmodel.NewsListViewModel
 import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import org.listenbrainz.android.viewmodel.SearchViewModel
+import org.listenbrainz.shared.viewmodel.SettingsViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.SongViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
@@ -146,6 +147,7 @@ import org.listenbrainz.shared.util.LogSubmitter
 import org.listenbrainz.shared.di.sharedDispatcherModule
 import org.listenbrainz.shared.di.sharedNetworkServiceModule
 import org.listenbrainz.shared.di.sharedRepositoryModule
+import org.listenbrainz.shared.di.sharedViewModelModule
 import org.listenbrainz.shared.di.sharedViewModelModule
 
 // Qualifier names for dispatchers
@@ -547,5 +549,6 @@ val appModules = listOf(
     sharedViewModelModule,
     sharedNetworkServiceModule,
     sharedDispatcherModule,
-    sharedRepositoryModule
+    sharedRepositoryModule,
+    sharedViewModelModule
 )
