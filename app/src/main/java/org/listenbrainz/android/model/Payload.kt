@@ -2,6 +2,7 @@ package org.listenbrainz.android.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.listenbrainz.shared.model.Listen
 
 @Serializable
 data class Payload(

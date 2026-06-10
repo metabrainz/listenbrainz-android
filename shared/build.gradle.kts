@@ -97,6 +97,9 @@ kotlin {
                 implementation(libs.ktor.serialization.kotlinx.json)
                 implementation(libs.ktor.client.logging)
                 implementation(libs.ktorfit.lib)
+                // Ktor
+                implementation(libs.ktor.client.core)
+                implementation(libs.kmp.socketio)
             }
         }
 

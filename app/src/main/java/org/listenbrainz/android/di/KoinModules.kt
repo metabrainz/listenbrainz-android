@@ -18,6 +18,7 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.request.header
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
@@ -70,8 +71,8 @@ import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandlerImpl
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.repository.social.SocialRepositoryImpl
-import org.listenbrainz.android.repository.socket.SocketRepository
-import org.listenbrainz.android.repository.socket.SocketRepositoryImpl
+import org.listenbrainz.shared.repository.socket.SocketRepository
+import org.listenbrainz.shared.repository.socket.SocketRepositoryImpl
 import org.listenbrainz.android.repository.user.UserRepository
 import org.listenbrainz.android.repository.user.UserRepositoryImpl
 import org.listenbrainz.android.repository.yim.YimRepository
@@ -168,6 +169,8 @@ private fun createBaseHttpClient(
         install(ContentNegotiation) {
             json(jsonConfig)
         }
+
+        install(WebSockets)
 
         install(HttpRedirect) {
             // Allows redirection for POST method requests
@@ -418,6 +421,8 @@ val networkModule = module {
 }
 
 val appModule = module {
+    single { jsonConfig }
+
     single<AppPreferences> { AppPreferencesImpl(androidContext()) }
 
     single<WorkManager> { WorkManager.getInstance(androidContext()) }
@@ -437,7 +442,7 @@ val repositoryModule = module {
     single<BPAlbumRepository> { BPAlbumRepositoryImpl(get()) }
     single<BPArtistRepository> { BPArtistRepositoryImpl(get()) }
     single<PlaylistRepository> { PlaylistRepositoryImpl(get()) }
-    single<SocketRepository> { SocketRepositoryImpl() }
+    single<SocketRepository> { SocketRepositoryImpl(get(),get()) }
 
     // API Repositories
     single<FeedRepository> { FeedRepositoryImpl(get()) }
