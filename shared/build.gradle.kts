@@ -106,6 +106,7 @@ kotlin {
                 // Ktor
                 implementation(libs.ktor.client.core)
                 implementation(libs.kmp.socketio)
+                implementation(libs.kotlinx.datetime)
             }
         }
 

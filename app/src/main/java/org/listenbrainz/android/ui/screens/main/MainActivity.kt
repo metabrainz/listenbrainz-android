@@ -273,7 +273,7 @@ class MainActivity : ComponentActivity() {
                 onboardingScreensQueue.add(NavigationItem.OnboardingScreens.LoginScreen)
             }
 
-            if (dashBoardViewModel.permissionStatusFlow.first()
+            if (dashBoardViewModel.uiState.value.permissionStatus
                     .all { it.value == PermissionStatus.GRANTED }
             ) {
                 onboardingScreensQueue.remove(NavigationItem.OnboardingScreens.PermissionScreen)

@@ -109,7 +109,8 @@ fun AppNavigation(
             )
         }
         appComposable(route = AppNavigationItem.Explore.route) {
-            val username by dashBoardViewModel.usernameFlow.collectAsStateWithLifecycle(null)
+            val dashboardUiState by dashBoardViewModel.uiState.collectAsStateWithLifecycle()
+            val username = dashboardUiState.username
             ExploreScreen(
                 topAppBarActions,
                 username = username,

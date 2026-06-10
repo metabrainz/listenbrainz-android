@@ -71,7 +71,8 @@ fun HomeScreen(
     listeningNowViewModel: ListeningNowViewModel = koinViewModel(),
     settingsCallbacks: SettingsCallbacksToHomeScreen
 ) {
-    val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
+    val dashboardUiState by dashBoardViewModel.uiState.collectAsStateWithLifecycle()
+    val permissions = dashboardUiState.permissionStatus
     val navController = rememberNavController()
     val backdropScaffoldState =
         rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)
@@ -80,9 +81,7 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-    val username by dashBoardViewModel.usernameFlow.collectAsStateWithLifecycle(
-        initialValue = null
-    )
+    val username = dashboardUiState.username
     var showNavReorderOverlay by rememberSaveable { mutableStateOf(false) }
     val currentlyPlayingSong by brainzPlayerViewModel.currentlyPlayingSong.collectAsStateWithLifecycle()
     val currentPlayableState by brainzPlayerViewModel.currentPlayable.collectAsStateWithLifecycle()
@@ -162,8 +161,7 @@ fun HomeScreen(
             }
         }
     )
-    val navOrder by dashBoardViewModel.navBarOrderFlow
-        .collectAsStateWithLifecycle()
+    val navOrder = dashboardUiState.navBarOrder
 
     val filteredNavItems = navOrder?.filter {
         isAudioPermissionGranted || it != AppNavigationItem.BrainzPlayer
