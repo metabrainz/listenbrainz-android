@@ -140,8 +140,7 @@ import org.listenbrainz.android.viewmodel.SongViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
 import org.listenbrainz.android.viewmodel.YimViewModel
-import org.listenbrainz.shared.provideLogger
-import org.listenbrainz.shared.util.AndroidLogSubmitter
+import org.listenbrainz.shared.di.platformModule
 import org.listenbrainz.shared.util.BuildInfo
 import org.listenbrainz.shared.util.LogSubmitter
 import org.listenbrainz.shared.di.sharedDispatcherModule
@@ -449,19 +448,6 @@ val appModule = module {
             buildType = BuildConfig.BUILD_TYPE
         )
     }
-
-    single<co.touchlab.kermit.Logger> {
-        val context = androidContext()
-        val logDirectory = context.getExternalFilesDir(null)?.path.orEmpty()
-        provideLogger(logDirectory, buildInfo = get())
-            .also {
-                Log.sharedLogger = it
-            }
-    }
-
-    single<LogSubmitter> {
-        AndroidLogSubmitter(get())
-    }
 }
 
 val repositoryModule = module {
@@ -550,5 +536,6 @@ val appModules = listOf(
     sharedNetworkServiceModule,
     sharedDispatcherModule,
     sharedRepositoryModule,
-    sharedViewModelModule
+    sharedViewModelModule,
+    platformModule
 )
