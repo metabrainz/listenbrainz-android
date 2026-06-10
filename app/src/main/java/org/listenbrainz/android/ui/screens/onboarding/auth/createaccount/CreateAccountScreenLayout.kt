@@ -91,7 +91,7 @@ fun CreateAccountScreenLayout(
     onPressBackInVerificationState: () -> Unit = {},
     onRefreshClick: () -> Unit = {},
     modifier: Modifier = Modifier,
-    submitLogs:(PlatformContext)->Unit
+    submitLogs:()->Unit
 ) {
     if (screenState == CreateAccountScreenState.EMAIL_VERIFICATION) {
         BackHandler {
@@ -217,7 +217,7 @@ fun CreateAccountScreenLayout(
                 .padding(top = 8.dp, end = 8.dp),
             isSubmitting = uiState.isLogSubmitting,
             submitLogs = {
-                submitLogs(context)
+                submitLogs()
             }
         )
     }

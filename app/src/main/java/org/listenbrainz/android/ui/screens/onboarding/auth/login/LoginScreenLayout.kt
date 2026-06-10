@@ -71,9 +71,8 @@ fun LoginScreenLayout(
     onRefreshClick: () -> Unit,
     modifier: Modifier = Modifier,
     webViewContent: @Composable () -> Unit = {},
-    submitLogs:(PlatformContext)->Unit
+    submitLogs:()->Unit
 ) {
-    val context = LocalContext.current
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -161,7 +160,7 @@ fun LoginScreenLayout(
                 .padding(top = 8.dp, end = 8.dp),
             isSubmitting = uiState.isLogSubmitting,
             submitLogs = {
-                submitLogs(context)
+                submitLogs()
             }
         )
 

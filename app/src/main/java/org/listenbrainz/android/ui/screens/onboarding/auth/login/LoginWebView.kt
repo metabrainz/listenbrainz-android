@@ -96,7 +96,7 @@ fun ListenBrainzLogin(
             },
             onRefreshClick = vm::onRefreshClick,
             submitLogs = {
-                vm.logSubmit(it)
+                vm.logSubmit()
             }
         )
 

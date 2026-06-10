@@ -13,16 +13,13 @@ import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
-actual interface LogSubmitter {
-    actual suspend fun submitLogs(context: PlatformContext)
-}
-
 class AndroidLogSubmitter(
+    private val context: PlatformContext,
     private val buildConfig: BuildInfo
 ) : LogSubmitter {
     private val sharedLog = platformLogWriter()
 
-    override suspend fun submitLogs(context: PlatformContext) = withContext(Dispatchers.IO) {
+    override suspend fun submitLogs() = withContext(Dispatchers.IO) {
         val logDir = context.getExternalFilesDir(null) ?: return@withContext
         val downloadDir = File(context.getExternalFilesDir(null), "Download")
         downloadDir.mkdirs()
@@ -57,7 +54,10 @@ class AndroidLogSubmitter(
                     )
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
-                context.startActivity(Intent.createChooser(intent, "Email logs..."))
+                val chooserIntent = Intent.createChooser(intent,"Email logs...").apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                context.startActivity(chooserIntent)
             }
         } catch (e: Exception) {
             sharedLog.log(Severity.Error, tag = "Error submitting logs", message =  "Utils", throwable =  e)

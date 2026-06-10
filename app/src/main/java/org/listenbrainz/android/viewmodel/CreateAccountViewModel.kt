@@ -62,7 +62,7 @@ class CreateAccountViewModel(
 
     private var createAccountTimeoutJob: Job? = null
 
-    fun logSubmit(context: PlatformContext){
+    fun logSubmit(){
         if(_uiState.value.isLogSubmitting) {
             return
         }
@@ -73,7 +73,7 @@ class CreateAccountViewModel(
                 )
             }
             try {
-                logSubmitter.submitLogs(context)
+                logSubmitter.submitLogs()
             }catch (e: Exception){
                 logger.e("Unable to submit logs: $e")
             } finally {

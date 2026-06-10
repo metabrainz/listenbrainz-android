@@ -44,18 +44,18 @@ class LoginViewModel(
         }.stateIn(viewModelScope, initialValue = LoginUIState(), started = SharingStarted.Lazily)
     }
 
-    fun logSubmit(context: PlatformContext){
+    fun logSubmit(){
         if(uiState.value.isLogSubmitting){
             return
         }
-        uiState.value.copy(isLogSubmitting = true)
+        loginUIState.update { it.copy(isLogSubmitting = true) }
         viewModelScope.launch {
             try {
-                logSubmitter.submitLogs(context)
+                logSubmitter.submitLogs()
             } catch (e: Exception){
                 logger.e("Unable to submit logs: $e")
             } finally {
-                uiState.value.copy(isLogSubmitting = false)
+                loginUIState.update { it.copy(isLogSubmitting = false) }
             }
         }
     }

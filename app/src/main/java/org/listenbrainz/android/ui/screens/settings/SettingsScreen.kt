@@ -79,11 +79,13 @@ fun SettingsScreen(
     callbacks: SettingsCallbacksToHomeScreen,
     onNavigationReorderClick: () -> Unit
 ) {
-    val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
+    val dashBoardUiState by dashBoardViewModel.uiState.collectAsState()
+    val permissions = dashBoardUiState.permissionStatus
     val isBatteryOptimizationPermissionGranted =
         permissions[PermissionEnum.BATTERY_OPTIMIZATION] == PermissionStatus.GRANTED
     val preferencesUiState by listensViewModel.preferencesUiState.collectAsState()
-    val isSubmittingLogs by viewModel.submittingLogs.collectAsState()
+    val settingsUiState by viewModel.uiState.collectAsState()
+    val isSubmittingLogs = settingsUiState.isSubmittingLogs
     SettingsScreen(
         appPreferences = viewModel.appPreferences,
         preferencesUiState = preferencesUiState,
@@ -104,7 +106,7 @@ fun SettingsScreen(
         isBatteryOptimizationPermissionGranted = isBatteryOptimizationPermissionGranted,
         topBarActions = topBarActions,
         submitLogs = {
-            viewModel.logSubmit(it)
+            viewModel.logSubmit()
         },
         isSubmittingLogs = isSubmittingLogs
     )

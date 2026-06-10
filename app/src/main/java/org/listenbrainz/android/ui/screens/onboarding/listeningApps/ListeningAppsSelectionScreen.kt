@@ -76,11 +76,12 @@ fun ListeningAppSelectionScreen(
     dashBoardViewModel: DashBoardViewModel = koinViewModel(),
     onClickNext: () -> Unit
 ) {
-    val listeningApps by dashBoardViewModel.listeningAppsFlow.collectAsState()
-    val allApps by dashBoardViewModel.allApps.collectAsState()
+    val dashboardUiState by dashBoardViewModel.uiState.collectAsState()
+    val listeningApps = dashboardUiState.listeningApps
+    val allApps = dashboardUiState.allApps
     val isListening by dashBoardViewModel.appPreferences.isListeningAllowed.getFlow()
         .collectAsState(initial = true)
-    val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
+    val permissions = dashboardUiState.permissionStatus
 
     val notificationPermission = permissions[PermissionEnum.READ_NOTIFICATIONS]
     val batteryOptPermission = permissions[PermissionEnum.BATTERY_OPTIMIZATION]
@@ -93,7 +94,7 @@ fun ListeningAppSelectionScreen(
     var isBottomSheetVisible by remember {
         mutableStateOf(false)
     }
-    val isLogSubmitting by dashBoardViewModel.submittingLogs.collectAsState()
+    val isLogSubmitting = dashboardUiState.isSubmittingLogs
     val scope = rememberCoroutineScope()
 
     ListeningAppScreenLayout(
@@ -106,7 +107,7 @@ fun ListeningAppSelectionScreen(
         onGrantPermissionClick = { permission ->
             if (activity != null) {
                 val permissionsRequestedOnce =
-                    dashBoardViewModel.permissionsRequestedAteastOnce.value
+                    dashboardUiState.permissionRequestedAtLeastOnce
                 permission.requestPermission(activity, permissionsRequestedOnce) {
                     dashBoardViewModel.markPermissionAsRequested(permission)
                 }
@@ -118,7 +119,7 @@ fun ListeningAppSelectionScreen(
         },
         isSubmitting = isLogSubmitting,
         submitLogs = {
-            dashBoardViewModel.logSubmit(it)
+            dashBoardViewModel.logSubmit()
         }
     )
     if (isBottomSheetVisible) {
@@ -165,7 +166,7 @@ fun ListeningAppScreenLayout(
     onGrantPermissionClick: (PermissionEnum) -> Unit,
     onClickNext: () -> Unit,
     isSubmitting: Boolean,
-    submitLogs:(PlatformContext) -> Unit
+    submitLogs:() -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
@@ -283,7 +284,7 @@ fun ListeningAppScreenLayout(
             .padding(top = 8.dp , end = 8.dp),
             isSubmitting = isSubmitting,
             submitLogs = {
-                submitLogs(context)
+                submitLogs()
             }
         )
     }

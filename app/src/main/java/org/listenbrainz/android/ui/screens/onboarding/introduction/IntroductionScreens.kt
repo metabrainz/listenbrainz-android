@@ -335,15 +335,13 @@ fun OnboardingBackButton(modifier: Modifier = Modifier, onBackPress: (() -> Unit
 }
 
 @Composable
-fun OnboardingSupportButton(modifier: Modifier,isSubmitting:Boolean,submitLogs:(PlatformContext)->Unit){
+fun OnboardingSupportButton(modifier: Modifier,isSubmitting:Boolean,submitLogs:()->Unit){
     val haptic = LocalHapticFeedback.current
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     IconButton(
         modifier = modifier,
         onClick = {
             haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-            submitLogs(context)
+            submitLogs()
         },
         enabled = !isSubmitting,
         colors = IconButtonDefaults.iconButtonColors(

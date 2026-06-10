@@ -64,7 +64,8 @@ data class LoginConsentScreenUIState(
 
 @Composable
 fun ConsentScreenDataInitializer(dashBoardViewModel: DashBoardViewModel){
-    val uiState by dashBoardViewModel.consentScreenUIState.collectAsState()
+    val dashboardUiState by dashBoardViewModel.uiState.collectAsState()
+    val uiState = dashboardUiState.consentScreenUIState
 
     if(uiState.data == null) {
         //Setting up consent screen content
@@ -123,8 +124,9 @@ fun ConsentScreenDataInitializer(dashBoardViewModel: DashBoardViewModel){
 @Composable
 fun LoginConsentScreen(dashBoardViewModel: DashBoardViewModel,
                        onProceedToLoginScreen: () -> Unit) {
-    val uiState by dashBoardViewModel.consentScreenUIState.collectAsState()
-    val isLogSubmitting by dashBoardViewModel.submittingLogs.collectAsState()
+    val dashboardUiState by dashBoardViewModel.uiState.collectAsState()
+    val uiState = dashboardUiState.consentScreenUIState
+    val isLogSubmitting = dashboardUiState.isSubmittingLogs
     LoginConsentScreenLayout(
         html = uiState.data ?: "",
         isLoading = uiState.isLoading,
@@ -134,7 +136,7 @@ fun LoginConsentScreen(dashBoardViewModel: DashBoardViewModel,
             dashBoardViewModel.onLoadConsentScreen()
         },
         submitLogs = {
-            dashBoardViewModel.logSubmit(it)
+            dashBoardViewModel.logSubmit()
         },
         isSubmitting = isLogSubmitting
     )
@@ -147,7 +149,7 @@ private fun LoginConsentScreenLayout(
     errorMessage: String?,
     onClickNext: () -> Unit,
     onRetry: () -> Unit,
-    submitLogs:(PlatformContext)->Unit,
+    submitLogs:()->Unit,
     isSubmitting:Boolean
 ) {
     val context = LocalContext.current
@@ -275,7 +277,7 @@ private fun LoginConsentScreenLayout(
             .padding(top = 8.dp , end = 8.dp),
             isSubmitting = isSubmitting,
             submitLogs = {
-                submitLogs(context)
+                submitLogs()
             }
         )
     }

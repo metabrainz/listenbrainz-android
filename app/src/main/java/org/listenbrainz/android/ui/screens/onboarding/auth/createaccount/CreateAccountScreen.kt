@@ -100,7 +100,7 @@ fun ListenBrainzCreateAccountScreen(onBackPress: () -> Unit) {
             modifier = Modifier,
             uiState = uiState,
             submitLogs = {
-                vm.logSubmit(it)
+                vm.logSubmit()
             }
         )
 

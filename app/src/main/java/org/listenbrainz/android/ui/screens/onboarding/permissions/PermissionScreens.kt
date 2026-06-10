@@ -56,10 +56,11 @@ fun PermissionScreen(dashBoardViewModel: DashBoardViewModel = koinViewModel(),
                      onExitAfterGrantingAllPermissions: ()-> Unit,
                      onExit: () -> Unit) {
     val activity = LocalActivity.current
-    val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
-    val permissionsRequestedOnce by dashBoardViewModel.permissionsRequestedAteastOnce.collectAsState()
+    val dashBoardUiState by dashBoardViewModel.uiState.collectAsState()
+    val permissions = dashBoardUiState.permissionStatus
+    val permissionsRequestedOnce = dashBoardUiState.permissionRequestedAtLeastOnce
     val filteredPermissions = permissions.filter { it.key != PermissionEnum.BATTERY_OPTIMIZATION && it.key != PermissionEnum.READ_NOTIFICATIONS }
-    val isLogSubmitting by dashBoardViewModel.submittingLogs.collectAsState()
+    val isLogSubmitting= dashBoardUiState.isSubmittingLogs
 
     LaunchedEffect(filteredPermissions) {
         if (filteredPermissions.isEmpty() || filteredPermissions.all { it.value == PermissionStatus.GRANTED }) {
@@ -85,7 +86,7 @@ fun PermissionScreen(dashBoardViewModel: DashBoardViewModel = koinViewModel(),
             onExit() // Continue without accepting permissions
         },
         submitLogs = {
-            dashBoardViewModel.logSubmit(it)
+            dashBoardViewModel.logSubmit()
         },
         isSubmitting = isLogSubmitting
         )
@@ -96,7 +97,7 @@ private fun PermissionScreenBase(
     permissions: Map<PermissionEnum, PermissionStatus>,
     onGrantPermissionClick: (PermissionEnum) -> Unit,
     onRejectPermissionClick: () -> Unit,
-    submitLogs:(PlatformContext)->Unit,
+    submitLogs:()->Unit,
     isSubmitting:Boolean
 ) {
     val context = LocalContext.current
@@ -177,7 +178,7 @@ private fun PermissionScreenBase(
                 .align(Alignment.TopEnd)
                 .padding(top = 8.dp , end = 8.dp),
                 submitLogs = {
-                    submitLogs(context)
+                    submitLogs()
                 },
                 isSubmitting = isSubmitting
             )
