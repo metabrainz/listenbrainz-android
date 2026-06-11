@@ -8,6 +8,7 @@ import org.listenbrainz.android.model.PostResponse
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.model.TokenValidation
 import org.listenbrainz.android.repository.listens.ListensRepository
+import org.listenbrainz.shared.model.CoverArt
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.model.CoverArt
 import org.listenbrainz.sharedtest.testdata.ListensRepositoryTestData.listensTestData

@@ -1,12 +1,12 @@
 package org.listenbrainz.sharedtest.mocks
 
-import com.spotify.protocol.types.PlayerContext
-import com.spotify.protocol.types.PlayerState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import org.listenbrainz.android.model.ListenBitmap
+import org.listenbrainz.shared.model.ListenBitmap
 import org.listenbrainz.shared.model.ResponseError
-import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
+import org.listenbrainz.shared.model.playback.SharedPlayerContext
+import org.listenbrainz.shared.model.playback.SharedPlayerState
+import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.util.Resource
 
 
@@ -30,7 +30,7 @@ class MockRemotePlaybackHandler : RemotePlaybackHandler {
         TODO("Not yet implemented")
     }
 
-    override suspend fun fetchSpotifyTrackCoverArt(playerState: PlayerState?): ListenBitmap {
+    override suspend fun fetchSpotifyTrackCoverArt(playerState: SharedPlayerState?): ListenBitmap {
         TODO("Not yet implemented")
     }
 
@@ -46,13 +46,13 @@ class MockRemotePlaybackHandler : RemotePlaybackHandler {
         TODO("Not yet implemented")
     }
 
-    override fun getPlayerState(): Flow<PlayerState?> {
+    override fun getPlayerState(): Flow<SharedPlayerState?> {
         return flow {
 
         }
     }
 
-    override fun getPlayerContext(): Flow<PlayerContext?> {
+    override fun getPlayerContext(): Flow<SharedPlayerContext?> {
         TODO("Not yet implemented")
     }
 

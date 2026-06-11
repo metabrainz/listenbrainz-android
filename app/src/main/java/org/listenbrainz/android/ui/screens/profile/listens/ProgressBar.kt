@@ -39,15 +39,15 @@ fun ProgressBar() {
     // TODO: Simplify this.
     LaunchedEffect(
         uiState.listeningNowUiState.songDuration,
-        uiState.listeningNowUiState.playerState?.track
+        uiState.listeningNowUiState.playerState?.trackName
     ){
-        val song = uiState.listeningNowUiState.playerState?.track
-        if ((song?.duration ?: 0) / (1000 * 60 * 60) > 0 && uiState.listeningNowUiState.songCurrentPosition / (1000 * 60 * 60) > 0) {
+        val songDuration = uiState.listeningNowUiState.playerState?.trackDuration
+        if ((songDuration ?: 0) / (1000 * 60 * 60) > 0 && uiState.listeningNowUiState.songCurrentPosition / (1000 * 60 * 60) > 0) {
             duration = String.format(
                 "%02d:%02d:%02d",
-                (song?.duration ?: 0) / (1000 * 60 * 60),
-                (song?.duration ?: 0) / (1000 * 60) % 60,
-                (song?.duration ?: 0) / 1000 % 60
+                (songDuration ?: 0) / (1000 * 60 * 60),
+                (songDuration ?: 0) / (1000 * 60) % 60,
+                (songDuration ?: 0) / 1000 % 60
             )
             currentPosition = String.format(
                 "%02d:%02d:%02d",
@@ -58,8 +58,8 @@ fun ProgressBar() {
         } else {
             duration = String.format(
                 "%02d:%02d",
-                (song?.duration ?: 0) / (1000 * 60) % 60,
-                (song?.duration ?: 0) / 1000 % 60
+                (songDuration ?: 0) / (1000 * 60) % 60,
+                (songDuration ?: 0) / 1000 % 60
             )
             currentPosition =
                 String.format("%02d:%02d", uiState.listeningNowUiState.songCurrentPosition / (1000 * 60) % 60, uiState.listeningNowUiState.songCurrentPosition / 1000 % 60)

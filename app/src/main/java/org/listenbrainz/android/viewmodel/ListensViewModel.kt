@@ -3,7 +3,6 @@ package org.listenbrainz.android.viewmodel
 import android.graphics.drawable.Drawable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.viewModelScope
-import com.spotify.protocol.types.PlayerState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,17 +16,18 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.shared.model.Listen
-import org.listenbrainz.android.model.ListenBitmap
+import org.listenbrainz.shared.model.ListenBitmap
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.UiMode
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
+import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.repository.socket.SocketRepository
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningNowUiState
 import org.listenbrainz.android.ui.screens.profile.listens.ListensUiState
 import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.shared.model.LinkedService
+import org.listenbrainz.shared.model.playback.SharedPlayerState
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.util.Resource.Status.FAILED
 import org.listenbrainz.shared.util.Resource.Status.SUCCESS
@@ -102,7 +102,7 @@ class ListensViewModel(
             ListeningNowUiState(
                 array[0] as Listen?,
                 array[1] as ListenBitmap,
-                array[2] as PlayerState?,
+                array[2] as SharedPlayerState?,
                 array[3] as Long,
                 array[4] as Long,
                 array[5] as Float
@@ -227,7 +227,7 @@ class ListensViewModel(
         }
     }
     
-    private suspend fun updateTrackCoverArt(playerState: PlayerState?) = withContext(ioDispatcher) {
+    private suspend fun updateTrackCoverArt(playerState: SharedPlayerState?) = withContext(ioDispatcher) {
         // Get image from track
         listeningNowBitmap.emit(
             remotePlaybackHandler.fetchSpotifyTrackCoverArt(playerState)
