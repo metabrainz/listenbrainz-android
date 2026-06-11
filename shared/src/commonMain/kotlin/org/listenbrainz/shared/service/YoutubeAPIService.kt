@@ -1,8 +1,8 @@
-package org.listenbrainz.android.service
+package org.listenbrainz.shared.service
 
 import de.jensklingenberg.ktorfit.http.GET
 import de.jensklingenberg.ktorfit.http.Query
-import org.listenbrainz.android.model.YouTubeSearchResponse
+import org.listenbrainz.shared.model.YouTubeSearchResponse
 
 interface YouTubeApiService {
     @GET("youtube/v3/search")
