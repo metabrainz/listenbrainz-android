@@ -11,6 +11,10 @@ import org.listenbrainz.shared.preferences.PreferenceKeys
 
 actual typealias PlatformContext = Context
 
+actual fun getAppPackageName(context: PlatformContext): String {
+    return context.packageName
+}
+
 actual fun settingsPlatformDataMigrations(
     context: PlatformContext,
 ): List<DataMigration<Preferences>> =

@@ -18,6 +18,11 @@ import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.listenbrainz.shared.service.AlbumService
+import org.listenbrainz.shared.repository.PlatformContext
+import org.listenbrainz.shared.repository.getAppPackageName
+import org.listenbrainz.shared.service.YouTubeApiService
+import org.listenbrainz.shared.service.createYouTubeApiService
+import org.listenbrainz.shared.util.PlatformUtils
 import org.listenbrainz.shared.service.ArtistService
 import org.listenbrainz.shared.service.CBService
 import org.listenbrainz.shared.service.MBService
@@ -76,6 +81,26 @@ val sharedNetworkServiceModule = module {
             .build()
             .createBlogService()
     }
+
+    single<YouTubeApiService> {
+        val platformContext = get<PlatformContext>()
+        val client = get<HttpClient>(named(SHARED_HTTP_CLIENT)).config {
+            defaultRequest {
+                url("https://www.googleapis.com/")
+                val sha1 = PlatformUtils.getSHA1(platformContext, getAppPackageName(platformContext))
+                if(!(sha1.isNullOrBlank())){
+                    header("X-Android-Package", getAppPackageName(platformContext))
+                    header("X-Android-Cert", sha1)
+                }
+            }
+        }
+        Ktorfit.Builder()
+            .baseUrl("https://www.googleapis.com/")
+            .httpClient(client)
+            .build()
+            .createYouTubeApiService()
+    }
+
 
     single<ArtistService> {
         Ktorfit.Builder()
