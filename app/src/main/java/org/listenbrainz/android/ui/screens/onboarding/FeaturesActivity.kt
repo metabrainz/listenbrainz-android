@@ -20,7 +20,7 @@ import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.screens.main.MainActivity
 import org.listenbrainz.android.ui.screens.profile.LoginActivity
 import org.listenbrainz.shared.util.Log
-import org.listenbrainz.android.viewmodel.FeaturesViewModel
+import org.listenbrainz.shared.viewmodel.FeaturesViewModel
 
 class FeaturesActivity : OnboardAdvanced() {
     private val featuresViewModel: FeaturesViewModel by viewModel()
