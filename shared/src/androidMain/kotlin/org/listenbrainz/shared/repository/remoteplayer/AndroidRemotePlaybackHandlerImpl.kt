@@ -210,6 +210,7 @@ class AndroidRemotePlaybackHandlerImpl(
 
 
     override suspend fun fetchSpotifyTrackCoverArt(playerState: SharedPlayerState?): ListenBitmap = suspendCancellableCoroutine { cont ->
+
         fun getFallBackCoverArt(): ListenBitmap {
             // Fallback Cover Art
             val fallbackResourceId = appContext.resources.getIdentifier(
@@ -308,7 +309,6 @@ class AndroidRemotePlaybackHandlerImpl(
 
 
     override fun getPlayerState(): Flow<SharedPlayerState?> = callbackFlow {
-
         val playerStateSubscription = assertAppRemoteConnected()?.playerApi?.subscribeToPlayerState()
             ?.setEventCallback{ playerState ->
                 trySendBlocking(playerState?.toSharedState)
