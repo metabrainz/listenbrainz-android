@@ -188,7 +188,7 @@ private fun YimAlbumViewer(list: List<TopRelease>?, listState: LazyListState = r
                     AsyncImage(
                         model = ImageRequest.Builder(context)
                             .data(
-                                Utils.getCoverArtUrl(
+                                org.listenbrainz.shared.util.Utils.getCoverArtUrl(
                                     caaReleaseMbid = item.caaReleaseMbid,
                                     caaId = item.caaId,
                                     size = 500
