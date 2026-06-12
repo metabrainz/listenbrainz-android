@@ -123,7 +123,7 @@ import org.listenbrainz.android.viewmodel.BPAlbumViewModel
 import org.listenbrainz.android.viewmodel.BPArtistViewModel
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
-import org.listenbrainz.android.viewmodel.FeaturesViewModel
+import org.listenbrainz.shared.viewmodel.FeaturesViewModel
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.ListeningNowViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
@@ -501,7 +501,6 @@ val viewModelModule = module {
     viewModel { BPArtistViewModel(get(), get(named(IO_DISPATCHER))) }
     viewModel { SongViewModel(get(), get(named(IO_DISPATCHER))) }
     viewModel { AlbumViewModel(get(), get(named(IO_DISPATCHER))) }
-    viewModel { FeaturesViewModel(get()) }
     viewModel { AboutViewModel() }
     viewModel { LoginViewModel(get()) }
 }
