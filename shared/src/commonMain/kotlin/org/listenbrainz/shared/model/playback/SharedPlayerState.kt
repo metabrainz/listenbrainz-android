@@ -7,6 +7,7 @@ data class SharedPlayerState(
     val trackUi: String?,
     val trackName: String?,
     val artistName:String?,
+    val imageUri: String?,
     val albumName:String?,
     val isPaused:Boolean,
     val playbackPosition:Long,

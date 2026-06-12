@@ -1,10 +1,12 @@
-package org.listenbrainz.android.repository.remoteplayer
+package org.listenbrainz.shared.repository.remoteplayer
 
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.os.Build
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.core.net.toUri
+import com.spotify.android.appremote.BuildConfig
 import com.spotify.android.appremote.api.ConnectionParams
 import com.spotify.android.appremote.api.Connector
 import com.spotify.android.appremote.api.SpotifyAppRemote
@@ -25,11 +27,13 @@ import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.listenbrainz.android.BuildConfig
-import org.listenbrainz.android.R
-import org.listenbrainz.android.model.ListenBitmap
+import org.listenbrainz.shared.BuildKonfig
+import org.listenbrainz.shared.model.ListenBitmap
 import org.listenbrainz.shared.model.ResponseError
-import org.listenbrainz.android.service.YouTubeApiService
+import org.listenbrainz.shared.model.playback.SharedPlayerContext
+import org.listenbrainz.shared.model.playback.SharedPlayerState
+import org.listenbrainz.shared.repository.PlatformContext
+import org.listenbrainz.shared.service.YouTubeApiService
 import org.listenbrainz.shared.util.Constants
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.util.Utils.parseResponse
@@ -42,11 +46,11 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 import androidx.core.net.toUri
 
-class RemotePlaybackHandlerImpl(
-    private val appContext: Context,
+class AndroidRemotePlaybackHandlerImpl(
+    private val appContext: PlatformContext,
     private val youtubeApiService: YouTubeApiService,
     private val logger: Log = Log
-) : RemotePlaybackHandler {
+) : SharedRemotePlaybackHandlerImpl(appContext,youtubeApiService) {
     
     private val mutex = Mutex()
     private var spotifyAppRemote: SpotifyAppRemote? = null
@@ -58,33 +62,7 @@ class RemotePlaybackHandlerImpl(
     init {
         SpotifyAppRemote.setDebugMode(BuildConfig.DEBUG)
     }
-    
-    /** Search for video ID on youtube.
-     * @return *null* in case no videos are found or an exception occurs.*/
-    override suspend fun searchYoutubeMusicVideoId(
-        trackName: String,
-        artist: String
-    ): Resource<String> = parseResponse {
-        val response = youtubeApiService.searchVideos(
-            part = "snippet",
-            query = "$trackName $artist",
-            type = "video",
-            videoCategoryId = "10",
-            apiKey = appContext.getString(R.string.youtubeApiKey)
-        )
 
-        val items = response.items
-
-        failIf(items.isEmpty()) {
-            ResponseError.RemotePlayerError(
-                actualResponse = "Could not find this song on youtube."
-            )
-        }
-
-        return@parseResponse items.first().id.videoId
-    }
-    
-    
     override suspend fun playOnYoutube(getYoutubeMusicVideoId: suspend () -> Resource<String>): Resource<Unit> {
         
         val result = getYoutubeMusicVideoId()
@@ -145,7 +123,7 @@ class RemotePlaybackHandlerImpl(
                 isResumed.set(false)
                 spotifyAppRemote = connectToAppRemote(
                     true,
-                    spotifyClientId = appContext.getString(R.string.spotifyClientId),
+                    spotifyClientId = BuildKonfig.SPOTIFY_CLIENT_ID,
                     onError
                 )
             }
@@ -233,16 +211,26 @@ class RemotePlaybackHandlerImpl(
     }
     
     
-    override suspend fun fetchSpotifyTrackCoverArt(playerState: PlayerState?): ListenBitmap = suspendCoroutine { cont ->
-        
-        fun getFallBackCoverArt(): ListenBitmap = ListenBitmap(
+    override suspend fun fetchSpotifyTrackCoverArt(playerState: SharedPlayerState?): ListenBitmap = suspendCoroutine { cont ->
+
+        fun getFallBackCoverArt(): ListenBitmap {
             // Fallback Cover Art
-            bitmap = BitmapFactory.decodeResource(
-                appContext.resources,
-                R.drawable.ic_coverartarchive_logo_no_text
-            ),
-            id = null
-        )
+            val fallbackResourceId = appContext.resources.getIdentifier(
+                "ic_coverartarchive_logo_no_text",
+                "drawable",
+                appContext.packageName
+            )
+            val androidBitmap = if(fallbackResourceId!=0){
+                BitmapFactory.decodeResource(appContext.resources,
+                    fallbackResourceId)
+            }else{
+                null
+            }
+            return ListenBitmap(
+                bitmap = androidBitmap?.asImageBitmap(),
+                id = null
+            )
+        }
         
         // Return if URI is null
         if (playerState == null){
@@ -250,12 +238,12 @@ class RemotePlaybackHandlerImpl(
         }
         
         // Get image from track
-        (assertAppRemoteConnected() ?: return@suspendCoroutine).imagesApi.getImage(playerState?.track?.imageUri ?: ImageUri(""), com.spotify.protocol.types.Image.Dimension.LARGE)
+        (assertAppRemoteConnected() ?: return@suspendCoroutine).imagesApi.getImage(ImageUri(playerState?.imageUri ?: ""), com.spotify.protocol.types.Image.Dimension.LARGE)
             ?.setResultCallback { bitmapHere ->
                 cont.resume(
                     ListenBitmap(
-                        bitmap = bitmapHere,
-                        id = playerState?.track?.uri
+                        bitmap = bitmapHere.asImageBitmap(),
+                        id = playerState?.trackUi
                     )
                 )
             }?.setErrorCallback {
@@ -290,12 +278,12 @@ class RemotePlaybackHandlerImpl(
     }
     
     
-    override fun getPlayerContext(): Flow<PlayerContext?> = callbackFlow {
+    override fun getPlayerContext(): Flow<SharedPlayerContext?> = callbackFlow {
         
         val playerContextSubscription = assertAppRemoteConnected()?.playerApi
             ?.subscribeToPlayerContext()
             ?.setEventCallback { playerContext ->
-                trySendBlocking(playerContext)
+                trySendBlocking(playerContext?.toSharedContext)
                     .onFailure {
                         it?.printStackTrace()
                     }
@@ -316,11 +304,11 @@ class RemotePlaybackHandlerImpl(
     }.distinctUntilChanged().cancellable()
     
     
-    override fun getPlayerState(): Flow<PlayerState?> = callbackFlow {
+    override fun getPlayerState(): Flow<SharedPlayerState?> = callbackFlow {
         
         val playerStateSubscription = assertAppRemoteConnected()?.playerApi?.subscribeToPlayerState()
             ?.setEventCallback{ playerState ->
-                trySendBlocking(playerState)
+                trySendBlocking(playerState?.toSharedState)
                     .onFailure {
                         it?.printStackTrace()
                     }
@@ -330,7 +318,7 @@ class RemotePlaybackHandlerImpl(
                     override fun onStart() {
                         logMessage("Event: start")
                     }
-                    
+
                     override fun onStop() {
                         logMessage("Event: end")
                     }
@@ -370,15 +358,23 @@ class RemotePlaybackHandlerImpl(
         logMessage("Spotify is not Connected.")        //getString(R.string.err_spotify_disconnected))
         return null
     }
-    
-    private fun logError(throwable: Throwable) {
-        throwable.message?.let { logger.e(it) }
-    }
-    
-    private fun logMessage(msg: String) {
-        logger.d(msg)
-    }
-    
-    private val errorCallback = { throwable: Throwable -> logError(throwable) }
-    
+
 }
+
+internal val PlayerState.toSharedState : SharedPlayerState
+    get() = SharedPlayerState(
+        trackUi = this.track?.uri,
+        trackName = this.track?.name,
+        imageUri = this.track?.imageUri?.raw,
+        artistName = this.track?.artist?.name,
+        albumName = this.track?.album?.name,
+        isPaused = this.isPaused,
+        playbackPosition = this.playbackPosition,
+        trackDuration = this.track?.duration ?: 0L
+    )
+
+internal val PlayerContext.toSharedContext : SharedPlayerContext
+    get() = SharedPlayerContext(
+        title = this.title,
+        url = this.uri ?: ""
+    )

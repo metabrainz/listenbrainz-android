@@ -34,7 +34,7 @@ import org.listenbrainz.android.repository.feed.FeedRepository.Companion.FeedEve
 import org.listenbrainz.android.repository.feed.FeedRepository.Companion.FeedListensCount
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
+import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.ui.screens.feed.FeedUiEventData
 import org.listenbrainz.android.ui.screens.feed.FeedUiEventItem

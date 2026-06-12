@@ -57,8 +57,6 @@ import org.listenbrainz.android.repository.listenservicemanager.ListenServiceMan
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManagerImpl
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepositoryImpl
-import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
-import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandlerImpl
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.repository.social.SocialRepositoryImpl
 import org.listenbrainz.android.repository.user.UserRepository
@@ -78,7 +76,6 @@ import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.service.UserService
 import org.listenbrainz.android.service.Yim23Service
 import org.listenbrainz.android.service.YimService
-import org.listenbrainz.android.service.YouTubeApiService
 import org.listenbrainz.android.service.createGithubAppUpdatesService
 import org.listenbrainz.android.service.createListensService
 import org.listenbrainz.android.service.createPlaylistService
@@ -86,7 +83,7 @@ import org.listenbrainz.android.service.createSocialService
 import org.listenbrainz.android.service.createUserService
 import org.listenbrainz.android.service.createYim23Service
 import org.listenbrainz.android.service.createYimService
-import org.listenbrainz.android.service.createYouTubeApiService
+import org.listenbrainz.shared.service.createYouTubeApiService
 import org.listenbrainz.android.util.LocalMusicSource
 import org.listenbrainz.android.util.MusicSource
 import org.listenbrainz.android.util.Utils
@@ -384,8 +381,6 @@ val repositoryModule = module {
     single<Yim23Repository> { Yim23RepositoryImpl(get()) }
     single<AppUpdatesRepository> { AppUpdatesRepositoryImpl(get(), get(), get(named(IO_DISPATCHER))) }
 
-    // Remote Playback Handler
-    single<RemotePlaybackHandler> { RemotePlaybackHandlerImpl(androidContext(), get()) }
 }
 
 // Service Module for BrainzPlayer

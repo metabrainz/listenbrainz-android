@@ -13,6 +13,11 @@ import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSUserDomainMask
 
+import org.listenbrainz.shared.repository.PlatformContext
+import org.listenbrainz.shared.repository.remoteplayer.IosRemotePlaybackHandlerImpl
+import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
+import org.listenbrainz.shared.service.YouTubeApiService
+
 actual fun platform() = "iOS"
 
 actual fun provideLogger(
@@ -45,4 +50,11 @@ actual fun provideLogger(
 
 actual fun provideLogSubmitter(context: PlatformContext, buildInfo: BuildInfo): LogSubmitter {
     return IosLogSubmitter(buildInfo)
+}
+
+actual fun provideRemotePlaybackHandler(
+    appContext: PlatformContext,
+    youTubeApiService: YouTubeApiService
+): RemotePlaybackHandler {
+    return IosRemotePlaybackHandlerImpl(appContext,youTubeApiService)
 }
