@@ -138,15 +138,14 @@ import org.listenbrainz.android.viewmodel.SongViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
 import org.listenbrainz.android.viewmodel.YimViewModel
+import org.listenbrainz.shared.di.DEFAULT_DISPATCHER
+import org.listenbrainz.shared.di.IO_DISPATCHER
 import org.listenbrainz.shared.di.platformModule
 import org.listenbrainz.shared.util.BuildInfo
 import org.listenbrainz.shared.util.LogSubmitter
 import org.listenbrainz.shared.di.sharedDispatcherModule
 import org.listenbrainz.shared.di.sharedNetworkServiceModule
 import org.listenbrainz.shared.di.sharedRepositoryModule
-import org.listenbrainz.shared.di.DEFAULT_DISPATCHER
-import org.listenbrainz.shared.di.IO_DISPATCHER
-import org.listenbrainz.shared.di.sharedViewModelModule
 import org.listenbrainz.shared.di.sharedViewModelModule
 
 
@@ -299,15 +298,6 @@ val networkModule = module {
             .createPlaylistService()
     }
 
-    single<AlbumService> {
-        val httpClient = createBaseHttpClient(androidContext(), baseUrl = LB_BASE_URL)
-        Ktorfit.Builder()
-            .baseUrl(LB_BASE_URL)
-            .httpClient(httpClient)
-            .build()
-            .createAlbumService()
-    }
-
     single<YouTubeApiService> {
         val context = androidContext()
         val httpClient = HttpClient(OkHttp) {
@@ -448,7 +438,6 @@ val repositoryModule = module {
     single<UserRepository> { UserRepositoryImpl(get(), get()) }
     single<ListensRepository> { ListensRepositoryImpl(get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
     single<PlaylistDataRepository> { PlaylistDataRepositoryImpl(get(), get(), get(), get(named(IO_DISPATCHER))) }
-    single<AlbumRepository> { AlbumRepositoryImpl(get(), get(), get()) }
     single<YimRepository> { YimRepositoryImpl(get()) }
     single<Yim23Repository> { Yim23RepositoryImpl(get()) }
     single<AppUpdatesRepository> { AppUpdatesRepositoryImpl(get(), get(), get(named(IO_DISPATCHER))) }
@@ -500,7 +489,6 @@ val viewModelModule = module {
     viewModel { BPAlbumViewModel(get(), get(named(IO_DISPATCHER))) }
     viewModel { BPArtistViewModel(get(), get(named(IO_DISPATCHER))) }
     viewModel { SongViewModel(get(), get(named(IO_DISPATCHER))) }
-    viewModel { AlbumViewModel(get(), get(named(IO_DISPATCHER))) }
     viewModel { FeaturesViewModel(get()) }
     viewModel { AboutViewModel() }
     viewModel { LoginViewModel(get()) }
@@ -517,9 +505,6 @@ val appModules = listOf(
     viewModelModule,
     sharedViewModelModule,
     sharedNetworkServiceModule,
-    sharedRepositoryModule,
-    sharedNetworkServiceModule,
-    sharedDispatcherModule,
     sharedRepositoryModule,
     platformModule
 )
