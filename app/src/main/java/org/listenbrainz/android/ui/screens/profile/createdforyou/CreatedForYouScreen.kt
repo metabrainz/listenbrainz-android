@@ -53,8 +53,8 @@ import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.SocialUiState
-import org.listenbrainz.android.model.userPlaylist.UserPlaylist
-import org.listenbrainz.android.model.userPlaylist.UserPlaylists
+import org.listenbrainz.shared.model.userPlaylist.UserPlaylist
+import org.listenbrainz.shared.model.userPlaylist.UserPlaylists
 import org.listenbrainz.shared.model.playlist.AdditionalMetadataTrack
 import org.listenbrainz.shared.model.playlist.PlaylistData
 import org.listenbrainz.shared.model.playlist.PlaylistTrack
@@ -101,9 +101,9 @@ fun CreatedForYouScreen(
         onPlayAllClick = {
             //TODO: Implement this
         }, onShareClick = {
-            if (it?.identifier != null) {
-                shareLink(context, it.identifier)
-            } else {
+            it?.identifier?.let{ identifier->
+                shareLink(context, identifier)
+            } ?: run {
                 scope.launch {
                     snackbarState.showSnackbar("Link not found")
                 }

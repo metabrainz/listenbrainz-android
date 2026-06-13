@@ -34,7 +34,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.Metadata
-import org.listenbrainz.android.model.userPlaylist.UserPlaylist
+import org.listenbrainz.shared.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme

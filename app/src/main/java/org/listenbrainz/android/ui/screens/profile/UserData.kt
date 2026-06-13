@@ -46,7 +46,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
+import org.listenbrainz.shared.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark

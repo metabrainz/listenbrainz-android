@@ -1,0 +1,17 @@
+package org.listenbrainz.shared.model
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import org.listenbrainz.shared.model.LinkedService.Companion.toLinkedService
+
+@Serializable
+data class ListenBrainzExternalServices(
+    val services: List<String> = emptyList(),
+    @SerialName("user_name") val userName: String = "",
+) {
+    fun toLinkedServicesList(): List<LinkedService> =
+       services.map {
+            it.toLinkedService()
+       }
+    
+}

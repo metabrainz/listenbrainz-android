@@ -72,10 +72,10 @@ import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.shared.model.TrackMetadata
-import org.listenbrainz.android.model.user.Artist
-import org.listenbrainz.android.model.user.ListeningActivity
-import org.listenbrainz.android.model.user.TopArtists
-import org.listenbrainz.android.model.user.TopArtistsPayload
+import org.listenbrainz.shared.model.user.Artist
+import org.listenbrainz.shared.model.user.ListeningActivity
+import org.listenbrainz.shared.model.user.TopArtists
+import org.listenbrainz.shared.model.user.TopArtistsPayload
 import org.listenbrainz.android.ui.components.ChipItem
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
@@ -478,8 +478,8 @@ fun StatsScreen(
                                                 topArtist.listenCount ?: 0
                                             )
                                         ) {
-                                            if (topArtist.artistMbid != null) {
-                                                goToArtistPage(topArtist.artistMbid)
+                                            topArtist.artistMbid?.let{
+                                                goToArtistPage(it)
                                             }
                                         }
                                     }
@@ -528,8 +528,8 @@ fun StatsScreen(
                                                 alpha = 0.7f
                                             ),
                                             trailingContent = {
-                                                if (topAlbum.listenCount != null) {
-                                                    ListenCountChip(formatNumber(topAlbum.listenCount))
+                                                topAlbum.listenCount?.let{
+                                                    ListenCountChip(formatNumber(it))
                                                 }
                                             },
                                             goToArtistPage = goToArtistPage,
@@ -590,8 +590,8 @@ fun StatsScreen(
                                                 alpha = 0.7f
                                             ),
                                             trailingContent = {
-                                                if (topSong.listenCount != null) {
-                                                    ListenCountChip(formatNumber(topSong.listenCount))
+                                                topSong.listenCount?.let{
+                                                    ListenCountChip(formatNumber(it))
                                                 }
                                             },
                                             onDropdownError = {
