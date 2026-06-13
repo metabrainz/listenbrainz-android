@@ -1,6 +1,5 @@
-package org.listenbrainz.android.viewmodel
+package org.listenbrainz.shared.viewmodel
 
-import android.graphics.drawable.Drawable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
@@ -19,13 +18,13 @@ import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.shared.model.ListenBitmap
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.UiMode
-import org.listenbrainz.android.repository.listens.ListensRepository
+import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.repository.socket.SocketRepository
-import org.listenbrainz.android.ui.screens.profile.listens.ListeningNowUiState
-import org.listenbrainz.android.ui.screens.profile.listens.ListensUiState
-import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
+import org.listenbrainz.shared.ui.screens.profile.listens.ListeningNowUiState
+import org.listenbrainz.shared.ui.screens.profile.listens.ListensUiState
+import org.listenbrainz.shared.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.shared.model.LinkedService
 import org.listenbrainz.shared.model.playback.SharedPlayerState
 import org.listenbrainz.shared.util.Resource
@@ -138,8 +137,8 @@ class ListensViewModel(
             SharingStarted.Eagerly,
             PreferencesUiState()
         )
-    
-    fun getPackageIcon(packageName: String): Drawable? = repository.getPackageIcon(packageName)
+
+    fun getPackageIcon(packageName: String): Any? = repository.getPackageIcon(packageName)
     fun getPackageLabel(packageName: String): String = repository.getPackageLabel(packageName)
     
     fun setWhitelist(list: List<String>) {

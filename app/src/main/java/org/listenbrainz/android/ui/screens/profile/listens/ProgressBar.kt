@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.ui.components.SeekBar
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
-import org.listenbrainz.android.viewmodel.ListensViewModel
+import org.listenbrainz.shared.viewmodel.ListensViewModel
 
 @Composable
 fun ProgressBar() {

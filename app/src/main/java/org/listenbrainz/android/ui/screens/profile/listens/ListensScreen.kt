@@ -93,7 +93,7 @@ import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.shared.model.TrackMetadata
-import org.listenbrainz.android.model.user.Artist
+import org.listenbrainz.shared.model.user.Artist
 import org.listenbrainz.android.ui.components.ButtonLB
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.FollowButton
@@ -102,7 +102,7 @@ import org.listenbrainz.android.ui.components.MusicBrainzButton
 import org.listenbrainz.android.ui.components.SimilarUserCard
 import org.listenbrainz.android.ui.components.SuccessBar
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
-import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
+import org.listenbrainz.shared.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.app_bg_mid
 import org.listenbrainz.android.ui.theme.compatibilityMeterColor
@@ -113,7 +113,7 @@ import org.listenbrainz.android.util.Utils.Spacer
 import org.listenbrainz.shared.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.util.consumeHorizontalDrag
 import org.listenbrainz.android.util.optionalSharedElement
-import org.listenbrainz.android.viewmodel.ListensViewModel
+import org.listenbrainz.shared.viewmodel.ListensViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 import java.util.UUID
@@ -757,8 +757,8 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
                     append("You both listen to ")
                 }
                 topSimilarArtists.forEachIndexed { index, artist ->
-                    if (artist.artistMbid != null) {
-                        pushStringAnnotation(tag = "ARTIST", annotation = artist.artistMbid)
+                    artist.artistMbid?.let{
+                        pushStringAnnotation(tag = "ARTIST", annotation = it)
                     }
                     withStyle(style = SpanStyle(color = lb_purple_night)) {
                         append(artist.artistName)
@@ -802,8 +802,8 @@ private fun BuildSimilarArtists(similarArtists: List<Artist>, onArtistClick: (St
                     append("You both listen to ")
                 }
                 similarArtists.forEachIndexed { index, artist ->
-                    if (artist.artistMbid != null) {
-                        pushStringAnnotation(tag = "ARTIST", annotation = artist.artistMbid)
+                    artist.artistMbid?.let{
+                        pushStringAnnotation(tag = "ARTIST", annotation = it)
                     }
                     withStyle(style = SpanStyle(color = lb_purple_night)) {
                         append(artist.artistName)
