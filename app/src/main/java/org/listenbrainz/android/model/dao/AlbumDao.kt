@@ -2,7 +2,7 @@ package org.listenbrainz.android.model.dao
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
-import org.listenbrainz.android.model.AlbumEntity
+import org.listenbrainz.shared.model.AlbumEntity
 
 @Dao
 interface AlbumDao {

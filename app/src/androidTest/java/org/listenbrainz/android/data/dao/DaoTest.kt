@@ -17,10 +17,10 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.listenbrainz.android.di.brainzplayer.BrainzPlayerDatabase
-import org.listenbrainz.android.model.AlbumEntity
+import org.listenbrainz.shared.model.AlbumEntity
 import org.listenbrainz.android.model.ArtistEntity
 import org.listenbrainz.android.model.PlaylistEntity
-import org.listenbrainz.android.model.SongEntity
+import org.listenbrainz.shared.model.SongEntity
 import org.listenbrainz.android.model.dao.AlbumDao
 import org.listenbrainz.android.model.dao.ArtistDao
 import org.listenbrainz.android.model.dao.PlaylistDao

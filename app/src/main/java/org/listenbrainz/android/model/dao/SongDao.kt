@@ -7,7 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
-import org.listenbrainz.android.model.SongEntity
+import org.listenbrainz.shared.model.SongEntity
 
 @Dao
 interface SongDao {

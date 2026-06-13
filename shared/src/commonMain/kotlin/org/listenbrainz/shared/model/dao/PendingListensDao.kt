@@ -1,11 +1,11 @@
-package org.listenbrainz.android.model.dao
+package org.listenbrainz.shared.model.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import org.listenbrainz.android.model.ListenSubmitBody
+import org.listenbrainz.shared.model.ListenSubmitBody
 
 @Dao
 interface PendingListensDao {

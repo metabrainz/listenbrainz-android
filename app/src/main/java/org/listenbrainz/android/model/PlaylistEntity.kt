@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
 import org.listenbrainz.android.R
+import org.listenbrainz.shared.model.SongEntity
 
 @Serializable
 @Entity(tableName = "PLAYLISTS")
