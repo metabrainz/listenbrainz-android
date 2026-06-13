@@ -1,4 +1,7 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -7,7 +10,27 @@ plugins {
     alias(libs.plugins.android.lint)
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
+    alias(libs.plugins.buildkonfig)
     alias(libs.plugins.ktorfit)
+}
+
+val localPropertiesFile = rootProject.file("local.properties")
+val localProperties = Properties().apply {
+    if (localPropertiesFile.exists()) {
+        load(FileInputStream(localPropertiesFile))
+    }
+}
+
+val youtubeKey = localProperties.getProperty("youtubeApiKey").orEmpty()
+val spotifyId = localProperties.getProperty("spotifyClientId").orEmpty()
+
+buildkonfig {
+    packageName = "org.listenbrainz.shared"
+
+    defaultConfigs {
+        buildConfigField(FieldSpec.Type.STRING, "YOUTUBE_API_KEY", youtubeKey)
+        buildConfigField(FieldSpec.Type.STRING, "SPOTIFY_CLIENT_ID", spotifyId)
+    }
 }
 
 kotlin {
@@ -119,6 +142,14 @@ kotlin {
                 implementation(libs.androidx.datastore.preferences)
                 implementation(libs.core)
                 implementation(libs.ktor.client.okhttp)
+                implementation(
+                    fileTree(
+                        mapOf(
+                            "dir" to "${rootProject.projectDir}/spotify-app-remote",
+                            "include" to listOf("*.aar")
+                        )
+                    )
+                )
             }
         }
 
