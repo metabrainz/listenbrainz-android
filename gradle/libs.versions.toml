@@ -67,7 +67,6 @@ kotlinStdlib = "2.3.0"
 core = "1.7.0"
 kmp-socketio = "1.4.4"
 coreVersion = "1.18.0"
-kmp-socketio = "1.4.4"
 
 [libraries]
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
