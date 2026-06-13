@@ -1,6 +1,7 @@
 package org.listenbrainz.shared.di
 
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.listenbrainz.shared.di.database.BrainzPlayerDatabase
 import org.listenbrainz.shared.di.database.Migrations
