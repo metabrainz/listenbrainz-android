@@ -43,7 +43,7 @@ import androidx.core.graphics.drawable.toBitmap
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.SwitchLB
 import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
-import org.listenbrainz.android.util.Constants.SPOTIFY_PACKAGE_NAME
+import org.listenbrainz.shared.util.Constants.SPOTIFY_PACKAGE_NAME
 
 @Composable
 fun ListeningAppsList(

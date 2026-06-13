@@ -52,7 +52,7 @@ import org.listenbrainz.android.util.BrainzPlayerExtensions.isPlaying
 import org.listenbrainz.android.util.BrainzPlayerExtensions.isPrepared
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 class BrainzPlayerViewModel(
     private val brainzPlayerServiceConnection: BrainzPlayerServiceConnection,

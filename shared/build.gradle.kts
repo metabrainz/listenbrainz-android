@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.android.lint)
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
+    alias(libs.plugins.ktorfit)
 }
 
 kotlin {
@@ -32,7 +33,7 @@ kotlin {
     // Set JVM target for Android
     targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget> {
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
+            jvmTarget.set(JvmTarget.JVM_21)
         }
     }
 
@@ -63,6 +64,10 @@ kotlin {
         }
     }
 
+    ktorfit {
+        compilerPluginVersion.set(libs.versions.ktorfit.compiler)
+    }
+
     // Source set declarations.
     // Declaring a target automatically creates a source set with the same name. By default, the
     // Kotlin Gradle Plugin creates additional source sets that depend on each other, since it is
@@ -86,6 +91,12 @@ kotlin {
                 // Room Multiplatform
                 implementation(libs.androidx.room.runtime)
                 implementation(libs.androidx.sqlite.bundled)
+                // Ktor & Ktorfit
+                implementation(libs.ktor.client.core)
+                implementation(libs.ktor.client.content.negotiation)
+                implementation(libs.ktor.serialization.kotlinx.json)
+                implementation(libs.ktor.client.logging)
+                implementation(libs.ktorfit.lib)
                 // Ktor
                 implementation(libs.ktor.client.core)
                 implementation(libs.kmp.socketio)

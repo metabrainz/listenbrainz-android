@@ -8,7 +8,7 @@ import org.listenbrainz.android.model.SimilarUserData
 import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.SocialResponse
 import org.listenbrainz.android.model.feed.FeedEvent
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale

@@ -64,8 +64,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.ApiError
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ApiError
+import org.listenbrainz.shared.model.ResponseError
+import org.listenbrainz.shared.util.Constants
+import org.listenbrainz.shared.util.Resource
 import java.io.*
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
@@ -76,59 +78,7 @@ import kotlin.contracts.contract
  * A set of fairly general Android utility methods.
  */
 object Utils {
-    
-    class PreEmptiveBadRequestException(val responseError: ResponseError) : Exception()
 
-    class KtorRequestScope {
-        @OptIn(ExperimentalContracts::class)
-        fun failIf(condition: Boolean, error: () -> ResponseError) {
-            contract {
-                returns() implies !condition
-            }
-            if (condition) {
-                throw PreEmptiveBadRequestException(error())
-            }
-        }
-    }
-
-    /** General function to parse an API endpoint's response executed by Ktor.
-     * @param request Call the API endpoint here. Run any pre-conditional checks to directly return error/success in some cases. */
-    suspend inline fun <T> parseResponse(request: KtorRequestScope.() -> T): Resource<T> =
-        runCatching {
-            Resource.success(KtorRequestScope().request())
-        }.getOrElse { error ->
-            return@getOrElse when (error) {
-                is ResponseException -> {
-                    val code = error.response.status
-                    val actualResponse = error.response.body<ApiError>().error
-                    val responseError = when (code) {
-                        HttpStatusCode.BadRequest -> ResponseError.BadRequest(actualResponse)
-                        HttpStatusCode.Unauthorized -> ResponseError.AuthHeaderNotFound(actualResponse)
-                        HttpStatusCode.Forbidden -> ResponseError.Unauthorised(actualResponse)
-                        HttpStatusCode.NotFound -> ResponseError.DoesNotExist(actualResponse)
-                        HttpStatusCode.TooManyRequests -> ResponseError.RateLimitExceeded(actualResponse)
-                        HttpStatusCode.InternalServerError -> ResponseError.InternalServerError(actualResponse)
-                        HttpStatusCode.BadGateway -> ResponseError.BadGateway(actualResponse)
-                        HttpStatusCode.ServiceUnavailable -> ResponseError.ServiceUnavailable(actualResponse)
-                        else -> ResponseError.Unknown(actualResponse)
-                    }
-
-                    Resource.failure(responseError)
-                }
-                is PreEmptiveBadRequestException -> Resource.failure(error.responseError)
-                else -> logAndReturn(error)
-            }
-        }
-    
-    fun <T> logAndReturn(it: Throwable) : Resource<T> {
-        it.printStackTrace()
-        return when (it){
-            is FileNotFoundException -> Resource.failure(error = ResponseError.FileNotFound())
-            is IOException -> Resource.failure(error = ResponseError.NetworkError())
-            else -> Resource.failure(error = ResponseError.Unknown())
-        }
-    }
-    
     /** Get *CoverArtArchive* url for cover art of a release.
      * @param size Allowed sizes are 250, 500, 750 and 1000. Default is 250.*/
     fun getCoverArtUrl(caaReleaseMbid: String?, caaId: Long?, size: Int = 250): String? {

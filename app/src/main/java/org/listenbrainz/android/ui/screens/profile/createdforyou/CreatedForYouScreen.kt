@@ -55,11 +55,11 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.model.userPlaylist.UserPlaylists
-import org.listenbrainz.android.model.playlist.AdditionalMetadataTrack
-import org.listenbrainz.android.model.playlist.PlaylistData
-import org.listenbrainz.android.model.playlist.PlaylistTrack
-import org.listenbrainz.android.model.playlist.TrackExtension
-import org.listenbrainz.android.model.playlist.TrackExtensionData
+import org.listenbrainz.shared.model.playlist.AdditionalMetadataTrack
+import org.listenbrainz.shared.model.playlist.PlaylistData
+import org.listenbrainz.shared.model.playlist.PlaylistTrack
+import org.listenbrainz.shared.model.playlist.TrackExtension
+import org.listenbrainz.shared.model.playlist.TrackExtensionData
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
 import org.listenbrainz.android.ui.components.SuccessBar

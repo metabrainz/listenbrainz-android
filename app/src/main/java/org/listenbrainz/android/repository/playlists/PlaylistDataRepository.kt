@@ -1,15 +1,15 @@
 package org.listenbrainz.android.repository.playlists
 
-import org.listenbrainz.android.model.playlist.AddCopyPlaylistResponse
-import org.listenbrainz.android.model.playlist.DeleteTracks
-import org.listenbrainz.android.model.playlist.EditPlaylistResponse
-import org.listenbrainz.android.model.playlist.MoveTrack
-import org.listenbrainz.android.model.playlist.PlaylistPayload
-import org.listenbrainz.android.model.playlist.PlaylistSearchResult
-import org.listenbrainz.android.model.playlist.PlaylistTrack
-import org.listenbrainz.android.model.recordingSearch.RecordingSearchPayload
+import org.listenbrainz.shared.model.playlist.AddCopyPlaylistResponse
+import org.listenbrainz.shared.model.playlist.DeleteTracks
+import org.listenbrainz.shared.model.playlist.EditPlaylistResponse
+import org.listenbrainz.shared.model.playlist.MoveTrack
+import org.listenbrainz.shared.model.playlist.PlaylistPayload
+import org.listenbrainz.shared.model.playlist.PlaylistSearchResult
+import org.listenbrainz.shared.model.playlist.PlaylistTrack
+import org.listenbrainz.shared.model.recordingSearch.RecordingSearchPayload
 import org.listenbrainz.android.model.userPlaylist.UserPlaylistPayload
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 interface PlaylistDataRepository {
 

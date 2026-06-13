@@ -1,13 +1,13 @@
 package org.listenbrainz.android.repository.feed
 
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.model.SocialResponse
 import org.listenbrainz.android.model.feed.FeedData
 import org.listenbrainz.android.model.feed.FeedEventDeletionData
 import org.listenbrainz.android.model.feed.FeedEventVisibilityData
 import org.listenbrainz.android.service.FeedServiceKtor
-import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.Utils.parseResponse
+import org.listenbrainz.shared.util.Resource
+import org.listenbrainz.shared.util.Utils.parseResponse
 
 
 class FeedRepositoryImpl(

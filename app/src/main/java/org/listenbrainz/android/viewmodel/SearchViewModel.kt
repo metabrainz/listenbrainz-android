@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.combineTransform
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.getAndUpdate
@@ -20,11 +19,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.model.search.artistSearch.ArtistSearchUiState
-import org.listenbrainz.android.model.search.artistSearch.ArtistUiModel
-import org.listenbrainz.android.model.search.playlistSearch.PlayListSearchUiState
-import org.listenbrainz.android.model.search.playlistSearch.PlaylistUiModel
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.search.artistSearch.ArtistSearchUiState
+import org.listenbrainz.shared.model.search.artistSearch.ArtistUiModel
+import org.listenbrainz.shared.model.search.playlistSearch.PlayListSearchUiState
+import org.listenbrainz.shared.model.search.playlistSearch.PlaylistUiModel
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.android.model.search.SearchData
 import org.listenbrainz.android.model.search.SearchType
@@ -32,19 +31,18 @@ import org.listenbrainz.android.model.search.SearchUiState
 import org.listenbrainz.android.model.search.trackSearch.TrackSearchUiState
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.model.search.userSearch.UserListUiState
-import org.listenbrainz.android.model.albumSearch.toUiModel
-import org.listenbrainz.android.model.artistSearch.toUiModel
-import org.listenbrainz.android.model.playlist.PlaylistTrack
-import org.listenbrainz.android.model.playlist.toUiModel
-import org.listenbrainz.android.model.search.albumSearch.AlbumSearchUiState
-import org.listenbrainz.android.model.search.albumSearch.AlbumUiModel
+import org.listenbrainz.shared.model.albumSearch.toUiModel
+import org.listenbrainz.shared.model.artistSearch.toUiModel
+import org.listenbrainz.shared.model.playlist.PlaylistTrack
+import org.listenbrainz.shared.model.playlist.toUiModel
+import org.listenbrainz.shared.model.search.albumSearch.AlbumSearchUiState
+import org.listenbrainz.shared.model.search.albumSearch.AlbumUiModel
 import org.listenbrainz.android.repository.album.AlbumRepository
-import org.listenbrainz.android.repository.artist.ArtistRepository
+import org.listenbrainz.shared.repository.artist.ArtistRepository
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository
-import org.listenbrainz.android.util.Log
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 
 class SearchViewModel(

@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventDeletionData
 import org.listenbrainz.android.model.feed.FeedEventType
@@ -44,7 +44,8 @@ import org.listenbrainz.android.ui.screens.feed.MyFeedPagingSource
 import org.listenbrainz.android.ui.screens.feed.SimilarListensPagingSource
 import org.listenbrainz.shared.model.LinkedService
 import org.listenbrainz.android.util.Log
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
+import org.listenbrainz.shared.viewmodel.BaseViewModel
 
 class FeedViewModel(
     private val feedRepository: FeedRepository,

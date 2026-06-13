@@ -19,8 +19,8 @@ import org.listenbrainz.android.model.githubupdates.GithubUpdatesList
 import org.listenbrainz.android.model.githubupdates.GithubUpdatesListItem
 import org.listenbrainz.android.service.GithubAppUpdatesService
 import org.listenbrainz.android.service.GithubUpdatesDownloadService
-import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.Utils.parseResponse
+import org.listenbrainz.shared.util.Resource
+import org.listenbrainz.shared.util.Utils.parseResponse
 
 import kotlin.coroutines.resume
 

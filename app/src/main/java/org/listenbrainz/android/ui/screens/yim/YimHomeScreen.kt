@@ -39,7 +39,7 @@ import org.listenbrainz.android.ui.components.YimShareButton
 import org.listenbrainz.android.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.ui.theme.YimPaddings
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.android.util.connectivityobserver.ConnectivityObserver
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
 import org.listenbrainz.android.viewmodel.YimViewModel

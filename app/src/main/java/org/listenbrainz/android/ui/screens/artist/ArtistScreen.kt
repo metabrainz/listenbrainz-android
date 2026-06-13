@@ -1,6 +1,5 @@
 package org.listenbrainz.android.ui.screens.artist
 
-import ArtistLinksEnum
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
@@ -74,12 +73,12 @@ import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.shared.model.MbidMapping
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.shared.model.TrackMetadata
-import org.listenbrainz.android.model.album.ReleaseGroupData
-import org.listenbrainz.android.model.artist.Artist
-import org.listenbrainz.android.model.artist.ArtistWikiExtract
-import org.listenbrainz.android.model.artist.CBReview
-import org.listenbrainz.android.model.artist.ReleaseGroup
-import org.listenbrainz.android.model.artist.Tag
+import org.listenbrainz.shared.model.album.ReleaseGroupData
+import org.listenbrainz.shared.model.artist.Artist
+import org.listenbrainz.shared.model.artist.ArtistWikiExtract
+import org.listenbrainz.shared.model.artist.CBReview
+import org.listenbrainz.shared.model.artist.ReleaseGroup
+import org.listenbrainz.shared.model.artist.Tag
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.ButtonLB
 import org.listenbrainz.android.ui.components.CoverArtComposable
@@ -100,8 +99,12 @@ import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.util.Utils.measureSize
 import org.listenbrainz.android.util.Utils.removeHtmlTags
 import org.listenbrainz.android.util.Utils.showToast
-import org.listenbrainz.android.viewmodel.ArtistViewModel
+import org.listenbrainz.shared.viewmodel.ArtistViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.shared.util.ArtistLinksEnum
+import org.listenbrainz.shared.util.LinkCardData
+import org.listenbrainz.android.util.getLinkCardRes
+import org.listenbrainz.shared.ui.screens.artist.ArtistUIState
 import kotlin.math.max
 import kotlin.math.round
 
@@ -423,23 +426,29 @@ fun BioCard(
                         }
                     }
                 }
-                if (wikiExtract?.wikipediaExtract?.content != null) {
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Text(
-                        removeHtmlTags(wikiExtract.wikipediaExtract.content).trim(),
-                        maxLines = 4,
-                        color = app_bg_mid,
-                        style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    if (wikiExtract.wikipediaExtract.url != null) {
-                        val uriHandlder = LocalUriHandler.current
+                val wikipediaExtract = wikiExtract?.wikipediaExtract
+
+                if (wikipediaExtract != null) {
+                    wikipediaExtract.content?.let {
+                        Spacer(modifier = Modifier.height(20.dp))
                         Text(
-                            "read more",
+                            text = removeHtmlTags(it).trim(),
+                            maxLines = 4,
+                            color = app_bg_mid,
+                            style = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+
+                    wikipediaExtract.url?.let {
+                        val uriHandler = LocalUriHandler.current
+                        Text(
+                            text = "read more",
                             color = ListenBrainzTheme.colorScheme.followerChipSelected,
                             modifier = Modifier.clickable {
-                                uriHandlder.openUri(wikiExtract.wikipediaExtract.url)
-                            })
+                                uriHandler.openUri(it)
+                            }
+                        )
                     }
                 }
                 Row(
@@ -447,17 +456,16 @@ fun BioCard(
                         .horizontalScroll(rememberScrollState())
                         .padding(top = 10.dp)
                 ) {
-                    if (artistTags != null) {
-                        artistTags.artist?.map {
-                            if (it.tag != null) {
-                                BioTag(it.tag, it.count ?: 0)
-                                Spacer(modifier = Modifier.width(8.dp))
-                            }
+                    artistTags?.artist?.forEach { artist->
+                        artist.tag?.let { tag->
+                            BioTag(tag, artist.count ?: 0)
+                            Spacer(modifier = Modifier.width(8.dp))
                         }
                     }
-                    albumTags?.map {
-                        if (it?.tag != null) {
-                            BioTag(it.tag, it.count ?: 0)
+
+                    albumTags?.forEach { item->
+                        item?.tag?.let { tag->
+                            BioTag(tag, item.count ?: 0)
                             Spacer(modifier = Modifier.width(8.dp))
                         }
                     }
@@ -492,8 +500,6 @@ private fun BioTag(tag: String, count: Int) {
         }
     }
 }
-
-class LinkCardData(val iconResId: Int, val label: String, val url: String) {}
 
 @Composable
 fun Links(
@@ -582,7 +588,7 @@ fun Links(
                     ) {
                         rowItems.forEach { item ->
                             LinkCard(
-                                icon = ImageVector.vectorResource(item.iconResId),
+                                icon = ImageVector.vectorResource(getLinkCardRes(item.iconKey)),
                                 label = item.label,
                                 url = item.url,
                             )
@@ -703,8 +709,8 @@ private fun AlbumsCard(
                     Box(modifier = Modifier
                         .width(150.dp)
                         .clickable {
-                            if (album?.mbid != null) {
-                                goToAlbumPage(album.mbid)
+                            album?.mbid?.let { id->
+                                goToAlbumPage(id)
                             }
                         }) {
                         Column {
@@ -730,8 +736,8 @@ private fun AlbumsCard(
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier.clickable {
-                                    if (album?.mbid != null) {
-                                        goToAlbumPage(album.mbid)
+                                    album?.mbid?.let { id->
+                                        goToAlbumPage(id)
                                     }
                                 })
                         }
@@ -772,8 +778,9 @@ private fun SimilarArtists(
             Spacer(modifier = Modifier.height(20.dp))
             similarArtists.map {
                 ArtistCard(artistName = it?.name ?: "") {
-                    if (it?.artistMbid != null)
-                        goToArtistPage(it.artistMbid)
+                    it?.artistMbid?.let { id ->
+                        goToArtistPage(id)
+                    }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
             }
@@ -825,8 +832,8 @@ private fun TopListenersCard(
                     artistName = it?.userName ?: "",
                     listenCountLabel = formatNumber(it?.listenCount ?: 0)
                 ) {
-                    if (it?.userName != null) {
-                        goToUserPage(it.userName)
+                    it?.userName?.let { name->
+                        goToUserPage(name)
                     }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
@@ -913,8 +920,8 @@ fun ReviewsCard(
                                 "By ${it?.user?.musicbrainzUsername ?: ""}",
                                 color = lb_purple_night,
                                 modifier = Modifier.clickable {
-                                    if (it?.user?.musicbrainzUsername != null) {
-                                        goToUserPage(it.user.musicbrainzUsername)
+                                    it?.user?.musicbrainzUsername?.let { name->
+                                        goToUserPage(name)
                                     }
                                 })
                             Spacer(modifier = Modifier.height(10.dp))

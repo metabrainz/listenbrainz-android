@@ -47,7 +47,7 @@ import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.onboarding.auth.login.ListenBrainzLogin
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Log
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.android.util.Utils.LaunchedEffectMainThread
 import org.listenbrainz.android.util.Utils.LaunchedEffectUnit
 import org.listenbrainz.android.viewmodel.ListensViewModel

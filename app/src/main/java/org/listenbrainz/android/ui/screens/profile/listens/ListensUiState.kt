@@ -3,7 +3,7 @@ package org.listenbrainz.android.ui.screens.profile.listens
 import com.spotify.protocol.types.PlayerState
 import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.android.model.ListenBitmap
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 
 data class ListensUiState(
     val listens: List<Listen> = emptyList(),

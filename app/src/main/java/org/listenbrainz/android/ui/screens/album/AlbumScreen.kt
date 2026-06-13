@@ -54,7 +54,7 @@ import org.listenbrainz.android.ui.screens.profile.listens.LoadMoreButton
 import org.listenbrainz.android.ui.screens.profile.stats.ArtistCard
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.new_app_bg_light
-import org.listenbrainz.android.util.LinkUtils.parseLinks
+import org.listenbrainz.shared.util.LinkUtils.parseLinks
 import org.listenbrainz.android.viewmodel.AlbumViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 

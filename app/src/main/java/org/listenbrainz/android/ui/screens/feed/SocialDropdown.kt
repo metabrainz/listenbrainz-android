@@ -26,7 +26,7 @@ import org.koin.androidx.compose.koinViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.CoroutineScope
 import org.listenbrainz.shared.model.Metadata
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.dialogs.Dialog
 import org.listenbrainz.android.ui.components.dialogs.PersonalRecommendationDialog

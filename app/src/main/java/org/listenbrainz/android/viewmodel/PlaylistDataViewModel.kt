@@ -21,16 +21,16 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.Metadata
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.model.User
-import org.listenbrainz.android.model.playlist.DeleteTracks
-import org.listenbrainz.android.model.playlist.Extension
-import org.listenbrainz.android.model.playlist.MoveTrack
-import org.listenbrainz.android.model.playlist.PlaylistData
-import org.listenbrainz.android.model.playlist.PlaylistExtensionData
-import org.listenbrainz.android.model.playlist.PlaylistPayload
-import org.listenbrainz.android.model.playlist.PlaylistTrack
-import org.listenbrainz.android.model.recordingSearch.RecordingData
+import org.listenbrainz.shared.model.playlist.DeleteTracks
+import org.listenbrainz.shared.model.playlist.Extension
+import org.listenbrainz.shared.model.playlist.MoveTrack
+import org.listenbrainz.shared.model.playlist.PlaylistData
+import org.listenbrainz.shared.model.playlist.PlaylistExtensionData
+import org.listenbrainz.shared.model.playlist.PlaylistPayload
+import org.listenbrainz.shared.model.playlist.PlaylistTrack
+import org.listenbrainz.shared.model.recordingSearch.RecordingData
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.shared.repository.AppPreferences
@@ -40,9 +40,10 @@ import org.listenbrainz.android.ui.screens.playlist.PlaylistDataUIState
 import org.listenbrainz.android.ui.screens.playlist.PlaylistDetailUIState
 import org.listenbrainz.android.ui.screens.profile.playlists.CollabPlaylistPagingSource
 import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistPagingSource
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.util.Utils.isValidMbidFormat
+import org.listenbrainz.shared.viewmodel.BaseViewModel
 
 class PlaylistDataViewModel(
     val appPreferences: AppPreferences,

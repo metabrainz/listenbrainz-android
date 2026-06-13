@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.model.BlogPost
 import org.listenbrainz.android.repository.blog.BlogRepository
-import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.Resource.Status.SUCCESS
+import org.listenbrainz.shared.util.Resource
+import org.listenbrainz.shared.util.Resource.Status.SUCCESS
 
 class NewsListViewModel(
     private val repository: BlogRepository,

@@ -1,10 +1,10 @@
 package org.listenbrainz.android.repository.yim23
 
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.model.yimdata.Yim23Payload
 import org.listenbrainz.android.service.Yim23Service
-import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.Utils.parseResponse
+import org.listenbrainz.shared.util.Resource
+import org.listenbrainz.shared.util.Utils.parseResponse
 
 
 // TODO: TO BE REMOVED WHEN YIM GOES LIVE

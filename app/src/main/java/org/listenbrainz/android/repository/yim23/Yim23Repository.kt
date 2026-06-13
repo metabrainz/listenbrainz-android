@@ -2,7 +2,7 @@ package org.listenbrainz.android.repository.yim23
 
 import org.listenbrainz.android.model.yimdata.Yim23Payload
 import org.listenbrainz.android.model.yimdata.YimPayload
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 // TODO: TO BE REMOVED WHEN YIM GOES LIVE
 

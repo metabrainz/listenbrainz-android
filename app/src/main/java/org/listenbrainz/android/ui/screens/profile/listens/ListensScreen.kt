@@ -107,7 +107,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.app_bg_mid
 import org.listenbrainz.android.ui.theme.compatibilityMeterColor
 import org.listenbrainz.android.ui.theme.lb_purple_night
-import org.listenbrainz.android.util.Constants
+import org.listenbrainz.shared.util.Constants
 import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils.Spacer
 import org.listenbrainz.android.util.Utils.getCoverArtUrl

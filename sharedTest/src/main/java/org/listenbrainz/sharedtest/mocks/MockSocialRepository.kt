@@ -2,7 +2,7 @@ package org.listenbrainz.sharedtest.mocks
 
 import org.listenbrainz.android.model.PinData
 import org.listenbrainz.android.model.RecommendationData
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.model.Review
 import org.listenbrainz.android.model.SearchResult
 import org.listenbrainz.android.model.SimilarUserData
@@ -10,7 +10,7 @@ import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.SocialResponse
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.repository.social.SocialRepository
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.testFollowersSuccessData
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.testFollowingSuccessData
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.testSimilarUserSuccessData

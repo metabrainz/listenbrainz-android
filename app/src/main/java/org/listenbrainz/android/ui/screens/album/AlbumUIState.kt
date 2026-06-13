@@ -1,11 +1,11 @@
 package org.listenbrainz.android.ui.screens.album
 
-import org.listenbrainz.android.model.album.ReleaseGroupData
-import org.listenbrainz.android.model.album.Track
-import org.listenbrainz.android.model.artist.Artist
-import org.listenbrainz.android.model.artist.CBReview
-import org.listenbrainz.android.model.artist.Listeners
-import org.listenbrainz.android.model.artist.Rels
+import org.listenbrainz.shared.model.album.ReleaseGroupData
+import org.listenbrainz.shared.model.album.Track
+import org.listenbrainz.shared.model.artist.Artist
+import org.listenbrainz.shared.model.artist.CBReview
+import org.listenbrainz.shared.model.artist.Listeners
+import org.listenbrainz.shared.model.artist.Rels
 
 data class AlbumUiState(
     val isLoading: Boolean = true,
