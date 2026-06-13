@@ -32,11 +32,9 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.di.brainzplayer.BrainzPlayerDatabase
-import org.listenbrainz.android.di.brainzplayer.ListensSubmissionDatabase
 import org.listenbrainz.android.di.brainzplayer.Migrations
 import org.listenbrainz.android.model.dao.AlbumDao
 import org.listenbrainz.android.model.dao.ArtistDao
-import org.listenbrainz.android.model.dao.PendingListensDao
 import org.listenbrainz.android.model.dao.PlaylistDao
 import org.listenbrainz.android.model.dao.SongDao
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
@@ -51,8 +49,6 @@ import org.listenbrainz.android.repository.brainzplayer.SongRepository
 import org.listenbrainz.android.repository.brainzplayer.SongRepositoryImpl
 import org.listenbrainz.android.repository.feed.FeedRepository
 import org.listenbrainz.android.repository.feed.FeedRepositoryImpl
-import org.listenbrainz.android.repository.listens.ListensRepository
-import org.listenbrainz.android.repository.listens.ListensRepositoryImpl
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManagerImpl
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
@@ -73,17 +69,20 @@ import org.listenbrainz.android.service.GithubUpdatesDownloadService
 import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.service.PlaylistService
 import org.listenbrainz.android.service.SocialService
-import org.listenbrainz.android.service.UserService
 import org.listenbrainz.android.service.Yim23Service
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.service.createGithubAppUpdatesService
-import org.listenbrainz.android.service.createListensService
 import org.listenbrainz.android.service.createPlaylistService
 import org.listenbrainz.android.service.createSocialService
-import org.listenbrainz.android.service.createUserService
 import org.listenbrainz.android.service.createYim23Service
 import org.listenbrainz.android.service.createYimService
 import org.listenbrainz.shared.service.createYouTubeApiService
+import org.listenbrainz.shared.util.Constants.CB_BASE_URL
+import org.listenbrainz.shared.util.Constants.GITHUB_API_BASE_URL
+import org.listenbrainz.shared.util.Constants.LB_BASE_URL
+import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_API_BASE_URL
+import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_BETA_API_BASE_URL
+import org.listenbrainz.shared.util.Constants.MB_BASE_URL
 import org.listenbrainz.android.util.LocalMusicSource
 import org.listenbrainz.android.util.MusicSource
 import org.listenbrainz.android.util.Utils
@@ -95,7 +94,6 @@ import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.ListeningNowViewModel
-import org.listenbrainz.android.viewmodel.ListensViewModel
 import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import org.listenbrainz.android.viewmodel.SearchViewModel
@@ -107,6 +105,10 @@ import org.listenbrainz.android.viewmodel.YimViewModel
 import org.listenbrainz.shared.di.DEFAULT_DISPATCHER
 import org.listenbrainz.shared.di.IO_DISPATCHER
 import org.listenbrainz.shared.di.platformModule
+import org.listenbrainz.shared.util.BuildInfo
+import org.listenbrainz.shared.util.LogSubmitter
+import org.listenbrainz.shared.di.sharedDaoModule
+import org.listenbrainz.shared.di.sharedDatabaseModule
 import org.listenbrainz.shared.di.sharedDispatcherModule
 import org.listenbrainz.shared.di.sharedNetworkServiceModule
 import org.listenbrainz.shared.di.sharedRepositoryModule
@@ -115,10 +117,6 @@ import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.AppPreferencesImpl
 import org.listenbrainz.shared.repository.socket.SocketRepository
 import org.listenbrainz.shared.repository.socket.SocketRepositoryImpl
-import org.listenbrainz.shared.util.BuildInfo
-import org.listenbrainz.shared.util.Constants.GITHUB_API_BASE_URL
-import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_API_BASE_URL
-import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_BETA_API_BASE_URL
 import org.listenbrainz.shared.util.Log
 import org.listenbrainz.shared.viewmodel.AlbumViewModel
 import org.listenbrainz.shared.viewmodel.FeaturesViewModel
@@ -206,15 +204,6 @@ val databaseModule = module {
             .addMigrations(Migrations.MIGRATION_1_2)
             .build()
     }
-
-    single<ListensSubmissionDatabase> {
-        Room.databaseBuilder(
-            androidContext(),
-            ListensSubmissionDatabase::class.java,
-            "listens_scrobble_database"
-        )
-            .build()
-    }
 }
 
 val daoModule = module {
@@ -222,21 +211,11 @@ val daoModule = module {
     single<AlbumDao> { get<BrainzPlayerDatabase>().albumDao() }
     single<ArtistDao> { get<BrainzPlayerDatabase>().artistDao() }
     single<PlaylistDao> { get<BrainzPlayerDatabase>().playlistDao() }
-    single<PendingListensDao> { get<ListensSubmissionDatabase>().pendingListensDao() }
 }
 
 val networkModule = module {
     single<HttpClient> {
         createBaseHttpClient(androidContext(), get<AppPreferences>())
-    }
-
-    single<ListensService> {
-        val httpClient = createBaseHttpClient(androidContext(), get<AppPreferences>())
-        Ktorfit.Builder()
-            .baseUrl(LISTENBRAINZ_API_BASE_URL)
-            .httpClient(httpClient)
-            .build()
-            .createListensService()
     }
 
     single<SocialService> {
@@ -246,15 +225,6 @@ val networkModule = module {
             .httpClient(httpClient)
             .build()
             .createSocialService()
-    }
-
-    single<UserService> {
-        val httpClient = createBaseHttpClient(androidContext(), get<AppPreferences>())
-        Ktorfit.Builder()
-            .baseUrl(LISTENBRAINZ_API_BASE_URL)
-            .httpClient(httpClient)
-            .build()
-            .createUserService()
     }
 
     single<PlaylistService> {
@@ -369,13 +339,11 @@ val repositoryModule = module {
     single<BPAlbumRepository> { BPAlbumRepositoryImpl(get()) }
     single<BPArtistRepository> { BPArtistRepositoryImpl(get()) }
     single<PlaylistRepository> { PlaylistRepositoryImpl(get()) }
-    single<SocketRepository> { SocketRepositoryImpl(get(),get()) }
 
     // API Repositories
     single<FeedRepository> { FeedRepositoryImpl(get()) }
     single<SocialRepository> { SocialRepositoryImpl(get(), get()) }
     single<UserRepository> { UserRepositoryImpl(get(), get()) }
-    single<ListensRepository> { ListensRepositoryImpl(get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
     single<PlaylistDataRepository> { PlaylistDataRepositoryImpl(get(), get(), get(), get(named(IO_DISPATCHER))) }
     single<YimRepository> { YimRepositoryImpl(get()) }
     single<Yim23Repository> { Yim23RepositoryImpl(get()) }
@@ -441,5 +409,7 @@ val appModules = listOf(
     sharedViewModelModule,
     sharedNetworkServiceModule,
     sharedRepositoryModule,
-    platformModule
+    platformModule,
+    sharedDatabaseModule,
+    sharedDaoModule
 )
