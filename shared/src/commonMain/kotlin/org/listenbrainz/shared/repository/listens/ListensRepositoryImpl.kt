@@ -1,30 +1,29 @@
-package org.listenbrainz.android.repository.listens
+package org.listenbrainz.shared.repository.listens
 
-import android.content.pm.PackageManager
-import android.graphics.drawable.Drawable
 import kotlinx.coroutines.CoroutineDispatcher
-import org.listenbrainz.android.application.App
-import org.listenbrainz.android.model.DeleteListen
-import org.listenbrainz.android.model.ListenBrainzExternalServices
-import org.listenbrainz.android.model.ListenSubmitBody
-import org.listenbrainz.android.model.Listens
-import org.listenbrainz.android.model.PostResponse
+import org.listenbrainz.shared.model.DeleteListen
+import org.listenbrainz.shared.model.ListenBrainzExternalServices
+import org.listenbrainz.shared.model.ListenSubmitBody
+import org.listenbrainz.shared.model.Listens
+import org.listenbrainz.shared.model.PostResponse
 import org.listenbrainz.shared.model.ResponseError
-import org.listenbrainz.android.model.TokenValidation
-import org.listenbrainz.android.model.dao.PendingListensDao
+import org.listenbrainz.shared.model.TokenValidation
+import org.listenbrainz.shared.model.dao.PendingListensDao
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.android.service.ListensService
-import org.listenbrainz.android.service.UserService
+import org.listenbrainz.shared.service.ListensService
+import org.listenbrainz.shared.service.UserService
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.util.Utils.parseResponse
 import org.listenbrainz.shared.model.CoverArt
+import org.listenbrainz.shared.repository.PlatformContext
 
-class ListensRepositoryImpl(
+abstract class ListensRepositoryImpl(
     private val service: ListensService,
     private val appPreferences: AppPreferences,
     private val userService: UserService,
     private val pendingListensDao: PendingListensDao,
-    private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
+    private val appContext: PlatformContext
 ) : ListensRepository {
 
     override suspend fun fetchUserListens(
@@ -61,23 +60,10 @@ class ListensRepositoryImpl(
      * )
      * ```
      * */
-    override fun getPackageIcon(packageName: String): Drawable? {
-        return try {
-            App.context.packageManager.getApplicationIcon(packageName)
-        }
-        catch (e: Exception) {
-            null
-        }
-    }
+    override fun getPackageIcon(packageName: String): Any? = null
 
-    override fun getPackageLabel(packageName: String): String {
-        return try {
-            val info = App.context.packageManager.getApplicationInfo(packageName, 0)
-            App.context.packageManager.getApplicationLabel(info).toString()
-        } catch (e: PackageManager.NameNotFoundException) {
-            packageName
-        }
-    }
+    override fun getPackageLabel(packageName: String): String = packageName
+
     override suspend fun deleteListen(
         listenedAt: Long,
         recordingMsid: String

@@ -42,14 +42,14 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.components.SwitchLB
-import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
+import org.listenbrainz.shared.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.shared.util.Constants.SPOTIFY_PACKAGE_NAME
 
 @Composable
 fun ListeningAppsList(
     preferencesUiState: PreferencesUiState,
     fetchLinkedServices: () -> Unit,
-    getPackageIcon: (String) -> Drawable?,
+    getPackageIcon: (String) -> Any?,
     getPackageLabel: (String) -> String,
     setWhitelist: (List<String>) -> Unit,
     onDismiss: () -> Unit
@@ -104,7 +104,7 @@ fun ListeningAppsList(
                             ) {
 
                                 val context = LocalContext.current
-                                val drawable = getPackageIcon(packageName)
+                                val drawable = getPackageIcon(packageName) as? Drawable
                                     ?: AppCompatResources.getDrawable(context, R.drawable.music_regular)
                                 val bitmap = drawable?.toBitmap()
                                 val painter = if (bitmap != null) BitmapPainter(bitmap.asImageBitmap()) else null

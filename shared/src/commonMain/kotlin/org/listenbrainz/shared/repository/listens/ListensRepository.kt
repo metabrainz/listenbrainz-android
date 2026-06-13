@@ -1,11 +1,10 @@
-package org.listenbrainz.android.repository.listens
+package org.listenbrainz.shared.repository.listens
 
-import android.graphics.drawable.Drawable
-import org.listenbrainz.android.model.ListenBrainzExternalServices
-import org.listenbrainz.android.model.ListenSubmitBody
-import org.listenbrainz.android.model.Listens
-import org.listenbrainz.android.model.PostResponse
-import org.listenbrainz.android.model.TokenValidation
+import org.listenbrainz.shared.model.ListenBrainzExternalServices
+import org.listenbrainz.shared.model.ListenSubmitBody
+import org.listenbrainz.shared.model.Listens
+import org.listenbrainz.shared.model.PostResponse
+import org.listenbrainz.shared.model.TokenValidation
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.model.CoverArt
 
@@ -23,7 +22,7 @@ interface ListensRepository {
     /** Inputs token from Auth header.*/
     suspend fun validateToken(token: String): Resource<TokenValidation>
 
-    fun getPackageIcon(packageName: String): Drawable?
+    fun getPackageIcon(packageName: String): Any?
 
     fun getPackageLabel(packageName: String): String
     suspend fun deleteListen(

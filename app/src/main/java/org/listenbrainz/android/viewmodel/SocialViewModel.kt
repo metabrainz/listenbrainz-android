@@ -28,7 +28,7 @@ import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.android.model.feed.ReviewEntityType
-import org.listenbrainz.android.repository.listens.ListensRepository
+import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository

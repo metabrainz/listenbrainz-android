@@ -13,7 +13,7 @@ data class SettingsCallbacks(
     val logout: () -> Unit,
     val getVersion: () -> String,
     val fetchLinkedServices: () -> Unit,
-    val getPackageIcon: (String) -> Drawable?,
+    val getPackageIcon: (String) -> Any?,
     val getPackageLabel: (String) -> String,
     val setWhitelist: (List<String>) -> Unit,
     val checkForUpdates: suspend () -> Boolean,

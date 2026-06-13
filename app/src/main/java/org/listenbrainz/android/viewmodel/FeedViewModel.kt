@@ -32,7 +32,7 @@ import org.listenbrainz.android.model.feed.FeedEventVisibilityData
 import org.listenbrainz.android.repository.feed.FeedRepository
 import org.listenbrainz.android.repository.feed.FeedRepository.Companion.FeedEventCount
 import org.listenbrainz.android.repository.feed.FeedRepository.Companion.FeedListensCount
-import org.listenbrainz.android.repository.listens.ListensRepository
+import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.repository.social.SocialRepository

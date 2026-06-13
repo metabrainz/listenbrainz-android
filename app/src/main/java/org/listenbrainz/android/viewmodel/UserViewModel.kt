@@ -22,8 +22,8 @@ import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import org.listenbrainz.shared.model.playlist.PlaylistData
 import org.listenbrainz.shared.model.Listen
-import org.listenbrainz.android.model.userPlaylist.UserPlaylist
-import org.listenbrainz.android.repository.listens.ListensRepository
+import org.listenbrainz.shared.model.userPlaylist.UserPlaylist
+import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.repository.social.SocialRepository
@@ -176,11 +176,11 @@ class UserViewModel(
         }
     }
 
-    private suspend fun getSimilarArtists(username: String?): List<org.listenbrainz.android.model.user.Artist> {
+    private suspend fun getSimilarArtists(username: String?): List<org.listenbrainz.shared.model.user.Artist> {
         val currentUsername = appPreferences.username.get()
         val currentUserTopArtists = userRepository.getTopArtists(currentUsername, count = 100)
         val userTopArtists = userRepository.getTopArtists(username, count = 100)
-        val similarArtists = mutableListOf<org.listenbrainz.android.model.user.Artist>()
+        val similarArtists = mutableListOf<org.listenbrainz.shared.model.user.Artist>()
         currentUserTopArtists.data?.payload?.artists?.map { currentUserTopArtist ->
             userTopArtists.data?.payload?.artists?.map { userTopArtist ->
                 if (currentUserTopArtist.artistName == userTopArtist.artistName) {
