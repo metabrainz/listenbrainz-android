@@ -4,6 +4,13 @@ import co.touchlab.kermit.Logger
 import co.touchlab.kermit.StaticConfig
 import co.touchlab.kermit.Severity
 import co.touchlab.kermit.platformLogWriter
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.coroutines.CoroutineDispatcher
+import org.listenbrainz.shared.di.database.ListensSubmissionDatabase
+import org.listenbrainz.shared.model.dao.PendingListensDao
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.PlatformContext
 import org.listenbrainz.shared.util.BuildInfo
 import org.listenbrainz.shared.util.IosFileLogWriter
@@ -13,9 +20,15 @@ import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSUserDomainMask
 
+import org.listenbrainz.shared.repository.listens.IosListensRepositoryImpl
+import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.remoteplayer.IosRemotePlaybackHandlerImpl
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
+import org.listenbrainz.shared.service.ListensService
+import org.listenbrainz.shared.service.UserService
 import org.listenbrainz.shared.service.YouTubeApiService
+import platform.Foundation.NSFileManager
+import platform.posix.err
 
 actual fun platform() = "iOS"
 
@@ -56,4 +69,35 @@ actual fun provideRemotePlaybackHandler(
     youTubeApiService: YouTubeApiService
 ): RemotePlaybackHandler {
     return IosRemotePlaybackHandlerImpl(youTubeApiService)
+}
+
+actual fun provideListensRepositoryImpl(
+    service: ListensService,
+    appPreferences: AppPreferences,
+    userService: UserService,
+    pendingListensDao: PendingListensDao,
+    ioDispatcher: CoroutineDispatcher,
+    appContext: PlatformContext
+): ListensRepository {
+    return IosListensRepositoryImpl(service,appPreferences,userService,pendingListensDao,ioDispatcher,appContext)
+}
+
+actual fun getListensSubmissionDatabase(appContext: PlatformContext): RoomDatabase.Builder<ListensSubmissionDatabase> {
+    val listensDB = documentDirectory() + "/listens_scrobble_database.db"
+
+    return Room.databaseBuilder<ListensSubmissionDatabase>(
+        name = listensDB
+    )
+}
+
+@OptIn(ExperimentalForeignApi::class)
+private fun documentDirectory(): String {
+    val documentDirectory = NSFileManager.defaultManager.URLForDirectory(
+        directory = NSDocumentDirectory,
+        inDomain = NSUserDomainMask,
+        appropriateForURL = null,
+        create = false,
+        error = null,
+    )
+    return requireNotNull(documentDirectory?.path)
 }
