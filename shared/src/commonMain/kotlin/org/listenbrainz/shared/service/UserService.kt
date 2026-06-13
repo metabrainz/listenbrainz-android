@@ -1,18 +1,18 @@
-package org.listenbrainz.android.service
+package org.listenbrainz.shared.service
 
 import de.jensklingenberg.ktorfit.http.GET
 import de.jensklingenberg.ktorfit.http.Path
 import de.jensklingenberg.ktorfit.http.Query
-import org.listenbrainz.android.model.CurrentPins
-import org.listenbrainz.android.model.Listens
-import org.listenbrainz.android.model.userPlaylist.UserPlaylistPayload
-import org.listenbrainz.android.model.user.AllPinnedRecordings
-import org.listenbrainz.android.model.user.TopAlbums
-import org.listenbrainz.android.model.user.TopArtists
-import org.listenbrainz.android.model.user.TopSongs
-import org.listenbrainz.android.model.user.UserFeedback
-import org.listenbrainz.android.model.user.UserListeningActivity
-import org.listenbrainz.android.model.user.UserSimilarityPayload
+import org.listenbrainz.shared.model.user.AllPinnedRecordings
+import org.listenbrainz.shared.model.CurrentPins
+import org.listenbrainz.shared.model.userPlaylist.UserPlaylistPayload
+import org.listenbrainz.shared.model.Listens
+import org.listenbrainz.shared.model.user.TopAlbums
+import org.listenbrainz.shared.model.user.TopArtists
+import org.listenbrainz.shared.model.user.TopSongs
+import org.listenbrainz.shared.model.user.UserFeedback
+import org.listenbrainz.shared.model.user.UserListeningActivity
+import org.listenbrainz.shared.model.user.UserSimilarityPayload
 
 interface UserService {
     @GET("user/{user_name}/listen-count")

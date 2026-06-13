@@ -1,4 +1,4 @@
-package org.listenbrainz.android.service
+package org.listenbrainz.shared.service
 
 import de.jensklingenberg.ktorfit.http.Body
 import de.jensklingenberg.ktorfit.http.GET
@@ -6,12 +6,12 @@ import de.jensklingenberg.ktorfit.http.Header
 import de.jensklingenberg.ktorfit.http.POST
 import de.jensklingenberg.ktorfit.http.Path
 import de.jensklingenberg.ktorfit.http.Query
-import org.listenbrainz.android.model.DeleteListen
-import org.listenbrainz.android.model.ListenBrainzExternalServices
-import org.listenbrainz.android.model.ListenSubmitBody
-import org.listenbrainz.android.model.Listens
-import org.listenbrainz.android.model.PostResponse
-import org.listenbrainz.android.model.TokenValidation
+import org.listenbrainz.shared.model.DeleteListen
+import org.listenbrainz.shared.model.ListenBrainzExternalServices
+import org.listenbrainz.shared.model.ListenSubmitBody
+import org.listenbrainz.shared.model.Listens
+import org.listenbrainz.shared.model.PostResponse
+import org.listenbrainz.shared.model.TokenValidation
 import org.listenbrainz.shared.model.CoverArt
 
 interface ListensService {
