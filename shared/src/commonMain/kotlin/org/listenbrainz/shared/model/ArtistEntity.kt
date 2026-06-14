@@ -1,4 +1,4 @@
-package org.listenbrainz.android.model
+package org.listenbrainz.shared.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

@@ -3,10 +3,11 @@ package org.listenbrainz.android.repository.brainzplayer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.listenbrainz.shared.model.Song
-import org.listenbrainz.android.model.dao.SongDao
+import org.listenbrainz.shared.model.dao.SongDao
 import org.listenbrainz.android.util.SongsData
 import org.listenbrainz.android.util.Transformer.toSong
 import org.listenbrainz.android.util.Transformer.toSongEntity
+import kotlin.time.Clock
 
 class SongRepositoryImpl(
     private val songDao: SongDao
@@ -48,20 +49,23 @@ class SongRepositoryImpl(
                 }
             }
 
-    override fun getSongsPlayedToday(): Flow<List<Song>>  =
-        songDao.getSongsPlayedToday()
+    override fun getSongsPlayedToday(): Flow<List<Song>>  {
+        val now = Clock.System.now().toEpochMilliseconds()
+        return songDao.getSongsPlayedToday(now)
             .map { it ->
                 it.map {
                     it.toSong()
                 }
             }
+    }
 
-    override fun getSongsPlayedThisWeek(): Flow<List<Song>> =
-        songDao.getSongsPlayedThisWeek()
-            .map {
-                it ->
+    override fun getSongsPlayedThisWeek(): Flow<List<Song>> {
+        val now = Clock.System.now().toEpochMilliseconds()
+        return songDao.getSongsPlayedThisWeek(now)
+            .map { it ->
                 it.map {
                     it.toSong()
                 }
             }
+    }
 }

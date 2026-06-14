@@ -1,13 +1,14 @@
 package org.listenbrainz.android.util
 
+import org.listenbrainz.android.R
 import org.listenbrainz.android.model.Album
-import org.listenbrainz.android.model.AlbumEntity
+import org.listenbrainz.shared.model.AlbumEntity
 import org.listenbrainz.android.model.Artist
-import org.listenbrainz.android.model.ArtistEntity
+import org.listenbrainz.shared.model.ArtistEntity
 import org.listenbrainz.android.model.Playlist
-import org.listenbrainz.android.model.PlaylistEntity
+import org.listenbrainz.shared.model.PlaylistEntity
 import org.listenbrainz.shared.model.Song
-import org.listenbrainz.android.model.SongEntity
+import org.listenbrainz.shared.model.SongEntity
 
 object Transformer {
     fun SongEntity.toSong() = Song(
@@ -92,7 +93,10 @@ object Transformer {
         items = items.map {
             it.toSongEntity()
         },
-        art = art
+        art = when (art) {
+            R.drawable.ic_queue_music -> "ic_queue_music"
+            else -> "ic_queue_music"
+        }
     )
 
     fun PlaylistEntity.toPlaylist() = Playlist(
@@ -101,6 +105,9 @@ object Transformer {
         items = items.map {
             it.toSong()
         },
-        art = art
+        art = when (art) {
+            "ic_queue_music" -> R.drawable.ic_queue_music
+            else -> R.drawable.ic_queue_music
+        }
     )
 }

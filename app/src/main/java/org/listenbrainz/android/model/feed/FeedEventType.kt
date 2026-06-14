@@ -25,7 +25,7 @@ import org.listenbrainz.android.ui.screens.feed.events.ReviewFeedLayout
 import org.listenbrainz.android.ui.screens.feed.events.UnknownFeedLayout
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.shared.util.Log
-import org.listenbrainz.android.util.TypeConverter
+import org.listenbrainz.shared.util.TypeConverter
 import org.listenbrainz.android.util.Utils.getArticle
 
 /**

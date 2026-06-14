@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.dao.PendingListensDao
-import org.listenbrainz.android.util.TypeConverter
+import org.listenbrainz.shared.util.TypeConverter
 
 @Database(
     entities = [
