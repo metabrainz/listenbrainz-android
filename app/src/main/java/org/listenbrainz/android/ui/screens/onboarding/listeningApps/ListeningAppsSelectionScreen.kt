@@ -81,7 +81,7 @@ fun ListeningAppSelectionScreen(
     val allApps = dashboardUiState.allApps
     val isListening by dashBoardViewModel.appPreferences.isListeningAllowed.getFlow()
         .collectAsState(initial = true)
-    val permissions = dashboardUiState.permissionStatus
+    val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
 
     val notificationPermission = permissions[PermissionEnum.READ_NOTIFICATIONS]
     val batteryOptPermission = permissions[PermissionEnum.BATTERY_OPTIMIZATION]

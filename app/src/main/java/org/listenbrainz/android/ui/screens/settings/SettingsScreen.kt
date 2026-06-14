@@ -80,7 +80,7 @@ fun SettingsScreen(
     onNavigationReorderClick: () -> Unit
 ) {
     val dashBoardUiState by dashBoardViewModel.uiState.collectAsState()
-    val permissions = dashBoardUiState.permissionStatus
+    val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val isBatteryOptimizationPermissionGranted =
         permissions[PermissionEnum.BATTERY_OPTIMIZATION] == PermissionStatus.GRANTED
     val preferencesUiState by listensViewModel.preferencesUiState.collectAsState()

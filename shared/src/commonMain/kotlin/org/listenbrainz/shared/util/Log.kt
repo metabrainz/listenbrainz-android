@@ -25,7 +25,7 @@ interface Log {
 
     companion object : Log {
 
-        var sharedLogger : Logger = provideLogger(logFileDirectory = null, buildInfo = null)
+        var sharedLogger : Logger = provideLogger()
 
         override fun e(message: Any?, tag: String?, throwable: Throwable?) {
             val logTag = tag ?: "ListenBrainz"

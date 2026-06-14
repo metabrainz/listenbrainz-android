@@ -72,7 +72,7 @@ fun HomeScreen(
     settingsCallbacks: SettingsCallbacksToHomeScreen
 ) {
     val dashboardUiState by dashBoardViewModel.uiState.collectAsStateWithLifecycle()
-    val permissions = dashboardUiState.permissionStatus
+    val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val navController = rememberNavController()
     val backdropScaffoldState =
         rememberBackdropScaffoldState(initialValue = BackdropValue.Revealed)

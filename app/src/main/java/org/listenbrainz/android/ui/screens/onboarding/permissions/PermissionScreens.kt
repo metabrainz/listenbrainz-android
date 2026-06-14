@@ -57,7 +57,7 @@ fun PermissionScreen(dashBoardViewModel: DashBoardViewModel = koinViewModel(),
                      onExit: () -> Unit) {
     val activity = LocalActivity.current
     val dashBoardUiState by dashBoardViewModel.uiState.collectAsState()
-    val permissions = dashBoardUiState.permissionStatus
+    val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val permissionsRequestedOnce = dashBoardUiState.permissionRequestedAtLeastOnce
     val filteredPermissions = permissions.filter { it.key != PermissionEnum.BATTERY_OPTIMIZATION && it.key != PermissionEnum.READ_NOTIFICATIONS }
     val isLogSubmitting= dashBoardUiState.isSubmittingLogs

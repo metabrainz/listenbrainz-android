@@ -38,7 +38,6 @@ import org.listenbrainz.shared.util.LogSubmitter
 
 data class DashBoardUiState(
     val username:String?= null,
-    val permissionStatus: Map<PermissionEnum, PermissionStatus> = emptyMap(),
     val navBarOrder: List<AppNavigationItem>? = null,
     val permissionRequestedAtLeastOnce: List<String> = emptyList(),
     val onBoardingCompleted: Boolean = false,
@@ -58,7 +57,7 @@ class DashBoardViewModel(
 ) : AndroidViewModel(application) {
 
     private val usernameFlow = appPreferences.username.getFlow()
-    private val permissionStatusFlow = MutableStateFlow(emptyMap<PermissionEnum, PermissionStatus>())
+    val permissionStatusFlow = MutableStateFlow(emptyMap<PermissionEnum, PermissionStatus>())
 
     private val navBarOrderFlow = appPreferences.navBarOrder
         .getFlow()
@@ -93,7 +92,6 @@ class DashBoardViewModel(
     ){ flows ->
         DashBoardUiState(
             username = flows[0] as? String,
-            permissionStatus = flows[1] as Map<PermissionEnum, PermissionStatus>,
             navBarOrder = flows[2] as? List<AppNavigationItem>,
             permissionRequestedAtLeastOnce = flows[3] as List<String>,
             onBoardingCompleted = flows[4] as Boolean,
