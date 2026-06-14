@@ -8,6 +8,8 @@ import org.listenbrainz.shared.util.LogSubmitter
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.service.YouTubeApiService
 
+import androidx.room.RoomDatabase
+
 expect fun platform(): String
 
 expect fun provideLogger(
@@ -24,3 +26,5 @@ expect fun provideRemotePlaybackHandler(
     appContext: PlatformContext,
     youTubeApiService: YouTubeApiService
 ): RemotePlaybackHandler
+
+expect fun getBrainzPlayerDatabase(context: PlatformContext): RoomDatabase.Builder<BrainzPlayerDatabase>

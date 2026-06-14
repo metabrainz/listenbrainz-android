@@ -17,6 +17,12 @@ import org.listenbrainz.shared.repository.remoteplayer.IosRemotePlaybackHandlerI
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.service.YouTubeApiService
 
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import kotlinx.cinterop.ExperimentalForeignApi
+import org.listenbrainz.shared.di.database.BrainzPlayerDatabase
+import platform.Foundation.NSFileManager
+
 actual fun platform() = "iOS"
 
 actual fun provideLogger(
@@ -56,4 +62,24 @@ actual fun provideRemotePlaybackHandler(
     youTubeApiService: YouTubeApiService
 ): RemotePlaybackHandler {
     return IosRemotePlaybackHandlerImpl(youTubeApiService)
+}
+
+
+actual fun getBrainzPlayerDatabase(context: PlatformContext): RoomDatabase.Builder<BrainzPlayerDatabase> {
+    val listensDB = documentDirectory() + "/brainzplayer_database.db"
+    return Room.databaseBuilder<BrainzPlayerDatabase>(
+        name = listensDB
+    )
+}
+
+@OptIn(ExperimentalForeignApi::class)
+private fun documentDirectory(): String {
+    val documentDirectory = NSFileManager.defaultManager.URLForDirectory(
+        directory = NSDocumentDirectory,
+        inDomain = NSUserDomainMask,
+        appropriateForURL = null,
+        create = false,
+        error = null,
+    )
+    return requireNotNull(documentDirectory?.path)
 }
