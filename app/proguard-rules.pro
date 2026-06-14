@@ -56,3 +56,6 @@
 -dontwarn com.fasterxml.jackson.**
 -keepattributes *Annotation*,EnclosingMethod,Signature
 -keepnames class com.fasterxml.jackson.** { *; }
+
+# Room
+-keep class * extends androidx.room.RoomDatabase { <init>(); }
