@@ -10,7 +10,7 @@ import kotlinx.coroutines.withContext
 import org.listenbrainz.android.model.State
 import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
 import org.listenbrainz.android.repository.brainzplayer.PlaylistRepository
-import org.listenbrainz.android.repository.brainzplayer.SongRepository
+import org.listenbrainz.shared.repository.brainzplayer.SongRepository
 
 class LocalMusicSource(
     private val songRepository: SongRepository,

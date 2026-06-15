@@ -42,7 +42,7 @@ import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.shared.model.Song
 import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
 import org.listenbrainz.android.repository.brainzplayer.PlaylistRepository
-import org.listenbrainz.android.repository.brainzplayer.SongRepository
+import org.listenbrainz.shared.repository.brainzplayer.SongRepository
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.service.BrainzPlayerService
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
