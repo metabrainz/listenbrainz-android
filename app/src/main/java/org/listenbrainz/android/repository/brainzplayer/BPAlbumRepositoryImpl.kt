@@ -13,14 +13,15 @@ import org.listenbrainz.shared.model.Album
 import org.listenbrainz.shared.model.Song
 import org.listenbrainz.shared.model.dao.AlbumDao
 import org.listenbrainz.android.util.AlbumsData
-import org.listenbrainz.android.util.SongsData
+import org.listenbrainz.shared.util.SongsData
 import org.listenbrainz.shared.util.Transformer.toAlbum
 import org.listenbrainz.shared.util.Transformer.toAlbumEntity
 
 
 
 class BPAlbumRepositoryImpl(
-    private val albumDao: AlbumDao
+    private val albumDao: AlbumDao,
+    private val songsData: SongsData
 ): BPAlbumRepository {
     override fun getAlbums(): Flow<List<Album>> =
         albumDao.getAlbumEntities()
@@ -55,14 +56,14 @@ class BPAlbumRepositoryImpl(
                 no immediate result is required from it.    */
             withContext(Dispatchers.IO){
                 // Update cache (companion object) of SongsData
-                SongsData.updateCache()
+                songsData.updateCache()
             }
         }
         return albums.isNotEmpty()
     }
 
     override fun getAllSongsOfAlbum(albumId: Long): Flow<List<Song>> {
-        val songs = SongsData.fetchSongs().filter { song ->
+        val songs = songsData.fetchSongs().filter { song ->
             song.albumID == albumId
         }
         return flowOf(songs)
