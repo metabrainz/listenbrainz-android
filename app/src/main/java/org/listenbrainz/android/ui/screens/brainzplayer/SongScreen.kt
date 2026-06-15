@@ -40,7 +40,7 @@ import org.listenbrainz.shared.model.PlayableType
 import org.listenbrainz.android.ui.components.BPLibraryEmptyMessage
 import org.listenbrainz.android.ui.components.forwardingPainter
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
-import org.listenbrainz.android.viewmodel.PlaylistViewModel
+import org.listenbrainz.shared.viewmodel.PlaylistViewModel
 import org.listenbrainz.shared.viewmodel.SongViewModel
 
 @OptIn(ExperimentalMaterialApi::class)
