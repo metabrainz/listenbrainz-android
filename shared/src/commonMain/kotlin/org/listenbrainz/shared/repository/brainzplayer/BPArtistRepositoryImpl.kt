@@ -1,7 +1,8 @@
-package org.listenbrainz.android.repository.brainzplayer
+package org.listenbrainz.shared.repository.brainzplayer
 
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

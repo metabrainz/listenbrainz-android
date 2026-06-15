@@ -25,6 +25,8 @@ import org.listenbrainz.shared.repository.social.SocialRepository
 import org.listenbrainz.shared.repository.social.SocialRepositoryImpl
 import org.listenbrainz.shared.repository.brainzplayer.BPAlbumRepository
 import org.listenbrainz.shared.repository.brainzplayer.BPAlbumRepositoryImpl
+import org.listenbrainz.shared.repository.brainzplayer.BPArtistRepository
+import org.listenbrainz.shared.repository.brainzplayer.BPArtistRepositoryImpl
 
 val sharedRepositoryModule = module {
     single<SocketRepository> { SocketRepositoryImpl(get<HttpClient>(named(SHARED_HTTP_CLIENT)),get()) }
@@ -47,4 +49,5 @@ val sharedRepositoryModule = module {
     single<PlaylistRepository> { PlaylistRepositoryImpl(get()) }
     single<SocialRepository> { SocialRepositoryImpl(get(),get()) }
     single<BPAlbumRepository> { BPAlbumRepositoryImpl(get(),get(),get()) }
+    single<BPArtistRepository> { BPArtistRepositoryImpl(get(),get(),get()) }
 }
