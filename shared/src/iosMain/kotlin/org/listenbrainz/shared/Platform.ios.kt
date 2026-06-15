@@ -30,6 +30,8 @@ import platform.posix.err
 import org.listenbrainz.shared.di.database.BrainzPlayerDatabase
 import org.listenbrainz.shared.util.IosSongsData
 import org.listenbrainz.shared.util.SongsData
+import org.listenbrainz.shared.util.AlbumsData
+import org.listenbrainz.shared.util.IosAlbumsData
 import platform.Foundation.NSFileManager
 
 actual fun platform() = "iOS"
@@ -112,4 +114,8 @@ actual fun getListensSubmissionDatabase(appContext: PlatformContext): RoomDataba
 
 actual fun provideSongData(context: PlatformContext): SongsData {
     return IosSongsData()
+}
+
+actual fun provideAlbumsData(context: PlatformContext): AlbumsData {
+    return IosAlbumsData()
 }
