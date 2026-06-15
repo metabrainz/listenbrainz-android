@@ -3,7 +3,7 @@ package org.listenbrainz.android.util
 import android.os.Build
 import android.provider.MediaStore
 import org.listenbrainz.android.application.App.Companion.context
-import org.listenbrainz.android.model.Album
+import org.listenbrainz.shared.model.Album
 object AlbumsData {
     
     /** Runtime cache to improve performance

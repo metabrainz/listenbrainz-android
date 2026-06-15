@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.model.Album
-import org.listenbrainz.android.model.Artist
+import org.listenbrainz.shared.model.Album
+import org.listenbrainz.shared.model.Artist
 import org.listenbrainz.shared.model.Song
 import org.listenbrainz.android.repository.brainzplayer.BPArtistRepository
 

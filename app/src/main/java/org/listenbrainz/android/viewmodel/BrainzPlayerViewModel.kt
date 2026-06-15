@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.shared.model.Playable
 import org.listenbrainz.shared.model.Playable.Companion.EMPTY_PLAYABLE
 import org.listenbrainz.shared.model.PlayableType
-import org.listenbrainz.android.model.Playlist.Companion.currentlyPlaying
+import org.listenbrainz.shared.model.Playlist.Companion.currentlyPlaying
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.shared.model.Song
 import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository

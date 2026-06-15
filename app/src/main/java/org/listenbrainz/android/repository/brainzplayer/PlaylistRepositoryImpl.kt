@@ -3,10 +3,10 @@ package org.listenbrainz.android.repository.brainzplayer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.listenbrainz.shared.model.dao.PlaylistDao
-import org.listenbrainz.android.util.Transformer.toPlaylist
-import org.listenbrainz.android.util.Transformer.toPlaylistEntity
-import org.listenbrainz.android.util.Transformer.toSongEntity
-import org.listenbrainz.android.model.Playlist
+import org.listenbrainz.shared.util.Transformer.toPlaylist
+import org.listenbrainz.shared.util.Transformer.toPlaylistEntity
+import org.listenbrainz.shared.util.Transformer.toSongEntity
+import org.listenbrainz.shared.model.Playlist
 import org.listenbrainz.shared.model.Song
 
 class PlaylistRepositoryImpl(

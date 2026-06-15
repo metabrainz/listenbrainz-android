@@ -28,9 +28,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.application.App.Companion.context
-import org.listenbrainz.android.model.Album
+import org.listenbrainz.shared.model.Album
 import org.listenbrainz.shared.model.AppNavigationItem
-import org.listenbrainz.android.model.Artist
+import org.listenbrainz.shared.model.Artist
 import org.listenbrainz.shared.model.PlayableType
 import org.listenbrainz.shared.model.Song
 import org.listenbrainz.android.ui.navigation.TopBar

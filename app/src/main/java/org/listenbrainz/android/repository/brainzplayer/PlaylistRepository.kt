@@ -1,7 +1,7 @@
 package org.listenbrainz.android.repository.brainzplayer
 
 import kotlinx.coroutines.flow.Flow
-import org.listenbrainz.android.model.Playlist
+import org.listenbrainz.shared.model.Playlist
 import org.listenbrainz.shared.model.Song
 
 interface PlaylistRepository {

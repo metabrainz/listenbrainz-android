@@ -5,8 +5,8 @@ import kotlinx.coroutines.flow.map
 import org.listenbrainz.shared.model.Song
 import org.listenbrainz.shared.model.dao.SongDao
 import org.listenbrainz.android.util.SongsData
-import org.listenbrainz.android.util.Transformer.toSong
-import org.listenbrainz.android.util.Transformer.toSongEntity
+import org.listenbrainz.shared.util.Transformer.toSong
+import org.listenbrainz.shared.util.Transformer.toSongEntity
 import kotlin.time.Clock
 
 class SongRepositoryImpl(

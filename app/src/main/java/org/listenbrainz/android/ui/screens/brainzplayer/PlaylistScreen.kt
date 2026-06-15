@@ -36,7 +36,7 @@ import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.PlayableType
-import org.listenbrainz.android.model.Playlist
+import org.listenbrainz.shared.model.Playlist
 import org.listenbrainz.shared.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.forwardingPainter

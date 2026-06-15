@@ -6,16 +6,16 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.model.Album
-import org.listenbrainz.android.model.Artist
+import org.listenbrainz.shared.model.Album
+import org.listenbrainz.shared.model.Artist
 import org.listenbrainz.shared.model.Song
 import org.listenbrainz.shared.model.dao.ArtistDao
 import org.listenbrainz.android.util.AlbumsData
 import org.listenbrainz.android.util.SongsData
-import org.listenbrainz.android.util.Transformer.toAlbumEntity
-import org.listenbrainz.android.util.Transformer.toArtist
-import org.listenbrainz.android.util.Transformer.toArtistEntity
-import org.listenbrainz.android.util.Transformer.toSongEntity
+import org.listenbrainz.shared.util.Transformer.toAlbumEntity
+import org.listenbrainz.shared.util.Transformer.toArtist
+import org.listenbrainz.shared.util.Transformer.toArtistEntity
+import org.listenbrainz.shared.util.Transformer.toSongEntity
 
 class BPArtistRepositoryImpl(
     private val artistDao: ArtistDao

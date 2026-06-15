@@ -8,9 +8,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import org.listenbrainz.android.model.Album
-import org.listenbrainz.android.model.Artist
-import org.listenbrainz.android.model.Playlist
+import org.listenbrainz.shared.model.Album
+import org.listenbrainz.shared.model.Artist
+import org.listenbrainz.shared.model.Playlist
 import org.listenbrainz.shared.model.Song
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.screens.brainzplayer.AlbumScreen
