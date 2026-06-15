@@ -50,7 +50,7 @@ import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.forwardingPainter
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.shared.viewmodel.BPAlbumViewModel
-import org.listenbrainz.android.viewmodel.BPArtistViewModel
+import org.listenbrainz.shared.viewmodel.BPArtistViewModel
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 
 

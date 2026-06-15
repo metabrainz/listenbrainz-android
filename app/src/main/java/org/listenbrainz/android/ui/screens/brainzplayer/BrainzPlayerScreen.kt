@@ -43,7 +43,7 @@ import org.listenbrainz.android.ui.screens.brainzplayer.overview.RecentPlaysScre
 import org.listenbrainz.android.ui.screens.brainzplayer.overview.SongsOverviewScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.shared.viewmodel.BPAlbumViewModel
-import org.listenbrainz.android.viewmodel.BPArtistViewModel
+import org.listenbrainz.shared.viewmodel.BPArtistViewModel
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.shared.viewmodel.PlaylistViewModel
 import org.listenbrainz.shared.viewmodel.SongViewModel
