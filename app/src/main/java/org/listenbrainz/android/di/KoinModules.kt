@@ -38,8 +38,8 @@ import org.listenbrainz.android.repository.brainzplayer.BPArtistRepository
 import org.listenbrainz.android.repository.brainzplayer.BPArtistRepositoryImpl
 import org.listenbrainz.android.repository.brainzplayer.PlaylistRepository
 import org.listenbrainz.android.repository.brainzplayer.PlaylistRepositoryImpl
-import org.listenbrainz.android.repository.brainzplayer.SongRepository
-import org.listenbrainz.android.repository.brainzplayer.SongRepositoryImpl
+import org.listenbrainz.shared.repository.brainzplayer.SongRepository
+import org.listenbrainz.shared.repository.brainzplayer.SongRepositoryImpl
 import org.listenbrainz.android.repository.feed.FeedRepository
 import org.listenbrainz.android.repository.feed.FeedRepositoryImpl
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
@@ -85,7 +85,7 @@ import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import org.listenbrainz.android.viewmodel.SearchViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
-import org.listenbrainz.android.viewmodel.SongViewModel
+import org.listenbrainz.shared.viewmodel.SongViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
 import org.listenbrainz.android.viewmodel.YimViewModel
@@ -298,9 +298,8 @@ val appModule = module {
 
 val repositoryModule = module {
     // BrainzPlayer Repositories
-    single<SongRepository> { SongRepositoryImpl(get()) }
-    single<BPAlbumRepository> { BPAlbumRepositoryImpl(get()) }
-    single<BPArtistRepository> { BPArtistRepositoryImpl(get()) }
+    single<BPAlbumRepository> { BPAlbumRepositoryImpl(get(),get()) }
+    single<BPArtistRepository> { BPArtistRepositoryImpl(get(),get()) }
     single<PlaylistRepository> { PlaylistRepositoryImpl(get()) }
 
     // API Repositories
@@ -355,7 +354,6 @@ val viewModelModule = module {
     viewModel { PlaylistViewModel(get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { BPAlbumViewModel(get(), get(named(IO_DISPATCHER))) }
     viewModel { BPArtistViewModel(get(), get(named(IO_DISPATCHER))) }
-    viewModel { SongViewModel(get(), get(named(IO_DISPATCHER))) }
     viewModel { AboutViewModel() }
     viewModel { LoginViewModel(get()) }
 }
