@@ -28,6 +28,8 @@ import org.listenbrainz.shared.service.UserService
 import org.listenbrainz.shared.service.YouTubeApiService
 import platform.posix.err
 import org.listenbrainz.shared.di.database.BrainzPlayerDatabase
+import org.listenbrainz.shared.util.IosSongsData
+import org.listenbrainz.shared.util.SongsData
 import platform.Foundation.NSFileManager
 
 actual fun platform() = "iOS"
@@ -106,4 +108,8 @@ actual fun getListensSubmissionDatabase(appContext: PlatformContext): RoomDataba
     return Room.databaseBuilder<ListensSubmissionDatabase>(
         name = listensDB
     )
+}
+
+actual fun provideSongData(context: PlatformContext): SongsData {
+    return IosSongsData()
 }

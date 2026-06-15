@@ -4,6 +4,8 @@ import org.koin.dsl.module
 import org.listenbrainz.shared.provideRemotePlaybackHandler
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.service.YouTubeApiService
+import org.listenbrainz.shared.provideSongData
+import org.listenbrainz.shared.util.SongsData
 import org.listenbrainz.shared.provideLogSubmitter
 import org.listenbrainz.shared.provideLogger
 import org.listenbrainz.shared.util.BuildInfo
@@ -20,5 +22,8 @@ val platformModule = module {
 
     single<RemotePlaybackHandler> {
         provideRemotePlaybackHandler(get(), youTubeApiService = get<YouTubeApiService>())
+    }
+    single<SongsData>{
+        provideSongData(get())
     }
 }
