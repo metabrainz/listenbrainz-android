@@ -1,5 +1,4 @@
-package org.listenbrainz.android.ui.screens.onboarding.auth.login
-
+package org.listenbrainz.shared.ui.screens.onboarding.auth.login
 
 data class LoginUIState(
     val username: String = "",

@@ -1,4 +1,4 @@
-package org.listenbrainz.android.viewmodel
+package org.listenbrainz.shared.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import org.listenbrainz.shared.util.Log
@@ -11,15 +11,14 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginState
-import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginUIState
+import org.listenbrainz.shared.ui.screens.onboarding.auth.login.LoginState
+import org.listenbrainz.shared.ui.screens.onboarding.auth.login.LoginUIState
 import org.listenbrainz.shared.repository.PlatformContext
 import org.listenbrainz.shared.util.LogSubmitter
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.viewmodel.BaseViewModel
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-
 
 class LoginViewModel(
     private val logSubmitter: LogSubmitter,
