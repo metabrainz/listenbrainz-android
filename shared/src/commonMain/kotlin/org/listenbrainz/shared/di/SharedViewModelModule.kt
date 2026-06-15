@@ -11,6 +11,7 @@ import org.listenbrainz.shared.viewmodel.ArtistViewModel
 import org.listenbrainz.shared.viewmodel.LoginViewModel
 import org.listenbrainz.shared.viewmodel.ListensViewModel
 import org.listenbrainz.shared.viewmodel.PlaylistViewModel
+import org.listenbrainz.shared.viewmodel.BPAlbumViewModel
 import org.listenbrainz.shared.viewmodel.SettingsViewModel
 import org.listenbrainz.shared.viewmodel.SongViewModel
 
@@ -25,4 +26,5 @@ val sharedViewModelModule = module {
     viewModel { ListensViewModel(get(),get(),get(),get(),get(named(DEFAULT_DISPATCHER))) }
     viewModel { SongViewModel(get(),get(named(IO_DISPATCHER))) }
     viewModel { PlaylistViewModel(get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER))) }
+    viewModel { BPAlbumViewModel(get(),get(named(IO_DISPATCHER))) }
 }
