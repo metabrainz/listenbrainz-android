@@ -56,4 +56,5 @@ val sharedRepositoryModule = module {
     single<BPArtistRepository> { BPArtistRepositoryImpl(get(),get(),get()) }
     single<PlaylistDataRepository> { PlaylistDataRepositoryImpl(get(),get(),get(),get(named(IO_DISPATCHER))) }
     single<FeedRepository> { FeedRepositoryImpl(get()) }
+    single<SocialRepository> { SocialRepositoryImpl(get(),get()) }
 }
