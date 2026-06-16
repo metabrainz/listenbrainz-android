@@ -33,19 +33,23 @@ import org.listenbrainz.shared.service.createUserService
 import org.listenbrainz.shared.service.createYouTubeApiService
 import org.listenbrainz.shared.util.Constants
 import org.listenbrainz.shared.util.PlatformUtils
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.service.ArtistService
 import org.listenbrainz.shared.service.CBService
 import org.listenbrainz.shared.service.MBService
 import org.listenbrainz.shared.service.createAlbumService
+import org.listenbrainz.shared.service.SocialService
 import org.listenbrainz.shared.service.createArtistService
 import org.listenbrainz.shared.service.createMBService
 import org.listenbrainz.shared.service.createCBService
+import org.listenbrainz.shared.service.createSocialService
 import org.listenbrainz.shared.util.Constants.CB_BASE_URL
 import org.listenbrainz.shared.util.Constants.LB_BASE_URL
+import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_API_BASE_URL
 import org.listenbrainz.shared.util.Constants.MB_BASE_URL
+import kotlin.time.Duration.Companion.milliseconds
 import org.listenbrainz.shared.service.BlogService
 import org.listenbrainz.shared.service.createBlogService
-import kotlin.time.Duration.Companion.milliseconds
 
 // Qualifier names for dispatchers
 const val DEFAULT_DISPATCHER = "DefaultDispatcher"
@@ -190,6 +194,15 @@ val sharedNetworkServiceModule = module {
             .httpClient(get<HttpClient>(named(SHARED_HTTP_CLIENT)))
             .build()
             .createUserService()
+    }
+
+    single<SocialService> {
+        val client = createSharedBaseHttpClient(get<AppPreferences>())
+        Ktorfit.Builder()
+            .baseUrl(LISTENBRAINZ_API_BASE_URL)
+            .httpClient(client)
+            .build()
+            .createSocialService()
     }
 }
 
