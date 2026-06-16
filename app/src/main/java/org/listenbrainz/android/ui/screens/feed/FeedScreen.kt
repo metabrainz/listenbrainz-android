@@ -78,7 +78,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.shared.model.AppNavigationItem
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.android.model.feed.FeedCallbacks
-import org.listenbrainz.android.model.feed.FeedEvent
+import org.listenbrainz.shared.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventType
 import org.listenbrainz.shared.model.feed.FeedListenArtist
 import org.listenbrainz.android.model.feed.ReviewEntityType

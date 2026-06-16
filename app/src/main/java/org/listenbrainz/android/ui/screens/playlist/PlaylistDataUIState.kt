@@ -1,7 +1,7 @@
 package org.listenbrainz.android.ui.screens.playlist
 
 import org.listenbrainz.shared.model.ResponseError
-import org.listenbrainz.android.model.User
+import org.listenbrainz.shared.model.User
 import org.listenbrainz.shared.model.playlist.PlaylistData
 import org.listenbrainz.shared.model.recordingSearch.RecordingData
 

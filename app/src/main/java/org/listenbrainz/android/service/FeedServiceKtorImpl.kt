@@ -7,7 +7,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
-import org.listenbrainz.android.model.SocialResponse
+import org.listenbrainz.shared.model.SocialResponse
 import org.listenbrainz.android.model.feed.FeedData
 import org.listenbrainz.android.model.feed.FeedEventDeletionData
 import org.listenbrainz.android.model.feed.FeedEventVisibilityData

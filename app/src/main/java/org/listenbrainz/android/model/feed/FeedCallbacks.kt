@@ -1,6 +1,7 @@
 package org.listenbrainz.android.model.feed
 
 import androidx.compose.runtime.Immutable
+import org.listenbrainz.shared.model.feed.FeedEvent
 
 @Immutable
 data class FeedCallbacks(

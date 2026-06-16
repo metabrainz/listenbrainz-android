@@ -48,7 +48,7 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import org.koin.androidx.compose.koinViewModel
-import org.listenbrainz.android.model.User
+import org.listenbrainz.shared.model.User
 import org.listenbrainz.shared.model.playlist.PlaylistTrack
 import org.listenbrainz.android.model.search.SearchData
 import org.listenbrainz.android.model.search.SearchType

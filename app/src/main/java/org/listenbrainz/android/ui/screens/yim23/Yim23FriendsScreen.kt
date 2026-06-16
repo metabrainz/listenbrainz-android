@@ -44,7 +44,7 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.SocialData
+import org.listenbrainz.shared.model.SocialData
 import org.listenbrainz.android.model.yimdata.Yim23Screens
 import org.listenbrainz.shared.util.Constants
 import org.listenbrainz.shared.util.Resource

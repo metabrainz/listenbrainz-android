@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.flow
 import org.listenbrainz.shared.model.AdditionalInfo
 import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.shared.model.MbidMapping
-import org.listenbrainz.android.model.SimilarUser
+import org.listenbrainz.shared.model.SimilarUser
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.shared.model.feed.FeedListenArtist

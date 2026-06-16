@@ -27,6 +27,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.shared.util.Log
 import org.listenbrainz.shared.util.TypeConverter
 import org.listenbrainz.android.util.Utils.getArticle
+import org.listenbrainz.shared.model.feed.FeedEvent
 
 /**
  * @param icon Feed icon for the event, **must** be of width 19 dp.
@@ -341,25 +342,25 @@ enum class FeedEventType (
     ): AnnotatedString {
         
         val emptyString = buildAnnotatedString {}
-        
+
         // Checking if first input is present or not.
-        if (feedEvent.username == null) return emptyString
-        
+        val eventUserName = feedEvent.username ?: return emptyString
+
         val firstUsername = if(isUserSelf(feedEvent, parentUser))
             "You"
         else
-            feedEvent.metadata.user0 ?: feedEvent.username
-        
+            feedEvent.metadata.user0 ?: eventUserName
+
         val firstAnnotatedString = buildAnnotatedString {
             withStyle(style = linkStyle){
                 append("$firstUsername ")
             }
-            val annotation = feedEvent.metadata.user0 ?: feedEvent.username
+            val annotation = feedEvent.metadata.user0 ?: feedEvent.username ?: ""
             addStringAnnotation(
                 tag = "user0",
                 annotation = annotation,
                 start = 0,
-                end = firstUsername.lastIndex + 1
+                end = firstUsername.length
             )
         }
         

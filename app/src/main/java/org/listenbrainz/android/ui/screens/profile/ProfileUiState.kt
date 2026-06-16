@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.shared.model.ListenBitmap
 import org.listenbrainz.shared.model.PinnedRecording
-import org.listenbrainz.android.model.SimilarUser
+import org.listenbrainz.shared.model.SimilarUser
 import org.listenbrainz.shared.model.playlist.PlaylistData
 import org.listenbrainz.shared.model.user.AllPinnedRecordings
 import org.listenbrainz.shared.model.user.Artist

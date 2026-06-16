@@ -2,7 +2,7 @@ package org.listenbrainz.sharedtest.utils
 
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
-import org.listenbrainz.android.model.SocialData
+import org.listenbrainz.shared.model.SocialData
 import org.listenbrainz.android.model.yimdata.YimPayload
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername
