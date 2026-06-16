@@ -34,6 +34,7 @@ import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.repository.social.SocialRepository
 import org.listenbrainz.shared.model.LinkedService
 import org.listenbrainz.shared.util.Resource
+import org.listenbrainz.shared.viewmodel.FollowUnfollowModel
 
 class SocialViewModel(
     private val repository: SocialRepository,

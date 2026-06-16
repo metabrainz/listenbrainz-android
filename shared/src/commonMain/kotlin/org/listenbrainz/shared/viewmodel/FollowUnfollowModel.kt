@@ -1,4 +1,4 @@
-package org.listenbrainz.android.viewmodel
+package org.listenbrainz.shared.viewmodel
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -6,13 +6,12 @@ import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.User
 import org.listenbrainz.shared.repository.social.SocialRepository
 import org.listenbrainz.shared.util.Resource
-import org.listenbrainz.shared.viewmodel.BaseViewModel
 
 abstract class FollowUnfollowModel<UiState>(
     private val repository: SocialRepository,
     private val ioDispatcher: CoroutineDispatcher
 ): BaseViewModel<UiState>() {
-    
+
     /**
      * @param [invertUiState] **should** check for cancellation internally.*/
     suspend fun optimisticallyFollowUser(
@@ -25,27 +24,27 @@ abstract class FollowUnfollowModel<UiState>(
             return error is ResponseError.BadRequest &&
                     error.actualResponse?.contains("already following") == true
         }
-        
+
         invertUiState(index)
-        
+
         val result = withContext(ioDispatcher) {
             repository.followUser(user.username)
         }
         when (result.status) {
             Resource.Status.FAILED -> {
                 emitError(result.error)
-                
+
                 if (userIsAlreadyFollowed(result.error)){
                     // We won't toggle back follow state if user is already followed.
                     return
                 }
-                
+
                 invertUiState(index)
             }
             else -> Unit
         }
     }
-    
+
     /**
      * @param [invertUiState] **should** check for cancellation internally.*/
     suspend fun optimisticallyUnfollowUser(
@@ -53,9 +52,9 @@ abstract class FollowUnfollowModel<UiState>(
         index: Int,
         invertUiState: (index: Int) -> Unit
     ) {
-        
+
         invertUiState(index)
-        
+
         val result = withContext(ioDispatcher) {
             repository.unfollowUser(user.username)
         }

@@ -44,6 +44,7 @@ import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.repository.social.SocialRepository
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.util.Log
+import org.listenbrainz.shared.viewmodel.FollowUnfollowModel
 
 
 class SearchViewModel(
