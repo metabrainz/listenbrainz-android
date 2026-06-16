@@ -26,7 +26,7 @@ import org.listenbrainz.shared.model.userPlaylist.UserPlaylist
 import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.android.repository.social.SocialRepository
+import org.listenbrainz.shared.repository.social.SocialRepository
 import org.listenbrainz.android.repository.user.UserRepository
 import org.listenbrainz.android.ui.screens.profile.CreatedForTabUIState
 import org.listenbrainz.android.ui.screens.profile.ListensTabUiState

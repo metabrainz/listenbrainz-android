@@ -18,7 +18,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import org.listenbrainz.android.repository.social.SocialRepository.Companion.getPinDateString
+import org.listenbrainz.shared.repository.social.SocialRepository.Companion.getPinDateString
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @Composable

@@ -44,8 +44,8 @@ import org.listenbrainz.android.repository.listenservicemanager.ListenServiceMan
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManagerImpl
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepositoryImpl
-import org.listenbrainz.android.repository.social.SocialRepository
-import org.listenbrainz.android.repository.social.SocialRepositoryImpl
+import org.listenbrainz.shared.repository.social.SocialRepository
+import org.listenbrainz.shared.repository.social.SocialRepositoryImpl
 import org.listenbrainz.android.repository.user.UserRepository
 import org.listenbrainz.android.repository.user.UserRepositoryImpl
 import org.listenbrainz.android.repository.yim.YimRepository
@@ -58,7 +58,7 @@ import org.listenbrainz.android.service.FeedServiceKtorImpl
 import org.listenbrainz.android.service.GithubAppUpdatesService
 import org.listenbrainz.android.service.GithubUpdatesDownloadService
 import org.listenbrainz.android.service.PlaylistService
-import org.listenbrainz.android.service.SocialService
+import org.listenbrainz.shared.service.SocialService
 import org.listenbrainz.android.service.Yim23Service
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.service.createGithubAppUpdatesService
@@ -178,15 +178,6 @@ val networkModule = module {
         createBaseHttpClient(androidContext(), get<AppPreferences>())
     }
 
-    single<SocialService> {
-        val httpClient = createBaseHttpClient(androidContext(), get<AppPreferences>())
-        Ktorfit.Builder()
-            .baseUrl(LISTENBRAINZ_API_BASE_URL)
-            .httpClient(httpClient)
-            .build()
-            .createSocialService()
-    }
-
     single<PlaylistService> {
         val httpClient = createBaseHttpClient(
             context = androidContext(),
@@ -300,7 +291,6 @@ val repositoryModule = module {
 
     // API Repositories
     single<FeedRepository> { FeedRepositoryImpl(get()) }
-    single<SocialRepository> { SocialRepositoryImpl(get(), get()) }
     single<UserRepository> { UserRepositoryImpl(get(), get()) }
     single<PlaylistDataRepository> { PlaylistDataRepositoryImpl(get(), get(), get(), get(named(IO_DISPATCHER))) }
     single<YimRepository> { YimRepositoryImpl(get()) }

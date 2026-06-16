@@ -15,10 +15,10 @@ import coil3.svg.SvgDecoder
 import coil3.toBitmap
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
-import org.listenbrainz.android.model.SocialData
+import org.listenbrainz.shared.model.SocialData
 import org.listenbrainz.android.model.yimdata.*
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.android.repository.social.SocialRepository
+import org.listenbrainz.shared.repository.social.SocialRepository
 import org.listenbrainz.android.repository.yim23.Yim23Repository
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.android.util.Utils.saveBitmap

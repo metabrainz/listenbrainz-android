@@ -3,8 +3,8 @@ package org.listenbrainz.android.viewmodel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.listenbrainz.shared.model.ResponseError
-import org.listenbrainz.android.model.User
-import org.listenbrainz.android.repository.social.SocialRepository
+import org.listenbrainz.shared.model.User
+import org.listenbrainz.shared.repository.social.SocialRepository
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.viewmodel.BaseViewModel
 
