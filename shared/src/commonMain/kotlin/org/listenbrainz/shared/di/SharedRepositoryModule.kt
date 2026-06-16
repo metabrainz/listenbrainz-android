@@ -61,4 +61,5 @@ val sharedRepositoryModule = module {
     single<SocialRepository> { SocialRepositoryImpl(get(),get()) }
     single<SocialRepository> { SocialRepositoryImpl(get(),get()) }
     single<FeedRepository> { FeedRepositoryImpl(get()) }
+    single<SocialRepository> { SocialRepositoryImpl(get(),get()) }
 }
