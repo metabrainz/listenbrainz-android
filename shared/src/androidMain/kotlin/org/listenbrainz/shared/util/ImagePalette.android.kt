@@ -1,24 +1,16 @@
-package org.listenbrainz.android.util
+package org.listenbrainz.shared.util
 
-import android.graphics.Bitmap
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.palette.graphics.Palette
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-data class ImagePalette(
-    val gradientColors: List<Color>,
-    val titleColorLight: Color,
-    val bodyTextColorLight: Color,
-    val titleTextColorDark: Color,
-    val bodyTextColorDark: Color,
-    val darkBackgroundColor: Color,
-    val lightBacgroundColor: Color
-)
-
-suspend fun getPaletteFromImage(bitmap: Bitmap): ImagePalette {
+actual suspend fun getPaletteFromImage(bitmap: ImageBitmap): ImagePalette {
     return withContext(Dispatchers.IO) {
-        val palette = Palette.from(bitmap).generate()
+        val androidBitmap = bitmap.asAndroidBitmap()
+        val palette = Palette.from(androidBitmap).generate()
         val lightColor =
             palette.vibrantSwatch?.rgb ?: palette.mutedSwatch?.rgb ?: 0xFF888888.toInt()
         val darkColor = palette.darkVibrantSwatch?.rgb ?: palette.darkMutedSwatch?.rgb ?: lightColor
