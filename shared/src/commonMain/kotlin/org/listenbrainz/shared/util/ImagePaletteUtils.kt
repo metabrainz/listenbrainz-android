@@ -13,7 +13,7 @@ data class ImagePalette(
     val titleTextColorDark: Color,
     val bodyTextColorDark: Color,
     val darkBackgroundColor: Color,
-    val lightBacgroundColor: Color
+    val lightBackgroundColor: Color
 )
 
 expect suspend fun getPaletteFromImage(bitmap: ImageBitmap): ImagePalette

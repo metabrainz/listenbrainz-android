@@ -105,7 +105,7 @@ import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.SongViewPager
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
-import org.listenbrainz.android.viewmodel.ListeningNowViewModel
+import org.listenbrainz.shared.viewmodel.ListeningNowViewModel
 import org.listenbrainz.shared.viewmodel.PlaylistViewModel
 import java.util.Locale
 import kotlin.math.absoluteValue
@@ -232,7 +232,7 @@ fun BrainzPlayerBackDropScreen(
                     backdropScaffoldState = backdropScaffoldState,
                     gradientBox = {
                         val backgroundColor =
-                            listeningNowUIState.palette?.lightBacgroundColor
+                            listeningNowUIState.palette?.lightBackgroundColor
                                 ?: ListenBrainzTheme.colorScheme.background
                         Box(
                             modifier = Modifier

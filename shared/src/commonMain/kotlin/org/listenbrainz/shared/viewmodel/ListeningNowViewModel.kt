@@ -1,14 +1,8 @@
-package org.listenbrainz.android.viewmodel
+package org.listenbrainz.shared.viewmodel
 
-import android.content.Context
-import android.util.Log
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import coil3.imageLoader
-import coil3.request.ImageRequest
-import coil3.request.SuccessResult
-import coil3.request.allowHardware
-import coil3.toBitmap
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -19,15 +13,17 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.listenbrainz.shared.model.Listen
-import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.AppPreferences
+import org.listenbrainz.shared.repository.PlatformContext
+import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.socket.SocketRepository
-import org.listenbrainz.android.util.ImagePalette
+import org.listenbrainz.shared.util.ImagePalette
 import org.listenbrainz.shared.util.Utils.getCoverArtUrl
-import org.listenbrainz.android.util.getPaletteFromImage
+import org.listenbrainz.shared.util.fetchBitmapFromUrl
+import org.listenbrainz.shared.util.getPaletteFromImage
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
-
+import org.listenbrainz.shared.Log
 
 data class ListeningNowUIState(
     val song: Listen? = null,
@@ -107,18 +103,12 @@ class ListeningNowViewModel(
         }
     }
 
-    fun updatePalette(context: Context) {
+    fun updatePalette(context: PlatformContext) {
         val url = listeningNowUIState.value.imageURL ?: return
         viewModelScope.launch {
             try {
-                val request = ImageRequest.Builder(context)
-                    .data(url)
-                    .allowHardware(false)
-                    .build()
-
-                val result = context.imageLoader.execute(request)
-                if (result is SuccessResult) {
-                    val bitmap = result.image.toBitmap()
+                val bitmap = fetchBitmapFromUrl(context,url)
+                if (bitmap != null) {
                     _listeningNowUIState.update {
                         it.copy(palette = getPaletteFromImage(bitmap))
                     }
@@ -144,7 +134,7 @@ class ListeningNowViewModel(
 
                 val listenedAt = listenedAt
                 val delayToDismiss = if (listenedAt != null) {
-                    val durationCompleted = System.currentTimeMillis() - listenedAt.seconds.inWholeMilliseconds
+                    val durationCompleted = Clock.System.now().toEpochMilliseconds() - (listenedAt * 1000L)
                     (listenDurationMs - durationCompleted).coerceAtLeast(0)
                 } else {
                     listenDurationMs

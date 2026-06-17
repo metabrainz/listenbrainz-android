@@ -60,7 +60,7 @@ import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.Utils.toPx
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
-import org.listenbrainz.android.viewmodel.ListeningNowViewModel
+import org.listenbrainz.shared.viewmodel.ListeningNowViewModel
 
 
 @OptIn(ExperimentalMaterialApi::class)

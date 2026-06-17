@@ -47,7 +47,7 @@ actual suspend fun getPaletteFromImage(bitmap: ImageBitmap): ImagePalette = with
         bodyTextColorLight = Color.Black,
         titleTextColorDark = Color.White,
         bodyTextColorDark = Color.White,
-        lightBacgroundColor = lightColor,
+        lightBackgroundColor = lightColor,
         darkBackgroundColor = darkColor
     )
 }
@@ -60,7 +60,7 @@ private fun defaultPalette(): ImagePalette{
         bodyTextColorLight = Color.Black,
         titleTextColorDark = Color.White,
         bodyTextColorDark = Color.White,
-        lightBacgroundColor = defaultColor,
+        lightBackgroundColor = defaultColor,
         darkBackgroundColor = defaultColor
     )
 }

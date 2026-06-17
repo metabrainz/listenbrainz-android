@@ -35,7 +35,7 @@ actual suspend fun getPaletteFromImage(bitmap: ImageBitmap): ImagePalette {
             bodyTextColorLight = Color(bodyTextColorLight),
             titleTextColorDark = Color(textColorDark),
             bodyTextColorDark = Color(bodyTextColorDark),
-            lightBacgroundColor = Color(lightColor),
+            lightBackgroundColor = Color(lightColor),
             darkBackgroundColor = Color(darkColor)
         )
     }
