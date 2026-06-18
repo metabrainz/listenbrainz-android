@@ -18,6 +18,7 @@ import org.listenbrainz.shared.viewmodel.PlaylistViewModel
 import org.listenbrainz.shared.viewmodel.BPAlbumViewModel
 import org.listenbrainz.shared.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.shared.viewmodel.SearchViewModel
+import org.listenbrainz.shared.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.shared.viewmodel.SettingsViewModel
 import org.listenbrainz.shared.viewmodel.SongViewModel
 import org.listenbrainz.shared.viewmodel.SocialViewModel
