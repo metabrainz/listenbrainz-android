@@ -97,7 +97,7 @@ import org.listenbrainz.android.ui.theme.app_bg_mid
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.util.Utils.measureSize
-import org.listenbrainz.android.util.Utils.removeHtmlTags
+import org.listenbrainz.shared.util.Utils.removeHtmlTags
 import org.listenbrainz.android.util.Utils.showToast
 import org.listenbrainz.shared.viewmodel.ArtistViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel

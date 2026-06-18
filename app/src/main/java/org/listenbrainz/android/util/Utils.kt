@@ -506,14 +506,6 @@ object Utils {
         return resultUrl
     }
 
-    // Function to remove HTML tags from a string
-    fun removeHtmlTags(input: String): String {
-        // Regular expression pattern to match HTML tags
-        val regex = "<[^>]*>".toRegex()
-        // Replace all matches of the pattern with an empty string
-        return input.replace(regex, "")
-    }
-
     // Function to share a link
     fun shareLink(context: Context, link: String) {
         val intent = Intent(Intent.ACTION_SEND).apply {
@@ -536,21 +528,6 @@ object Utils {
         }
     }
 
-    //Checking if a string is a valid mbid or not
-    fun isValidMbidFormat(mbid: String): Boolean{
-        //Must be 36 characters long (32 characters + 4 hyphens)
-        if(mbid.length != 36) return false
-
-        //Check if the 9th, 14th, 19th and 24th characters are hyphens
-        if(mbid[8] != '-' || mbid[13] != '-' || mbid[18] != '-' || mbid[23] != '-') return false
-
-        //Check if the rest of the characters are hexadecimal
-        for(i in 0 until 36){
-            if(i == 8 || i == 13 || i == 18 || i == 23) continue
-            if(mbid[i] !in '0'..'9' && mbid[i] !in 'a'..'f' && mbid[i] !in 'A'..'F') return false
-        }
-        return true
-    }
 
     fun ComponentActivity.askNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&

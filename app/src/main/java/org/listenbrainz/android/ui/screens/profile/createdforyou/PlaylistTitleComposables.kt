@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
-import org.listenbrainz.android.util.Utils.removeHtmlTags
+import org.listenbrainz.shared.util.Utils.removeHtmlTags
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
