@@ -39,4 +39,5 @@ val sharedViewModelModule = module {
     viewModel { PlaylistDataViewModel(get(),get(),get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER)),get<StringProvider>()) }
     viewModel { SocialViewModel(get(),get(),get(),get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER)),get<StringProvider>()) }
     viewModel { FeedViewModel(get(),get(),get(),get(),get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER))) }
+    viewModel { PlaylistDataViewModel(get(),get(),get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER))) }
 }
