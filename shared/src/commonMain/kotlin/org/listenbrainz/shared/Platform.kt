@@ -9,6 +9,7 @@ import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.service.YouTubeApiService
 
 import androidx.room.RoomDatabase
+import org.listenbrainz.shared.di.database.BrainzPlayerDatabase
 
 expect fun platform(): String
 
