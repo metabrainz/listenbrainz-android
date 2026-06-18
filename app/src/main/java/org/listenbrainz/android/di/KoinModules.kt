@@ -41,8 +41,6 @@ import org.listenbrainz.android.model.dao.ArtistDao
 import org.listenbrainz.android.model.dao.PendingListensDao
 import org.listenbrainz.android.model.dao.PlaylistDao
 import org.listenbrainz.android.model.dao.SongDao
-import org.listenbrainz.android.repository.album.AlbumRepository
-import org.listenbrainz.android.repository.album.AlbumRepositoryImpl
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepositoryImpl
 import org.listenbrainz.shared.repository.artist.ArtistRepository
@@ -79,7 +77,6 @@ import org.listenbrainz.android.repository.yim.YimRepository
 import org.listenbrainz.android.repository.yim.YimRepositoryImpl
 import org.listenbrainz.android.repository.yim23.Yim23Repository
 import org.listenbrainz.android.repository.yim23.Yim23RepositoryImpl
-import org.listenbrainz.android.service.AlbumService
 import org.listenbrainz.shared.service.ArtistService
 import org.listenbrainz.shared.service.BlogService
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
@@ -96,7 +93,6 @@ import org.listenbrainz.android.service.UserService
 import org.listenbrainz.android.service.Yim23Service
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.service.YouTubeApiService
-import org.listenbrainz.android.service.createAlbumService
 import org.listenbrainz.android.service.createGithubAppUpdatesService
 import org.listenbrainz.android.service.createListensService
 import org.listenbrainz.android.service.createPlaylistService
@@ -116,7 +112,6 @@ import org.listenbrainz.shared.util.Log
 import org.listenbrainz.android.util.MusicSource
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.AboutViewModel
-import org.listenbrainz.android.viewmodel.AlbumViewModel
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 import org.listenbrainz.shared.viewmodel.ArtistViewModel
 import org.listenbrainz.android.viewmodel.BPAlbumViewModel
