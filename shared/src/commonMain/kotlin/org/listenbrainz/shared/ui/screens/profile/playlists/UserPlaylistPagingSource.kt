@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.profile.playlists
+package org.listenbrainz.shared.ui.screens.profile.playlists
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.userPlaylist.UserPlaylist
-import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
+import org.listenbrainz.shared.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.shared.util.Resource
 
 class UserPlaylistPagingSource(
