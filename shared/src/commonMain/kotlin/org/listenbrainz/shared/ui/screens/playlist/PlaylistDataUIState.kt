@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.playlist
+package org.listenbrainz.shared.ui.screens.playlist
 
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.User
