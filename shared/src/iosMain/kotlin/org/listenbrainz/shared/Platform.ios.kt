@@ -13,7 +13,6 @@ import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSUserDomainMask
 
-import org.listenbrainz.shared.repository.PlatformContext
 import org.listenbrainz.shared.repository.remoteplayer.IosRemotePlaybackHandlerImpl
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.service.YouTubeApiService

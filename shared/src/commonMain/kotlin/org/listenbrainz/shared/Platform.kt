@@ -5,7 +5,6 @@ import org.listenbrainz.shared.repository.PlatformContext
 import org.listenbrainz.shared.util.BuildInfo
 import org.listenbrainz.shared.util.LogSubmitter
 
-import org.listenbrainz.shared.repository.PlatformContext
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.service.YouTubeApiService
 

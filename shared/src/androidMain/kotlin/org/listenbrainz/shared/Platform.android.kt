@@ -12,7 +12,6 @@ import org.listenbrainz.shared.util.BuildInfo
 import org.listenbrainz.shared.util.LogSubmitter
 import java.io.File
 
-import org.listenbrainz.shared.repository.PlatformContext
 import org.listenbrainz.shared.repository.remoteplayer.AndroidRemotePlaybackHandlerImpl
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.service.YouTubeApiService
