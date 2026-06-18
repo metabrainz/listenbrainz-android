@@ -24,7 +24,7 @@ import org.listenbrainz.shared.model.playlist.PlaylistData
 import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.shared.model.userPlaylist.UserPlaylist
 import org.listenbrainz.shared.repository.listens.ListensRepository
-import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
+import org.listenbrainz.shared.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.social.SocialRepository
 import org.listenbrainz.android.repository.user.UserRepository
@@ -35,10 +35,11 @@ import org.listenbrainz.android.ui.screens.profile.ProfileUiState
 import org.listenbrainz.android.ui.screens.profile.StatsTabUIState
 import org.listenbrainz.android.ui.screens.profile.TasteTabUIState
 import org.listenbrainz.android.ui.screens.profile.listens.UserListensPagingSource
-import org.listenbrainz.android.ui.screens.profile.playlists.CollabPlaylistPagingSource
-import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistPagingSource
+import org.listenbrainz.shared.ui.screens.profile.playlists.CollabPlaylistPagingSource
+import org.listenbrainz.shared.ui.screens.profile.playlists.UserPlaylistPagingSource
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
 import org.listenbrainz.android.ui.screens.profile.stats.DataScope
+import org.listenbrainz.shared.model.user.Artist
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.viewmodel.BaseViewModel
 

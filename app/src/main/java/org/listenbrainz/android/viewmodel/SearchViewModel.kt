@@ -39,7 +39,7 @@ import org.listenbrainz.shared.model.search.albumSearch.AlbumSearchUiState
 import org.listenbrainz.shared.model.search.albumSearch.AlbumUiModel
 import org.listenbrainz.shared.repository.album.AlbumRepository
 import org.listenbrainz.shared.repository.artist.ArtistRepository
-import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
+import org.listenbrainz.shared.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.repository.social.SocialRepository
 import org.listenbrainz.shared.util.Resource

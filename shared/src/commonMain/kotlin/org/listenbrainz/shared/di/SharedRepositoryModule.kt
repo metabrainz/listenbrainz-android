@@ -21,6 +21,8 @@ import org.listenbrainz.shared.repository.brainzplayer.SongRepository
 import org.listenbrainz.shared.repository.brainzplayer.SongRepositoryImpl
 import org.listenbrainz.shared.repository.brainzplayer.PlaylistRepository
 import org.listenbrainz.shared.repository.brainzplayer.PlaylistRepositoryImpl
+import org.listenbrainz.shared.repository.playlists.PlaylistDataRepository
+import org.listenbrainz.shared.repository.playlists.PlaylistDataRepositoryImpl
 import org.listenbrainz.shared.repository.social.SocialRepository
 import org.listenbrainz.shared.repository.social.SocialRepositoryImpl
 import org.listenbrainz.shared.repository.brainzplayer.BPAlbumRepository
@@ -51,4 +53,5 @@ val sharedRepositoryModule = module {
     single<BPAlbumRepository> { BPAlbumRepositoryImpl(get(),get(),get()) }
     single<BPArtistRepository> { BPArtistRepositoryImpl(get(),get(),get()) }
     single<SocialRepository> { SocialRepositoryImpl(get(),get()) }
+    single<PlaylistDataRepository> { PlaylistDataRepositoryImpl(get(),get(),get(),get(named(IO_DISPATCHER))) }
 }
