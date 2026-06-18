@@ -14,7 +14,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
@@ -28,21 +30,36 @@ import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginConsentScreenUIState
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.AppInfo
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
-import org.listenbrainz.android.util.Log
+import org.listenbrainz.shared.util.Log
 import org.listenbrainz.android.util.Utils.getAllInstalledApps
 import org.listenbrainz.android.util.Utils.getListeningApps
+import org.listenbrainz.shared.model.AppNavigationItem
+import org.listenbrainz.shared.util.LogSubmitter
+
+data class DashBoardUiState(
+    val username:String?= null,
+    val navBarOrder: List<AppNavigationItem>? = null,
+    val permissionRequestedAtLeastOnce: List<String> = emptyList(),
+    val onBoardingCompleted: Boolean = false,
+    val listeningApps: List<AppInfo> = emptyList(),
+    val allApps: List<AppInfo> = emptyList(),
+    val consentScreenUIState: LoginConsentScreenUIState = LoginConsentScreenUIState(),
+    val isSubmittingLogs: Boolean = false
+)
 
 class DashBoardViewModel(
     val appPreferences: AppPreferences,
     application: Application,
     private val remotePlaybackHandler: RemotePlaybackHandler,
-    private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
+    private val logSubmitter: LogSubmitter,
+    private val logger:Log = Log
 ) : AndroidViewModel(application) {
 
-    val usernameFlow = appPreferences.username.getFlow()
+    private val usernameFlow = appPreferences.username.getFlow()
     val permissionStatusFlow = MutableStateFlow(emptyMap<PermissionEnum, PermissionStatus>())
 
-    val navBarOrderFlow = appPreferences.navBarOrder
+    private val navBarOrderFlow = appPreferences.navBarOrder
         .getFlow()
         .stateIn(
             scope = viewModelScope,
@@ -50,18 +67,44 @@ class DashBoardViewModel(
             initialValue = null
         )
 
-    val permissionsRequestedAteastOnce = appPreferences.requestedPermissionsList.getFlow()
+    private val permissionsRequestedAteastOnce = appPreferences.requestedPermissionsList.getFlow()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
     private val _onboardingCompletedState = appPreferences.onboardingCompleted.getFlow()
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     private val _listeningAppsFlow = MutableStateFlow<List<AppInfo>>(emptyList())
-    val listeningAppsFlow = _listeningAppsFlow.asStateFlow()
     private val _allApps = MutableStateFlow<List<AppInfo>>(emptyList())
-    val allApps = _allApps.asStateFlow()
 
     private val _consentScreenUIState = MutableStateFlow(LoginConsentScreenUIState())
-    val consentScreenUIState = _consentScreenUIState.asStateFlow()
+
+    private val _submittingLogs = MutableStateFlow(false)
+
+    val uiState: StateFlow<DashBoardUiState> = combine(
+        usernameFlow,
+        permissionStatusFlow,
+        navBarOrderFlow,
+        permissionsRequestedAteastOnce,
+        _onboardingCompletedState,
+        _listeningAppsFlow,
+        _allApps,
+        _consentScreenUIState,
+        _submittingLogs
+    ){ flows ->
+        DashBoardUiState(
+            username = flows[0] as? String,
+            navBarOrder = flows[2] as? List<AppNavigationItem>,
+            permissionRequestedAtLeastOnce = flows[3] as List<String>,
+            onBoardingCompleted = flows[4] as Boolean,
+            listeningApps = flows[5] as List<AppInfo>,
+            allApps = flows[6] as List<AppInfo>,
+            consentScreenUIState = flows[7] as LoginConsentScreenUIState,
+            isSubmittingLogs = flows[8] as Boolean
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = DashBoardUiState()
+    )
 
     init {
         viewModelScope.launch {
@@ -73,6 +116,22 @@ class DashBoardViewModel(
                         isLoading = false
                     )
                 }
+            }
+        }
+    }
+
+    fun logSubmit(){
+        if(_submittingLogs.value){
+            return
+        }
+        viewModelScope.launch {
+            _submittingLogs.value = true
+            try {
+                logSubmitter.submitLogs()
+            } catch (e: Exception){
+                logger.e("Unable to submit logs: $e")
+            } finally {
+                _submittingLogs.value = false
             }
         }
     }
@@ -238,7 +297,7 @@ class DashBoardViewModel(
                         }
                     }
                 } catch (e: Exception) {
-                    Log.w("Couldn't get icon for $packageName " + e.toString())
+                    logger.w("Couldn't get icon for $packageName " + e.toString())
                     createBitmap(48, 48).apply {
                         eraseColor(Color.GRAY)
                     }
@@ -253,7 +312,7 @@ class DashBoardViewModel(
                     )
                 )
             } catch (e: Exception) {
-                Log.d("Couldn't get info for package $packageName")
+                logger.d("Couldn't get info for package $packageName")
             }
         }
         return fetchedApps

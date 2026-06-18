@@ -31,6 +31,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalAutofillManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -56,6 +57,7 @@ import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingSup
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
+import org.listenbrainz.shared.repository.PlatformContext
 
 @Composable
 fun LoginScreenLayout(
@@ -68,7 +70,8 @@ fun LoginScreenLayout(
     onCreateAccountClick: () -> Unit,
     onRefreshClick: () -> Unit,
     modifier: Modifier = Modifier,
-    webViewContent: @Composable () -> Unit = {}
+    webViewContent: @Composable () -> Unit = {},
+    submitLogs:()->Unit
 ) {
     Box(
         modifier = modifier
@@ -154,7 +157,11 @@ fun LoginScreenLayout(
             modifier = Modifier
                 .statusBarsPadding()
                 .align(Alignment.TopEnd)
-                .padding(top = 8.dp, end = 8.dp)
+                .padding(top = 8.dp, end = 8.dp),
+            isSubmitting = uiState.isLogSubmitting,
+            submitLogs = {
+                submitLogs()
+            }
         )
 
     }
@@ -404,7 +411,8 @@ private fun LoginScreenLayoutPreview() {
             onPasswordChange = {},
             onLoginClick = {},
             onCreateAccountClick = {}, // Add dummy lambda for preview
-            onRefreshClick = {}
+            onRefreshClick = {},
+            submitLogs = {}
         )
     }
 }

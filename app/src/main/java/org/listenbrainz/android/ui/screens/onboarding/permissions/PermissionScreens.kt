@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -48,15 +49,18 @@ import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingSup
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_yellow
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
+import org.listenbrainz.shared.repository.PlatformContext
 
 @Composable
 fun PermissionScreen(dashBoardViewModel: DashBoardViewModel = koinViewModel(),
                      onExitAfterGrantingAllPermissions: ()-> Unit,
                      onExit: () -> Unit) {
     val activity = LocalActivity.current
+    val dashBoardUiState by dashBoardViewModel.uiState.collectAsState()
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
-    val permissionsRequestedOnce by dashBoardViewModel.permissionsRequestedAteastOnce.collectAsState()
+    val permissionsRequestedOnce = dashBoardUiState.permissionRequestedAtLeastOnce
     val filteredPermissions = permissions.filter { it.key != PermissionEnum.BATTERY_OPTIMIZATION && it.key != PermissionEnum.READ_NOTIFICATIONS }
+    val isLogSubmitting= dashBoardUiState.isSubmittingLogs
 
     LaunchedEffect(filteredPermissions) {
         if (filteredPermissions.isEmpty() || filteredPermissions.all { it.value == PermissionStatus.GRANTED }) {
@@ -80,15 +84,23 @@ fun PermissionScreen(dashBoardViewModel: DashBoardViewModel = koinViewModel(),
         },
         onRejectPermissionClick = {
             onExit() // Continue without accepting permissions
-        })
+        },
+        submitLogs = {
+            dashBoardViewModel.logSubmit()
+        },
+        isSubmitting = isLogSubmitting
+        )
 }
 
 @Composable
 private fun PermissionScreenBase(
     permissions: Map<PermissionEnum, PermissionStatus>,
     onGrantPermissionClick: (PermissionEnum) -> Unit,
-    onRejectPermissionClick: () -> Unit
+    onRejectPermissionClick: () -> Unit,
+    submitLogs:()->Unit,
+    isSubmitting:Boolean
 ) {
+    val context = LocalContext.current
     FloatingContentAwareLayout(
         modifier = Modifier
             .fillMaxSize(),
@@ -164,7 +176,11 @@ private fun PermissionScreenBase(
             OnboardingSupportButton(modifier = Modifier
                 .statusBarsPadding()
                 .align(Alignment.TopEnd)
-                .padding(top = 8.dp , end = 8.dp)
+                .padding(top = 8.dp , end = 8.dp),
+                submitLogs = {
+                    submitLogs()
+                },
+                isSubmitting = isSubmitting
             )
         }
     }
@@ -249,7 +265,9 @@ private fun PermissionScreenPreview() {
                 PermissionEnum.BATTERY_OPTIMIZATION to PermissionStatus.NOT_REQUESTED
             ),
             onGrantPermissionClick = {},
-            onRejectPermissionClick = {}
+            onRejectPermissionClick = {},
+            submitLogs = {},
+            isSubmitting = false
         )
     }
 }

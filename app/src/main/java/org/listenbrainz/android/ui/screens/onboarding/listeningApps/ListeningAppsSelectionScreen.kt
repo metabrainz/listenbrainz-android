@@ -68,6 +68,7 @@ import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionCard
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
+import org.listenbrainz.shared.repository.PlatformContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -75,8 +76,9 @@ fun ListeningAppSelectionScreen(
     dashBoardViewModel: DashBoardViewModel = koinViewModel(),
     onClickNext: () -> Unit
 ) {
-    val listeningApps by dashBoardViewModel.listeningAppsFlow.collectAsState()
-    val allApps by dashBoardViewModel.allApps.collectAsState()
+    val dashboardUiState by dashBoardViewModel.uiState.collectAsState()
+    val listeningApps = dashboardUiState.listeningApps
+    val allApps = dashboardUiState.allApps
     val isListening by dashBoardViewModel.appPreferences.isListeningAllowed.getFlow()
         .collectAsState(initial = true)
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
@@ -92,6 +94,7 @@ fun ListeningAppSelectionScreen(
     var isBottomSheetVisible by remember {
         mutableStateOf(false)
     }
+    val isLogSubmitting = dashboardUiState.isSubmittingLogs
     val scope = rememberCoroutineScope()
 
     ListeningAppScreenLayout(
@@ -104,7 +107,7 @@ fun ListeningAppSelectionScreen(
         onGrantPermissionClick = { permission ->
             if (activity != null) {
                 val permissionsRequestedOnce =
-                    dashBoardViewModel.permissionsRequestedAteastOnce.value
+                    dashboardUiState.permissionRequestedAtLeastOnce
                 permission.requestPermission(activity, permissionsRequestedOnce) {
                     dashBoardViewModel.markPermissionAsRequested(permission)
                 }
@@ -113,6 +116,10 @@ fun ListeningAppSelectionScreen(
         onClickNext = onClickNext,
         onAddMoreAppsButtonClick = {
             isBottomSheetVisible = true
+        },
+        isSubmitting = isLogSubmitting,
+        submitLogs = {
+            dashBoardViewModel.logSubmit()
         }
     )
     if (isBottomSheetVisible) {
@@ -158,6 +165,8 @@ fun ListeningAppScreenLayout(
     permissionStatus: Map<PermissionEnum, PermissionStatus>,
     onGrantPermissionClick: (PermissionEnum) -> Unit,
     onClickNext: () -> Unit,
+    isSubmitting: Boolean,
+    submitLogs:() -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
@@ -272,7 +281,11 @@ fun ListeningAppScreenLayout(
         OnboardingSupportButton(modifier = Modifier
             .statusBarsPadding()
             .align(Alignment.TopEnd)
-            .padding(top = 8.dp , end = 8.dp)
+            .padding(top = 8.dp , end = 8.dp),
+            isSubmitting = isSubmitting,
+            submitLogs = {
+                submitLogs()
+            }
         )
     }
 }
@@ -444,7 +457,9 @@ fun ListeningAppLayoutPreview() {
             isInPermissionState = true,
             permissionStatus = emptyMap(),
             onGrantPermissionClick = {},
-            onAddMoreAppsButtonClick = {}
+            onAddMoreAppsButtonClick = {},
+            submitLogs = {},
+            isSubmitting = false
         )
     }
 }

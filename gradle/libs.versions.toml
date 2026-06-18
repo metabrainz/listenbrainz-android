@@ -1,6 +1,7 @@
 [versions]
 appUpdate = "2.1.0"
 appUpdateKtx = "2.1.0"
+kermit = "2.0.8"
 kotlin = "2.3.10"
 navigation = "2.8.5"
 koin = "4.1.1"
@@ -65,9 +66,11 @@ ktorfit-compiler = "2.3.3"
 kotlinStdlib = "2.3.0"
 core = "1.7.0"
 kmp-socketio = "1.4.4"
+coreVersion = "1.18.0"
 
 [libraries]
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android" }
@@ -185,6 +188,7 @@ ktorfit-lib = { module = "de.jensklingenberg.ktorfit:ktorfit-lib", version.ref =
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlinStdlib" }
 androidx-core = { group = "androidx.test", name = "core", version.ref = "core" }
 kmp-socketio =  { module  = "com.piasy:kmp-socketio", version.ref = "kmp-socketio"}
+core = { group = "androidx.core", name = "core", version.ref = "coreVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }

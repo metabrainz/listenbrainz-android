@@ -91,6 +91,8 @@ kotlin {
                 // Room Multiplatform
                 implementation(libs.androidx.room.runtime)
                 implementation(libs.androidx.sqlite.bundled)
+                // Kermit Logger
+                implementation(libs.kermit)
                 // Ktor & Ktorfit
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.content.negotiation)
@@ -100,6 +102,11 @@ kotlin {
                 // Ktor
                 implementation(libs.ktor.client.core)
                 implementation(libs.kmp.socketio)
+                api(libs.kermit)
+                // Ktor
+                implementation(libs.ktor.client.core)
+                implementation(libs.kmp.socketio)
+                implementation(libs.kotlinx.datetime)
             }
         }
 
@@ -115,6 +122,7 @@ kotlin {
                 // commonMain by default and will correctly pull the Android artifacts of any KMP
                 // dependencies declared in commonMain.
                 implementation(libs.androidx.datastore.preferences)
+                implementation(libs.core)
                 implementation(libs.ktor.client.okhttp)
             }
         }

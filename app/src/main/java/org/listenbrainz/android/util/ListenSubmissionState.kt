@@ -23,6 +23,7 @@ import org.listenbrainz.android.service.ListenSubmissionService.Companion.NOTIFI
 import org.listenbrainz.android.service.ListenSubmissionWorker.Companion.buildWorkRequest
 import org.listenbrainz.android.ui.screens.main.MainActivity
 import org.listenbrainz.android.util.Utils.canShowNotifications
+import org.listenbrainz.shared.util.Log
 
 open class ListenSubmissionState {
     var playingTrack: PlayingTrack = PlayingTrack()
@@ -31,25 +32,26 @@ open class ListenSubmissionState {
     private val trackCompletionTimer: Timer
     private val workManager: WorkManager
     private val context: Context
+    private val logger : Log
     private val notificationManager: NotificationManagerCompat by lazy {
         NotificationManagerCompat.from(context)
     }
 
-    constructor(jobQueue: JobQueue = JobQueue(Dispatchers.Default), workManager: WorkManager, context: Context) {
+    constructor(jobQueue: JobQueue = JobQueue(Dispatchers.Default), workManager: WorkManager, context: Context,logger:Log = Log) {
         this.submissionTimer = TimerJQ(jobQueue, SUBMISSION_TIMER_TOKEN)
         this.trackCompletionTimer = TimerJQ(jobQueue, TRACK_COMPLETION_TIMER_TOKEN)
         this.workManager = workManager
         this.context = context
-
+        this.logger = logger
         init()
     }
 
-    constructor(handler: Handler, workManager: WorkManager, context: Context) {
+    constructor(handler: Handler, workManager: WorkManager, context: Context,logger:Log = Log) {
         this.submissionTimer = TimerHandler(handler, SUBMISSION_TIMER_TOKEN)
         this.trackCompletionTimer = TimerHandler(handler, TRACK_COMPLETION_TIMER_TOKEN)
         this.workManager = workManager
         this.context = context
-
+        this.logger = logger
         init()
     }
     
@@ -61,7 +63,7 @@ open class ListenSubmissionState {
             }
             
             override fun onTimerPaused(remainingMillis: Long) {
-                Log.d("${remainingMillis / 1000} seconds left to submit: ${playingTrack.id}")
+                logger.d("${remainingMillis / 1000} seconds left to submit: ${playingTrack.id}")
             }
         })
 
@@ -80,7 +82,7 @@ open class ListenSubmissionState {
 
             override fun onTimerEnded() {
                 // Make notification null
-                Log.d("Track completion timer ended: ${playingTrack.id}")
+                logger.d("Track completion timer ended: ${playingTrack.id}")
                 if (context.canShowNotifications) {
                     notificationManager.notify(
                         NOTIFICATION_ID,
@@ -95,7 +97,7 @@ open class ListenSubmissionState {
     private fun afterMetadataSet() {
         // After metadata set
         if (isMetadataFaulty()) {
-            Log.w("Metadata is faulty, listen cancelled: $playingTrack")
+            logger.w("Metadata is faulty, listen cancelled: $playingTrack")
             playingTrack = PlayingTrack.Nothing
             return
         }
@@ -136,7 +138,7 @@ open class ListenSubmissionState {
                 }
 
                 // Force submit a playing now because have updated metadata now.
-                Log.d("Force submitting playing now: ${playingTrack.id}")
+                logger.d("Force submitting playing now: ${playingTrack.id}")
                 playingTrack.playingNowSubmitted = false
                 submitPlayingNow()
             }
@@ -148,7 +150,7 @@ open class ListenSubmissionState {
     @SuppressLint("MissingPermission")
     fun alertMediaPlayerRemoved(packageName: String) {
         if (context.canShowNotifications && packageName == playingTrack.pkgName) {
-            Log.d("Media player for $packageName removed, cleaning up notification.")
+            logger.d("Media player for $packageName removed, cleaning up notification.")
             notificationManager.notify(
                 NOTIFICATION_ID,
                 context.getListeningNotification(null)
@@ -171,10 +173,10 @@ open class ListenSubmissionState {
                 )
             }
             trackCompletionTimer.startOrResume()
-            Log.d("Play: ${playingTrack.id}")
+            logger.d("Play: ${playingTrack.id}")
         } else {
             submissionTimer.pause()
-            Log.d("Pause: ${playingTrack.id}")
+            logger.d("Pause: ${playingTrack.id}")
         }
     }
     
@@ -196,7 +198,7 @@ open class ListenSubmissionState {
                 roundDuration(duration = DEFAULT_DURATION * 2)
             )
         }
-        Log.d("Timer Set: ${playingTrack.id}")
+        logger.d("Timer Set: ${playingTrack.id}")
     }
     
     // Utility functions

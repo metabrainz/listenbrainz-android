@@ -22,8 +22,8 @@ import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.model.dao.PendingListensDao
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.AppPreferences
+import org.listenbrainz.shared.util.Log
 import org.listenbrainz.shared.util.Constants
-import org.listenbrainz.android.util.Log
 import org.listenbrainz.shared.util.Resource
 
 class ListenSubmissionWorker(
@@ -31,6 +31,7 @@ class ListenSubmissionWorker(
     workerParams: WorkerParameters
 ) : CoroutineWorker(context, workerParams), KoinComponent {
 
+    private var logger:Log = Log
     private val appPreferences: AppPreferences by inject()
     private val repository: ListensRepository by inject()
     private val pendingListensDao: PendingListensDao by inject()
@@ -38,14 +39,14 @@ class ListenSubmissionWorker(
     override suspend fun doWork(): Result {
         val token = appPreferences.lbAccessToken.get()
         if (token.isEmpty()) {
-            Log.d("ListenBrainz User token has not been set!")
+            logger.d("ListenBrainz User token has not been set!")
             return Result.failure()
         }
         val duration = inputData.getLong(MediaMetadata.METADATA_KEY_DURATION, 0).run {
             when (this) {
                 0L -> null
                 in 1..30_000 -> {
-                    Log.d("Track is too short to submit, duration: $duration")
+                    logger.d("Track is too short to submit, duration: $duration")
                     return Result.failure()
                 }
                 else -> this
@@ -66,7 +67,7 @@ class ListenSubmissionWorker(
         )
 
         if (!metadata.isValid()) {
-            Log.d("Track metadata is not valid: $metadata")
+            logger.d("Track metadata is not valid: $metadata")
             return Result.failure()
         }
         
@@ -94,9 +95,9 @@ class ListenSubmissionWorker(
         return when (response.status) {
             Resource.Status.SUCCESS -> {
                 if (body.listenType == ListenType.PLAYING_NOW.code) {
-                    Log.d("Playing Now submitted")
+                    logger.d("Playing Now submitted")
                 } else {
-                    Log.d("Listen submitted")
+                    logger.d("Listen submitted")
                 }
 
                 // Means conditions are met. Work manager automatically manages internet state.
@@ -116,11 +117,11 @@ class ListenSubmissionWorker(
                     when (submission.status) {
                         Resource.Status.SUCCESS -> {
                             // Empty all pending listens.
-                            Log.d("Pending listens submitted.")
+                            logger.d("Pending listens submitted.")
                             pendingListensDao.deleteAllPendingListens()
                         }
                         else -> {
-                            Log.w("Could not submit pending listens.")
+                            logger.w("Could not submit pending listens.")
                         }
                     }
                 }
@@ -133,17 +134,17 @@ class ListenSubmissionWorker(
                 if (inputData.getString("TYPE") == "single") {
                     // We don't want to submit playing nows later.
                     if (response.error is ResponseError.BadRequest) {
-                        Log.e(
+                        logger.e(
                             "Submission failed, not saving listen because metadata is faulty."
                             + "\n Server response: ${response?.error?.toast}" + "\n POST Request Body: $body"
                         )
                     } else {
-                        Log.e("Submission failed, listen saved.")
+                        logger.e("Submission failed, listen saved.")
                         pendingListensDao.addListen(listen)
                     }
                 } else {
                     // Playing now was not submitted.
-                    Log.e("Could not submit playing now. Reason: " + (response.error?.toast ?: "Unknown"))
+                    logger.e("Could not submit playing now. Reason: " + (response.error?.toast ?: "Unknown"))
                 }
 
                 Result.failure()

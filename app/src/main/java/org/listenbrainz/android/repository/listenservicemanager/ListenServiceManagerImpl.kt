@@ -21,7 +21,7 @@ import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.util.ListenSessionListener.Companion.isPlaying
 import org.listenbrainz.android.util.ListenSubmissionState
 import org.listenbrainz.android.util.ListenSubmissionState.Companion.extractTitle
-import org.listenbrainz.android.util.Log
+import org.listenbrainz.shared.util.Log
 
 /**
  * The sole responsibility of this layer is to maintain mutual exclusion between [onMetadataChanged] and
@@ -31,7 +31,8 @@ import org.listenbrainz.android.util.Log
 class ListenServiceManagerImpl(
     workManager: WorkManager,
     appPreferences: AppPreferences,
-    private val context: Context
+    private val context: Context,
+    private val logger:Log = Log
 ) : ListenServiceManager {
     private val handler: Handler = Handler(Looper.getMainLooper())
     override val listenSubmissionState = ListenSubmissionState(handler, workManager, context)
@@ -146,7 +147,7 @@ class ListenServiceManagerImpl(
 
                 // Check for whitelisted apps
                 if (sbn.packageName !in whitelist.value) {
-                    Log.d("Package ${sbn.packageName} not in whitelist, dismissing.")
+                    logger.d("Package ${sbn.packageName} not in whitelist, dismissing.")
                     return@post
                 }
 

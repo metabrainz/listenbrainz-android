@@ -113,7 +113,7 @@ import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_API_BASE_URL
 import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_BETA_API_BASE_URL
 import org.listenbrainz.shared.util.Constants.MB_BASE_URL
 import org.listenbrainz.android.util.LocalMusicSource
-import org.listenbrainz.android.util.Log
+import org.listenbrainz.shared.util.Log
 import org.listenbrainz.android.util.MusicSource
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.AboutViewModel
@@ -134,14 +134,19 @@ import org.listenbrainz.android.viewmodel.NewsListViewModel
 import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import org.listenbrainz.android.viewmodel.SearchViewModel
+import org.listenbrainz.shared.viewmodel.SettingsViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.SongViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
 import org.listenbrainz.android.viewmodel.YimViewModel
+import org.listenbrainz.shared.di.platformModule
+import org.listenbrainz.shared.util.BuildInfo
+import org.listenbrainz.shared.util.LogSubmitter
 import org.listenbrainz.shared.di.sharedDispatcherModule
 import org.listenbrainz.shared.di.sharedNetworkServiceModule
 import org.listenbrainz.shared.di.sharedRepositoryModule
+import org.listenbrainz.shared.di.sharedViewModelModule
 import org.listenbrainz.shared.di.sharedViewModelModule
 
 // Qualifier names for dispatchers
@@ -434,6 +439,15 @@ val appModule = module {
     single<BrainzPlayerServiceConnection> {
         BrainzPlayerServiceConnection(androidContext(), get(), get())
     }
+
+    single<BuildInfo>{
+        BuildInfo(
+            applicationId = BuildConfig.APPLICATION_ID,
+            versionCode = BuildConfig.VERSION_CODE,
+            versionName = BuildConfig.VERSION_NAME,
+            buildType = BuildConfig.BUILD_TYPE
+        )
+    }
 }
 
 val repositoryModule = module {
@@ -486,7 +500,7 @@ val playerModule = module {
 }
 
 val viewModelModule = module {
-    viewModel { DashBoardViewModel(get(), get(), get(), get(named(IO_DISPATCHER))) }
+    viewModel { DashBoardViewModel(get(), get(), get(), get(named(IO_DISPATCHER)),get()) }
     viewModel { AppUpdatesViewModel(get(), get(), get()) }
     viewModel { FeedViewModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { ListensViewModel(get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
@@ -506,8 +520,8 @@ val viewModelModule = module {
     viewModel { AlbumViewModel(get(), get(named(IO_DISPATCHER))) }
     viewModel { FeaturesViewModel(get()) }
     viewModel { AboutViewModel() }
-    viewModel { LoginViewModel() }
-    viewModel { CreateAccountViewModel() }
+    viewModel { LoginViewModel(get()) }
+    viewModel { CreateAccountViewModel(get()) }
 }
 
 val appModules = listOf(
@@ -521,5 +535,7 @@ val appModules = listOf(
     sharedViewModelModule,
     sharedNetworkServiceModule,
     sharedDispatcherModule,
-    sharedRepositoryModule
+    sharedRepositoryModule,
+    sharedViewModelModule,
+    platformModule
 )

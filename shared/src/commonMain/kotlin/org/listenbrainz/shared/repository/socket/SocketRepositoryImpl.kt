@@ -13,11 +13,13 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import org.listenbrainz.shared.model.Listen
+import org.listenbrainz.shared.util.Log
 
 
 class SocketRepositoryImpl(
     private val httpClient: HttpClient,
-    private val json: Json
+    private val json: Json,
+    private val logger:Log = Log
 ) : SocketRepository {
 
     override fun listen(usernameProvider: suspend () -> String) = callbackFlow {
@@ -43,12 +45,13 @@ class SocketRepositoryImpl(
                             it?.printStackTrace()
                         }
                     } catch (e: Exception) {
-                        println("SocketRepository: $event error ${e.message}")
+                        logger.e("SocketRepository: $event error ${e.message}")
                     }
                 }
             }
             socket.open()
         }
+
         awaitClose {
             activeSocket?.close()
         }

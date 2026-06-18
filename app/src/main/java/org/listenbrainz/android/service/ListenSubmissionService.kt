@@ -20,9 +20,11 @@ import org.listenbrainz.android.repository.listenservicemanager.ListenServiceMan
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.util.ListenSessionListener
 import org.listenbrainz.android.util.ListenSubmissionState.Companion.getListeningNotification
-import org.listenbrainz.android.util.Log
+import org.listenbrainz.shared.util.Log
 
-class ListenSubmissionService : NotificationListenerService() {
+class ListenSubmissionService(
+    private val logger:Log = Log
+) : NotificationListenerService() {
 
     private val appPreferences: AppPreferences by inject()
     
@@ -40,13 +42,13 @@ class ListenSubmissionService : NotificationListenerService() {
     private val nm: NotificationManager? by lazy {
         val manager = ContextCompat.getSystemService(this, NotificationManager::class.java)
         if (manager == null)
-            Log.e("NotificationManager is not available in this context.")
+            logger.e("NotificationManager is not available in this context.")
         manager
     }
     private val sessionManager: MediaSessionManager? by lazy {
         val manager = ContextCompat.getSystemService(this, MediaSessionManager::class.java)
         if (manager == null)
-            Log.e("MediaSessionManager is not available in this context.")
+            logger.e("MediaSessionManager is not available in this context.")
         manager
     }
 
@@ -70,7 +72,7 @@ class ListenSubmissionService : NotificationListenerService() {
     override fun onListenerDisconnected() {
         if (isConnected) {
             destroy()
-            Log.d("onListenerDisconnected: Listen Service paused.")
+            logger.d("onListenerDisconnected: Listen Service paused.")
             isConnected = false
         }
     }
@@ -78,7 +80,7 @@ class ListenSubmissionService : NotificationListenerService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) = START_STICKY
 
     private fun initialize() {
-        Log.d("Initializing Listener Service")
+        logger.d("Initializing Listener Service")
         _sessionListener = ListenSessionListener(appPreferences, serviceManager, scope)
         listenServiceComponent = ComponentName(this, this.javaClass)
         createNotificationChannel()
@@ -86,9 +88,9 @@ class ListenSubmissionService : NotificationListenerService() {
         try {
             sessionManager?.addOnActiveSessionsChangedListener(sessionListener, listenServiceComponent)
         } catch (e: SecurityException) {
-            Log.e(message = "Could not add session listener due to security exception: ${e.message}")
+            logger.e(message = "Could not add session listener due to security exception: ${e.message}")
         } catch (e: Exception) {
-            Log.e(message = "Could not add session listener: ${e.message}")
+            logger.e(message = "Could not add session listener: ${e.message}")
         }
     }
 
@@ -100,7 +102,7 @@ class ListenSubmissionService : NotificationListenerService() {
 
     override fun onDestroy() {
         scope.cancel()
-        Log.d("onDestroy: Listen Service stopped.")
+        logger.d("onDestroy: Listen Service stopped.")
         super.onDestroy()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             stopForeground(STOP_FOREGROUND_REMOVE)

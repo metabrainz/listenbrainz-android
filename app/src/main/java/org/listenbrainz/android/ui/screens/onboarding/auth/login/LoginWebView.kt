@@ -94,7 +94,10 @@ fun ListenBrainzLogin(
                     )
                 )
             },
-            onRefreshClick = vm::onRefreshClick
+            onRefreshClick = vm::onRefreshClick,
+            submitLogs = {
+                vm.logSubmit()
+            }
         )
 
         if (uiState.loginInState !is LoginState.Idle && uiState.loginInState != LoginState.ShowingGDPRConsentPrompt && uiState.loginInState != LoginState.ShowingOAuthAuthorizationPrompt) {
