@@ -278,6 +278,9 @@ fun BrainzPlayerHomeScreen(
                     onPlayNext = { song ->
                         brainzPlayerViewModel.playNext(listOf(song))
                     },
+                    onShuffleAllClick = {
+                        brainzPlayerViewModel.shuffleAllSongs(songs)
+                    },
                 )
             }
         }
