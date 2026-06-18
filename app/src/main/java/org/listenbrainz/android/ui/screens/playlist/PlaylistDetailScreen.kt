@@ -92,9 +92,10 @@ import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.util.Utils.formatDurationSeconds
 import org.listenbrainz.shared.util.Utils.getCoverArtUrl
-import org.listenbrainz.android.util.Utils.removeHtmlTags
-import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
+import org.listenbrainz.shared.util.Utils.removeHtmlTags
+import org.listenbrainz.shared.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.shared.ui.screens.playlist.PlaylistDetailUIState
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -389,15 +390,16 @@ private fun PlaylistDetailContent(
                         },
                         onDragEnd = {
 
-                            if (playlistDetailUIState.playlistMBID != null)
+                            playlistDetailUIState.playlistMBID?.let{
                                 onPermanentlyMoveTrack(
                                     MoveTrack(
-                                        playlistDetailUIState.playlistMBID,
+                                        it,
                                         from = draggingItemInitialIndex,
                                         to = targetIndex,
                                         count = 1
                                     )
                                 )
+                            }
                             draggingItem = null
                             draggingItemIndex = null
                             delta = 0f

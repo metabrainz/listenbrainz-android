@@ -73,7 +73,8 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_orange
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
-import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
+import org.listenbrainz.shared.viewmodel.PlaylistDataViewModel
+import org.listenbrainz.shared.ui.screens.playlist.CreateEditScreenUIState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

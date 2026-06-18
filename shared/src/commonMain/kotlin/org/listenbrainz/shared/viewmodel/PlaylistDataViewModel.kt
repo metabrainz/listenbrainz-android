@@ -1,4 +1,4 @@
-package org.listenbrainz.android.viewmodel
+package org.listenbrainz.shared.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.User
@@ -32,17 +31,17 @@ import org.listenbrainz.shared.model.playlist.PlaylistPayload
 import org.listenbrainz.shared.model.playlist.PlaylistTrack
 import org.listenbrainz.shared.model.recordingSearch.RecordingData
 import org.listenbrainz.shared.model.userPlaylist.UserPlaylist
-import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
+import org.listenbrainz.shared.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.social.SocialRepository
-import org.listenbrainz.android.ui.screens.playlist.CreateEditScreenUIState
-import org.listenbrainz.android.ui.screens.playlist.PlaylistDataUIState
-import org.listenbrainz.android.ui.screens.playlist.PlaylistDetailUIState
-import org.listenbrainz.android.ui.screens.profile.playlists.CollabPlaylistPagingSource
-import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistPagingSource
+import org.listenbrainz.shared.ui.screens.playlist.CreateEditScreenUIState
+import org.listenbrainz.shared.ui.screens.playlist.PlaylistDataUIState
+import org.listenbrainz.shared.ui.screens.playlist.PlaylistDetailUIState
+import org.listenbrainz.shared.ui.screens.profile.playlists.CollabPlaylistPagingSource
+import org.listenbrainz.shared.ui.screens.profile.playlists.UserPlaylistPagingSource
 import org.listenbrainz.shared.util.Resource
-import org.listenbrainz.android.util.Utils
-import org.listenbrainz.android.util.Utils.isValidMbidFormat
+import org.listenbrainz.shared.util.Utils
+import org.listenbrainz.shared.util.Utils.isValidMbidFormat
 import org.listenbrainz.shared.viewmodel.BaseViewModel
 
 class PlaylistDataViewModel(
@@ -424,7 +423,7 @@ class PlaylistDataViewModel(
                         ))
                     } else {
                         //Refresh screen (to fetch cover art)
-                        emitMsg(R.string.track_added_successfully)
+//                        emitMsg(R.string.track_added_successfully)
                         if (playlistScreenUIStateFlow.value.playlistMBID != null)
                             getDataInPlaylistScreen(
                                 playlistScreenUIStateFlow.value.playlistMBID!!,
@@ -493,7 +492,7 @@ class PlaylistDataViewModel(
                         ))
                         refreshPlaylistScreen()
                     } else {
-                        emitMsg(R.string.track_moved_successfully)
+//                        emitMsg(R.string.track_moved_successfully)
                         refreshPlaylistScreen()
                     }
                 }
@@ -507,7 +506,7 @@ class PlaylistDataViewModel(
             }
         }
     }
-    
+
     fun deleteTrackFromPlaylist(index: Int) {
         val refreshPlaylistScreen = {
             if (playlistScreenUIStateFlow.value.playlistMBID != null)
@@ -530,7 +529,7 @@ class PlaylistDataViewModel(
                         ))
                         refreshPlaylistScreen()
                     } else {
-                        emitMsg(R.string.track_removed_from_playlist_successfully)
+//                        emitMsg(R.string.track_removed_from_playlist_successfully)
                         refreshPlaylistScreen()
                     }
                 }
@@ -568,7 +567,7 @@ class PlaylistDataViewModel(
         viewModelScope.launch(ioDispatcher) {
             val result = repository.copyPlaylist(playlistMbid)
             if (result.status == Resource.Status.SUCCESS) {
-                emitMsg(R.string.playlist_duplicated_successfully)
+//                emitMsg(R.string.playlist_duplicated_successfully)
             } else {
                 emitError(result.error)
             }
@@ -623,7 +622,7 @@ class PlaylistDataViewModel(
             playlistRepository = repository,
             ioDispatcher = ioDispatcher
         )
-    }   .flow
+    }.flow
         .cachedIn(viewModelScope)
 
     val collabPlaylistPager: Flow<PagingData<UserPlaylist>> = Pager(
@@ -634,7 +633,7 @@ class PlaylistDataViewModel(
     ){
         CollabPlaylistPagingSource(
             username = username,
-            onError = {emitError(it)},
+            onError = { emitError(it) },
             playlistDataRepository = repository,
             ioDispatcher = ioDispatcher
         )
@@ -665,7 +664,7 @@ class PlaylistDataViewModel(
                             actualResponse = "Some error occurred while adding the track"
                         ))
                     } else {
-                        emitMsg(R.string.track_added_successfully)
+//                        emitMsg(R.string.track_added_successfully)
                         onSuccess()
                     }
                 }

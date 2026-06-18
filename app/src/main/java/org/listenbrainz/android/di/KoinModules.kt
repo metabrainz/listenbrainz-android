@@ -36,8 +36,8 @@ import org.listenbrainz.android.repository.feed.FeedRepository
 import org.listenbrainz.android.repository.feed.FeedRepositoryImpl
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManagerImpl
-import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
-import org.listenbrainz.android.repository.playlists.PlaylistDataRepositoryImpl
+import org.listenbrainz.shared.repository.playlists.PlaylistDataRepository
+import org.listenbrainz.shared.repository.playlists.PlaylistDataRepositoryImpl
 import org.listenbrainz.android.repository.user.UserRepository
 import org.listenbrainz.android.repository.user.UserRepositoryImpl
 import org.listenbrainz.android.repository.yim.YimRepository
@@ -49,7 +49,6 @@ import org.listenbrainz.android.service.FeedServiceKtor
 import org.listenbrainz.android.service.FeedServiceKtorImpl
 import org.listenbrainz.android.service.GithubAppUpdatesService
 import org.listenbrainz.android.service.GithubUpdatesDownloadService
-import org.listenbrainz.android.service.PlaylistService
 import org.listenbrainz.android.service.Yim23Service
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.service.createGithubAppUpdatesService
@@ -66,7 +65,6 @@ import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.FeedViewModel
-import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.SearchViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
@@ -160,24 +158,6 @@ private fun createBaseHttpClient(
 val networkModule = module {
     single<HttpClient> {
         createBaseHttpClient(androidContext(), get<AppPreferences>())
-    }
-
-    single<PlaylistService> {
-        val httpClient = createBaseHttpClient(
-            context = androidContext(),
-            appPreferences = get<AppPreferences>(),
-            baseUrl = LISTENBRAINZ_API_BASE_URL
-        ).config {
-            install(HttpTimeout) {
-                requestTimeoutMillis = 30_000
-                socketTimeoutMillis = 30_000
-            }
-        }
-        Ktorfit.Builder()
-            .baseUrl(LISTENBRAINZ_API_BASE_URL)
-            .httpClient(httpClient)
-            .build()
-            .createPlaylistService()
     }
 
 
@@ -311,7 +291,6 @@ val viewModelModule = module {
     viewModel { FeedViewModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { SocialViewModel(get(), get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { UserViewModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
-    viewModel { PlaylistDataViewModel(get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { YimViewModel(get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { Yim23ViewModel(get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { SearchViewModel(get(),get(),get(),get(),get(), get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER))) }
