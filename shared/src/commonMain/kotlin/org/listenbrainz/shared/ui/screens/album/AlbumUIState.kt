@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.album
+package org.listenbrainz.shared.ui.screens.album
 
 import org.listenbrainz.shared.model.album.ReleaseGroupData
 import org.listenbrainz.shared.model.album.Track

@@ -17,16 +17,21 @@ import kotlinx.coroutines.IO
 import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import org.listenbrainz.shared.service.AlbumService
 import org.listenbrainz.shared.service.ArtistService
 import org.listenbrainz.shared.service.CBService
 import org.listenbrainz.shared.service.MBService
+import org.listenbrainz.shared.service.createAlbumService
 import org.listenbrainz.shared.service.createArtistService
 import org.listenbrainz.shared.service.createMBService
 import org.listenbrainz.shared.service.createCBService
 import org.listenbrainz.shared.util.Constants.CB_BASE_URL
 import org.listenbrainz.shared.util.Constants.LB_BASE_URL
 import org.listenbrainz.shared.util.Constants.MB_BASE_URL
+import org.listenbrainz.shared.service.BlogService
+import org.listenbrainz.shared.service.createBlogService
 
+// Qualifier names for dispatchers
 const val DEFAULT_DISPATCHER = "DefaultDispatcher"
 const val IO_DISPATCHER = "IoDispatcher"
 const val MAIN_DISPATCHER = "MainDispatcher"
@@ -64,6 +69,14 @@ val sharedNetworkServiceModule = module {
         }
     }
 
+    single<BlogService> {
+        Ktorfit.Builder()
+            .baseUrl("https://public-api.wordpress.com/rest/v1.1/sites/")
+            .httpClient(get<HttpClient>(named(SHARED_HTTP_CLIENT)))
+            .build()
+            .createBlogService()
+    }
+
     single<ArtistService> {
         Ktorfit.Builder()
             .baseUrl(LB_BASE_URL)
@@ -94,6 +107,15 @@ val sharedNetworkServiceModule = module {
             .build()
             .createCBService()
     }
+
+    single<AlbumService>{
+        Ktorfit.Builder()
+            .baseUrl(LB_BASE_URL)
+            .httpClient(get<HttpClient>(named(SHARED_HTTP_CLIENT)))
+            .build()
+            .createAlbumService()
+    }
+
 }
 
 val sharedDispatcherModule = module {

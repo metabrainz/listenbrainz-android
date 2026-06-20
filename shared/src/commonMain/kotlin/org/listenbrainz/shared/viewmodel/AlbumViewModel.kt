@@ -1,4 +1,4 @@
-package org.listenbrainz.android.viewmodel
+package org.listenbrainz.shared.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
@@ -7,10 +7,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import org.listenbrainz.android.repository.album.AlbumRepository
-import org.listenbrainz.android.ui.screens.album.AlbumUiState
-import org.listenbrainz.android.util.Utils
-import org.listenbrainz.shared.viewmodel.BaseViewModel
+import org.listenbrainz.shared.repository.album.AlbumRepository
+import org.listenbrainz.shared.ui.screens.album.AlbumUiState
+import org.listenbrainz.shared.util.Utils
 
 class AlbumViewModel(
     private val repository: AlbumRepository,

@@ -16,8 +16,8 @@ import platform.Foundation.NSUserDomainMask
 actual fun platform() = "iOS"
 
 actual fun provideLogger(
-    context: PlatformContext?,
-    buildInfo: BuildInfo?
+    context: PlatformContext,
+    buildInfo: BuildInfo
 ): Logger {
 
     val writers = mutableListOf(
@@ -30,7 +30,7 @@ actual fun provideLogger(
         expandTilde = true
     ).firstOrNull() as? String
 
-    if(logFileDirectory != null && buildInfo != null){
+    if(logFileDirectory != null){
         writers.add(IosFileLogWriter(logFileDirectory, buildInfo))
     }
 

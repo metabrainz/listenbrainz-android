@@ -66,8 +66,8 @@ import org.listenbrainz.android.R
 import org.listenbrainz.shared.util.Log
 import org.listenbrainz.shared.model.ApiError
 import org.listenbrainz.shared.model.ResponseError
-import org.listenbrainz.shared.util.Constants
 import org.listenbrainz.shared.util.Resource
+import org.listenbrainz.shared.util.Constants
 import java.io.*
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
@@ -80,13 +80,6 @@ import kotlin.contracts.contract
  * A set of fairly general Android utility methods.
  */
 object Utils {
-
-    /** Get *CoverArtArchive* url for cover art of a release.
-     * @param size Allowed sizes are 250, 500, 750 and 1000. Default is 250.*/
-    fun getCoverArtUrl(caaReleaseMbid: String?, caaId: Long?, size: Int = 250): String? {
-        if (caaReleaseMbid == null || caaId == null) return null
-        return "https://archive.org/download/mbid-${caaReleaseMbid}/mbid-${caaReleaseMbid}-${caaId}_thumb${size}.jpg"
-    }
     
     fun similarityToPercent(similarity: Float?): String {
         return if (similarity != null)

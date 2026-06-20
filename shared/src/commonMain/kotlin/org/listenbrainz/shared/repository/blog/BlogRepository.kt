@@ -1,6 +1,6 @@
-package org.listenbrainz.android.repository.blog
+package org.listenbrainz.shared.repository.blog
 
-import org.listenbrainz.android.model.Blog
+import org.listenbrainz.shared.model.Blog
 import org.listenbrainz.shared.util.Resource
 
 interface BlogRepository {

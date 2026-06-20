@@ -1,11 +1,11 @@
-package org.listenbrainz.android.repository.album
+package org.listenbrainz.shared.repository.album
 
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.album.AlbumInfo
 import org.listenbrainz.shared.model.album.Album
 import org.listenbrainz.shared.model.albumSearch.AlbumSearchPayload
 import org.listenbrainz.shared.model.artist.CBReview
-import org.listenbrainz.android.service.AlbumService
+import org.listenbrainz.shared.service.AlbumService
 import org.listenbrainz.shared.service.CBService
 import org.listenbrainz.shared.service.MBService
 import org.listenbrainz.shared.util.Resource

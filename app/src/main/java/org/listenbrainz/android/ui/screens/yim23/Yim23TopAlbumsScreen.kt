@@ -85,7 +85,7 @@ private fun AlbumCoverPic(list: List<TopReleaseYim23>?) {
                     AsyncImage(
                         model = ImageRequest.Builder(context)
                             .data(
-                                Utils.getCoverArtUrl(
+                                org.listenbrainz.shared.util.Utils.getCoverArtUrl(
                                     caaReleaseMbid = list!![i - 1].caaReleaseMbid,
                                     caaId = list[i - 1].caaId,
                                     size = 250,

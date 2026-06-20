@@ -74,7 +74,7 @@ private fun Yim23MissedSongsArt(viewModel: Yim23ViewModel) {
                             AsyncImage(
                                 model = ImageRequest.Builder(context)
                                     .data(
-                                        Utils.getCoverArtUrl(
+                                        org.listenbrainz.shared.util.Utils.getCoverArtUrl(
                                             caaReleaseMbid = tracks[i - 1].extension.extensionData.additionalMetadata.caaReleaseMbid,
                                             caaId = tracks[i - 1].extension.extensionData.additionalMetadata.caaId.toLong(),
                                             size = 250,

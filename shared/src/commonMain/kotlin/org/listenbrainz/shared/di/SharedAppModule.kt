@@ -13,10 +13,7 @@ val platformModule = module {
         provideLogSubmitter(get(), buildInfo = get<BuildInfo>())
     }
 
-    single<co.touchlab.kermit.Logger>{
+    single<co.touchlab.kermit.Logger> {
         provideLogger(get(), buildInfo = get<BuildInfo>())
-            .also {
-                Log.sharedLogger = it
-            }
     }
 }

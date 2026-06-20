@@ -12,7 +12,7 @@ import org.json.JSONObject
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.ui.screens.onboarding.auth.createaccount.CreateAccountClientCallbacks
 import org.listenbrainz.shared.util.Resource
-import org.listenbrainz.android.viewmodel.CreateAccountCredentials
+import org.listenbrainz.shared.viewmodel.CreateAccountCredentials
 
 private const val TAG = "CreateAccountWebClient"
 

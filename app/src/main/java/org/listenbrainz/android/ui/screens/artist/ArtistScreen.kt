@@ -650,7 +650,7 @@ private fun PopularTracks(
 
                 ListenCardSmallDefault(
                     metadata = metadata,
-                    coverArtUrl = Utils.getCoverArtUrl(track?.caaReleaseMbid, track?.caaId),
+                    coverArtUrl = org.listenbrainz.shared.util.Utils.getCoverArtUrl(track?.caaReleaseMbid, track?.caaId),
                     onDropdownError = { error ->
                         snackbarState.showSnackbar(error.toast)
                     },
@@ -715,7 +715,7 @@ private fun AlbumsCard(
                         }) {
                         Column {
                             val coverArt =
-                                Utils.getCoverArtUrl(album?.caaReleaseMbid, album?.caaId, 500)
+                                org.listenbrainz.shared.util.Utils.getCoverArtUrl(album?.caaReleaseMbid, album?.caaId, 500)
                             AsyncImage(
                                 model = ImageRequest.Builder(LocalContext.current)
                                     .data(coverArt)

@@ -47,7 +47,7 @@ fun PinFeedLayout(
             trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
             artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(FeedListenArtist(event.metadata.trackMetadata?.artistName ?: "" , null, "")),
             coverArtUrl = remember {
-                Utils.getCoverArtUrl(
+                org.listenbrainz.shared.util.Utils.getCoverArtUrl(
                     caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
                     caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
                 )

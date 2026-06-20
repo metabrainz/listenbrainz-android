@@ -1,4 +1,4 @@
-package org.listenbrainz.android.viewmodel
+package org.listenbrainz.shared.viewmodel
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,10 +10,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.model.BlogPost
-import org.listenbrainz.android.repository.blog.BlogRepository
+import org.listenbrainz.shared.model.BlogPost
+import org.listenbrainz.shared.repository.blog.BlogRepository
 import org.listenbrainz.shared.util.Resource
-import org.listenbrainz.shared.util.Resource.Status.SUCCESS
 
 class NewsListViewModel(
     private val repository: BlogRepository,
@@ -27,7 +26,7 @@ class NewsListViewModel(
         viewModelScope.launch {
             val response = repository.fetchBlogs()
             when (response.status) {
-                SUCCESS -> {
+                Resource.Status.SUCCESS -> {
                     val responseBlogs = response.data!!
                     // Updating blogs
                     _blogPostsFlow.update { responseBlogs.posts }

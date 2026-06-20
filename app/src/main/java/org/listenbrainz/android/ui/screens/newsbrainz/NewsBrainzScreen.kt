@@ -39,12 +39,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.text.HtmlCompat
-import org.listenbrainz.android.model.BlogPost
+import org.listenbrainz.shared.model.BlogPost
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
-import org.listenbrainz.android.viewmodel.NewsListViewModel
+import org.listenbrainz.shared.viewmodel.NewsListViewModel
 import org.listenbrainz.android.R
 
 @Composable

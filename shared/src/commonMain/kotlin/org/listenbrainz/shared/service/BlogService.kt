@@ -1,7 +1,7 @@
-package org.listenbrainz.android.service
+package org.listenbrainz.shared.service
 
 import de.jensklingenberg.ktorfit.http.GET
-import org.listenbrainz.android.model.Blog
+import org.listenbrainz.shared.model.Blog
 
 interface BlogService {
     @GET("blog.metabrainz.org/posts/")

@@ -45,7 +45,7 @@ import org.listenbrainz.android.ui.components.YimNavigationStation
 import org.listenbrainz.android.ui.theme.LocalYimPaddings
 import org.listenbrainz.android.ui.theme.YearInMusicTheme
 import org.listenbrainz.android.ui.theme.YimPaddings
-import org.listenbrainz.android.util.Utils.getCoverArtUrl
+import org.listenbrainz.shared.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.YimViewModel
 
 @Composable

@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.StrictMode
 import androidx.work.Configuration
-import co.touchlab.kermit.Logger
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -37,8 +36,6 @@ class App : Application(), Configuration.Provider {
 
         // Initialize Koin
         ensureKoinStarted(this)
-
-        val platformLogger: Logger by inject()
 
         if (BuildConfig.DEBUG) {
             enableStrictMode()
