@@ -1,6 +1,5 @@
-package org.listenbrainz.android.viewmodel
+package org.listenbrainz.shared.viewmodel
 
-import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
@@ -55,6 +54,8 @@ class CreateAccountViewModel(
 ) : ViewModel() {
     private companion object {
         const val TIMEOUT_SECONDS = 60
+
+        val EMAIL_REGEX = """^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$""".toRegex()
     }
 
     private val _uiState = MutableStateFlow(CreateAccountUIState())
@@ -154,7 +155,7 @@ class CreateAccountViewModel(
                 _uiState.update { it.copy(errorMessage = "Email cannot be empty") }
                 return
             }
-            !Patterns.EMAIL_ADDRESS.matcher(credentials.email).matches() -> {
+            !EMAIL_REGEX.matches(credentials.email) -> {
                 _uiState.update { it.copy(errorMessage = "Please enter a valid email address") }
                 return
             }

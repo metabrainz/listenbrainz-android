@@ -67,8 +67,8 @@ import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingSup
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
-import org.listenbrainz.android.viewmodel.CreateAccountUIState
-import org.listenbrainz.android.viewmodel.CreateAccountScreenState
+import org.listenbrainz.shared.viewmodel.CreateAccountUIState
+import org.listenbrainz.shared.viewmodel.CreateAccountScreenState
 import org.listenbrainz.shared.repository.PlatformContext
 
 @Composable
