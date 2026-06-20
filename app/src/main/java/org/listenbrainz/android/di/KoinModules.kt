@@ -122,8 +122,8 @@ import org.listenbrainz.shared.viewmodel.FeaturesViewModel
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.ListeningNowViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
-import org.listenbrainz.android.viewmodel.LoginViewModel
-import org.listenbrainz.shared.viewmodel.NewsListViewModel
+import org.listenbrainz.shared.viewmodel.LoginViewModel
+import org.listenbrainz.android.viewmodel.NewsListViewModel
 import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import org.listenbrainz.android.viewmodel.SearchViewModel

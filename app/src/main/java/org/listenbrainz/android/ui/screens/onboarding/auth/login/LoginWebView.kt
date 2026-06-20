@@ -26,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -36,7 +35,9 @@ import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.ListenBrainzWebClient
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.ListensViewModel
-import org.listenbrainz.android.viewmodel.LoginViewModel
+import org.listenbrainz.shared.viewmodel.LoginViewModel
+import org.listenbrainz.shared.ui.screens.onboarding.auth.login.LoginState
+import org.listenbrainz.shared.ui.screens.onboarding.auth.login.LoginUIState
 
 const val TAG = "ListenBrainzLogin"
 

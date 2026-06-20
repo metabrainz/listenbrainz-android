@@ -58,6 +58,8 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.shared.repository.PlatformContext
+import org.listenbrainz.shared.ui.screens.onboarding.auth.login.LoginState
+import org.listenbrainz.shared.ui.screens.onboarding.auth.login.LoginUIState
 
 @Composable
 fun LoginScreenLayout(
