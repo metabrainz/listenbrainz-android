@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -57,10 +58,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.PagingData
@@ -196,6 +199,9 @@ fun FeedScreen(
         }
     )
 
+    var headerBarHeightPx by remember { mutableIntStateOf(0) }
+    val headerBarHeightDp = with(LocalDensity.current) { headerBarHeightPx.toDp() }
+
     LaunchedEffect(scrollToTopState) {
         callbacks.onScrollToTop {
             when (pagerState.currentPage) {
@@ -238,6 +244,7 @@ fun FeedScreen(
                         listState = myFeedListState,
                         pagingData = myFeedPagingData,
                         uiState = uiState.myFeedState,
+                        headerBarHeight = headerBarHeightDp,
                         onDeleteOrHide = callbacks.onDeleteOrHide,
                         recommendTrack = callbacks.onRecommend,
                         personallyRecommendTrack = { index ->
@@ -266,6 +273,7 @@ fun FeedScreen(
 
                     1 -> FollowListens(
                         listState = followListensListState,
+                        headerBarHeight = headerBarHeightDp,
                         pagingData = followListensPagingData,
                         recommendTrack = callbacks.onRecommend,
                         personallyRecommendTrack = { index ->
@@ -293,6 +301,7 @@ fun FeedScreen(
 
                     2 -> SimilarListens(
                         listState = similarListensListState,
+                        headerBarHeight = headerBarHeightDp,
                         pagingData = similarListensPagingData,
                         recommendTrack = callbacks.onRecommend,
                         personallyRecommendTrack = { index ->
@@ -330,19 +339,28 @@ fun FeedScreen(
                 }
             }
 
-            Column(Modifier.fillMaxWidth()) {
-                ErrorBar(error = uiState.error, onErrorShown = callbacks.onErrorShown)
-                NavigationChips(
-                    chips = remember {
-                        listOf(
-                            "My Feed",
-                            "Follow Listens",
-                            "Similar Listens"
-                        )
-                    },
-                    currentPageStateProvider = { pagerState.currentPage }
-                ) { position ->
-                    pagerState.animateScrollToPage(position)
+            Column(Modifier
+                .fillMaxWidth()) {
+                Column(Modifier
+                    .onSizeChanged {
+                        headerBarHeightPx = it.height
+                    }) {
+                    ErrorBar(
+                        error = uiState.error,
+                        onErrorShown = callbacks.onErrorShown
+                    )
+                    NavigationChips(
+                        chips = remember {
+                            listOf(
+                                "My Feed",
+                                "Follow Listens",
+                                "Similar Listens"
+                            )
+                        },
+                        currentPageStateProvider = { pagerState.currentPage }
+                    ) { position ->
+                        pagerState.animateScrollToPage(position)
+                    }
                 }
                 PullRefreshIndicator(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -448,6 +466,7 @@ private fun MyFeed(
     listState: LazyListState,
     pagingData: LazyPagingItems<FeedUiEventItem>,
     uiState: FeedUiEventData,
+    headerBarHeight: Dp,
     onDeleteOrHide: (event: FeedEvent, eventType: FeedEventType, parentUser: String) -> Unit,
     recommendTrack: (event: FeedEvent) -> Unit,
     personallyRecommendTrack: (index: Int) -> Unit,
@@ -476,9 +495,9 @@ private fun MyFeed(
         modifier = Modifier
             .fillMaxSize()
             .widthIn(max = LocalConfiguration.current.screenWidthDp.dp),
-        state = listState
+        state = listState,
+        contentPadding = PaddingValues(top = headerBarHeight)
     ) {
-        item { StartingSpacer() }
 
         if (inRefreshingState) {
             item(contentType = "shimmer") {
@@ -560,6 +579,7 @@ private fun MyFeed(
 @Composable
 fun FollowListens(
     listState: LazyListState,
+    headerBarHeight: Dp,
     pagingData: LazyPagingItems<FeedUiEventItem>,
     recommendTrack: (event: FeedEvent) -> Unit,
     personallyRecommendTrack: (index: Int) -> Unit,
@@ -588,9 +608,8 @@ fun FollowListens(
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         state = listState,
+        contentPadding = PaddingValues(top = headerBarHeight)
     ) {
-
-        item { StartingSpacer() }
 
         if (inRefreshingState) {
             item(contentType = "shimmer") {
@@ -695,6 +714,7 @@ fun FollowListens(
 @Composable
 fun SimilarListens(
     listState: LazyListState,
+    headerBarHeight: Dp,
     pagingData: LazyPagingItems<FeedUiEventItem>,
     recommendTrack: (event: FeedEvent) -> Unit,
     personallyRecommendTrack: (index: Int) -> Unit,
@@ -723,9 +743,9 @@ fun SimilarListens(
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        state = listState
+        state = listState,
+        contentPadding = PaddingValues(top = headerBarHeight)
     ) {
-        item { StartingSpacer() }
 
         if (inRefreshingState) {
             item(contentType = "shimmer") {
@@ -1032,11 +1052,6 @@ fun ShimmerListensItem(
         }
     }
 
-}
-
-@Composable
-fun StartingSpacer() {
-    Spacer(modifier = Modifier.height(60.dp))   // 6 + 6 + 48
 }
 
 @Composable
