@@ -16,17 +16,17 @@ actual fun platform() = "Android"
 
 
 actual fun provideLogger(
-    context: PlatformContext?,
-    buildInfo: BuildInfo?
+    context: PlatformContext,
+    buildInfo: BuildInfo
 ): Logger {
 
     val writers = mutableListOf(
         platformLogWriter()
     )
 
-    val externalFilesDir = context?.getExternalFilesDir(null)
+    val externalFilesDir = context.getExternalFilesDir(null)
 
-    if(externalFilesDir != null && buildInfo != null){
+    if(externalFilesDir != null){
         val logDir = File(externalFilesDir, ANDROID_LOG_DIR_NAME).apply { mkdirs() }
         writers.add(AndroidFileLogWriter(logDir.path, buildInfo))
     }
