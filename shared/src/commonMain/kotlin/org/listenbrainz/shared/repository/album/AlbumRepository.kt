@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository.album
+package org.listenbrainz.shared.repository.album
 
 import org.listenbrainz.shared.model.album.AlbumInfo
 import org.listenbrainz.shared.model.albumSearch.AlbumSearchPayload
