@@ -47,8 +47,8 @@ import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepositoryImpl
 import org.listenbrainz.shared.repository.artist.ArtistRepository
 import org.listenbrainz.shared.repository.artist.ArtistRepositoryImpl
-import org.listenbrainz.android.repository.blog.BlogRepository
-import org.listenbrainz.android.repository.blog.BlogRepositoryImpl
+import org.listenbrainz.shared.repository.blog.BlogRepository
+import org.listenbrainz.shared.repository.blog.BlogRepositoryImpl
 import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
 import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepositoryImpl
 import org.listenbrainz.android.repository.brainzplayer.BPArtistRepository
@@ -81,7 +81,7 @@ import org.listenbrainz.android.repository.yim23.Yim23Repository
 import org.listenbrainz.android.repository.yim23.Yim23RepositoryImpl
 import org.listenbrainz.android.service.AlbumService
 import org.listenbrainz.shared.service.ArtistService
-import org.listenbrainz.android.service.BlogService
+import org.listenbrainz.shared.service.BlogService
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
 import org.listenbrainz.shared.service.CBService
 import org.listenbrainz.android.service.FeedServiceKtor
@@ -97,7 +97,6 @@ import org.listenbrainz.android.service.Yim23Service
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.service.YouTubeApiService
 import org.listenbrainz.android.service.createAlbumService
-import org.listenbrainz.android.service.createBlogService
 import org.listenbrainz.android.service.createGithubAppUpdatesService
 import org.listenbrainz.android.service.createListensService
 import org.listenbrainz.android.service.createPlaylistService
@@ -129,7 +128,7 @@ import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.ListeningNowViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
 import org.listenbrainz.android.viewmodel.LoginViewModel
-import org.listenbrainz.android.viewmodel.NewsListViewModel
+import org.listenbrainz.shared.viewmodel.NewsListViewModel
 import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import org.listenbrainz.android.viewmodel.SearchViewModel
@@ -145,13 +144,11 @@ import org.listenbrainz.shared.util.LogSubmitter
 import org.listenbrainz.shared.di.sharedDispatcherModule
 import org.listenbrainz.shared.di.sharedNetworkServiceModule
 import org.listenbrainz.shared.di.sharedRepositoryModule
+import org.listenbrainz.shared.di.DEFAULT_DISPATCHER
+import org.listenbrainz.shared.di.IO_DISPATCHER
 import org.listenbrainz.shared.di.sharedViewModelModule
 import org.listenbrainz.shared.di.sharedViewModelModule
 
-// Qualifier names for dispatchers
-const val DEFAULT_DISPATCHER = "DefaultDispatcher"
-const val IO_DISPATCHER = "IoDispatcher"
-const val MAIN_DISPATCHER = "MainDispatcher"
 
 private val jsonConfig = Json {
     ignoreUnknownKeys = true
@@ -255,18 +252,6 @@ val daoModule = module {
 val networkModule = module {
     single<HttpClient> {
         createBaseHttpClient(androidContext(), get<AppPreferences>())
-    }
-
-    single<BlogService> {
-        val httpClient = createBaseHttpClient(
-            androidContext(),
-            baseUrl = "https://public-api.wordpress.com/rest/v1.1/sites/"
-        )
-        Ktorfit.Builder()
-            .baseUrl("https://public-api.wordpress.com/rest/v1.1/sites/")
-            .httpClient(httpClient)
-            .build()
-            .createBlogService()
     }
 
     single<ListensService> {
@@ -464,7 +449,6 @@ val repositoryModule = module {
     single<ListensRepository> { ListensRepositoryImpl(get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
     single<PlaylistDataRepository> { PlaylistDataRepositoryImpl(get(), get(), get(), get(named(IO_DISPATCHER))) }
     single<AlbumRepository> { AlbumRepositoryImpl(get(), get(), get()) }
-    single<BlogRepository> { BlogRepositoryImpl(get()) }
     single<YimRepository> { YimRepositoryImpl(get()) }
     single<Yim23Repository> { Yim23RepositoryImpl(get()) }
     single<AppUpdatesRepository> { AppUpdatesRepositoryImpl(get(), get(), get(named(IO_DISPATCHER))) }
@@ -523,6 +507,7 @@ val viewModelModule = module {
 }
 
 val appModules = listOf(
+    sharedDispatcherModule,
     databaseModule,
     daoModule,
     networkModule,
@@ -531,6 +516,8 @@ val appModules = listOf(
     playerModule,
     viewModelModule,
     sharedViewModelModule,
+    sharedNetworkServiceModule,
+    sharedRepositoryModule,
     sharedNetworkServiceModule,
     sharedDispatcherModule,
     sharedRepositoryModule,

@@ -26,6 +26,8 @@ import org.listenbrainz.shared.service.createCBService
 import org.listenbrainz.shared.util.Constants.CB_BASE_URL
 import org.listenbrainz.shared.util.Constants.LB_BASE_URL
 import org.listenbrainz.shared.util.Constants.MB_BASE_URL
+import org.listenbrainz.shared.service.BlogService
+import org.listenbrainz.shared.service.createBlogService
 
 const val DEFAULT_DISPATCHER = "DefaultDispatcher"
 const val IO_DISPATCHER = "IoDispatcher"
@@ -64,6 +66,14 @@ val sharedNetworkServiceModule = module {
         }
     }
 
+    single<BlogService> {
+        Ktorfit.Builder()
+            .baseUrl("https://public-api.wordpress.com/rest/v1.1/sites/")
+            .httpClient(get<HttpClient>(named(SHARED_HTTP_CLIENT)))
+            .build()
+            .createBlogService()
+    }
+
     single<ArtistService> {
         Ktorfit.Builder()
             .baseUrl(LB_BASE_URL)
@@ -94,6 +104,7 @@ val sharedNetworkServiceModule = module {
             .build()
             .createCBService()
     }
+
 }
 
 val sharedDispatcherModule = module {
