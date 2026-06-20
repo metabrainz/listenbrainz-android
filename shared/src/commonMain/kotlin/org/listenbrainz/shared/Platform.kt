@@ -8,8 +8,8 @@ import org.listenbrainz.shared.util.LogSubmitter
 expect fun platform(): String
 
 expect fun provideLogger(
-    context: PlatformContext? =null,
-    buildInfo: BuildInfo? =null
+    context: PlatformContext,
+    buildInfo: BuildInfo
 ): Logger
 
 expect fun provideLogSubmitter(
