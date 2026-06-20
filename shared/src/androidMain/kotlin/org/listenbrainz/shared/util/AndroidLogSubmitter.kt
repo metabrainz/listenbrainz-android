@@ -13,6 +13,8 @@ import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
+internal const val ANDROID_LOG_DIR_NAME = "logs"
+
 class AndroidLogSubmitter(
     private val context: PlatformContext,
     private val buildConfig: BuildInfo
@@ -20,20 +22,34 @@ class AndroidLogSubmitter(
     private val sharedLog = platformLogWriter()
 
     override suspend fun submitLogs() = withContext(Dispatchers.IO) {
-        val logDir = context.getExternalFilesDir(null) ?: return@withContext
-        val downloadDir = File(context.getExternalFilesDir(null), "Download")
+        val externalFilesDir = context.getExternalFilesDir(null) ?: return@withContext
+        val logDir = File(externalFilesDir, ANDROID_LOG_DIR_NAME)
+
+        val logFiles = logDir.listFiles { file -> file.isFile && file.extension == "txt" }
+            ?.toList()
+            .orEmpty()
+
+        if (logFiles.isEmpty()) {
+            sharedLog.log(
+                Severity.Warn,
+                tag = "AndroidLogSubmitter",
+                message = "No log files found in ${logDir.absolutePath}",
+                throwable = null
+            )
+            return@withContext
+        }
+
+        val downloadDir = File(externalFilesDir, "Download")
         downloadDir.mkdirs()
         val zipFile = File(downloadDir, "Log.zip")
 
         try {
             ZipOutputStream(BufferedOutputStream(FileOutputStream(zipFile))).use { zos ->
-                logDir.listFiles()?.forEach { file ->
-                    if (file.isFile && file.extension == "txt") {
-                        val entry = ZipEntry(file.name)
-                        zos.putNextEntry(entry)
-                        file.inputStream().use { it.copyTo(zos) }
-                        zos.closeEntry()
-                    }
+                logFiles.forEach { file ->
+                    val entry = ZipEntry(file.name)
+                    zos.putNextEntry(entry)
+                    file.inputStream().use { it.copyTo(zos) }
+                    zos.closeEntry()
                 }
             }
 
