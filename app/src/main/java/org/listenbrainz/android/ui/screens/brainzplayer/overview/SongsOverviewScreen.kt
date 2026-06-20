@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.androidx.compose.koinViewModel
@@ -216,16 +217,13 @@ private fun ShuffleAllButton(
         Icon(
             imageVector = Icons.Rounded.Shuffle,
             contentDescription = null,
-            tint = Color.White
+            tint = ListenBrainzTheme.colorScheme.onLbSignature
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = "Shuffle All",
-            style = TextStyle(
-                color = Color.White,
-                fontSize = 16.sp,
-                fontFamily = FontFamily(Font(R.font.roboto_bold)),
-            )
+            fontWeight = FontWeight.Medium,
+            color = ListenBrainzTheme.colorScheme.onLbSignature
         )
     }
 }
