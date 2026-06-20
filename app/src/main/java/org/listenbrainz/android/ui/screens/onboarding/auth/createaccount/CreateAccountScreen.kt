@@ -23,9 +23,9 @@ import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.onboarding.auth.CreateAccountWebViewClient
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.viewmodel.CreateAccountState
-import org.listenbrainz.android.viewmodel.CreateAccountScreenState
-import org.listenbrainz.android.viewmodel.CreateAccountViewModel
+import org.listenbrainz.shared.viewmodel.CreateAccountState
+import org.listenbrainz.shared.viewmodel.CreateAccountScreenState
+import org.listenbrainz.shared.viewmodel.CreateAccountViewModel
 
 private const val TAG = "CreateAccountScreen"
 
@@ -98,7 +98,10 @@ fun ListenBrainzCreateAccountScreen(onBackPress: () -> Unit) {
             onPressBackInVerificationState = vm::onBackInVerificationState,
             onRefreshClick = vm::reloadWebView,
             modifier = Modifier,
-            uiState = uiState
+            uiState = uiState,
+            submitLogs = {
+                vm.logSubmit()
+            }
         )
 
         if (uiState.createAccountState !is CreateAccountState.Idle) {

@@ -7,17 +7,18 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.core.net.toUri
-import com.limurse.logger.Logger
+import org.listenbrainz.shared.util.Log
 import org.json.JSONObject
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.ui.screens.onboarding.auth.createaccount.CreateAccountClientCallbacks
-import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.viewmodel.CreateAccountCredentials
+import org.listenbrainz.shared.util.Resource
+import org.listenbrainz.shared.viewmodel.CreateAccountCredentials
 
 private const val TAG = "CreateAccountWebClient"
 
 class CreateAccountWebClient(
-    private val callbacks: CreateAccountClientCallbacks
+    private val callbacks: CreateAccountClientCallbacks,
+    private val logger:Log = Log
 ) : WebViewClient() {
 
     // Only store WebView reference for form submission
@@ -40,7 +41,7 @@ class CreateAccountWebClient(
             if(captchaSetupCompleted) {
                 callbacks.onPageLoadStateChange(true, message)
             }
-            Logger.d(TAG, "Page started loading: $url")
+            logger.d("Page started loading: $url", tag = TAG)
         }
     }
 
@@ -57,7 +58,7 @@ class CreateAccountWebClient(
             "Error loading page"
         }
 
-        Logger.e(TAG, errorMsg)
+        logger.e(errorMsg, tag = TAG)
         callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
             actualResponse = errorMsg
         )))
@@ -69,7 +70,7 @@ class CreateAccountWebClient(
         callbacks.onPageLoadStateChange(false, null)
 
         if (url == null) {
-            Logger.e(TAG, "URL is null on page finished")
+            logger.e("URL is null on page finished", tag = TAG)
             callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                 actualResponse = "URL is null, cannot proceed with account creation"
             )))
@@ -77,14 +78,14 @@ class CreateAccountWebClient(
         }
 
         val uri = url.toUri()
-        Logger.d(TAG, "Page finished loading: ${uri.host}${uri.path}")
+        logger.d("Page finished loading: ${uri.host}${uri.path}", tag = TAG)
 
         when {
             uri.host == "musicbrainz.org" && uri.path == "/register" && !captchaSetupCompleted -> {
-                Logger.d(TAG, "Hiding other elements except captcha")
+                logger.d("Hiding other elements except captcha", tag = TAG)
                 if (view != null) {
                     hideOtherElementsExceptCaptcha(view) {
-                        Logger.d(TAG, "Captcha setup complete")
+                        logger.d("Captcha setup complete", tag = TAG)
                         callbacks.onCaptchaSetupComplete()
                         captchaSetupCompleted = true
                     }
@@ -93,7 +94,7 @@ class CreateAccountWebClient(
 
             // Successful redirect to ListenBrainz
             uri.host == "listenbrainz.org" -> {
-                Logger.d(TAG, "Successfully redirected to ListenBrainz - account created")
+                logger.d("Successfully redirected to ListenBrainz - account created", tag = TAG)
                 callbacks.onLoad(
                     Resource.success("Account created successfully! Please check your inbox to verify your email address.")
                 )
@@ -101,7 +102,7 @@ class CreateAccountWebClient(
 
             // Still on registration page after form submission - check for errors
             uri.host == "musicbrainz.org" && uri.path == "/register" && captchaSetupCompleted -> {
-                Logger.d(TAG, "Checking for registration errors")
+                logger.d("Checking for registration errors", tag = TAG)
                 view?.let { checkForRegistrationErrors(it) }
             }
         }
@@ -162,7 +163,7 @@ class CreateAccountWebClient(
             view.postDelayed({
                 view.evaluateJavascript(registrationScript) { result ->
                     if (result != "\"Registration submitted\"") {
-                        Logger.e(TAG, "Error submitting registration form: $result")
+                        logger.e("Error submitting registration form: $result", tag = TAG)
                         callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
                             actualResponse = result
                         )))
@@ -251,7 +252,7 @@ class CreateAccountWebClient(
         ) { errorResult ->
             if (errorResult != "null" && errorResult != null) {
                 val errorMsg = errorResult.replace("\"", "").trim()
-                Logger.e(TAG, "Registration failed: $errorMsg")
+                logger.e("Registration failed: $errorMsg", tag = TAG)
 
                 callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
             actualResponse = errorMsg
@@ -263,7 +264,7 @@ class CreateAccountWebClient(
                 ) { errorsResult ->
                     if (errorsResult != "null" && errorsResult != null) {
                         val errorMsg = errorsResult.replace("\"", "").trim()
-                        Logger.e(TAG, "Registration failed: $errorMsg")
+                        logger.e("Registration failed: $errorMsg", tag = TAG)
 
                         callbacks.onLoad(Resource.failure(error = ResponseError.BadRequest(
             actualResponse = errorMsg

@@ -64,11 +64,11 @@ import org.listenbrainz.android.ui.screens.main.DonateActivity
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningAppsList
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.Constants
-import org.listenbrainz.android.util.Utils.submitLogs
+import org.listenbrainz.shared.util.Constants
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.ListensViewModel
-import org.listenbrainz.android.viewmodel.SettingsViewModel
+import org.listenbrainz.shared.viewmodel.SettingsViewModel
+import org.listenbrainz.shared.repository.PlatformContext
 
 @Composable
 fun SettingsScreen(
@@ -79,10 +79,13 @@ fun SettingsScreen(
     callbacks: SettingsCallbacksToHomeScreen,
     onNavigationReorderClick: () -> Unit
 ) {
+    val dashBoardUiState by dashBoardViewModel.uiState.collectAsState()
     val permissions by dashBoardViewModel.permissionStatusFlow.collectAsState()
     val isBatteryOptimizationPermissionGranted =
         permissions[PermissionEnum.BATTERY_OPTIMIZATION] == PermissionStatus.GRANTED
     val preferencesUiState by listensViewModel.preferencesUiState.collectAsState()
+    val settingsUiState by viewModel.uiState.collectAsState()
+    val isSubmittingLogs = settingsUiState.isSubmittingLogs
     SettingsScreen(
         appPreferences = viewModel.appPreferences,
         preferencesUiState = preferencesUiState,
@@ -101,7 +104,11 @@ fun SettingsScreen(
             )
         },
         isBatteryOptimizationPermissionGranted = isBatteryOptimizationPermissionGranted,
-        topBarActions = topBarActions
+        topBarActions = topBarActions,
+        submitLogs = {
+            viewModel.logSubmit()
+        },
+        isSubmittingLogs = isSubmittingLogs
     )
 }
 
@@ -111,7 +118,9 @@ fun SettingsScreen(
     callbacks: SettingsCallbacks,
     preferencesUiState: PreferencesUiState,
     isBatteryOptimizationPermissionGranted: Boolean = true,
-    topBarActions: TopBarActions
+    topBarActions: TopBarActions,
+    submitLogs:(PlatformContext)->Unit,
+    isSubmittingLogs:Boolean= false
 ) {
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
@@ -312,13 +321,13 @@ fun SettingsScreen(
 
             HorizontalDivider()
 
-            SettingsTextOption(
-                modifier = Modifier.clickable {
-                    submitLogs(context)
-                },
+            SettingsLoadingOption(
                 title = "Report an issue",
                 subtitle = "Submit app logs for further investigation",
-                enabled = isNotificationServiceAllowed
+                isLoading = isSubmittingLogs,
+                onClick = {
+                    submitLogs(context)
+                }
             )
 
 
@@ -515,7 +524,9 @@ fun SettingsScreenPreview() {
                 checkForUpdates = suspend{false},
                 onNavigationReorderClick = {}
             ),
-            topBarActions = TopBarActions()
+            topBarActions = TopBarActions(),
+            submitLogs = {},
+            isSubmittingLogs = false
         )
     }
 }

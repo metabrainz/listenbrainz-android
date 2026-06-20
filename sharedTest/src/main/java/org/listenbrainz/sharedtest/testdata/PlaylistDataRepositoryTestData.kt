@@ -1,8 +1,8 @@
 package org.listenbrainz.sharedtest.testdata
 
-import org.listenbrainz.android.model.playlist.AddCopyPlaylistResponse
-import org.listenbrainz.android.model.playlist.PlaylistData
-import org.listenbrainz.android.model.playlist.PlaylistPayload
+import org.listenbrainz.shared.model.playlist.AddCopyPlaylistResponse
+import org.listenbrainz.shared.model.playlist.PlaylistData
+import org.listenbrainz.shared.model.playlist.PlaylistPayload
 
 object PlaylistDataRepositoryTestData {
     val playlistDetailsTestData: PlaylistPayload = PlaylistPayload(

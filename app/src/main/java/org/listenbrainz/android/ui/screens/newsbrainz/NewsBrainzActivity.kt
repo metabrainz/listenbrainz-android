@@ -12,8 +12,8 @@ import com.aemerse.share.SharableItem
 import com.aemerse.share.Share
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.util.Log
-import org.listenbrainz.android.viewmodel.NewsListViewModel
+import org.listenbrainz.shared.util.Log
+import org.listenbrainz.shared.viewmodel.NewsListViewModel
 
 class NewsBrainzActivity : ComponentActivity() {
 

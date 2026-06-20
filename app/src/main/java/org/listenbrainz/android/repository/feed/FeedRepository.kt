@@ -4,7 +4,7 @@ import org.listenbrainz.android.model.SocialResponse
 import org.listenbrainz.android.model.feed.FeedData
 import org.listenbrainz.android.model.feed.FeedEventDeletionData
 import org.listenbrainz.android.model.feed.FeedEventVisibilityData
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 interface FeedRepository {
 

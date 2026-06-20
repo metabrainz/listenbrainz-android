@@ -4,22 +4,23 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.isSuccess
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.model.ResponseError
-import org.listenbrainz.android.model.playlist.AddCopyPlaylistResponse
-import org.listenbrainz.android.model.playlist.DeleteTracks
-import org.listenbrainz.android.model.playlist.EditPlaylistResponse
-import org.listenbrainz.android.model.playlist.MoveTrack
-import org.listenbrainz.android.model.playlist.PlaylistData
-import org.listenbrainz.android.model.playlist.PlaylistPayload
-import org.listenbrainz.android.model.playlist.PlaylistSearchResult
-import org.listenbrainz.android.model.playlist.PlaylistTrack
-import org.listenbrainz.android.model.recordingSearch.RecordingSearchPayload
+import org.listenbrainz.shared.model.ResponseError
+import org.listenbrainz.shared.model.playlist.AddCopyPlaylistResponse
+import org.listenbrainz.shared.model.playlist.DeleteTracks
+import org.listenbrainz.shared.model.playlist.EditPlaylistResponse
+import org.listenbrainz.shared.model.playlist.MoveTrack
+import org.listenbrainz.shared.model.playlist.PlaylistData
+import org.listenbrainz.shared.model.playlist.PlaylistPayload
+import org.listenbrainz.shared.model.playlist.PlaylistSearchResult
+import org.listenbrainz.shared.model.playlist.PlaylistTrack
+import org.listenbrainz.shared.model.recordingSearch.RecordingSearchPayload
 import org.listenbrainz.android.model.userPlaylist.UserPlaylistPayload
-import org.listenbrainz.android.service.MBService
+import org.listenbrainz.shared.service.MBService
 import org.listenbrainz.android.service.PlaylistService
 import org.listenbrainz.android.service.UserService
-import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.Utils.parseResponse
+import org.listenbrainz.shared.util.Resource
+import org.listenbrainz.shared.util.Utils
+import org.listenbrainz.shared.util.Utils.parseResponse
 
 class PlaylistDataRepositoryImpl(
     private val playlistService: PlaylistService,
@@ -105,7 +106,7 @@ class PlaylistDataRepositoryImpl(
                 else if (!searchQuery.isNullOrEmpty())
                     mbService.searchRecording(searchQuery)
                 else
-                    throw org.listenbrainz.android.util.Utils.PreEmptiveBadRequestException(ResponseError.BadRequest())
+                    throw Utils.PreEmptiveBadRequestException(ResponseError.BadRequest())
             }
         }
 

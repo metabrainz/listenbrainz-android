@@ -71,9 +71,9 @@ import org.koin.androidx.compose.koinViewModel
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.AppNavigationItem
-import org.listenbrainz.android.model.playlist.MoveTrack
-import org.listenbrainz.android.model.playlist.PlaylistData
-import org.listenbrainz.android.model.playlist.PlaylistTrack
+import org.listenbrainz.shared.model.playlist.MoveTrack
+import org.listenbrainz.shared.model.playlist.PlaylistData
+import org.listenbrainz.shared.model.playlist.PlaylistTrack
 import org.listenbrainz.android.ui.components.CoverArtComposable
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
@@ -91,7 +91,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.util.Utils.formatDurationSeconds
-import org.listenbrainz.android.util.Utils.getCoverArtUrl
+import org.listenbrainz.shared.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.util.Utils.removeHtmlTags
 import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
@@ -419,8 +419,9 @@ private fun PlaylistDetailContent(
                         ?: false,
                     creatorName = playlistDetailUIState.playlistData?.creator ?: "",
                     onCreatorClick = {
-                        if (playlistDetailUIState.playlistData?.creator != null)
-                            goToUserPage(playlistDetailUIState.playlistData.creator)
+                        playlistDetailUIState.playlistData?.creator?.let {
+                            goToUserPage(it)
+                        }
                     },
                     trackCount = playlistDetailUIState.playlistData?.track?.size ?: 0,
                     totalLengthSeconds = playlistDetailUIState.playlistData?.track?.sumOf {

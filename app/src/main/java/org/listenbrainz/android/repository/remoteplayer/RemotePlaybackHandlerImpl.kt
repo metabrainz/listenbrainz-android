@@ -28,12 +28,12 @@ import kotlinx.coroutines.sync.withLock
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ListenBitmap
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.service.YouTubeApiService
-import org.listenbrainz.android.util.Constants
-import org.listenbrainz.android.util.Log
-import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.Utils.parseResponse
+import org.listenbrainz.shared.util.Constants
+import org.listenbrainz.shared.util.Resource
+import org.listenbrainz.shared.util.Utils.parseResponse
+import org.listenbrainz.shared.util.Log
 import java.util.concurrent.atomic.AtomicBoolean
 
 import kotlin.coroutines.Continuation
@@ -44,7 +44,8 @@ import androidx.core.net.toUri
 
 class RemotePlaybackHandlerImpl(
     private val appContext: Context,
-    private val youtubeApiService: YouTubeApiService
+    private val youtubeApiService: YouTubeApiService,
+    private val logger: Log = Log
 ) : RemotePlaybackHandler {
     
     private val mutex = Mutex()
@@ -139,7 +140,7 @@ class RemotePlaybackHandlerImpl(
     override suspend fun connectToSpotify(onError: (ResponseError) -> Unit) {
         try {
             mutex.withLock {
-                Log.d("Init connection to spotify.")
+                logger.d("Init connection to spotify.")
                 SpotifyAppRemote.disconnect(spotifyAppRemote)
                 isResumed.set(false)
                 spotifyAppRemote = connectToAppRemote(
@@ -169,7 +170,7 @@ class RemotePlaybackHandlerImpl(
                 object : Connector.ConnectionListener {
                     
                     override fun onConnected(spotifyAppRemote: SpotifyAppRemote) {
-                        Log.d("App remote Connected!")
+                        logger.d("App remote Connected!")
                         if (!isResumed.get()){
                             cont.resume(spotifyAppRemote)
                             isResumed.set(true)
@@ -371,11 +372,11 @@ class RemotePlaybackHandlerImpl(
     }
     
     private fun logError(throwable: Throwable) {
-        throwable.message?.let { Log.e(it) }
+        throwable.message?.let { logger.e(it) }
     }
     
     private fun logMessage(msg: String) {
-        Log.d(msg)
+        logger.d(msg)
     }
     
     private val errorCallback = { throwable: Throwable -> logError(throwable) }

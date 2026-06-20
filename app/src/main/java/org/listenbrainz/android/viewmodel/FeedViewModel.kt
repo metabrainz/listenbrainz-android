@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventDeletionData
 import org.listenbrainz.android.model.feed.FeedEventType
@@ -43,8 +43,9 @@ import org.listenbrainz.android.ui.screens.feed.FollowListensPagingSource
 import org.listenbrainz.android.ui.screens.feed.MyFeedPagingSource
 import org.listenbrainz.android.ui.screens.feed.SimilarListensPagingSource
 import org.listenbrainz.shared.model.LinkedService
-import org.listenbrainz.android.util.Log
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.viewmodel.BaseViewModel
+import org.listenbrainz.shared.util.Log
+import org.listenbrainz.shared.util.Resource
 
 class FeedViewModel(
     private val feedRepository: FeedRepository,
@@ -53,7 +54,8 @@ class FeedViewModel(
     private val appPreferences: AppPreferences,
     private val remotePlaybackHandler: RemotePlaybackHandler,
     private val ioDispatcher: CoroutineDispatcher,
-    private val defaultDispatcher: CoroutineDispatcher
+    private val defaultDispatcher: CoroutineDispatcher,
+    private val logger:Log = Log
 ): BaseViewModel<FeedUiState>() {
     
     // Search follower flow
@@ -179,7 +181,7 @@ class FeedViewModel(
                     }
                     
                     if (result.status == Resource.Status.SUCCESS){
-                        Log.d("Play on youtube music successful")
+                        logger.d("Play on youtube music successful")
                     } else {
                         emitError(ResponseError.RemotePlayerError(actualResponse = "Could not play the requested track."))
                     }

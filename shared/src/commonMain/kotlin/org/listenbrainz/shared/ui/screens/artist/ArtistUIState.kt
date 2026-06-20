@@ -1,0 +1,33 @@
+package org.listenbrainz.shared.ui.screens.artist
+
+import org.listenbrainz.shared.model.artist.ArtistWikiExtract
+import org.listenbrainz.shared.model.artist.CBReview
+import org.listenbrainz.shared.model.artist.Listeners
+import org.listenbrainz.shared.model.artist.PopularRecording
+import org.listenbrainz.shared.model.artist.ReleaseGroup
+import org.listenbrainz.shared.model.artist.Rels
+import org.listenbrainz.shared.model.artist.SimilarArtist
+import org.listenbrainz.shared.model.artist.Tag
+import org.listenbrainz.shared.util.ArtistLinksEnum
+import org.listenbrainz.shared.util.LinkCardData
+
+data class ArtistUIState(
+    val isLoading: Boolean = true,
+    val name: String? = null,
+    val coverArt: String? = null,
+    val beginYear: Int? = null,
+    val area: String? = null,
+    val totalPlays: Int? = null,
+    val totalListeners: Int? = null,
+    val wikiExtract: ArtistWikiExtract? = null,
+    val tags: Tag? = null,
+    val links: Rels? = null,
+    val linksMap: Map<ArtistLinksEnum, List<LinkCardData>> = emptyMap(),
+    val popularTracks: List<PopularRecording?>? = listOf(),
+    val albums: List<ReleaseGroup?>? = listOf(),
+    val appearsOn: List<ReleaseGroup?>? = listOf(),
+    val similarArtists: List<SimilarArtist?>? = listOf(),
+    val topListeners: List<Listeners?>? = listOf(),
+    val reviews: CBReview? = null,
+    val artistMbid: String? = null
+)

@@ -10,9 +10,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import org.listenbrainz.android.BaseUnitTest
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.repository.user.UserRepository
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.sharedtest.testdata.UserRepositoryTestData.allPinsTestData
 import org.listenbrainz.sharedtest.testdata.UserRepositoryTestData.currentPinsTestData
 import org.listenbrainz.sharedtest.testdata.UserRepositoryTestData.globalListeningActivityTestData

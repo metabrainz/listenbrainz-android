@@ -10,7 +10,7 @@ import org.listenbrainz.android.model.user.TopSongs
 import org.listenbrainz.android.model.user.UserFeedback
 import org.listenbrainz.android.model.user.UserListeningActivity
 import org.listenbrainz.android.model.user.UserSimilarityPayload
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 interface UserRepository {
     suspend fun fetchUserListenCount (username: String?) : Resource<Listens?>

@@ -1,6 +1,6 @@
 package org.listenbrainz.android.ui.screens.onboarding.auth.login
 
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 data class LoginCallbacks(
     val onMusicBrainzLoginFormLoaded: ()-> Unit,

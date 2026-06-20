@@ -23,7 +23,7 @@ import org.listenbrainz.android.model.githubupdates.GithubUpdatesList
 import org.listenbrainz.android.model.githubupdates.GithubUpdatesListItem
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.android.util.Constants
+import org.listenbrainz.shared.util.Constants
 import org.listenbrainz.android.util.Utils.isNewerVersion
 import java.io.File
 

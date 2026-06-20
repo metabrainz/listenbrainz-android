@@ -51,7 +51,7 @@ import org.listenbrainz.android.ui.theme.yim23Blue
 import org.listenbrainz.android.ui.theme.yim23Green
 import org.listenbrainz.android.ui.theme.yim23Grey
 import org.listenbrainz.android.ui.theme.yim23Red
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
 

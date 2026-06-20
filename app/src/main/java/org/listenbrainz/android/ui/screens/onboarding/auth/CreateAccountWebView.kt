@@ -17,7 +17,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import org.listenbrainz.android.ui.screens.onboarding.auth.createaccount.CreateAccountClientCallbacks
 import org.listenbrainz.android.ui.screens.onboarding.auth.createaccount.CreateAccountWebAppInterface
 import org.listenbrainz.android.ui.screens.profile.CreateAccountWebClient
-import org.listenbrainz.android.viewmodel.CreateAccountViewModel
+import org.listenbrainz.shared.viewmodel.CreateAccountViewModel
 
 @SuppressLint("SetJavaScriptEnabled")
 @Composable

@@ -1,15 +1,15 @@
 package org.listenbrainz.sharedtest.mocks
 
 import android.graphics.drawable.Drawable
-import org.listenbrainz.android.model.CoverArt
 import org.listenbrainz.android.model.ListenBrainzExternalServices
 import org.listenbrainz.android.model.ListenSubmitBody
 import org.listenbrainz.android.model.Listens
 import org.listenbrainz.android.model.PostResponse
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.model.TokenValidation
 import org.listenbrainz.android.repository.listens.ListensRepository
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
+import org.listenbrainz.shared.model.CoverArt
 import org.listenbrainz.sharedtest.testdata.ListensRepositoryTestData.listensTestData
 
 class MockListensRepository : ListensRepository {

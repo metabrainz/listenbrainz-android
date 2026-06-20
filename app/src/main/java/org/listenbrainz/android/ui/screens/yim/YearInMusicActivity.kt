@@ -10,8 +10,8 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModelProvider
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.listenbrainz.android.ui.screens.yim.navigation.YimNavigation
-import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_IN
-import org.listenbrainz.android.util.Constants.Strings.STATUS_LOGGED_OUT
+import org.listenbrainz.shared.util.Constants.Strings.STATUS_LOGGED_IN
+import org.listenbrainz.shared.util.Constants.Strings.STATUS_LOGGED_OUT
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModel
 import org.listenbrainz.android.util.connectivityobserver.NetworkConnectivityViewModelImpl
 import org.listenbrainz.android.viewmodel.YimViewModel

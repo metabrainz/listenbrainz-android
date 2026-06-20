@@ -20,8 +20,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.model.Listen
-import org.listenbrainz.android.model.playlist.PlaylistData
+import org.listenbrainz.shared.model.playlist.PlaylistData
+import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.android.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
@@ -39,7 +39,8 @@ import org.listenbrainz.android.ui.screens.profile.playlists.CollabPlaylistPagin
 import org.listenbrainz.android.ui.screens.profile.playlists.UserPlaylistPagingSource
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
 import org.listenbrainz.android.ui.screens.profile.stats.DataScope
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
+import org.listenbrainz.shared.viewmodel.BaseViewModel
 
 class UserViewModel(
     val appPreferences: AppPreferences,
@@ -562,8 +563,8 @@ class UserViewModel(
                 if (playlistData.status == Resource.Status.FAILED) {
                     emitError(playlistData.error)
                 }
-                if (playlistData.data != null) {
-                    createdForYouPlaylistData[playlistMbid] = playlistData.data.playlist
+                playlistData.data?.let { data->
+                    createdForYouPlaylistData[playlistMbid] = data.playlist
                 }
             }
 
@@ -588,7 +589,9 @@ class UserViewModel(
             }
             if (playlistMbid != null && playlistData.data != null) {
                 val currentData = createdForFlow.value.createdForYouPlaylistData?.toMutableMap()
-                currentData?.set(playlistMbid, playlistData.data.playlist)
+                playlistData.data?.let { data ->
+                    currentData?.set(playlistMbid, data.playlist)
+                }
                 createdForFlow.emit(
                     createdForFlow.value.copy(
                         isLoading = false, createdForYouPlaylistData = currentData

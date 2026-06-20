@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.android.lint)
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
+    alias(libs.plugins.ktorfit)
 }
 
 kotlin {
@@ -32,7 +33,7 @@ kotlin {
     // Set JVM target for Android
     targets.withType<org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget> {
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
+            jvmTarget.set(JvmTarget.JVM_21)
         }
     }
 
@@ -63,6 +64,10 @@ kotlin {
         }
     }
 
+    ktorfit {
+        compilerPluginVersion.set(libs.versions.ktorfit.compiler)
+    }
+
     // Source set declarations.
     // Declaring a target automatically creates a source set with the same name. By default, the
     // Kotlin Gradle Plugin creates additional source sets that depend on each other, since it is
@@ -76,9 +81,27 @@ kotlin {
                 implementation(libs.datastore.preferences.core)
                 implementation(libs.kotlinx.serialization.json)
                 api(libs.kotlinx.coroutines.core)
+                // lifecycle
+                api(libs.androidx.lifecycle.viewmodel)
+                implementation(libs.androidx.lifecycle.runtime)
+                // koin
+                implementation(libs.koin.core)
+                implementation(libs.koin.compose)
+                implementation(libs.koin.compose.viewmodel)
                 // Room Multiplatform
                 implementation(libs.androidx.room.runtime)
                 implementation(libs.androidx.sqlite.bundled)
+                // Kermit Logger
+                implementation(libs.kermit)
+                // Ktor & Ktorfit
+                implementation(libs.ktor.client.core)
+                implementation(libs.ktor.client.content.negotiation)
+                implementation(libs.ktor.serialization.kotlinx.json)
+                implementation(libs.ktor.client.logging)
+                implementation(libs.ktorfit.lib)
+                api(libs.kermit)
+                implementation(libs.kmp.socketio)
+                implementation(libs.kotlinx.datetime)
             }
         }
 
@@ -94,6 +117,8 @@ kotlin {
                 // commonMain by default and will correctly pull the Android artifacts of any KMP
                 // dependencies declared in commonMain.
                 implementation(libs.androidx.datastore.preferences)
+                implementation(libs.core)
+                implementation(libs.ktor.client.okhttp)
             }
         }
 
@@ -112,6 +137,7 @@ kotlin {
                 // part of KMP’s default source set hierarchy. Note that this source set depends
                 // on common by default and will correctly pull the iOS artifacts of any
                 // KMP dependencies declared in commonMain.
+                implementation(libs.ktor.client.darwin)
             }
         }
     }

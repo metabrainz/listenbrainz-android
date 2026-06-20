@@ -12,7 +12,7 @@ import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
 import org.listenbrainz.android.ui.screens.feed.SocialDropdown
 import org.listenbrainz.android.util.PreviewSurface
-import org.listenbrainz.android.util.Utils.getCoverArtUrl
+import org.listenbrainz.shared.util.Utils
 
 @Composable
 fun ListenLikeFeedLayout(
@@ -42,7 +42,7 @@ fun ListenLikeFeedLayout(
             trackName = event.metadata.trackMetadata?.trackName ?: "Unknown",
             artists = event.metadata.trackMetadata?.mbidMapping?.artists ?: listOf(FeedListenArtist(event.metadata.trackMetadata?.artistName ?: "" , null, "")),
             coverArtUrl = remember {
-                getCoverArtUrl(
+                Utils.getCoverArtUrl(
                     caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
                     caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
                 )

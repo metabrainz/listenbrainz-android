@@ -5,9 +5,9 @@ import com.spotify.protocol.types.PlayerState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.listenbrainz.android.model.ListenBitmap
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 
 
 class MockRemotePlaybackHandler : RemotePlaybackHandler {

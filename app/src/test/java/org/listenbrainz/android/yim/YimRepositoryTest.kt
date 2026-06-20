@@ -8,7 +8,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import org.listenbrainz.android.BaseUnitTest
 import org.listenbrainz.android.repository.yim.YimRepository
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.sharedtest.testdata.YimRepositoryTestData.testYimData
 import org.listenbrainz.sharedtest.utils.AssertionUtils.checkYimAssertions
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername

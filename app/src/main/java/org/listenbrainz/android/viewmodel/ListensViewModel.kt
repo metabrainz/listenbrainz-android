@@ -16,21 +16,22 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.model.Listen
+import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.android.model.ListenBitmap
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.UiMode
 import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
-import org.listenbrainz.android.repository.socket.SocketRepository
+import org.listenbrainz.shared.repository.socket.SocketRepository
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningNowUiState
 import org.listenbrainz.android.ui.screens.profile.listens.ListensUiState
 import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.shared.model.LinkedService
-import org.listenbrainz.android.util.Resource
-import org.listenbrainz.android.util.Resource.Status.FAILED
-import org.listenbrainz.android.util.Resource.Status.SUCCESS
+import org.listenbrainz.shared.util.Resource
+import org.listenbrainz.shared.util.Resource.Status.FAILED
+import org.listenbrainz.shared.util.Resource.Status.SUCCESS
+import org.listenbrainz.shared.viewmodel.BaseViewModel
 
 class ListensViewModel(
     private val repository: ListensRepository,
@@ -161,21 +162,22 @@ class ListensViewModel(
     /** Returns if token is valid.*/
     suspend fun validateAndSaveUserDetails(token: String): Resource<Unit> {
         val result = repository.validateToken(token)
-        return if (result.isSuccess && result.data != null) {
-            if (result.data.valid) {
-                appPreferences.username.set(result.data.username ?: "")
-                appPreferences.lbAccessToken.set(token)
-                Resource.success(Unit)
-            } else {
-                emitError(result.error)
-                Resource.failure(
-                    ResponseError.Unauthorised(actualResponse = result.data.message)
-                )
-            }
-        } else {
-            emitError(result.error)
-            Resource.failure(result.error)
+        if (result.isSuccess && result.data != null) {
+           result.data?.let { data ->
+               return if (data.valid) {
+                   appPreferences.username.set(data.username ?: "")
+                   appPreferences.lbAccessToken.set(token)
+                   Resource.success(Unit)
+               } else {
+                   emitError(result.error)
+                   Resource.failure(
+                       ResponseError.Unauthorised(actualResponse = data.message)
+                   )
+               }
+           }
         }
+        emitError(result.error)
+        return Resource.failure(result.error)
     }
     
     fun fetchLinkedServices() {

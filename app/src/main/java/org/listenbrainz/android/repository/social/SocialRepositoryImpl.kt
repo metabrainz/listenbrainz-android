@@ -3,7 +3,7 @@ package org.listenbrainz.android.repository.social
 import org.listenbrainz.android.model.PinData
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.RecommendationData
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.model.Review
 import org.listenbrainz.android.model.SearchResult
 import org.listenbrainz.android.model.SimilarUserData
@@ -11,9 +11,9 @@ import org.listenbrainz.android.model.SocialData
 import org.listenbrainz.android.model.SocialResponse
 import org.listenbrainz.android.model.feed.FeedEvent
 import org.listenbrainz.android.service.SocialService
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.android.util.Utils.parseResponse
+import org.listenbrainz.shared.util.Utils.parseResponse
 
 
 

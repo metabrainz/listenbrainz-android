@@ -8,7 +8,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.junit.runner.RunWith
 import org.listenbrainz.android.util.JobQueue
-import org.listenbrainz.android.util.Log
+import org.listenbrainz.shared.util.Log
 import org.mockito.Mock
 import org.mockito.junit.MockitoJUnitRunner
 

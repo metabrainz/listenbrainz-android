@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -52,6 +53,7 @@ import org.listenbrainz.android.ui.screens.onboarding.introduction.OnboardingSup
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple_night
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
+import org.listenbrainz.shared.repository.PlatformContext
 
 data class LoginConsentScreenUIState(
     val data: String? = null,
@@ -62,7 +64,8 @@ data class LoginConsentScreenUIState(
 
 @Composable
 fun ConsentScreenDataInitializer(dashBoardViewModel: DashBoardViewModel){
-    val uiState by dashBoardViewModel.consentScreenUIState.collectAsState()
+    val dashboardUiState by dashBoardViewModel.uiState.collectAsState()
+    val uiState = dashboardUiState.consentScreenUIState
 
     if(uiState.data == null) {
         //Setting up consent screen content
@@ -121,7 +124,9 @@ fun ConsentScreenDataInitializer(dashBoardViewModel: DashBoardViewModel){
 @Composable
 fun LoginConsentScreen(dashBoardViewModel: DashBoardViewModel,
                        onProceedToLoginScreen: () -> Unit) {
-    val uiState by dashBoardViewModel.consentScreenUIState.collectAsState()
+    val dashboardUiState by dashBoardViewModel.uiState.collectAsState()
+    val uiState = dashboardUiState.consentScreenUIState
+    val isLogSubmitting = dashboardUiState.isSubmittingLogs
     LoginConsentScreenLayout(
         html = uiState.data ?: "",
         isLoading = uiState.isLoading,
@@ -129,7 +134,11 @@ fun LoginConsentScreen(dashBoardViewModel: DashBoardViewModel,
         onClickNext = onProceedToLoginScreen,
         onRetry = {
             dashBoardViewModel.onLoadConsentScreen()
-        }
+        },
+        submitLogs = {
+            dashBoardViewModel.logSubmit()
+        },
+        isSubmitting = isLogSubmitting
     )
 }
 
@@ -139,8 +148,11 @@ private fun LoginConsentScreenLayout(
     isLoading: Boolean,
     errorMessage: String?,
     onClickNext: () -> Unit,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
+    submitLogs:()->Unit,
+    isSubmitting:Boolean
 ) {
+    val context = LocalContext.current
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -262,7 +274,11 @@ private fun LoginConsentScreenLayout(
         OnboardingSupportButton(modifier = Modifier
             .statusBarsPadding()
             .align(Alignment.TopEnd)
-            .padding(top = 8.dp , end = 8.dp)
+            .padding(top = 8.dp , end = 8.dp),
+            isSubmitting = isSubmitting,
+            submitLogs = {
+                submitLogs()
+            }
         )
     }
 }
@@ -328,7 +344,9 @@ fun LoginConsentScreenPreview() {
             isLoading = false,
             errorMessage = null,
             onClickNext = {},
-            onRetry = {}
+            onRetry = {},
+            submitLogs = {},
+            isSubmitting = false
         )
     }
 }

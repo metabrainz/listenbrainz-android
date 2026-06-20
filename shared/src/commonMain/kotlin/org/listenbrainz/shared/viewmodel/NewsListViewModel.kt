@@ -1,0 +1,46 @@
+package org.listenbrainz.shared.viewmodel
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import org.listenbrainz.shared.model.BlogPost
+import org.listenbrainz.shared.repository.blog.BlogRepository
+import org.listenbrainz.shared.util.Resource
+
+class NewsListViewModel(
+    private val repository: BlogRepository,
+    private val ioDispatcher: CoroutineDispatcher
+) : ViewModel() {
+    var isLoading: Boolean  by mutableStateOf(true)
+    private val _blogPostsFlow = MutableStateFlow(emptyList<BlogPost>())
+    val blogPostsFlow = _blogPostsFlow.asStateFlow()
+
+    fun fetchBlogs() {
+        viewModelScope.launch {
+            val response = repository.fetchBlogs()
+            when (response.status) {
+                Resource.Status.SUCCESS -> {
+                    val responseBlogs = response.data!!
+                    // Updating blogs
+                    _blogPostsFlow.update { responseBlogs.posts }
+                    isLoading = false
+                }
+
+                Resource.Status.LOADING -> {
+                    isLoading = true
+                }
+
+                Resource.Status.FAILED -> {
+                    isLoading = false
+                }
+            }
+        }
+    }
+}

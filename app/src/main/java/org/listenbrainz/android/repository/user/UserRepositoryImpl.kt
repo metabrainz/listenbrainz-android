@@ -2,7 +2,7 @@ package org.listenbrainz.android.repository.user
 
 import org.listenbrainz.android.model.CurrentPins
 import org.listenbrainz.android.model.Listens
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.model.user.AllPinnedRecordings
 import org.listenbrainz.android.model.userPlaylist.UserPlaylistPayload
 import org.listenbrainz.android.model.user.TopAlbums
@@ -12,9 +12,9 @@ import org.listenbrainz.android.model.user.UserFeedback
 import org.listenbrainz.android.model.user.UserListeningActivity
 import org.listenbrainz.android.model.user.UserSimilarityPayload
 import org.listenbrainz.android.service.UserService
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.android.util.Utils.parseResponse
+import org.listenbrainz.shared.util.Utils.parseResponse
 
 
 class UserRepositoryImpl(

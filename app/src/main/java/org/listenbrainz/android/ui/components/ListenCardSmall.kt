@@ -40,7 +40,7 @@ import kotlinx.coroutines.CoroutineScope
 import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.AdditionalInfo
 import org.listenbrainz.shared.model.Metadata
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.android.model.feed.FeedEventType
 import org.listenbrainz.shared.model.feed.FeedListenArtist

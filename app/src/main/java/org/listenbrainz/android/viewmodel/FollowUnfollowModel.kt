@@ -2,10 +2,11 @@ package org.listenbrainz.android.viewmodel
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.model.ResponseError
+import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.model.User
 import org.listenbrainz.android.repository.social.SocialRepository
-import org.listenbrainz.android.util.Resource
+import org.listenbrainz.shared.util.Resource
+import org.listenbrainz.shared.viewmodel.BaseViewModel
 
 abstract class FollowUnfollowModel<UiState>(
     private val repository: SocialRepository,
