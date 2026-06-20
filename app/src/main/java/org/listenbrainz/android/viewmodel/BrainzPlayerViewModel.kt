@@ -211,6 +211,16 @@ class BrainzPlayerViewModel(
         transportControls?.setShuffleMode(if (isShuffled.value) SHUFFLE_MODE_NONE else SHUFFLE_MODE_ALL)
     }
 
+    /** Queue the entire [songs] library, force shuffle on and start playback from a random song. */
+    fun shuffleAllSongs(songs: List<Song>) {
+        if (songs.isEmpty()) return
+        val startIndex = songs.indices.random()
+        val startSong = songs[startIndex]
+        changePlayable(songs, PlayableType.ALL_SONGS, startSong.mediaID, startIndex)
+        if (!isShuffled.value) shuffle()
+        playOrToggleSong(startSong, toggle = true)
+    }
+
     fun repeatMode() {
         when (repeatMode.value) {
             RepeatMode.REPEAT_MODE_OFF -> brainzPlayerServiceConnection.transportControls?.setRepeatMode(
