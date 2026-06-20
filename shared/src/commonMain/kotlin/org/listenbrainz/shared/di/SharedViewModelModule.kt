@@ -17,6 +17,6 @@ val sharedViewModelModule = module {
     viewModel { CreateAccountViewModel(get()) }
     viewModel { FeaturesViewModel(get()) }
     viewModel { ArtistViewModel(get(),get(named(IO_DISPATCHER))) }
-    viewModel { LoginViewModel() }
+    viewModel { LoginViewModel(get()) }
     viewModel { AlbumViewModel(get(),get(named(IO_DISPATCHER))) }
 }
