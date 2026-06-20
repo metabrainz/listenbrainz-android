@@ -23,7 +23,7 @@ import org.listenbrainz.android.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.socket.SocketRepository
 import org.listenbrainz.android.util.ImagePalette
-import org.listenbrainz.android.util.Utils.getCoverArtUrl
+import org.listenbrainz.shared.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.util.getPaletteFromImage
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds

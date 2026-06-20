@@ -58,7 +58,7 @@ private fun Yim23Discoveries (viewModel: Yim23ViewModel) {
                 items(topDiscoveries) {
 
                     YimListenCard(releaseName = it.title, artistName = it.creator,
-                        coverArtUrl = Utils.getCoverArtUrl(
+                        coverArtUrl = org.listenbrainz.shared.util.Utils.getCoverArtUrl(
                             caaId = it.extension.extensionData.additionalMetadata.caaId,
                             caaReleaseMbid = it.extension.extensionData.additionalMetadata.caaReleaseMbid ,
                             size = 250

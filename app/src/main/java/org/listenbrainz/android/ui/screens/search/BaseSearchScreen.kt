@@ -63,7 +63,7 @@ import org.listenbrainz.android.ui.components.NavigationChips
 import org.listenbrainz.android.ui.components.TitleAndSubtitle
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils.formatDurationSeconds
-import org.listenbrainz.android.util.Utils.getCoverArtUrl
+import org.listenbrainz.shared.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.util.Utils.removeHtmlTags
 import org.listenbrainz.android.viewmodel.SearchViewModel
 import org.listenbrainz.shared.model.feed.FeedListenArtist

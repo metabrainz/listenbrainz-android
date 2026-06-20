@@ -80,13 +80,6 @@ import kotlin.contracts.contract
  * A set of fairly general Android utility methods.
  */
 object Utils {
-
-    /** Get *CoverArtArchive* url for cover art of a release.
-     * @param size Allowed sizes are 250, 500, 750 and 1000. Default is 250.*/
-    fun getCoverArtUrl(caaReleaseMbid: String?, caaId: Long?, size: Int = 250): String? {
-        if (caaReleaseMbid == null || caaId == null) return null
-        return "https://archive.org/download/mbid-${caaReleaseMbid}/mbid-${caaReleaseMbid}-${caaId}_thumb${size}.jpg"
-    }
     
     fun similarityToPercent(similarity: Float?): String {
         return if (similarity != null)

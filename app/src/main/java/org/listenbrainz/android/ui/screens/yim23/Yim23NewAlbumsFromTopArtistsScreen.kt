@@ -58,7 +58,7 @@ private fun Yim23NewAlbumsFromTopArtists (viewModel: Yim23ViewModel) {
         LazyColumn (state = rememberLazyListState()) {
             items(newReleases) {
                 YimListenCard(releaseName = it.title, artistName = it.artistCreditName, coverArtUrl =
-                Utils.getCoverArtUrl(
+                org.listenbrainz.shared.util.Utils.getCoverArtUrl(
                     caaId = it.caaId,
                     caaReleaseMbid = it.caaReleaseMbid ,
                     size = 250),)

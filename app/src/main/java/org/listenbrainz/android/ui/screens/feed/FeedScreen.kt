@@ -625,7 +625,7 @@ fun FollowListens(
                             )
                         ),
                         coverArtUrl =
-                            Utils.getCoverArtUrl(
+                            org.listenbrainz.shared.util.Utils.getCoverArtUrl(
                                 caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
                                 caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
                             ),
@@ -760,7 +760,7 @@ fun SimilarListens(
                             )
                         ),
                         coverArtUrl =
-                            Utils.getCoverArtUrl(
+                            org.listenbrainz.shared.util.Utils.getCoverArtUrl(
                                 caaReleaseMbid = event.metadata.trackMetadata?.mbidMapping?.caaReleaseMbid,
                                 caaId = event.metadata.trackMetadata?.mbidMapping?.caaId
                             ),

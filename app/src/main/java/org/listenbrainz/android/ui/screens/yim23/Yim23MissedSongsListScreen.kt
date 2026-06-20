@@ -60,7 +60,7 @@ private fun Yim23MissedSongs (viewModel: Yim23ViewModel) {
             LazyColumn (state = rememberLazyListState()) {
                 items(topMissedSongs) {
                     YimListenCard(releaseName = it.title, artistName = it.creator, coverArtUrl =
-                    Utils.getCoverArtUrl(
+                    org.listenbrainz.shared.util.Utils.getCoverArtUrl(
                         caaId = it.extension.extensionData.additionalMetadata.caaId.toLong(),
                         caaReleaseMbid = it.extension.extensionData.additionalMetadata.caaReleaseMbid,
                         size = 250),)
