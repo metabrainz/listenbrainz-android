@@ -1,7 +1,9 @@
 package org.listenbrainz.shared.repository.remoteplayer
 
+import io.ktor.util.reflect.TypeInfo
 import org.listenbrainz.shared.BuildKonfig
 import org.listenbrainz.shared.model.ResponseError
+import org.listenbrainz.shared.model.YouTubeApiError
 import org.listenbrainz.shared.service.YouTubeApiService
 import org.listenbrainz.shared.util.Log
 import org.listenbrainz.shared.util.Resource
@@ -16,7 +18,7 @@ abstract class SharedRemotePlaybackHandlerImpl(
     override suspend fun searchYoutubeMusicVideoId(
         trackName: String,
         artist: String
-    ):  Resource<String> = Utils.parseResponse {
+    ): Resource<String> = Utils.parseResponse(errorType = TypeInfo(YouTubeApiError::class)) {
         val response = youtubeApiService.searchVideos(
             part = "snippet",
             query = "$trackName $artist",

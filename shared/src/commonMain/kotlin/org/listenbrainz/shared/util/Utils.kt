@@ -3,13 +3,16 @@ package org.listenbrainz.shared.util
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ResponseException
 import io.ktor.http.HttpStatusCode
+import io.ktor.util.reflect.TypeInfo
 import kotlinx.io.IOException
 import kotlinx.io.files.FileNotFoundException
 import org.listenbrainz.shared.model.ApiError
+import org.listenbrainz.shared.model.ListenBrainzApiError
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.repository.PlatformContext
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
+import kotlin.reflect.KClass
 
 object Utils {
 
@@ -29,23 +32,37 @@ object Utils {
 
     /** General function to parse an API endpoint's response executed by Ktor.
      * @param request Call the API endpoint here. Run any pre-conditional checks to directly return error/success in some cases. */
-    suspend inline fun <T> parseResponse(request: KtorRequestScope.() -> T): Resource<T> =
+    suspend fun <T> parseResponse(request: suspend KtorRequestScope.() -> T): Resource<T> =
+        parseResponse(TypeInfo(ListenBrainzApiError::class), request)
+
+    /** General function to parse an API endpoint's response executed by Ktor.
+     * @param request Call the API endpoint here. Run any pre-conditional checks to directly return error/success in some cases. */
+    suspend fun <T> parseResponse(
+        errorType: TypeInfo,
+        request: suspend KtorRequestScope.() -> T
+    ): Resource<T> =
         runCatching {
             Resource.success(KtorRequestScope().request())
         }.getOrElse { error ->
             return@getOrElse when (error) {
                 is ResponseException -> {
                     val code = error.response.status
-                    val actualResponse = error.response.body<ApiError>().error
+                    val actualResponse = runCatching {
+                        error.response
+                            .body<ApiError>(errorType)
+                            .error
+                    }.getOrElse {
+                        throw IllegalArgumentException("Unexpected errorType passed in parseResponse")
+                    }
                     val responseError = when (code) {
-                        HttpStatusCode.Companion.BadRequest -> ResponseError.BadRequest(actualResponse)
-                        HttpStatusCode.Companion.Unauthorized -> ResponseError.AuthHeaderNotFound(actualResponse)
-                        HttpStatusCode.Companion.Forbidden -> ResponseError.Unauthorised(actualResponse)
-                        HttpStatusCode.Companion.NotFound -> ResponseError.DoesNotExist(actualResponse)
-                        HttpStatusCode.Companion.TooManyRequests -> ResponseError.RateLimitExceeded(actualResponse)
-                        HttpStatusCode.Companion.InternalServerError -> ResponseError.InternalServerError(actualResponse)
-                        HttpStatusCode.Companion.BadGateway -> ResponseError.BadGateway(actualResponse)
-                        HttpStatusCode.Companion.ServiceUnavailable -> ResponseError.ServiceUnavailable(actualResponse)
+                        HttpStatusCode.BadRequest -> ResponseError.BadRequest(actualResponse)
+                        HttpStatusCode.Unauthorized -> ResponseError.AuthHeaderNotFound(actualResponse)
+                        HttpStatusCode.Forbidden -> ResponseError.Unauthorised(actualResponse)
+                        HttpStatusCode.NotFound -> ResponseError.DoesNotExist(actualResponse)
+                        HttpStatusCode.TooManyRequests -> ResponseError.RateLimitExceeded(actualResponse)
+                        HttpStatusCode.InternalServerError -> ResponseError.InternalServerError(actualResponse)
+                        HttpStatusCode.BadGateway -> ResponseError.BadGateway(actualResponse)
+                        HttpStatusCode.ServiceUnavailable -> ResponseError.ServiceUnavailable(actualResponse)
                         else -> ResponseError.Unknown(actualResponse)
                     }
 
