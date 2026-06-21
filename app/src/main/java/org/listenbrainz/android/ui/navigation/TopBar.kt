@@ -11,6 +11,12 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -36,6 +42,16 @@ fun TopBar(
     context: Context = LocalContext.current,
     topBarActions: TopBarActions
 ) {
+
+    var isSettingsClickEnabled by remember { mutableStateOf(true) }
+
+    LaunchedEffect(isSettingsClickEnabled) {
+        if (!isSettingsClickEnabled) {
+            delay(500)
+            isSettingsClickEnabled = true
+        }
+    }
+
         TopAppBar(
             modifier = modifier,
             title = { Text(text = title) },
@@ -66,13 +82,19 @@ fun TopBar(
                     )
                 }
 
-                IconButton(onClick = {
-                    if (title == AppNavigationItem.Settings.title) {
-                        topBarActions.popBackStackInSettingsScreen()
-                    } else {
-                        topBarActions.navigateToSettingsScreen()
-                    }
-                }) {
+                IconButton(
+                    onClick = {
+                        if (isSettingsClickEnabled) {
+                            isSettingsClickEnabled = false
+                            if (title == AppNavigationItem.Settings.title) {
+                                topBarActions.popBackStackInSettingsScreen()
+                            } else {
+                                topBarActions.navigateToSettingsScreen()
+                            }
+                        }
+                    },
+                    enabled = isSettingsClickEnabled
+                ) {
                     Icon(painterResource(id = R.drawable.ic_settings), "Settings")
                 }
             }
