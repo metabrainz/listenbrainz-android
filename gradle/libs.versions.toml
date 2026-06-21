@@ -5,7 +5,18 @@ kermit = "2.0.8"
 kotlin = "2.3.10"
 navigation = "2.8.5"
 koin = "4.1.1"
-compose = "1.10.4"
+compose = "1.11.3"
+# Compose Multiplatform 1.11.1 dependency set
+# https://kotlinlang.org/docs/multiplatform/whats-new-compose-111.html#dependencies
+composeMultiplatform = "1.11.1"
+composeMaterial3 = "1.11.0-alpha07"
+composeMaterial3Adaptive = "1.3.0-alpha07"
+composeLifecycle = "2.11.0-beta01"
+composeNavigation = "2.9.2"
+composeNavigation3 = "1.1.2"
+composeNavigationEvent = "1.1.1"
+composeSavedstate = "1.4.0"
+composeWindow = "1.5.1"
 reorderable = "3.0.0"
 room = "2.7.2"
 sqlite = "2.6.2"
@@ -164,9 +175,22 @@ androidx-test-runner = { module = "androidx.test:runner", version.ref = "testRun
 androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
 androidx-test-espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espresso" }
 
+# Multiplatform compose dependencies
+# https://kotlinlang.org/docs/multiplatform/whats-new-compose-111.html#dependencies
+compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
+compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
+compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
+compose-material = { module = "org.jetbrains.compose.material:material", version.ref = "composeMultiplatform" }
+compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeMaterial3" }
+compose-material3-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "composeMaterial3Adaptive" }
+compose-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "composeLifecycle" }
+compose-navigation = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "composeNavigation" }
+compose-navigation3-runtime = { module = "org.jetbrains.androidx.navigation3:navigation3-runtime", version.ref = "composeNavigation3" }
+compose-navigationevent = { module = "org.jetbrains.androidx.navigationevent:navigationevent-compose", version.ref = "composeNavigationEvent" }
+compose-savedstate = { module = "org.jetbrains.androidx.savedstate:savedstate", version.ref = "composeSavedstate" }
+compose-window-core = { module = "org.jetbrains.androidx.window:window-core", version.ref = "composeWindow" }
+
 vico-compose = { module = "com.patrykandpatrick.vico:compose", version.ref = "vicoCompose" }
-compose-ratingbar = { module = "com.github.a914-gowtham:compose-ratingbar", version.ref = "composeRatingbar" }
-logger-android = { module = "com.github.akshaaatt:Logger-Android", version.ref = "loggerAndroid" }
 androidx-palette-ktx = { group = "androidx.palette", name = "palette-ktx", version.ref = "paletteKtx" }
 
 chucker = { module = "com.github.chuckerteam.chucker:library", version.ref = "chucker" }
@@ -205,3 +229,4 @@ android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.
 android-lint = { id = "com.android.lint", version.ref = "androidGradlePlugin" }
 androidx-room = { id = "androidx.room", version.ref = "room" }
 buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }

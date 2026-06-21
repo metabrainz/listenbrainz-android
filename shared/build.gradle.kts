@@ -13,6 +13,8 @@ plugins {
     alias(libs.plugins.androidx.room)
     alias(libs.plugins.buildkonfig)
     alias(libs.plugins.ktorfit)
+    alias(libs.plugins.compose.multiplatform)
+    alias(libs.plugins.compose.compiler)
 }
 
 val localProperties = Properties().apply {
@@ -130,10 +132,15 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.kotlin.stdlib)
-                // Add KMP dependencies here
+                api(libs.kotlinx.coroutines.core)
+
+                // Compose Multiplatform UI
+                implementation(libs.compose.ui)
+                implementation(libs.compose.runtime)
+                implementation(libs.compose.foundation)
+                // datastore
                 implementation(libs.datastore.preferences.core)
                 implementation(libs.kotlinx.serialization.json)
-                api(libs.kotlinx.coroutines.core)
                 // lifecycle
                 api(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.androidx.lifecycle.runtime)
@@ -152,7 +159,6 @@ kotlin {
                 implementation(libs.ktor.serialization.kotlinx.json)
                 implementation(libs.ktor.client.logging)
                 implementation(libs.ktorfit.lib)
-                api(libs.kermit)
                 implementation(libs.kmp.socketio)
                 implementation(libs.kotlinx.datetime)
             }
