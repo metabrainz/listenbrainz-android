@@ -1,9 +1,9 @@
 package org.listenbrainz.android.ui.screens.profile.listens
 
-import com.spotify.protocol.types.PlayerState
 import org.listenbrainz.shared.model.Listen
-import org.listenbrainz.android.model.ListenBitmap
+import org.listenbrainz.shared.model.ListenBitmap
 import org.listenbrainz.shared.model.ResponseError
+import org.listenbrainz.shared.model.playback.SharedPlayerState
 
 data class ListensUiState(
     val listens: List<Listen> = emptyList(),
@@ -15,7 +15,7 @@ data class ListensUiState(
 data class ListeningNowUiState(
     val listeningNow: Listen? = null,
     val listeningNowBitmap: ListenBitmap = ListenBitmap(),
-    val playerState: PlayerState? = null,
+    val playerState: SharedPlayerState? = null,
     val songDuration: Long = 0L,
     val songCurrentPosition: Long = 0L,
     val progress: Float = 0f

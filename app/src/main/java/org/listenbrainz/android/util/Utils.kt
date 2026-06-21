@@ -255,22 +255,6 @@ object Utils {
         return intent
     }
 
-    fun getSHA1(context: Context, packageName: String): String? {
-        try {
-            val signatures = context.packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES).signatures ?: emptyArray()
-            for (signature in signatures) {
-                val md = MessageDigest.getInstance("SHA-1")
-                md.update(signature.toByteArray())
-                return md.digest().joinToString("") { "%02X".format(it) }
-            }
-        } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
-        } catch (e: NoSuchAlgorithmException) {
-            e.printStackTrace()
-        }
-        return null
-    }
-
     fun Context.isServiceRunning(serviceClass: Class<*>): Boolean {
         val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         for (service in manager.getRunningServices(Integer.MAX_VALUE)) {

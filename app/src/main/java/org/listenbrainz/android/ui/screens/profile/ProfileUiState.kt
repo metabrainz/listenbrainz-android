@@ -1,11 +1,10 @@
 package org.listenbrainz.android.ui.screens.profile
 
 import androidx.paging.PagingData
-import com.spotify.protocol.types.PlayerState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import org.listenbrainz.shared.model.Listen
-import org.listenbrainz.android.model.ListenBitmap
+import org.listenbrainz.shared.model.ListenBitmap
 import org.listenbrainz.android.model.PinnedRecording
 import org.listenbrainz.android.model.SimilarUser
 import org.listenbrainz.shared.model.playlist.PlaylistData
@@ -21,6 +20,7 @@ import org.listenbrainz.android.model.userPlaylist.UserPlaylists
 import org.listenbrainz.android.ui.screens.profile.listens.ListeningNowUiState
 import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
 import org.listenbrainz.android.ui.screens.profile.stats.DataScope
+import org.listenbrainz.shared.model.playback.SharedPlayerState
 
 data class ProfileUiState(
     val loggedInUser: String? = null,
@@ -79,7 +79,7 @@ data class PlaylistTabUIState(
 data class ListeningNowUiState(
     val listeningNow: Listen? = null,
     val listeningNowBitmap: ListenBitmap = ListenBitmap(),
-    val playerState: PlayerState? = null,
+    val playerState: SharedPlayerState? = null,
     val songDuration: Long = 0L,
     val songCurrentPosition: Long = 0L,
     val progress: Float = 0f

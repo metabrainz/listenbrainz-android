@@ -30,17 +30,17 @@ import org.koin.androidx.compose.koinViewModel
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.spotify.protocol.types.PlayerState
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.ListenBitmap
+import org.listenbrainz.shared.model.ListenBitmap
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
 import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.shared.model.playback.SharedPlayerState
 
 @Composable
 fun ListeningNowOnSpotify(
-    playerState: PlayerState?,
+    playerState: SharedPlayerState?,
     bitmap: ListenBitmap
 ){
     val socialViewModel = koinViewModel<SocialViewModel>()
@@ -100,7 +100,7 @@ fun ListeningNowOnSpotify(
     
                 Column(modifier = Modifier.align(Alignment.CenterVertically)) {
                     
-                    playerState?.track?.name?.let { track ->
+                    playerState?.trackName?.let { track ->
                         Text(
                             text = track,
                             color = ListenBrainzTheme.colorScheme.listenText,
@@ -111,10 +111,10 @@ fun ListeningNowOnSpotify(
                     }
                     
                     Spacer(modifier = Modifier.height(8.dp))
-        
-                    if (playerState != null) {
+
+                    playerState?.artistName?.let { artist->
                         Text(
-                            text = playerState.track.artist.name,
+                            text =  artist,
                             color = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),
                             style = ListenBrainzTheme.textStyles.listenSubtitle,
                             maxLines = 1
@@ -123,7 +123,7 @@ fun ListeningNowOnSpotify(
         
                     Spacer(modifier = Modifier.height(8.dp))
                     
-                    playerState?.track?.album?.name?.let { album ->
+                    playerState?.albumName?.let { album ->
                         Text(
                             text = album,
                             color = ListenBrainzTheme.colorScheme.listenText.copy(alpha = 0.7f),

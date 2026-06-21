@@ -7,6 +7,7 @@ import kotlinx.io.IOException
 import kotlinx.io.files.FileNotFoundException
 import org.listenbrainz.shared.model.ApiError
 import org.listenbrainz.shared.model.ResponseError
+import org.listenbrainz.shared.repository.PlatformContext
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -71,4 +72,8 @@ object Utils {
         if (caaReleaseMbid == null || caaId == null) return null
         return "https://archive.org/download/mbid-${caaReleaseMbid}/mbid-${caaReleaseMbid}-${caaId}_thumb${size}.jpg"
     }
+}
+
+expect object PlatformUtils {
+    fun getSHA1(context: PlatformContext, packageName: String): String?
 }

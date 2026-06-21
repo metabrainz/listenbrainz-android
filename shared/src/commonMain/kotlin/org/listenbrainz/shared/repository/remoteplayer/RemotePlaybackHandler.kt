@@ -1,11 +1,10 @@
-package org.listenbrainz.android.repository.remoteplayer
+package org.listenbrainz.shared.repository.remoteplayer
 
-import com.spotify.protocol.types.PlayerContext
-import com.spotify.protocol.types.PlayerState
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import org.listenbrainz.android.model.ListenBitmap
+import org.listenbrainz.shared.model.ListenBitmap
 import org.listenbrainz.shared.model.ResponseError
+import org.listenbrainz.shared.model.playback.SharedPlayerContext
+import org.listenbrainz.shared.model.playback.SharedPlayerState
 import org.listenbrainz.shared.util.Resource
 
 interface RemotePlaybackHandler {
@@ -31,7 +30,7 @@ interface RemotePlaybackHandler {
      * Coroutine-safe*/
     suspend fun disconnectSpotify()
     
-    suspend fun fetchSpotifyTrackCoverArt(playerState: PlayerState?): ListenBitmap
+    suspend fun fetchSpotifyTrackCoverArt(playerState: SharedPlayerState?): ListenBitmap
     
     /** Usually, LB will supply the Spotify-link of the track, but this function requires track the track ID. To
      * obtain the track id from a LB provided data (usually spotifyId field of a data class) do this:
@@ -51,8 +50,8 @@ interface RemotePlaybackHandler {
     
     /** Main function to access all the details about spotify player.
      * @return null if flow is cancelled.*/
-    fun getPlayerState(): Flow<PlayerState?>
+    fun getPlayerState(): Flow<SharedPlayerState?>
     
     /** @return null if flow is cancelled. */
-    fun getPlayerContext(): Flow<PlayerContext?>
+    fun getPlayerContext(): Flow<SharedPlayerContext?>
 }

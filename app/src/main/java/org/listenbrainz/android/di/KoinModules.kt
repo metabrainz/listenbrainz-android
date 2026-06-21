@@ -57,8 +57,6 @@ import org.listenbrainz.android.repository.listenservicemanager.ListenServiceMan
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManagerImpl
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepositoryImpl
-import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
-import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandlerImpl
 import org.listenbrainz.android.repository.social.SocialRepository
 import org.listenbrainz.android.repository.social.SocialRepositoryImpl
 import org.listenbrainz.android.repository.user.UserRepository
@@ -78,7 +76,6 @@ import org.listenbrainz.android.service.SocialService
 import org.listenbrainz.android.service.UserService
 import org.listenbrainz.android.service.Yim23Service
 import org.listenbrainz.android.service.YimService
-import org.listenbrainz.android.service.YouTubeApiService
 import org.listenbrainz.android.service.createGithubAppUpdatesService
 import org.listenbrainz.android.service.createListensService
 import org.listenbrainz.android.service.createPlaylistService
@@ -86,7 +83,7 @@ import org.listenbrainz.android.service.createSocialService
 import org.listenbrainz.android.service.createUserService
 import org.listenbrainz.android.service.createYim23Service
 import org.listenbrainz.android.service.createYimService
-import org.listenbrainz.android.service.createYouTubeApiService
+import org.listenbrainz.shared.service.createYouTubeApiService
 import org.listenbrainz.android.util.LocalMusicSource
 import org.listenbrainz.android.util.MusicSource
 import org.listenbrainz.android.util.Utils
@@ -278,44 +275,6 @@ val networkModule = module {
             .createPlaylistService()
     }
 
-    single<YouTubeApiService> {
-        val context = androidContext()
-        val httpClient = HttpClient(OkHttp) {
-            expectSuccess = false
-
-            install(ContentNegotiation) {
-                json(jsonConfig)
-            }
-
-            if (BuildConfig.DEBUG) {
-                install(Logging) {
-                    logger = object : Logger {
-                        override fun log(message: String) {
-                            Log.d("Ktor: $message")
-                        }
-                    }
-                    level = LogLevel.ALL
-                }
-
-                engine {
-                    config {
-                        addInterceptor(ChuckerInterceptor(context))
-                    }
-                }
-            }
-
-            defaultRequest {
-                url("https://www.googleapis.com/")
-                header("X-Android-Package", context.packageName)
-                header("X-Android-Cert", Utils.getSHA1(context, context.packageName) ?: "")
-            }
-        }
-        Ktorfit.Builder()
-            .baseUrl("https://www.googleapis.com/")
-            .httpClient(httpClient)
-            .build()
-            .createYouTubeApiService()
-    }
 
     single<YimService> {
         val httpClient = createBaseHttpClient(androidContext(), baseUrl = LISTENBRAINZ_API_BASE_URL)
@@ -422,8 +381,6 @@ val repositoryModule = module {
     single<Yim23Repository> { Yim23RepositoryImpl(get()) }
     single<AppUpdatesRepository> { AppUpdatesRepositoryImpl(get(), get(), get(named(IO_DISPATCHER))) }
 
-    // Remote Playback Handler
-    single<RemotePlaybackHandler> { RemotePlaybackHandlerImpl(androidContext(), get()) }
 }
 
 // Service Module for BrainzPlayer
@@ -469,8 +426,6 @@ val viewModelModule = module {
     viewModel { BPAlbumViewModel(get(), get(named(IO_DISPATCHER))) }
     viewModel { BPArtistViewModel(get(), get(named(IO_DISPATCHER))) }
     viewModel { SongViewModel(get(), get(named(IO_DISPATCHER))) }
-    viewModel { AlbumViewModel(get(), get(named(IO_DISPATCHER))) }
-    viewModel { FeaturesViewModel(get()) }
     viewModel { AboutViewModel() }
     viewModel { LoginViewModel(get()) }
 }

@@ -26,7 +26,7 @@ import kotlinx.coroutines.withContext
 import org.listenbrainz.android.model.PermissionStatus
 import org.listenbrainz.shared.model.UiMode
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.android.repository.remoteplayer.RemotePlaybackHandler
+import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.android.ui.screens.onboarding.auth.login.LoginConsentScreenUIState
 import org.listenbrainz.android.ui.screens.onboarding.listeningApps.AppInfo
 import org.listenbrainz.android.ui.screens.onboarding.permissions.PermissionEnum

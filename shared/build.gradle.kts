@@ -1,4 +1,8 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec
+import com.codingfeline.buildkonfig.gradle.TargetConfigDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -7,7 +11,67 @@ plugins {
     alias(libs.plugins.android.lint)
     alias(libs.plugins.ksp)
     alias(libs.plugins.androidx.room)
+    alias(libs.plugins.buildkonfig)
     alias(libs.plugins.ktorfit)
+    alias(libs.plugins.compose.multiplatform)
+    alias(libs.plugins.compose.compiler)
+}
+
+val localProperties = Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        load(FileInputStream(localPropertiesFile))
+    }
+}
+
+val keystoreProperties = Properties().apply {
+    val keystorePropertiesFile = rootProject.file("keystore.properties")
+    if (keystorePropertiesFile.exists()) {
+        load(FileInputStream(keystorePropertiesFile))
+    }
+}
+
+// BuildKonfig has no concept of Android build types; it generates a single config per build,
+// selected by the `buildkonfig.flavor` Gradle property (read lazily in afterEvaluate). We pick the
+// "release" flavor whenever a release task is requested unless a flavor was already supplied via
+// -P / gradle.properties. so release builds get DEBUG=false and the keys from keystore.properties,
+// while everything else falls back to the default config (local.properties, DEBUG=true).
+// Note: a single invocation that builds both debug and release (e.g. `./gradlew build`) will apply
+// the release flavor to both, since the flavor is global per build.
+if (!project.hasProperty("buildkonfig.flavor")) {
+    val buildingRelease = gradle.startParameter.taskNames.any {
+        it.contains("Release", ignoreCase = true)
+    }
+    if (buildingRelease) {
+        project.extensions.extraProperties.set("buildkonfig.flavor", "release")
+    }
+}
+
+buildkonfig {
+    packageName = "org.listenbrainz.shared"
+
+    fun TargetConfigDsl.common(properties: Properties) {
+        buildConfigField(
+            FieldSpec.Type.STRING,
+            "YOUTUBE_API_KEY",
+            properties.getProperty("youtubeApiKey").orEmpty()
+        )
+        buildConfigField(
+            FieldSpec.Type.STRING,
+            "SPOTIFY_CLIENT_ID",
+            properties.getProperty("spotifyClientId").orEmpty()
+        )
+    }
+
+    defaultConfigs {
+        buildConfigField(FieldSpec.Type.BOOLEAN, "DEBUG", "true")
+        common(localProperties)
+    }
+
+    defaultConfigs("release") {
+        buildConfigField(FieldSpec.Type.BOOLEAN, "DEBUG", "false")
+        common(keystoreProperties)
+    }
 }
 
 kotlin {
@@ -19,9 +83,6 @@ kotlin {
         namespace = "org.listenbrainz.shared"
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()
-
-        withHostTestBuilder {
-        }
 
         withDeviceTestBuilder {
             sourceSetTreeName = "test"
@@ -45,12 +106,6 @@ kotlin {
     // project can be found here:
     // https://developer.android.com/kotlin/multiplatform/migrate
     val xcfName = "sharedKit"
-
-    iosX64 {
-        binaries.framework {
-            baseName = xcfName
-        }
-    }
 
     iosArm64 {
         binaries.framework {
@@ -77,10 +132,15 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.kotlin.stdlib)
-                // Add KMP dependencies here
+                api(libs.kotlinx.coroutines.core)
+
+                // Compose Multiplatform UI
+                implementation(libs.compose.ui)
+                implementation(libs.compose.runtime)
+                implementation(libs.compose.foundation)
+                // datastore
                 implementation(libs.datastore.preferences.core)
                 implementation(libs.kotlinx.serialization.json)
-                api(libs.kotlinx.coroutines.core)
                 // lifecycle
                 api(libs.androidx.lifecycle.viewmodel)
                 implementation(libs.androidx.lifecycle.runtime)
@@ -99,7 +159,6 @@ kotlin {
                 implementation(libs.ktor.serialization.kotlinx.json)
                 implementation(libs.ktor.client.logging)
                 implementation(libs.ktorfit.lib)
-                api(libs.kermit)
                 implementation(libs.kmp.socketio)
                 implementation(libs.kotlinx.datetime)
             }
@@ -119,6 +178,14 @@ kotlin {
                 implementation(libs.androidx.datastore.preferences)
                 implementation(libs.core)
                 implementation(libs.ktor.client.okhttp)
+                implementation(
+                    fileTree(
+                        mapOf(
+                            "dir" to "${rootProject.projectDir}/spotify-app-remote",
+                            "include" to listOf("*.aar")
+                        )
+                    )
+                )
             }
         }
 
@@ -152,7 +219,6 @@ room {
 // KSP configuration for Room compiler
 dependencies {
     add("kspAndroid", libs.androidx.room.compiler)
-    add("kspIosX64", libs.androidx.room.compiler)
     add("kspIosArm64", libs.androidx.room.compiler)
     add("kspIosSimulatorArm64", libs.androidx.room.compiler)
 }

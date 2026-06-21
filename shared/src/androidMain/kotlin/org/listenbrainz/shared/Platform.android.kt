@@ -12,6 +12,10 @@ import org.listenbrainz.shared.util.BuildInfo
 import org.listenbrainz.shared.util.LogSubmitter
 import java.io.File
 
+import org.listenbrainz.shared.repository.remoteplayer.AndroidRemotePlaybackHandlerImpl
+import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
+import org.listenbrainz.shared.service.YouTubeApiService
+
 actual fun platform() = "Android"
 
 
@@ -42,4 +46,12 @@ actual fun provideLogger(
 
 actual fun provideLogSubmitter(context: PlatformContext, buildInfo: BuildInfo): LogSubmitter {
     return AndroidLogSubmitter(context,buildInfo)
+}
+
+
+actual fun provideRemotePlaybackHandler(
+    appContext: PlatformContext,
+    youTubeApiService: YouTubeApiService
+): RemotePlaybackHandler {
+    return AndroidRemotePlaybackHandlerImpl(appContext,youTubeApiService)
 }
