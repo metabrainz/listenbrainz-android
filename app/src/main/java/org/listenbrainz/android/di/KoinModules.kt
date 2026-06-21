@@ -426,8 +426,6 @@ val viewModelModule = module {
     viewModel { BPAlbumViewModel(get(), get(named(IO_DISPATCHER))) }
     viewModel { BPArtistViewModel(get(), get(named(IO_DISPATCHER))) }
     viewModel { SongViewModel(get(), get(named(IO_DISPATCHER))) }
-    viewModel { AlbumViewModel(get(), get(named(IO_DISPATCHER))) }
-    viewModel { FeaturesViewModel(get()) }
     viewModel { AboutViewModel() }
     viewModel { LoginViewModel(get()) }
 }
