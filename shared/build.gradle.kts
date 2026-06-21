@@ -1,4 +1,5 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec
+import com.codingfeline.buildkonfig.gradle.TargetConfigDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
 import java.util.Properties
@@ -14,22 +15,60 @@ plugins {
     alias(libs.plugins.ktorfit)
 }
 
-val localPropertiesFile = rootProject.file("local.properties")
 val localProperties = Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
     if (localPropertiesFile.exists()) {
         load(FileInputStream(localPropertiesFile))
     }
 }
 
-val youtubeKey = localProperties.getProperty("youtubeApiKey").orEmpty()
-val spotifyId = localProperties.getProperty("spotifyClientId").orEmpty()
+val keystoreProperties = Properties().apply {
+    val keystorePropertiesFile = rootProject.file("keystore.properties")
+    if (keystorePropertiesFile.exists()) {
+        load(FileInputStream(keystorePropertiesFile))
+    }
+}
+
+// BuildKonfig has no concept of Android build types; it generates a single config per build,
+// selected by the `buildkonfig.flavor` Gradle property (read lazily in afterEvaluate). We pick the
+// "release" flavor whenever a release task is requested unless a flavor was already supplied via
+// -P / gradle.properties. so release builds get DEBUG=false and the keys from keystore.properties,
+// while everything else falls back to the default config (local.properties, DEBUG=true).
+// Note: a single invocation that builds both debug and release (e.g. `./gradlew build`) will apply
+// the release flavor to both, since the flavor is global per build.
+if (!project.hasProperty("buildkonfig.flavor")) {
+    val buildingRelease = gradle.startParameter.taskNames.any {
+        it.contains("Release", ignoreCase = true)
+    }
+    if (buildingRelease) {
+        project.extensions.extraProperties.set("buildkonfig.flavor", "release")
+    }
+}
 
 buildkonfig {
     packageName = "org.listenbrainz.shared"
 
+    fun TargetConfigDsl.common(properties: Properties) {
+        buildConfigField(
+            FieldSpec.Type.STRING,
+            "YOUTUBE_API_KEY",
+            properties.getProperty("youtubeApiKey").orEmpty()
+        )
+        buildConfigField(
+            FieldSpec.Type.STRING,
+            "SPOTIFY_CLIENT_ID",
+            properties.getProperty("spotifyClientId").orEmpty()
+        )
+    }
+
     defaultConfigs {
-        buildConfigField(FieldSpec.Type.STRING, "YOUTUBE_API_KEY", youtubeKey)
-        buildConfigField(FieldSpec.Type.STRING, "SPOTIFY_CLIENT_ID", spotifyId)
+        buildConfigField(FieldSpec.Type.BOOLEAN, "DEBUG", "true")
+        common(localProperties)
+    }
+
+    defaultConfigs("release") {
+        buildConfigField(FieldSpec.Type.BOOLEAN, "DEBUG", "false")
+        common(keystoreProperties)
     }
 }
 
@@ -42,9 +81,6 @@ kotlin {
         namespace = "org.listenbrainz.shared"
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()
-
-        withHostTestBuilder {
-        }
 
         withDeviceTestBuilder {
             sourceSetTreeName = "test"

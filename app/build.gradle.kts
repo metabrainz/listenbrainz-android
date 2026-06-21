@@ -60,16 +60,6 @@ android {
 
     buildTypes {
         debug {
-            val localProperties = Properties()
-                .takeIf { localPropertiesFile.exists() }
-                ?.apply { load(FileInputStream(localPropertiesFile)) }
-
-            fun addStringRes(name: String) =
-                resValue("string", name, localProperties?.getProperty(name).orEmpty())
-
-            addStringRes("youtubeApiKey")
-            addStringRes("spotifyClientId")
-
             resValue("string", "environment", "debug")
 
             applicationIdSuffix = ".debug"
@@ -77,16 +67,6 @@ android {
         }
 
         release {
-            val keystoreProperties = Properties()
-                .takeIf { keystorePropertiesFile.exists() }
-                ?.apply { load(FileInputStream(keystorePropertiesFile)) }
-
-            fun addStringRes(name: String) =
-                resValue("string", name, keystoreProperties?.getProperty(name).orEmpty())
-
-            addStringRes("youtubeApiKey")
-            addStringRes("spotifyClientId")
-
             resValue("string", "environment", "production")
 
             if (keystorePropertiesFile.exists()) {
@@ -257,13 +237,10 @@ dependencies {
     testImplementation(libs.mockito.kotlin)
     testImplementation(project(":sharedTest"))
 
-    androidTestImplementation(libs.kotlin.test)
-    androidTestImplementation(libs.kotlin.test.junit)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.work.testing)
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.androidx.arch.core.testing)
     androidTestImplementation(libs.androidx.test.espresso.core)
     androidTestImplementation(libs.androidx.test.espresso.intents)
     androidTestImplementation(libs.koin.test)
