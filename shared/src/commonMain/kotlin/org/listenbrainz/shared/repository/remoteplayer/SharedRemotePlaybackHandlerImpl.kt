@@ -2,13 +2,12 @@ package org.listenbrainz.shared.repository.remoteplayer
 
 import org.listenbrainz.shared.BuildKonfig
 import org.listenbrainz.shared.model.ResponseError
-import org.listenbrainz.shared.repository.PlatformContext
 import org.listenbrainz.shared.service.YouTubeApiService
+import org.listenbrainz.shared.util.Log
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.util.Utils
 
 abstract class SharedRemotePlaybackHandlerImpl(
-    private val appContext: PlatformContext,
     private val youtubeApiService: YouTubeApiService
 ): RemotePlaybackHandler {
 
@@ -38,15 +37,11 @@ abstract class SharedRemotePlaybackHandlerImpl(
     }
 
     protected fun logError(throwable: Throwable) {
-        throwable.message?.let {
-//            Log.e(it)
-            println(it)
-        }
+        Log.e(throwable)
     }
 
     protected fun logMessage(msg: String) {
-//        Log.d(msg)
-        println(msg)
+        Log.d(msg)
     }
 
     protected val errorCallback = { throwable: Throwable -> logError(throwable) }

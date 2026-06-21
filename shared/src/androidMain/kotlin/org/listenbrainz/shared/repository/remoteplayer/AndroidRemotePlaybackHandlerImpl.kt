@@ -36,7 +36,6 @@ import org.listenbrainz.shared.repository.PlatformContext
 import org.listenbrainz.shared.service.YouTubeApiService
 import org.listenbrainz.shared.util.Constants
 import org.listenbrainz.shared.util.Resource
-import org.listenbrainz.shared.util.Utils.parseResponse
 import org.listenbrainz.shared.util.Log
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -44,13 +43,12 @@ import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
-import androidx.core.net.toUri
 
 class AndroidRemotePlaybackHandlerImpl(
     private val appContext: PlatformContext,
     private val youtubeApiService: YouTubeApiService,
     private val logger: Log = Log
-) : SharedRemotePlaybackHandlerImpl(appContext,youtubeApiService) {
+) : SharedRemotePlaybackHandlerImpl(youtubeApiService) {
     
     private val mutex = Mutex()
     private var spotifyAppRemote: SpotifyAppRemote? = null

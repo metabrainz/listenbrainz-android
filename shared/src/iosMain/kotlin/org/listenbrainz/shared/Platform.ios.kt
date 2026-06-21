@@ -55,5 +55,5 @@ actual fun provideRemotePlaybackHandler(
     appContext: PlatformContext,
     youTubeApiService: YouTubeApiService
 ): RemotePlaybackHandler {
-    return IosRemotePlaybackHandlerImpl(appContext,youTubeApiService)
+    return IosRemotePlaybackHandlerImpl(youTubeApiService)
 }
