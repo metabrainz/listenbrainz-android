@@ -180,9 +180,7 @@ class FeedViewModel(
                         }
                     }
                     
-                    if (result.status == Resource.Status.SUCCESS){
-                        logger.d("Play on youtube music successful")
-                    } else {
+                    if (result.isFailed) {
                         emitError(ResponseError.RemotePlayerError(actualResponse = "Could not play the requested track."))
                     }
                 }

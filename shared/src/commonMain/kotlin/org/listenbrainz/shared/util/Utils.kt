@@ -12,7 +12,6 @@ import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.repository.PlatformContext
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
-import kotlin.reflect.KClass
 
 object Utils {
 
@@ -72,6 +71,11 @@ object Utils {
                 else -> logAndReturn(error)
             }
         }
+
+    fun <T> Resource<T>.alsoLogError() = this.also {
+        if (it.isFailed)
+            Log.e(it.error)
+    }
 
     fun <T> logAndReturn(it: Throwable) : Resource<T> {
         it.printStackTrace()

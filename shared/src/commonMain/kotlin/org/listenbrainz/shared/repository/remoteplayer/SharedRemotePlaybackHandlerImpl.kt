@@ -8,6 +8,7 @@ import org.listenbrainz.shared.service.YouTubeApiService
 import org.listenbrainz.shared.util.Log
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.util.Utils
+import org.listenbrainz.shared.util.Utils.alsoLogError
 
 abstract class SharedRemotePlaybackHandlerImpl(
     private val youtubeApiService: YouTubeApiService
@@ -36,7 +37,7 @@ abstract class SharedRemotePlaybackHandlerImpl(
         }
 
         return@parseResponse items.first().id.videoId
-    }
+    }.alsoLogError()
 
     protected fun logError(throwable: Throwable) {
         Log.e(throwable)

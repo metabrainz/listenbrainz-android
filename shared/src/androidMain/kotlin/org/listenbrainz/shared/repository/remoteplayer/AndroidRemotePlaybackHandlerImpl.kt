@@ -86,8 +86,10 @@ class AndroidRemotePlaybackHandlerImpl(
                         Resource.success(Unit)
                     }
                     else -> {
+                        val message = "YouTube Music is not installed to play the track."
+                        logger.e(message)
                         // Display an error message
-                        ResponseError.DoesNotExist("YouTube Music is not installed to play the track.").asResource()
+                        ResponseError.DoesNotExist(message).asResource()
                     }
                 }
             }
