@@ -18,12 +18,12 @@ import org.listenbrainz.shared.repository.PlatformContext
 import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.socket.SocketRepository
 import org.listenbrainz.shared.util.ImagePalette
+import org.listenbrainz.shared.util.Log
 import org.listenbrainz.shared.util.Utils.getCoverArtUrl
 import org.listenbrainz.shared.util.fetchBitmapFromUrl
 import org.listenbrainz.shared.util.getPaletteFromImage
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
-import org.listenbrainz.shared.Log
 
 data class ListeningNowUIState(
     val song: Listen? = null,
@@ -38,7 +38,8 @@ class ListeningNowViewModel(
     private val socketRepository: SocketRepository,
     private val appPreferences: AppPreferences,
     private val listensRepository: ListensRepository,
-    private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
+    private val logger: Log = Log
 ) : ViewModel() {
     private val _listeningNowUIState = MutableStateFlow(ListeningNowUIState())
     val listeningNowUIState = _listeningNowUIState.asStateFlow()
@@ -48,7 +49,7 @@ class ListeningNowViewModel(
         viewModelScope.launch(ioDispatcher) {
             appPreferences.username.getFlow().collectLatest { username ->
                 fetchListenFromAPI(username)
-                Log.d("Socket listening", "Listening for $username")
+                logger.d("Socket listening", "Listening for $username")
                 socketRepository
                     .listen { username }
                     .collectLatest { listen ->
@@ -66,14 +67,14 @@ class ListeningNowViewModel(
                 _listeningNowUIState.update {
                     ListeningNowUIState()
                 }
-                Log.d(TAG, "fetchListenFromAPI: No listen found")
+                logger.d(TAG, "fetchListenFromAPI: No listen found")
                 return
             }
-            Log.d(TAG, "fetchListenFromAPI: $listen")
+            logger.d(TAG, "fetchListenFromAPI: $listen")
 
             updateUIState(listen)
         } else if (result.isFailed) {
-            Log.d(TAG, "fetchListenFromAPI: ${result.error?.toast}")
+            logger.d(TAG, "fetchListenFromAPI: ${result.error?.toast}")
         }
     }
 
@@ -114,7 +115,7 @@ class ListeningNowViewModel(
                     }
                 }
             } catch (e: Exception) {
-                Log.d("ListeningNowLayout", "Error loading socket image palette: ${e.message}")
+                logger.d("ListeningNowLayout", "Error loading socket image palette: ${e.message}")
             }
         }
     }

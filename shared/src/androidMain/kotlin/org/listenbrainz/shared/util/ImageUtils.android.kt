@@ -25,7 +25,7 @@ actual suspend fun fetchBitmapFromUrl(context: PlatformContext, url:String): Ima
             null
         }
     }catch (e: Exception){
-//        Log.e("Error while fetching bitmap: ${e.message}")
+        Log.e("Error while fetching bitmap: ${e.message}")
         null
     }
 }

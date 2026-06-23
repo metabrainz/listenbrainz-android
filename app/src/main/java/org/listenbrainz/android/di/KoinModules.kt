@@ -77,7 +77,6 @@ import org.listenbrainz.shared.viewmodel.BPArtistViewModel
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.FeedViewModel
-import org.listenbrainz.android.viewmodel.ListeningNowViewModel
 import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.SearchViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
