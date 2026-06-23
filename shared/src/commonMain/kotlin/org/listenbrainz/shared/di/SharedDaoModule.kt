@@ -24,7 +24,6 @@ val sharedDatabaseModule = module {
     single<ListensSubmissionDatabase>{
         getListensSubmissionDatabase(appContext = get())
             .setDriver(BundledSQLiteDriver())
-            .addMigrations(Migrations.MIGRATION_1_2,Migrations.MIGRATION_2_3)
             .build()
     }
 }
