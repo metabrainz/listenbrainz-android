@@ -31,14 +31,8 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.listenbrainz.android.BuildConfig
-import org.listenbrainz.android.di.brainzplayer.BrainzPlayerDatabase
 import org.listenbrainz.android.di.brainzplayer.ListensSubmissionDatabase
-import org.listenbrainz.android.di.brainzplayer.Migrations
-import org.listenbrainz.android.model.dao.AlbumDao
-import org.listenbrainz.android.model.dao.ArtistDao
 import org.listenbrainz.android.model.dao.PendingListensDao
-import org.listenbrainz.android.model.dao.PlaylistDao
-import org.listenbrainz.android.model.dao.SongDao
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepositoryImpl
 import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
@@ -107,6 +101,10 @@ import org.listenbrainz.android.viewmodel.YimViewModel
 import org.listenbrainz.shared.di.DEFAULT_DISPATCHER
 import org.listenbrainz.shared.di.IO_DISPATCHER
 import org.listenbrainz.shared.di.platformModule
+import org.listenbrainz.shared.util.BuildInfo
+import org.listenbrainz.shared.util.LogSubmitter
+import org.listenbrainz.shared.di.sharedDaoModule
+import org.listenbrainz.shared.di.sharedDatabaseModule
 import org.listenbrainz.shared.di.sharedDispatcherModule
 import org.listenbrainz.shared.di.sharedNetworkServiceModule
 import org.listenbrainz.shared.di.sharedRepositoryModule
@@ -115,7 +113,6 @@ import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.AppPreferencesImpl
 import org.listenbrainz.shared.repository.socket.SocketRepository
 import org.listenbrainz.shared.repository.socket.SocketRepositoryImpl
-import org.listenbrainz.shared.util.BuildInfo
 import org.listenbrainz.shared.util.Constants.GITHUB_API_BASE_URL
 import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_API_BASE_URL
 import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_BETA_API_BASE_URL
@@ -197,16 +194,6 @@ private fun createBaseHttpClient(
 
 
 val databaseModule = module {
-    single<BrainzPlayerDatabase> {
-        Room.databaseBuilder(
-            androidContext(),
-            BrainzPlayerDatabase::class.java,
-            "brainzplayer_database"
-        )
-            .addMigrations(Migrations.MIGRATION_1_2)
-            .build()
-    }
-
     single<ListensSubmissionDatabase> {
         Room.databaseBuilder(
             androidContext(),
@@ -218,10 +205,6 @@ val databaseModule = module {
 }
 
 val daoModule = module {
-    single<SongDao> { get<BrainzPlayerDatabase>().songDao() }
-    single<AlbumDao> { get<BrainzPlayerDatabase>().albumDao() }
-    single<ArtistDao> { get<BrainzPlayerDatabase>().artistDao() }
-    single<PlaylistDao> { get<BrainzPlayerDatabase>().playlistDao() }
     single<PendingListensDao> { get<ListensSubmissionDatabase>().pendingListensDao() }
 }
 
@@ -442,5 +425,7 @@ val appModules = listOf(
     sharedViewModelModule,
     sharedNetworkServiceModule,
     sharedRepositoryModule,
-    platformModule
+    platformModule,
+    sharedDatabaseModule,
+    sharedDaoModule
 )

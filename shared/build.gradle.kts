@@ -89,6 +89,12 @@ kotlin {
         }.configure {
             instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
+
+        optimization {
+            minify = true
+            consumerKeepRules.publish = true
+            consumerKeepRules.files.add(project.file("proguard-rules.pro"))
+        }
     }
 
     // Set JVM target for Android
@@ -150,7 +156,7 @@ kotlin {
                 implementation(libs.koin.compose.viewmodel)
                 // Room Multiplatform
                 implementation(libs.androidx.room.runtime)
-                implementation(libs.androidx.sqlite.bundled)
+                api(libs.androidx.sqlite.bundled)
                 // Kermit Logger
                 implementation(libs.kermit)
                 // Ktor & Ktorfit

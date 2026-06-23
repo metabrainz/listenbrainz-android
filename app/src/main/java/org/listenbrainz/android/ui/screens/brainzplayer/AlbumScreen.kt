@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.sp
 import org.koin.androidx.compose.koinViewModel
 import coil3.compose.AsyncImage
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.Album
+import org.listenbrainz.shared.model.Album
 import org.listenbrainz.shared.model.PlayableType
 import org.listenbrainz.shared.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.BPLibraryEmptyMessage

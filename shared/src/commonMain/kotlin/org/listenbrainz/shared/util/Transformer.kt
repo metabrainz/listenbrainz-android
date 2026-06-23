@@ -1,13 +1,13 @@
-package org.listenbrainz.android.util
+package org.listenbrainz.shared.util
 
-import org.listenbrainz.android.model.Album
-import org.listenbrainz.android.model.AlbumEntity
-import org.listenbrainz.android.model.Artist
-import org.listenbrainz.android.model.ArtistEntity
-import org.listenbrainz.android.model.Playlist
-import org.listenbrainz.android.model.PlaylistEntity
+import org.listenbrainz.shared.model.Album
+import org.listenbrainz.shared.model.AlbumEntity
+import org.listenbrainz.shared.model.Artist
+import org.listenbrainz.shared.model.ArtistEntity
+import org.listenbrainz.shared.model.Playlist
+import org.listenbrainz.shared.model.PlaylistEntity
 import org.listenbrainz.shared.model.Song
-import org.listenbrainz.android.model.SongEntity
+import org.listenbrainz.shared.model.SongEntity
 
 object Transformer {
     fun SongEntity.toSong() = Song(

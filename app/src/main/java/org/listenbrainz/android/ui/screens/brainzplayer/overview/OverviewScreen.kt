@@ -20,8 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.Album
-import org.listenbrainz.android.model.Artist
+import org.listenbrainz.shared.model.Album
+import org.listenbrainz.shared.model.Artist
 import org.listenbrainz.shared.model.PlayableType
 import org.listenbrainz.shared.model.Song
 import org.listenbrainz.android.ui.components.BrainzPlayerActivityCards
