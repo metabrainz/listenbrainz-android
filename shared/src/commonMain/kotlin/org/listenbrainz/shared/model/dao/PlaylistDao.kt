@@ -1,8 +1,8 @@
-package org.listenbrainz.android.model.dao
+package org.listenbrainz.shared.model.dao
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
-import org.listenbrainz.android.model.PlaylistEntity
+import org.listenbrainz.shared.model.PlaylistEntity
 import org.listenbrainz.shared.model.SongEntity
 
 @Dao

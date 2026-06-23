@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.model.Album
+import org.listenbrainz.shared.model.Album
 import org.listenbrainz.shared.model.Song
 import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
 

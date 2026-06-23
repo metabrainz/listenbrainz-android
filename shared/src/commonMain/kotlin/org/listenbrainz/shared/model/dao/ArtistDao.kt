@@ -1,11 +1,11 @@
-package org.listenbrainz.android.model.dao
+package org.listenbrainz.shared.model.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
-import org.listenbrainz.android.model.ArtistEntity
+import org.listenbrainz.shared.model.ArtistEntity
 
 @Dao
 interface ArtistDao {

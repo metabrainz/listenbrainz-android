@@ -2,7 +2,6 @@ package org.listenbrainz.android.di
 
 import android.content.Context
 import android.support.v4.media.MediaMetadataCompat
-import androidx.room.Room
 import androidx.work.WorkManager
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.google.android.exoplayer2.C
@@ -31,12 +30,6 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.listenbrainz.android.BuildConfig
-import org.listenbrainz.android.di.brainzplayer.BrainzPlayerDatabase
-import org.listenbrainz.android.di.brainzplayer.Migrations
-import org.listenbrainz.android.model.dao.AlbumDao
-import org.listenbrainz.android.model.dao.ArtistDao
-import org.listenbrainz.android.model.dao.PlaylistDao
-import org.listenbrainz.android.model.dao.SongDao
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepositoryImpl
 import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
@@ -75,16 +68,11 @@ import org.listenbrainz.android.service.createPlaylistService
 import org.listenbrainz.android.service.createSocialService
 import org.listenbrainz.android.service.createYim23Service
 import org.listenbrainz.android.service.createYimService
-import org.listenbrainz.shared.service.createYouTubeApiService
-import org.listenbrainz.shared.util.Constants.CB_BASE_URL
 import org.listenbrainz.shared.util.Constants.GITHUB_API_BASE_URL
-import org.listenbrainz.shared.util.Constants.LB_BASE_URL
 import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_API_BASE_URL
 import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_BETA_API_BASE_URL
-import org.listenbrainz.shared.util.Constants.MB_BASE_URL
 import org.listenbrainz.android.util.LocalMusicSource
 import org.listenbrainz.android.util.MusicSource
-import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.AboutViewModel
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 import org.listenbrainz.android.viewmodel.BPAlbumViewModel
@@ -105,7 +93,6 @@ import org.listenbrainz.shared.di.DEFAULT_DISPATCHER
 import org.listenbrainz.shared.di.IO_DISPATCHER
 import org.listenbrainz.shared.di.platformModule
 import org.listenbrainz.shared.util.BuildInfo
-import org.listenbrainz.shared.util.LogSubmitter
 import org.listenbrainz.shared.di.sharedDaoModule
 import org.listenbrainz.shared.di.sharedDatabaseModule
 import org.listenbrainz.shared.di.sharedDispatcherModule
@@ -114,11 +101,7 @@ import org.listenbrainz.shared.di.sharedRepositoryModule
 import org.listenbrainz.shared.di.sharedViewModelModule
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.AppPreferencesImpl
-import org.listenbrainz.shared.repository.socket.SocketRepository
-import org.listenbrainz.shared.repository.socket.SocketRepositoryImpl
 import org.listenbrainz.shared.util.Log
-import org.listenbrainz.shared.viewmodel.AlbumViewModel
-import org.listenbrainz.shared.viewmodel.FeaturesViewModel
 import org.listenbrainz.shared.viewmodel.LoginViewModel
 import org.listenbrainz.shared.viewmodel.NewsListViewModel
 
@@ -192,25 +175,6 @@ private fun createBaseHttpClient(
     }
 }
 
-
-val databaseModule = module {
-    single<BrainzPlayerDatabase> {
-        Room.databaseBuilder(
-            androidContext(),
-            BrainzPlayerDatabase::class.java,
-            "brainzplayer_database"
-        )
-            .addMigrations(Migrations.MIGRATION_1_2)
-            .build()
-    }
-}
-
-val daoModule = module {
-    single<SongDao> { get<BrainzPlayerDatabase>().songDao() }
-    single<AlbumDao> { get<BrainzPlayerDatabase>().albumDao() }
-    single<ArtistDao> { get<BrainzPlayerDatabase>().artistDao() }
-    single<PlaylistDao> { get<BrainzPlayerDatabase>().playlistDao() }
-}
 
 val networkModule = module {
     single<HttpClient> {
@@ -398,8 +362,6 @@ val viewModelModule = module {
 
 val appModules = listOf(
     sharedDispatcherModule,
-    databaseModule,
-    daoModule,
     networkModule,
     appModule,
     repositoryModule,

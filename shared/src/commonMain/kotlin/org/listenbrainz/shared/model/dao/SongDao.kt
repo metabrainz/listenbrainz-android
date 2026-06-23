@@ -1,4 +1,4 @@
-package org.listenbrainz.android.model.dao
+package org.listenbrainz.shared.model.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -25,11 +25,11 @@ interface SongDao {
     fun getRecentlyPlayedSongs() : Flow<List<SongEntity>>
     @Query(value = "SELECT * FROM SONGS WHERE (:currentTime - lastListenedTo) < 86400000 ORDER BY (:currentTime - lastListenedTo) ASC")
     fun getSongsPlayedToday(
-        currentTime : Long = System.currentTimeMillis()
+        currentTime : Long
     ) : Flow<List<SongEntity>>
     @Query(value = "SELECT * FROM SONGS WHERE (:currentTime - lastListenedTo) > 86400000 AND (:currentTime - lastListenedTo) < 604800000  ORDER BY (:currentTime - lastListenedTo) ASC")
     fun getSongsPlayedThisWeek(
-        currentTime : Long = System.currentTimeMillis()
+        currentTime : Long
     ) : Flow<List<SongEntity>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)

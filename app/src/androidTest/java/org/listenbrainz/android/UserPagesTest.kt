@@ -84,7 +84,10 @@ class UserPagesTest {
 
         rule.setContent {
             runBlocking {
-                viewModel.getUserDataFromRemote(testUsername)
+                viewModel.updateUser(testUsername)
+                viewModel.getUserListensData(testUsername, refresh = true)
+                viewModel.getUserStatsData(testUsername)
+                viewModel.getUserTasteData(testUsername, refresh = true)
                 testDispatcher.scheduler.advanceUntilIdle()
             }
             val uiState by viewModel.uiState.collectAsState()
@@ -95,14 +98,15 @@ class UserPagesTest {
                         snackbarState = remember {
                             SnackbarHostState()
                         },
-                        uiState = uiState,
                         goToUserProfile = { /*TODO*/ },
                         viewModel = viewModel,
                         feedViewModel = feedViewModel,
                         socialViewModel = socialViewModel,
                         listensViewModel = listensViewModel,
                         goToArtistPage = {},
-                        goToPlaylist = {}
+                        goToPlaylist = {},
+                        scrollRequestState = false,
+                        onScrollToTop = {}
                     )
                 }
 

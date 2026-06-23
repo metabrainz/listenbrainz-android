@@ -19,7 +19,6 @@ import org.listenbrainz.shared.util.LogSubmitter
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSUserDomainMask
-
 import org.listenbrainz.shared.repository.listens.IosListensRepositoryImpl
 import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.remoteplayer.IosRemotePlaybackHandlerImpl
@@ -27,8 +26,9 @@ import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.service.ListensService
 import org.listenbrainz.shared.service.UserService
 import org.listenbrainz.shared.service.YouTubeApiService
-import platform.Foundation.NSFileManager
 import platform.posix.err
+import org.listenbrainz.shared.di.database.BrainzPlayerDatabase
+import platform.Foundation.NSFileManager
 
 actual fun platform() = "iOS"
 
@@ -71,22 +71,10 @@ actual fun provideRemotePlaybackHandler(
     return IosRemotePlaybackHandlerImpl(youTubeApiService)
 }
 
-actual fun provideListensRepositoryImpl(
-    service: ListensService,
-    appPreferences: AppPreferences,
-    userService: UserService,
-    pendingListensDao: PendingListensDao,
-    ioDispatcher: CoroutineDispatcher,
-    appContext: PlatformContext
-): ListensRepository {
-    return IosListensRepositoryImpl(service,appPreferences,userService,pendingListensDao,ioDispatcher,appContext)
-}
-
-actual fun getListensSubmissionDatabase(appContext: PlatformContext): RoomDatabase.Builder<ListensSubmissionDatabase> {
-    val listensDB = documentDirectory() + "/listens_scrobble_database.db"
-
-    return Room.databaseBuilder<ListensSubmissionDatabase>(
-        name = listensDB
+actual fun getBrainzPlayerDatabase(context: PlatformContext): RoomDatabase.Builder<BrainzPlayerDatabase> {
+    val brainzPlayerDB = documentDirectory() + "/brainzplayer_database.db"
+    return Room.databaseBuilder<BrainzPlayerDatabase>(
+        name = brainzPlayerDB
     )
 }
 
@@ -100,4 +88,22 @@ private fun documentDirectory(): String {
         error = null,
     )
     return requireNotNull(documentDirectory?.path)
+}
+
+actual fun provideListensRepositoryImpl(
+    service: ListensService,
+    appPreferences: AppPreferences,
+    userService: UserService,
+    pendingListensDao: PendingListensDao,
+    ioDispatcher: CoroutineDispatcher,
+    appContext: PlatformContext
+): ListensRepository {
+    return IosListensRepositoryImpl(service,appPreferences,userService,pendingListensDao,ioDispatcher,appContext)
+}
+
+actual fun getListensSubmissionDatabase(appContext: PlatformContext): RoomDatabase.Builder<ListensSubmissionDatabase> {
+    val listensDB = documentDirectory() + "/listens_scrobble_database.db"
+    return Room.databaseBuilder<ListensSubmissionDatabase>(
+        name = listensDB
+    )
 }

@@ -1,4 +1,4 @@
-package org.listenbrainz.android.model.dao
+package org.listenbrainz.shared.model.dao
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
