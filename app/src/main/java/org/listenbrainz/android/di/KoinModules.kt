@@ -2,7 +2,6 @@ package org.listenbrainz.android.di
 
 import android.content.Context
 import android.support.v4.media.MediaMetadataCompat
-import androidx.room.Room
 import androidx.work.WorkManager
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.google.android.exoplayer2.C
@@ -31,8 +30,6 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.listenbrainz.android.BuildConfig
-import org.listenbrainz.android.di.brainzplayer.ListensSubmissionDatabase
-import org.listenbrainz.android.model.dao.PendingListensDao
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepositoryImpl
 import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
@@ -45,8 +42,6 @@ import org.listenbrainz.android.repository.brainzplayer.SongRepository
 import org.listenbrainz.android.repository.brainzplayer.SongRepositoryImpl
 import org.listenbrainz.android.repository.feed.FeedRepository
 import org.listenbrainz.android.repository.feed.FeedRepositoryImpl
-import org.listenbrainz.android.repository.listens.ListensRepository
-import org.listenbrainz.android.repository.listens.ListensRepositoryImpl
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManagerImpl
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
@@ -64,23 +59,20 @@ import org.listenbrainz.android.service.FeedServiceKtor
 import org.listenbrainz.android.service.FeedServiceKtorImpl
 import org.listenbrainz.android.service.GithubAppUpdatesService
 import org.listenbrainz.android.service.GithubUpdatesDownloadService
-import org.listenbrainz.android.service.ListensService
 import org.listenbrainz.android.service.PlaylistService
 import org.listenbrainz.android.service.SocialService
-import org.listenbrainz.android.service.UserService
 import org.listenbrainz.android.service.Yim23Service
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.service.createGithubAppUpdatesService
-import org.listenbrainz.android.service.createListensService
 import org.listenbrainz.android.service.createPlaylistService
 import org.listenbrainz.android.service.createSocialService
-import org.listenbrainz.android.service.createUserService
 import org.listenbrainz.android.service.createYim23Service
 import org.listenbrainz.android.service.createYimService
-import org.listenbrainz.shared.service.createYouTubeApiService
+import org.listenbrainz.shared.util.Constants.GITHUB_API_BASE_URL
+import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_API_BASE_URL
+import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_BETA_API_BASE_URL
 import org.listenbrainz.android.util.LocalMusicSource
 import org.listenbrainz.android.util.MusicSource
-import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.AboutViewModel
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 import org.listenbrainz.android.viewmodel.BPAlbumViewModel
@@ -89,7 +81,6 @@ import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.ListeningNowViewModel
-import org.listenbrainz.android.viewmodel.ListensViewModel
 import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.PlaylistViewModel
 import org.listenbrainz.android.viewmodel.SearchViewModel
@@ -102,7 +93,6 @@ import org.listenbrainz.shared.di.DEFAULT_DISPATCHER
 import org.listenbrainz.shared.di.IO_DISPATCHER
 import org.listenbrainz.shared.di.platformModule
 import org.listenbrainz.shared.util.BuildInfo
-import org.listenbrainz.shared.util.LogSubmitter
 import org.listenbrainz.shared.di.sharedDaoModule
 import org.listenbrainz.shared.di.sharedDatabaseModule
 import org.listenbrainz.shared.di.sharedDispatcherModule
@@ -111,14 +101,7 @@ import org.listenbrainz.shared.di.sharedRepositoryModule
 import org.listenbrainz.shared.di.sharedViewModelModule
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.AppPreferencesImpl
-import org.listenbrainz.shared.repository.socket.SocketRepository
-import org.listenbrainz.shared.repository.socket.SocketRepositoryImpl
-import org.listenbrainz.shared.util.Constants.GITHUB_API_BASE_URL
-import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_API_BASE_URL
-import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_BETA_API_BASE_URL
 import org.listenbrainz.shared.util.Log
-import org.listenbrainz.shared.viewmodel.AlbumViewModel
-import org.listenbrainz.shared.viewmodel.FeaturesViewModel
 import org.listenbrainz.shared.viewmodel.LoginViewModel
 import org.listenbrainz.shared.viewmodel.NewsListViewModel
 
@@ -193,33 +176,9 @@ private fun createBaseHttpClient(
 }
 
 
-val databaseModule = module {
-    single<ListensSubmissionDatabase> {
-        Room.databaseBuilder(
-            androidContext(),
-            ListensSubmissionDatabase::class.java,
-            "listens_scrobble_database"
-        )
-            .build()
-    }
-}
-
-val daoModule = module {
-    single<PendingListensDao> { get<ListensSubmissionDatabase>().pendingListensDao() }
-}
-
 val networkModule = module {
     single<HttpClient> {
         createBaseHttpClient(androidContext(), get<AppPreferences>())
-    }
-
-    single<ListensService> {
-        val httpClient = createBaseHttpClient(androidContext(), get<AppPreferences>())
-        Ktorfit.Builder()
-            .baseUrl(LISTENBRAINZ_API_BASE_URL)
-            .httpClient(httpClient)
-            .build()
-            .createListensService()
     }
 
     single<SocialService> {
@@ -229,15 +188,6 @@ val networkModule = module {
             .httpClient(httpClient)
             .build()
             .createSocialService()
-    }
-
-    single<UserService> {
-        val httpClient = createBaseHttpClient(androidContext(), get<AppPreferences>())
-        Ktorfit.Builder()
-            .baseUrl(LISTENBRAINZ_API_BASE_URL)
-            .httpClient(httpClient)
-            .build()
-            .createUserService()
     }
 
     single<PlaylistService> {
@@ -352,13 +302,11 @@ val repositoryModule = module {
     single<BPAlbumRepository> { BPAlbumRepositoryImpl(get()) }
     single<BPArtistRepository> { BPArtistRepositoryImpl(get()) }
     single<PlaylistRepository> { PlaylistRepositoryImpl(get()) }
-    single<SocketRepository> { SocketRepositoryImpl(get(),get()) }
 
     // API Repositories
     single<FeedRepository> { FeedRepositoryImpl(get()) }
     single<SocialRepository> { SocialRepositoryImpl(get(), get()) }
     single<UserRepository> { UserRepositoryImpl(get(), get()) }
-    single<ListensRepository> { ListensRepositoryImpl(get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
     single<PlaylistDataRepository> { PlaylistDataRepositoryImpl(get(), get(), get(), get(named(IO_DISPATCHER))) }
     single<YimRepository> { YimRepositoryImpl(get()) }
     single<Yim23Repository> { Yim23RepositoryImpl(get()) }
@@ -395,7 +343,6 @@ val viewModelModule = module {
     viewModel { DashBoardViewModel(get(), get(), get(), get(named(IO_DISPATCHER)),get()) }
     viewModel { AppUpdatesViewModel(get(), get(), get()) }
     viewModel { FeedViewModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
-    viewModel { ListensViewModel(get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
     viewModel { SocialViewModel(get(), get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { UserViewModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
     viewModel { PlaylistDataViewModel(get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
@@ -415,8 +362,6 @@ val viewModelModule = module {
 
 val appModules = listOf(
     sharedDispatcherModule,
-    databaseModule,
-    daoModule,
     networkModule,
     appModule,
     repositoryModule,

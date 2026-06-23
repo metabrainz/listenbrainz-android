@@ -31,7 +31,7 @@ import org.listenbrainz.shared.model.playlist.PlaylistExtensionData
 import org.listenbrainz.shared.model.playlist.PlaylistPayload
 import org.listenbrainz.shared.model.playlist.PlaylistTrack
 import org.listenbrainz.shared.model.recordingSearch.RecordingData
-import org.listenbrainz.android.model.userPlaylist.UserPlaylist
+import org.listenbrainz.shared.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.repository.social.SocialRepository

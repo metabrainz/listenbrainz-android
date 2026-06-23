@@ -47,13 +47,13 @@ import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.MbidMapping
-import org.listenbrainz.android.model.PinnedRecording
+import org.listenbrainz.shared.model.PinnedRecording
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.shared.model.feed.FeedListenArtist
-import org.listenbrainz.android.model.user.AllPinnedRecordings
-import org.listenbrainz.android.model.user.UserFeedback
-import org.listenbrainz.android.model.user.UserFeedbackEntry
+import org.listenbrainz.shared.model.user.AllPinnedRecordings
+import org.listenbrainz.shared.model.user.UserFeedback
+import org.listenbrainz.shared.model.user.UserFeedbackEntry
 import org.listenbrainz.android.ui.components.ChipItem
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
@@ -224,8 +224,8 @@ fun TasteScreen(
                         },
                         goToArtistPage = goToArtistPage,
                     ) {
-                        if (feedback.trackMetadata != null) {
-                            playListen(feedback.trackMetadata)
+                        feedback.trackMetadata?.let{
+                            playListen(it)
                         }
                     }
                 }
@@ -276,14 +276,14 @@ fun TasteScreen(
                         pinnedRecordings.mapIndexed { index, recording: PinnedRecording ->
                             val metadata = recording.toMetadata()
                             ListenCardSmallDefault(
-                                blurbContent = if (!recording.blurbContent.isNullOrBlank()) {
+                                blurbContent = recording.blurbContent?.let {
                                     { modifier ->
                                         Text(
                                             modifier = modifier,
-                                            text = recording.blurbContent
+                                            text = it
                                         )
                                     }
-                                } else null,
+                                } ?: run { null },
                                 modifier = Modifier
                                     .padding(
                                         vertical = ListenBrainzTheme.paddings.lazyListAdjacent
@@ -301,8 +301,8 @@ fun TasteScreen(
                                 },
                                 goToArtistPage = goToArtistPage,
                             ) {
-                                if (recording.trackMetadata != null) {
-                                    playListen(recording.trackMetadata)
+                                recording.trackMetadata?.let{
+                                    playListen(it)
                                 }
                             }
 

@@ -246,7 +246,7 @@ class AndroidRemotePlaybackHandlerImpl(
             cont.resume(
                 ListenBitmap(
                     bitmap = bitmapHere.asImageBitmap(),
-                    id = playerState?.trackUi
+                    id = playerState?.trackUri
                 )
             )
         }?.setErrorCallback {
@@ -366,7 +366,7 @@ class AndroidRemotePlaybackHandlerImpl(
 
 internal val PlayerState.toSharedState : SharedPlayerState
     get() = SharedPlayerState(
-        trackUi = this.track?.uri,
+        trackUri = this.track?.uri,
         trackName = this.track?.name,
         imageUri = this.track?.imageUri?.raw,
         artistName = this.track?.artist?.name,

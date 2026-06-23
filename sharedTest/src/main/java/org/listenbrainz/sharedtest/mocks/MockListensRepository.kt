@@ -1,13 +1,13 @@
 package org.listenbrainz.sharedtest.mocks
 
 import android.graphics.drawable.Drawable
-import org.listenbrainz.android.model.ListenBrainzExternalServices
-import org.listenbrainz.android.model.ListenSubmitBody
-import org.listenbrainz.android.model.Listens
-import org.listenbrainz.android.model.PostResponse
+import org.listenbrainz.shared.model.ListenBrainzExternalServices
+import org.listenbrainz.shared.model.ListenSubmitBody
+import org.listenbrainz.shared.model.Listens
+import org.listenbrainz.shared.model.PostResponse
 import org.listenbrainz.shared.model.ResponseError
-import org.listenbrainz.android.model.TokenValidation
-import org.listenbrainz.android.repository.listens.ListensRepository
+import org.listenbrainz.shared.model.TokenValidation
+import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.model.CoverArt
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.sharedtest.testdata.ListensRepositoryTestData.listensTestData

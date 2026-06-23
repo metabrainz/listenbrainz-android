@@ -1,7 +1,6 @@
 package org.listenbrainz.shared.di
 
 import de.jensklingenberg.ktorfit.Ktorfit
-import de.jensklingenberg.ktorfit.http.HTTP
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpRedirect
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -9,19 +8,30 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.request.header
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.listenbrainz.shared.service.AlbumService
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.PlatformContext
 import org.listenbrainz.shared.repository.getAppPackageName
+import org.listenbrainz.shared.service.ListensService
+import org.listenbrainz.shared.service.UserService
 import org.listenbrainz.shared.service.YouTubeApiService
+import org.listenbrainz.shared.service.createListensService
+import org.listenbrainz.shared.service.createUserService
 import org.listenbrainz.shared.service.createYouTubeApiService
+import org.listenbrainz.shared.util.Constants
 import org.listenbrainz.shared.util.PlatformUtils
 import org.listenbrainz.shared.service.ArtistService
 import org.listenbrainz.shared.service.CBService
@@ -35,6 +45,7 @@ import org.listenbrainz.shared.util.Constants.LB_BASE_URL
 import org.listenbrainz.shared.util.Constants.MB_BASE_URL
 import org.listenbrainz.shared.service.BlogService
 import org.listenbrainz.shared.service.createBlogService
+import kotlin.time.Duration.Companion.milliseconds
 
 // Qualifier names for dispatchers
 const val DEFAULT_DISPATCHER = "DefaultDispatcher"
@@ -51,27 +62,51 @@ private val sharedJsonConfig = Json {
     explicitNulls = false
 }
 
-val sharedNetworkServiceModule = module {
-    single<HttpClient>(named(SHARED_HTTP_CLIENT)) {
-        HttpClient(getPlatformNetworkEngine()){
-            expectSuccess = true
+private fun createSharedBaseHttpClient(appPreference: AppPreferences): HttpClient{
+    return HttpClient(getPlatformNetworkEngine()){
+        expectSuccess = true
 
-            install(ContentNegotiation){
-                json(sharedJsonConfig)
-            }
-            install(HttpRedirect){
-                checkHttpMethod = false
-            }
+        install(ContentNegotiation){
+            json(sharedJsonConfig)
+        }
+        install(WebSockets)
 
-            install(Logging) {
-                logger = object : Logger {
-                    override fun log(message: String) {
-                        println("Ktor: $message")
+        install(HttpRedirect){
+            checkHttpMethod = false
+        }
+
+        install(Logging) {
+            logger = object : Logger {
+                override fun log(message: String) {
+                    println("Ktor: $message")
+                }
+            }
+            level = LogLevel.INFO
+        }
+
+        defaultRequest {
+            contentType(ContentType.Application.Json)
+            appPreference.let { prefs->
+                runBlocking {
+                    runCatching {
+                        withTimeout(3000.milliseconds){
+                            val accessToken = prefs.lbAccessToken.get()
+                            if(accessToken.isNotEmpty()){
+                                header("Authorization","Token $accessToken")
+                            }
+                        }
+                    }.getOrElse {
+                        println("Error loading access token: ${it.message}")
                     }
                 }
-                level = LogLevel.INFO
             }
         }
+    }
+}
+
+val sharedNetworkServiceModule = module {
+    single<HttpClient>(named(SHARED_HTTP_CLIENT)) {
+        createSharedBaseHttpClient(get<AppPreferences>())
     }
 
     single<BlogService> {
@@ -141,6 +176,21 @@ val sharedNetworkServiceModule = module {
             .createAlbumService()
     }
 
+
+    single<ListensService> {
+        Ktorfit.Builder()
+            .baseUrl(Constants.LISTENBRAINZ_API_BASE_URL)
+            .httpClient(get<HttpClient>(named(SHARED_HTTP_CLIENT)))
+            .build()
+            .createListensService()
+    }
+    single<UserService> {
+        Ktorfit.Builder()
+            .baseUrl(Constants.LISTENBRAINZ_API_BASE_URL)
+            .httpClient(get<HttpClient>(named(SHARED_HTTP_CLIENT)))
+            .build()
+            .createUserService()
+    }
 }
 
 val sharedDispatcherModule = module {

@@ -22,7 +22,7 @@ import org.junit.runner.RunWith
 import org.listenbrainz.android.ui.screens.profile.BaseProfileScreen
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.viewmodel.FeedViewModel
-import org.listenbrainz.android.viewmodel.ListensViewModel
+import org.listenbrainz.shared.viewmodel.ListensViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 import org.listenbrainz.sharedtest.mocks.MockAppPreferences

@@ -4,6 +4,13 @@ import co.touchlab.kermit.Logger
 import co.touchlab.kermit.StaticConfig
 import co.touchlab.kermit.Severity
 import co.touchlab.kermit.platformLogWriter
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.coroutines.CoroutineDispatcher
+import org.listenbrainz.shared.di.database.ListensSubmissionDatabase
+import org.listenbrainz.shared.model.dao.PendingListensDao
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.PlatformContext
 import org.listenbrainz.shared.util.BuildInfo
 import org.listenbrainz.shared.util.IosFileLogWriter
@@ -12,14 +19,14 @@ import org.listenbrainz.shared.util.LogSubmitter
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSSearchPathForDirectoriesInDomains
 import platform.Foundation.NSUserDomainMask
-
+import org.listenbrainz.shared.repository.listens.IosListensRepositoryImpl
+import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.remoteplayer.IosRemotePlaybackHandlerImpl
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
+import org.listenbrainz.shared.service.ListensService
+import org.listenbrainz.shared.service.UserService
 import org.listenbrainz.shared.service.YouTubeApiService
-
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import kotlinx.cinterop.ExperimentalForeignApi
+import platform.posix.err
 import org.listenbrainz.shared.di.database.BrainzPlayerDatabase
 import platform.Foundation.NSFileManager
 
@@ -64,11 +71,10 @@ actual fun provideRemotePlaybackHandler(
     return IosRemotePlaybackHandlerImpl(youTubeApiService)
 }
 
-
 actual fun getBrainzPlayerDatabase(context: PlatformContext): RoomDatabase.Builder<BrainzPlayerDatabase> {
-    val listensDB = documentDirectory() + "/brainzplayer_database.db"
+    val brainzPlayerDB = documentDirectory() + "/brainzplayer_database.db"
     return Room.databaseBuilder<BrainzPlayerDatabase>(
-        name = listensDB
+        name = brainzPlayerDB
     )
 }
 
@@ -82,4 +88,22 @@ private fun documentDirectory(): String {
         error = null,
     )
     return requireNotNull(documentDirectory?.path)
+}
+
+actual fun provideListensRepositoryImpl(
+    service: ListensService,
+    appPreferences: AppPreferences,
+    userService: UserService,
+    pendingListensDao: PendingListensDao,
+    ioDispatcher: CoroutineDispatcher,
+    appContext: PlatformContext
+): ListensRepository {
+    return IosListensRepositoryImpl(service,appPreferences,userService,pendingListensDao,ioDispatcher,appContext)
+}
+
+actual fun getListensSubmissionDatabase(appContext: PlatformContext): RoomDatabase.Builder<ListensSubmissionDatabase> {
+    val listensDB = documentDirectory() + "/listens_scrobble_database.db"
+    return Room.databaseBuilder<ListensSubmissionDatabase>(
+        name = listensDB
+    )
 }

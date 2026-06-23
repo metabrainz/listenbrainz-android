@@ -50,7 +50,7 @@ import org.listenbrainz.shared.util.Log
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.android.util.Utils.LaunchedEffectMainThread
 import org.listenbrainz.android.util.Utils.LaunchedEffectUnit
-import org.listenbrainz.android.viewmodel.ListensViewModel
+import org.listenbrainz.shared.viewmodel.ListensViewModel
 import java.nio.file.WatchEvent
 import kotlin.time.Duration.Companion.seconds
 

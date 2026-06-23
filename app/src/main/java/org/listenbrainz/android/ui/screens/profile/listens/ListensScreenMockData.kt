@@ -10,10 +10,10 @@ import org.listenbrainz.android.model.SimilarUser
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.shared.model.feed.FeedListenArtist
-import org.listenbrainz.android.model.user.Artist
+import org.listenbrainz.shared.model.user.Artist
 import org.listenbrainz.android.ui.screens.profile.ListensTabUiState
 import org.listenbrainz.android.ui.screens.profile.ProfileUiState
-import org.listenbrainz.android.ui.screens.settings.PreferencesUiState
+import org.listenbrainz.shared.ui.screens.settings.PreferencesUiState
 
 /**
  * Mock data for ListensScreen previews and testing

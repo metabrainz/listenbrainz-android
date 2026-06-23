@@ -4,6 +4,12 @@ import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
 import co.touchlab.kermit.StaticConfig
 import co.touchlab.kermit.platformLogWriter
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import kotlinx.coroutines.CoroutineDispatcher
+import org.listenbrainz.shared.di.database.ListensSubmissionDatabase
+import org.listenbrainz.shared.model.dao.PendingListensDao
+import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.PlatformContext
 import org.listenbrainz.shared.util.ANDROID_LOG_DIR_NAME
 import org.listenbrainz.shared.util.AndroidFileLogWriter
@@ -11,13 +17,13 @@ import org.listenbrainz.shared.util.AndroidLogSubmitter
 import org.listenbrainz.shared.util.BuildInfo
 import org.listenbrainz.shared.util.LogSubmitter
 import java.io.File
-
+import org.listenbrainz.shared.repository.listens.AndroidListensRepositoryImpl
+import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.remoteplayer.AndroidRemotePlaybackHandlerImpl
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
+import org.listenbrainz.shared.service.ListensService
+import org.listenbrainz.shared.service.UserService
 import org.listenbrainz.shared.service.YouTubeApiService
-
-import androidx.room.Room
-import androidx.room.RoomDatabase
 import org.listenbrainz.shared.di.database.BrainzPlayerDatabase
 
 actual fun platform() = "Android"
@@ -66,5 +72,24 @@ actual fun getBrainzPlayerDatabase(context: PlatformContext): RoomDatabase.Build
     return Room.databaseBuilder<BrainzPlayerDatabase>(
         context = context,
         name = listensDB.absolutePath
+    )
+}
+
+actual fun provideListensRepositoryImpl(
+    service: ListensService,
+    appPreferences: AppPreferences,
+    userService: UserService,
+    pendingListensDao: PendingListensDao,
+    ioDispatcher: CoroutineDispatcher,
+    appContext: PlatformContext
+): ListensRepository {
+    return AndroidListensRepositoryImpl(service,appPreferences,userService,pendingListensDao,ioDispatcher,appContext)
+}
+
+actual fun getListensSubmissionDatabase(appContext: PlatformContext): RoomDatabase.Builder<ListensSubmissionDatabase> {
+    val listensDb = appContext.getDatabasePath("listens_scrobble_database")
+    return Room.databaseBuilder<ListensSubmissionDatabase>(
+        context = appContext,
+        name = listensDb.absolutePath
     )
 }

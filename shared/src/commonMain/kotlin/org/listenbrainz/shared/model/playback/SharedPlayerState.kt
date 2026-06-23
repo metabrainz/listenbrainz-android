@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SharedPlayerState(
-    val trackUi: String?,
+    val trackUri: String?,
     val trackName: String?,
     val artistName:String?,
     val imageUri: String?,

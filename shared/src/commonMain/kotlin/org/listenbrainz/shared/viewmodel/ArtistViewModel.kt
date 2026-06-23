@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import org.listenbrainz.shared.viewmodel.BaseViewModel
 import org.listenbrainz.shared.repository.artist.ArtistRepository
 import org.listenbrainz.shared.ui.screens.artist.ArtistUIState
 import org.listenbrainz.shared.util.LinkUtils

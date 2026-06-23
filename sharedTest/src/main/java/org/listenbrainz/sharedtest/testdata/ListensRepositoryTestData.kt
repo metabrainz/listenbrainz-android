@@ -1,7 +1,7 @@
 package org.listenbrainz.sharedtest.testdata
 
 import kotlinx.serialization.json.Json
-import org.listenbrainz.android.model.Listens
+import org.listenbrainz.shared.model.Listens
 import org.listenbrainz.sharedtest.utils.ResourceString.listens
 
 object ListensRepositoryTestData {

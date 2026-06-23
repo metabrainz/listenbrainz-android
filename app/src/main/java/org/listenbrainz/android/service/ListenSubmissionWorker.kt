@@ -14,13 +14,13 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.shared.model.AdditionalInfo
-import org.listenbrainz.android.model.ListenSubmitBody
-import org.listenbrainz.android.model.ListenTrackMetadata
+import org.listenbrainz.shared.model.ListenSubmitBody
+import org.listenbrainz.shared.model.ListenTrackMetadata
 import org.listenbrainz.android.model.ListenType
 import org.listenbrainz.android.model.PlayingTrack
 import org.listenbrainz.shared.model.ResponseError
-import org.listenbrainz.android.model.dao.PendingListensDao
-import org.listenbrainz.android.repository.listens.ListensRepository
+import org.listenbrainz.shared.model.dao.PendingListensDao
+import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.util.Log
 import org.listenbrainz.shared.util.Constants

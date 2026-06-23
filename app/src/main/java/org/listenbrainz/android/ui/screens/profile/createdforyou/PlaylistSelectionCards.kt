@@ -33,10 +33,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.userPlaylist.AdditionalMetadata
-import org.listenbrainz.android.model.userPlaylist.UserPlaylistExtensionData
-import org.listenbrainz.android.model.userPlaylist.UserPlaylist
-import org.listenbrainz.android.model.userPlaylist.Extension
+import org.listenbrainz.shared.model.userPlaylist.AdditionalMetadata
+import org.listenbrainz.shared.model.userPlaylist.UserPlaylistExtensionData
+import org.listenbrainz.shared.model.userPlaylist.UserPlaylist
+import org.listenbrainz.shared.model.userPlaylist.Extension
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
 import java.text.SimpleDateFormat
@@ -292,12 +292,13 @@ fun PlaylistTitleCardRowPreview() {
 
 //This function provides a shorter title to created for playlists.
 fun modifyTitle(createdForYouPlaylist: UserPlaylist): String{
-    if(createdForYouPlaylist.title == null) return "No title"
-    if(!createdForYouPlaylist.title.contains("Weekly Exploration")) return createdForYouPlaylist.title
-    val millis = convertISOTimeStampToMillis(createdForYouPlaylist.date ?: "")
-    val currentTime = System.currentTimeMillis()
-    if(currentTime - millis < 7*24*60*60*1000) return "Weekly Exploration"
-    return "Last Week's Exploration"
+    return createdForYouPlaylist.title?.let {
+        if(!it.contains("Weekly Exploration")) return it
+        val millis = convertISOTimeStampToMillis(createdForYouPlaylist.date ?: "")
+        val currentTime = System.currentTimeMillis()
+        if(currentTime - millis < 7*24*60*60*1000) return "Weekly Exploration"
+        return "Last Week's Exploration"
+    } ?:"No title"
 }
 
 //This function converts an ISO timestamp to milliseconds.

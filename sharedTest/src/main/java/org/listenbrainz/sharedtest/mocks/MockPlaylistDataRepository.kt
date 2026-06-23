@@ -8,7 +8,7 @@ import org.listenbrainz.shared.model.playlist.PlaylistPayload
 import org.listenbrainz.shared.model.playlist.PlaylistSearchResult
 import org.listenbrainz.shared.model.playlist.PlaylistTrack
 import org.listenbrainz.shared.model.recordingSearch.RecordingSearchPayload
-import org.listenbrainz.android.model.userPlaylist.UserPlaylistPayload
+import org.listenbrainz.shared.model.userPlaylist.UserPlaylistPayload
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.sharedtest.testdata.PlaylistDataRepositoryTestData.playlistDetailsTestData

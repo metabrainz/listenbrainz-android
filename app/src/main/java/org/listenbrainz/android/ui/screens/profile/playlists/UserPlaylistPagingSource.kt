@@ -5,7 +5,7 @@ import androidx.paging.PagingState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.listenbrainz.shared.model.ResponseError
-import org.listenbrainz.android.model.userPlaylist.UserPlaylist
+import org.listenbrainz.shared.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.shared.util.Resource
 

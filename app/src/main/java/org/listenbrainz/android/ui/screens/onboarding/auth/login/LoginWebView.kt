@@ -34,7 +34,7 @@ import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.screens.profile.ListenBrainzWebClient
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.viewmodel.ListensViewModel
+import org.listenbrainz.shared.viewmodel.ListensViewModel
 import org.listenbrainz.shared.viewmodel.LoginViewModel
 import org.listenbrainz.shared.ui.screens.onboarding.auth.login.LoginState
 import org.listenbrainz.shared.ui.screens.onboarding.auth.login.LoginUIState

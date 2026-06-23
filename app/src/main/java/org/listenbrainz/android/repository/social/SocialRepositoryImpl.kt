@@ -1,7 +1,7 @@
 package org.listenbrainz.android.repository.social
 
 import org.listenbrainz.android.model.PinData
-import org.listenbrainz.android.model.PinnedRecording
+import org.listenbrainz.shared.model.PinnedRecording
 import org.listenbrainz.android.model.RecommendationData
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.android.model.Review

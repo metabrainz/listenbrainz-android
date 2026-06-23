@@ -62,7 +62,7 @@ import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.userPlaylist.UserPlaylist
+import org.listenbrainz.shared.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.ui.components.ToggleChips
 import org.listenbrainz.android.ui.screens.feed.RetryButton
 import org.listenbrainz.android.ui.screens.playlist.CreateEditPlaylistScreen
@@ -184,9 +184,9 @@ fun UserPlaylistScreen(
                 }
 
                 PlaylistDropdownItems.SHARE -> {
-                    if (playlist.identifier != null) {
-                        shareLink(context, playlist.identifier)
-                    } else {
+                    playlist.identifier?.let{
+                        shareLink(context, it)
+                    } ?: run {
                         scope.launch {
                             snackbarState.showSnackbar("Link not found")
                         }

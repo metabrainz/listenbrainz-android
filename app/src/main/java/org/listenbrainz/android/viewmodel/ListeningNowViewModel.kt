@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.listenbrainz.shared.model.Listen
-import org.listenbrainz.android.repository.listens.ListensRepository
+import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.socket.SocketRepository
 import org.listenbrainz.android.util.ImagePalette

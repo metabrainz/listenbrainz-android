@@ -6,7 +6,7 @@ import de.jensklingenberg.ktorfit.http.POST
 import de.jensklingenberg.ktorfit.http.Path
 import de.jensklingenberg.ktorfit.http.Query
 import org.listenbrainz.android.model.PinData
-import org.listenbrainz.android.model.PinnedRecording
+import org.listenbrainz.shared.model.PinnedRecording
 import org.listenbrainz.android.model.RecommendationData
 import org.listenbrainz.android.model.Review
 import org.listenbrainz.android.model.SearchResult
