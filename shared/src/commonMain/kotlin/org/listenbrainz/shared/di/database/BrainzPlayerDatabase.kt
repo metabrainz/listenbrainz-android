@@ -41,6 +41,40 @@ object Migrations {
             }
         }
     }
+    val MIGRATION_2_3: Migration = object : Migration(2,3){
+        override fun migrate(connection: SQLiteConnection){
+            connection.execSQL("DROP TABLE IF EXISTS `PLAYLISTS_TEMP`")
+            connection.execSQL("""
+                CREATE TABLE `PLAYLISTS_TEMP` (
+                    `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    `title` TEXT NOT NULL DEFAULT '',
+                    `items` TEXT NOT NULL,
+                    `art` TEXT NOT NULL DEFAULT 'ic_queue_music'
+                )
+            """.trimIndent()
+            )
+            connection.execSQL("""
+                INSERT INTO `PLAYLISTS_TEMP` (`id`,`title`,`items`,`art`)
+                SELECT 
+                    `id`,
+                    `title`,
+                    `items`,
+                    CASE
+                        WHEN `id` = -1 THEN 'ic_queue_music_playing'
+                        WHEN `id` = 0 THEN 'ic_liked'
+                        ELSE 'ic_queue_music'
+                    END
+                FROM `PLAYLISTS`
+            """.trimIndent())
+
+            connection.execSQL("DROP TABLE `PLAYLISTS`")
+            connection.execSQL("ALTER TABLE `PLAYLISTS_TEMP` RENAME TO `PLAYLISTS`")
+            connection.execSQL("""
+                INSERT OR REPLACE INTO sqlite_sequence (name,seq)
+                VALUES ('PLAYLISTS', (SELECT MAX(id) FROM `PLAYLISTS`))
+            """.trimIndent())
+        }
+    }
 }
 
 @Database(

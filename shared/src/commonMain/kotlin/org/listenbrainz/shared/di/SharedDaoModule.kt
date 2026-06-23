@@ -14,8 +14,7 @@ val sharedDatabaseModule = module {
     single<BrainzPlayerDatabase> {
         getBrainzPlayerDatabase(get())
             .setDriver(BundledSQLiteDriver())
-            .fallbackToDestructiveMigration(dropAllTables = true)
-            .addMigrations(Migrations.MIGRATION_1_2)
+            .addMigrations(Migrations.MIGRATION_1_2,Migrations.MIGRATION_2_3)
             .build()
     }
 }

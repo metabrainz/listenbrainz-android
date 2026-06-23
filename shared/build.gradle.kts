@@ -92,10 +92,8 @@ kotlin {
 
         optimization {
             minify = true
-            consumerKeepRules.apply {
-                publish = true
-                file("progaurd-rules.pro")
-            }
+            consumerKeepRules.publish = true
+            consumerKeepRules.files.add(project.file("proguard-rules.pro"))
         }
     }
 
@@ -158,7 +156,7 @@ kotlin {
                 implementation(libs.koin.compose.viewmodel)
                 // Room Multiplatform
                 implementation(libs.androidx.room.runtime)
-                implementation(libs.androidx.sqlite.bundled)
+                api(libs.androidx.sqlite.bundled)
                 // Kermit Logger
                 implementation(libs.kermit)
                 // Ktor & Ktorfit

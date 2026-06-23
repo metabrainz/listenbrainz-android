@@ -14,6 +14,9 @@ import org.listenbrainz.android.repository.listenservicemanager.ListenServiceMan
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManagerImpl
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
+import org.listenbrainz.shared.di.DEFAULT_DISPATCHER
+import org.listenbrainz.shared.di.IO_DISPATCHER
+import org.listenbrainz.shared.di.MAIN_DISPATCHER
 import org.listenbrainz.sharedtest.mocks.MockAppPreferences
 
 val testAppModule = module {

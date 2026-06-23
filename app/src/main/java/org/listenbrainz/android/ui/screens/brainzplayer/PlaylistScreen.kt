@@ -35,6 +35,7 @@ import org.koin.androidx.compose.koinViewModel
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
+import org.listenbrainz.android.model.getPlaylistArtMapper
 import org.listenbrainz.shared.model.PlayableType
 import org.listenbrainz.shared.model.Playlist
 import org.listenbrainz.shared.model.feed.FeedListenArtist
@@ -265,7 +266,7 @@ fun PlaylistScreen(
                                     .fillMaxSize()
                                     .align(Alignment.TopCenter)
                                     .background(colorResource(id = R.color.bp_bottom_song_viewpager)),
-                                model = it.art,
+                                model = getPlaylistArtMapper(it.art),
                                 contentDescription = "",
                                 error = forwardingPainter(
                                     painter = painterResource(id = R.drawable.ic_song)

@@ -1,7 +1,7 @@
 package org.listenbrainz.shared.util
 
 import androidx.compose.ui.text.intl.Locale
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
@@ -106,7 +106,7 @@ object TypeConverter {
         char(' ')
         amPmMarker("AM","PM")
     }): String {
-        val instant = Instant.fromEpochMilliseconds(microSeconds/1000)
+        val instant = Instant.fromEpochMilliseconds(microSeconds*1000)
         val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
         return localDateTime.format(dateFormat)
     }
