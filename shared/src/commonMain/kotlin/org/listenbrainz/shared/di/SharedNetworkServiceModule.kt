@@ -1,7 +1,6 @@
 package org.listenbrainz.shared.di
 
 import de.jensklingenberg.ktorfit.Ktorfit
-import de.jensklingenberg.ktorfit.http.HTTP
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpRedirect
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -179,18 +178,16 @@ val sharedNetworkServiceModule = module {
 
 
     single<ListensService> {
-        val client = createSharedBaseHttpClient(get<AppPreferences>())
         Ktorfit.Builder()
             .baseUrl(Constants.LISTENBRAINZ_API_BASE_URL)
-            .httpClient(client)
+            .httpClient(get<HttpClient>(named(SHARED_HTTP_CLIENT)))
             .build()
             .createListensService()
     }
     single<UserService> {
-        val client = createSharedBaseHttpClient(get<AppPreferences>())
         Ktorfit.Builder()
             .baseUrl(Constants.LISTENBRAINZ_API_BASE_URL)
-            .httpClient(client)
+            .httpClient(get<HttpClient>(named(SHARED_HTTP_CLIENT)))
             .build()
             .createUserService()
     }

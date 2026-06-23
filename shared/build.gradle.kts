@@ -92,10 +92,8 @@ kotlin {
 
         optimization {
             minify = true
-            consumerKeepRules.apply {
-                publish = true
-                file("proguard-rules.pro")
-            }
+            consumerKeepRules.publish = true
+            consumerKeepRules.files.add(project.file("proguard-rules.pro"))
         }
     }
 
