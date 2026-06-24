@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.profile.stats
+package org.listenbrainz.shared.ui.screens.profile.stats
 
 enum class StatsRange (val rangeString: String, val apiIdenfier: String){
     THIS_WEEK("This Week", "this_week"),

@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.profile
+package org.listenbrainz.shared.ui.screens.profile
 
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
@@ -7,6 +7,7 @@ import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.shared.model.ListenBitmap
 import org.listenbrainz.shared.model.PinnedRecording
 import org.listenbrainz.shared.model.SimilarUser
+import org.listenbrainz.shared.model.playback.SharedPlayerState
 import org.listenbrainz.shared.model.playlist.PlaylistData
 import org.listenbrainz.shared.model.user.AllPinnedRecordings
 import org.listenbrainz.shared.model.user.Artist
@@ -18,9 +19,8 @@ import org.listenbrainz.shared.model.user.UserFeedback
 import org.listenbrainz.shared.model.userPlaylist.UserPlaylist
 import org.listenbrainz.shared.model.userPlaylist.UserPlaylists
 import org.listenbrainz.shared.ui.screens.profile.listens.ListeningNowUiState
-import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
-import org.listenbrainz.android.ui.screens.profile.stats.DataScope
-import org.listenbrainz.shared.model.playback.SharedPlayerState
+import org.listenbrainz.shared.ui.screens.profile.stats.DataScope
+import org.listenbrainz.shared.ui.screens.profile.stats.StatsRange
 
 data class ProfileUiState(
     val loggedInUser: String? = null,
