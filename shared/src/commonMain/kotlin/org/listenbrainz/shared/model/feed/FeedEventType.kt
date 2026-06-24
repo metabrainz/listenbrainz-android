@@ -1,6 +1,5 @@
-package org.listenbrainz.android.model.feed
+package org.listenbrainz.shared.model.feed
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -13,21 +12,13 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-import org.listenbrainz.android.R
-import org.listenbrainz.android.ui.screens.feed.events.FollowFeedLayout
-import org.listenbrainz.android.ui.screens.feed.events.ListenFeedLayout
-import org.listenbrainz.android.ui.screens.feed.events.ListenLikeFeedLayout
-import org.listenbrainz.android.ui.screens.feed.events.NotificationFeedLayout
-import org.listenbrainz.android.ui.screens.feed.events.PersonalRecommendationFeedLayout
-import org.listenbrainz.android.ui.screens.feed.events.PinFeedLayout
-import org.listenbrainz.android.ui.screens.feed.events.RecordingRecommendationFeedLayout
-import org.listenbrainz.android.ui.screens.feed.events.ReviewFeedLayout
-import org.listenbrainz.android.ui.screens.feed.events.UnknownFeedLayout
-import org.listenbrainz.android.ui.theme.ListenBrainzTheme
+import org.listenbrainz.shared.util.DrawableResource
 import org.listenbrainz.shared.util.Log
 import org.listenbrainz.shared.util.TypeConverter
-import org.listenbrainz.android.util.Utils.getArticle
-import org.listenbrainz.shared.model.feed.FeedEvent
+import org.listenbrainz.shared.util.Utils.getArticle
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.microseconds
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * @param icon Feed icon for the event, **must** be of width 19 dp.
@@ -36,7 +27,7 @@ import org.listenbrainz.shared.model.feed.FeedEvent
 @Immutable
 enum class FeedEventType (
     val type: String,
-    @DrawableRes val icon: Int,
+    val icon: DrawableResource,
     val isPlayable: Boolean = true,
     val isDeletable: Boolean = false,
     val isHideable: Boolean = false,
@@ -44,200 +35,67 @@ enum class FeedEventType (
     
     RECORDING_RECOMMENDATION(
         type = "recording_recommendation",
-        icon = R.drawable.feed_send,
+        icon = DrawableResource.FEED_SEND,
         isDeletable = true,
         isHideable = true,
     ),
     
     PERSONAL_RECORDING_RECOMMENDATION(
         type = "personal_recording_recommendation",
-        icon = R.drawable.feed_send,
+        icon = DrawableResource.FEED_SEND,
     ),
     
     RECORDING_PIN(
         type = "recording_pin",
-        icon = R.drawable.feed_pin,
+        icon = DrawableResource.FEED_PIN,
         isDeletable = true,
         isHideable = true,
     ),
     
     LIKE(
         type = "like",
-        icon = R.drawable.feed_love,
+        icon = DrawableResource.FEED_LOVE,
     ),
     
     LISTEN(
         type = "listen",
-        icon = R.drawable.feed_listen,
+        icon = DrawableResource.FEED_LISTEN,
     ),
     
     FOLLOW(
         type = "follow",
-        icon = R.drawable.feed_follow,
+        icon = DrawableResource.FEED_FOLLOW,
         isPlayable = false,
     ),
     
     NOTIFICATION(
         type = "notification",
-        icon = R.drawable.feed_notification,
+        icon = DrawableResource.FEED_NOTIFICATION,
         isPlayable = false,
         isDeletable = true,
     ),
     
     REVIEW (
         type = "critiquebrainz_review",
-        icon = R.drawable.feed_review,
+        icon = DrawableResource.FEED_REVIEW,
     ),
     
     /** In case a new event is added in future that had not been published to the app. */
     UNKNOWN(
         type = "update_app",
-        icon = R.drawable.feed_unknown,
+        icon = DrawableResource.FEED_UNKNOWN,
         isPlayable = false,
     );
-    
-    /**
-     * @param parentUser This is used to display pronouns of the user in a feed event. If the event is of
-     * the logged in users, "You" is displayed, else normal name is displayed.*/
-    @Composable
-    fun Content(
-        event: FeedEvent,
-        parentUser: String,
-        isHidden: Boolean,
-        onDeleteOrHide: () -> Unit,
-        onDropdownClick: () -> Unit,
-        dropDownState: Int?,
-        index: Int,
-        onOpenInMusicBrainz: () -> Unit,
-        onRecommend: () -> Unit,
-        onPersonallyRecommend: () -> Unit,
-        onReview: () -> Unit,
-        onPin: () -> Unit,
-        onClick: () -> Unit,
-        goToUserPage: (String) -> Unit,
-        goToArtistPage: (String) -> Unit,
-    ){
-        when (this){
-            RECORDING_RECOMMENDATION -> RecordingRecommendationFeedLayout(
-                event = event,
-                parentUser = parentUser,
-                isHidden = isHidden,
-                onDeleteOrHide = onDeleteOrHide,
-                onDropdownClick = onDropdownClick,
-                onClick = onClick,
-                dropdownState = dropDownState,
-                index = index,
-                onOpenInMusicBrainz = onOpenInMusicBrainz,
-                onPin = onPin,
-                onReview = onReview,
-                onPersonallyRecommend = onPersonallyRecommend,
-                onRecommend = onRecommend,
-                goToUserPage = goToUserPage,
-                goToArtistPage = goToArtistPage
-            )
-            PERSONAL_RECORDING_RECOMMENDATION -> PersonalRecommendationFeedLayout(
-                event = event,
-                parentUser = parentUser,
-                onDeleteOrHide = onDeleteOrHide,
-                onDropdownClick = onDropdownClick,
-                onClick = onClick,
-                dropdownState = dropDownState,
-                index = index,
-                onOpenInMusicBrainz = onOpenInMusicBrainz,
-                onPin = onPin,
-                onReview = onReview,
-                onPersonallyRecommend = onPersonallyRecommend,
-                onRecommend = onRecommend,
-                goToUserPage = goToUserPage,
-                goToArtistPage = goToArtistPage
-            )
-            RECORDING_PIN -> PinFeedLayout(
-                event = event,
-                isHidden = isHidden,
-                parentUser = parentUser,
-                onDeleteOrHide = onDeleteOrHide,
-                onDropdownClick = onDropdownClick,
-                onClick = onClick,
-                dropdownState = dropDownState,
-                index = index,
-                onOpenInMusicBrainz = onOpenInMusicBrainz,
-                onPin = onPin,
-                onReview = onReview,
-                onPersonallyRecommend = onPersonallyRecommend,
-                onRecommend = onRecommend,
-                goToUserPage = goToUserPage,
-                goToArtistPage = goToArtistPage
-            )
-            LIKE -> ListenLikeFeedLayout(
-                event = event,
-                parentUser = parentUser,
-                onDeleteOrHide = onDeleteOrHide,
-                onDropdownClick = onDropdownClick,
-                onClick = onClick,
-                dropdownState = dropDownState,
-                index = index,
-                onOpenInMusicBrainz = onOpenInMusicBrainz,
-                onPin = onPin,
-                onReview = onReview,
-                onPersonallyRecommend = onPersonallyRecommend,
-                onRecommend = onRecommend,
-                goToUserPage = goToUserPage,
-                goToArtistPage = goToArtistPage
-            )
-            LISTEN -> ListenFeedLayout(
-                event = event,
-                parentUser = parentUser,
-                onDeleteOrHide = onDeleteOrHide,
-                onDropdownClick = onDropdownClick,
-                onClick = onClick,
-                dropdownState = dropDownState,
-                index = index,
-                onOpenInMusicBrainz = onOpenInMusicBrainz,
-                onPin = onPin,
-                onReview = onReview,
-                onPersonallyRecommend = onPersonallyRecommend,
-                onRecommend = onRecommend,
-                goToUserPage = goToUserPage,
-                goToArtistPage = goToArtistPage
-            )
-            FOLLOW -> FollowFeedLayout(event = event, parentUser = parentUser, goToUserPage = goToUserPage)
-            NOTIFICATION -> NotificationFeedLayout(event = event, onDeleteOrHide = onDeleteOrHide, goToUserPage = goToUserPage)
-            REVIEW -> ReviewFeedLayout(
-                event = event,
-                parentUser = parentUser,
-                onDeleteOrHide = onDeleteOrHide,
-                onDropdownClick = onDropdownClick,
-                onClick = onClick,
-                dropdownState = dropDownState,
-                index = index,
-                onOpenInMusicBrainz = onOpenInMusicBrainz,
-                onPin = onPin,
-                onReview = onReview,
-                onPersonallyRecommend = onPersonallyRecommend,
-                onRecommend = onRecommend,
-                goToUserPage = goToUserPage,
-                goToArtistPage = goToArtistPage
-            )
-            UNKNOWN -> UnknownFeedLayout(event = event)
-        }
-    }
     
     @Composable
     fun Tagline(
         modifier: Modifier = Modifier,
         event: FeedEvent,
         parentUser: String,
+        linkStyle: SpanStyle,
+        normalStyle: SpanStyle,
         goToUserPage: (String) -> Unit
     ) {
-        val linkStyle = SpanStyle(
-            color = ListenBrainzTheme.colorScheme.lbSignature,
-            fontWeight = FontWeight.Bold
-        )
-    
-        val normalStyle = SpanStyle(
-            color = ListenBrainzTheme.colorScheme.text,
-            fontWeight = FontWeight.Light
-        )
     
         val uriHandler = LocalUriHandler.current
         
@@ -453,7 +311,7 @@ enum class FeedEventType (
         /** @param createdMus is the time event was created in **Microseconds**.*/
         fun getTimeStringForFeed(createdMus: Long): String {
     
-            val differenceInSeconds = (System.currentTimeMillis() - createdMus*1000)/1000
+            val differenceInSeconds = Clock.System.now().epochSeconds - createdMus.microseconds.inWholeSeconds
             val differenceInMinutes = differenceInSeconds / 60
             val differenceInHours = differenceInMinutes / 60
             

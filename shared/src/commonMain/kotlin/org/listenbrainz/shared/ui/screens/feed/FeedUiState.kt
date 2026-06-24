@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.feed
+package org.listenbrainz.shared.ui.screens.feed
 
 import androidx.compose.runtime.Stable
 import androidx.paging.PagingData
@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.feed.FeedEvent
-import org.listenbrainz.android.model.feed.FeedEventType
+import org.listenbrainz.shared.model.feed.FeedEventType
 
 /** Top most state wrapper for Feed Screen.*/
 @Stable

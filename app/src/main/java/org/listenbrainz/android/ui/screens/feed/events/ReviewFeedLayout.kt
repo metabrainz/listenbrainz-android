@@ -27,14 +27,13 @@ import org.listenbrainz.android.ui.components.ratingbar.RatingBarStyle
 import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.shared.model.feed.FeedEvent
-import org.listenbrainz.android.model.feed.FeedEventType
+import org.listenbrainz.shared.model.feed.FeedEventType
 import org.listenbrainz.shared.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.screens.feed.BaseFeedLayout
 import org.listenbrainz.android.ui.screens.feed.SocialDropdown
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.PreviewSurface
-import org.listenbrainz.android.util.Utils
 
 @Composable
 fun ReviewFeedLayout(
