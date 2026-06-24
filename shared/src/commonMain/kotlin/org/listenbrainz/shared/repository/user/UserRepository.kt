@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository.user
+package org.listenbrainz.shared.repository.user
 
 import org.listenbrainz.shared.model.user.AllPinnedRecordings
 import org.listenbrainz.shared.model.CurrentPins

@@ -11,7 +11,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.runner.RunWith
 import org.listenbrainz.android.BaseUnitTest
 import org.listenbrainz.shared.model.ResponseError
-import org.listenbrainz.android.repository.user.UserRepository
+import org.listenbrainz.shared.repository.user.UserRepository
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.sharedtest.testdata.UserRepositoryTestData.allPinsTestData
 import org.listenbrainz.sharedtest.testdata.UserRepositoryTestData.currentPinsTestData
