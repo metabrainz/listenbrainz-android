@@ -52,7 +52,6 @@ import org.listenbrainz.android.service.GithubUpdatesDownloadService
 import org.listenbrainz.android.service.Yim23Service
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.service.createGithubAppUpdatesService
-import org.listenbrainz.android.service.createPlaylistService
 import org.listenbrainz.android.service.createYim23Service
 import org.listenbrainz.android.service.createYimService
 import org.listenbrainz.shared.util.Constants.GITHUB_API_BASE_URL
