@@ -12,7 +12,7 @@ import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.User
 import org.listenbrainz.shared.repository.social.SocialRepository
 import org.listenbrainz.shared.util.Resource
-import org.listenbrainz.android.viewmodel.SearchViewModel
+import org.listenbrainz.shared.viewmodel.SearchViewModel
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.alreadyFollowingError
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.cannotFollowSelfError
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.testFollowUnfollowSuccessResponse

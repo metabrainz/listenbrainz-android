@@ -1,9 +1,7 @@
-package org.listenbrainz.android.viewmodel
+package org.listenbrainz.shared.viewmodel
 
-import android.net.Uri
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,33 +17,31 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.listenbrainz.shared.model.search.artistSearch.ArtistSearchUiState
-import org.listenbrainz.shared.model.search.artistSearch.ArtistUiModel
-import org.listenbrainz.shared.model.search.playlistSearch.PlayListSearchUiState
-import org.listenbrainz.shared.model.search.playlistSearch.PlaylistUiModel
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.TrackMetadata
-import org.listenbrainz.android.model.search.SearchData
-import org.listenbrainz.android.model.search.SearchType
-import org.listenbrainz.android.model.search.SearchUiState
-import org.listenbrainz.android.model.search.trackSearch.TrackSearchUiState
 import org.listenbrainz.shared.model.User
-import org.listenbrainz.android.model.search.userSearch.UserListUiState
 import org.listenbrainz.shared.model.albumSearch.toUiModel
 import org.listenbrainz.shared.model.artistSearch.toUiModel
 import org.listenbrainz.shared.model.playlist.PlaylistTrack
 import org.listenbrainz.shared.model.playlist.toUiModel
+import org.listenbrainz.shared.model.search.SearchData
+import org.listenbrainz.shared.model.search.SearchType
+import org.listenbrainz.shared.model.search.SearchUiState
 import org.listenbrainz.shared.model.search.albumSearch.AlbumSearchUiState
 import org.listenbrainz.shared.model.search.albumSearch.AlbumUiModel
+import org.listenbrainz.shared.model.search.artistSearch.ArtistSearchUiState
+import org.listenbrainz.shared.model.search.artistSearch.ArtistUiModel
+import org.listenbrainz.shared.model.search.playlistSearch.PlayListSearchUiState
+import org.listenbrainz.shared.model.search.playlistSearch.PlaylistUiModel
+import org.listenbrainz.shared.model.search.trackSearch.TrackSearchUiState
+import org.listenbrainz.shared.model.search.userSearch.UserListUiState
 import org.listenbrainz.shared.repository.album.AlbumRepository
 import org.listenbrainz.shared.repository.artist.ArtistRepository
 import org.listenbrainz.shared.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.repository.social.SocialRepository
 import org.listenbrainz.shared.util.Resource
-import org.listenbrainz.shared.util.Log
-import org.listenbrainz.shared.viewmodel.FollowUnfollowModel
-
+import kotlin.coroutines.cancellation.CancellationException
 
 class SearchViewModel(
     private val userRepository: SocialRepository,
@@ -61,7 +57,7 @@ class SearchViewModel(
 
     @OptIn(FlowPreview::class)
     private val queryFlow = _inputQueryFlow.asStateFlow().map { it.text }.debounce(500).distinctUntilChanged()
-    
+
     // Result flows
     private val userListFlow = MutableStateFlow<List<User>>(emptyList())
     private val playlistFlow = MutableStateFlow<List<PlaylistUiModel>>(emptyList())
@@ -382,7 +378,8 @@ class SearchViewModel(
     fun playListen(trackMetadata: TrackMetadata) {
         val spotifyId = trackMetadata.additionalInfo?.spotifyId
         if (spotifyId != null){
-            Uri.parse(spotifyId).lastPathSegment?.let { trackId ->
+            val trackId= spotifyId.substringBefore("?").substringAfterLast("/").substringAfterLast(":")
+            if(trackId.isNotBlank()){
                 remotePlaybackHandler.playUri(
                     trackId = trackId,
                     onFailure = { playFromYoutubeMusic(trackMetadata) }
@@ -400,7 +397,7 @@ class SearchViewModel(
                     withContext(ioDispatcher) {
                         searchYoutubeMusicVideoId(
                             trackMetadata.trackName
-                                ?: return@withContext Resource.failure(ResponseError.DoesNotExist()),
+                                ?: return@withContext Resource.Companion.failure(ResponseError.DoesNotExist()),
                             trackMetadata.artistName.orEmpty()
                         )
                     }
