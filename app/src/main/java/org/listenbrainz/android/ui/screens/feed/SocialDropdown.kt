@@ -27,7 +27,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.CoroutineScope
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.shared.model.ResponseError
-import org.listenbrainz.android.model.feed.ReviewEntityType
+import org.listenbrainz.shared.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.dialogs.Dialog
 import org.listenbrainz.android.ui.components.dialogs.PersonalRecommendationDialog
 import org.listenbrainz.android.ui.components.dialogs.PinDialog
@@ -38,7 +38,7 @@ import org.listenbrainz.android.ui.screens.playlist.CreateEditPlaylistScreen
 import org.listenbrainz.android.ui.screens.playlist.SelectPlaylist
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils.getActivity
-import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.shared.viewmodel.SocialViewModel
 
 /** This layer tries to define what options in the dropdown menu are to be shown.*/
 @Composable

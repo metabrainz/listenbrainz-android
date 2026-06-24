@@ -1,7 +1,5 @@
-package org.listenbrainz.android.viewmodel
+package org.listenbrainz.shared.viewmodel
 
-import android.net.Uri
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.FlowPreview
@@ -16,8 +14,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.listenbrainz.android.R
-import org.listenbrainz.android.model.ListensType
+import org.listenbrainz.shared.model.LinkedService
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.shared.model.RecommendationData
 import org.listenbrainz.shared.model.RecommendationMetadata
@@ -25,16 +22,16 @@ import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.Review
 import org.listenbrainz.shared.model.ReviewMetadata
 import org.listenbrainz.shared.model.SocialData
-import org.listenbrainz.android.model.SocialUiState
+import org.listenbrainz.shared.model.SocialUiState
 import org.listenbrainz.shared.model.TrackMetadata
-import org.listenbrainz.android.model.feed.ReviewEntityType
-import org.listenbrainz.shared.repository.listens.ListensRepository
+import org.listenbrainz.shared.model.feed.ReviewEntityType
 import org.listenbrainz.shared.repository.AppPreferences
+import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.repository.social.SocialRepository
-import org.listenbrainz.shared.model.LinkedService
 import org.listenbrainz.shared.util.Resource
-import org.listenbrainz.shared.viewmodel.FollowUnfollowModel
+import org.listenbrainz.shared.util.StringProvider
+import org.listenbrainz.shared.util.StringResource
 
 class SocialViewModel(
     private val repository: SocialRepository,
@@ -43,6 +40,7 @@ class SocialViewModel(
     private val remotePlaybackHandler: RemotePlaybackHandler,
     private val ioDispatcher: CoroutineDispatcher,
     private val defaultDispatcher: CoroutineDispatcher,
+    private val stringProvider: StringProvider
 ) : FollowUnfollowModel<SocialUiState>(repository, ioDispatcher) {
 
     private val inputSearchFollowerQuery = MutableStateFlow("")
@@ -109,7 +107,8 @@ class SocialViewModel(
     fun playListen(trackMetadata: TrackMetadata) {
         val spotifyId = trackMetadata.additionalInfo?.spotifyId
         if (spotifyId != null) {
-            Uri.parse(spotifyId).lastPathSegment?.let { trackId ->
+            val trackId = spotifyId.substringBefore('?').substringAfterLast('/').substringAfterLast(':')
+            if(trackId.isNotEmpty()){
                 remotePlaybackHandler.playUri(
                     trackId = trackId,
                     onFailure = { playFromYoutubeMusic(trackMetadata) }
@@ -127,7 +126,7 @@ class SocialViewModel(
                     withContext(ioDispatcher) {
                         searchYoutubeMusicVideoId(
                             trackMetadata.trackName
-                                ?: return@withContext Resource.failure(ResponseError.DoesNotExist()),
+                                ?: return@withContext Resource.Companion.failure(ResponseError.DoesNotExist()),
                             trackMetadata.artistName.orEmpty()
                         )
                     }
@@ -163,7 +162,7 @@ class SocialViewModel(
             if (result.status == Resource.Status.FAILED) {
                 emitError(result.error)
             } else if (result.status == Resource.Status.SUCCESS) {
-                emitMsg(R.string.recommendation_greeting)
+                emitMsg(stringProvider.getString(StringResource.RECOMMENDATION_GREETING))
             }
         }
     }
@@ -189,7 +188,7 @@ class SocialViewModel(
             if (result.status == Resource.Status.FAILED) {
                 emitError(result.error)
             } else if (result.status == Resource.Status.SUCCESS) {
-                emitMsg(R.string.personal_recommendation_greeting)
+                emitMsg(stringProvider.getString(StringResource.PERSONAL_RECOMMENDATION_GREETING))
             }
         }
     }
@@ -209,13 +208,18 @@ class SocialViewModel(
                 data = Review(
                     metadata = ReviewMetadata(
                         entityName = trackMetadata.trackName ?: return@launch,
-                        entityId = when(entityType) {
-                            ReviewEntityType.RECORDING -> (mbidMapping.recordingMbid ?: return@launch).toString()
-                            ReviewEntityType.ARTIST -> (when(mbidMapping.artistMbids.size){
+                        entityId = when (entityType) {
+                            ReviewEntityType.RECORDING -> (mbidMapping.recordingMbid
+                                ?: return@launch).toString()
+
+                            ReviewEntityType.ARTIST -> (when (mbidMapping.artistMbids.size) {
                                 1 -> mbidMapping.artistMbids[0]
                                 else -> return@launch
                             })
-                            ReviewEntityType.RELEASE_GROUP -> (mbidMapping.recordingMbid ?: return@launch).toString() },
+
+                            ReviewEntityType.RELEASE_GROUP -> (mbidMapping.recordingMbid
+                                ?: return@launch).toString()
+                        },
                         entityType = entityType.code,
                         text = blurbContent,
                         rating = rating,
@@ -227,7 +231,7 @@ class SocialViewModel(
             if (result.status == Resource.Status.FAILED) {
                 emitError(result.error)
             } else if (result.status == Resource.Status.SUCCESS) {
-                emitMsg(R.string.review_greeting)
+                emitMsg(stringProvider.getString(StringResource.REVIEW_GREETING))
             }
         }
     }
@@ -243,7 +247,7 @@ class SocialViewModel(
             if (result.status == Resource.Status.FAILED) {
                 emitError(result.error)
             } else if (result.status == Resource.Status.SUCCESS) {
-                emitMsg(R.string.pin_greeting)
+                emitMsg(stringProvider.getString(StringResource.PIN_GREETING))
             }
         }
     }
@@ -271,7 +275,7 @@ class SocialViewModel(
             if (result.status == Resource.Status.FAILED) {
                 emitError(result.error)
             } else if (result.status == Resource.Status.SUCCESS) {
-                emitMsg(R.string.listen_deleted)
+                emitMsg(stringProvider.getString(StringResource.LISTEN_DELETED))
             }
 
         }

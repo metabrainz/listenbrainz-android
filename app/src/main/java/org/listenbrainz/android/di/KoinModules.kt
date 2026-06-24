@@ -51,6 +51,7 @@ import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.service.createGithubAppUpdatesService
 import org.listenbrainz.android.service.createYim23Service
 import org.listenbrainz.android.service.createYimService
+import org.listenbrainz.android.util.AppStringProvider
 import org.listenbrainz.shared.util.Constants.GITHUB_API_BASE_URL
 import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_API_BASE_URL
 import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_BETA_API_BASE_URL
@@ -62,7 +63,7 @@ import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.SearchViewModel
-import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
 import org.listenbrainz.android.viewmodel.YimViewModel
@@ -79,6 +80,7 @@ import org.listenbrainz.shared.di.sharedViewModelModule
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.AppPreferencesImpl
 import org.listenbrainz.shared.util.Log
+import org.listenbrainz.shared.util.StringProvider
 
 
 private val jsonConfig = Json {
@@ -242,6 +244,9 @@ val appModule = module {
             buildType = BuildConfig.BUILD_TYPE
         )
     }
+    single<StringProvider>{
+        AppStringProvider()
+    }
 }
 
 val repositoryModule = module {
@@ -284,7 +289,6 @@ val viewModelModule = module {
     viewModel { DashBoardViewModel(get(), get(), get(), get(named(IO_DISPATCHER)),get()) }
     viewModel { AppUpdatesViewModel(get(), get(), get()) }
     viewModel { FeedViewModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
-    viewModel { SocialViewModel(get(), get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { UserViewModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
     viewModel { YimViewModel(get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { Yim23ViewModel(get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }

@@ -52,7 +52,7 @@ import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.model.SocialUiState
+import org.listenbrainz.shared.model.SocialUiState
 import org.listenbrainz.shared.model.userPlaylist.UserPlaylist
 import org.listenbrainz.shared.model.userPlaylist.UserPlaylists
 import org.listenbrainz.shared.model.playlist.AdditionalMetadataTrack
@@ -72,7 +72,7 @@ import org.listenbrainz.android.util.Utils.VerticalSpacer
 import org.listenbrainz.android.util.Utils.formatDurationSeconds
 import org.listenbrainz.shared.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.util.Utils.shareLink
-import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable

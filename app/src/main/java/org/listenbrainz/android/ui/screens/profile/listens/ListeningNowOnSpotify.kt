@@ -35,7 +35,7 @@ import org.listenbrainz.shared.model.ListenBitmap
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.offWhite
 import org.listenbrainz.android.ui.theme.onScreenUiModeIsDark
-import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.shared.model.playback.SharedPlayerState
 
 @Composable

@@ -3,6 +3,7 @@ package org.listenbrainz.shared.di
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import org.listenbrainz.shared.util.StringProvider
 import org.listenbrainz.shared.viewmodel.NewsListViewModel
 import org.listenbrainz.shared.viewmodel.CreateAccountViewModel
 import org.listenbrainz.shared.viewmodel.FeaturesViewModel
@@ -17,6 +18,7 @@ import org.listenbrainz.shared.viewmodel.BPAlbumViewModel
 import org.listenbrainz.shared.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.shared.viewmodel.SettingsViewModel
 import org.listenbrainz.shared.viewmodel.SongViewModel
+import org.listenbrainz.shared.viewmodel.SocialViewModel
 
 val sharedViewModelModule = module {
     viewModel { SettingsViewModel(get(),get()) }
@@ -34,4 +36,5 @@ val sharedViewModelModule = module {
     viewModel { ListensViewModel(get(),get(),get(),get(),get(named(DEFAULT_DISPATCHER))) }
     viewModel { ListeningNowViewModel(get(),get(),get(),get(named(IO_DISPATCHER))) }
     viewModel { PlaylistDataViewModel(get(),get(),get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER))) }
+    viewModel { SocialViewModel(get(),get(),get(),get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER)),get<StringProvider>()) }
 }

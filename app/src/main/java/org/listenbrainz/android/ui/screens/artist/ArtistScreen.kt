@@ -79,7 +79,7 @@ import org.listenbrainz.shared.model.artist.ArtistWikiExtract
 import org.listenbrainz.shared.model.artist.CBReview
 import org.listenbrainz.shared.model.artist.ReleaseGroup
 import org.listenbrainz.shared.model.artist.Tag
-import org.listenbrainz.android.model.feed.ReviewEntityType
+import org.listenbrainz.shared.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.ButtonLB
 import org.listenbrainz.android.ui.components.CoverArtComposable
 import org.listenbrainz.android.ui.components.ErrorBar
@@ -100,7 +100,7 @@ import org.listenbrainz.android.util.Utils.measureSize
 import org.listenbrainz.shared.util.Utils.removeHtmlTags
 import org.listenbrainz.android.util.Utils.showToast
 import org.listenbrainz.shared.viewmodel.ArtistViewModel
-import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.shared.util.ArtistLinksEnum
 import org.listenbrainz.shared.util.LinkCardData
 import org.listenbrainz.android.util.getLinkCardRes
