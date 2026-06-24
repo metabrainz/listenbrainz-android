@@ -173,6 +173,7 @@ kotlin {
                 implementation(libs.kmpalette.androidx.palette)
                 // Paging
                 implementation(libs.androidx.paging.common)
+                implementation(libs.androidx.paging.common)
             }
         }
 
