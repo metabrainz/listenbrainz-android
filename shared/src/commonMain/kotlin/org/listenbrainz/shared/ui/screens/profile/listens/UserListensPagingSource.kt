@@ -1,4 +1,4 @@
-package org.listenbrainz.android.ui.screens.profile.listens
+package org.listenbrainz.shared.ui.screens.profile.listens
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
@@ -8,6 +8,7 @@ import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.util.Resource
+import kotlin.time.Clock
 
 class UserListensPagingSource(
     private val username: String?,
@@ -17,7 +18,7 @@ class UserListensPagingSource(
 ) : PagingSource<Long, Listen>() {
 
     override fun getRefreshKey(state: PagingState<Long, Listen>): Long? {
-        return System.currentTimeMillis() / 1000
+        return Clock.System.now().epochSeconds
     }
 
     override suspend fun load(params: LoadParams<Long>): LoadResult<Long, Listen> {
