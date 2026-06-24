@@ -40,7 +40,7 @@ import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import org.listenbrainz.android.model.search.SearchUiState
+import org.listenbrainz.shared.model.search.SearchUiState
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 

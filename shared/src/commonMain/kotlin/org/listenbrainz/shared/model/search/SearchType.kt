@@ -1,4 +1,4 @@
-package org.listenbrainz.android.model.search
+package org.listenbrainz.shared.model.search
 
 enum class SearchType(
     val title: String,

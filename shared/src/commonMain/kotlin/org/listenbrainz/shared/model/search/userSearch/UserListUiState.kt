@@ -1,4 +1,4 @@
-package org.listenbrainz.android.model.search.userSearch
+package org.listenbrainz.shared.model.search.userSearch
 
 import kotlinx.serialization.Serializable
 import org.listenbrainz.shared.model.User

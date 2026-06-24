@@ -1,4 +1,4 @@
-package org.listenbrainz.android.model.search.trackSearch
+package org.listenbrainz.shared.model.search.trackSearch
 
 import org.listenbrainz.shared.model.playlist.PlaylistTrack
 
