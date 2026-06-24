@@ -31,8 +31,6 @@ import org.koin.dsl.module
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepositoryImpl
-import org.listenbrainz.android.repository.feed.FeedRepository
-import org.listenbrainz.android.repository.feed.FeedRepositoryImpl
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManagerImpl
 import org.listenbrainz.android.repository.user.UserRepository
@@ -42,8 +40,6 @@ import org.listenbrainz.android.repository.yim.YimRepositoryImpl
 import org.listenbrainz.android.repository.yim23.Yim23Repository
 import org.listenbrainz.android.repository.yim23.Yim23RepositoryImpl
 import org.listenbrainz.android.service.BrainzPlayerServiceConnection
-import org.listenbrainz.android.service.FeedServiceKtor
-import org.listenbrainz.android.service.FeedServiceKtorImpl
 import org.listenbrainz.android.service.GithubAppUpdatesService
 import org.listenbrainz.android.service.GithubUpdatesDownloadService
 import org.listenbrainz.android.service.Yim23Service
@@ -61,7 +57,6 @@ import org.listenbrainz.android.viewmodel.AboutViewModel
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
-import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.SearchViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
@@ -176,8 +171,6 @@ val networkModule = module {
             .createYim23Service()
     }
 
-    single<FeedServiceKtor> { FeedServiceKtorImpl(get()) }
-
     single<GithubAppUpdatesService> {
         val httpClient = HttpClient(OkHttp) {
             expectSuccess = true
@@ -251,7 +244,6 @@ val appModule = module {
 val repositoryModule = module {
 
     // API Repositories
-    single<FeedRepository> { FeedRepositoryImpl(get()) }
     single<UserRepository> { UserRepositoryImpl(get(), get()) }
     single<YimRepository> { YimRepositoryImpl(get()) }
     single<Yim23Repository> { Yim23RepositoryImpl(get()) }
@@ -287,7 +279,6 @@ val playerModule = module {
 val viewModelModule = module {
     viewModel { DashBoardViewModel(get(), get(), get(), get(named(IO_DISPATCHER)),get()) }
     viewModel { AppUpdatesViewModel(get(), get(), get()) }
-    viewModel { FeedViewModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { UserViewModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
     viewModel { YimViewModel(get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { Yim23ViewModel(get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
