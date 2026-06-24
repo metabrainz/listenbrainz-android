@@ -33,8 +33,6 @@ import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepositoryImpl
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManagerImpl
-import org.listenbrainz.android.repository.user.UserRepository
-import org.listenbrainz.android.repository.user.UserRepositoryImpl
 import org.listenbrainz.android.repository.yim.YimRepository
 import org.listenbrainz.android.repository.yim.YimRepositoryImpl
 import org.listenbrainz.android.repository.yim23.Yim23Repository
@@ -243,7 +241,6 @@ val appModule = module {
 val repositoryModule = module {
 
     // API Repositories
-    single<UserRepository> { UserRepositoryImpl(get(), get()) }
     single<YimRepository> { YimRepositoryImpl(get()) }
     single<Yim23Repository> { Yim23RepositoryImpl(get()) }
     single<AppUpdatesRepository> { AppUpdatesRepositoryImpl(get(), get(), get(named(IO_DISPATCHER))) }
@@ -278,7 +275,6 @@ val playerModule = module {
 val viewModelModule = module {
     viewModel { DashBoardViewModel(get(), get(), get(), get(named(IO_DISPATCHER)),get()) }
     viewModel { AppUpdatesViewModel(get(), get(), get()) }
-    viewModel { UserViewModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
     viewModel { YimViewModel(get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { Yim23ViewModel(get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { BrainzPlayerViewModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER))) }

@@ -23,7 +23,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.shared.viewmodel.FeedViewModel
 import org.listenbrainz.shared.viewmodel.ListensViewModel
 import org.listenbrainz.shared.viewmodel.SocialViewModel
-import org.listenbrainz.android.viewmodel.UserViewModel
+import org.listenbrainz.shared.viewmodel.UserViewModel
 import org.listenbrainz.sharedtest.mocks.MockAppPreferences
 import org.listenbrainz.sharedtest.mocks.MockFeedRepository
 import org.listenbrainz.sharedtest.mocks.MockListensRepository

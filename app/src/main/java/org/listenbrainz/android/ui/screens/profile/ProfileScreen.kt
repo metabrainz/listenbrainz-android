@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -22,10 +21,8 @@ import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.navigation.TopBar
 import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.shared.util.Constants.Strings.STATUS_LOGGED_IN
-import org.listenbrainz.android.util.Utils.toSp
-import org.listenbrainz.shared.viewmodel.ListensViewModel
 import org.listenbrainz.shared.viewmodel.SocialViewModel
-import org.listenbrainz.android.viewmodel.UserViewModel
+import org.listenbrainz.shared.viewmodel.UserViewModel
 
 @Composable
 fun ProfileScreen(

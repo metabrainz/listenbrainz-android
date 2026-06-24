@@ -101,7 +101,7 @@ import org.listenbrainz.android.ui.components.ListenCardSmallDefault
 import org.listenbrainz.android.ui.components.MusicBrainzButton
 import org.listenbrainz.android.ui.components.SimilarUserCard
 import org.listenbrainz.android.ui.components.SuccessBar
-import org.listenbrainz.android.ui.screens.profile.ProfileUiState
+import org.listenbrainz.shared.ui.screens.profile.ProfileUiState
 import org.listenbrainz.shared.ui.screens.settings.PreferencesUiState
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.app_bg_mid
@@ -115,7 +115,7 @@ import org.listenbrainz.android.util.consumeHorizontalDrag
 import org.listenbrainz.android.util.optionalSharedElement
 import org.listenbrainz.shared.viewmodel.ListensViewModel
 import org.listenbrainz.shared.viewmodel.SocialViewModel
-import org.listenbrainz.android.viewmodel.UserViewModel
+import org.listenbrainz.shared.viewmodel.UserViewModel
 import java.util.UUID
 
 @Composable
@@ -665,60 +665,62 @@ fun ListensScreen(
                         }
 
                         if (!uiState.listensTabUiState.similarUsers.isNullOrEmpty()) {
-                            item {
-                                Text(
-                                    modifier = Modifier
-                                        .headerTextVerticalPadding()
-                                        .padding(horizontal = ListenBrainzTheme.paddings.horizontal),
-                                    text = "Similar Users",
-                                    color = ListenBrainzTheme.colorScheme.text,
-                                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),
-                                )
-                            }
-
-                            if (isRefreshing) {
-                                items(5) {
-                                    ShimmerSimilarUsersItem(shimmerInstance)
-                                    Spacer(modifier = Modifier.height(10.dp))
-                                }
-                            } else {
-                                itemsIndexed(
-                                    if (similarUsersCollapsibleState) {
-                                        uiState.listensTabUiState.similarUsers.take(5)
-                                    } else {
-                                        uiState.listensTabUiState.similarUsers
-                                    },
-                                    contentType = { _, _ -> "SimilarUserCard" }
-                                ) { index, item ->
-                                    SimilarUserCard(
-                                        index = index,
-                                        userName = item.username,
-                                        similarity = item.similarity.toFloat(),
-                                        modifier = Modifier.padding(
-                                            horizontal = 10.dp,
-                                            vertical = 4.dp
-                                        ),
-                                        goToUserPage = goToUserProfile
+                            uiState.listensTabUiState.similarUsers?.let { similarUsers->
+                                item {
+                                    Text(
+                                        modifier = Modifier
+                                            .headerTextVerticalPadding()
+                                            .padding(horizontal = ListenBrainzTheme.paddings.horizontal),
+                                        text = "Similar Users",
+                                        color = ListenBrainzTheme.colorScheme.text,
+                                        style = MaterialTheme.typography.bodyLarge.copy(fontSize = 22.sp),
                                     )
                                 }
-                            }
 
-                            item {
-                                if ((uiState.listensTabUiState.similarUsers.size) > 5) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.Center
-                                    ) {
-                                        LoadMoreButton(
-                                            modifier = Modifier
-                                                .padding(horizontal = ListenBrainzTheme.paddings.horizontal)
-                                                .padding(top = 16.dp),
-                                            state = similarUsersCollapsibleState,
-                                            onClick = {
-                                                similarUsersCollapsibleState =
-                                                    !similarUsersCollapsibleState
-                                            }
+                                if (isRefreshing) {
+                                    items(5) {
+                                        ShimmerSimilarUsersItem(shimmerInstance)
+                                        Spacer(modifier = Modifier.height(10.dp))
+                                    }
+                                } else {
+                                    itemsIndexed(
+                                        if (similarUsersCollapsibleState) {
+                                            similarUsers.take(5)
+                                        } else {
+                                            similarUsers
+                                        },
+                                        contentType = { _, _ -> "SimilarUserCard" }
+                                    ) { index, item ->
+                                        SimilarUserCard(
+                                            index = index,
+                                            userName = item.username,
+                                            similarity = item.similarity.toFloat(),
+                                            modifier = Modifier.padding(
+                                                horizontal = 10.dp,
+                                                vertical = 4.dp
+                                            ),
+                                            goToUserPage = goToUserProfile
                                         )
+                                    }
+                                }
+
+                                item {
+                                    if ((similarUsers.size) > 5) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.Center
+                                        ) {
+                                            LoadMoreButton(
+                                                modifier = Modifier
+                                                    .padding(horizontal = ListenBrainzTheme.paddings.horizontal)
+                                                    .padding(top = 16.dp),
+                                                state = similarUsersCollapsibleState,
+                                                onClick = {
+                                                    similarUsersCollapsibleState =
+                                                        !similarUsersCollapsibleState
+                                                }
+                                            )
+                                        }
                                     }
                                 }
                             }

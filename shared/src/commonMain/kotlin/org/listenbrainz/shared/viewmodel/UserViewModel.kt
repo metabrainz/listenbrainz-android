@@ -1,4 +1,4 @@
-package org.listenbrainz.android.viewmodel
+package org.listenbrainz.shared.viewmodel
 
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -27,21 +27,20 @@ import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.social.SocialRepository
-import org.listenbrainz.android.repository.user.UserRepository
-import org.listenbrainz.android.ui.screens.profile.CreatedForTabUIState
-import org.listenbrainz.android.ui.screens.profile.ListensTabUiState
-import org.listenbrainz.android.ui.screens.profile.PlaylistTabUIState
-import org.listenbrainz.android.ui.screens.profile.ProfileUiState
-import org.listenbrainz.android.ui.screens.profile.StatsTabUIState
-import org.listenbrainz.android.ui.screens.profile.TasteTabUIState
-import org.listenbrainz.android.ui.screens.profile.listens.UserListensPagingSource
+import org.listenbrainz.shared.repository.user.UserRepository
+import org.listenbrainz.shared.ui.screens.profile.CreatedForTabUIState
+import org.listenbrainz.shared.ui.screens.profile.ListensTabUiState
+import org.listenbrainz.shared.ui.screens.profile.PlaylistTabUIState
+import org.listenbrainz.shared.ui.screens.profile.ProfileUiState
+import org.listenbrainz.shared.ui.screens.profile.StatsTabUIState
+import org.listenbrainz.shared.ui.screens.profile.TasteTabUIState
+import org.listenbrainz.shared.ui.screens.profile.listens.UserListensPagingSource
 import org.listenbrainz.shared.ui.screens.profile.playlists.CollabPlaylistPagingSource
 import org.listenbrainz.shared.ui.screens.profile.playlists.UserPlaylistPagingSource
-import org.listenbrainz.android.ui.screens.profile.stats.StatsRange
-import org.listenbrainz.android.ui.screens.profile.stats.DataScope
+import org.listenbrainz.shared.ui.screens.profile.stats.DataScope
+import org.listenbrainz.shared.ui.screens.profile.stats.StatsRange
 import org.listenbrainz.shared.model.user.Artist
 import org.listenbrainz.shared.util.Resource
-import org.listenbrainz.shared.viewmodel.BaseViewModel
 
 class UserViewModel(
     val appPreferences: AppPreferences,
@@ -177,11 +176,11 @@ class UserViewModel(
         }
     }
 
-    private suspend fun getSimilarArtists(username: String?): List<org.listenbrainz.shared.model.user.Artist> {
+    private suspend fun getSimilarArtists(username: String?): List<Artist> {
         val currentUsername = appPreferences.username.get()
         val currentUserTopArtists = userRepository.getTopArtists(currentUsername, count = 100)
         val userTopArtists = userRepository.getTopArtists(username, count = 100)
-        val similarArtists = mutableListOf<org.listenbrainz.shared.model.user.Artist>()
+        val similarArtists = mutableListOf<Artist>()
         currentUserTopArtists.data?.payload?.artists?.map { currentUserTopArtist ->
             userTopArtists.data?.payload?.artists?.map { userTopArtist ->
                 if (currentUserTopArtist.artistName == userTopArtist.artistName) {

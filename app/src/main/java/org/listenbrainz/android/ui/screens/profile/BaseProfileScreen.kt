@@ -52,7 +52,7 @@ import org.listenbrainz.shared.viewmodel.FeedViewModel
 import org.listenbrainz.shared.viewmodel.ListensViewModel
 import org.listenbrainz.shared.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.shared.viewmodel.SocialViewModel
-import org.listenbrainz.android.viewmodel.UserViewModel
+import org.listenbrainz.shared.viewmodel.UserViewModel
 
 @Composable
 fun BaseProfileScreen(

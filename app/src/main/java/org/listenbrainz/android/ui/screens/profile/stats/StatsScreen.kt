@@ -82,8 +82,8 @@ import org.listenbrainz.android.ui.components.ListenCardSmallDefault
 import org.listenbrainz.android.ui.components.SelectionChipBar
 import org.listenbrainz.android.ui.components.SuccessBar
 import org.listenbrainz.android.ui.screens.artist.formatNumber
-import org.listenbrainz.android.ui.screens.profile.ProfileUiState
-import org.listenbrainz.android.ui.screens.profile.StatsTabUIState
+import org.listenbrainz.shared.ui.screens.profile.ProfileUiState
+import org.listenbrainz.shared.ui.screens.profile.StatsTabUIState
 import org.listenbrainz.android.ui.screens.profile.listens.LoadMoreButton
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.PreviewSurface
@@ -92,7 +92,9 @@ import org.listenbrainz.android.util.Utils.Spacer
 import org.listenbrainz.shared.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.util.getStringResource
 import org.listenbrainz.shared.viewmodel.SocialViewModel
-import org.listenbrainz.android.viewmodel.UserViewModel
+import org.listenbrainz.shared.viewmodel.UserViewModel
+import org.listenbrainz.shared.ui.screens.profile.stats.DataScope
+import org.listenbrainz.shared.ui.screens.profile.stats.StatsRange
 
 @Composable
 fun StatsScreen(
@@ -140,7 +142,7 @@ fun StatsScreen(
 fun StatsScreen(
     username: String?,
     uiState: ProfileUiState,
-    fetchListeningActivity: suspend (StatsRange, DataScope,Boolean) -> Unit,
+    fetchListeningActivity: suspend (StatsRange, DataScope, Boolean) -> Unit,
     fetchTopArtists: suspend (String?, Boolean) -> Unit,
     fetchTopAlbums: suspend (String?, Boolean) -> Unit,
     fetchTopSongs: suspend (String?, Boolean) -> Unit,
