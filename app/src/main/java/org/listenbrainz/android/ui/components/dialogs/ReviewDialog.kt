@@ -12,7 +12,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.delay
-import org.listenbrainz.android.model.feed.ReviewEntityType
+import org.listenbrainz.shared.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 
 @OptIn(ExperimentalComposeUiApi::class)
