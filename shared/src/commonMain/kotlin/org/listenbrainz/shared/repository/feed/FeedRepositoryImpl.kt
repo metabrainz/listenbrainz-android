@@ -1,11 +1,11 @@
-package org.listenbrainz.android.repository.feed
+package org.listenbrainz.shared.repository.feed
 
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.SocialResponse
-import org.listenbrainz.android.model.feed.FeedData
-import org.listenbrainz.android.model.feed.FeedEventDeletionData
-import org.listenbrainz.android.model.feed.FeedEventVisibilityData
-import org.listenbrainz.android.service.FeedServiceKtor
+import org.listenbrainz.shared.model.feed.FeedData
+import org.listenbrainz.shared.model.feed.FeedEventDeletionData
+import org.listenbrainz.shared.model.feed.FeedEventVisibilityData
+import org.listenbrainz.shared.service.FeedServiceKtor
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.util.Utils.parseResponse
 

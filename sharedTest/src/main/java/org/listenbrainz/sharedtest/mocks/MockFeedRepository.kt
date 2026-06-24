@@ -1,10 +1,10 @@
 package org.listenbrainz.sharedtest.mocks
 
 import org.listenbrainz.shared.model.SocialResponse
-import org.listenbrainz.android.model.feed.FeedData
-import org.listenbrainz.android.model.feed.FeedEventDeletionData
-import org.listenbrainz.android.model.feed.FeedEventVisibilityData
-import org.listenbrainz.android.repository.feed.FeedRepository
+import org.listenbrainz.shared.model.feed.FeedData
+import org.listenbrainz.shared.model.feed.FeedEventDeletionData
+import org.listenbrainz.shared.model.feed.FeedEventVisibilityData
+import org.listenbrainz.shared.repository.feed.FeedRepository
 import org.listenbrainz.shared.util.Resource
 
 class MockFeedRepository : FeedRepository {
