@@ -192,6 +192,11 @@ kotlin {
                         )
                     )
                 )
+                if (project.findProperty("buildkonfig.flavor") == "release") {
+                    implementation(libs.chucker.noop)
+                } else {
+                    implementation(libs.chucker)
+                }
             }
         }
 
