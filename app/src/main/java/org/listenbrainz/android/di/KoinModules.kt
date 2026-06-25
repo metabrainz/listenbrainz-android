@@ -295,7 +295,7 @@ val appModule = module {
 
 val repositoryModule = module {
     // BrainzPlayer Repositories
-    single<BPArtistRepository> { BPArtistRepositoryImpl(get(),get()) }
+    single<BPArtistRepository> { BPArtistRepositoryImpl(get(),get(),get()) }
 
     // API Repositories
     single<FeedRepository> { FeedRepositoryImpl(get()) }
