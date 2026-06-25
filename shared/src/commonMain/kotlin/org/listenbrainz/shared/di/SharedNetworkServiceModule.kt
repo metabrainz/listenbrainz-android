@@ -71,8 +71,12 @@ private fun createSharedBaseHttpClient(
     appPreference: AppPreferences,
     platformContext: PlatformContext
 ): HttpClient{
-    return HttpClient(getPlatformNetworkEngine(platformContext)){
+    return HttpClient(getPlatformNetworkEngine()){
         expectSuccess = true
+
+        engine {
+            configPlatformEngine(this,platformContext)
+        }
 
         install(ContentNegotiation){
             json(sharedJsonConfig)
