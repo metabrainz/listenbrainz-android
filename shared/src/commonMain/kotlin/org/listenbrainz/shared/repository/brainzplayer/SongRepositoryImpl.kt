@@ -1,16 +1,17 @@
-package org.listenbrainz.android.repository.brainzplayer
+package org.listenbrainz.shared.repository.brainzplayer
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.listenbrainz.shared.model.Song
 import org.listenbrainz.shared.model.dao.SongDao
-import org.listenbrainz.android.util.SongsData
+import org.listenbrainz.shared.util.SongsData
 import org.listenbrainz.shared.util.Transformer.toSong
 import org.listenbrainz.shared.util.Transformer.toSongEntity
 import kotlin.time.Clock
 
 class SongRepositoryImpl(
-    private val songDao: SongDao
+    private val songDao: SongDao,
+    private val songsData: SongsData
 ) : SongRepository {
     override fun getSongsStream(): Flow<List<Song>> =
         songDao.getSongEntities()
@@ -21,7 +22,7 @@ class SongRepositoryImpl(
             }
     
     override suspend fun addSongs(userRequestedRefresh: Boolean): Boolean {
-        val songs = SongsData.fetchSongs(userRequestedRefresh).map {
+        val songs = songsData.fetchSongs(userRequestedRefresh).map {
             it.toSongEntity()
         }
         

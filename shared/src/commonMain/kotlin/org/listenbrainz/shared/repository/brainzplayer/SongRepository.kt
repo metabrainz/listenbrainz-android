@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository.brainzplayer
+package org.listenbrainz.shared.repository.brainzplayer
 
 import kotlinx.coroutines.flow.Flow
 import org.listenbrainz.shared.model.Song

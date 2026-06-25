@@ -1,24 +1,15 @@
-package org.listenbrainz.android.util
+package org.listenbrainz.shared.util
 
 import android.content.ContentUris
 import android.os.Build
 import android.provider.MediaStore
-import org.listenbrainz.android.application.App.Companion.context
 import org.listenbrainz.shared.model.Song
-object SongsData {
-    // Temporary cache
-    private var songsListCache = listOf<Song>()
-    
-    /** Update cached songs list on demand. */
-    fun updateCache(){
-        fetchSongs(userRequestedRefresh = true)
-    }
-    
-    /** Fetch songs from device. Heavy task, so perform in `Dispacthers.IO`.*/
-    fun fetchSongs(userRequestedRefresh: Boolean = false): List<Song> {
-        if (songsListCache.isNotEmpty() && !userRequestedRefresh){
-            return songsListCache
-        }
+import org.listenbrainz.shared.repository.PlatformContext
+
+class AndroidSongsData(
+    private val context: PlatformContext
+): SongsData() {
+    override fun songs(): List<Song> {
         val songs = mutableListOf<Song>()
         val collection =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -39,13 +30,14 @@ object SongsData {
             MediaStore.Audio.AudioColumns.TRACK,
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 MediaStore.Audio.AudioColumns.DISC_NUMBER
-            }else{
-                MediaStore.Audio.AudioColumns.COMPOSER},
+            } else {
+                MediaStore.Audio.AudioColumns.COMPOSER
+            },
             MediaStore.Audio.AudioColumns.ARTIST_ID,
             MediaStore.Audio.AudioColumns.DATE_MODIFIED
         )
-        
-        
+
+
         val sortOrder = "${MediaStore.Audio.Media.TITLE} COLLATE NOCASE ASC"
         val isMusic = MediaStore.Audio.Media.IS_MUSIC + " != 0"
         val songQuery = context.contentResolver?.query(
@@ -106,7 +98,6 @@ object SongsData {
                 )
             }
         }
-        songsListCache = songs
-        return songsListCache
+        return songs
     }
 }

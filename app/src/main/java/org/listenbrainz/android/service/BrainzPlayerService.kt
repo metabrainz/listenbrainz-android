@@ -21,7 +21,7 @@ import org.listenbrainz.shared.model.PlayableType
 import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.android.repository.brainzplayer.PlaylistRepository
-import org.listenbrainz.android.repository.brainzplayer.SongRepository
+import org.listenbrainz.shared.repository.brainzplayer.SongRepository
 import org.listenbrainz.android.util.BrainzPlayerExtensions.toMediaMetadataCompat
 import org.listenbrainz.android.util.BrainzPlayerNotificationManager
 import org.listenbrainz.android.util.BrainzPlayerUtils.MEDIA_ROOT_ID
