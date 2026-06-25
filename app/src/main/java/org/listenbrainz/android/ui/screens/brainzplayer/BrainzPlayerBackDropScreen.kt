@@ -106,7 +106,7 @@ import org.listenbrainz.android.util.BrainzPlayerExtensions.toSong
 import org.listenbrainz.android.util.SongViewPager
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.ListeningNowViewModel
-import org.listenbrainz.android.viewmodel.PlaylistViewModel
+import org.listenbrainz.shared.viewmodel.PlaylistViewModel
 import java.util.Locale
 import kotlin.math.absoluteValue
 import kotlin.math.max

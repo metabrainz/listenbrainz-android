@@ -1,4 +1,4 @@
-package org.listenbrainz.android.viewmodel
+package org.listenbrainz.shared.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import org.listenbrainz.android.repository.brainzplayer.PlaylistRepository
+import org.listenbrainz.shared.repository.brainzplayer.PlaylistRepository
 import org.listenbrainz.shared.model.Playlist
 import org.listenbrainz.shared.model.Playlist.Companion.currentlyPlaying
 import org.listenbrainz.shared.model.Playlist.Companion.favourite
@@ -26,7 +26,10 @@ class PlaylistViewModel(
         viewModelScope.launch(Dispatchers.Default) {
             playlists.collectLatest {
                 if (it.isEmpty()){
-                    playlistRepository.insertPlaylists(listOf(currentlyPlaying, favourite))
+                    playlistRepository.insertPlaylists(listOf(
+                        Playlist.currentlyPlaying,
+                        Playlist.favourite
+                    ))
                 }
             }
         }
