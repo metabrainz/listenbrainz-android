@@ -40,7 +40,7 @@ import org.listenbrainz.shared.model.PlayableType
 import org.listenbrainz.shared.model.Playlist.Companion.currentlyPlaying
 import org.listenbrainz.android.model.RepeatMode
 import org.listenbrainz.shared.model.Song
-import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
+import org.listenbrainz.shared.repository.brainzplayer.BPAlbumRepository
 import org.listenbrainz.shared.repository.brainzplayer.PlaylistRepository
 import org.listenbrainz.shared.repository.brainzplayer.SongRepository
 import org.listenbrainz.shared.repository.AppPreferences

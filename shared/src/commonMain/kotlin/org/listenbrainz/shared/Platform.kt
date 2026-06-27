@@ -16,6 +16,7 @@ import org.listenbrainz.shared.service.UserService
 import org.listenbrainz.shared.service.YouTubeApiService
 import org.listenbrainz.shared.di.database.BrainzPlayerDatabase
 import org.listenbrainz.shared.util.SongsData
+import org.listenbrainz.shared.util.AlbumsData
 
 expect fun platform(): String
 
@@ -53,3 +54,7 @@ expect fun getListensSubmissionDatabase(
 expect fun provideSongData(
     context: PlatformContext
 ): SongsData
+
+expect fun provideAlbumsData(
+    context: PlatformContext
+): AlbumsData

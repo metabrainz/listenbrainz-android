@@ -27,6 +27,8 @@ import org.listenbrainz.shared.service.YouTubeApiService
 import org.listenbrainz.shared.di.database.BrainzPlayerDatabase
 import org.listenbrainz.shared.util.AndroidSongsData
 import org.listenbrainz.shared.util.SongsData
+import org.listenbrainz.shared.util.AlbumsData
+import org.listenbrainz.shared.util.AndroidAlbumsData
 
 actual fun platform() = "Android"
 
@@ -98,4 +100,8 @@ actual fun getListensSubmissionDatabase(appContext: PlatformContext): RoomDataba
 
 actual fun provideSongData(context: PlatformContext): SongsData {
     return AndroidSongsData(context)
+}
+
+actual fun provideAlbumsData(context: PlatformContext): AlbumsData {
+    return AndroidAlbumsData(context)
 }

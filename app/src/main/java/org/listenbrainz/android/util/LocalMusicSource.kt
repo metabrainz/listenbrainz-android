@@ -8,7 +8,7 @@ import com.google.android.exoplayer2.MediaItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.model.State
-import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
+import org.listenbrainz.shared.repository.brainzplayer.BPAlbumRepository
 import org.listenbrainz.shared.repository.brainzplayer.PlaylistRepository
 import org.listenbrainz.shared.repository.brainzplayer.SongRepository
 

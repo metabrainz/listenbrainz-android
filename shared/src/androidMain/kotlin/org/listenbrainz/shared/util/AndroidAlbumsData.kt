@@ -1,20 +1,14 @@
-package org.listenbrainz.android.util
+package org.listenbrainz.shared.util
 
 import android.os.Build
 import android.provider.MediaStore
-import org.listenbrainz.android.application.App.Companion.context
 import org.listenbrainz.shared.model.Album
-object AlbumsData {
-    
-    /** Runtime cache to improve performance
-     *  Not using on device caching as songs need to be refreshed frequently.*/
-    private var albumsListCache = listOf<Album>()
-    
-    /** Fetch albums from device. Heavy task, so perform in `Dispacthers.IO`.*/
-    fun fetchAlbums(userRequestedRefresh: Boolean = false): List<Album> {
-        if(albumsListCache.isNotEmpty() && !userRequestedRefresh){
-            return albumsListCache
-        }
+import org.listenbrainz.shared.repository.PlatformContext
+
+class AndroidAlbumsData(
+    private val context: PlatformContext
+): AlbumsData(){
+    override fun albums(): List<Album> {
         val albums = mutableListOf<Album>()
         val collection =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -50,8 +44,6 @@ object AlbumsData {
                 albums.add(Album(albumId, albumName, artistName, albumArt))
             }
         }
-        albumsListCache = albums.distinct()
-        return albumsListCache
+        return albums.distinct()
     }
-    
 }

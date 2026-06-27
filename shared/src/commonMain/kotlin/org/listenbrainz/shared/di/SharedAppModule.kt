@@ -10,6 +10,9 @@ import org.listenbrainz.shared.provideLogSubmitter
 import org.listenbrainz.shared.provideLogger
 import org.listenbrainz.shared.util.BuildInfo
 import org.listenbrainz.shared.util.LogSubmitter
+import org.listenbrainz.shared.provideAlbumsData
+import org.listenbrainz.shared.util.AlbumsData
+
 
 val platformModule = module {
     single<LogSubmitter>{
@@ -25,5 +28,8 @@ val platformModule = module {
     }
     single<SongsData>{
         provideSongData(get())
+    }
+    single<AlbumsData>{
+        provideAlbumsData(get())
     }
 }
