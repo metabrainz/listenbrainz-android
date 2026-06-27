@@ -224,7 +224,7 @@ fun BrainzPlayerBackDropScreen(
             } else {
                 LaunchedEffect(listeningNowUIState.song) {
                     if (listeningNowUIState.isListeningNow) {
-                        listeningNowViewModel.updatePalette(context)
+                        listeningNowViewModel.updatePalette()
                     }
                 }
                 ListeningNowScreen(

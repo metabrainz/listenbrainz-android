@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.shared.repository.PlatformContext
 import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.socket.SocketRepository
 import org.listenbrainz.shared.util.ImagePalette
@@ -104,14 +103,15 @@ class ListeningNowViewModel(
         }
     }
 
-    fun updatePalette(context: PlatformContext) {
+    fun updatePalette() {
         val url = listeningNowUIState.value.imageURL ?: return
         viewModelScope.launch {
             try {
-                val bitmap = fetchBitmapFromUrl(context,url)
+                val bitmap = fetchBitmapFromUrl(url)
                 if (bitmap != null) {
+                    val fetchedPalette = getPaletteFromImage(bitmap)
                     _listeningNowUIState.update {
-                        it.copy(palette = getPaletteFromImage(bitmap))
+                        it.copy(palette = fetchedPalette)
                     }
                 }
             } catch (e: Exception) {
