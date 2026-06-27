@@ -1,4 +1,4 @@
-package org.listenbrainz.android.viewmodel
+package org.listenbrainz.shared.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,22 +11,22 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.listenbrainz.shared.model.Album
 import org.listenbrainz.shared.model.Song
-import org.listenbrainz.android.repository.brainzplayer.BPAlbumRepository
+import org.listenbrainz.shared.repository.brainzplayer.BPAlbumRepository
 
 class BPAlbumViewModel(
     private val bpAlbumRepository: BPAlbumRepository,
     private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
     val albums = bpAlbumRepository.getAlbums()
-    
+
     // Refreshing variables.
     private val _isRefreshing = MutableStateFlow(false)
     val isRefreshing = _isRefreshing.asStateFlow()
-    
+
     init {
         fetchAlbumsFromDevice()
     }
-    
+
     fun fetchAlbumsFromDevice(userRequestedRefresh: Boolean = false) {
         viewModelScope.launch(ioDispatcher) {
             if (userRequestedRefresh){
@@ -44,7 +44,7 @@ class BPAlbumViewModel(
             }
         }
     }
-    
+
     fun getAlbumFromID(albumID: Long): Flow<Album> {
         return bpAlbumRepository.getAlbum(albumID)
     }

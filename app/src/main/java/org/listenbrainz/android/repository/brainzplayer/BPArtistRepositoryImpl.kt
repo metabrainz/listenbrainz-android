@@ -10,7 +10,7 @@ import org.listenbrainz.shared.model.Album
 import org.listenbrainz.shared.model.Artist
 import org.listenbrainz.shared.model.Song
 import org.listenbrainz.shared.model.dao.ArtistDao
-import org.listenbrainz.android.util.AlbumsData
+import org.listenbrainz.shared.util.AlbumsData
 import org.listenbrainz.shared.util.SongsData
 import org.listenbrainz.shared.util.Transformer.toAlbumEntity
 import org.listenbrainz.shared.util.Transformer.toArtist
@@ -19,7 +19,8 @@ import org.listenbrainz.shared.util.Transformer.toSongEntity
 
 class BPArtistRepositoryImpl(
     private val artistDao: ArtistDao,
-    private val songsData: SongsData
+    private val songsData: SongsData,
+    private val albumsData: AlbumsData
 ) : BPArtistRepository {
     override fun getArtist(artistID: String): Flow<Artist> {
         val artist = artistDao.getArtistEntity(artistID)
@@ -37,7 +38,7 @@ class BPArtistRepositoryImpl(
             }
     
     override suspend fun addArtists(userRequestedRefresh: Boolean): Boolean {
-        val artists = AlbumsData.fetchAlbums(userRequestedRefresh)
+        val artists = albumsData.fetchAlbums(userRequestedRefresh)
             .map {
                 it.toArtistEntity()
             }
@@ -91,7 +92,7 @@ class BPArtistRepositoryImpl(
     }
     
     override suspend fun addAllAlbumsOfArtist(artist: Artist): List<Album> {
-        return AlbumsData.fetchAlbums().filter {
+        return albumsData.fetchAlbums().filter {
             it.artist == artist.name
         }
             .map {

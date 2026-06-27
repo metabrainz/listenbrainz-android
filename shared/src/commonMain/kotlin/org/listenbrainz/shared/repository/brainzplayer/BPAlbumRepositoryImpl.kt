@@ -1,6 +1,7 @@
-package org.listenbrainz.android.repository.brainzplayer
+package org.listenbrainz.shared.repository.brainzplayer
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -12,7 +13,7 @@ import kotlinx.coroutines.withContext
 import org.listenbrainz.shared.model.Album
 import org.listenbrainz.shared.model.Song
 import org.listenbrainz.shared.model.dao.AlbumDao
-import org.listenbrainz.android.util.AlbumsData
+import org.listenbrainz.shared.util.AlbumsData
 import org.listenbrainz.shared.util.SongsData
 import org.listenbrainz.shared.util.Transformer.toAlbum
 import org.listenbrainz.shared.util.Transformer.toAlbumEntity
@@ -21,6 +22,7 @@ import org.listenbrainz.shared.util.Transformer.toAlbumEntity
 
 class BPAlbumRepositoryImpl(
     private val albumDao: AlbumDao,
+    private val albumsData: AlbumsData,
     private val songsData: SongsData
 ): BPAlbumRepository {
     override fun getAlbums(): Flow<List<Album>> =
@@ -37,7 +39,7 @@ class BPAlbumRepositoryImpl(
     
     
     override suspend fun addAlbums(userRequestedRefresh: Boolean): Boolean {
-        val albums = AlbumsData.fetchAlbums(userRequestedRefresh).map {
+        val albums = albumsData.fetchAlbums(userRequestedRefresh).map {
             it.toAlbumEntity()
         }
         
