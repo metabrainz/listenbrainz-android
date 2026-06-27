@@ -9,8 +9,8 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import org.junit.runner.RunWith
 import org.listenbrainz.shared.model.ResponseError
-import org.listenbrainz.android.model.User
-import org.listenbrainz.android.repository.social.SocialRepository
+import org.listenbrainz.shared.model.User
+import org.listenbrainz.shared.repository.social.SocialRepository
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.android.viewmodel.SearchViewModel
 import org.listenbrainz.sharedtest.testdata.SocialRepositoryTestData.ErrorUtil.alreadyFollowingError

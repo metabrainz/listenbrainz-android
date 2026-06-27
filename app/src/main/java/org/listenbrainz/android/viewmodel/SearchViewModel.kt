@@ -29,7 +29,7 @@ import org.listenbrainz.android.model.search.SearchData
 import org.listenbrainz.android.model.search.SearchType
 import org.listenbrainz.android.model.search.SearchUiState
 import org.listenbrainz.android.model.search.trackSearch.TrackSearchUiState
-import org.listenbrainz.android.model.User
+import org.listenbrainz.shared.model.User
 import org.listenbrainz.android.model.search.userSearch.UserListUiState
 import org.listenbrainz.shared.model.albumSearch.toUiModel
 import org.listenbrainz.shared.model.artistSearch.toUiModel
@@ -41,9 +41,10 @@ import org.listenbrainz.shared.repository.album.AlbumRepository
 import org.listenbrainz.shared.repository.artist.ArtistRepository
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
-import org.listenbrainz.android.repository.social.SocialRepository
+import org.listenbrainz.shared.repository.social.SocialRepository
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.util.Log
+import org.listenbrainz.shared.viewmodel.FollowUnfollowModel
 
 
 class SearchViewModel(

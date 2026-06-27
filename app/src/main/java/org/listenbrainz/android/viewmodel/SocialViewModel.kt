@@ -19,21 +19,22 @@ import kotlinx.coroutines.withContext
 import org.listenbrainz.android.R
 import org.listenbrainz.android.model.ListensType
 import org.listenbrainz.shared.model.Metadata
-import org.listenbrainz.android.model.RecommendationData
-import org.listenbrainz.android.model.RecommendationMetadata
+import org.listenbrainz.shared.model.RecommendationData
+import org.listenbrainz.shared.model.RecommendationMetadata
 import org.listenbrainz.shared.model.ResponseError
-import org.listenbrainz.android.model.Review
-import org.listenbrainz.android.model.ReviewMetadata
-import org.listenbrainz.android.model.SocialData
+import org.listenbrainz.shared.model.Review
+import org.listenbrainz.shared.model.ReviewMetadata
+import org.listenbrainz.shared.model.SocialData
 import org.listenbrainz.android.model.SocialUiState
 import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.android.model.feed.ReviewEntityType
 import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
-import org.listenbrainz.android.repository.social.SocialRepository
+import org.listenbrainz.shared.repository.social.SocialRepository
 import org.listenbrainz.shared.model.LinkedService
 import org.listenbrainz.shared.util.Resource
+import org.listenbrainz.shared.viewmodel.FollowUnfollowModel
 
 class SocialViewModel(
     private val repository: SocialRepository,

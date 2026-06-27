@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.Preview
 import org.listenbrainz.shared.model.Metadata
-import org.listenbrainz.android.model.feed.FeedEvent
+import org.listenbrainz.shared.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventType
 import org.listenbrainz.shared.model.feed.FeedListenArtist
 import org.listenbrainz.android.ui.components.ListenCardSmall

@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.shared.model.ResponseError
-import org.listenbrainz.android.model.User
+import org.listenbrainz.shared.model.User
 import org.listenbrainz.shared.model.playlist.DeleteTracks
 import org.listenbrainz.shared.model.playlist.Extension
 import org.listenbrainz.shared.model.playlist.MoveTrack
@@ -34,7 +34,7 @@ import org.listenbrainz.shared.model.recordingSearch.RecordingData
 import org.listenbrainz.shared.model.userPlaylist.UserPlaylist
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.android.repository.social.SocialRepository
+import org.listenbrainz.shared.repository.social.SocialRepository
 import org.listenbrainz.android.ui.screens.playlist.CreateEditScreenUIState
 import org.listenbrainz.android.ui.screens.playlist.PlaylistDataUIState
 import org.listenbrainz.android.ui.screens.playlist.PlaylistDetailUIState

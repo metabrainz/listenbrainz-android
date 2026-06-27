@@ -1,11 +1,11 @@
 package org.listenbrainz.sharedtest.testdata
 
-import org.listenbrainz.android.model.SearchResult
-import org.listenbrainz.android.model.SimilarUser
-import org.listenbrainz.android.model.SimilarUserData
-import org.listenbrainz.android.model.SocialData
-import org.listenbrainz.android.model.SocialResponse
-import org.listenbrainz.android.model.User
+import org.listenbrainz.shared.model.SearchResult
+import org.listenbrainz.shared.model.SimilarUser
+import org.listenbrainz.shared.model.SimilarUserData
+import org.listenbrainz.shared.model.SocialData
+import org.listenbrainz.shared.model.SocialResponse
+import org.listenbrainz.shared.model.User
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testFamiliarUser
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testSomeOtherUser
 import org.listenbrainz.sharedtest.utils.EntityTestUtils.testUsername

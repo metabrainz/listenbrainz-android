@@ -21,6 +21,7 @@ import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import org.listenbrainz.shared.BuildKonfig
 import org.listenbrainz.shared.service.AlbumService
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.PlatformContext
@@ -37,15 +38,19 @@ import org.listenbrainz.shared.service.ArtistService
 import org.listenbrainz.shared.service.CBService
 import org.listenbrainz.shared.service.MBService
 import org.listenbrainz.shared.service.createAlbumService
+import org.listenbrainz.shared.service.SocialService
 import org.listenbrainz.shared.service.createArtistService
 import org.listenbrainz.shared.service.createMBService
 import org.listenbrainz.shared.service.createCBService
+import org.listenbrainz.shared.service.createSocialService
 import org.listenbrainz.shared.util.Constants.CB_BASE_URL
 import org.listenbrainz.shared.util.Constants.LB_BASE_URL
+import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_API_BASE_URL
 import org.listenbrainz.shared.util.Constants.MB_BASE_URL
+import kotlin.time.Duration.Companion.milliseconds
 import org.listenbrainz.shared.service.BlogService
 import org.listenbrainz.shared.service.createBlogService
-import kotlin.time.Duration.Companion.milliseconds
+import org.listenbrainz.shared.util.Log
 
 // Qualifier names for dispatchers
 const val DEFAULT_DISPATCHER = "DefaultDispatcher"
@@ -62,9 +67,16 @@ private val sharedJsonConfig = Json {
     explicitNulls = false
 }
 
-private fun createSharedBaseHttpClient(appPreference: AppPreferences): HttpClient{
+private fun createSharedBaseHttpClient(
+    appPreference: AppPreferences,
+    platformContext: PlatformContext
+): HttpClient{
     return HttpClient(getPlatformNetworkEngine()){
         expectSuccess = true
+
+        engine {
+            configPlatformEngine(this,platformContext)
+        }
 
         install(ContentNegotiation){
             json(sharedJsonConfig)
@@ -72,16 +84,19 @@ private fun createSharedBaseHttpClient(appPreference: AppPreferences): HttpClien
         install(WebSockets)
 
         install(HttpRedirect){
+            // Allows redirection for POST method requests
             checkHttpMethod = false
         }
 
-        install(Logging) {
-            logger = object : Logger {
-                override fun log(message: String) {
-                    println("Ktor: $message")
+        if(BuildKonfig.DEBUG) {
+            install(Logging) {
+                logger = object : Logger {
+                    override fun log(message: String) {
+                        Log.d("Ktor: $message")
+                    }
                 }
+                level = LogLevel.ALL
             }
-            level = LogLevel.INFO
         }
 
         defaultRequest {
@@ -106,7 +121,7 @@ private fun createSharedBaseHttpClient(appPreference: AppPreferences): HttpClien
 
 val sharedNetworkServiceModule = module {
     single<HttpClient>(named(SHARED_HTTP_CLIENT)) {
-        createSharedBaseHttpClient(get<AppPreferences>())
+        createSharedBaseHttpClient(get<AppPreferences>(),get())
     }
 
     single<BlogService> {
@@ -190,6 +205,14 @@ val sharedNetworkServiceModule = module {
             .httpClient(get<HttpClient>(named(SHARED_HTTP_CLIENT)))
             .build()
             .createUserService()
+    }
+
+    single<SocialService> {
+        Ktorfit.Builder()
+            .baseUrl(LISTENBRAINZ_API_BASE_URL)
+            .httpClient(get<HttpClient>(named(SHARED_HTTP_CLIENT)))
+            .build()
+            .createSocialService()
     }
 }
 

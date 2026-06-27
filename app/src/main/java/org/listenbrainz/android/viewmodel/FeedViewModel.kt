@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.shared.model.ResponseError
-import org.listenbrainz.android.model.feed.FeedEvent
+import org.listenbrainz.shared.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventDeletionData
 import org.listenbrainz.android.model.feed.FeedEventType
 import org.listenbrainz.android.model.feed.FeedEventType.Companion.isActionDelete
@@ -35,7 +35,7 @@ import org.listenbrainz.android.repository.feed.FeedRepository.Companion.FeedLis
 import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
-import org.listenbrainz.android.repository.social.SocialRepository
+import org.listenbrainz.shared.repository.social.SocialRepository
 import org.listenbrainz.android.ui.screens.feed.FeedUiEventData
 import org.listenbrainz.android.ui.screens.feed.FeedUiEventItem
 import org.listenbrainz.android.ui.screens.feed.FeedUiState

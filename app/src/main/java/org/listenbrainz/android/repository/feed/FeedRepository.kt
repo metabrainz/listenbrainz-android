@@ -1,6 +1,6 @@
 package org.listenbrainz.android.repository.feed
 
-import org.listenbrainz.android.model.SocialResponse
+import org.listenbrainz.shared.model.SocialResponse
 import org.listenbrainz.android.model.feed.FeedData
 import org.listenbrainz.android.model.feed.FeedEventDeletionData
 import org.listenbrainz.android.model.feed.FeedEventVisibilityData
