@@ -97,10 +97,8 @@ import org.listenbrainz.android.ui.navigation.TopBarActions
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils
-import org.listenbrainz.android.viewmodel.FeedViewModel
-import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.shared.viewmodel.FeedViewModel
-import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.shared.ui.screens.feed.FeedUiEventData
 import org.listenbrainz.shared.ui.screens.feed.FeedUiEventItem
 import org.listenbrainz.shared.ui.screens.feed.FeedUiState
