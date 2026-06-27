@@ -168,6 +168,9 @@ kotlin {
                 implementation(libs.kmp.socketio)
                 implementation(libs.kotlinx.datetime)
                 implementation(libs.coil.compose)
+                // KMPalette
+                implementation(libs.kmpalette.core)
+                implementation(libs.kmpalette.androidx.palette)
             }
         }
 
