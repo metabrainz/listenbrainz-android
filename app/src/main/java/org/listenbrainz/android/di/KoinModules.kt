@@ -11,7 +11,6 @@ import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpRedirect
-import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
@@ -36,8 +35,6 @@ import org.listenbrainz.android.repository.feed.FeedRepository
 import org.listenbrainz.android.repository.feed.FeedRepositoryImpl
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManagerImpl
-import org.listenbrainz.shared.repository.playlists.PlaylistDataRepository
-import org.listenbrainz.shared.repository.playlists.PlaylistDataRepositoryImpl
 import org.listenbrainz.android.repository.user.UserRepository
 import org.listenbrainz.android.repository.user.UserRepositoryImpl
 import org.listenbrainz.android.repository.yim.YimRepository
@@ -252,7 +249,6 @@ val repositoryModule = module {
     // API Repositories
     single<FeedRepository> { FeedRepositoryImpl(get()) }
     single<UserRepository> { UserRepositoryImpl(get(), get()) }
-    single<PlaylistDataRepository> { PlaylistDataRepositoryImpl(get(), get(), get(), get(named(IO_DISPATCHER))) }
     single<YimRepository> { YimRepositoryImpl(get()) }
     single<Yim23Repository> { Yim23RepositoryImpl(get()) }
     single<AppUpdatesRepository> { AppUpdatesRepositoryImpl(get(), get(), get(named(IO_DISPATCHER))) }
