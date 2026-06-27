@@ -1,6 +1,7 @@
 package org.listenbrainz.shared.util
 
 import org.listenbrainz.shared.model.Album
+import platform.Foundation.NSNumber
 import platform.MediaPlayer.MPMediaItem
 import platform.MediaPlayer.MPMediaItemCollection
 import platform.MediaPlayer.MPMediaItemPropertyAlbumPersistentID
@@ -25,7 +26,7 @@ class IosAlbumsData(): AlbumsData() {
                 continue
             }
             val mediaItem = mediaCollection.representativeItem ?: continue
-            val albumId = mediaItem.valueForProperty(MPMediaItemPropertyAlbumPersistentID) as? Long ?: 0
+            val albumId = (mediaItem.valueForProperty(MPMediaItemPropertyAlbumPersistentID) as? NSNumber)?.longLongValue ?: 0
             val albumArt = "mediaitem-art://$albumId"
             albums += Album(
                 albumId = albumId,
