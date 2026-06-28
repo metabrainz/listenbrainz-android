@@ -21,6 +21,7 @@ import org.listenbrainz.shared.viewmodel.SearchViewModel
 import org.listenbrainz.shared.viewmodel.SettingsViewModel
 import org.listenbrainz.shared.viewmodel.SongViewModel
 import org.listenbrainz.shared.viewmodel.UserViewModel
+import org.listenbrainz.shared.viewmodel.SocialViewModel
 
 val sharedViewModelModule = module {
     viewModel { SettingsViewModel(get(),get()) }
