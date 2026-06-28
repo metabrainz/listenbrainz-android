@@ -5,9 +5,9 @@ import androidx.compose.ui.graphics.asImageBitmap
 import coil3.Bitmap
 import coil3.request.ImageRequest
 import coil3.request.allowHardware
-import org.listenbrainz.shared.preferences.AndroidDataStoreContext
+import org.listenbrainz.shared.applicationContext
 
-actual fun getCoilPlatformContext(): coil3.PlatformContext = AndroidDataStoreContext.require()
+actual val coilPlatformContext: coil3.PlatformContext get() = applicationContext
 
 actual fun ImageRequest.Builder.platformConfig(): ImageRequest.Builder = this.allowHardware(false)
 

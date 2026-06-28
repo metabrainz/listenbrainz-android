@@ -3,11 +3,12 @@ package org.listenbrainz.shared.util
 import android.content.ContentUris
 import android.os.Build
 import android.provider.MediaStore
+import org.listenbrainz.shared.applicationContext
 import org.listenbrainz.shared.model.Song
 import org.listenbrainz.shared.repository.PlatformContext
 
 class AndroidSongsData(
-    private val context: PlatformContext
+    private val context: PlatformContext = applicationContext
 ): SongsData() {
     override fun songs(): List<Song> {
         val songs = mutableListOf<Song>()

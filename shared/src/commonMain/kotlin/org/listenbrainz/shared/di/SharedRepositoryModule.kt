@@ -45,8 +45,7 @@ val sharedRepositoryModule = module {
             get<PendingListensDao>(),
             get(
                 named(IO_DISPATCHER)
-            ),
-            get()
+            )
         )
     }
     single<SongRepository> { SongRepositoryImpl(get(),get()) }

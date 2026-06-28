@@ -10,8 +10,6 @@ expect fun settingsPlatformDataMigrations(
     context: PlatformContext,
 ): List<DataMigration<Preferences>>
 
-expect fun platformInitDataStoreContext(context: PlatformContext)
-
 expect fun platformPackageVersion(context: PlatformContext): String
 
-expect fun platformIsNotificationServiceAllowed(context: PlatformContext): Boolean
+expect val isNotificationServiceAllowed: Boolean
