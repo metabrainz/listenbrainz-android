@@ -29,6 +29,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.listenbrainz.shared.BuildKonfig
+import org.listenbrainz.shared.applicationContext
 import org.listenbrainz.shared.model.ListenBitmap
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.playback.SharedPlayerContext
@@ -44,8 +45,8 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 class AndroidRemotePlaybackHandlerImpl(
-    private val appContext: PlatformContext,
     private val youtubeApiService: YouTubeApiService,
+    private val appContext: PlatformContext = applicationContext,
     private val logger: Log = Log
 ) : SharedRemotePlaybackHandlerImpl(youtubeApiService) {
 
@@ -210,6 +211,7 @@ class AndroidRemotePlaybackHandlerImpl(
 
 
     override suspend fun fetchSpotifyTrackCoverArt(playerState: SharedPlayerState?): ListenBitmap = suspendCancellableCoroutine { cont ->
+
         fun getFallBackCoverArt(): ListenBitmap {
             // Fallback Cover Art
             val fallbackResourceId = appContext.resources.getIdentifier(
@@ -308,7 +310,6 @@ class AndroidRemotePlaybackHandlerImpl(
 
 
     override fun getPlayerState(): Flow<SharedPlayerState?> = callbackFlow {
-
         val playerStateSubscription = assertAppRemoteConnected()?.playerApi?.subscribeToPlayerState()
             ?.setEventCallback{ playerState ->
                 trySendBlocking(playerState?.toSharedState)

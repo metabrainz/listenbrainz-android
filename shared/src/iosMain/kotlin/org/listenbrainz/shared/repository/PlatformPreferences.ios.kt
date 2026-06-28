@@ -12,8 +12,6 @@ actual fun getAppPackageName(context: PlatformContext): String {
 
 actual fun settingsPlatformDataMigrations(context: PlatformContext): List<DataMigration<Preferences>> = emptyList()
 
-actual fun platformInitDataStoreContext(context: PlatformContext) = Unit
-
 actual fun platformPackageVersion(context: PlatformContext): String = "unknown"
 
-actual fun platformIsNotificationServiceAllowed(context: PlatformContext): Boolean = false
+actual val isNotificationServiceAllowed: Boolean = false  // TODO

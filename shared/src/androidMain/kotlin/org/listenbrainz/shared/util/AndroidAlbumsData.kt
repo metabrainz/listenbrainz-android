@@ -2,11 +2,12 @@ package org.listenbrainz.shared.util
 
 import android.os.Build
 import android.provider.MediaStore
+import org.listenbrainz.shared.applicationContext
 import org.listenbrainz.shared.model.Album
 import org.listenbrainz.shared.repository.PlatformContext
 
 class AndroidAlbumsData(
-    private val context: PlatformContext
+    private val context: PlatformContext = applicationContext
 ): AlbumsData(){
     override fun albums(): List<Album> {
         val albums = mutableListOf<Album>()

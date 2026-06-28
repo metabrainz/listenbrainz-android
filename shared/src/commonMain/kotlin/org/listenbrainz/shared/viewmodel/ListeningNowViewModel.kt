@@ -1,14 +1,8 @@
-package org.listenbrainz.android.viewmodel
+package org.listenbrainz.shared.viewmodel
 
-import android.content.Context
-import android.util.Log
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import coil3.imageLoader
-import coil3.request.ImageRequest
-import coil3.request.SuccessResult
-import coil3.request.allowHardware
-import coil3.toBitmap
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -19,15 +13,16 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.listenbrainz.shared.model.Listen
-import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.AppPreferences
+import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.socket.SocketRepository
-import org.listenbrainz.android.util.ImagePalette
+import org.listenbrainz.shared.util.ImagePalette
+import org.listenbrainz.shared.util.Log
 import org.listenbrainz.shared.util.Utils.getCoverArtUrl
-import org.listenbrainz.android.util.getPaletteFromImage
+import org.listenbrainz.shared.util.fetchBitmapFromUrl
+import org.listenbrainz.shared.util.getPaletteFromImage
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
-
 
 data class ListeningNowUIState(
     val song: Listen? = null,
@@ -42,7 +37,8 @@ class ListeningNowViewModel(
     private val socketRepository: SocketRepository,
     private val appPreferences: AppPreferences,
     private val listensRepository: ListensRepository,
-    private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher,
+    private val logger: Log = Log
 ) : ViewModel() {
     private val _listeningNowUIState = MutableStateFlow(ListeningNowUIState())
     val listeningNowUIState = _listeningNowUIState.asStateFlow()
@@ -52,7 +48,7 @@ class ListeningNowViewModel(
         viewModelScope.launch(ioDispatcher) {
             appPreferences.username.getFlow().collectLatest { username ->
                 fetchListenFromAPI(username)
-                Log.d("Socket listening", "Listening for $username")
+                logger.d("Socket listening", "Listening for $username")
                 socketRepository
                     .listen { username }
                     .collectLatest { listen ->
@@ -70,14 +66,14 @@ class ListeningNowViewModel(
                 _listeningNowUIState.update {
                     ListeningNowUIState()
                 }
-                Log.d(TAG, "fetchListenFromAPI: No listen found")
+                logger.d(TAG, "fetchListenFromAPI: No listen found")
                 return
             }
-            Log.d(TAG, "fetchListenFromAPI: $listen")
+            logger.d(TAG, "fetchListenFromAPI: $listen")
 
             updateUIState(listen)
         } else if (result.isFailed) {
-            Log.d(TAG, "fetchListenFromAPI: ${result.error?.toast}")
+            logger.d(TAG, "fetchListenFromAPI: ${result.error?.toast}")
         }
     }
 
@@ -107,24 +103,19 @@ class ListeningNowViewModel(
         }
     }
 
-    fun updatePalette(context: Context) {
+    fun updatePalette() {
         val url = listeningNowUIState.value.imageURL ?: return
         viewModelScope.launch {
             try {
-                val request = ImageRequest.Builder(context)
-                    .data(url)
-                    .allowHardware(false)
-                    .build()
-
-                val result = context.imageLoader.execute(request)
-                if (result is SuccessResult) {
-                    val bitmap = result.image.toBitmap()
+                val bitmap = fetchBitmapFromUrl(url)
+                if (bitmap != null) {
+                    val fetchedPalette = getPaletteFromImage(bitmap)
                     _listeningNowUIState.update {
-                        it.copy(palette = getPaletteFromImage(bitmap))
+                        it.copy(palette = fetchedPalette)
                     }
                 }
             } catch (e: Exception) {
-                Log.d("ListeningNowLayout", "Error loading socket image palette: ${e.message}")
+                logger.d("ListeningNowLayout", "Error loading socket image palette: ${e.message}")
             }
         }
     }
@@ -144,7 +135,7 @@ class ListeningNowViewModel(
 
                 val listenedAt = listenedAt
                 val delayToDismiss = if (listenedAt != null) {
-                    val durationCompleted = System.currentTimeMillis() - listenedAt.seconds.inWholeMilliseconds
+                    val durationCompleted = Clock.System.now().toEpochMilliseconds() - (listenedAt * 1000L)
                     (listenDurationMs - durationCompleted).coerceAtLeast(0)
                 } else {
                     listenDurationMs

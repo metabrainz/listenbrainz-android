@@ -10,6 +10,7 @@ import org.listenbrainz.shared.viewmodel.AlbumViewModel
 import org.listenbrainz.shared.viewmodel.ArtistViewModel
 import org.listenbrainz.shared.viewmodel.BPArtistViewModel
 import org.listenbrainz.shared.viewmodel.LoginViewModel
+import org.listenbrainz.shared.viewmodel.ListeningNowViewModel
 import org.listenbrainz.shared.viewmodel.ListensViewModel
 import org.listenbrainz.shared.viewmodel.PlaylistViewModel
 import org.listenbrainz.shared.viewmodel.BPAlbumViewModel
@@ -29,4 +30,6 @@ val sharedViewModelModule = module {
     viewModel { PlaylistViewModel(get(),get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER))) }
     viewModel { BPAlbumViewModel(get(),get(named(IO_DISPATCHER))) }
     viewModel { BPArtistViewModel(get(),get(named(IO_DISPATCHER))) }
+    viewModel { ListensViewModel(get(),get(),get(),get(),get(named(DEFAULT_DISPATCHER))) }
+    viewModel { ListeningNowViewModel(get(),get(),get(),get(named(IO_DISPATCHER))) }
 }

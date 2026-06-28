@@ -25,7 +25,7 @@ class AlbumViewModel(
         val albumUiState = AlbumUiState(
             isLoading = false,
             name = albumInfo?.title,
-            coverArt = Utils.getCoverArtUrl(albumData?.caaReleaseMbid, albumData?.caaId),
+            coverArt = org.listenbrainz.shared.util.Utils.getCoverArtUrl(albumData?.caaReleaseMbid, albumData?.caaId),
             artists = albumData?.releaseGroupMetadata?.artist?.artists ?: listOf(),
             releaseDate = albumInfo?.firstReleaseDate,
             totalPlays = albumData?.listeningStats?.totalListenCount,

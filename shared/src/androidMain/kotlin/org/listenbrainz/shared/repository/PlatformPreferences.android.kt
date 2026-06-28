@@ -6,7 +6,7 @@ import android.provider.Settings
 import androidx.datastore.core.DataMigration
 import androidx.datastore.preferences.SharedPreferencesMigration
 import androidx.datastore.preferences.core.Preferences
-import org.listenbrainz.shared.preferences.AndroidDataStoreContext
+import org.listenbrainz.shared.applicationContext
 import org.listenbrainz.shared.preferences.PreferenceKeys
 
 actual typealias PlatformContext = Context
@@ -48,10 +48,6 @@ actual fun settingsPlatformDataMigrations(
         )
     )
 
-actual fun platformInitDataStoreContext(context: PlatformContext) {
-    AndroidDataStoreContext.set(context)
-}
-
 actual fun platformPackageVersion(context: PlatformContext): String =
     try {
         context.packageManager?.getPackageInfo(context.packageName, 0)?.versionName ?: "N/A"
@@ -59,7 +55,8 @@ actual fun platformPackageVersion(context: PlatformContext): String =
         "unknown"
     }
 
-actual fun platformIsNotificationServiceAllowed(context: PlatformContext): Boolean {
+actual val isNotificationServiceAllowed: Boolean get() {
+    val context = applicationContext
     val listeners =
         Settings.Secure.getString(context.contentResolver, "enabled_notification_listeners")
     return listeners != null && listeners.contains(context.packageName)

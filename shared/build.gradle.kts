@@ -167,6 +167,10 @@ kotlin {
                 implementation(libs.ktorfit.lib)
                 implementation(libs.kmp.socketio)
                 implementation(libs.kotlinx.datetime)
+                implementation(libs.coil.compose)
+                // KMPalette
+                implementation(libs.kmpalette.core)
+                implementation(libs.kmpalette.androidx.palette)
             }
         }
 
@@ -183,6 +187,7 @@ kotlin {
                 // dependencies declared in commonMain.
                 implementation(libs.androidx.datastore.preferences)
                 implementation(libs.core)
+                implementation(libs.androidx.palette.ktx)
                 implementation(libs.ktor.client.okhttp)
                 implementation(
                     fileTree(
@@ -197,6 +202,7 @@ kotlin {
                 } else {
                     implementation(libs.chucker)
                 }
+                implementation(libs.androidx.startup.runtime)
             }
         }
 

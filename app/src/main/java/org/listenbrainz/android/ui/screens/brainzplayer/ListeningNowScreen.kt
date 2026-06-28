@@ -50,8 +50,8 @@ import org.listenbrainz.shared.model.Listen
 import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.android.ui.screens.brainzplayer.ui.components.basicMarquee
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
-import org.listenbrainz.android.viewmodel.ListeningNowUIState
-import org.listenbrainz.android.viewmodel.ListeningNowViewModel
+import org.listenbrainz.shared.viewmodel.ListeningNowUIState
+import org.listenbrainz.shared.viewmodel.ListeningNowViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -141,7 +141,7 @@ fun ListeningNowLayout(
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Text(
-                    text = uiState.song.trackMetadata?.trackName ?: "--",
+                    text = uiState.song?.trackMetadata?.trackName ?: "--",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = titleColor,
@@ -156,7 +156,7 @@ fun ListeningNowLayout(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = uiState.song.trackMetadata?.artistName ?: "--",
+                    text = uiState.song?.trackMetadata?.artistName ?: "--",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Normal,
                     color = artistColor,
@@ -168,7 +168,7 @@ fun ListeningNowLayout(
                         .basicMarquee()
                 )
 
-                uiState.song.trackMetadata?.releaseName?.let { albumName ->
+                uiState.song?.trackMetadata?.releaseName?.let { albumName ->
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = albumName,
@@ -271,7 +271,7 @@ fun ListeningNowCard(
                 )
 
                 ListeningNowCardSongInfo(
-                    currentlyPlayingSong = uiState.song,
+                    currentlyPlayingSong = uiState.song ?: Listen(),
                     titleColor = ListenBrainzTheme.colorScheme.text,
                     artistColor = ListenBrainzTheme.colorScheme.text
                 )
