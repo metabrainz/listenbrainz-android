@@ -1,4 +1,4 @@
-package org.listenbrainz.android.repository.playlists
+package org.listenbrainz.shared.repository.playlists
 
 import org.listenbrainz.shared.model.playlist.AddCopyPlaylistResponse
 import org.listenbrainz.shared.model.playlist.DeleteTracks

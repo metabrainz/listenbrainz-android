@@ -135,6 +135,7 @@ androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.r
 
 androidx-paging-runtime = { module = "androidx.paging:paging-runtime-ktx", version.ref = "paging" }
 androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "paging" }
+androidx-paging-common = { module = "androidx.paging:paging-common", version.ref = "paging" }
 
 app-update = { module = "com.google.android.play:app-update", version.ref = "appUpdate" }
 app-update-ktx = { module = "com.google.android.play:app-update-ktx", version.ref = "appUpdateKtx" }

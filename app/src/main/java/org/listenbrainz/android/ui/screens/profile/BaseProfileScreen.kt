@@ -50,7 +50,7 @@ import org.listenbrainz.android.ui.theme.lb_purple
 import org.listenbrainz.android.ui.theme.new_app_bg_light
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.shared.viewmodel.ListensViewModel
-import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
+import org.listenbrainz.shared.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 

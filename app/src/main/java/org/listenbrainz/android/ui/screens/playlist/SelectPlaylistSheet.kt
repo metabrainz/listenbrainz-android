@@ -39,7 +39,7 @@ import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.LoadingAnimation
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.ui.theme.lb_purple
-import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
+import org.listenbrainz.shared.viewmodel.PlaylistDataViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable

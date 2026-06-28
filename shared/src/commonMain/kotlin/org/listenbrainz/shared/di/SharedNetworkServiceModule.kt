@@ -3,6 +3,7 @@ package org.listenbrainz.shared.di
 import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpRedirect
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
@@ -37,12 +38,14 @@ import org.listenbrainz.shared.util.PlatformUtils
 import org.listenbrainz.shared.service.ArtistService
 import org.listenbrainz.shared.service.CBService
 import org.listenbrainz.shared.service.MBService
+import org.listenbrainz.shared.service.PlaylistService
 import org.listenbrainz.shared.service.createAlbumService
 import org.listenbrainz.shared.service.SocialService
 import org.listenbrainz.shared.service.createArtistService
 import org.listenbrainz.shared.service.createMBService
 import org.listenbrainz.shared.service.createCBService
 import org.listenbrainz.shared.service.createSocialService
+import org.listenbrainz.shared.service.createPlaylistService
 import org.listenbrainz.shared.util.Constants.CB_BASE_URL
 import org.listenbrainz.shared.util.Constants.LB_BASE_URL
 import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_API_BASE_URL
@@ -214,6 +217,21 @@ val sharedNetworkServiceModule = module {
             .build()
             .createSocialService()
     }
+
+    single<PlaylistService>{
+        val client = get<HttpClient>(named(SHARED_HTTP_CLIENT)).config {
+            install(HttpTimeout){
+                requestTimeoutMillis = 30_000
+                socketTimeoutMillis = 30_000
+            }
+        }
+        Ktorfit.Builder()
+            .baseUrl(LISTENBRAINZ_API_BASE_URL)
+            .httpClient(client)
+            .build()
+            .createPlaylistService()
+    }
+
 }
 
 val sharedDispatcherModule = module {

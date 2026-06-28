@@ -171,6 +171,8 @@ kotlin {
                 // KMPalette
                 implementation(libs.kmpalette.core)
                 implementation(libs.kmpalette.androidx.palette)
+                // Paging
+                implementation(libs.androidx.paging.common)
             }
         }
 
@@ -202,6 +204,8 @@ kotlin {
                 } else {
                     implementation(libs.chucker)
                 }
+                implementation(libs.androidx.paging.runtime)
+                implementation(libs.androidx.paging.compose)
                 implementation(libs.androidx.startup.runtime)
             }
         }

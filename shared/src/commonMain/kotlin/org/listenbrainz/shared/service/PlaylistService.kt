@@ -1,4 +1,4 @@
-package org.listenbrainz.android.service
+package org.listenbrainz.shared.service
 
 import de.jensklingenberg.ktorfit.http.Body
 import de.jensklingenberg.ktorfit.http.GET
