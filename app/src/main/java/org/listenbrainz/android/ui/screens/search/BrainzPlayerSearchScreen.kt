@@ -1,9 +1,6 @@
 package org.listenbrainz.android.ui.screens.search
 
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -19,8 +16,8 @@ import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.PlayableType
 import org.listenbrainz.shared.model.ResponseError
-import org.listenbrainz.android.model.search.SearchData
-import org.listenbrainz.android.model.search.SearchUiState
+import org.listenbrainz.shared.model.search.SearchData
+import org.listenbrainz.shared.model.search.SearchUiState
 import org.listenbrainz.android.ui.components.ListenCardSmallDefault
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils.showToast

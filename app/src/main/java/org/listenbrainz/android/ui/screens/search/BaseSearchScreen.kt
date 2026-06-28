@@ -50,13 +50,13 @@ import com.valentinilk.shimmer.shimmer
 import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.shared.model.User
 import org.listenbrainz.shared.model.playlist.PlaylistTrack
-import org.listenbrainz.android.model.search.SearchData
-import org.listenbrainz.android.model.search.SearchType
+import org.listenbrainz.shared.model.search.SearchData
+import org.listenbrainz.shared.model.search.SearchType
 import org.listenbrainz.shared.model.search.albumSearch.AlbumSearchUiState
 import org.listenbrainz.shared.model.search.artistSearch.ArtistSearchUiState
 import org.listenbrainz.shared.model.search.playlistSearch.PlayListSearchUiState
-import org.listenbrainz.android.model.search.trackSearch.TrackSearchUiState
-import org.listenbrainz.android.model.search.userSearch.UserListUiState
+import org.listenbrainz.shared.model.search.trackSearch.TrackSearchUiState
+import org.listenbrainz.shared.model.search.userSearch.UserListUiState
 import org.listenbrainz.android.ui.components.FollowButton
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.NavigationChips
@@ -65,7 +65,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.Utils.formatDurationSeconds
 import org.listenbrainz.shared.util.Utils.getCoverArtUrl
 import org.listenbrainz.shared.util.Utils.removeHtmlTags
-import org.listenbrainz.android.viewmodel.SearchViewModel
+import org.listenbrainz.shared.viewmodel.SearchViewModel
 import org.listenbrainz.shared.model.feed.FeedListenArtist
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone

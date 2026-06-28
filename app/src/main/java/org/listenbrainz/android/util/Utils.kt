@@ -118,17 +118,7 @@ object Utils {
             Toast.makeText(context, R.string.toast_feedback_fail, Toast.LENGTH_LONG).show()
         }
     }
-    
-    fun getArticle(str: String): String {
-        return when (str.first()){
-            'a' -> "an"
-            'e' -> "an"
-            'i' -> "an"
-            'o' -> "an"
-            'u' -> "an"
-            else -> "a"
-        }
-    }
+
 
     @Composable
     fun LaunchedEffectUnit(block: suspend CoroutineScope.() -> Unit) = LaunchedEffect(Unit, block)

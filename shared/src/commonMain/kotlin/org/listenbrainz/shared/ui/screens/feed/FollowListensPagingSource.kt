@@ -1,25 +1,25 @@
-package org.listenbrainz.android.ui.screens.feed
+package org.listenbrainz.shared.ui.screens.feed
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import org.listenbrainz.shared.model.ResponseError
-import org.listenbrainz.android.model.feed.FeedData
-import org.listenbrainz.android.model.feed.FeedEventType
-import org.listenbrainz.android.repository.feed.FeedRepository
+import org.listenbrainz.shared.model.feed.FeedData
+import org.listenbrainz.shared.model.feed.FeedEventType
+import org.listenbrainz.shared.repository.feed.FeedRepository
 import org.listenbrainz.shared.util.Resource
+import kotlin.time.Clock
 
-class MyFeedPagingSource (
+class FollowListensPagingSource(
     private val username: suspend () -> String,
-    private val addEntryToMap: (Int, Boolean) -> Unit,
     private val onError: (error: ResponseError?) -> Unit,
     private val feedRepository: FeedRepository,
     private val ioDispatcher: CoroutineDispatcher
 ): PagingSource<Long, FeedUiEventItem>() {
-
+    
     override fun getRefreshKey(state: PagingState<Long, FeedUiEventItem>): Long {
-        return System.currentTimeMillis() / 1000
+        return (Clock.System.now().epochSeconds)
     }
     
     override suspend fun load(params: LoadParams<Long>): LoadResult<Long, FeedUiEventItem> {
@@ -32,14 +32,12 @@ class MyFeedPagingSource (
         }
         
         val result = withContext(ioDispatcher) {
-            feedRepository.getFeedEvents(username = username, maxTs = params.key, count = params.loadSize)
+            feedRepository.getFeedFollowListens(username = username, maxTs = params.key, count = params.loadSize)
         }
         
         return when (result.status) {
             Resource.Status.SUCCESS -> {
-                
                 val processedEvents = processFeedEvents(result.data)
-
                 val nextKey = processedEvents.lastOrNull()?.event?.created?.let { newKey ->
                     // Termination condition.
                     if (params.key != null && newKey >= params.key!!)
@@ -50,9 +48,8 @@ class MyFeedPagingSource (
                         )
                     else
                         newKey
-                    
                 }
-
+                
                 LoadResult.Page(
                     data = processedEvents,
                     prevKey = null,
@@ -63,31 +60,28 @@ class MyFeedPagingSource (
                 onError(result.error)
                 LoadResult.Error(Exception(result.error?.toast))
             }
-            
         }
-        
     }
     
-    private fun processFeedEvents(feedData: FeedData?): List<FeedUiEventItem> {
+    companion object {
         
-        return mutableListOf<FeedUiEventItem>().apply {
+        /** Converts [feedData] to list of [FeedUiEventItem] for presentation.*/
+        fun processFeedEvents(feedData: FeedData?): List<FeedUiEventItem> {
+        
+            return mutableListOf<FeedUiEventItem>().apply {
             
-            feedData?.payload?.events?.forEach { event ->
-                
-                // Add the entry to map.
-                if (event.hidden == true) {
-                    event.id?.let { addEntryToMap(it, true) }
-                }
-                
-                add(
-                    FeedUiEventItem(
-                        event = event,
-                        eventType = FeedEventType.resolveEvent(event),
-                        parentUser = feedData.payload.userId
+                feedData?.payload?.events?.forEach { event ->
+                    add(
+                        FeedUiEventItem(
+                            event = event,
+                            eventType = FeedEventType.resolveEvent(event),
+                            parentUser = feedData.payload.userId
+                        )
                     )
-                )
+                }
             }
         }
     }
+    
     
 }

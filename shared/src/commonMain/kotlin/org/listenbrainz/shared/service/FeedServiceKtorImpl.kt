@@ -1,4 +1,4 @@
-package org.listenbrainz.android.service
+package org.listenbrainz.shared.service
 
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -8,9 +8,9 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import org.listenbrainz.shared.model.SocialResponse
-import org.listenbrainz.android.model.feed.FeedData
-import org.listenbrainz.android.model.feed.FeedEventDeletionData
-import org.listenbrainz.android.model.feed.FeedEventVisibilityData
+import org.listenbrainz.shared.model.feed.FeedData
+import org.listenbrainz.shared.model.feed.FeedEventDeletionData
+import org.listenbrainz.shared.model.feed.FeedEventVisibilityData
 
 
 class FeedServiceKtorImpl(

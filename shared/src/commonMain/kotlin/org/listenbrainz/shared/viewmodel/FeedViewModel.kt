@@ -1,6 +1,5 @@
-package org.listenbrainz.android.viewmodel
+package org.listenbrainz.shared.viewmodel
 
-import android.net.Uri
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.lifecycle.viewModelScope
@@ -23,29 +22,26 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.listenbrainz.shared.model.LinkedService
 import org.listenbrainz.shared.model.ResponseError
 import org.listenbrainz.shared.model.feed.FeedEvent
-import org.listenbrainz.android.model.feed.FeedEventDeletionData
-import org.listenbrainz.android.model.feed.FeedEventType
-import org.listenbrainz.android.model.feed.FeedEventType.Companion.isActionDelete
-import org.listenbrainz.android.model.feed.FeedEventVisibilityData
-import org.listenbrainz.android.repository.feed.FeedRepository
-import org.listenbrainz.android.repository.feed.FeedRepository.Companion.FeedEventCount
-import org.listenbrainz.android.repository.feed.FeedRepository.Companion.FeedListensCount
-import org.listenbrainz.shared.repository.listens.ListensRepository
+import org.listenbrainz.shared.model.feed.FeedEventDeletionData
+import org.listenbrainz.shared.model.feed.FeedEventType
+import org.listenbrainz.shared.model.feed.FeedEventVisibilityData
 import org.listenbrainz.shared.repository.AppPreferences
+import org.listenbrainz.shared.repository.feed.FeedRepository
+import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.repository.social.SocialRepository
-import org.listenbrainz.android.ui.screens.feed.FeedUiEventData
-import org.listenbrainz.android.ui.screens.feed.FeedUiEventItem
-import org.listenbrainz.android.ui.screens.feed.FeedUiState
-import org.listenbrainz.android.ui.screens.feed.FollowListensPagingSource
-import org.listenbrainz.android.ui.screens.feed.MyFeedPagingSource
-import org.listenbrainz.android.ui.screens.feed.SimilarListensPagingSource
-import org.listenbrainz.shared.model.LinkedService
-import org.listenbrainz.shared.viewmodel.BaseViewModel
+import org.listenbrainz.shared.ui.screens.feed.FeedUiEventData
+import org.listenbrainz.shared.ui.screens.feed.FeedUiEventItem
+import org.listenbrainz.shared.ui.screens.feed.FeedUiState
+import org.listenbrainz.shared.ui.screens.feed.FollowListensPagingSource
+import org.listenbrainz.shared.ui.screens.feed.MyFeedPagingSource
+import org.listenbrainz.shared.ui.screens.feed.SimilarListensPagingSource
 import org.listenbrainz.shared.util.Log
 import org.listenbrainz.shared.util.Resource
+import kotlin.collections.get
 
 class FeedViewModel(
     private val feedRepository: FeedRepository,
@@ -55,50 +51,56 @@ class FeedViewModel(
     private val remotePlaybackHandler: RemotePlaybackHandler,
     private val ioDispatcher: CoroutineDispatcher,
     private val defaultDispatcher: CoroutineDispatcher,
-    private val logger:Log = Log
+    private val logger: Log = Log
 ): BaseViewModel<FeedUiState>() {
-    
+
     // Search follower flow
     private val inputSearchFollowerQuery = MutableStateFlow("")
     @OptIn(FlowPreview::class)
     private val searchFollowerQuery = inputSearchFollowerQuery.asStateFlow().debounce(500).distinctUntilChanged()
     private val searchFollowerResult = MutableStateFlow<List<String>>(emptyList())
-    
+
     // My Feed
     private val myFeedPager: Flow<PagingData<FeedUiEventItem>> = Pager(
-        PagingConfig(pageSize = FeedEventCount),
+        PagingConfig(pageSize = FeedRepository.FeedEventCount),
         initialKey = null
     ) { createNewMyFeedPagingSource() }
         .flow
         .cachedIn(viewModelScope)
-    
+
     private val isDeletedMap: SnapshotStateMap<Int, Boolean> = mutableStateMapOf()
     private val isHiddenMap: SnapshotStateMap<Int, Boolean> = mutableStateMapOf()
-    private val myFeedFlow = MutableStateFlow(FeedUiEventData(isHiddenMap, isDeletedMap, myFeedPager))
-    
-    
+    private val myFeedFlow = MutableStateFlow(
+        FeedUiEventData(
+            isHiddenMap,
+            isDeletedMap,
+            myFeedPager
+        )
+    )
+
+
     // Follow Listens
     private val followListensPager: Flow<PagingData<FeedUiEventItem>> = Pager(
-        PagingConfig(pageSize = FeedListensCount),
+        PagingConfig(pageSize = FeedRepository.FeedListensCount),
         initialKey = null
     ) { createNewFollowListensPagingSource() }
         .flow
         .cachedIn(viewModelScope)
     private val followListensFlow = MutableStateFlow(FeedUiEventData(eventList = followListensPager))
-    
-    
+
+
     // Similar Listens
     private val similarListensPager: Flow<PagingData<FeedUiEventItem>> = Pager(
-        PagingConfig(pageSize = FeedListensCount),
+        PagingConfig(pageSize = FeedRepository.FeedListensCount),
         initialKey = null
     ) { createNewSimilarListensPagingSource() }
         .flow
         .cachedIn(viewModelScope)
     private val similarListensFlow = MutableStateFlow(FeedUiEventData(eventList = similarListensPager))
-    
+
     // Exposed UI state
     override val uiState = createUiStateFlow()
-    
+
     override fun createUiStateFlow(): StateFlow<FeedUiState> {
         return combine(
             myFeedFlow,
@@ -118,7 +120,7 @@ class FeedViewModel(
                 FeedUiState()
             )
     }
-    
+
     private fun createNewMyFeedPagingSource(): MyFeedPagingSource =
         MyFeedPagingSource(
             username = { appPreferences.username.get() },
@@ -131,7 +133,7 @@ class FeedViewModel(
             feedRepository = feedRepository,
             ioDispatcher = ioDispatcher
         )
-    
+
     private fun createNewFollowListensPagingSource(): FollowListensPagingSource =
         FollowListensPagingSource(
             username = { appPreferences.username.get() } ,
@@ -141,21 +143,22 @@ class FeedViewModel(
             feedRepository = feedRepository,
             ioDispatcher = ioDispatcher
         )
-    
+
     private fun createNewSimilarListensPagingSource(): SimilarListensPagingSource =
         SimilarListensPagingSource(
             username = { appPreferences.username.get() },
-            onError =  { error ->
+            onError = { error ->
                 emitError(error)
             },
             feedRepository = feedRepository,
             ioDispatcher = ioDispatcher
         )
-    
+
     fun play(event: FeedEvent) {
         val spotifyId = event.metadata.trackMetadata?.additionalInfo?.spotifyId
         if (spotifyId != null){
-            Uri.parse(spotifyId).lastPathSegment?.let { trackId ->
+            val trackId = spotifyId.substringBefore("?").substringAfterLast('/').substringAfterLast(':')
+            if(trackId.isNotBlank()){
                 remotePlaybackHandler.playUri(trackId){
                     playFromYoutubeMusic(event)
                 }
@@ -164,7 +167,7 @@ class FeedViewModel(
             playFromYoutubeMusic(event)
         }
     }
-    
+
     private fun playFromYoutubeMusic(event: FeedEvent) {
         viewModelScope.launch {
             val trackMetadata = event.metadata.trackMetadata
@@ -179,7 +182,7 @@ class FeedViewModel(
                             )
                         }
                     }
-                    
+
                     if (result.isFailed) {
                         emitError(ResponseError.RemotePlayerError(actualResponse = "Could not play the requested track."))
                     }
@@ -190,13 +193,13 @@ class FeedViewModel(
             }
         }
     }
-    
+
     fun searchUser(query: String){
         viewModelScope.launch {
             inputSearchFollowerQuery.emit(query)
         }
     }
-    
+
     suspend fun isCritiqueBrainzLinked(): Boolean? {
         val result = listensRepository.getLinkedServices(
             appPreferences.lbAccessToken.get(),
@@ -207,11 +210,11 @@ class FeedViewModel(
         }
         return result.data?.toLinkedServicesList()?.contains(LinkedService.CRITIQUEBRAINZ)
     }
-    
+
     fun hideOrDeleteEvent(event: FeedEvent, eventType: FeedEventType, parentUser: String) {
-        
+
         viewModelScope.launch(defaultDispatcher) {
-            if (isActionDelete(event, eventType, parentUser)){
+            if (FeedEventType.isActionDelete(event, eventType, parentUser)){
                 deleteEvent(event.id!!, event.type)
             } else if (isHiddenMap[event.id] == true){
                 unhideEvent(data = FeedEventVisibilityData(event.type, event.id.toString()))
@@ -219,7 +222,7 @@ class FeedViewModel(
                 // null means false
                 hideEvent(data = FeedEventVisibilityData(event.type, event.id.toString()))
             }
-            
+
         }
     }
 
@@ -250,14 +253,14 @@ class FeedViewModel(
     }
 
     private suspend fun hideEvent(data: FeedEventVisibilityData) {
-        
+
         // Optimistically toggle
         toggleHiddenStatus(data)
-        
+
         val result = withContext(ioDispatcher) {
             feedRepository.hideEvent(appPreferences.username.get(), data)
         }
-        
+
         when (result.status) {
             Resource.Status.FAILED -> {
                 // Toggle back on failure.
@@ -266,18 +269,18 @@ class FeedViewModel(
             }
             else -> Unit
         }
-        
+
     }
-    
+
     private suspend fun unhideEvent(data: FeedEventVisibilityData) {
-        
+
         // Optimistically toggle
         toggleHiddenStatus(data)
-        
+
         val result = withContext(ioDispatcher) {
             feedRepository.unhideEvent(appPreferences.username.get(), data)
         }
-        
+
         when (result.status) {
             Resource.Status.FAILED -> {
                 // Toggle back on failure.
@@ -286,9 +289,9 @@ class FeedViewModel(
             }
             else -> Unit
         }
-        
+
     }
-    
+
     private suspend fun toggleHiddenStatus(data: FeedEventVisibilityData) {
         try {
             val currentState = isHiddenMap[data.eventId!!.toInt()]

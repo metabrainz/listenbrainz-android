@@ -66,7 +66,7 @@ import org.listenbrainz.android.ui.screens.profile.listens.headerTextVerticalPad
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.shared.util.Utils.getCoverArtUrl
-import org.listenbrainz.android.viewmodel.FeedViewModel
+import org.listenbrainz.shared.viewmodel.FeedViewModel
 import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 
