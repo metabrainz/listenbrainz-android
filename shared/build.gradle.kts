@@ -202,6 +202,7 @@ kotlin {
                 } else {
                     implementation(libs.chucker)
                 }
+                implementation(libs.androidx.startup.runtime)
             }
         }
 
