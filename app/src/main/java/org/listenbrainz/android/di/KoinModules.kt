@@ -63,7 +63,6 @@ import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.SearchViewModel
-import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
 import org.listenbrainz.android.viewmodel.YimViewModel
