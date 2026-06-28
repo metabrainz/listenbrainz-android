@@ -32,20 +32,12 @@ import org.koin.dsl.module
 import org.listenbrainz.android.BuildConfig
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepository
 import org.listenbrainz.android.repository.appupdates.AppUpdatesRepositoryImpl
-import org.listenbrainz.shared.repository.brainzplayer.BPAlbumRepository
-import org.listenbrainz.shared.repository.brainzplayer.BPAlbumRepositoryImpl
-import org.listenbrainz.shared.repository.brainzplayer.BPArtistRepository
-import org.listenbrainz.shared.repository.brainzplayer.BPArtistRepositoryImpl
-import org.listenbrainz.shared.repository.brainzplayer.SongRepository
-import org.listenbrainz.shared.repository.brainzplayer.SongRepositoryImpl
 import org.listenbrainz.android.repository.feed.FeedRepository
 import org.listenbrainz.android.repository.feed.FeedRepositoryImpl
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManager
 import org.listenbrainz.android.repository.listenservicemanager.ListenServiceManagerImpl
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepository
 import org.listenbrainz.android.repository.playlists.PlaylistDataRepositoryImpl
-import org.listenbrainz.shared.repository.social.SocialRepository
-import org.listenbrainz.shared.repository.social.SocialRepositoryImpl
 import org.listenbrainz.android.repository.user.UserRepository
 import org.listenbrainz.android.repository.user.UserRepositoryImpl
 import org.listenbrainz.android.repository.yim.YimRepository
@@ -58,7 +50,6 @@ import org.listenbrainz.android.service.FeedServiceKtorImpl
 import org.listenbrainz.android.service.GithubAppUpdatesService
 import org.listenbrainz.android.service.GithubUpdatesDownloadService
 import org.listenbrainz.android.service.PlaylistService
-import org.listenbrainz.shared.service.SocialService
 import org.listenbrainz.android.service.Yim23Service
 import org.listenbrainz.android.service.YimService
 import org.listenbrainz.android.service.createGithubAppUpdatesService
@@ -72,15 +63,12 @@ import org.listenbrainz.android.util.LocalMusicSource
 import org.listenbrainz.android.util.MusicSource
 import org.listenbrainz.android.viewmodel.AboutViewModel
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
-import org.listenbrainz.shared.viewmodel.BPAlbumViewModel
-import org.listenbrainz.shared.viewmodel.BPArtistViewModel
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
 import org.listenbrainz.android.viewmodel.FeedViewModel
 import org.listenbrainz.android.viewmodel.PlaylistDataViewModel
 import org.listenbrainz.android.viewmodel.SearchViewModel
 import org.listenbrainz.android.viewmodel.SocialViewModel
-import org.listenbrainz.shared.viewmodel.SongViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
 import org.listenbrainz.android.viewmodel.YimViewModel
@@ -97,8 +85,6 @@ import org.listenbrainz.shared.di.sharedViewModelModule
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.AppPreferencesImpl
 import org.listenbrainz.shared.util.Log
-import org.listenbrainz.shared.viewmodel.LoginViewModel
-import org.listenbrainz.shared.viewmodel.NewsListViewModel
 
 
 private val jsonConfig = Json {
@@ -328,11 +314,9 @@ val viewModelModule = module {
     viewModel { PlaylistDataViewModel(get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { YimViewModel(get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
     viewModel { Yim23ViewModel(get(), get(), get(), get(named(IO_DISPATCHER)), get(named(DEFAULT_DISPATCHER))) }
-    viewModel { NewsListViewModel(get(), get(named(IO_DISPATCHER))) }
     viewModel { SearchViewModel(get(),get(),get(),get(),get(), get(named(IO_DISPATCHER)),get(named(DEFAULT_DISPATCHER))) }
     viewModel { BrainzPlayerViewModel(get(), get(), get(), get(), get(), get(named(IO_DISPATCHER))) }
     viewModel { AboutViewModel() }
-    viewModel { LoginViewModel(get()) }
 }
 
 val appModules = listOf(
