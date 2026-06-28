@@ -12,6 +12,8 @@ import org.listenbrainz.shared.provideListensRepositoryImpl
 import org.listenbrainz.shared.repository.AppPreferences
 import org.listenbrainz.shared.repository.artist.ArtistRepository
 import org.listenbrainz.shared.repository.artist.ArtistRepositoryImpl
+import org.listenbrainz.shared.repository.feed.FeedRepository
+import org.listenbrainz.shared.repository.feed.FeedRepositoryImpl
 import org.listenbrainz.shared.repository.listens.ListensRepository
 import org.listenbrainz.shared.repository.socket.SocketRepository
 import org.listenbrainz.shared.repository.socket.SocketRepositoryImpl
@@ -52,4 +54,5 @@ val sharedRepositoryModule = module {
     single<BPAlbumRepository> { BPAlbumRepositoryImpl(get(),get(),get()) }
     single<BPArtistRepository> { BPArtistRepositoryImpl(get(),get(),get()) }
     single<PlaylistDataRepository> { PlaylistDataRepositoryImpl(get(),get(),get(),get(named(IO_DISPATCHER))) }
+    single<FeedRepository> { FeedRepositoryImpl(get()) }
 }

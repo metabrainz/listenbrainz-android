@@ -1,9 +1,9 @@
-package org.listenbrainz.android.service
+package org.listenbrainz.shared.service
 
 import org.listenbrainz.shared.model.SocialResponse
-import org.listenbrainz.android.model.feed.FeedData
-import org.listenbrainz.android.model.feed.FeedEventDeletionData
-import org.listenbrainz.android.model.feed.FeedEventVisibilityData
+import org.listenbrainz.shared.model.feed.FeedData
+import org.listenbrainz.shared.model.feed.FeedEventDeletionData
+import org.listenbrainz.shared.model.feed.FeedEventVisibilityData
 
 interface FeedServiceKtor {
 

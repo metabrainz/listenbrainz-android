@@ -36,6 +36,7 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
@@ -45,11 +46,12 @@ import androidx.compose.ui.unit.sp
 import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.Metadata
 import org.listenbrainz.shared.model.feed.FeedEvent
-import org.listenbrainz.android.model.feed.FeedEventType
-import org.listenbrainz.android.model.feed.FeedEventType.Companion.getTimeStringForFeed
-import org.listenbrainz.android.model.feed.FeedEventType.Companion.isActionDelete
+import org.listenbrainz.shared.model.feed.FeedEventType
+import org.listenbrainz.shared.model.feed.FeedEventType.Companion.getTimeStringForFeed
+import org.listenbrainz.shared.model.feed.FeedEventType.Companion.isActionDelete
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.PreviewSurface
+import org.listenbrainz.android.util.toDrawableRes
 
 @Composable
 fun BaseFeedLayout(
@@ -120,7 +122,15 @@ fun BaseFeedLayout(
                     eventType.Tagline(
                         event = event,
                         parentUser = parentUser,
-                        goToUserPage = goToUserPage
+                        goToUserPage = goToUserPage,
+                        linkStyle = SpanStyle(
+                            color = ListenBrainzTheme.colorScheme.lbSignature,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        normalStyle = SpanStyle(
+                            color = ListenBrainzTheme.colorScheme.text,
+                            fontWeight = FontWeight.Light
+                        )
                     )
                 } else {
                     Text(
@@ -258,7 +268,7 @@ private fun DynamicHorizontalLine(Content: @Composable () -> Unit) {
 private fun EventIcon(eventType: FeedEventType) {
     Image(
         modifier = Modifier.size(19.dp),
-        painter = painterResource(id = eventType.icon),
+        painter = painterResource(id = eventType.icon.toDrawableRes()),
         contentDescription = eventType.name
     )
 }

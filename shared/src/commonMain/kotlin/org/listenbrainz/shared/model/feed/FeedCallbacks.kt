@@ -1,4 +1,4 @@
-package org.listenbrainz.android.model.feed
+package org.listenbrainz.shared.model.feed
 
 import androidx.compose.runtime.Immutable
 import org.listenbrainz.shared.model.feed.FeedEvent
