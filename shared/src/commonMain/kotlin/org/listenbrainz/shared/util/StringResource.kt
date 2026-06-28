@@ -1,0 +1,17 @@
+package org.listenbrainz.shared.util
+
+enum class StringResource {
+    RECOMMENDATION_GREETING,
+    PERSONAL_RECOMMENDATION_GREETING,
+    REVIEW_GREETING,
+    PIN_GREETING,
+    LISTEN_DELETED,
+    TRACK_ADDED_SUCCESSFULLY,
+    TRACK_MOVED_SUCCESSFULLY,
+    TRACK_REMOVED_FROM_PLAYLIST_SUCCESSFULLY,
+    PLAYLIST_DUPLICATED_SUCCESSFULLY
+}
+
+interface StringProvider{
+    fun getString(res: StringResource): Int
+}

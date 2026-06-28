@@ -46,7 +46,7 @@ import org.listenbrainz.android.ui.components.ratingbar.RatingBarStyle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
-import org.listenbrainz.android.model.feed.ReviewEntityType
+import org.listenbrainz.shared.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import java.util.Locale
 

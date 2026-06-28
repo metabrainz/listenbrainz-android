@@ -1,8 +1,7 @@
-package org.listenbrainz.android.model
+package org.listenbrainz.shared.model
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import org.listenbrainz.shared.model.ResponseError
 
 @Serializable
 data class SocialUiState(

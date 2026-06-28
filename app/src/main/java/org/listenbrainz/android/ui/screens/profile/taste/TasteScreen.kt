@@ -48,7 +48,7 @@ import kotlinx.coroutines.launch
 import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.MbidMapping
 import org.listenbrainz.shared.model.PinnedRecording
-import org.listenbrainz.android.model.SocialUiState
+import org.listenbrainz.shared.model.SocialUiState
 import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.shared.model.feed.FeedListenArtist
 import org.listenbrainz.shared.model.user.AllPinnedRecordings
@@ -67,7 +67,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.shared.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.viewmodel.FeedViewModel
-import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable

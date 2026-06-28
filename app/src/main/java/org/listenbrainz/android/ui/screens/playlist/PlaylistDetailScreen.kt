@@ -94,7 +94,7 @@ import org.listenbrainz.android.util.Utils.formatDurationSeconds
 import org.listenbrainz.shared.util.Utils.getCoverArtUrl
 import org.listenbrainz.shared.util.Utils.removeHtmlTags
 import org.listenbrainz.shared.viewmodel.PlaylistDataViewModel
-import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.shared.ui.screens.playlist.PlaylistDetailUIState
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)

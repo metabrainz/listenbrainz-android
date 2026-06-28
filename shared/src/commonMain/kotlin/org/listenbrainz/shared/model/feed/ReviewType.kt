@@ -1,4 +1,4 @@
-package org.listenbrainz.android.model.feed
+package org.listenbrainz.shared.model.feed
 
 enum class ReviewEntityType(val code: String) {
     RECORDING("recording"),

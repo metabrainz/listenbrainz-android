@@ -48,7 +48,6 @@ import org.listenbrainz.shared.model.SocialData
 import org.listenbrainz.android.model.yimdata.Yim23Screens
 import org.listenbrainz.shared.util.Constants
 import org.listenbrainz.shared.util.Resource
-import org.listenbrainz.android.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
 
 

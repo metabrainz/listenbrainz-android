@@ -81,7 +81,7 @@ import org.listenbrainz.android.model.feed.FeedCallbacks
 import org.listenbrainz.shared.model.feed.FeedEvent
 import org.listenbrainz.android.model.feed.FeedEventType
 import org.listenbrainz.shared.model.feed.FeedListenArtist
-import org.listenbrainz.android.model.feed.ReviewEntityType
+import org.listenbrainz.shared.model.feed.ReviewEntityType
 import org.listenbrainz.android.ui.components.ErrorBar
 import org.listenbrainz.android.ui.components.ListenCardSmall
 import org.listenbrainz.android.ui.components.NavigationChips
@@ -97,7 +97,7 @@ import org.listenbrainz.android.ui.theme.ListenBrainzTheme
 import org.listenbrainz.android.util.PreviewSurface
 import org.listenbrainz.android.util.Utils
 import org.listenbrainz.android.viewmodel.FeedViewModel
-import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.shared.viewmodel.SocialViewModel
 
 @Composable
 fun FeedScreen(

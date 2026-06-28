@@ -91,7 +91,7 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.Listen
-import org.listenbrainz.android.model.SocialUiState
+import org.listenbrainz.shared.model.SocialUiState
 import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.shared.model.user.Artist
 import org.listenbrainz.android.ui.components.ButtonLB
@@ -114,7 +114,7 @@ import org.listenbrainz.shared.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.util.consumeHorizontalDrag
 import org.listenbrainz.android.util.optionalSharedElement
 import org.listenbrainz.shared.viewmodel.ListensViewModel
-import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 import java.util.UUID
 

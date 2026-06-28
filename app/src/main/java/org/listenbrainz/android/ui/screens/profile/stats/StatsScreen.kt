@@ -70,7 +70,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.listenbrainz.android.R
 import org.listenbrainz.shared.model.Metadata
-import org.listenbrainz.android.model.SocialUiState
+import org.listenbrainz.shared.model.SocialUiState
 import org.listenbrainz.shared.model.TrackMetadata
 import org.listenbrainz.shared.model.user.Artist
 import org.listenbrainz.shared.model.user.ListeningActivity
@@ -91,7 +91,7 @@ import org.listenbrainz.android.util.Utils.LaunchedEffectUnit
 import org.listenbrainz.android.util.Utils.Spacer
 import org.listenbrainz.shared.util.Utils.getCoverArtUrl
 import org.listenbrainz.android.util.getStringResource
-import org.listenbrainz.android.viewmodel.SocialViewModel
+import org.listenbrainz.shared.viewmodel.SocialViewModel
 import org.listenbrainz.android.viewmodel.UserViewModel
 
 @Composable
