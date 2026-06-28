@@ -46,7 +46,6 @@ import org.listenbrainz.shared.service.createMBService
 import org.listenbrainz.shared.service.createCBService
 import org.listenbrainz.shared.service.createSocialService
 import org.listenbrainz.shared.service.createPlaylistService
-import org.listenbrainz.shared.service.createUserService
 import org.listenbrainz.shared.util.Constants.CB_BASE_URL
 import org.listenbrainz.shared.util.Constants.LB_BASE_URL
 import org.listenbrainz.shared.util.Constants.LISTENBRAINZ_API_BASE_URL

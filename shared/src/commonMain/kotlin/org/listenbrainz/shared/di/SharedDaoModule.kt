@@ -16,14 +16,14 @@ import org.listenbrainz.shared.model.dao.PendingListensDao
 
 val sharedDatabaseModule = module {
     single<BrainzPlayerDatabase> {
-        getBrainzPlayerDatabase(get())
+        getBrainzPlayerDatabase()
             .setDriver(BundledSQLiteDriver())
             .addMigrations(Migrations.MIGRATION_1_2,Migrations.MIGRATION_2_3)
             .build()
     }
 
     single<ListensSubmissionDatabase>{
-        getListensSubmissionDatabase(appContext = get())
+        getListensSubmissionDatabase()
             .setDriver(BundledSQLiteDriver())
             .build()
     }
