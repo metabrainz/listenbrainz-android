@@ -55,7 +55,6 @@ import org.listenbrainz.android.viewmodel.AboutViewModel
 import org.listenbrainz.android.viewmodel.AppUpdatesViewModel
 import org.listenbrainz.android.viewmodel.BrainzPlayerViewModel
 import org.listenbrainz.android.viewmodel.DashBoardViewModel
-import org.listenbrainz.android.viewmodel.UserViewModel
 import org.listenbrainz.android.viewmodel.Yim23ViewModel
 import org.listenbrainz.android.viewmodel.YimViewModel
 import org.listenbrainz.shared.di.DEFAULT_DISPATCHER
