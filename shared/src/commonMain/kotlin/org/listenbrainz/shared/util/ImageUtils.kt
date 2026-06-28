@@ -2,20 +2,20 @@ package org.listenbrainz.shared.util
 
 import androidx.compose.ui.graphics.ImageBitmap
 import coil3.Bitmap
+import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import coil3.toBitmap
 
 suspend fun fetchBitmapFromUrl(url: String): ImageBitmap? {
-    val context = getCoilPlatformContext()
     return try {
-        val request = ImageRequest.Builder(context)
+        val request = ImageRequest.Builder(coilPlatformContext)
             .data(url)
             .platformConfig()
             .build()
 
-        val result = SingletonImageLoader.get(context).execute(request)
+        val result = SingletonImageLoader.get(coilPlatformContext).execute(request)
         if (result is SuccessResult) {
             result.image.toBitmap().convertToImageBitmap()
         } else {
@@ -27,6 +27,6 @@ suspend fun fetchBitmapFromUrl(url: String): ImageBitmap? {
     }
 }
 
-expect fun getCoilPlatformContext(): coil3.PlatformContext
+expect val coilPlatformContext: coil3.PlatformContext
 expect fun ImageRequest.Builder.platformConfig(): ImageRequest.Builder
 expect fun Bitmap.convertToImageBitmap(): ImageBitmap

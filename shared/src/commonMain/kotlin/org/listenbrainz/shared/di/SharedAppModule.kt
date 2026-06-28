@@ -16,20 +16,20 @@ import org.listenbrainz.shared.util.AlbumsData
 
 val platformModule = module {
     single<LogSubmitter>{
-        provideLogSubmitter(get(), buildInfo = get<BuildInfo>())
+        provideLogSubmitter(buildInfo = get<BuildInfo>())
     }
 
     single<co.touchlab.kermit.Logger> {
-        provideLogger(get(), buildInfo = get<BuildInfo>())
+        provideLogger(buildInfo = get<BuildInfo>())
     }
 
     single<RemotePlaybackHandler> {
-        provideRemotePlaybackHandler(get(), youTubeApiService = get<YouTubeApiService>())
+        provideRemotePlaybackHandler(youTubeApiService = get<YouTubeApiService>())
     }
     single<SongsData>{
-        provideSongData(get())
+        provideSongData()
     }
     single<AlbumsData>{
-        provideAlbumsData(get())
+        provideAlbumsData()
     }
 }

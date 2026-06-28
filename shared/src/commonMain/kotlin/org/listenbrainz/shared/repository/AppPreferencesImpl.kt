@@ -95,7 +95,6 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
                 if (cached != null) {
                     cached
                 } else {
-                    platformInitDataStoreContext(context)
                     val created = createDataStore(
                         name = DATA_STORE_FILE_NAME,
                         migrations = settingsPlatformDataMigrations(context) + commonMigrations()
@@ -178,7 +177,7 @@ class AppPreferencesImpl(private val context: PlatformContext) : AppPreferences 
         }
 
     override val isNotificationServiceAllowed: Boolean
-        get() = platformIsNotificationServiceAllowed(context)
+        get() = org.listenbrainz.shared.repository.isNotificationServiceAllowed
 
     override val isListeningAllowed: DataStorePreference<Boolean>
         get() = object : DataStorePreference<Boolean> {
