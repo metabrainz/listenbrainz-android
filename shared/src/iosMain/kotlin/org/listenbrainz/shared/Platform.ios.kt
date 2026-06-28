@@ -11,7 +11,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import org.listenbrainz.shared.di.database.ListensSubmissionDatabase
 import org.listenbrainz.shared.model.dao.PendingListensDao
 import org.listenbrainz.shared.repository.AppPreferences
-import org.listenbrainz.shared.repository.PlatformContext
 import org.listenbrainz.shared.util.BuildInfo
 import org.listenbrainz.shared.util.IosFileLogWriter
 import org.listenbrainz.shared.util.IosLogSubmitter
@@ -26,7 +25,6 @@ import org.listenbrainz.shared.repository.remoteplayer.RemotePlaybackHandler
 import org.listenbrainz.shared.service.ListensService
 import org.listenbrainz.shared.service.UserService
 import org.listenbrainz.shared.service.YouTubeApiService
-import platform.posix.err
 import org.listenbrainz.shared.di.database.BrainzPlayerDatabase
 import org.listenbrainz.shared.util.IosSongsData
 import org.listenbrainz.shared.util.SongsData
@@ -37,7 +35,6 @@ import platform.Foundation.NSFileManager
 actual fun platform() = "iOS"
 
 actual fun provideLogger(
-    context: PlatformContext,
     buildInfo: BuildInfo
 ): Logger {
 
@@ -64,18 +61,17 @@ actual fun provideLogger(
     )
 }
 
-actual fun provideLogSubmitter(context: PlatformContext, buildInfo: BuildInfo): LogSubmitter {
+actual fun provideLogSubmitter(buildInfo: BuildInfo): LogSubmitter {
     return IosLogSubmitter(buildInfo)
 }
 
 actual fun provideRemotePlaybackHandler(
-    appContext: PlatformContext,
     youTubeApiService: YouTubeApiService
 ): RemotePlaybackHandler {
     return IosRemotePlaybackHandlerImpl(youTubeApiService)
 }
 
-actual fun getBrainzPlayerDatabase(context: PlatformContext): RoomDatabase.Builder<BrainzPlayerDatabase> {
+actual fun getBrainzPlayerDatabase(): RoomDatabase.Builder<BrainzPlayerDatabase> {
     val brainzPlayerDB = documentDirectory() + "/brainzplayer_database.db"
     return Room.databaseBuilder<BrainzPlayerDatabase>(
         name = brainzPlayerDB
@@ -99,23 +95,22 @@ actual fun provideListensRepositoryImpl(
     appPreferences: AppPreferences,
     userService: UserService,
     pendingListensDao: PendingListensDao,
-    ioDispatcher: CoroutineDispatcher,
-    appContext: PlatformContext
+    ioDispatcher: CoroutineDispatcher
 ): ListensRepository {
-    return IosListensRepositoryImpl(service,appPreferences,userService,pendingListensDao,ioDispatcher,appContext)
+    return IosListensRepositoryImpl(service,appPreferences,userService,pendingListensDao,ioDispatcher)
 }
 
-actual fun getListensSubmissionDatabase(appContext: PlatformContext): RoomDatabase.Builder<ListensSubmissionDatabase> {
+actual fun getListensSubmissionDatabase(): RoomDatabase.Builder<ListensSubmissionDatabase> {
     val listensDB = documentDirectory() + "/listens_scrobble_database.db"
     return Room.databaseBuilder<ListensSubmissionDatabase>(
         name = listensDB
     )
 }
 
-actual fun provideSongData(context: PlatformContext): SongsData {
+actual fun provideSongData(): SongsData {
     return IosSongsData()
 }
 
-actual fun provideAlbumsData(context: PlatformContext): AlbumsData {
+actual fun provideAlbumsData(): AlbumsData {
     return IosAlbumsData()
 }
