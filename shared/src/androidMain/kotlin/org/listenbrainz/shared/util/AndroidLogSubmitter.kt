@@ -6,6 +6,7 @@ import co.touchlab.kermit.Severity
 import co.touchlab.kermit.platformLogWriter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.listenbrainz.shared.applicationContext
 import org.listenbrainz.shared.repository.PlatformContext
 import java.io.BufferedOutputStream
 import java.io.File
@@ -16,7 +17,7 @@ import java.util.zip.ZipOutputStream
 internal const val ANDROID_LOG_DIR_NAME = "logs"
 
 class AndroidLogSubmitter(
-    private val context: PlatformContext,
+    private val context: PlatformContext = applicationContext,
     private val buildConfig: BuildInfo
 ) : LogSubmitter {
     private val sharedLog = platformLogWriter()

@@ -15,15 +15,13 @@ import org.listenbrainz.shared.service.UserService
 import org.listenbrainz.shared.util.Resource
 import org.listenbrainz.shared.util.Utils.parseResponse
 import org.listenbrainz.shared.model.CoverArt
-import org.listenbrainz.shared.repository.PlatformContext
 
 abstract class ListensRepositoryImpl(
     private val service: ListensService,
     private val appPreferences: AppPreferences,
     private val userService: UserService,
     private val pendingListensDao: PendingListensDao,
-    private val ioDispatcher: CoroutineDispatcher,
-    private val appContext: PlatformContext
+    private val ioDispatcher: CoroutineDispatcher
 ) : ListensRepository {
 
     override suspend fun fetchUserListens(
